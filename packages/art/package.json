@@ -10,8 +10,13 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests",
-    "zoo": "tsx scripts/render-zoo.ts"
+    "generate": "tsx ../../tools/scripts/generate-index.ts src/monsters src/scootch/moods",
+    "test": "tsx ../../tools/scripts/generate-index.ts --check src/monsters src/scootch/moods && vitest run --passWithNoTests",
+    "zoo": "tsx scripts/render-zoo.ts",
+    "scootch": "tsx scripts/render-scootch.ts"
+  },
+  "dependencies": {
+    "@scootch/domain": "workspace:*"
   },
   "devDependencies": {
     "@napi-rs/canvas": "catalog:",

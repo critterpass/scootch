@@ -6,6 +6,7 @@ Goal: Scootch, every monster and every sound exist as components other lanes
 drop in. Board: Characters; the card on App flows.
 
 ### 1. Scootch
+- Status: partly done — 79d90b5; stills for every mood, no animation, squeak or Skia backend yet
 - Do: the critter in Skia with its moods (waiting, listening, typing,
   bargaining, pleased, asleep, serious) and the squeak on tap. Reduce Motion
   form for each.
