@@ -1,13 +1,14 @@
 import { FlatList, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import { CARD_LABELS } from '@scootch/art';
-import type { CardData } from '@scootch/domain';
+import type { CardData, CardFinish } from '@scootch/domain';
 import type { Language } from '@scootch/i18n';
 import { spacing } from '@scootch/tokens';
 
 import { Monster } from '../../art/Monster';
 import { useT } from '../../i18n/i18n-provider';
 import { useScreenStyle } from '../../ui/use-screen-style';
+import { FinishPicker } from '../plus/finish-picker';
 import { CardView } from '../reveal/ui/card-view';
 import { Dock, KeepFrame } from '../reveal/ui/keep-frame';
 import { SessionText } from '../session/ui/session-text';
@@ -30,6 +31,10 @@ export interface ZooActions {
   readonly closeCard: () => void;
   readonly nextSort: () => void;
   readonly shareCard: () => void;
+  /** A locked control was tapped: the Plus sheet opens. Unset, a locked control does nothing. */
+  readonly openPlus?: () => void;
+  /** Prints the open card in another finish. Unset, the finishes are not offered. */
+  readonly setFinish?: (finish: CardFinish) => void;
 }
 
 const COLUMNS = 3;
@@ -73,6 +78,14 @@ function OpenCard({ model, actions }: { model: ZooModel; actions: ZooActions }) 
           testID="zoo-card-face"
         />
       </View>
+      {actions.setFinish ? (
+        <FinishPicker
+          worn={model.open.card.finish}
+          plus={model.plus}
+          onChoose={actions.setFinish}
+          onLocked={actions.openPlus ?? (() => undefined)}
+        />
+      ) : null}
     </KeepFrame>
   );
 }
@@ -114,6 +127,7 @@ export function ZooScreen({ model, actions }: { model: ZooModel; actions: ZooAct
                   hint: t('keep.plusOnly.hint'),
                   testID: 'zoo-open-binder',
                   locked: true,
+                  ...(actions.openPlus ? { onPress: actions.openPlus } : {}),
                 }
           }
         />

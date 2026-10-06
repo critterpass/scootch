@@ -1,5 +1,6 @@
 import { viCareAndSettings } from './vi-care-and-settings';
 import type { Catalogue } from './catalogue-types';
+import { viPlus } from './vi-plus';
 
 /**
  * Vietnamese interface strings, written as a Vietnamese app would say them rather than word for
@@ -7,7 +8,6 @@ import type { Catalogue } from './catalogue-types';
  */
 export const vi = {
   'brand.name': 'Scootch',
-  'brand.plus': 'Plus',
 
   'talk.hold': 'Giữ để nói',
   'talk.parkThought': 'Gác lại một ý',
@@ -164,7 +164,6 @@ export const vi = {
 
   'keep.close': 'Đóng',
   'keep.close.hint': 'Quay lại',
-  'keep.plusOnly.hint': 'Thuộc Scootch Plus',
 
   'reveal.skip': 'Bỏ qua',
   'reveal.skip.hint': 'Chuyển sang phần tiếp theo',
@@ -315,4 +314,5 @@ export const vi = {
   'morning.note': '{thing} tới hạn {day}.',
 
   ...viCareAndSettings,
+  ...viPlus,
 } as const satisfies Catalogue;

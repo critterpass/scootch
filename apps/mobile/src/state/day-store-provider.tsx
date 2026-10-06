@@ -32,12 +32,7 @@ import {
   systemClock,
   systemTimers,
 } from '../effects/native-adapters';
-import { createBackup, type Backup } from '../features/backup/backup';
-import { createBackupApi } from '../features/backup/backup-api';
-import { nativeBackupTokens } from '../features/backup/native-token-stores';
-import { deleteEverything, retryServerDelete } from '../features/privacy/data/delete-everything';
-import { exportMyData } from '../features/privacy/data/export-data';
-import { nativeShareDevice } from '../features/share/native-share-device';
+import { revenueCatPurchases } from '../features/plus/revenuecat-port';
 import {
   nativeSharedFiles,
   nativeSharedStore,
@@ -47,10 +42,15 @@ import { createSurfaceSync } from '../features/surfaces/surface-sync';
 import { SurfaceSyncHost } from '../features/surfaces/surface-sync-host';
 import { useLanguage } from '../i18n/i18n-provider';
 
+import { DataToolsContext, createAppDataTools } from './data-tools';
 import { createDayStore, effectSwitches, type DayStore } from './day-store';
 import type { DayEvent, DayState } from './day-types';
 import { lineFor } from './lines';
+import { PlusContext } from './plus-context';
+import { createPlusRuntime, readOfferFacts } from './plus-runtime';
 import { SessionRelaunch } from './session-relaunch';
+
+export { useDataTools } from './data-tools';
 
 /** The day store on the real phone: its database, the API, and the native effects. */
 function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
@@ -78,29 +78,25 @@ function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
     switches: () => effectSwitches(store.getState(), motion.reduced),
     onClock: () => void store.dispatch({ type: 'session', event: { type: 'clock' } }),
   });
-  const repositories = openRepositories(db);
-  // Nothing in this layer knows about purchases: every phone has the free day.
-  const plus = () => false;
   const timeZone = () => getCalendars()[0]?.timeZone ?? 'UTC';
-  const tokens = nativeBackupTokens();
-  const server = createBackupApi(http);
-  const backup = createBackup({ tokens, api: server, repositories, db, clock: systemClock });
-  const data: DataTools = {
-    backup,
-    exportMyData: () =>
-      exportMyData({ repositories, clock: systemClock, device: nativeShareDevice }),
-    deleteEverything: () => deleteEverything({ db, tokens, server }),
-    // A delete the server never heard about is finished first, so nothing is uploaded before it.
-    keepUp: () =>
-      retryServerDelete({ db, tokens, server })
-        .catch(() => undefined)
-        .then(() => backup.maybeUpload())
-        .catch(() => undefined),
-  };
+  const repositories = openRepositories(db);
+  // The store's public SDK key comes from the app's config; with none, nothing can be bought.
+  const plus = createPlusRuntime({
+    db,
+    port: revenueCatPurchases(process.env['EXPO_PUBLIC_REVENUECAT_IOS_KEY']),
+    clock: systemClock,
+    notifications: nativeNotifications,
+    timeZone,
+    voice: () => ({ language: language(), attitude: store.getState().settings.attitude }),
+    offerFacts: () => readOfferFacts(repositories, store.getState()),
+  });
+  // The daily limit follows what the store last said, through the domain's entitlement rules.
+  const unlocked = () => plus.store.getState().unlocked.plus;
+  const data = createAppDataTools({ db, http, repositories });
   const store: DayStore = createDayStore({
     repositories,
     // A finished thing is backed up at once; a failed upload is tried again within the hour.
-    onFinished: () => void backup.afterFinish().catch(() => undefined),
+    onFinished: () => void data.backup.afterFinish().catch(() => undefined),
     clock: systemClock,
     timeZone,
     nextId: randomUUID,
@@ -111,7 +107,7 @@ function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
     },
     runner,
     phoneLanguage: language,
-    plus,
+    plus: unlocked,
   });
   // The widgets, the Live Activity and the control read today from the App Group.
   const surfaces = createSurfaceSync({
@@ -120,26 +116,15 @@ function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
     shared: nativeSharedStore(),
     files: nativeSharedFiles(),
     painter: skiaMonsterPainter,
-    plus,
+    plus: unlocked,
     now: () => systemClock.now(),
     timeZone,
   });
-  return { store, motion, cues, data, surfaces };
-}
-
-/** The person's data beyond today: the backup, the export and deleting everything. */
-export interface DataTools {
-  readonly backup: Backup;
-  readonly exportMyData: () => Promise<unknown>;
-  /** `pending` when the phone is erased and the server has not been reached yet. */
-  readonly deleteEverything: () => Promise<'deleted' | 'pending'>;
-  /** Finishes a delete the server has not heard of, then backs up if an hour has passed. */
-  readonly keepUp: () => Promise<void>;
+  return { store, motion, cues, data, surfaces, plus };
 }
 
 const DayStoreContext = createContext<DayStore | null>(null);
 const CueContext = createContext<(cue: string) => void>(() => undefined);
-const DataToolsContext = createContext<DataTools | null>(null);
 
 /**
  * Makes the day store, rebuilds today from storage, and feeds it the app's comings and goings and
@@ -153,11 +138,19 @@ export function DayStoreProvider({ children }: { readonly children: ReactNode })
   const [app] = useState(() => createAppDayStore(db, () => languageNow.current));
 
   useEffect(() => {
-    const { store, motion, cues, data } = app;
+    const { store, motion, cues, data, plus } = app;
     const send = (event: DayEvent) => void store.dispatch(event).catch(() => undefined);
-    void store
-      .start()
+    // What was last known about Plus is read before today is built, so the daily limit is right
+    // with no connection; the store is asked afterwards and on every return to the app.
+    const entitlement = plus.store.subscribe(() => {
+      if (store.getState().ready) send({ type: 'entitlement_changed' });
+      void plus.syncReminders();
+    });
+    void plus.store
+      .load()
+      .then(() => store.start())
       .then(() => cues.warm())
+      .then(() => void plus.refresh().catch(() => undefined))
       .catch(() => undefined)
       .then(() => data.keepUp());
 
@@ -172,6 +165,7 @@ export function DayStoreProvider({ children }: { readonly children: ReactNode })
     const appState = AppState.addEventListener('change', (next) => {
       if (next === 'active') {
         send({ type: 'app_foregrounded' });
+        void plus.refresh();
         void data.keepUp();
       }
       if (next === 'background') send({ type: 'app_backgrounded' });
@@ -180,6 +174,7 @@ export function DayStoreProvider({ children }: { readonly children: ReactNode })
       if (state.isInternetReachable ?? state.isConnected) send({ type: 'connection_returned' });
     });
     return () => {
+      entitlement();
       reduceMotion.remove();
       appState.remove();
       network.remove();
@@ -200,22 +195,17 @@ export function DayStoreProvider({ children }: { readonly children: ReactNode })
 
   return (
     <DayStoreContext.Provider value={app.store}>
-      <CueContext.Provider value={playCue}>
-        <DataToolsContext.Provider value={app.data}>
-          <SessionRelaunch store={app.store} />
-          <SurfaceSyncHost store={app.store} sync={app.surfaces} />
-          {children}
-        </DataToolsContext.Provider>
-      </CueContext.Provider>
+      <PlusContext.Provider value={app.plus}>
+        <CueContext.Provider value={playCue}>
+          <DataToolsContext.Provider value={app.data}>
+            <SessionRelaunch store={app.store} />
+            <SurfaceSyncHost store={app.store} sync={app.surfaces} />
+            {children}
+          </DataToolsContext.Provider>
+        </CueContext.Provider>
+      </PlusContext.Provider>
     </DayStoreContext.Provider>
   );
-}
-
-/** The backup, the export and deleting everything, on the real phone. */
-export function useDataTools(): DataTools {
-  const tools = useContext(DataToolsContext);
-  if (!tools) throw new Error('The data tools are read outside their provider');
-  return tools;
 }
 
 /** Plays one named sound cue with its haptics, obeying the person's sound and haptics switches. */
@@ -238,7 +228,7 @@ function useDayState(): DayState {
 export function useToday() {
   const state = useDayState();
   const { ready, localDate, today, morning, monster, monsterPending } = state;
-  const { taskCall, notice, heardDeadlines, settings, pick, energyNeeded } = state;
+  const { taskCall, notice, heardDeadlines, settings, pick, energyNeeded, oneMore } = state;
   const { modelDown, reminderAt } = state;
   return useMemo(
     () => ({
@@ -254,6 +244,7 @@ export function useToday() {
       settings,
       pick,
       energyNeeded,
+      oneMore,
       modelDown,
       reminderAt,
     }),
@@ -270,6 +261,7 @@ export function useToday() {
       settings,
       pick,
       energyNeeded,
+      oneMore,
       modelDown,
       reminderAt,
     ],

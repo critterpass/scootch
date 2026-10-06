@@ -61,6 +61,10 @@ export type DayEvent =
       readonly resolution: 'keep' | 'discard';
     }
   | { readonly type: 'done_for_today' }
+  /** "One more", on a finished day with a start still open: the ask comes back. */
+  | { readonly type: 'one_more_asked' }
+  /** The store reported a change to Plus: today is worked out again. */
+  | { readonly type: 'entitlement_changed' }
   /** "It's fine, be funny" on a serious task. It never does anything on a crisis day. */
   | { readonly type: 'be_funny_asked' }
   /** "Not today" on a serious task: it waits in the drawer and the day is quietly over. */
@@ -148,6 +152,8 @@ export interface DayState {
   readonly pick: PickStep;
   /** The battery has not been asked about today: it is asked before the first pick. */
   readonly energyNeeded: boolean;
+  /** Another thing was asked for on a finished day, and a start is still open for it. */
+  readonly oneMore: boolean;
   readonly session: SessionState | null;
   readonly monster: MonsterRow | null;
   /** The task has no monster yet because the server has not answered for it. */

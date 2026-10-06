@@ -29,7 +29,7 @@ const LANGUAGE_LABELS = { en: 'English', vi: 'Tiếng Việt' } as const;
 
 /** `8:30` for `08:30`, as the design writes the quiet hours. */
 export function shortClock(time: ClockTime): string {
-  return time.replace(/^0(\d)/, '$1');
+  return time.replace(/^0(?=\d)/, '');
 }
 
 export interface SettingsPageProps {
