@@ -14,6 +14,7 @@ Session.
 - Do: days, tasks, drawer items, monsters, sessions, settings. The phone is
   the source of truth.
 - Test: a day rolls over at the user's local morning, not at midnight UTC.
+- Status: partly done — f29e5c7; pure logic and tests in packages/domain, no screens or storage yet
 
 ### 2. First launch
 - Do: hello, attitude, permissions asked in character before the system
@@ -38,6 +39,7 @@ Session.
   the one thing on its day; the drawer opens only by a deliberate pull; swap
   in; undated items fade after two weeks.
 - Test: return dates, fading, and that the drawer never opens by itself.
+- Status: partly done — f29e5c7; pure logic and tests in packages/domain, no screens or storage yet
 
 ### 6. Bargaining and shrinking
 - Do: an excuse gets a smaller counter-offer; "too big" shrinks the task and
@@ -56,6 +58,7 @@ Session.
   unremarked. Runs fully offline from the line pack.
 - Test: the session state machine, including background, kill and relaunch
   mid-session.
+- Status: partly done — f29e5c7; pure logic and tests in packages/domain, no screens or storage yet
 
 ### 9. Finishing
 - Do: hold to finish, tap twice, say "done"; the same reward either way;

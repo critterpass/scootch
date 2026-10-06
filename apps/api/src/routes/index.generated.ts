@@ -2,4 +2,5 @@
 export * from './devices';
 export * from './health';
 export * from './screen-input';
+export * from './task-create';
 export * from './telegram-webhook';
