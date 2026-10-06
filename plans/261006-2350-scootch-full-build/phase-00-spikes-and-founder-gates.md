@@ -62,9 +62,10 @@ no product code.
 ## Design
 
 ### 7. Export the boards
-- Status: partly done, 7 Oct 2026. All eleven boards and their three scripts
-  are in `design/`, from the founder's archive. No renders or `screens.json`
-  yet.
+- Status: done — 6c78d8d. 265 screens in eleven boards are listed in
+  `design/screens.json`; the images come from the `design renders` workflow
+  (`tools/scripts/fetch-design-renders.sh`). The screens have not yet been
+  checked against the product brief's list by eye.
 - Do: render one PNG per screen to `design/renders/` with Playwright on a
   GitHub runner, and write `design/screens.json` (board, screen label, render
   path).

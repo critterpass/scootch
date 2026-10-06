@@ -1,0 +1,57 @@
+name: design renders
+
+# Renders one image per designed screen and keeps them as a single zip on the `design-renders` release.
+# The images never enter the repository; tools/scripts/fetch-design-renders.sh downloads them.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - design/*.dc.html
+      - design/*.js
+      - tools/scripts/render-design-screens.ts
+      - .github/workflows/design-renders.yml
+
+concurrency:
+  group: design-renders
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with: { node-version: 24, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: Install the browser
+        run: pnpm --filter @scootch/scripts exec playwright install --with-deps --only-shell chromium
+
+      # Exits with an error when a board fails to render or has no screens, so nothing is uploaded.
+      - name: Render every screen
+        run: pnpm exec tsx tools/scripts/render-design-screens.ts
+
+      - name: Zip the images
+        run: |
+          cd design/renders
+          zip -qr "$RUNNER_TEMP/design-renders.zip" .
+          ls -lh "$RUNNER_TEMP/design-renders.zip"
+
+      - name: Replace the release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          notes="One image per designed screen, rendered from design/ at $GITHUB_SHA. Fetch with tools/scripts/fetch-design-renders.sh."
+          if gh release view design-renders --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            gh release edit design-renders --repo "$GITHUB_REPOSITORY" --notes "$notes"
+          else
+            gh release create design-renders --repo "$GITHUB_REPOSITORY" \
+              --title "Design renders" --notes "$notes" --latest=false
+          fi
+          gh release upload design-renders "$RUNNER_TEMP/design-renders.zip" \
+            --repo "$GITHUB_REPOSITORY" --clobber
