@@ -55,6 +55,55 @@ export const sharedCard = {
   },
 };
 
+/** A table invite as a stranger may see it: first names and one-word labels, or neither. */
+export const openInvite = {
+  state: 'open',
+  hostName: 'Priya',
+  closedAt: null,
+  seats: [
+    { name: 'Priya', label: 'admin', workMode: 'email' },
+    { name: 'Dana', label: 'writing', workMode: 'writing' },
+    // This person hides both their name and their label.
+    { name: null, label: null, workMode: null },
+  ],
+};
+
+export const closedInvite = {
+  ...openInvite,
+  state: 'closed',
+  closedAt: '2026-10-06T15:20:00.000Z',
+};
+
+/** A waiting haunt, shaped like the API's own view of one, without the sender's account id. */
+export const waitingHaunt = {
+  id: 'abcdefgh234567ab',
+  bodyType: 'receipt',
+  seed: '3f9a2c1e77b04d5a',
+  dare: 'two_minutes',
+  sentAt: '2026-10-06T08:00:00.000Z',
+  from: { displayName: 'Priya' },
+  state: 'waiting',
+};
+
+export const sharedRecord = {
+  id: 'bin-bags',
+  language: 'en',
+  sharedAt: '2026-10-12T18:00:00.000Z',
+  sharerName: 'Priya',
+  title: 'Molar and the Bin Bags',
+  line: 'Seven finished days, seven instruments.',
+  weekStart: '2026-10-05',
+  tracks: [
+    { day: '2026-10-05', name: 'Unread, the Ever-Bold', bodyType: 'envelope', seed: 'a1' },
+    { day: '2026-10-06', name: 'Molar, Keeper of Thursday', bodyType: 'tooth', seed: 'a2' },
+    { day: '2026-10-07', name: 'Ringaling', bodyType: 'phone', seed: 'a3' },
+    { day: '2026-10-08', name: 'Baron von Grout', bodyType: 'slime', seed: 'a4' },
+    { day: '2026-10-09', name: 'The Receipt Hydra', bodyType: 'receipt', seed: 'a5' },
+    { day: '2026-10-10', name: 'Thirsty Fern', bodyType: 'weed', seed: 'a6' },
+    { day: '2026-10-11', name: 'The Snooze Lord', bodyType: 'kettle', seed: 'a7' },
+  ],
+};
+
 export const notFound = {
   error: { code: 'not_found', message: 'No such shared monster', retryable: false },
 };

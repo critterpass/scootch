@@ -1,7 +1,17 @@
 import { test, type Page } from '@playwright/test';
 
 import { preLaunchUrl } from './playwright.config';
-import { answerApi, caughtMonster, notFound, sharedCard, wildMonster } from './shared-fixtures';
+import {
+  answerApi,
+  caughtMonster,
+  closedInvite,
+  notFound,
+  openInvite,
+  sharedCard,
+  sharedRecord,
+  waitingHaunt,
+  wildMonster,
+} from './shared-fixtures';
 
 // Sheets of the home page, the maker's states, the pages of shared things and the plain pages, for looking at beside the design. Runs only
 // when CAPTURE_DIR names a folder to write into.
@@ -82,6 +92,32 @@ for (const size of ['desktop', 'phone'] as const) {
   sheet('share-story', size, async (page) => {
     await answerApi(page, 'shared-story/*', { ...sharedCard, kind: 'story' });
     await page.goto('/s/priya-tue');
+  });
+  sheet('table-invite', size, async (page) => {
+    await answerApi(page, 'table-invite/*', openInvite);
+    await page.goto('/t/abcdefgh23');
+  });
+  sheet('table-invite-closed', size, async (page) => {
+    await answerApi(page, 'table-invite/*', closedInvite);
+    await page.goto('/t/abcdefgh23');
+  });
+  sheet('haunt', size, async (page) => {
+    await answerApi(page, 'haunt-page/*', waitingHaunt);
+    await page.goto('/h/abcdefgh234567ab');
+  });
+  sheet('haunt-shooed', size, async (page) => {
+    await answerApi(page, 'haunt-page/*', waitingHaunt);
+    await answerApi(page, 'haunt-page/*/shoo', { shooed: true });
+    await page.goto('/h/abcdefgh234567ab');
+    await page.locator('[data-shoo]').click();
+  });
+  sheet('record', size, async (page) => {
+    await answerApi(page, 'shared-record/*', sharedRecord);
+    await page.goto('/r/bin-bags');
+  });
+  sheet('record-vi', size, async (page) => {
+    await answerApi(page, 'shared-record/*', sharedRecord);
+    await page.goto('/vi/r/bin-bags');
   });
   for (const plain of ['privacy', 'terms', 'support', 'helplines', 'what-scootch-is', 'press']) {
     sheet(plain, size, (page) => page.goto(`/${plain}`).then(() => undefined));

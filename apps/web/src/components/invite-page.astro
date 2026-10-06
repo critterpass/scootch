@@ -1,0 +1,97 @@
+---
+import type { Language } from '@scootch/i18n';
+
+import { appStoreUrl, localPath, preLaunch, togetherFor } from '../copy';
+import SiteLayout from '../layouts/site-layout.astro';
+import '../styles/together.css';
+
+import AppStoreBadge from './app-store-badge.astro';
+import NotFound from './not-found.astro';
+
+interface Props {
+  language: Language;
+}
+
+// A table invite. It shows a stranger what the table shows everyone seated at it: first names and
+// one-word labels, never a task. The seat itself is taken in the app.
+const { language } = Astro.props;
+const copy = togetherFor(language).invite;
+---
+
+<SiteLayout language={language} path="/t" title={copy.title} description={copy.description} social={false}>
+  <section
+    class="wrap shared-page"
+    data-invite-page
+    data-state="loading"
+    data-language={language}
+    data-lines={JSON.stringify(copy)}
+  >
+    <p class="lede" data-show="loading" aria-live="polite">{copy.loading}</p>
+
+    <div class="shared-grid invite" data-show="open closed" hidden>
+      <ul class="seats" aria-label={copy.seatsLabel} data-seats></ul>
+      <div>
+        <p class="eyebrow" data-eyebrow></p>
+        <h1 tabindex="-1" data-headline></h1>
+
+        <div data-show="open" hidden>
+          <p class="lede phone-only">{copy.body}</p>
+          <p class="lede desk-only">{copy.bodyDesk}</p>
+          {
+            preLaunch ? (
+              <AppStoreBadge language={language} />
+            ) : (
+              <>
+                <div class="actions phone-only">
+                  <a class="button button-ink" href={appStoreUrl} data-sit-down>
+                    {copy.sitDown}
+                  </a>
+                </div>
+                <p class="small phone-only">{copy.note}</p>
+                <div class="desk-hand-off desk-only">
+                  <div>
+                    <p class="desk-title">{copy.deskTitle}</p>
+                    <p class="small">{copy.deskNote}</p>
+                  </div>
+                  <AppStoreBadge language={language} />
+                </div>
+              </>
+            )
+          }
+        </div>
+
+        <div data-show="closed" hidden>
+          <p class="lede" data-closed-body></p>
+          <div class="actions">
+            {
+              preLaunch ? (
+                <AppStoreBadge language={language} />
+              ) : (
+                <a class="button button-ink" href={appStoreUrl}>
+                  {copy.getScootch}
+                </a>
+              )
+            }
+            <a class="button button-quiet" href={localPath(language, '/')}>{copy.makeMeanwhile}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div data-show="missing" hidden>
+      <NotFound language={language} focusable />
+    </div>
+    <div data-show="offline" hidden>
+      <h1 tabindex="-1">{copy.offlineTitle}</h1>
+      <p class="lede">{copy.offlineBody}</p>
+    </div>
+  </section>
+</SiteLayout>
+
+<script>
+  import { startInvitePage } from '../scripts/invite-page';
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-invite-page]')) {
+    void startInvitePage(root);
+  }
+</script>
