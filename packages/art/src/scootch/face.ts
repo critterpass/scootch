@@ -58,6 +58,18 @@ export function drawEye(
     );
     return;
   }
+  if (e.eye === 'squeeze') {
+    pen.line(
+      [
+        [x + side * r * 0.6, y - r * 0.5],
+        [x - side * r * 0.5, y],
+        [x + side * r * 0.6, y + r * 0.5],
+      ],
+      3.6,
+      ink,
+    );
+    return;
+  }
   const ew = r * 0.9;
   const eh = r * 1.08 * Math.max(1, e.open);
   const white = ell(x, y, ew, eh, 18);
@@ -218,6 +230,22 @@ export function drawMouth(pen: Pen, e: Expression, x: number, y: number): void {
         2.8,
         ink,
       );
+      break;
+    case 'cat':
+      pen.line(
+        [
+          [x - w * 0.85, y - 2],
+          [x - w * 0.45, y + 2.6],
+          [x, y - 0.2],
+          [x + w * 0.45, y + 2.6],
+          [x + w * 0.85, y - 2],
+        ],
+        2.6,
+        ink,
+      );
+      break;
+    case 'wail':
+      pen.fill(ell(x, y + 3, w * 0.7, w * 0.58, 12, 0.22), SCOOTCH.mouth, 0.2);
       break;
   }
 }

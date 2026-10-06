@@ -13,6 +13,7 @@ drop in. Board: Characters; the card on App flows.
 - Done when: every mood renders in the registry sheet beside its render.
 
 ### 2. Work modes
+- Status: partly done — e02ea2a; stills for thirty modes, no loops yet
 - Owns: `packages/art/src/work-modes/` (one file per mode).
 - Do: all 30 modes, each with prop, accessory and loop.
 - Done when: the 30 appear in a sheet; a missing mode falls back to a plain

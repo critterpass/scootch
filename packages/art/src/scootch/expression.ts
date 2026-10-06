@@ -2,8 +2,9 @@ import type { Attitude } from '@scootch/domain';
 
 export type Pair = readonly [number, number];
 
-export type EyeShape = 'round' | 'happy' | 'closed' | 'sparkle';
-export type MouthShape = 'smile' | 'flat' | 'side' | 'o' | 'grin' | 'wobble' | 'pout' | 'tongue';
+export type EyeShape = 'round' | 'happy' | 'closed' | 'sparkle' | 'squeeze';
+export type MouthShape =
+  'smile' | 'flat' | 'side' | 'o' | 'grin' | 'wobble' | 'pout' | 'tongue' | 'cat' | 'wail';
 export type Effect =
   'dots' | 'waves' | 'think' | 'laptop' | 'sweat' | 'stars' | 'confetti' | 'zzz' | null;
 
@@ -102,6 +103,11 @@ export interface ScootchMotion {
   readonly gazeY?: number;
   /** Where the mood's own loop stands, 0 to 1: the jump, the dots, the drifting letters. */
   readonly beat?: number;
+  /**
+   * The named values of the work mode's own loop (the fold of the shirt, the swing of the
+   * hammer). Each mode lists its names and rest values; a name left out stays at rest.
+   */
+  readonly work?: Readonly<Record<string, number>>;
 }
 
 const clamp = (v: number, low: number, high: number): number => Math.min(high, Math.max(low, v));
