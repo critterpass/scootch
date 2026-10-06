@@ -1,0 +1,1 @@
+../../../targets/_shared/SessionActivityAttributes.swift

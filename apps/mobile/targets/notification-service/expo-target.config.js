@@ -8,7 +8,8 @@ module.exports = (config) => ({
   type: 'notification-service',
   name: 'ScootchNotificationService',
   bundleIdentifier: '.notification-service',
-  deploymentTarget: '16.4',
+  // One minimum iOS version for the app and every target: IOS_DEPLOYMENT_TARGET in app.config.ts.
+  deploymentTarget: config.ios.deploymentTarget,
   entitlements: {
     'com.apple.security.application-groups':
       config.ios.entitlements['com.apple.security.application-groups'],

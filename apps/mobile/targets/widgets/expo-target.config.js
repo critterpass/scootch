@@ -10,7 +10,8 @@ module.exports = (config) => ({
   name: 'ScootchWidgets',
   displayName: 'Scootch',
   bundleIdentifier: '.widgets',
-  deploymentTarget: '16.4',
+  // One minimum iOS version for the app and every target: IOS_DEPLOYMENT_TARGET in app.config.ts.
+  deploymentTarget: config.ios.deploymentTarget,
   entitlements: {
     'com.apple.security.application-groups':
       config.ios.entitlements['com.apple.security.application-groups'],

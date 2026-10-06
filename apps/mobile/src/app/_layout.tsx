@@ -1,16 +1,30 @@
+import * as Sentry from '@sentry/react-native';
+import { setAudioModeAsync } from 'expo-audio';
 import { Slot } from 'expo-router';
 import { SQLiteProvider } from 'expo-sqlite';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { DATABASE_NAME, prepareDatabase } from '../db/database';
 import { JsCommitMarker } from '../js-commit-marker';
 
+// Crash reporting starts only when a DSN is set; with none, nothing is initialised or sent.
+const sentryDsn = process.env['EXPO_PUBLIC_SENTRY_DSN'];
+if (sentryDsn) Sentry.init({ dsn: sentryDsn });
+
+// Sound cues play alongside the user's own music and stay silent with the ringer switch off.
+void setAudioModeAsync({ playsInSilentMode: false, interruptionMode: 'mixWithOthers' }).catch(
+  () => undefined,
+);
+
 // The phone's database is the source of truth, so it is open and migrated before any screen
-// renders. One screen: no tabs, no stack header.
+// renders. One screen: no tabs, no stack header. Gestures need their root view above everything.
 export default function RootLayout() {
   return (
-    <SQLiteProvider databaseName={DATABASE_NAME} onInit={prepareDatabase}>
-      <Slot />
-      <JsCommitMarker />
-    </SQLiteProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SQLiteProvider databaseName={DATABASE_NAME} onInit={prepareDatabase}>
+        <Slot />
+        <JsCommitMarker />
+      </SQLiteProvider>
+    </GestureHandlerRootView>
   );
 }
