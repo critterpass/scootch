@@ -6,14 +6,14 @@ Goal: Scootch, every monster and every sound exist as components other lanes
 drop in. Board: Characters; the card on App flows.
 
 ### 1. Scootch
-- Status: partly done — 79d90b5; stills for every mood, no animation, squeak or Skia backend yet; Skia renderer and idle in the app — 93448c2, unverified on a device
+- Status: partly done — 79d90b5; stills for every mood, no animation, squeak or Skia backend yet; Skia renderer and idle in the app — 93448c2, unverified on a device; motion loops built — fd6174c, not yet seen on a device
 - Do: the critter in Skia with its moods (waiting, listening, typing,
   bargaining, pleased, asleep, serious) and the squeak on tap. Reduce Motion
   form for each.
 - Done when: every mood renders in the registry sheet beside its render.
 
 ### 2. Work modes
-- Status: partly done — e02ea2a; stills for thirty modes, no loops yet
+- Status: partly done — e02ea2a; stills for thirty modes, no loops yet; motion loops built — fd6174c, not yet seen on a device
 - Owns: `packages/art/src/work-modes/` (one file per mode).
 - Do: all 30 modes, each with prop, accessory and loop.
 - Done when: the 30 appear in a sheet; a missing mode falls back to a plain
@@ -30,6 +30,7 @@ drop in. Board: Characters; the card on App flows.
 - Done when: the zoo sheet matches the board.
 
 ### 4. Shrinking
+- Status: motion loops built — fd6174c, not yet seen on a device
 - Do: the monster visibly shrinks with each "too big", and reacts.
 - Done when: three shrink steps are captured.
 
