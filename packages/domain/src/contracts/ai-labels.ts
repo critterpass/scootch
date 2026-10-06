@@ -37,10 +37,15 @@ export type ScreenInputRequest = z.infer<typeof screenInputRequestSchema>;
 
 /**
  * A timeout or an error never reaches the phone as `pass`: it arrives as
- * `serious` with `answeredBy: 'default'`.
+ * `serious` with `answeredBy: 'default'`. Nor does a `pass` only the fallback
+ * model gave: it arrives as `serious` with `answeredBy: 'fallback'`. Both carry
+ * `reason: 'unscreened'`: nobody trusted has judged the text, so the phone
+ * treats it as it does offline (plain company, no joke) and asks again later.
+ * Any answer not from `jev` may be asked again once Jev is back.
  */
 export const screenInputResponseSchema = decisionMetaSchema.extend({
   verdict: screenVerdictSchema,
+  reason: z.enum(['unscreened']).optional(),
 });
 export type ScreenInputResponse = z.infer<typeof screenInputResponseSchema>;
 

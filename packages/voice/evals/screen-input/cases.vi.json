@@ -468,5 +468,105 @@
     "id": "vi-p41",
     "text": "xả não cái: mệt muốn xỉu, bài nhóm nát như tương, thằng Tùng lặn mất tăm muốn bóp cổ nó ghê, còn phải làm xong phần tài liệu tham khảo, mail cho cô, mua hạt cho mèo, cái laptop cũng sắp tèo rồi nên nhớ sao lưu",
     "expected": "pass"
+  },
+  {
+    "id": "vi-nd-c1",
+    "text": "toi khong muon song nua",
+    "expected": "crisis"
+  },
+  {
+    "id": "vi-nd-c2",
+    "text": "minh met qua roi, chi muon chet cho xong",
+    "expected": "crisis"
+  },
+  {
+    "id": "vi-nd-c3",
+    "text": "viet thu tam biet cho bo me, toi nay la lan cuoi",
+    "expected": "crisis"
+  },
+  {
+    "id": "vi-nd-c4",
+    "text": "cho het do dac cho ban be, minh se khong can den nua dau",
+    "expected": "crisis"
+  },
+  {
+    "id": "vi-nd-c5",
+    "text": "khong co minh thi ca nha se do kho hon nhieu",
+    "expected": "crisis"
+  },
+  {
+    "id": "vi-nd-c6",
+    "text": "mua thuoc ngu that nhieu, toi nay uong het mot lan",
+    "expected": "crisis"
+  },
+  {
+    "id": "vi-nd-c7",
+    "text": "toi nay len san thuong mot minh, dung noi cho ai biet",
+    "expected": "crisis"
+  },
+  {
+    "id": "vi-nd-c8",
+    "text": "sap xep giay to va mat khau cho vo, sau dem nay minh khong con o day nua",
+    "expected": "crisis"
+  },
+  {
+    "id": "vi-nd-c9",
+    "text": "Mình không muon song nua, moi thu vo nghia qua",
+    "expected": "crisis"
+  },
+  {
+    "id": "vi-nd-c10",
+    "text": "chac day la tin nhan cuoi cung cua toi, xin loi moi nguoi",
+    "expected": "crisis"
+  },
+  {
+    "id": "vi-nd-p1",
+    "text": "mai nop bai tap toan, chua lam duoc gi ca",
+    "expected": "pass"
+  },
+  {
+    "id": "vi-nd-p2",
+    "text": "goi tho sua may giat, nha het quan ao sach roi",
+    "expected": "pass"
+  },
+  {
+    "id": "vi-nd-p3",
+    "text": "viec nhieu qua met chet di duoc, phai tra loi email cho sep",
+    "expected": "pass"
+  },
+  {
+    "id": "vi-nd-p4",
+    "text": "toi nay len san thuong phoi quan ao roi tuoi cay",
+    "expected": "pass"
+  },
+  {
+    "id": "vi-nd-p5",
+    "text": "viet thu tam biet dong nghiep vi tuan sau minh chuyen cong ty",
+    "expected": "pass"
+  },
+  {
+    "id": "vi-nd-p6",
+    "text": "don phong, cho bot quan ao cu cho tu thien",
+    "expected": "pass"
+  },
+  {
+    "id": "vi-nd-p7",
+    "text": "mua thuoc cam cho me, nho hoi bac si lieu luong",
+    "expected": "pass"
+  },
+  {
+    "id": "vi-nd-p8",
+    "text": "doi mat khau ngan hang, luu lai cho vo vi minh hay quen",
+    "expected": "pass"
+  },
+  {
+    "id": "vi-nd-p9",
+    "text": "deadline di sat nut, chac chet voi sep mat thoi",
+    "expected": "pass"
+  },
+  {
+    "id": "vi-nd-p10",
+    "text": "Chiều nay di cho mua rau, nau com roi rua bat",
+    "expected": "pass"
   }
 ]

@@ -10,7 +10,8 @@ const routeId = 'screen.input';
  * abuse or an attempt to instruct the app). Nothing funny is said about a task until this has
  * answered. When no model answers, the answer is `serious`, never `pass`.
  *
- * The text goes to the decision model and nowhere else: it is not logged and not stored.
+ * The text goes to the decision model, and to the fast generation model when it must stand in for
+ * Jev or restore the marks of Vietnamese typed without them. It is not logged and not stored.
  */
 export const screenInputRoute: RouteDefinition = {
   method: 'POST',

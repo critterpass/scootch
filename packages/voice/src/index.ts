@@ -3,6 +3,7 @@ export * from './check';
 export * from './context-words';
 export * from './grounding';
 export * from './guide';
+export * from './line-rules';
 export * from './offline';
 export * from './offline/namer';
 export * from './task-lines';

@@ -6,7 +6,7 @@ import {
   type TaskCreateLinesResponse,
   type TaskCreatePackResponse,
 } from '@scootch/domain';
-import { checkLine, offlineMonsterName, type LineKind } from '@scootch/voice';
+import { offlineMonsterName, type LineKind } from '@scootch/voice';
 
 import { ApiError } from '../../errors';
 import { generate } from '../deepseek';
@@ -14,8 +14,9 @@ import { generate } from '../deepseek';
 import { record, type TaskCreateContext, type VoiceCheckSummary } from './context';
 import type { ContinuationPayload } from './continuation';
 import { writerSystem } from './line-briefs';
-import { rewritePrompt, taskPrompt } from './prompt';
+import { rewritePrompt, taskPrompt, treatPrompt } from './prompt';
 import {
+  checkWritten,
   failuresIn,
   listAt,
   nameFields,
@@ -25,6 +26,7 @@ import {
   schemaFor,
   slotsOf,
   textsFrom,
+  tidied,
   type Field,
 } from './voice-check';
 
@@ -62,6 +64,8 @@ async function writeChecked(
     readonly parts: readonly (readonly Field[])[];
     readonly monsterName: string | null;
     readonly maxTokens: number;
+    /** The treat the treat line will be filled with, when it is known before writing. */
+    readonly treat?: string | undefined;
   },
 ): Promise<Written> {
   const config = { apiKey: context.env.DEEPSEEK_API_KEY };
@@ -90,12 +94,18 @@ async function writeChecked(
             seed + index,
             fields.map(({ key }) => key),
           ),
-          prompt: [taskPrompt(oneThing), ...named].join('\n\n'),
+          prompt: [
+            taskPrompt(oneThing),
+            ...named,
+            ...(job.treat !== undefined && fields.some(({ key }) => key === 'treatHandOver')
+              ? [treatPrompt(language, job.treat)]
+              : []),
+          ].join('\n\n'),
           tool: {
             name: `${job.tool}${job.parts.length > 1 ? `_${index + 1}` : ''}`,
             description: 'Return what is asked for about the one thing.',
           },
-          schema: schemaFor(fields),
+          schema: schemaFor(fields, language),
           maxTokens: job.maxTokens,
         });
         await record(context, generated);
@@ -111,8 +121,10 @@ async function writeChecked(
     }),
   );
   const texts = new Map(answers.flatMap((answer) => [...answer]));
+  for (const { slot, kind } of slots)
+    texts.set(slot, tidied(texts.get(slot) ?? '', kind, attitude));
 
-  let failures = failuresIn(slots, texts, language, attitude);
+  let failures = failuresIn(slots, texts, language, attitude, job.treat);
   if (failures.length === slots.filter(({ optional }) => !optional).length) {
     for (const slot of slots) texts.set(slot.slot, offline(slot));
     return { texts, voice: { attempts: 1, replaced: 0, source: 'offline' } };
@@ -156,14 +168,15 @@ async function writeChecked(
       await record(context, rewritten);
       const accepted = new Map<string, string>();
       for (const { slot, kind } of asked) {
-        const text = (rewritten.output[slot] ?? '').trim();
-        if (checkLine({ text, kind, language, attitude }).ok) accepted.set(slot, text);
+        const text = tidied(rewritten.output[slot] ?? '', kind, attitude);
+        if (checkWritten({ text, kind, language, attitude }, job.treat).ok)
+          accepted.set(slot, text);
       }
       // A new name is used only with the lines written for it: all of them, or none.
       if (!nameFailed || accepted.size === asked.length) {
         for (const [slot, text] of accepted) texts.set(slot, text);
       }
-      failures = failuresIn(slots, texts, language, attitude);
+      failures = failuresIn(slots, texts, language, attitude, job.treat);
     } catch (error) {
       console.warn('task lines not rewritten', {
         requestId: context.requestId,
@@ -222,6 +235,7 @@ export async function writePack(
     parts: packFields(payload.attitude),
     monsterName: payload.monsterName,
     maxTokens: 1000,
+    treat,
   });
   const at = (slot: string) => texts.get(`lines.${slot}`) ?? '';
   const response = taskCreatePackResponseSchema.parse({

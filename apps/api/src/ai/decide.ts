@@ -6,10 +6,12 @@ import { recordAiUsage } from '../ledger';
 import { generate } from './deepseek';
 import {
   askJev,
+  jevTimeoutMs,
   JevUnavailable,
   optionsOf,
   type ChoiceAnswer,
   type ChoiceQuestion,
+  type JevFailure,
   type ModelAnswer,
 } from './jev';
 
@@ -44,6 +46,45 @@ const fallbackSystem = [
   'Call the tool with a probability from 0 to 1 for every option; they must add up to 1.',
   'Give an option real weight whenever the text could plausibly mean it.',
 ].join('\n');
+
+/**
+ * Failures that say nothing about the next attempt: a dropped connection, a server error, an
+ * unreadable answer. A timeout has spent the budget, and a rate limit or an overload will refuse
+ * again, so those go straight to the fallback.
+ */
+const worthAnotherAttempt: ReadonlySet<JevFailure> = new Set([
+  'transport_error',
+  'provider_error',
+  'invalid_response',
+]);
+
+/** A second attempt is made only with this much of Jev's budget left: above its usual answer time. */
+export const jevRetryNeedsMs = 400;
+
+/**
+ * Jev, asked at most twice inside its one time budget. Since only Jev can clear a text, a failure
+ * that came back quickly is worth one more attempt with the time left over; the caller never
+ * waits longer for Jev than the budget it already had.
+ */
+async function askJevInBudget<Option extends string>(
+  context: DecideContext,
+  text: string,
+  question: ChoiceQuestion<Option>,
+): Promise<ModelAnswer<ChoiceAnswer<Option>>> {
+  const config = {
+    apiKey: context.env.TYPESAFE_API_KEY,
+    ...(context.fetch ? { fetch: context.fetch } : {}),
+  };
+  const started = Date.now();
+  try {
+    return await askJev(config, text, question);
+  } catch (error) {
+    if (!(error instanceof JevUnavailable) || !worthAnotherAttempt.has(error.reason)) throw error;
+    const left = jevTimeoutMs - (Date.now() - started);
+    if (left < jevRetryNeedsMs) throw error;
+    return await askJev({ ...config, timeoutMs: left }, text, question);
+  }
+}
 
 /** The same question for the fast tier, answered as a probability per option. */
 async function askFallback<Option extends string>(
@@ -91,9 +132,9 @@ async function askFallback<Option extends string>(
 }
 
 /**
- * Answers one typed question about one text. Jev answers; when it times out, is rate limited or
- * overloaded, cannot be reached or gives an unreadable answer, the fast generation tier answers
- * the same question in the same shape. When neither answers, this throws and the caller resolves
+ * Answers one typed question about one text. Jev answers, asked once more inside its budget when
+ * it failed quickly; when it times out, is rate limited or overloaded, cannot be reached or gives
+ * an unreadable answer, the fast generation tier answers the same question in the same shape. When neither answers, this throws and the caller resolves
  * to its quiet default.
  *
  * Each answered call adds one row to the cost ledger naming the model that answered. Nothing here
@@ -107,8 +148,8 @@ export async function decide<Option extends string>(
   let answeredBy: Decision<Option>['answeredBy'] = 'jev';
   let result: ModelAnswer<ChoiceAnswer<Option>>;
   try {
-    result = await askJev(
-      { apiKey: context.env.TYPESAFE_API_KEY, ...(context.fetch ? { fetch: context.fetch } : {}) },
+    result = await askJevInBudget(
+      context,
       text,
       choiceQuestion as unknown as ChoiceQuestion<Option>,
     );
