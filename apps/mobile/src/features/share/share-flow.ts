@@ -2,7 +2,19 @@ import type { CardLanguage } from '@scootch/art';
 import type { CardData, TaskRow } from '@scootch/domain';
 import { encodeWav, type Stereo } from '@scootch/sound';
 
+import type { CardShareRequest, ShareApi } from '../../api/share-api';
+import { refusalOf } from '../../api/together-api';
+
+import {
+  cardShareKey,
+  monsterPageKey,
+  withShare,
+  withoutShare,
+  type KeptShare,
+  type KeptShares,
+} from './kept-shares';
 import { composeShareImage, type ShareImage } from './share-image';
+import { sharedPageLink } from './share-links';
 import { shareOffered } from './share-rules';
 
 /** The phone's part in sharing. The real one is native; the tests use a recorder. */
@@ -10,7 +22,8 @@ export interface ShareDevice {
   /** Draws the picture off screen and writes it as a PNG file. Returns the file's address. */
   renderPng(image: ShareImage, name: string): Promise<string>;
   writeFile(name: string, bytes: Uint8Array): Promise<string>;
-  openShareSheet(uri: string, mimeType: string): Promise<void>;
+  /** Opens the system share sheet with a file and, when there is one, the link to its page. */
+  openShareSheet(uri: string, mimeType: string, link?: string): Promise<void>;
   /** Asks for permission to add to Photos if it has not been given, then saves. */
   saveToPhotos(uri: string): Promise<'saved' | 'refused'>;
 }
@@ -24,21 +37,130 @@ export interface CatchShare {
   readonly language: CardLanguage;
 }
 
+/** The website's side of sharing: its routes, the pages this phone keeps, and its address. */
+export interface SharePages {
+  readonly api: ShareApi;
+  readonly kept: KeptShares;
+  readonly site: string;
+}
+
+const keyOf = (share: CatchShare) =>
+  cardShareKey(share.kind, share.card.monster.seed, share.card.number);
+
+/** Whether the page will show the task's words: only a card's page can, and only when not hidden. */
+const taskShown = (share: CatchShare) =>
+  share.kind === 'card' && !share.hideTask && share.card.taskLine !== null;
+
+/**
+ * What is posted for a page: the card as the page draws it, its language and the task's stored
+ * care verdict. The task line is taken off unless the page shows it.
+ */
+export function cardShareRequest(share: CatchShare): CardShareRequest {
+  const stored = share.task?.screen;
+  return {
+    kind: share.kind,
+    language: share.language,
+    card: { ...share.card, taskLine: taskShown(share) ? share.card.taskLine : null },
+    // An unscreened or forgotten task is never offered; if one came this far the server refuses it.
+    screen: stored === 'pass' || stored === 'serious' ? stored : 'reject',
+  };
+}
+
+async function takeDown(pages: SharePages, kept: KeptShare): Promise<void> {
+  try {
+    await pages.api.unshareCard(kept.id, kept.unshareToken);
+  } catch (error) {
+    // Already gone from the website: there is nothing left to take down.
+    if (refusalOf(error) !== 'not_found') throw error;
+  }
+  await pages.kept.write(withoutShare(await pages.kept.read(), kept.key));
+}
+
+/**
+ * The page for this catch: the one already up when it shows the same thing, otherwise a new one
+ * (after the old one is taken down). Throws when the server cannot be reached or refuses; nothing
+ * is then kept, and nothing was shared.
+ */
+async function pageFor(pages: SharePages, share: CatchShare): Promise<KeptShare> {
+  const key = keyOf(share);
+  const up = (await pages.kept.read()).find((one) => one.key === key);
+  if (up && up.language === share.language && up.taskShown === taskShown(share)) return up;
+  if (up) await takeDown(pages, up);
+  const page = await pages.api.shareCard(cardShareRequest(share));
+  const kept: KeptShare = { key, ...page, language: share.language, taskShown: taskShown(share) };
+  try {
+    await pages.kept.write(withShare(await pages.kept.read(), kept));
+  } catch (error) {
+    // A page whose token was not kept could never be taken down, so it does not stay up.
+    await pages.api.unshareCard(page.id, page.unshareToken).catch(() => undefined);
+    throw error;
+  }
+  return kept;
+}
+
+/** The page that is up for this catch, whatever it shows; `null` when there is none. */
+export async function sharedPageOf(pages: SharePages, share: CatchShare): Promise<string | null> {
+  const up = (await pages.kept.read()).find((one) => one.key === keyOf(share));
+  return up
+    ? sharedPageLink(pages.site, up.language, share.kind === 'card' ? 'c' : 's', up.id)
+    : null;
+}
+
 async function pictureOf(device: ShareDevice, share: CatchShare): Promise<string | null> {
   if (!shareOffered(share.task)) return null;
   const image = composeShareImage(share.kind, share.card, share);
   return device.renderPng(image, `scootch-${share.kind}-${share.card.number}`);
 }
 
-/** Sends a catch to the system share sheet. A private or serious task is never sent. */
+/**
+ * Sends a catch to the system share sheet: its page is put on the website first, then the picture
+ * and the page's link are handed over. A private or serious task is never sent. When the page
+ * cannot be put up this rejects, and the sheet never opens.
+ */
 export async function shareCatch(
   device: ShareDevice,
+  pages: SharePages,
   share: CatchShare,
 ): Promise<'shared' | 'not_offered'> {
+  if (!shareOffered(share.task)) return 'not_offered';
+  const page = await pageFor(pages, share);
   const uri = await pictureOf(device, share);
   if (uri === null) return 'not_offered';
-  await device.openShareSheet(uri, 'image/png');
+  const link = sharedPageLink(
+    pages.site,
+    page.language,
+    share.kind === 'card' ? 'c' : 's',
+    page.id,
+  );
+  await device.openShareSheet(uri, 'image/png', link);
   return 'shared';
+}
+
+/** Takes a catch's page down with the token kept for it. Rejects, changing nothing, on a failure. */
+export async function unshareCatch(
+  pages: SharePages,
+  share: CatchShare,
+): Promise<'unshared' | 'nothing_up'> {
+  const up = (await pages.kept.read()).find((one) => one.key === keyOf(share));
+  if (!up) return 'nothing_up';
+  await takeDown(pages, up);
+  return 'unshared';
+}
+
+/**
+ * Tells a shared monster's own page that its monster is caught, once. A monster with no page, or
+ * one already told, sends nothing. A failure leaves it untold, to be told at the next reveal.
+ */
+export async function tellPageOfCatch(
+  pages: Pick<SharePages, 'api' | 'kept'>,
+  monster: { readonly seed: string; readonly catchMinutes: number },
+): Promise<'told' | 'nothing_to_tell'> {
+  const key = monsterPageKey(monster.seed);
+  const page = (await pages.kept.read()).find((one) => one.key === key);
+  if (!page || page.caughtTold === true) return 'nothing_to_tell';
+  await pages.api.monsterCaught(page.id, page.unshareToken, Math.max(1, monster.catchMinutes));
+  await pages.kept.write(withShare(await pages.kept.read(), { ...page, caughtTold: true }));
+  return 'told';
 }
 
 /** Saves a catch to Photos, after the phone's own permission prompt. */

@@ -37,12 +37,12 @@ friends"). The home strip of example monsters uses a fixed, hand-checked set.
 - Do: `scootch.app/m/<id>` with the card and a 1200 × 630 link preview image,
   rendered per page, cached, and regenerated when the monster is caught; "Make your own" and "Catch it
   in the app"; flips to CAUGHT when the owner catches it.
-- Status: partly done — 78eff49; sharing from the maker (`POST /v1/monster-share`, unshare by token), the monster's page in both languages with wild, caught and not-found states, and a 1200 × 630 preview rendered in the Worker and kept per status; nothing marks a monster caught yet, not deployed
+- Status: partly done — 78eff49; sharing from the maker (`POST /v1/monster-share`, unshare by token), the monster's page in both languages with wild, caught and not-found states, and a 1200 × 630 preview rendered in the Worker and kept per status; not deployed; the API now marks a shared monster caught for whoever holds its unshare token (`POST /v1/monster-page/:id/caught`, tested, and seen turning a local page to caught), and the app tells it when a monster it keeps a page for is caught, but nothing in the app gives a monster a page yet (that arrives with "Into the app"), so no page is turned by a real catch
 
 ### 4. Pages for things shared from the app
 - Do: caught card, share story and record clip pages, with a player for the
   clip. Replaces the phase 05 placeholder.
-- Status: partly done — 6364d0e; the caught card page with the tilting card and the share story page, with their read routes, and the record page with its player, track list and not-found state; the app does not post to them yet, the API has no read route or clip for a shared record so every record link shows not found, the record's link preview uses the home image, not deployed
+- Status: partly done — 6364d0e; the caught card page with the tilting card and the share story page, with their read routes, and the record page with its player, track list and not-found state; the app now posts a caught card and a share story (`POST /v1/card-share`: the card as the page draws it, the task line only on a card that shows it, screened, refused for a serious or crisis task) and shares the picture with the page's link, and takes the page down with the token it keeps (`DELETE /v1/card-share/:id`); server tested, a card seen going up and down against a local API and site, the app side never seen on a device; the live screen refused the one story posted locally (a card with no task line), so story sharing may be refused in practice until the screen is checked against monster copy alone; the API has no read route or clip for a shared record so every record link shows not found, the record's link preview uses the home image, not deployed
 
 ### 5. Into the app
 - Do: universal links and the smart app banner; "Catch it in the app" carries
@@ -58,7 +58,7 @@ friends"). The home strip of example monsters uses a fixed, hand-checked set.
 ### 6. Invite and haunt pages
 - Do: table invite and haunt landing pages, with expired states; shooing a
   haunt works on the web in one tap. No gift page at launch.
-- Status: partly done — 6364d0e; the table invite and haunt pages in both languages (open, closed, waiting, shooed, already gone, not found, could not load) with link previews; the API now has the public reads for an invite and a haunt and the shoo from the web (tested, and both pages seen answering against a local API in each state), not deployed; seat labels follow the browser's language, not the page's; a wide screen has no QR code, the previews use the home image, not deployed
+- Status: partly done — 6364d0e; the table invite and haunt pages in both languages (open, closed, waiting, shooed, already gone, not found, could not load) with link previews; the API now has the public reads for an invite and a haunt and the shoo from the web (tested, and both pages seen answering against a local API in each state), not deployed; seat labels now follow the page's language (the page passes it through the site's door); the app shares the invite and the haunt link on the site of its own environment, in the Vietnamese path for a Vietnamese reader, and offers the haunt's link after sending (never seen on a device); a wide screen has no QR code, the previews use the home image, not deployed
 
 ### 7. Home, Plus and plain pages
 - Do: the home page with the maker as hero; the Plus page with prices and the

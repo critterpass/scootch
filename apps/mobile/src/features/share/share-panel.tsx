@@ -6,6 +6,7 @@ import type { Language } from '@scootch/i18n';
 import { spacing } from '@scootch/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
+import { CapsuleButton } from '../../ui/buttons';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { CommandCanvas } from '../reveal/ui/command-canvas';
 import { Dock, KeepFrame } from '../reveal/ui/keep-frame';
@@ -19,17 +20,28 @@ export interface ShareModel {
   readonly language: Language;
   readonly hideTask: boolean;
   /** What the last press came to, said in the interface's own words. */
-  readonly notice: 'saved' | 'refused' | 'failed' | null;
+  readonly notice: 'saved' | 'refused' | 'failed' | 'sending' | 'shared' | 'unshared' | null;
+  /** Whether this catch has a page on the website now, which can be taken down from here. */
+  readonly pageUp: boolean;
 }
 
 export interface ShareActions {
   readonly close: () => void;
   readonly setHideTask: (hide: boolean) => void;
   readonly share: () => void;
+  /** Takes the catch's page off the website. */
+  readonly unshare: () => void;
   readonly save: () => void;
 }
 
-const NOTICE = { saved: 'share.saved', refused: 'share.refused', failed: 'share.failed' } as const;
+const NOTICE = {
+  saved: 'share.saved',
+  refused: 'share.refused',
+  failed: 'share.failed',
+  sending: 'share.sending',
+  shared: 'share.shared',
+  unshared: 'share.unshared',
+} as const;
 
 /**
  * The share panel: the picture as it will be sent, the switch that takes the task's words off it,
@@ -86,6 +98,15 @@ export function SharePanel({ model, actions }: { model: ShareModel; actions: Sha
           trackColor={{ true: palette.tomato }}
         />
       </View>
+      {model.pageUp ? (
+        <CapsuleButton
+          tone="quiet"
+          label={t('share.unshare')}
+          hint={t('share.unshare.hint')}
+          testID="share-unshare"
+          onPress={actions.unshare}
+        />
+      ) : null}
       {model.notice ? (
         <SessionText
           face="caption"

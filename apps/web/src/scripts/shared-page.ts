@@ -17,9 +17,12 @@ export function idFromAddress(): string {
 export async function fetchShared<T>(
   route: string,
   id: string,
+  /** The page's language, for an answer whose words the server writes. */
+  language?: string,
 ): Promise<T | 'missing' | 'offline'> {
   try {
-    const response = await fetch(`/api/${route}/${encodeURIComponent(id)}`);
+    const query = language === undefined ? '' : `?lang=${encodeURIComponent(language)}`;
+    const response = await fetch(`/api/${route}/${encodeURIComponent(id)}${query}`);
     if (response.status === 404 || response.status === 400) return 'missing';
     if (!response.ok) return 'offline';
     return (await response.json()) as T;

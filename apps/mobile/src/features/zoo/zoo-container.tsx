@@ -5,12 +5,13 @@ import { View } from 'react-native';
 
 import { useLanguage } from '../../i18n/i18n-provider';
 import { openRepositories } from '../../data/repositories';
+import { useToday } from '../../state/day-store-provider';
 import { useKeepsakes, usePlus } from '../../state/keepsakes';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { finishOpen } from '../plus/finish-picker';
 import { PLUS_SHEET } from '../plus/routes';
 import { SharePanel } from '../share/share-panel';
-import { shareOffered } from '../share/share-rules';
+import { shareOfferedOn } from '../share/share-rules';
 import { useShare } from '../share/use-share';
 
 import { cardDataFor, zooCards, type BinderSort, type CaughtMonster } from './zoo-cards';
@@ -25,7 +26,8 @@ export function ZooContainer() {
   const [finishes, setFinishes] = useState(0);
   const { keepsakes } = useKeepsakes(finishes);
   const plus = usePlus();
-  const share = useShare(language);
+  const { today } = useToday();
+  const share = useShare(language, today);
   const [sort, setSort] = useState<BinderSort | null>(null);
   const [opened, setOpened] = useState<CaughtMonster | null>(null);
   const cards = useMemo(
@@ -46,7 +48,7 @@ export function ZooContainer() {
         language,
         plus,
         sort,
-        open: card ? { card, shareOffered: shareOffered(task) } : null,
+        open: card ? { card, shareOffered: shareOfferedOn(today, task) } : null,
       }}
       actions={{
         close: () => router.replace('/world'),

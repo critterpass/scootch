@@ -83,3 +83,6 @@ export function newShareId(name: string): string {
 export function previewPrefix(id: string): string {
   return `previews/m/${id}/`;
 }
+
+/** The header a phone proves a shared page is its own with: the token the share answered with. */
+export const unshareTokenHeader = 'X-Unshare-Token';

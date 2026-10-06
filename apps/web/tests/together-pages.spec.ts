@@ -29,6 +29,23 @@ test.describe('a table invite', () => {
     await expect(page.getByRole('link', { name: 'Sit down' })).toBeVisible();
   });
 
+  test('asks for the seats in the page’s own language, whatever the browser speaks', async ({
+    page,
+  }) => {
+    const asked: string[] = [];
+    page.on('request', (request) => {
+      const url = new URL(request.url());
+      if (url.pathname.startsWith('/api/table-invite/')) asked.push(url.search);
+    });
+    await answerApi(page, 'table-invite/abcdefgh23', openInvite);
+    await page.goto('/vi/t/abcdefgh23');
+    await expect(state(page, 'invite')).toHaveAttribute('data-state', 'open');
+    await page.goto('/t/abcdefgh23');
+    await expect(state(page, 'invite')).toHaveAttribute('data-state', 'open');
+
+    expect(asked).toEqual(['?lang=vi', '?lang=en']);
+  });
+
   test('shows a seat with a hidden name and label as someone, with no label', async ({ page }) => {
     await answerApi(page, 'table-invite/abcdefgh23', { ...openInvite, hostName: null });
     await page.goto('/t/abcdefgh23');

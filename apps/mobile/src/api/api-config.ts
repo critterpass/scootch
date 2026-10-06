@@ -21,6 +21,24 @@ export function apiBaseUrl(): string {
   return apiBaseUrlFor(Constants.expoConfig?.extra?.['appVariant']);
 }
 
+const DEV_SITE_URL = 'https://scootch-web-dev.bkdev98.workers.dev';
+
+/** The website each app variant's shared links open on: the site that reads that variant's API. */
+const SITE_URLS: Readonly<Record<string, string>> = {
+  dev: DEV_SITE_URL,
+  'e2e-test': DEV_SITE_URL,
+  prd: 'https://scootch.app',
+};
+
+/** The website for a variant name from the app config. An unknown variant shares to dev. */
+export function siteBaseUrlFor(variant: unknown): string {
+  return (typeof variant === 'string' ? SITE_URLS[variant] : undefined) ?? DEV_SITE_URL;
+}
+
+export function siteBaseUrl(): string {
+  return siteBaseUrlFor(Constants.expoConfig?.extra?.['appVariant']);
+}
+
 const TOKEN_SERVICE = 'app.scootch.device-token';
 
 /** The anonymous device token, kept in the keychain. It has never run outside a native build. */

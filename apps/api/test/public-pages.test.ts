@@ -106,6 +106,16 @@ describe('the table invite page', () => {
     // A reader whose browser asks for Vietnamese gets the labels in Vietnamese.
     const vietnamese = await invitePage(made.code, 'vi-VN,vi;q=0.9,en;q=0.8');
     expect(vietnamese.seats.map((each) => each.label)).toEqual(['giấy tờ', 'viết lách', null]);
+
+    // The page's own language wins over the browser's, both ways.
+    const viPage = tableInvitePageSchema.parse(
+      await ok(visit(`/v1/table-invite/${made.code}?lang=vi`)),
+    );
+    expect(viPage.seats.map((each) => each.label)).toEqual(['giấy tờ', 'viết lách', null]);
+    const enPage = tableInvitePageSchema.parse(
+      await ok(visit(`/v1/table-invite/${made.code}?lang=en`, { language: 'vi-VN,vi;q=0.9' })),
+    );
+    expect(enPage.seats.map((each) => each.label)).toEqual(['admin', 'writing', null]);
   });
 
   it('has no field that could hold a task, an id or a hidden seat’s work', async () => {

@@ -243,6 +243,11 @@ export const en = {
   'share.saved': 'Saved to Photos',
   'share.refused': 'Photos is off for Scootch, so nothing was saved.',
   'share.failed': 'That did not go through. Try again.',
+  'share.sending': 'Putting its page up…',
+  'share.shared': 'Its page is up, and the link went with the picture.',
+  'share.unshare': 'Take the page down',
+  'share.unshare.hint': 'Removes this from the website. The link then shows nothing.',
+  'share.unshared': 'The page is down. The link shows nothing now.',
   'oneScreen.world.hint': 'Opens your world.',
 
   'dump.oneThing': "Today's one thing",

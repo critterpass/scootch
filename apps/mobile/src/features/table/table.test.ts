@@ -36,6 +36,7 @@ async function seated(answer: TaskCreateResponse = pass, text = passFixture.requ
     'POST /v1/tables': { tableId: TABLE },
     'POST /v1/tables/join': { tableId: TABLE },
     [`POST /v1/tables/${TABLE}/invites`]: { code: 'abcdefghij', expiresAt: '2026-10-07T09:00:00Z' },
+    'POST /v1/haunts': { sent: true, pageId: 'abcdefgh234567ab' },
   });
   const together = createTogetherRuntime({
     http: web.http,
