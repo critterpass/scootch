@@ -55,3 +55,23 @@ state is designed or removed.
 | World | The lifetime lighthouse on a headland above the first row | The Plus board says a lighthouse lands but no world screen draws it; it takes no plot, so nothing else moves |
 | Session | Parked thoughts: the task's own line under the title | The board draws the thoughts without a line; shown only when the task's pack has one |
 | Session | Treat: the task's own ceremony line in place of the caught line | The board draws one line under the treat; shown only when the task's pack has one |
+| Tables | "Sit with someone" has no strangers option and no list of tables | Tables are for friends only at launch: open one, or join by link |
+| Tables | "Have a link?": a field for a pasted link or code | The board joins by tapping a link; a copied one has to go somewhere |
+| Tables | Waiting alone says the seats are saved | The board promises "Someone always shows up around ten", which is untrue for friends-only tables (product brief, section 11) |
+| Tables | No line from Scootch at a table; plain captions for a full table, a seat that emptied and a wave | The line packs have no table slots, and a spoken line is never written into a screen |
+| Tables | A seat that emptied says "{name} left", not "finished and left" | The server says a seat emptied, not why |
+| Tables | Another person's critter works in the plain work mode | The server sends each seat's one or two words, not its work mode id |
+| Tables | The fourth nudge says "That's all three" | The limit is three per person per session in total, so the board's "three for Kofi" could be untrue |
+| Tables | "Start 10 min together" and "Join in" on the table | The board draws the table and the session, not how the shared timer is started or joined; the session itself is the normal one |
+| Tables | The table as a strip of critters above a running session | The board does not draw the session with the table beside it |
+| Tables | Reconnecting, and the table open on another device: one calm line | The board draws no dropped line |
+| Tables | The seat sheet also has "Block" | The board draws mute, report and leave; the brief adds block |
+| Tables | Invite link problems: no longer works, table full, account not allowed, cannot be reached | The board draws no refused seat. Expired, closed and blocked share one answer because the server gives one |
+| Tables | "Show my label at tables" on the table itself | The board draws the switch without saying where it lives |
+| Account | Choosing a seat name, and a refused name | The board asks for an account but draws no name step |
+| Friends | The whole page: friends, remove, block, "Can be haunted", a friend link | No board draws a friends page |
+| Haunt | The dare is one of six short presets with no task in it | The board's dare names the friend's task ("10 min on your taxes?"), which the sender's phone never knows |
+| Haunt | "Haunt a friend" sits under a set task whose monster is not caught | The board does not draw where the send starts |
+| Haunt | A caught haunt makes the dare's own words today's one thing | A haunt carries a monster and a dare id, and no task |
+| Haunt | The card waits on a day that already has its one thing, and is never shown near something heavy | The board draws the card only on an empty day |
+| Privacy and data | "Account" rows on a phone signed in for tables | The board draws privacy with no account |

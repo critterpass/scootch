@@ -18,6 +18,8 @@ export interface PrivacyPageProps {
   readonly notice: string | null;
   /** The spare copy could not be kept because it is too large: said in one plain line. */
   readonly backupTooLarge?: boolean;
+  /** The name this phone is signed in with for tables; absent when it never signed in. */
+  readonly accountName?: string | null;
   readonly onKeepTranscripts: (keep: boolean) => void;
   readonly onExport: () => void;
   readonly onAskDelete: () => void;
@@ -77,6 +79,24 @@ export function PrivacyPage(props: PrivacyPageProps) {
           testID="privacy-delete"
         />
       </Section>
+      {props.accountName === undefined ? null : (
+        <Section label={t('account.section')}>
+          <Row
+            first
+            kind="fact"
+            label={t('account.signedIn')}
+            {...(props.accountName === null ? {} : { value: props.accountName })}
+            testID="privacy-account"
+          />
+          <Row
+            danger
+            label={t('account.delete')}
+            hint={t('account.delete.hint')}
+            onPress={props.onAskDelete}
+            testID="privacy-delete-account"
+          />
+        </Section>
+      )}
       {props.notice === null ? null : <Note text={props.notice} testID="privacy-notice" />}
       {props.backupTooLarge ? (
         <Note text={t('privacy.backup.tooLarge')} testID="privacy-backup-too-large" />

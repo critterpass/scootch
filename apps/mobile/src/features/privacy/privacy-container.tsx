@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { useDataTools, useDispatch, useToday } from '../../state/day-store-provider';
 import { useKeepsakes } from '../../state/keepsakes';
+import { useTogether } from '../../state/together-context';
 
 import { DeleteSheet, PrivacyPage } from './privacy-page';
 
@@ -23,6 +24,22 @@ export function PrivacyContainer() {
   const [notice, setNotice] = useState<'privacy.export.failed' | 'privacy.delete.failed' | null>(
     null,
   );
+
+  // Shown only on a phone that signed in for tables; deleting everything deletes the account too.
+  const { api } = useTogether();
+  const [accountName, setAccountName] = useState<string | null | undefined>(undefined);
+  useEffect(() => {
+    let current = true;
+    void api
+      .me()
+      .then((account) => {
+        if (current && account !== null) setAccountName(account.displayName);
+      })
+      .catch(() => undefined);
+    return () => {
+      current = false;
+    };
+  }, [api]);
 
   const [backupTooLarge, setBackupTooLarge] = useState(false);
   const { backup } = tools;
@@ -67,6 +84,7 @@ export function PrivacyContainer() {
         keepTranscripts={settings.keepTranscripts}
         notice={notice === null ? null : t(notice)}
         backupTooLarge={backupTooLarge}
+        {...(accountName === undefined ? {} : { accountName })}
         onKeepTranscripts={(keepTranscripts) =>
           void dispatch({ type: 'settings_changed', changes: { keepTranscripts } }).catch(
             () => undefined,
