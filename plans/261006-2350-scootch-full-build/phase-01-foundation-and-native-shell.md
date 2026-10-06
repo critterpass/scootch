@@ -31,6 +31,7 @@ Two lanes: A owns tasks 1 to 6 and 11, B owns tasks 7 to 10.
   pull request comment, never a git branch.
 - Done when: a flow runs on Android against an `e2e-test` build with the
   commit's bundle swapped in, and posts sheets to a pull request.
+- Status: partly done — 5009bb8; written, not yet run (needs the first e2e-test build)
 
 ### 4. Screen registry and sheets
 - Owns: `apps/mobile/src/screens/registry/`, `tools/scripts/compare-sheets.ts`.
@@ -83,6 +84,7 @@ Two lanes: A owns tasks 1 to 6 and 11, B owns tasks 7 to 10.
 - Do: a flow that installs clean, launches and reaches the placeholder one
   screen. Every later phase extends this one flow.
 - Done when: it passes on Android and iOS in the pipeline.
+- Status: partly done — 5009bb8; written, not yet run (needs the first e2e-test build)
 
 ### 11. Two languages
 - Owns: `packages/i18n/`, the CI completeness check.

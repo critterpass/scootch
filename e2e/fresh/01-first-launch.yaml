@@ -1,0 +1,15 @@
+appId: app.scootch.dev
+---
+# The fresh-user walk, step one: a clean install launches and reaches the one screen, with its
+# sentence and its action. No seed, no deep link, nothing granted beforehand.
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: 'one-sentence'
+    timeout: 90000
+- assertVisible:
+    id: 'one-sentence'
+- assertVisible:
+    id: 'one-action'
+- takeScreenshot: fresh-01-first-launch

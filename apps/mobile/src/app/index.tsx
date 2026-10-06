@@ -24,7 +24,11 @@ export default function OneScreen() {
         >
           <View style={[styles.critter, { backgroundColor: palette.tomato }]} />
         </View>
-        <Text accessibilityRole="header" style={[styles.sentence, { color: palette.ink }]}>
+        <Text
+          accessibilityRole="header"
+          testID="one-sentence"
+          style={[styles.sentence, { color: palette.ink }]}
+        >
           {SENTENCE}
         </Text>
       </View>
