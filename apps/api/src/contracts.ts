@@ -7,3 +7,8 @@ export {
   type WireError,
   type WireErrorCode,
 } from '../../../packages/domain/src/contracts/common';
+export {
+  screenInputRequestSchema,
+  screenInputResponseSchema,
+  type ScreenInputResponse,
+} from '../../../packages/domain/src/contracts/ai-labels';
