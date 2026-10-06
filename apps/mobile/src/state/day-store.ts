@@ -103,6 +103,7 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
         lastOpenedDay: memory.lastOpenedDay,
         tasks,
         returning: returningItem(items, localDate),
+        drawer: items,
       }),
       drawer: { open: memory.state.drawer.open, items },
     });
