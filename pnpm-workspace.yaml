@@ -8,6 +8,7 @@ saveExact: true
 # One pinned version per shared dependency; workspace packages reference them as `catalog:`.
 catalog:
   '@eslint/js': 10.0.1
+  '@napi-rs/canvas': 1.0.10
   '@types/node': 26.6.3
   eslint: 10.11.0
   eslint-config-prettier: 10.1.8
