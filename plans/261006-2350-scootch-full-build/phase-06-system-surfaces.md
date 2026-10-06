@@ -21,6 +21,7 @@ iOS-specific: these device runs use `platform=ios`.
   week; opening the app resets it with no mention; quiet hours, Sleep and
   Focus are respected.
 - Test: the full back-off table from the board, as a pure function.
+- Status: partly done — f29e5c7; pure logic and tests in packages/domain, no screens or storage yet
 
 ### 3. Live Activity and Dynamic Island
 - Do: the Lock Screen activity with the shrinking disc; compact, minimal and
