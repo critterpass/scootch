@@ -33,10 +33,17 @@ import {
   weekSentenceResponseSchema,
 } from './ai-small-routes';
 import { taskCreateRequestSchema, taskCreateResponseSchema } from './ai-task-call';
+import {
+  taskCreateLinesRequestSchema,
+  taskCreateLinesResponseSchema,
+  taskCreateStartRequestSchema,
+  taskCreateStartResponseSchema,
+} from './ai-task-stages';
 
 export * from './ai-labels';
 export * from './ai-small-routes';
 export * from './ai-task-call';
+export * from './ai-task-stages';
 
 /**
  * Every AI route, keyed by its id. The id is also the route's file name in the
@@ -46,6 +53,15 @@ export * from './ai-task-call';
 export const aiRoutes = {
   'screen.input': { request: screenInputRequestSchema, response: screenInputResponseSchema },
   'task.create': { request: taskCreateRequestSchema, response: taskCreateResponseSchema },
+  // The same route as `task.create`, asked with `staged: true`.
+  'task.create_start': {
+    request: taskCreateStartRequestSchema,
+    response: taskCreateStartResponseSchema,
+  },
+  'task.create_lines': {
+    request: taskCreateLinesRequestSchema,
+    response: taskCreateLinesResponseSchema,
+  },
   'task.shrink': { request: taskShrinkRequestSchema, response: taskShrinkResponseSchema },
   'task.bargain': { request: taskBargainRequestSchema, response: taskBargainResponseSchema },
   'session.stuck': { request: sessionStuckRequestSchema, response: sessionStuckResponseSchema },

@@ -6,27 +6,46 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { hashDeviceToken } from '../src/device-auth';
 
 import { answersStatus, connectionDrops, timesOut } from './ai-providers';
-import { call, registerDevice, wireErrorOf } from './support';
+import { call, registerDevice } from './support';
 import {
   createTask,
   jevDecides,
+  linesOutputOf,
   passFixture,
+  pickAnswers,
+  pickOutputOf,
   writerAnswers,
   writerCalls,
-  writerOutputOf,
 } from './task-create-support';
 
 const ordinary = { pass: 0.99, serious: 0.01, crisis: 0 };
 const heavy = { pass: 0.1, serious: 0.88, crisis: 0.02 };
 const danger = { pass: 0.3, serious: 0.3, crisis: 0.4 };
 
-const recorded = writerOutputOf(passFixture.response);
+const picked = pickOutputOf(passFixture.response);
+const written = linesOutputOf(passFixture.response);
 const bannedHatch = 'He has been on the Missed Call List under your sink again.';
-const leaking = { ...recorded, lines: { ...recorded.lines, hatch: bannedHatch } };
+const leaking = { ...written, hatch: bannedHatch };
+const plainAnswer = {
+  oneThing: 'Call the plumber about the leak under the sink.',
+  oneThingDue: null,
+  parked: ['Reply to Sam about Saturday'],
+  dated: [],
+  tinyNextStep: "Find the plumber's number and write it down.",
+};
+
+/** DeepSeek with the fast pick answering `picks` and the writer answering `writes`, in turn. */
+function models(writes: readonly unknown[], picks: readonly unknown[] = [picked]) {
+  return pickAnswers(picks, writerAnswers(writes));
+}
 
 async function bodyOf(response: Response): Promise<TaskCreateResponse> {
   expect(response.status).toBe(200);
   return taskCreateResponseSchema.parse(await response.json());
+}
+
+function promptOf(sent: Record<string, unknown> | undefined): string {
+  return (sent?.['messages'] as { content: string }[] | undefined)?.[0]?.content ?? '';
 }
 
 afterEach(() => {
@@ -35,82 +54,80 @@ afterEach(() => {
 });
 
 describe('POST /v1/task-create', () => {
-  it('answers an ordinary ramble with everything the day needs, from one writer call', async () => {
+  it('answers an ordinary ramble with everything the day needs, from one pick and one writer call', async () => {
     const { response, doubles, token } = await createTask({
       jev: jevDecides(ordinary),
-      deepseek: writerAnswers([recorded]),
+      deepseek: models([written]),
     });
 
     expect(await bodyOf(response)).toEqual(passFixture.response);
     expect(writerCalls(doubles)).toHaveLength(1);
     expect(response.headers.get('X-Voice-Check')).toBe('attempts=1; replaced=0');
-    // One ledger row per model call: the screen, the writer and the four labels.
+    // The writer is given the one thing, never the text it came from.
+    expect(JSON.stringify(writerCalls(doubles))).not.toMatch(/passport|Japan/);
+    // One ledger row per model call: the screen, the pick, the writer and the four labels.
     const usage = await env.DB.prepare(
       'SELECT model FROM ai_usage WHERE route = ? AND device_hash = ?',
     )
       .bind('task.create', await hashDeviceToken(token))
       .all<{ model: string }>();
     expect(usage.results.map(({ model }) => model).sort()).toEqual([
+      'deepseek-flash',
       'deepseek-v4-pro',
       ...Array<string>(5).fill('jev-1.13.0'),
     ]);
   });
 
-  it('answers a crisis with the verdict alone, whatever the override says', async () => {
-    const { response, raw, doubles } = await createTask(
-      { jev: jevDecides(danger), deepseek: writerAnswers([recorded]) },
-      { ...passFixture.request, overrideSerious: true },
-    );
+  it.each([false, true])(
+    'answers a crisis with the verdict alone, whatever the override says (staged: %s)',
+    async (staged) => {
+      const { response, raw, doubles } = await createTask(
+        { jev: jevDecides(danger), deepseek: models([written]) },
+        { ...passFixture.request, overrideSerious: true, staged },
+      );
 
-    expect(response.status).toBe(200);
-    expect(JSON.parse(raw)).toEqual({ verdict: 'crisis' });
-    expect(doubles.sent.deepseek).toEqual([]);
-  });
+      expect(response.status).toBe(200);
+      expect(JSON.parse(raw)).toEqual({ verdict: 'crisis' });
+      expect(writerCalls(doubles)).toEqual([]);
+    },
+  );
 
-  it('answers a heavy task in plain words with no monster, joke or notification', async () => {
-    const { response, raw, doubles } = await createTask(
-      {
-        jev: jevDecides(heavy),
-        deepseek: writerAnswers([
-          {
-            oneThing: 'Call the plumber about the leak under the sink.',
-            oneThingDue: null,
-            parked: ['Reply to Sam about Saturday'],
-            dated: [],
-            tinyNextStep: "Find the plumber's number and write it down.",
-          },
-        ]),
-      },
-      { ...passFixture.request, attitude: 'unhinged', energy: 'guess' },
-    );
+  it.each([false, true])(
+    'answers a heavy task in plain words with no monster, joke or notification (staged: %s)',
+    async (staged) => {
+      const { response, raw, doubles } = await createTask(
+        { jev: jevDecides(heavy), deepseek: models([plainAnswer]) },
+        { ...passFixture.request, attitude: 'unhinged', energy: 'guess', staged },
+      );
 
-    const body = await bodyOf(response);
-    expect(Object.keys(JSON.parse(raw) as object).sort()).toEqual(
-      ['deadlines', 'energy', 'lines', 'oneThing', 'parked', 'verdict'].sort(),
-    );
-    const plain = offlinePacks.en.plain;
-    expect(body).toEqual({
-      verdict: 'serious',
-      energy: 'low',
-      oneThing: { text: 'Call the plumber about the leak under the sink.', dueDate: null },
-      parked: [{ text: 'Reply to Sam about Saturday' }],
-      deadlines: [],
-      lines: {
-        acknowledge: plain.acknowledge,
-        working: [...plain.working],
-        tinyNextStep: "Find the plumber's number and write it down.",
-        done: plain.done,
-        notFinished: plain.notFinished,
-      },
-    });
-    // The writer was never shown the voice guide or asked for a monster.
-    const [sent] = writerCalls(doubles);
-    expect(JSON.stringify(sent)).not.toMatch(/monster|Unhinged|notifications/);
-  });
+      const body = await bodyOf(response);
+      expect(Object.keys(JSON.parse(raw) as object).sort()).toEqual(
+        ['deadlines', 'energy', 'lines', 'oneThing', 'parked', 'verdict'].sort(),
+      );
+      const plain = offlinePacks.en.plain;
+      expect(body).toEqual({
+        verdict: 'serious',
+        energy: 'low',
+        oneThing: { text: 'Call the plumber about the leak under the sink.', dueDate: null },
+        parked: [{ text: 'Reply to Sam about Saturday' }],
+        deadlines: [],
+        lines: {
+          acknowledge: plain.acknowledge,
+          working: [...plain.working],
+          tinyNextStep: "Find the plumber's number and write it down.",
+          done: plain.done,
+          notFinished: plain.notFinished,
+        },
+      });
+      // No model was shown the voice guide or asked for a monster.
+      expect(writerCalls(doubles)).toHaveLength(1);
+      expect(JSON.stringify(doubles.sent.deepseek)).not.toMatch(/monster|Unhinged|notifications/);
+    },
+  );
 
   it('lets "be funny" lift a serious verdict but not a text nobody screened', async () => {
     const overridden = await createTask(
-      { jev: jevDecides(heavy), deepseek: writerAnswers([recorded]) },
+      { jev: jevDecides(heavy), deepseek: models([written]) },
       { ...passFixture.request, overrideSerious: true },
     );
     expect(await bodyOf(overridden.response)).toMatchObject({
@@ -121,34 +138,34 @@ describe('POST /v1/task-create', () => {
     const unscreened = await createTask(
       {
         jev: jevDecides(timesOut),
-        deepseek: writerAnswers(
-          [{ ...recorded, tinyNextStep: 'Find the number.' }],
-          answersStatus(503),
-        ),
+        deepseek: writerAnswers([plainAnswer], answersStatus(503)),
       },
       { ...passFixture.request, overrideSerious: true },
     );
     expect(await bodyOf(unscreened.response)).toMatchObject({ verdict: 'serious' });
   });
 
-  it('regenerates once when a line fails the voice check, and tells the writer where', async () => {
+  it('asks again for only the line that failed the voice check, with the reason and not the line', async () => {
     const { response, doubles } = await createTask({
       jev: jevDecides(ordinary),
-      deepseek: writerAnswers([leaking, recorded]),
+      deepseek: models([leaking, { 'lines.hatch': written.hatch }]),
     });
 
     expect(await bodyOf(response)).toEqual(passFixture.response);
     expect(response.headers.get('X-Voice-Check')).toBe('attempts=2; replaced=0');
     const [, second] = writerCalls(doubles);
-    const prompt = (second?.['messages'] as { content: string }[])[0]?.content ?? '';
-    expect(prompt).toContain('lines.hatch: banned_word');
+    expect((second?.['tools'] as { name: string }[])[0]?.name).toBe('write_lines_again');
+    const prompt = promptOf(second);
+    expect(prompt).toContain('lines.hatch');
+    expect(prompt).toContain('banned_word');
     expect(prompt).not.toContain(bannedHatch);
+    expect(prompt).not.toMatch(/lines\.start|notifications\.|passport/);
   });
 
-  it('replaces a line that still fails after the retry with an offline line and keeps the rest', async () => {
+  it('replaces a line that fails twice with an offline line and keeps every other line', async () => {
     const { response, doubles } = await createTask({
       jev: jevDecides(ordinary),
-      deepseek: writerAnswers([leaking, leaking, recorded]),
+      deepseek: models([leaking, { 'lines.hatch': bannedHatch }]),
     });
 
     const body = await bodyOf(response);
@@ -160,86 +177,46 @@ describe('POST /v1/task-create', () => {
     });
   });
 
-  it('keeps the first answer, with offline lines, when the regeneration cannot be had', async () => {
+  it('keeps the first answer, with an offline line, when the line cannot be asked for again', async () => {
     let writes = 0;
     const { response } = await createTask({
       jev: jevDecides(ordinary),
-      deepseek: (request) => {
+      deepseek: pickAnswers([picked], (request) => {
         writes += 1;
         return writes === 1 ? writerAnswers([leaking])(request) : answersStatus(400)(request);
-      },
+      }),
     });
 
-    const body = await bodyOf(response);
-    expect(body).toMatchObject({ lines: { hatch: offlineLine('en', 'cheeky', 'hatch') } });
+    expect(await bodyOf(response)).toEqual({
+      ...passFixture.response,
+      lines: { ...passFixture.response.lines, hatch: offlineLine('en', 'cheeky', 'hatch') },
+    });
   });
 
   it.each([
-    ['a phrase the text never said', { heardAs: 'by the end of March', date: '2027-03-31' }],
-    ['a phrase that is not a date', { heardAs: 'before the Japan trip', date: '2026-10-20' }],
-    ['no phrase at all', { heardAs: '', date: '2026-10-09' }],
-    ['a date that does not exist', { heardAs: 'oh and', date: '2026-02-30' }],
-  ])('never makes a deadline from %s', async (_, heard) => {
-    const { response } = await createTask({
+    ['hands back nothing twice', writerAnswers([{}])],
+    ['is not answering', answersStatus(503)],
+    ['takes too long', timesOut],
+  ])('answers with offline lines and a name made in code when the writer %s', async (_, writer) => {
+    const { response, doubles } = await createTask({
       jev: jevDecides(ordinary),
-      deepseek: writerAnswers([
-        {
-          ...recorded,
-          oneThingDue: heard,
-          dated: [
-            ...recorded.dated,
-            { text: 'Renew the passport', line: 'I heard a deadline: the passport.', ...heard },
-          ],
-          parked: ['Reply to Sam about Saturday', 'Bathroom'],
-        },
-      ]),
+      deepseek: pickAnswers([picked], writer),
     });
 
     const body = await bodyOf(response);
+    expect(writerCalls(doubles).length).toBeLessThanOrEqual(2);
     expect(body).toMatchObject({
-      oneThing: { dueDate: null },
-      // The real one, worked out in code from "due on Friday" and the request's own today.
-      deadlines: [{ text: 'Council tax', dueDate: '2026-10-09' }],
-    });
-    // The thing itself is kept, without a date.
-    expect(body.verdict === 'pass' ? body.parked : []).toContainEqual({
-      text: 'Renew the passport',
-    });
-  });
-
-  it('drops a task the text never named and refuses a one thing it never named', async () => {
-    const invented = await createTask({
-      jev: jevDecides(ordinary),
-      deepseek: writerAnswers([
-        { ...recorded, parked: [...recorded.parked, 'Book a holiday in Peru'] },
-      ]),
-    });
-    expect(await bodyOf(invented.response)).toEqual(passFixture.response);
-
-    const wrongThing = await createTask({
-      jev: jevDecides(ordinary),
-      deepseek: writerAnswers([{ ...recorded, oneThing: 'Book a holiday in Peru.' }]),
-    });
-    expect(wrongThing.response.status).toBe(502);
-    expect(await wireErrorOf(wrongThing.response)).toMatchObject({ code: 'voice_check_failed' });
-  });
-
-  it("keeps a short typed task in the user's own words when the rewording strays", async () => {
-    const { response } = await createTask(
-      {
-        jev: jevDecides(ordinary),
-        deepseek: writerAnswers([
-          { ...recorded, oneThing: 'Put one load of washing on.', dated: [] },
-        ]),
+      verdict: 'pass',
+      oneThing: passFixture.response.oneThing,
+      labels: passFixture.response.labels,
+      monster: { title: offlinePacks.en.monsterTitles[0] },
+      lines: {
+        hatch: offlineLine('en', 'cheeky', 'hatch'),
+        working: [...offlinePacks.en.lines.cheeky.working],
       },
-      { ...passFixture.request, text: 'do the laundry', source: 'typed' },
-    );
-
-    expect(await bodyOf(response)).toMatchObject({
-      oneThing: { text: 'do the laundry', dueDate: null },
-      parked: [],
-      deadlines: [],
     });
+    // The body the labels chose, and a title from the offline pool.
+    expect(body.verdict === 'pass' ? body.monster.name : '').toMatch(/^Phone, \p{Lu}/u);
   });
 
   it('never echoes the text in an error and never logs or stores it', async () => {
@@ -258,12 +235,16 @@ describe('POST /v1/task-create', () => {
     expect(refused.status).toBe(400);
     expect(await refused.clone().text()).not.toContain('plumber');
 
-    // Every path that logs: an unscreened text, a failed check, a failed retry, a refused answer.
-    await createTask({ jev: jevDecides(ordinary), deepseek: writerAnswers([leaking, leaking]) });
-    await createTask({ jev: jevDecides(connectionDrops), deepseek: timesOut });
+    // Every path that logs: an unscreened text, a failed check, a failed rewrite, a refused pick.
     await createTask({
       jev: jevDecides(ordinary),
-      deepseek: writerAnswers([{ ...recorded, oneThing: 'Book a holiday in Peru.' }]),
+      deepseek: models([leaking, { 'lines.hatch': bannedHatch }]),
+    });
+    await createTask({ jev: jevDecides(connectionDrops), deepseek: timesOut });
+    await createTask({ jev: jevDecides(ordinary), deepseek: pickAnswers([picked], timesOut) });
+    await createTask({
+      jev: jevDecides(ordinary),
+      deepseek: models([written], [{ ...picked, oneThing: 'Book a holiday in Peru.' }]),
     });
 
     const logs = JSON.stringify(logged);

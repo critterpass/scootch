@@ -112,6 +112,20 @@ export const enGuide: VoiceGuide = {
     'Scumley, Night Manager of the Soap Dish',
     'Enveloppe, Librarian of the Top Drawer',
   ],
+  nameAttractors: ['Molar'],
+  nameShapes: [
+    "a pun on a well-known name, bent around one of this task's nouns",
+    'an old-fashioned first name that has nothing to do with the task',
+    'a nickname made from the sound the object makes',
+    'a made-up surname ending in -worth, -ley, -kins or -by',
+    "a rank or honorific (Captain, Auntie, Dr, Dame) and one of this task's nouns",
+    'a short, blunt nickname of one syllable',
+    'a grand double-barrelled name for a very small thing',
+    'a pet name somebody clearly regrets giving it',
+  ],
+  nameOpenings: [...'ABCDEFGHIJKLNOPQRSTUVWYZ'],
+  nameIdea: (shape, opening) =>
+    `The name for this answer: ${shape}, with a first name that starts with "${opening}".`,
   angles: [
     'the task is a lodger who pays no rent',
     'a nature documentary about the task',

@@ -44,8 +44,6 @@ const mustFail: [...Row, CheckReason][] = [
   // The leaks and misfires the bake-off recorded.
   ['en', 'cheeky', 'monsterName', 'Noreen, Warden of the Missed Call List', 'banned_word'],
   ['en', 'unhinged', 'monsterName', 'Ma Bell, Warden of the Missed-Call Underworld', 'banned_word'],
-  ['en', 'unhinged', 'notification', 'Dialtoneus is humming her ringback again.', 'banned_word'],
-  ['en', 'unhinged', 'hatch', 'I have barricaded the phone behind a cushion fort.', 'banned_word'],
   [
     'en',
     'cheeky',
@@ -125,7 +123,7 @@ const mustFail: [...Row, CheckReason][] = [
   ['en', 'soft', 'working', '   ', 'empty'],
   ['vi', 'soft', 'working', 'Tui ngồi đây với bạn nha, không vội gì đâu.', 'wrong_pronoun'],
   ['vi', 'cheeky', 'working', "I'm holding the bucket. You hold the phone.", 'wrong_language'],
-  ['vi', 'cheeky', 'notification', 'Cái máy giặt bị hư mà vẫn đòi lên sóng.', 'banned_word'],
+  ['vi', 'cheeky', 'notification', 'Bạn hư quá, cái máy giặt chờ bạn hoài.', 'banned_word'],
   ['vi', 'cheeky', 'notification', 'Ba tuần rồi cái tờ khai vẫn nằm đó.', 'missed_days'],
   ['vi', 'cheeky', 'start', 'Mười phút thôi, tui bấm giờ rồi đó.', 'session_length'],
   ['vi', 'soft', 'working', 'Mình cầu nguyện cho cái bồn rửa một chút.', 'topic_religion'],

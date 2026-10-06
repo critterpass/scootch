@@ -1,49 +1,13 @@
 {
-  "route": "task.create",
+  "route": "task.create_lines",
   "request": {
-    "language": "vi",
-    "attitude": "cheeky",
-    "energy": "medium",
-    "text": "trời ơi nhiều việc quá, phải nộp tờ khai thuế trước thứ sáu, rồi gọi thợ sửa cái máy giặt kêu như máy cày, nhắn lại chị Hạnh vụ họp lớp, với mấy chậu cây ngoài ban công khô queo hết rồi",
-    "source": "ramble",
-    "localDate": "2026-10-06",
-    "timeZone": "Asia/Ho_Chi_Minh",
-    "overrideSerious": false
+    "continuation": "eyJwYXlsb2FkIjoicmVjb3JkZWQifQ.c2lnbmF0dXJl"
   },
   "response": {
-    "verdict": "pass",
-    "seriousOverridden": false,
-    "energy": "medium",
-    "oneThing": {
-      "text": "Gọi thợ sửa cái máy giặt.",
-      "dueDate": null
-    },
-    "parked": [
-      {
-        "text": "Nhắn lại chị Hạnh vụ họp lớp"
-      },
-      {
-        "text": "Tưới mấy chậu cây ngoài ban công"
-      }
-    ],
-    "deadlines": [
-      {
-        "text": "Tờ khai thuế",
-        "dueDate": "2026-10-09",
-        "heardAs": "trước thứ sáu",
-        "line": "Tui nghe có hạn nha: Tờ khai thuế, trước thứ sáu."
-      }
-    ],
     "monster": {
       "name": "Lồng Lộn, Ca Sĩ Chính của Ban Nhạc Máy Giặt",
       "title": "Cư dân lồng giặt",
       "flavourText": "Sống bằng tất lẻ. Kỵ nhất một cuộc gọi dưới ba phút."
-    },
-    "labels": {
-      "workMode": "calling",
-      "bodyType": "phone",
-      "fitsTenMinutes": true,
-      "sharePrivate": false
     },
     "lines": {
       "hatch": "Nó tập hát trong lồng giặt lâu rồi, cả xóm tưởng nhà bạn nuôi máy cày.",

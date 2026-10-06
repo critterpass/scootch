@@ -1,76 +1,54 @@
 import {
   taskCreateResponseSchema,
+  type Energy,
   type TaskCreateRequest,
   type TaskCreateResponse,
+  type TaskCreateStartPass,
+  type TaskLabels,
 } from '@scootch/domain';
-import {
-  checkLine,
-  offlinePacks,
-  wordsOf,
-  type TaskCopy,
-  type TaskLineFailure,
-} from '@scootch/voice';
+import { checkLine, offlinePacks, wordsOf } from '@scootch/voice';
 
-import type { Bindings } from '../../env';
 import { ApiError } from '../../errors';
-import { recordAiUsage } from '../../ledger';
-import { decide, type DecideContext } from '../decide';
+import { decide } from '../decide';
 import { generate } from '../deepseek';
 import { screenInputQuestion, screenVerdict } from '../screen-input';
 
+import {
+  decideContext,
+  record,
+  seedOf,
+  unchecked,
+  unwritable,
+  type TaskCreateContext,
+  type VoiceCheckSummary,
+} from './context';
+import type { ContinuationPayload } from './continuation';
 import { guessEnergy, labelsFor } from './labels';
-import { notePrompt, plainSystem, writerSystem } from './prompt';
-import { plainOutputSchema, writerOutputSchema, type WriterOutput } from './schema';
-import { oneThingProblem, sortThings, type OneThingProblem, type SortedThings } from './things';
-import { copyFrom, failuresIn, withOfflineLines } from './voice-check';
+import { ownWordsAtMost, pickThings } from './pick';
+import { notePrompt, plainSystem } from './prompt';
+import { plainOutputSchema } from './schema';
+import { oneThingProblem, sortThings } from './things';
+import { writeLines } from './write-lines';
 
-export const taskCreateRouteId = 'task.create';
-
-export type TaskCreateContext = {
-  readonly env: Pick<Bindings, 'DB' | 'TYPESAFE_API_KEY' | 'DEEPSEEK_API_KEY'>;
-  readonly deviceHash: string | null;
-  readonly requestId?: string;
-};
-
-/** How the voice check went, as counts: what the eval and the logs may know about a call. */
-export type VoiceCheckSummary = {
-  /** Writer calls made: 1, or 2 when the first answer failed the check. */
-  readonly attempts: number;
-  /** Lines of the answer that came from the offline pack instead. */
-  readonly replaced: number;
-};
+export { taskCreateRouteId, type TaskCreateContext, type VoiceCheckSummary } from './context';
 
 export type TaskCreateResult = {
   readonly response: TaskCreateResponse;
   readonly voice: VoiceCheckSummary;
 };
 
-const unchecked: VoiceCheckSummary = { attempts: 0, replaced: 0 };
-
-/** A note this short is taken to be one task, so it can stand as the one thing in its own words. */
-const ownWordsAtMost = 8;
-
-function decideContext(context: TaskCreateContext): DecideContext {
-  return { env: context.env, route: taskCreateRouteId, deviceHash: context.deviceHash };
-}
-
-/** One row in the cost ledger per model call. A ledger failure never costs the answer. */
-async function record(
-  context: TaskCreateContext,
-  call: { model: string; inputTokens: number; outputTokens: number },
-): Promise<void> {
-  try {
-    await recordAiUsage(context.env.DB, {
-      route: taskCreateRouteId,
-      model: call.model,
-      inputTokens: call.inputTokens,
-      outputTokens: call.outputTokens,
-      deviceHash: context.deviceHash,
-    });
-  } catch {
-    console.error('ai usage not recorded', { route: taskCreateRouteId, model: call.model });
-  }
-}
+/** Stage one's answer: a pass still waiting for its words, or a verdict that is already whole. */
+export type TaskStart =
+  | {
+      readonly verdict: 'pass';
+      readonly response: Omit<TaskCreateStartPass, 'continuation'>;
+      /** What stage two is asked with. */
+      readonly payload: ContinuationPayload;
+    }
+  | {
+      readonly verdict: 'serious' | 'crisis';
+      readonly response: Exclude<TaskCreateResponse, { verdict: 'pass' }>;
+    };
 
 /** The care screen's verdict. When no model answers, nothing was judged and nothing is funny. */
 async function screen(context: TaskCreateContext, text: string) {
@@ -86,15 +64,11 @@ async function screen(context: TaskCreateContext, text: string) {
   }
 }
 
-function seed(): number {
-  return crypto.getRandomValues(new Uint32Array(1))[0] ?? 0;
-}
-
 /** A heavy task: the one thing in plain words, with the plain pack. No monster and no joke. */
 async function plainTask(
   context: TaskCreateContext,
   request: TaskCreateRequest,
-): Promise<TaskCreateResponse> {
+): Promise<Exclude<TaskCreateResponse, { verdict: 'pass' }>> {
   const { language } = request;
   const generated = await generate(
     { apiKey: context.env.DEEPSEEK_API_KEY },
@@ -144,150 +118,85 @@ async function plainTask(
   };
 }
 
-function unwritable(context: TaskCreateContext, problem: OneThingProblem | 'contract'): ApiError {
-  console.error('task not written', { requestId: context.requestId, problem });
-  return new ApiError('voice_check_failed', 'The task could not be written', { problem });
-}
-
-type Attempt = {
-  readonly sorted: SortedThings;
-  readonly copy: TaskCopy;
-  readonly failures: TaskLineFailure[];
-  readonly problem: OneThingProblem | null;
-};
-
-/** One writer call, sorted and checked. `retry` tells the writer where its last answer failed. */
-async function attempt(
-  context: TaskCreateContext,
-  request: TaskCreateRequest,
-  retry?: Attempt,
-): Promise<Attempt> {
-  const { language, attitude } = request;
-  const generated = await generate(
-    { apiKey: context.env.DEEPSEEK_API_KEY },
-    {
-      tier: 'writer',
-      system: writerSystem(language, attitude, seed()),
-      prompt: notePrompt(
-        request,
-        request.energy === 'guess' ? 'unknown' : request.energy,
-        retry === undefined
-          ? undefined
-          : [
-              ...retry.failures,
-              ...(retry.problem === null ? [] : [{ slot: 'oneThing', reasons: [retry.problem] }]),
-            ],
-      ),
-      tool: {
-        name: 'write_task',
-        description: "Return today's one thing and everything said about it.",
-      },
-      schema: writerOutputSchema,
-      maxTokens: 3000,
-    },
-  );
-  await record(context, generated);
-
-  // A short note that is one task already: when the rewording strays, the user's words stand.
-  const strayed = oneThingProblem(generated.output.oneThing, request) === 'not_in_text';
-  const output: WriterOutput =
-    strayed && wordsOf(request.text).length <= ownWordsAtMost
-      ? { ...generated.output, oneThing: request.text.trim() }
-      : generated.output;
-  const sorted = sortThings(output, request);
-  const lineOf = new Map(output.dated.map((item) => [item.text.trim(), item.line]));
-  const deadlines = sorted.dated.map((deadline) => ({
-    ...deadline,
-    line: lineOf.get(deadline.text) ?? '',
-  }));
-  const copy = copyFrom(output, deadlines, attitude);
-  return {
-    sorted,
-    copy,
-    failures: failuresIn(copy, language, attitude),
-    problem: oneThingProblem(output.oneThing, request),
-  };
-}
-
-function badness({ failures, problem }: Attempt): number {
-  return failures.length + (problem === null ? 0 : 1000);
-}
-
-/** The full answer: one writer call, the voice check, one regeneration, then offline lines. */
-async function funnyTask(
-  context: TaskCreateContext,
-  request: TaskCreateRequest,
-  seriousOverridden: boolean,
-): Promise<TaskCreateResult> {
-  const { language, attitude } = request;
-  const energy =
-    request.energy === 'guess'
-      ? guessEnergy(decideContext(context), request.text)
-      : Promise.resolve(request.energy);
-
-  let best = await attempt(context, request);
-  let attempts = 1;
-  if (badness(best) > 0) {
-    // Where and why only: a failure can be logged because it never holds the line.
-    console.warn('task voice check failed', {
-      requestId: context.requestId,
-      attempt: 1,
-      problem: best.problem,
-      failures: best.failures.map(({ slot, reasons }) => `${slot}: ${reasons.join(' ')}`),
-    });
-    attempts = 2;
-    try {
-      const second = await attempt(context, request, best);
-      if (badness(second) <= badness(best)) best = second;
-    } catch (error) {
-      console.warn('task regeneration failed', {
-        requestId: context.requestId,
-        reason: error instanceof ApiError ? error.code : 'internal',
-      });
-    }
-  }
-  if (best.problem !== null) throw unwritable(context, best.problem);
-  if (best.failures.length > 0) {
-    console.warn('task lines replaced', {
-      requestId: context.requestId,
-      failures: best.failures.map(({ slot, reasons }) => `${slot}: ${reasons.join(' ')}`),
-    });
-  }
-
-  const copy = withOfflineLines(best.copy, best.failures, language, attitude);
-  const labels = labelsFor(decideContext(context), best.sorted.oneThing.text);
-  const response = taskCreateResponseSchema.safeParse({
-    verdict: 'pass',
-    seriousOverridden,
-    energy: await energy,
-    oneThing: best.sorted.oneThing,
-    parked: best.sorted.parked,
-    deadlines: copy.deadlines,
-    monster: copy.monster,
-    labels: await labels,
-    lines: copy.lines,
-    notifications: copy.notifications,
-  });
-  if (!response.success) throw unwritable(context, 'contract');
-  return { response: response.data, voice: { attempts, replaced: best.failures.length } };
+/** A promise that is being waited for elsewhere, or not at all, without an unhandled rejection. */
+function held<T>(work: Promise<T>): Promise<T> {
+  work.catch(() => undefined);
+  return work;
 }
 
 /**
- * The one call per task. The text is screened first: a crisis answers with the verdict alone, a
- * heavy task with plain words and no monster, and anything else with everything the day needs.
+ * Stage one: what the screen shows first. The care screen, the fast pick and the energy guess all
+ * start at once, and nothing is answered until the screen has: a crisis answers with the verdict
+ * alone and a heavy task with plain words and no monster, exactly as if nothing else had run.
  * "It's fine, be funny" lifts a serious verdict only when a model really judged the text.
  *
  * The text goes to the models and nowhere else: it is not logged and not stored.
  */
+export async function startTask(
+  context: TaskCreateContext,
+  request: TaskCreateRequest,
+): Promise<TaskStart> {
+  const { language, attitude } = request;
+  const text = request.text.trim();
+  const picking = held(pickThings(context, request));
+  const energy: Promise<Energy> =
+    request.energy === 'guess'
+      ? held(guessEnergy(decideContext(context), request.text))
+      : Promise.resolve(request.energy);
+  // A note this short is its own one thing, so its labels need not wait for the pick.
+  const early: Promise<TaskLabels> | null =
+    wordsOf(text).length <= ownWordsAtMost ? held(labelsFor(decideContext(context), text)) : null;
+  const speculative = Promise.allSettled([picking, energy, ...(early === null ? [] : [early])]);
+
+  const { verdict, screened } = await screen(context, request.text);
+  if (verdict === 'crisis') {
+    context.defer?.(speculative);
+    return { verdict, response: { verdict: 'crisis' } };
+  }
+  const serious = verdict === 'serious';
+  if (serious && !(request.overrideSerious && screened)) {
+    context.defer?.(speculative);
+    return { verdict: 'serious', response: await plainTask(context, request) };
+  }
+
+  const sorted = await picking;
+  const oneThing = sorted.oneThing.text;
+  const labels = await (early !== null && oneThing === text
+    ? early
+    : labelsFor(decideContext(context), oneThing));
+  return {
+    verdict: 'pass',
+    response: {
+      verdict: 'pass',
+      seriousOverridden: serious,
+      energy: await energy,
+      oneThing: sorted.oneThing,
+      parked: sorted.parked,
+      deadlines: sorted.dated.map((deadline) => ({
+        ...deadline,
+        line: offlinePacks[language].deadline(attitude, deadline.text, deadline.heardAs),
+      })),
+      labels,
+    },
+    payload: {
+      oneThing,
+      language,
+      attitude,
+      bodyType: labels.bodyType,
+      seed: seedOf(oneThing, language, attitude, request.localDate),
+    },
+  };
+}
+
+/** The one call per task: both stages in one answer, for a caller that asks for everything. */
 export async function createTask(
   context: TaskCreateContext,
   request: TaskCreateRequest,
 ): Promise<TaskCreateResult> {
-  const { verdict, screened } = await screen(context, request.text);
-  if (verdict === 'crisis') return { response: { verdict: 'crisis' }, voice: unchecked };
-  const serious = verdict === 'serious';
-  if (serious && !(request.overrideSerious && screened)) {
-    return { response: await plainTask(context, request), voice: unchecked };
-  }
-  return funnyTask(context, request, serious);
+  const start = await startTask(context, request);
+  if (start.verdict !== 'pass') return { response: start.response, voice: unchecked };
+  const written = await writeLines(context, start.payload);
+  const response = taskCreateResponseSchema.safeParse({ ...start.response, ...written.response });
+  if (!response.success) throw unwritable(context, 'contract');
+  return { response: response.data, voice: written.voice };
 }

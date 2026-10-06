@@ -1,0 +1,52 @@
+{
+  "route": "task.create_start",
+  "request": {
+    "language": "en",
+    "attitude": "cheeky",
+    "energy": "medium",
+    "text": "ok so I need to renew my passport before the Japan trip, and nobody has called the plumber about the leak under the sink, council tax is due on Friday, oh and reply to Sam about Saturday, and the bathroom is a state",
+    "source": "ramble",
+    "localDate": "2026-10-06",
+    "timeZone": "Europe/London",
+    "overrideSerious": false,
+    "staged": true
+  },
+  "response": {
+    "verdict": "pass",
+    "seriousOverridden": false,
+    "energy": "medium",
+    "oneThing": {
+      "text": "Call the plumber about the leak under the sink.",
+      "dueDate": null
+    },
+    "parked": [
+      {
+        "text": "Renew the passport before the Japan trip"
+      },
+      {
+        "text": "Reply to Sam about Saturday"
+      },
+      {
+        "text": "Bathroom"
+      }
+    ],
+    "deadlines": [
+      {
+        "text": "Council tax",
+        "dueDate": "2026-10-09",
+        "heardAs": "due on Friday",
+        "line": "I heard a date: Council tax, due on Friday."
+      }
+    ],
+    "labels": {
+      "workMode": "calling",
+      "bodyType": "phone",
+      "fitsTenMinutes": true,
+      "sharePrivate": false
+    },
+    "continuation": {
+      "token": "eyJwYXlsb2FkIjoicmVjb3JkZWQifQ.c2lnbmF0dXJl",
+      "expiresAt": "2026-10-06T09:10:00.000Z"
+    }
+  }
+}
