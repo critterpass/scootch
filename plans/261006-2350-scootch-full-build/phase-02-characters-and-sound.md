@@ -18,6 +18,7 @@ drop in. Board: Characters; the card on App flows.
   working loop, never a blank.
 
 ### 3. Monster generator
+- Status: done — a6f6d3b
 - Owns: `packages/art/src/monsters/` (one file per body).
 - Do: 20 bodies; parameters for ink, size, eyes, mouth, horns, antennae and
   legs; a pure function from a seed and parameters to a drawing. The same

@@ -11,6 +11,7 @@ catalog:
   '@cloudflare/vitest-pool-workers': 0.22.0
   '@cloudflare/workers-types': 5.20260926.1
   '@eslint/js': 10.0.1
+  '@napi-rs/canvas': 1.0.10
   '@expo/log-box': 58.0.6
   '@expo/metro-runtime': 58.0.8
   '@jest/globals': 29.7.0
