@@ -91,7 +91,10 @@ describe('restoring marks on the fast tier', () => {
   it('returns the text with its marks when nothing else changed', async () => {
     const { context, doubles } = contextFor(restores('mai nộp bài tập toán'));
 
-    expect(await restoreMarks(context, typed)).toBe('mai nộp bài tập toán');
+    expect(await restoreMarks(context, typed)).toEqual({
+      outcome: 'restored',
+      text: 'mai nộp bài tập toán',
+    });
     expect(doubles.sent.deepseek[0]?.['model']).toBe('deepseek-flash');
   });
 
@@ -100,14 +103,14 @@ describe('restoring marks on the fast tier', () => {
     ['answered the note instead', restores('Bạn nên bắt đầu ngay hôm nay.')],
     ['timed out', timesOut],
     ['could not be reached', connectionDrops],
-  ])('gives nothing when the model %s, and logs neither text', async (_, reply) => {
+  ])('reads nothing when the model %s, and logs neither text', async (_, reply) => {
     const logged: unknown[][] = [];
     for (const level of ['log', 'warn', 'error'] as const) {
       vi.spyOn(console, level).mockImplementation((...args: unknown[]) => void logged.push(args));
     }
     const { context } = contextFor(reply);
 
-    expect(await restoreMarks(context, typed)).toBeNull();
+    expect(await restoreMarks(context, typed)).toEqual({ outcome: 'unread' });
     expect(JSON.stringify(logged)).not.toContain('nop bai');
     expect(JSON.stringify(logged)).not.toContain('nộp');
   });

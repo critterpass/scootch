@@ -13,6 +13,7 @@
   },
   "response": {
     "verdict": "serious",
+    "answeredBy": "jev",
     "energy": "low",
     "oneThing": {
       "text": "Gọi lại phòng khám hỏi kết quả sinh thiết.",

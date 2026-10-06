@@ -12,6 +12,7 @@
   },
   "response": {
     "verdict": "pass",
+    "answeredBy": "jev",
     "seriousOverridden": false,
     "energy": "medium",
     "oneThing": {
