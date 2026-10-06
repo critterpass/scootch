@@ -9,7 +9,12 @@
     ".": "./src/index.ts"
   },
   "scripts": {
+    "generate": "tsx ../../tools/scripts/generate-index.ts src/cues",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests"
+    "test": "tsx ../../tools/scripts/generate-index.ts --check src/cues && vitest run --passWithNoTests",
+    "samples": "tsx scripts/render-samples.ts"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:"
   }
 }
