@@ -1,0 +1,18 @@
+{
+  "route": "day.morning_line",
+  "request": {
+    "language": "en",
+    "attitude": "cheeky",
+    "localDate": "2026-10-07",
+    "kind": "carry_over",
+    "carryOver": {
+      "text": "Call the plumber about the leak under the sink.",
+      "serious": false,
+      "monsterName": "Drip Van Winkle, Tenant of the U-Bend"
+    }
+  },
+  "response": {
+    "line": "Drip Van Winkle slept in the bucket. He's shrunk a bit and he looks beatable.",
+    "firstStep": "Find the plumber's number and leave it on the screen."
+  }
+}

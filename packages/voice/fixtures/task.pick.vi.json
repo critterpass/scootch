@@ -1,0 +1,32 @@
+{
+  "route": "task.pick",
+  "request": {
+    "language": "vi",
+    "attitude": "cheeky",
+    "energy": "low",
+    "localDate": "2026-10-06",
+    "candidates": [
+      {
+        "id": "drawer-1",
+        "text": "Gia hạn hộ chiếu trước chuyến đi Nhật",
+        "dueDate": null
+      },
+      {
+        "id": "drawer-2",
+        "text": "Nhắn lại chị Hạnh vụ họp lớp",
+        "dueDate": null
+      },
+      {
+        "id": "drawer-3",
+        "text": "Tưới mấy chậu cây ngoài ban công",
+        "dueDate": null
+      }
+    ],
+    "declinedIds": []
+  },
+  "response": {
+    "pickedId": "drawer-2",
+    "ask": "Nhắn chị Hạnh. Hai câu thôi.",
+    "line": "Tui chọn cái bé nhất. Nhắn xong trà còn chưa kịp nguội."
+  }
+}

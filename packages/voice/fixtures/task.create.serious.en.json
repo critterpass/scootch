@@ -1,0 +1,31 @@
+{
+  "route": "task.create",
+  "case": "serious",
+  "request": {
+    "language": "en",
+    "attitude": "unhinged",
+    "energy": "guess",
+    "text": "Call the oncologist back about my biopsy results",
+    "source": "typed",
+    "localDate": "2026-10-06",
+    "timeZone": "Europe/London",
+    "overrideSerious": false
+  },
+  "response": {
+    "verdict": "serious",
+    "energy": "low",
+    "oneThing": {
+      "text": "Call the oncologist's office about the results.",
+      "dueDate": null
+    },
+    "parked": [],
+    "deadlines": [],
+    "lines": {
+      "acknowledge": "That sounds like a lot. I'll keep this one simple and quiet. I can sit with you while you call.",
+      "working": ["I'm right here. Take your time.", "No rush. I am staying put."],
+      "tinyNextStep": "Write down the questions you want to ask first.",
+      "done": "That's done. I'm here if you want to sit a while.",
+      "notFinished": "We can leave it here for today. It will keep until you're ready."
+    }
+  }
+}

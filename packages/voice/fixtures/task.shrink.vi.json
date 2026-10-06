@@ -1,0 +1,17 @@
+{
+  "route": "task.shrink",
+  "request": {
+    "language": "vi",
+    "attitude": "cheeky",
+    "task": {
+      "text": "Gọi thợ sửa cái máy giặt.",
+      "serious": false,
+      "monsterName": "Lồng Lộn, Ca Sĩ Chính của Ban Nhạc Máy Giặt"
+    },
+    "previous": []
+  },
+  "response": {
+    "task": "Mở danh bạ, bấm gọi chú thợ, nói đúng một câu \"alo\".",
+    "line": "Nhìn Lồng Lộn kìa. Bé bằng cái kẹp quần áo mà mặt quạu thấy sợ."
+  }
+}

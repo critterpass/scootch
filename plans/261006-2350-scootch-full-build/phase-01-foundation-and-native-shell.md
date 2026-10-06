@@ -52,6 +52,7 @@ Two lanes: A owns tasks 1 to 6 and 11, B owns tasks 7 to 10.
   route's request and response, the local database schema, the table messages.
   One recorded fixture per AI route.
 - Done when: phases 02, 03 and 04 can each start from these files alone.
+- Status: done — 6369334
 
 ## Lane B: native shell
 
@@ -90,6 +91,7 @@ Two lanes: A owns tasks 1 to 6 and 11, B owns tasks 7 to 10.
   exists in one language only; every sheet captured in both languages. Fonts
   and layouts checked with Vietnamese diacritics and longer lines.
 - Done when: the sample screen appears in a sheet in both languages.
+- Status: done — 8e0292b
 
 ## Exit
 

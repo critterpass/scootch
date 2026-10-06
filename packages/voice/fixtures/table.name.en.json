@@ -1,0 +1,13 @@
+{
+  "route": "table.name",
+  "request": {
+    "language": "en",
+    "name": "Priya"
+  },
+  "response": {
+    "acceptable": true,
+    "confidence": 0.99,
+    "lowConfidence": false,
+    "answeredBy": "jev"
+  }
+}

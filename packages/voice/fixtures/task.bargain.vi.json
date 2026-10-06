@@ -1,0 +1,21 @@
+{
+  "route": "task.bargain",
+  "request": {
+    "language": "vi",
+    "attitude": "cheeky",
+    "task": {
+      "text": "Gọi thợ sửa cái máy giặt.",
+      "serious": false,
+      "monsterName": "Lồng Lộn, Ca Sĩ Chính của Ban Nhạc Máy Giặt"
+    },
+    "excuse": "mười lăm phút nữa tui họp rồi, đầu óc đang như nồi cháo",
+    "minutes": 10
+  },
+  "response": {
+    "counterOffer": {
+      "task": "Tìm số chú thợ rồi lưu ra màn hình chính.",
+      "minutes": 3
+    },
+    "line": "Duyệt nồi cháo. Ba phút, một số điện thoại, còn Lồng Lộn ngồi dỗi trong thau."
+  }
+}

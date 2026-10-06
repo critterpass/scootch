@@ -1,0 +1,26 @@
+{
+  "route": "week.record_name",
+  "request": {
+    "language": "en",
+    "attitude": "cheeky",
+    "week": "2026-W41",
+    "bars": [
+      {
+        "monsterName": "Drip Van Winkle, Tenant of the U-Bend",
+        "task": "Call the plumber about the leak under the sink"
+      },
+      {
+        "monsterName": "Stampede, Duke of Form Twelve",
+        "task": "Renew the passport"
+      },
+      {
+        "monsterName": "Sudsy Malone, Mayor of the Sink Pile",
+        "task": null
+      }
+    ]
+  },
+  "response": {
+    "name": "Drip Van Winkle and the Buckets",
+    "linerNote": "Three bars and one bucket solo. I wept at the key change. There was no key change."
+  }
+}

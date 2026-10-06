@@ -1,0 +1,15 @@
+{
+  "route": "screen.input",
+  "case": "serious",
+  "request": {
+    "language": "en",
+    "text": "Arrange dad's funeral and write the eulogy by Friday",
+    "source": "typed"
+  },
+  "response": {
+    "verdict": "serious",
+    "confidence": 0.97,
+    "lowConfidence": false,
+    "answeredBy": "jev"
+  }
+}

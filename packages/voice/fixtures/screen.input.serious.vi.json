@@ -1,0 +1,15 @@
+{
+  "route": "screen.input",
+  "case": "serious",
+  "request": {
+    "language": "vi",
+    "text": "Lo đám tang cho ba và báo tin cho họ hàng",
+    "source": "typed"
+  },
+  "response": {
+    "verdict": "serious",
+    "confidence": 0.98,
+    "lowConfidence": false,
+    "answeredBy": "jev"
+  }
+}

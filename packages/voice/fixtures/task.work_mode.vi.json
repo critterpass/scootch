@@ -1,0 +1,13 @@
+{
+  "route": "task.work_mode",
+  "request": {
+    "language": "vi",
+    "text": "Gọi thợ sửa cái máy giặt"
+  },
+  "response": {
+    "workMode": "calling",
+    "confidence": 0.97,
+    "lowConfidence": false,
+    "answeredBy": "jev"
+  }
+}

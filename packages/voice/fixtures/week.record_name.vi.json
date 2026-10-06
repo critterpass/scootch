@@ -1,0 +1,26 @@
+{
+  "route": "week.record_name",
+  "request": {
+    "language": "vi",
+    "attitude": "cheeky",
+    "week": "2026-W41",
+    "bars": [
+      {
+        "monsterName": "Lồng Lộn, Ca Sĩ Chính của Ban Nhạc Máy Giặt",
+        "task": "Gọi thợ sửa cái máy giặt"
+      },
+      {
+        "monsterName": "Khai Hoang, Trưởng Phòng Tờ Khai Số Hai",
+        "task": "Nộp tờ khai thuế"
+      },
+      {
+        "monsterName": "Chén Anh Chén Em, Chủ Tịch Hội Bồn Rửa",
+        "task": null
+      }
+    ]
+  },
+  "response": {
+    "name": "Lồng Lộn và Dàn Thau Chậu",
+    "linerNote": "Ba ô nhạc, một màn độc tấu thau. Tui khóc ở đoạn chuyển tông. Mà bài này làm gì có chuyển tông."
+  }
+}

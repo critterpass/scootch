@@ -1,0 +1,13 @@
+{
+  "route": "task.body_type",
+  "request": {
+    "language": "en",
+    "text": "Fold the laundry mountain on the chair"
+  },
+  "response": {
+    "bodyType": "sock",
+    "confidence": 0.95,
+    "lowConfidence": false,
+    "answeredBy": "jev"
+  }
+}

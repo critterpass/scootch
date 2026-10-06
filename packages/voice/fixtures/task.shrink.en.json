@@ -1,0 +1,17 @@
+{
+  "route": "task.shrink",
+  "request": {
+    "language": "en",
+    "attitude": "cheeky",
+    "task": {
+      "text": "Call the plumber about the leak under the sink.",
+      "serious": false,
+      "monsterName": "Drip Van Winkle, Tenant of the U-Bend"
+    },
+    "previous": []
+  },
+  "response": {
+    "task": "Find the plumber's number and press call. Say \"hello\".",
+    "line": "Look at Drip now. Pocket-sized and absolutely livid about it."
+  }
+}

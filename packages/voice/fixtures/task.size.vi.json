@@ -1,0 +1,13 @@
+{
+  "route": "task.size",
+  "request": {
+    "language": "vi",
+    "text": "Làm quyết toán thuế cả năm"
+  },
+  "response": {
+    "fitsTenMinutes": false,
+    "confidence": 0.93,
+    "lowConfidence": false,
+    "answeredBy": "jev"
+  }
+}

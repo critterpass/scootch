@@ -1,0 +1,13 @@
+{
+  "route": "table.name",
+  "request": {
+    "language": "vi",
+    "name": "Bé Na"
+  },
+  "response": {
+    "acceptable": true,
+    "confidence": 0.99,
+    "lowConfidence": false,
+    "answeredBy": "jev"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "route": "screen.input",
+  "case": "crisis",
+  "request": {
+    "language": "en",
+    "text": "Honestly everyone would be better off without me, I just need to sort my stuff out before I go",
+    "source": "ramble"
+  },
+  "response": {
+    "verdict": "crisis",
+    "confidence": 0.93,
+    "lowConfidence": false,
+    "answeredBy": "jev"
+  }
+}
