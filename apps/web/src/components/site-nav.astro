@@ -1,0 +1,50 @@
+---
+import type { Language } from '@scootch/i18n';
+
+import { appStoreUrl, brand, copyFor, localPath } from '../copy';
+
+import AppStoreBadge from './app-store-badge.astro';
+
+interface Props {
+  language: Language;
+  path: `/${string}`;
+}
+
+const { language, path } = Astro.props;
+const copy = copyFor(language);
+const words = brand(language);
+const links = [
+  { href: localPath(language, '/'), label: copy.nav.maker, current: path === '/' },
+  { href: localPath(language, '/plus'), label: words.plus, current: path === '/plus' },
+  { href: localPath(language, '/support'), label: copy.nav.help, current: path === '/support' },
+];
+---
+
+<header class="site-nav">
+  <div class="wrap site-nav-row">
+    <a class="logo" href={localPath(language, '/')} aria-label={words.name}>scootch<span>.</span></a>
+    <nav class="nav-links" aria-label={copy.nav.label}>
+      {
+        links.map((link) => (
+          <a href={link.href} aria-current={link.current ? 'page' : undefined}>
+            {link.label}
+          </a>
+        ))
+      }
+    </nav>
+    <span class="nav-badge"><AppStoreBadge language={language} /></span>
+    <a class="button button-ink nav-get" href={appStoreUrl}>{copy.nav.getTheApp}</a>
+    <details class="nav-menu">
+      <summary aria-label={copy.nav.menu}><span aria-hidden="true"></span></summary>
+      <nav aria-label={copy.nav.menu}>
+        {
+          links.map((link) => (
+            <a href={link.href} aria-current={link.current ? 'page' : undefined}>
+              {link.label}
+            </a>
+          ))
+        }
+      </nav>
+    </details>
+  </div>
+</header>

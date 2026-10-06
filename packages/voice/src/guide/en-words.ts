@@ -1,25 +1,24 @@
+import { enContextWords } from './en-context';
 import type { VoiceGuide } from './types';
 
 /** The English word lists: what the prompt forbids and what the checker looks for. */
 export const enWords: Pick<
   VoiceGuide,
-  'bannedWords' | 'offLimits' | 'offLimitsNote' | 'userWorth' | 'missedDays'
+  'bannedWords' | 'contextWords' | 'offLimits' | 'offLimitsNote' | 'userWorth' | 'missedDays'
 > = {
+  contextWords: enContextWords,
   bannedWords: [
     'fail*',
     'lazy',
     'laziness',
-    'behind',
     'missed',
     'miss call*',
-    'again',
     'finally',
     'streak*',
     'should',
     "shouldn't",
     "should've",
     'overdue',
-    'late',
     'procrastinat*',
     'excuse*',
     'guilt*',

@@ -21,6 +21,7 @@ friends"). The home strip of example monsters uses a fixed, hand-checked set.
   (helplines and the support-tool statement on every page), both languages,
   light and dark, Reduce Motion, large text up to 310%, Apple's official
   badge artwork.
+- Status: partly done — 3e9df8e; Astro on Cloudflare with dev and prd, shared tokens, navigation and footer with helplines and the support-tool statement, both languages, light and dark, Reduce Motion; the App Store badge is a stand-in image and text up to 310% is unchecked, not deployed
 
 ### 2. Monster maker
 - Do: one field; the input screen first (a heavy input gets one kind sentence
@@ -28,6 +29,7 @@ friends"). The home strip of example monsters uses a fixed, hand-checked set.
   the same generator as the app; hide-the-task toggle; a nap after twelve
   hatches in a row, for five minutes. Input is deleted after 24 hours unless
   the card is shared.
+- Status: partly done — 3e9df8e; the maker on the home page with all six states and the hide toggle, and `POST /v1/monster-make` (screen first, nonsense, the nap after twelve, voice check with fallback); nothing typed is stored yet, so the 24-hour deletion waits for shared cards, not deployed
 - States: empty, hatching, hatched, too many tries, nonsense, offline.
 - Test: a crisis input never returns a monster.
 
@@ -59,6 +61,7 @@ friends"). The home strip of example monsters uses a fixed, hand-checked set.
 - Do: the home page with the maker as hero; the Plus page with prices and the
   house rules; privacy, terms, support, helplines by country, "what Scootch is
   and isn't", press kit, not found.
+- Status: partly done — 3e9df8e; the home page with the maker as hero, stills, ideas, the fixed monster strip, prices and who it's for; the Plus page and the plain pages are not written, not deployed
 
 ### 8. Pre-launch
 - Do: the home page variant where "Catch it" becomes "Tell me when it's out"

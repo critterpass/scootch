@@ -39,6 +39,8 @@ export type GuideSample = {
   readonly never: readonly string[];
   readonly monsterNames: readonly string[];
   readonly angles: readonly string[];
+  /** How to build this call's monster name, so one name does not become every call's name. */
+  readonly nameIdea: string;
 };
 
 /**
@@ -57,6 +59,10 @@ export function sampleGuide(language: Language, attitude: Attitude, seed: number
     never: pick(guide.attitudes[attitude].never, 3, random),
     monsterNames,
     angles: pick(guide.angles, 3, random),
+    nameIdea: guide.nameIdea(
+      pick(guide.nameShapes, 1, random)[0] ?? '',
+      pick(guide.nameOpenings, 1, random)[0] ?? '',
+    ),
   };
 }
 
@@ -76,11 +82,11 @@ export function renderVoiceGuide(language: Language, attitude: Attitude, seed: n
     guide.intro,
     section(guide.headings.rules, guide.rules),
     `# ${guide.headings.attitude}: ${chosen.name}\n${chosen.description}`,
-    `# ${guide.headings.bannedWords}\n${guide.bannedWords.map((word) => word.replace('*', '')).join(', ')}`,
+    `# ${guide.headings.bannedWords}\n${[...guide.bannedWords, ...guide.contextWords.filter(({ reason }) => reason === 'banned_word').map(({ word }) => word)].map((word) => word.replace('*', '')).join(', ')}`,
     `# ${guide.headings.offLimits}\n${guide.offLimitsNote}`,
     section(guide.headings.examples, sample.examples),
     section(guide.headings.never, sample.never),
-    section(guide.headings.monsterNames, sample.monsterNames),
+    `${section(guide.headings.monsterNames, sample.monsterNames)}\n${sample.nameIdea}`,
     section(guide.headings.angles, sample.angles),
   ].join('\n\n');
 }

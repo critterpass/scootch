@@ -1,0 +1,53 @@
+---
+import type { Language } from '@scootch/i18n';
+import { colors, type Palette } from '@scootch/tokens';
+
+import SiteFooter from '../components/site-footer.astro';
+import SiteNav from '../components/site-nav.astro';
+import { copyFor } from '../copy';
+import '../styles/site.css';
+
+interface Props {
+  language: Language;
+  /** The page's path in English, such as `/`. */
+  path: `/${string}`;
+  title: string;
+  description: string;
+}
+
+const { language, path, title, description } = Astro.props;
+const copy = copyFor(language);
+
+/** The app's palette as custom properties, so the site and the app share one set of inks. */
+function variables(palette: Palette): string {
+  return [
+    `--page:${palette.page}`,
+    `--surface:${palette.surface}`,
+    `--ink:${palette.ink}`,
+    `--muted:${palette.muted}`,
+    `--tomato:${palette.tomato}`,
+    `--on-tomato:${palette.onTomato}`,
+    `--riso-blob:${palette.risoBlob}`,
+  ].join(';');
+}
+const palette = `:root{color-scheme:light dark;${variables(colors.light)}}@media (prefers-color-scheme:dark){:root{${variables(colors.dark)}}}`;
+---
+
+<!doctype html>
+<html lang={language}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="alternate" hreflang="en" href={new URL(path, Astro.site)} />
+    <link rel="alternate" hreflang="vi" href={new URL(path === '/' ? '/vi/' : `/vi${path}`, Astro.site)} />
+    <style is:inline set:html={palette} />
+  </head>
+  <body>
+    <a class="skip" href="#main">{copy.nav.skip}</a>
+    <SiteNav language={language} path={path} />
+    <main id="main"><slot /></main>
+    <SiteFooter language={language} path={path} />
+  </body>
+</html>

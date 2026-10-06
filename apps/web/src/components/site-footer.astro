@@ -1,0 +1,95 @@
+---
+import type { Language } from '@scootch/i18n';
+
+import { brand, copyFor, localPath } from '../copy';
+
+import AppStoreBadge from './app-store-badge.astro';
+
+interface Props {
+  language: Language;
+  path: `/${string}`;
+}
+
+const { language, path } = Astro.props;
+const copy = copyFor(language);
+const words = brand(language);
+const other: Language = language === 'en' ? 'vi' : 'en';
+const to = (page: `/${string}`) => localPath(language, page);
+
+// Links to pages that are not written yet already point at their final paths.
+const groups = [
+  {
+    title: copy.footer.scootch,
+    links: [
+      { href: to('/what-scootch-is'), label: copy.footer.whatItIs },
+      { href: to('/plus'), label: words.plus },
+      { href: to('/press'), label: copy.footer.press },
+    ],
+  },
+  {
+    title: copy.footer.help,
+    links: [
+      { href: to('/support'), label: copy.footer.support },
+      { href: to('/helplines'), label: copy.footer.helplines },
+      { href: to('/privacy'), label: copy.footer.privacy },
+      { href: to('/terms'), label: copy.footer.terms },
+    ],
+  },
+  {
+    title: copy.footer.elsewhere,
+    links: [
+      { href: to('/android'), label: copy.footer.android },
+      { href: to('/'), label: copy.nav.maker },
+    ],
+  },
+];
+---
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a class="logo" href={to('/')} aria-label={words.name}>scootch<span>.</span></a>
+        <p>{copy.footer.tagline}</p>
+        <AppStoreBadge language={language} />
+      </div>
+      {
+        groups.map((group) => (
+          <details class="footer-group" open>
+            <summary>{group.title}</summary>
+            <ul>
+              {group.links.map((link) => (
+                <li>
+                  <a href={link.href}>{link.label}</a>
+                </li>
+              ))}
+            </ul>
+          </details>
+        ))
+      }
+    </div>
+    <div class="care-bar">
+      <p class="care-ask">
+        {copy.footer.hardTime}{' '}
+        <a href={to('/helplines')}>{copy.footer.findHelpline}</a>
+      </p>
+      <p class="care-statement">{copy.footer.supportTool}</p>
+    </div>
+    <div class="footer-end">
+      <p>{copy.footer.copyright}</p>
+      <a href={localPath(other, path)} lang={other} hreflang={other}>{copy.footer.otherLanguage}</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // The footer groups are open lists on a wide screen and fold into rows on a phone.
+  const narrow = window.matchMedia('(max-width: 44rem)');
+  const fold = () => {
+    for (const group of document.querySelectorAll<HTMLDetailsElement>('.footer-group')) {
+      group.open = !narrow.matches;
+    }
+  };
+  fold();
+  narrow.addEventListener('change', fold);
+</script>

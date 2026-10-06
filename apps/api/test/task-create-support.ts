@@ -4,7 +4,7 @@ import type { TaskCreatePass, TaskCreateRequest } from '@scootch/domain';
 import { vi } from 'vitest';
 
 import passEn from '../../../packages/voice/fixtures/task.create.en.json';
-import type { WriterOutput } from '../src/ai/task-create/schema';
+import type { LinesOutput, PickOutput } from '../src/ai/task-create/schema';
 import { createApp } from '../src/app';
 import * as routes from '../src/routes/index.generated';
 
@@ -13,20 +13,25 @@ import { freshIp, registerDevice } from './support';
 
 export const passFixture = passEn as { request: TaskCreateRequest; response: TaskCreatePass };
 
-/** The recorded answer as the writer would have given it, before code sorted and checked it. */
-export function writerOutputOf(response: TaskCreatePass): WriterOutput {
+/** The recorded answer's things as the fast pick would have given them, before code sorted them. */
+export function pickOutputOf(response: TaskCreatePass): PickOutput {
   return {
     oneThing: response.oneThing.text,
     oneThingDue: null,
     parked: response.parked.map(({ text }) => text),
-    dated: response.deadlines.map(({ text, heardAs, dueDate, line }) => ({
+    dated: response.deadlines.map(({ text, heardAs, dueDate }) => ({
       text,
       heardAs,
       date: dueDate,
-      line,
     })),
-    monster: response.monster,
-    lines: response.lines,
+  };
+}
+
+/** The recorded answer's words as the writer would have given them, before code checked them. */
+export function linesOutputOf(response: TaskCreatePass): LinesOutput {
+  return {
+    ...response.monster,
+    ...response.lines,
     notifications: response.notifications.map(({ text }) => text),
   };
 }
@@ -58,12 +63,12 @@ export function jevDecides(screen: Verdict | Reply): Reply {
   };
 }
 
-/** The writer answering each call in turn with the next output; other tools get `otherwise`. */
-export function writerAnswers(outputs: readonly unknown[], otherwise?: Reply): Reply {
+/** Calls to tools whose names start with `prefix` answered in turn; other tools get `otherwise`. */
+function toolAnswers(prefix: string, outputs: readonly unknown[], otherwise?: Reply): Reply {
   let next = 0;
   return (request) => {
     const tool = (request.body['tools'] as { name: string }[])[0]?.name ?? '';
-    if (!tool.startsWith('write_')) {
+    if (!tool.startsWith(prefix)) {
       if (otherwise === undefined) throw new Error(`unexpected tool ${tool}`);
       return otherwise(request);
     }
@@ -81,23 +86,38 @@ export function writerAnswers(outputs: readonly unknown[], otherwise?: Reply): R
   };
 }
 
-export function writerCalls(doubles: Providers): Record<string, unknown>[] {
+/** The writer answering each of its calls in turn with the next output. */
+export function writerAnswers(outputs: readonly unknown[], otherwise?: Reply): Reply {
+  return toolAnswers('write_', outputs, otherwise);
+}
+
+/** The fast pick answering each of its calls in turn, with the writer behind it. */
+export function pickAnswers(outputs: readonly unknown[], otherwise?: Reply): Reply {
+  return toolAnswers('pick_', outputs, otherwise);
+}
+
+export function toolCalls(doubles: Providers, prefix: string): Record<string, unknown>[] {
   return doubles.sent.deepseek.filter((body) =>
-    ((body['tools'] as { name: string }[])[0]?.name ?? '').startsWith('write_'),
+    ((body['tools'] as { name: string }[])[0]?.name ?? '').startsWith(prefix),
   );
+}
+
+export function writerCalls(doubles: Providers): Record<string, unknown>[] {
+  return toolCalls(doubles, 'write_');
 }
 
 /** Sends one task call with both provider keys set and the providers replaced. */
 export async function createTask(
   replies: { jev: Reply; deepseek: Reply },
   body: unknown = passFixture.request,
+  { path = '/v1/task-create', device }: { path?: string; device?: string } = {},
 ) {
   const doubles = providers(replies);
   vi.stubGlobal('fetch', doubles.fetch);
-  const token = await registerDevice();
+  const token = device ?? (await registerDevice());
   const ctx = createExecutionContext();
   const response = await createApp(Object.values(routes)).fetch(
-    new Request('https://api.test/v1/task-create', {
+    new Request(`https://api.test${path}`, {
       method: 'POST',
       headers: {
         'CF-Connecting-IP': freshIp(),

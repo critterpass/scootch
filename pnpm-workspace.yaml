@@ -7,6 +7,8 @@ saveExact: true
 
 # One pinned version per shared dependency; workspace packages reference them as `catalog:`.
 catalog:
+  '@astrojs/check': 0.9.10
+  '@astrojs/cloudflare': 14.3.3
   '@babel/core': 7.29.7
   '@bacons/apple-targets': 5.0.0
   '@cloudflare/vitest-pool-workers': 0.22.0
@@ -28,6 +30,8 @@ catalog:
   expo-splash-screen: 58.0.1
   expo-store-review: 58.0.2
   '@napi-rs/canvas': 1.0.10
+  '@playwright/test': 1.58.2
+  astro: 7.3.5
   '@expo/log-box': 58.0.6
   '@expo/metro-runtime': 58.0.8
   '@expo/ui': 58.0.7
@@ -82,6 +86,8 @@ catalog:
 
 # A native build may hold one copy of a native module: Expo's own packages take the pinned version.
 overrides:
+  # The Astro adapter's bundler plugin, held at the release that pairs with the pinned Wrangler.
+  '@cloudflare/vite-plugin': 1.60.2
   expo-application: 'catalog:'
   expo-asset: 'catalog:'
   expo-constants: 'catalog:'

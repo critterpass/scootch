@@ -1,0 +1,27 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Two environments only: `dev` (Worker `scootch-web-dev`, a preview address) and `prd` (Worker
+  // `scootch-web`, scootch.app). The environment is chosen when the site is bundled, with
+  // CLOUDFLARE_ENV=dev or CLOUDFLARE_ENV=prd; `wrangler deploy` then takes no `--env`.
+  //
+  // The site reaches the API through a service binding, so the monster maker's request stays on
+  // the site's own origin: no cross-origin call and no key in the browser.
+  "name": "scootch-web",
+  "main": "@astrojs/cloudflare/entrypoints/server",
+  "compatibility_date": "2026-08-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": { "directory": "./dist", "binding": "ASSETS" },
+  // Local runs (no environment) talk to the dev API.
+  "services": [{ "binding": "API", "service": "scootch-dev" }],
+  "env": {
+    "dev": {
+      "name": "scootch-web-dev",
+      "services": [{ "binding": "API", "service": "scootch-dev" }],
+    },
+    "prd": {
+      "name": "scootch-web",
+      "services": [{ "binding": "API", "service": "scootch" }],
+      "routes": [{ "pattern": "scootch.app", "custom_domain": true }],
+    },
+  },
+}
