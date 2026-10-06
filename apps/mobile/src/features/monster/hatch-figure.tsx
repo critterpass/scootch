@@ -1,13 +1,15 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
+  cancelAnimation,
+  Easing,
   useAnimatedStyle,
   useSharedValue,
   withRepeat,
-  withSequence,
   withTiming,
 } from 'react-native-reanimated';
 
+import { EGG_WOBBLE_SECONDS, eggWobble } from '@scootch/art';
 import type { Attitude, MonsterRow } from '@scootch/domain';
 
 import { Monster } from '../../art/Monster';
@@ -17,7 +19,6 @@ import { useScreenStyle } from '../../ui/use-screen-style';
 
 const FIGURE_SIZE = 150;
 const FIGURE_SIZE_LARGE_TEXT = 96;
-const WOBBLE_DEGREES = 5;
 
 export interface HatchFigureProps {
   readonly mood: ScootchProps['mood'];
@@ -33,25 +34,29 @@ export function HatchFigure({ mood, attitude, monster, sizeFactor = 1 }: HatchFi
   const { palette, largeText, reducedMotion, captured } = useScreenStyle();
   const t = useT();
   const size = largeText ? FIGURE_SIZE_LARGE_TEXT : FIGURE_SIZE;
-  const tilt = useSharedValue(0);
+  // Seconds into one wobble of the egg.
+  const wobbling = useSharedValue(0);
   const waiting = monster === null;
+  // A monster that arrives where the egg was pops in; one that was already there does not.
+  const waited = useRef(waiting);
 
   useEffect(() => {
-    if (!waiting || reducedMotion) {
-      tilt.value = 0;
-      return;
-    }
-    tilt.value = withRepeat(
-      withSequence(
-        withTiming(WOBBLE_DEGREES, { duration: 180 }),
-        withTiming(-WOBBLE_DEGREES, { duration: 360 }),
-        withTiming(0, { duration: 180 }),
-        withTiming(0, { duration: 500 }),
-      ),
+    if (!waiting || reducedMotion) return;
+    wobbling.value = withRepeat(
+      withTiming(EGG_WOBBLE_SECONDS, {
+        duration: EGG_WOBBLE_SECONDS * 1000,
+        easing: Easing.linear,
+      }),
       -1,
     );
-  }, [reducedMotion, tilt, waiting]);
-  const wobble = useAnimatedStyle(() => ({ transform: [{ rotate: `${tilt.value}deg` }] }));
+    return () => {
+      cancelAnimation(wobbling);
+      wobbling.value = 0;
+    };
+  }, [reducedMotion, wobbling, waiting]);
+  const wobble = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${eggWobble(wobbling.value)}deg` }],
+  }));
 
   return (
     <View style={styles.row}>
@@ -63,7 +68,15 @@ export function HatchFigure({ mood, attitude, monster, sizeFactor = 1 }: HatchFi
       />
       {monster ? (
         <View accessible accessibilityRole="image" accessibilityLabel={monster.name}>
-          <Monster spec={monster.spec} sizeFactor={sizeFactor} size={size} testID="hatch-monster" />
+          <Monster
+            spec={monster.spec}
+            sizeFactor={sizeFactor}
+            idle
+            hatching={waited.current}
+            reducedMotion={reducedMotion}
+            size={size}
+            testID="hatch-monster"
+          />
         </View>
       ) : (
         <Animated.View

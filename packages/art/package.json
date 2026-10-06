@@ -16,7 +16,8 @@
     "zoo": "tsx scripts/render-zoo.ts",
     "scootch": "tsx scripts/render-scootch.ts",
     "work-modes": "tsx scripts/render-work-modes.ts",
-    "cards": "tsx scripts/render-cards.ts"
+    "cards": "tsx scripts/render-cards.ts",
+    "motion": "tsx scripts/render-motion.ts"
   },
   "dependencies": {
     "@napi-rs/canvas": "catalog:",
