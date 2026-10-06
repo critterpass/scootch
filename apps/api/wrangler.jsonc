@@ -1,0 +1,65 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Two environments only: `--env dev` (Worker `scootch-dev`) and `--env prd` (Worker `scootch`).
+  // Bindings are not inherited, so each environment declares its own. Local runs and the tests use
+  // `dev` with simulated bindings, which need no Cloudflare account.
+  "name": "scootch",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-01",
+  "env": {
+    "dev": {
+      "name": "scootch-dev",
+      // COMMIT_SHA is overridden at deploy time (`--var COMMIT_SHA:<sha>`).
+      "vars": { "ENVIRONMENT": "dev", "COMMIT_SHA": "local" },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "scootch-dev",
+          // Placeholder: the controller replaces it with the id `wrangler d1 create` prints.
+          "database_id": "00000000-0000-0000-0000-000000000000",
+          "migrations_dir": "migrations",
+        },
+      ],
+      "r2_buckets": [{ "binding": "FILES", "bucket_name": "scootch-dev" }],
+      // Rate limit namespaces need no resource: the id is any integer unique within the account.
+      "ratelimits": [
+        {
+          "name": "IP_RATE_LIMIT",
+          "namespace_id": "7301",
+          "simple": { "limit": 120, "period": 60 },
+        },
+        {
+          "name": "DEVICE_RATE_LIMIT",
+          "namespace_id": "7302",
+          "simple": { "limit": 60, "period": 60 },
+        },
+      ],
+    },
+    "prd": {
+      "name": "scootch",
+      "vars": { "ENVIRONMENT": "prd", "COMMIT_SHA": "local" },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "scootch",
+          // Placeholder: the controller replaces it with the id `wrangler d1 create` prints.
+          "database_id": "00000000-0000-0000-0000-000000000000",
+          "migrations_dir": "migrations",
+        },
+      ],
+      "r2_buckets": [{ "binding": "FILES", "bucket_name": "scootch" }],
+      "ratelimits": [
+        {
+          "name": "IP_RATE_LIMIT",
+          "namespace_id": "7311",
+          "simple": { "limit": 120, "period": 60 },
+        },
+        {
+          "name": "DEVICE_RATE_LIMIT",
+          "namespace_id": "7312",
+          "simple": { "limit": 60, "period": 60 },
+        },
+      ],
+    },
+  },
+}

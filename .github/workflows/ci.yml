@@ -57,6 +57,18 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
 
+  # The API's tests run inside the Workers runtime, simulated locally: no Docker, no Cloudflare login.
+  api:
+    name: api tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with: { node-version: 24, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @scootch/api test
+
   no-ids:
     name: no plan ids or deferral words in source
     runs-on: ubuntu-latest
@@ -102,6 +114,7 @@ jobs:
       - lint
       - format
       - test
+      - api
       - no-ids
       - no-session-links
     runs-on: ubuntu-latest
