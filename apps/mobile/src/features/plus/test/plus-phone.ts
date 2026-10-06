@@ -1,4 +1,4 @@
-import type { SessionEvent, TaskCreatePass } from '@scootch/domain';
+import type { SessionEvent, TaskCreatePass, TaskCreateResponse } from '@scootch/domain';
 
 import passFixture from '../../../../../../packages/voice/fixtures/task.create.en.json';
 import { createTaskClient } from '../../../api/task-client';
@@ -20,7 +20,12 @@ const pass = passFixture.response as TaskCreatePass;
  * A phone on fakes with a store: a real in-memory database, a clock moved by hand, a fake App
  * Store, and the day store reading its daily limit from what that store last said.
  */
-export async function plusPhone(shop: FakeStore, database?: TestDatabase, at = MORNING) {
+export async function plusPhone(
+  shop: FakeStore,
+  database?: TestDatabase,
+  at = MORNING,
+  answer: TaskCreateResponse = pass,
+) {
   const data = database ?? (await openTestDatabase());
   const time = fakeTime(at);
   const device = fakeDevice();
@@ -55,7 +60,7 @@ export async function plusPhone(shop: FakeStore, database?: TestDatabase, at = M
     nextId: () => `id-${at}-${(ids += 1)}`,
     tasks: createTaskClient({
       screenInput: () => Promise.reject(new Error('not used')),
-      taskCreate: () => Promise.resolve(pass),
+      taskCreate: () => Promise.resolve(answer),
     }),
     online: () => Promise.resolve(true),
     runner,

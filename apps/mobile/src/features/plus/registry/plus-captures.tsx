@@ -71,11 +71,15 @@ export function Captured({ capture }: { readonly capture: PlusCapture }) {
       return (
         <PlusSheet
           attitude={capture.attitude}
-          said={noTaskLine(
-            language,
-            capture.attitude,
-            sheetLineSlot(capture.oneMore ? 'one_more' : 'asked'),
-          )}
+          said={
+            capture.heavyDay
+              ? null
+              : noTaskLine(
+                  language,
+                  capture.attitude,
+                  sheetLineSlot(capture.oneMore ? 'one_more' : 'asked'),
+                )
+          }
           state={{
             phase: phase === 'loading' || phase === 'unavailable' ? phase : 'ready',
             offerings: phase === 'loading' || phase === 'unavailable' ? null : FAKE_OFFERINGS,

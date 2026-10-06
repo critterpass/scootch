@@ -12,7 +12,7 @@ import { careGate } from '../api/care-gate';
 import type { SessionContext } from '../effects/adapters';
 
 import type { DayContext, DayEvent } from './day-types';
-import { lineFor } from './lines';
+import { NO_AFTER_LINES, lineFor } from './lines';
 import { park } from './task-rows';
 
 /** A reminder is never set for sooner than this. */
@@ -26,9 +26,19 @@ const NOTHING_SAID: SessionContext = { title: '', liveLine: '', lineFor: () => n
  * granted and nothing is said. The words that caused it are written nowhere.
  */
 export async function enterCrisis(ctx: DayContext): Promise<void> {
-  const { days, transcripts, sessions, careReminder } = ctx.deps.repositories;
+  const { days } = ctx.deps.repositories;
   const day = await days.get(ctx.memory.state.localDate);
   if (day) await days.put({ ...day, status: 'crisis' });
+  await stopWithoutAWord(ctx);
+}
+
+/**
+ * Whatever was going on for a text stops, and nothing is said: its kept words go, a running
+ * session ends with its timers, its Live Activity and its notifications, and nothing is granted.
+ * A crisis and a rejected text both end this way.
+ */
+export async function stopWithoutAWord(ctx: DayContext): Promise<void> {
+  const { transcripts, sessions, careReminder } = ctx.deps.repositories;
   const transcriptId = ctx.memory.offer?.transcriptId;
   if (transcriptId) await transcripts.remove(transcriptId);
   ctx.memory.offer = null;
@@ -55,6 +65,7 @@ export async function enterCrisis(ctx: DayContext): Promise<void> {
     burst: null,
     treat: null,
     parkedThoughts: [],
+    afterLines: NO_AFTER_LINES,
     heardDeadlines: [],
     notice: null,
     modelDown: false,

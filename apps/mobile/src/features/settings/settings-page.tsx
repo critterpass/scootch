@@ -41,7 +41,9 @@ export interface SettingsPageProps {
   readonly developerTools: boolean;
   readonly onChange: (changes: Partial<Omit<SettingsRow, 'id'>>) => void;
   readonly onLanguage: (language: Language | null) => void;
-  readonly onOpen: (page: 'finish-with' | 'privacy' | 'helplines' | 'developer-tools') => void;
+  readonly onOpen: (
+    page: 'finish-with' | 'privacy' | 'helplines' | 'plus' | 'developer-tools',
+  ) => void;
   readonly onClose: () => void;
 }
 
@@ -208,9 +210,9 @@ export function SettingsPage(props: SettingsPageProps) {
             ))
           : null}
         <Row
-          inert
           label={t('brand.plus')}
-          hint={t('oneScreen.notOpenYet')}
+          hint={t('settings.plus.hint')}
+          onPress={() => onOpen('plus')}
           testID="settings-plus"
         />
         <Row

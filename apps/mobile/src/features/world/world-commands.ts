@@ -4,7 +4,14 @@ import type { ColorScheme } from '@scootch/tokens';
 
 import { fill, PIECE_BOX, placedIn, seedRoll, type PieceArt, type WorldInks } from './piece-kit';
 import * as pieces from './pieces/index.generated';
-import { ROW_HEIGHT, WORLD_WIDTH, type PlacedPiece, type WorldLayout } from './world-layout';
+import { LANDMARK_ART } from './landmarks';
+import {
+  HEADLAND_HEIGHT,
+  ROW_HEIGHT,
+  WORLD_WIDTH,
+  type PlacedPiece,
+  type WorldLayout,
+} from './world-layout';
 
 /** Every piece drawing, one file each in the pieces folder. */
 export const PIECE_ART: Readonly<Record<string, PieceArt>> = pieces;
@@ -96,5 +103,35 @@ export function worldRowCommands(
     ...layout.placed
       .filter((piece) => piece.row === row)
       .flatMap((piece) => pieceCommands(piece, row * ROW_HEIGHT, monsters, inks)),
+  ];
+}
+
+const NO_ROLL = () => 0.5;
+
+/**
+ * The headland above the first row, where landmarks stand: a low rise of the same sand, and each
+ * landmark with its foot on it. A world with no landmark has no headland and draws nothing here.
+ */
+export function headlandCommands(layout: WorldLayout, inks: WorldInks): DrawCommand[] {
+  if (layout.landmarks.length === 0) return [];
+  const left = WORLD_WIDTH * 0.2;
+  const right = WORLD_WIDTH * 0.8;
+  const top = HEADLAND_HEIGHT - 22;
+  const rise = fill(
+    [
+      ['M', left, HEADLAND_HEIGHT],
+      ['Q', left, top, left + CORNER, top],
+      ['L', right - CORNER, top],
+      ['Q', right, top, right, HEADLAND_HEIGHT],
+      ['Z'],
+    ],
+    inks.ground,
+  );
+  return [
+    rise,
+    ...layout.landmarks.flatMap((mark) => {
+      const art = LANDMARK_ART[mark.art];
+      return art ? placedIn(art(NO_ROLL, inks), mark.x, mark.y, mark.size, PIECE_BOX) : [];
+    }),
   ];
 }

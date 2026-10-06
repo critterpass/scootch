@@ -22,6 +22,8 @@ import type { Repositories } from '../data/repositories';
 import type { Clock } from '../effects/adapters';
 import type { EffectsRunner } from '../effects/effects-runner';
 
+import type { AfterLines } from './lines';
+
 /** Everything a screen can do to the day. The store adds the current time itself. */
 export type DayEvent =
   | {
@@ -173,7 +175,11 @@ export interface DayState {
   readonly treat: string | null;
   /** Thoughts handed over at the end of a session, waiting for keep or discard. */
   readonly parkedThoughts: readonly ParkedThought[];
+  /** The task's own lines for the treat and the parked thoughts, kept past its finish. */
+  readonly afterLines: AfterLines;
   readonly drawer: { readonly open: boolean; readonly items: readonly DrawerItemRow[] };
+  /** A serious task is part of today (finished, set aside or open) or waits in the drawer. */
+  readonly heavyToday: boolean;
   readonly settings: SettingsRow;
   /** Set by a system surface and cleared by the screen that acts on it. Absent means none. */
   readonly surfaceRequest?: SurfaceRequest | null;
@@ -217,6 +223,10 @@ export interface DayMemory {
   restPending: boolean;
   /** Drawer items "Pick again" has turned down since the last pick was taken. */
   turnedDown: Id[];
+  /** A task whose last screen came from a judge the app does not trust: it is screened again. */
+  untrustedTaskId: Id | null;
+  /** When a task waiting for a trusted screen was last asked about. */
+  screenAskedAt: Instant | null;
 }
 
 export interface DayContext {

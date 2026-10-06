@@ -16,6 +16,7 @@ import { StepDots } from '../launch/launch-page';
 import { ChargeNote } from '../plus/charge-note';
 
 import { Corners } from './one-screen-corners';
+import { chargeNoteShows } from './one-screen-stage';
 import { Chips, TaskSetChoices, WorldRow, type TaskSetChoicesProps } from './one-screen-panels';
 
 const HEARD_SIZE = 22;
@@ -253,7 +254,8 @@ export function OneScreenView({
             </>
           )}
           {body}
-          <ChargeNote />
+          {/* Said beside nothing else: never during a task, a pick or a hatch. */}
+          {chargeNoteShows(shown.kind) ? <ChargeNote /> : null}
         </ScrollView>
         {footer === null ? null : <View style={styles.footer}>{footer}</View>}
       </KeyboardAvoidingView>

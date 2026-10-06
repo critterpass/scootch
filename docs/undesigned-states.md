@@ -31,7 +31,7 @@ state is designed or removed.
 | Crisis | A session that was running ends without a word | The board does not draw a crisis arriving mid-session |
 | Helplines | The page opened from Settings | The board says "one tap from Settings" but draws no page; it follows the website's helplines page, with no critter |
 | Settings | Language row, with its three choices shown in place | The board lacks it (product brief, section 11) |
-| Settings | Plus row (inert until purchases are wired) | The board lacks it (product brief, section 11) |
+| Settings | Plus row, opening the manage page | The board lacks it (product brief, section 11) |
 | Settings | Helplines row | The board lacks it (product brief, section 11) |
 | Settings | Developer tools row | Developer and device-run apps only; never in the store app |
 | Settings | Quiet hours: two rows stepped by half an hour | The board draws the row and its value, not how the times are changed |
@@ -43,7 +43,15 @@ state is designed or removed.
 | Privacy and data | Camera rows left out; the section is "Tasks" | The camera is not built |
 | Privacy and data | "On: kept for seven days, then deleted" under the switch | The board writes the off state only |
 | Privacy and data | Export or delete could not finish: one plain line under the rows | The board draws no failure |
+| Privacy and data | The backup is too large: one plain line under the rows | The board draws no backup that cannot be kept; the line says the world is still on the phone |
 | Privacy and data | "Delete everything?" with no monster named | The board names a monster; a phone with no catch, and any crisis day, asks plainly |
 | First launch | The restore offer: Scootch, one line, "Bring it back" and "Start fresh" | The boards do not draw restoring on a new phone |
 | One screen | Offline with no task: Scootch's offline line over the usual composer | The board draws "Carry on" and "Type something new" rows; here yesterday's task is already carried over as the one thing, and typing is the composer |
 | One screen | Model unavailable: the typed task is kept and Scootch says so above it | The board draws chips for picking; here the words typed are already the one thing, so there is nothing left to pick |
+| One screen | Done for today on a day that held a serious task: no "One more" | The board always draws the control; nothing is sold, or asked for, near something heavy, so the day ends with the world row alone |
+| One screen | A rejected text: Scootch says nothing and the composer asks for it another way | The offline pack has no plain line that asks for something else, so the interface's own words do |
+| One screen | A task screened only by the fallback: plain company and no monster until a trusted screen | The board draws offline and model-unavailable; this is the same quiet task with the connection up |
+| Plus sheet and Plus moments | No spoken line on a day that held a serious task | The board always gives them a line; the screens a person opens themselves still show, without one |
+| World | The lifetime lighthouse on a headland above the first row | The Plus board says a lighthouse lands but no world screen draws it; it takes no plot, so nothing else moves |
+| Session | Parked thoughts: the task's own line under the title | The board draws the thoughts without a line; shown only when the task's pack has one |
+| Session | Treat: the task's own ceremony line in place of the caught line | The board draws one line under the treat; shown only when the task's pack has one |

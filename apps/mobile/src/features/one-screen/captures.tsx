@@ -225,13 +225,20 @@ export function ComposerSpeechUnavailable() {
   return <TypingOnly voice="unavailable" />;
 }
 
-function WaitingWith({ capture }: { readonly capture: ComposerCapture }) {
+function WaitingWith({
+  capture,
+  silent = false,
+}: {
+  readonly capture: ComposerCapture;
+  /** Scootch says nothing: the composer's own words are all there is. */
+  readonly silent?: boolean;
+}) {
   const { voice } = useCapture();
   return (
     <OneScreenView
       mood="waiting"
       attitude={voice.attitude}
-      line={lineWithNoTask('waiting', voice)}
+      line={silent ? null : lineWithNoTask('waiting', voice)}
       offline={false}
       shown={composerShown(capture)}
     />
@@ -243,5 +250,5 @@ export function ComposerEmptyRecording() {
 }
 
 export function ComposerNotUnderstood() {
-  return <WaitingWith capture={{ notUnderstood: true }} />;
+  return <WaitingWith capture={{ notUnderstood: true }} silent />;
 }

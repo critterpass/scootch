@@ -7,6 +7,7 @@ import type { ParkedThought, SessionEvent } from '@scootch/domain';
 
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { useDispatch, useSession, useToday } from '../../state/day-store-provider';
+import { useSurfaceRequest } from '../../state/surface-requests';
 import { revealSeen } from '../reveal/reveal-seen';
 
 import { SHORT_SESSION_SECONDS, shortSession } from './dev/short-session';
@@ -46,7 +47,7 @@ function useNow(ticking: boolean): number {
  * and the Live Activity are the runner's; nothing here calls them.
  */
 export function useSessionScreen(): { model: SessionModel; actions: SessionActions } {
-  const { session, line, burst, treat, parkedThoughts, tinyNextStep } = useSession();
+  const { session, line, burst, treat, parkedThoughts, tinyNextStep, afterLines } = useSession();
   const { today, monster, settings } = useToday();
   const dispatch = useDispatch();
   const { language } = useLanguage();
@@ -110,6 +111,9 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
     return () => clearInterval(timer);
   }, [working, dispatch]);
 
+  // The Control Center control or a Live Activity button asked to park a thought: the field opens.
+  useSurfaceRequest('park_thought', view.kind === 'working', () => setParkOpen(true));
+
   useEffect(() => {
     if (parkedNote === null) return undefined;
     const timer = setTimeout(() => setParkedNote(null), PARKED_NOTE_MS);
@@ -144,6 +148,8 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
     fraction: live ? timeLeftFraction(live, now) : 0,
     line,
     tinyNextStep,
+    treatLine: afterLines.treat,
+    thoughtsLine: afterLines.parkedThoughts,
     reducedMotion: systemReducedMotion || settings.motion === 'calm',
     parkOpen,
     parkedNote,

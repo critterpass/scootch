@@ -6,7 +6,9 @@ import { chargeReminders, localDateTime, type IsoDate } from '@scootch/domain';
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { useToday } from '../../state/day-store-provider';
 import { useKeepsakes } from '../../state/keepsakes';
-import { lineWithNoTask } from '../../state/lines';
+import { useLighthouse } from '../world/use-lighthouse';
+import { plusLine } from '../../state/lines';
+import type { NoTaskSlot } from '@scootch/voice';
 import { usePlusRuntime, usePlusState } from '../../state/plus-context';
 
 import { throughAppleSheet } from './apple-sheet';
@@ -14,7 +16,6 @@ import { longDate, shortDay } from './dates';
 import { subscriptionOf } from './entitlement';
 import { useKeptWeeks } from './kept-records';
 import { lifetimeCard } from './lifetime-card';
-import { WORLD_DRAWS_LANDMARKS } from './lighthouse-piece';
 import { LifetimeMoment } from './lifetime-moment';
 import { LastDay, RenewalOff, TrialStarted } from './moments';
 import { RecordShelf } from './record-shelf';
@@ -23,7 +24,8 @@ import { PLUS_RENEWAL_OFF } from './routes';
 function useMoment() {
   const router = useRouter();
   const { language } = useLanguage();
-  const { settings } = useToday();
+  const day = useToday();
+  const { settings } = day;
   const runtime = usePlusRuntime();
   const plus = usePlusState();
   return {
@@ -32,7 +34,8 @@ function useMoment() {
     runtime,
     plus,
     attitude: settings.attitude,
-    voice: { language, attitude: settings.attitude },
+    /** The moment's spoken line; none on a day with something heavy in it. */
+    said: (slot: NoTaskSlot) => plusLine(slot, { language, attitude: settings.attitude }, day),
     timeZone: runtime.timeZone(),
     close: () => router.replace('/'),
   };
@@ -49,7 +52,7 @@ export function TrialStartedContainer() {
   return (
     <TrialStarted
       attitude={moment.attitude}
-      said={lineWithNoTask('trialStarted', moment.voice)}
+      said={moment.said('trialStarted')}
       remindOn={day(reminder?.remindAt)}
       chargeOn={day(reminder?.chargeAt ?? customer.trialEndsAt ?? undefined)}
       price={prices.yearly ?? null}
@@ -69,7 +72,7 @@ export function LastDayContainer() {
   return (
     <LastDay
       attitude={moment.attitude}
-      said={lineWithNoTask('trialLastDay', moment.voice)}
+      said={moment.said('trialLastDay')}
       yearlyPrice={moment.plus.prices.yearly ?? null}
       monthlyPrice={moment.plus.prices.monthly ?? null}
       keepYearly={moment.close}
@@ -91,7 +94,7 @@ export function RenewalOffContainer() {
     <RenewalOff
       after={cancelled ? 'cancelled' : 'renewal_off'}
       attitude={moment.attitude}
-      said={lineWithNoTask(cancelled ? 'plusCancelled' : 'renewalOff', moment.voice)}
+      said={moment.said(cancelled ? 'plusCancelled' : 'renewalOff')}
       until={endsAt === null ? null : longDate(endsAt, moment.language, moment.timeZone)}
       manage={() => void throughAppleSheet(port, store).then(moment.close)}
       close={moment.close}
@@ -104,6 +107,8 @@ export function LifetimeContainer() {
   const moment = useMoment();
   const t = useT();
   const { memory } = moment.runtime;
+  // The lighthouse lands in the world as the moment is shown, for someone who owns lifetime.
+  const lighthouse = useLighthouse();
   const [mintedOn, setMintedOn] = useState<IsoDate | null>(null);
   useEffect(() => {
     let current = true;
@@ -124,7 +129,7 @@ export function LifetimeContainer() {
   return (
     <LifetimeMoment
       attitude={moment.attitude}
-      said={lineWithNoTask('lifetime', moment.voice)}
+      said={moment.said('lifetime')}
       language={moment.language}
       card={lifetimeCard(
         {
@@ -134,7 +139,7 @@ export function LifetimeContainer() {
         },
         mintedOn,
       )}
-      landmark={WORLD_DRAWS_LANDMARKS}
+      landmark={lighthouse.owned}
       openWorld={() => moment.router.replace('/world')}
       close={moment.close}
     />

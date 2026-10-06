@@ -180,6 +180,32 @@ describe('the house rules', () => {
     }
   });
 
+  it('asks the one selling guard before "One more", the first offer and any spoken Plus line', () => {
+    const read = (file: string) => readFileSync(path.join(SOURCE, file), 'utf8');
+    expect(read('features/one-screen/one-screen.tsx')).toMatch(
+      /showsSelling\(day\) \? null : \(\s*<OneMore/,
+    );
+    expect(read('state/plus-runtime.ts')).toMatch(/selling: showsSelling\(day\)/);
+    // A Plus screen takes Scootch's words from `plusLine`, which is silent on a heavy day. Only
+    // the first offer (not shown at all then) and the charge reminders read the pack directly.
+    const speakers = filesUnder(path.join(SOURCE, 'features/plus'))
+      .filter((file) => !file.includes(`${path.sep}registry${path.sep}`))
+      .filter((file) => /\b(noTaskLine|lineWithNoTask)\(/.test(readFileSync(file, 'utf8')));
+    expect(speakers.map(relative).sort()).toEqual([
+      'features/plus/charge-reminders.ts',
+      'features/plus/first-offer.tsx',
+    ]);
+  });
+
+  it("opens the manage page from Settings' Plus row, and never the sheet", () => {
+    const read = (file: string) => readFileSync(path.join(SOURCE, file), 'utf8');
+    expect(read('features/settings/settings-container.tsx')).toMatch(/plus: '\/plus\/manage'/);
+    expect(read('features/settings/settings-page.tsx')).toMatch(
+      /onPress=\{\(\) => onOpen\('plus'\)\}\s*testID="settings-plus"/,
+    );
+    expect(routes.has('/plus/manage')).toBe(true);
+  });
+
   it('sells plans and plain cosmetics, and never rarity, luck, a currency or a mended day', () => {
     const NEVER_SOLD =
       /rar(e|ity)|random|pack|loot|gacha|lucky|chance|odds|coin|gem|currency|credit|token|streak|repair|freeze|missed|skip|catch.?up/i;

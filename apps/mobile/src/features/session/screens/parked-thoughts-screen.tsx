@@ -51,6 +51,11 @@ export function ParkedThoughtsScreen({ model, actions, inks, t }: ScreenProps) {
       <SessionText face="eyebrow" color={inks.muted} accessibilityRole="header">
         {t('session.thoughts.title')}
       </SessionText>
+      {model.thoughtsLine === null ? null : (
+        <SessionText face="body" color={inks.muted} testID="session-thoughts-line">
+          {model.thoughtsLine}
+        </SessionText>
+      )}
       {thoughts.map((thought, index) => (
         <View
           key={`${thought.parkedAt}-${index}`}

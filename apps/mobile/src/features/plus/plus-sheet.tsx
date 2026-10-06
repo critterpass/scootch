@@ -27,7 +27,8 @@ export interface PlusSheetActions {
 export interface PlusSheetProps {
   readonly attitude: Attitude;
   /** Scootch's one line, from the line pack in the person's attitude. */
-  readonly said: string;
+  /** `null` on a day with something heavy in it: nothing is said. */
+  readonly said: string | null;
   readonly state: SheetState;
   readonly actions: PlusSheetActions;
 }
@@ -77,9 +78,16 @@ export function PlusSheet({ attitude, said, state, actions }: PlusSheetProps) {
           {...(captured ? { reducedMotion: true } : {})}
         />
       </View>
-      <SessionText face="headline" color={palette.ink} style={styles.said} testID="plus-sheet-line">
-        {said}
-      </SessionText>
+      {said === null ? null : (
+        <SessionText
+          face="headline"
+          color={palette.ink}
+          style={styles.said}
+          testID="plus-sheet-line"
+        >
+          {said}
+        </SessionText>
+      )}
 
       {state.phase === 'loading' ? (
         <View style={styles.wait} testID="plus-sheet-loading">

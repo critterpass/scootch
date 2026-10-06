@@ -104,6 +104,8 @@ export function fixtureModel(
     fraction: 0.7,
     line: null,
     tinyNextStep: offlineLine(language, 'cheeky', 'tinyNextStep'),
+    treatLine: null,
+    thoughtsLine: null,
     // A capture is a still: nothing is mid-flight when the picture is taken.
     reducedMotion: true,
     parkOpen: false,

@@ -23,10 +23,12 @@ import {
   type DayState,
   type DayStoreDeps,
 } from './day-types';
+import { NO_AFTER_LINES } from './lines';
 import { applyPickEvent } from './pick-events';
 import { drawerEvent, setBargainedSession } from './pick-flow';
 import { applySession, resolveThought, restoreSession } from './session-flow';
 import { closeSession, shortenSession, turnWorkingLine } from './session-moments';
+import { showsSelling } from './shows-comedy';
 import { applySurfaceAction, noticePickUp } from './surface-actions';
 import { askAnother, beFunny, fetchPending, resolveTranscript, submitText } from './task-flow';
 
@@ -65,7 +67,9 @@ const NOT_READY: DayState = {
   burst: null,
   treat: null,
   parkedThoughts: [],
+  afterLines: NO_AFTER_LINES,
   drawer: { open: false, items: [] },
+  heavyToday: false,
   settings: defaultSettings('en'),
 };
 
@@ -94,6 +98,8 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
     workingTurn: 0,
     restPending: false,
     turnedDown: [],
+    untrustedTaskId: null,
+    screenAskedAt: null,
   };
   let usual: ClockTime = DEFAULT_USUAL_START;
   let queue: Promise<void> = Promise.resolve();
@@ -144,7 +150,12 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
         ? asked.at
         : null;
     if (asked !== null && reminderAt === null) await repositories.careReminder.clear();
+    // Something heavy is around: a serious task today, or one waiting in the drawer.
+    const heavyToday =
+      tasks.some((one) => one.screen === 'serious') ||
+      items.some((one) => one.screen === 'serious');
     set({
+      heavyToday,
       today,
       reminderAt,
       // Asked once a day, before the first thing is picked.
@@ -170,10 +181,8 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
         localDate,
         timeZone: deps.timeZone(),
         usualStart: usual,
-        // Soft while something heavy is around: a serious task today, or one waiting in the drawer.
-        heavyToday:
-          tasks.some((one) => one.screen === 'serious') ||
-          items.some((one) => one.screen === 'serious'),
+        // Soft while something heavy is around.
+        heavyToday,
         reminderAt,
       }),
     );
@@ -213,6 +222,7 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
     memory.sessionRowId = null;
     memory.restPending = false;
     memory.turnedDown = [];
+    memory.untrustedTaskId = null;
     set({ ...NOT_READY, settings, localDate, drawer: { ...DRAWER_CLOSED, items: [] } });
     await refresh();
     if (memory.state.today.kind !== 'crisis') {
@@ -254,7 +264,8 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
       }
       case 'one_more_asked': {
         const { today } = memory.state;
-        if (today.kind === 'done_for_today' && today.startsLeft > 0) {
+        // Not on a day with something heavy in it: nothing is sold, or asked for, beside it.
+        if (today.kind === 'done_for_today' && today.startsLeft > 0 && showsSelling(memory.state)) {
           set({ oneMore: true, line: null });
         }
         return;

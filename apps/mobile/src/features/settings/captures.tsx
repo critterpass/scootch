@@ -41,12 +41,19 @@ export function FinishWithCapture() {
   return <FinishWithPage finishWith="double_tap" onChoose={nothing} onClose={nothing} />;
 }
 
-function Privacy({ asking }: { readonly asking: boolean }) {
+function Privacy({
+  asking,
+  backupTooLarge = false,
+}: {
+  readonly asking: boolean;
+  readonly backupTooLarge?: boolean;
+}) {
   return (
     <>
       <PrivacyPage
         keepTranscripts={false}
         notice={null}
+        backupTooLarge={backupTooLarge}
         onKeepTranscripts={nothing}
         onExport={nothing}
         onAskDelete={nothing}
@@ -65,6 +72,10 @@ function Privacy({ asking }: { readonly asking: boolean }) {
 
 export function PrivacyCapture() {
   return <Privacy asking={false} />;
+}
+
+export function PrivacyBackupTooLargeCapture() {
+  return <Privacy asking={false} backupTooLarge />;
 }
 
 export function PrivacyDeleteCapture() {

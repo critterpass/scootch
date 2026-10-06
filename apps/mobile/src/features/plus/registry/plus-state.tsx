@@ -28,6 +28,8 @@ export type PlusCapture =
       readonly plan: PlanId;
       readonly phase?: 'loading' | 'unavailable' | 'purchasing' | 'failed';
       readonly oneMore?: boolean;
+      /** A day with something heavy in it: the sheet opens with nothing spoken. */
+      readonly heavyDay?: boolean;
     }
   | { readonly screen: 'one-more'; readonly plus: boolean; readonly left: number }
   | { readonly screen: 'offer' }

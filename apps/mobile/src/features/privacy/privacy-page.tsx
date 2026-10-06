@@ -16,6 +16,8 @@ export interface PrivacyPageProps {
   readonly keepTranscripts: boolean;
   /** What the export or the delete last came to, said under the rows; `null` when nothing has. */
   readonly notice: string | null;
+  /** The spare copy could not be kept because it is too large: said in one plain line. */
+  readonly backupTooLarge?: boolean;
   readonly onKeepTranscripts: (keep: boolean) => void;
   readonly onExport: () => void;
   readonly onAskDelete: () => void;
@@ -76,6 +78,9 @@ export function PrivacyPage(props: PrivacyPageProps) {
         />
       </Section>
       {props.notice === null ? null : <Note text={props.notice} testID="privacy-notice" />}
+      {props.backupTooLarge ? (
+        <Note text={t('privacy.backup.tooLarge')} testID="privacy-backup-too-large" />
+      ) : null}
     </Page>
   );
 }

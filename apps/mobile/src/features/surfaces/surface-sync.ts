@@ -4,6 +4,8 @@ import type { Repositories } from '../../data/repositories';
 import type { DayStore } from '../../state/day-store';
 import type { DayState } from '../../state/day-types';
 
+import { finishedThings } from '../world/landmarks';
+
 import { shareMonsterImage } from './monster-image';
 import { createPendingActions } from './pending-actions';
 import {
@@ -67,7 +69,7 @@ export function createSurfaceSync(deps: SurfaceSyncDeps) {
       shownLine: live ? (state.line?.text ?? null) : null,
       weekBars: (await deps.repositories.recordBars.where('week', isoWeekOf(state.localDate).week))
         .length,
-      worldThings: (await deps.repositories.worldPieces.all()).length,
+      worldThings: finishedThings(await deps.repositories.worldPieces.all()),
       plus,
       dayEndsAt: instantOfLocal(
         addDays(state.localDate, 1),

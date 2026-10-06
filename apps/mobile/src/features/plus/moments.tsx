@@ -14,7 +14,8 @@ import { ChoiceRow, Panel, PlusMark } from './ui/parts';
 export interface MomentProps {
   readonly attitude: Attitude;
   /** Scootch's line for the moment, from the line pack. */
-  readonly said: string;
+  /** `null` on a day with something heavy in it: nothing is said. */
+  readonly said: string | null;
   readonly close: () => void;
 }
 
@@ -76,9 +77,11 @@ export function TrialStarted(props: TrialStartedProps) {
       <View style={styles.centre}>
         <PlusMark name={t('brand.name')} plus={t('brand.plus')} />
       </View>
-      <SessionText face="headline" color={palette.ink} style={styles.centred}>
-        {props.said}
-      </SessionText>
+      {props.said === null ? null : (
+        <SessionText face="headline" color={palette.ink} style={styles.centred}>
+          {props.said}
+        </SessionText>
+      )}
       <Panel testID="plus-trial-timeline">
         {steps.map((step) => (
           <View key={step.day} style={styles.step} accessible>
@@ -117,9 +120,11 @@ export function LastDay(props: LastDayProps) {
       closeTestID="plus-last-day-close"
     >
       <Figure mood="thinking" attitude={props.attitude} />
-      <SessionText face="headline" color={palette.ink}>
-        {props.said}
-      </SessionText>
+      {props.said === null ? null : (
+        <SessionText face="headline" color={palette.ink}>
+          {props.said}
+        </SessionText>
+      )}
       <SessionText face="body" color={palette.muted}>
         {t('plus.lastDay.keeps')}
       </SessionText>
@@ -193,9 +198,11 @@ export function RenewalOff(props: RenewalOffProps) {
       }
     >
       <Figure mood={cancelled ? 'pleased' : 'asleep'} attitude={props.attitude} />
-      <SessionText face="headline" color={palette.ink} style={styles.centred}>
-        {props.said}
-      </SessionText>
+      {props.said === null ? null : (
+        <SessionText face="headline" color={palette.ink} style={styles.centred}>
+          {props.said}
+        </SessionText>
+      )}
       {props.until === null ? null : (
         <SessionText face="body" color={palette.muted} style={styles.centred} testID="plus-until">
           {cancelled

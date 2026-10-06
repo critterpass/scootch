@@ -22,6 +22,10 @@ export interface SessionModel {
   readonly line: ShownLine | null;
   /** The task's own tiny next step, from the store. */
   readonly tinyNextStep: string | null;
+  /** The task's own ceremony line for the treat; `null` shows the treat as before. */
+  readonly treatLine: string | null;
+  /** The task's own line over its parked thoughts; `null` shows them without one. */
+  readonly thoughtsLine: string | null;
   readonly reducedMotion: boolean;
   readonly parkOpen: boolean;
   /** The thought just parked, shown for a moment. */

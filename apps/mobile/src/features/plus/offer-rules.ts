@@ -8,6 +8,8 @@ export interface OfferFacts {
   readonly lastFinishAt: Instant | null;
   readonly firstLaunchDone: boolean;
   readonly sessionRunning: boolean;
+  /** False on a day with something heavy in it: nothing is offered then. Absent means it may. */
+  readonly selling?: boolean;
 }
 
 /** What the phone remembers about the offer and the world. */
@@ -49,5 +51,6 @@ export function offerShows(
   purchase: PurchaseState,
   now: Instant,
 ): boolean {
+  if (facts.selling === false) return false;
   return mayShowOffer(worldVisit(facts, memory, purchase, now));
 }

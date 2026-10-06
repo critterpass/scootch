@@ -49,6 +49,7 @@ export const enCareAndSettings = {
   'settings.language.choose.hint': 'Writes Scootch in this language',
   'settings.helplines': 'Helplines',
   'settings.helplines.hint': 'Opens the helplines for your country',
+  'settings.plus.hint': 'Opens your plan',
   'settings.developerTools': 'Developer tools',
   'settings.developerTools.hint': 'Opens the developer screens',
   'settings.supportTool': 'Scootch is a support tool. It doesn\u2019t diagnose or treat ADHD.',
@@ -79,6 +80,8 @@ export const enCareAndSettings = {
   'privacy.export.hint':
     'Writes one file with your tasks, monsters, records and settings, and opens the share sheet',
   'privacy.export.failed': 'The file could not be written. Nothing was sent anywhere.',
+  'privacy.backup.tooLarge':
+    'The backup is too large to keep a spare copy. Everything is still on this phone.',
   'privacy.delete.hint': 'Asks once more before anything is deleted',
   'privacy.delete.title': 'Delete everything?',
   'privacy.delete.titleEven': 'Delete everything? Even {name}?',

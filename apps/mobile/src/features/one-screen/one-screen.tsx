@@ -12,6 +12,8 @@ import { useDispatch, useDrawer, useSession, useToday } from '../../state/day-st
 import type { DayEvent } from '../../state/day-types';
 import { usePlus } from '../../state/keepsakes';
 import { lineFor, lineWithNoTask } from '../../state/lines';
+import { showsSelling } from '../../state/shows-comedy';
+import { useSurfaceRequest } from '../../state/surface-requests';
 import { useScreenReader } from '../../ui/use-screen-style';
 import { seriousShown } from '../care/serious-shown';
 import type { SpeechPort } from '../composer/speech';
@@ -96,6 +98,13 @@ export function OneScreen({ speech, warmUp, notificationsRefused }: OneScreenPro
   };
 
   const stage = stageOf({ ...day, drawer, energyAsked: held !== null });
+  const sendComposer = composer.send;
+  // A control or a widget asked for the composer: it opens for typing, or starts listening.
+  useSurfaceRequest('composer', stage.kind === 'composer' && taskCall === 'idle', (request) =>
+    sendComposer(
+      request.listening ? { type: 'toggled', at: Date.now() } : { type: 'keyboard_tapped' },
+    ),
+  );
   const care = stage.kind === 'care';
   useEffect(() => {
     // A crisis day shows nothing of this screen: the care screens take over.
@@ -133,7 +142,8 @@ export function OneScreen({ speech, warmUp, notificationsRefused }: OneScreenPro
       shownLine && ['done', 'caught', 'notFinished'].includes(shownLine.slot)
         ? shownLine.text
         : lineWithNoTask('doneForToday', voice);
-    const under = (
+    // Nothing is sold near something heavy: on such a day the control is not drawn at all.
+    const under = !showsSelling(day) ? null : (
       <OneMore
         plus={plus}
         left={today.kind === 'done_for_today' ? today.startsLeft : 0}
@@ -249,7 +259,8 @@ export function OneScreen({ speech, warmUp, notificationsRefused }: OneScreenPro
   }
 
   const { state } = composer;
-  const quiet = state.phase !== 'idle' || taskCall !== 'idle';
+  // After a rejected text nothing is spoken: the composer's own plain words ask for something else.
+  const quiet = state.phase !== 'idle' || taskCall !== 'idle' || notice !== null;
   const slot = state.mode === 'typing' ? 'typing' : warmUp ? 'firstOneThing' : 'waiting';
   const sendChip = (text: string) => {
     composer.send({ type: 'keyboard_tapped' });
