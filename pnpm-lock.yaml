@@ -447,7 +447,11 @@ importers:
 
   packages/i18n: {}
 
-  packages/sound: {}
+  packages/sound:
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.6.3
 
   packages/tokens: {}
 
