@@ -10,7 +10,8 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "eval:screen": "node evals/screen-input/run.mjs"
   },
   "dependencies": {
     "zod": "catalog:"

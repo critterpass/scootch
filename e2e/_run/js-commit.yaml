@@ -1,0 +1,17 @@
+appId: app.scootch.dev
+---
+# The first flow of every device run: proves the app runs the JavaScript exported for this run (the
+# commit inlined as EXPO_PUBLIC_JS_COMMIT and shown by the `js-commit` label), not the bundle the
+# e2e-test build shipped with. Run with `-e JS_COMMIT=<short sha>`.
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: 'js-commit'
+    timeout: 90000
+- assertVisible:
+    id: 'js-commit'
+    text: 'js:${JS_COMMIT}'
+# Leave the app as a clean install for the next flow.
+- stopApp
+- clearState

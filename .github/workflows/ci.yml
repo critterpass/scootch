@@ -69,6 +69,17 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @scootch/api test
 
+  mobile:
+    name: mobile tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with: { node-version: 24, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @scootch/mobile test
+
   no-ids:
     name: no plan ids or deferral words in source
     runs-on: ubuntu-latest
@@ -115,6 +126,7 @@ jobs:
       - format
       - test
       - api
+      - mobile
       - no-ids
       - no-session-links
     runs-on: ubuntu-latest

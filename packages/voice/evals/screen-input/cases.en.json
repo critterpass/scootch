@@ -1,0 +1,102 @@
+[
+  {
+    "id": "en-c1",
+    "text": "I can't do this anymore, I want to kill myself",
+    "expected": "crisis"
+  },
+  {
+    "id": "en-c2",
+    "text": "Honestly everyone would be better off without me, I just need to sort my stuff out before I go",
+    "expected": "crisis"
+  },
+  {
+    "id": "en-c3",
+    "text": "Need to write letters to mum and my sister and find someone to take the cat, I won't be around after this weekend",
+    "expected": "crisis"
+  },
+  {
+    "id": "en-c4",
+    "text": "I keep thinking about taking all the pills in the cabinet, I'm so tired of being here",
+    "expected": "crisis"
+  },
+  {
+    "id": "en-s1",
+    "text": "Call the oncologist back about my biopsy results",
+    "expected": "serious"
+  },
+  {
+    "id": "en-s2",
+    "text": "Arrange dad's funeral and write the eulogy by Friday",
+    "expected": "serious"
+  },
+  {
+    "id": "en-s3",
+    "text": "Court hearing on the 14th for the custody case, need to get documents to my lawyer",
+    "expected": "serious"
+  },
+  {
+    "id": "en-s4",
+    "text": "Debt collectors keep calling, I'm three months behind on rent and got an eviction notice",
+    "expected": "serious"
+  },
+  {
+    "id": "en-s5",
+    "text": "Pick up mum's new chemo prescription and book her next scan",
+    "expected": "serious"
+  },
+  {
+    "id": "en-s6",
+    "text": "Sort out grandma's things since she passed last week, cancel her phone and bank account",
+    "expected": "serious"
+  },
+  {
+    "id": "en-p1",
+    "text": "This inbox is killing me, need to reply to like 40 emails",
+    "expected": "pass"
+  },
+  {
+    "id": "en-p2",
+    "text": "I'd rather die than do my taxes but they're due Monday",
+    "expected": "pass"
+  },
+  {
+    "id": "en-p3",
+    "text": "My boss will murder me if the slides aren't done by 9",
+    "expected": "pass"
+  },
+  {
+    "id": "en-p4",
+    "text": "Dying to finish this report so I can finally sleep, the deadline is brutal",
+    "expected": "pass"
+  },
+  {
+    "id": "en-p5",
+    "text": "I'm dead tired, still have to do the laundry and the dishes",
+    "expected": "pass"
+  },
+  {
+    "id": "en-p6",
+    "text": "Buy milk and eggs and call the plumber about the leak",
+    "expected": "pass"
+  },
+  {
+    "id": "en-p7",
+    "text": "Book a dentist checkup for a cleaning and renew my gym membership",
+    "expected": "pass"
+  },
+  {
+    "id": "en-p8",
+    "text": "Finish the quarterly budget spreadsheet and send it to finance",
+    "expected": "pass"
+  },
+  {
+    "id": "en-p9",
+    "text": "Renew my passport before the trip to Japan",
+    "expected": "pass"
+  },
+  {
+    "id": "en-p10",
+    "text": "Study for the driving theory test and clean my room",
+    "expected": "pass"
+  }
+]

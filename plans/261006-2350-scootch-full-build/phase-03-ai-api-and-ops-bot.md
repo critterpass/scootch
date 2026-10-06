@@ -17,6 +17,7 @@ set, and the founder's Telegram bot. Read tech-decisions sections 2 and 5.
   fallback rule (Jev to the small generation model on error or timeout, same
   answer shape), and the model that answered recorded in the ledger.
 - Test: fallback fires on a recorded timeout.
+- Status: done — 4673ce9
 
 ### 3. Input screen
 - Do: the `screen.input` Jev route: pass, serious, crisis or reject. Thresholds
@@ -32,6 +33,8 @@ set, and the founder's Telegram bot. Read tech-decisions sections 2 and 5.
   injection and ordinary inputs. **No miss on crisis, in either language,**
   is the merge bar. Where Jev misses the bar in Vietnamese, Vietnamese runs on
   the fallback model.
+- Status: partly done — 4673ce9; the eval set is the spike's 40 inputs and needs
+  extending by another author
 
 ### 4. The task call
 - Do: the one call per task. In: the transcript or typed text, energy,

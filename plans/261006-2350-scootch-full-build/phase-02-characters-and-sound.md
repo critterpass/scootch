@@ -6,6 +6,7 @@ Goal: Scootch, every monster and every sound exist as components other lanes
 drop in. Board: Characters; the card on App flows.
 
 ### 1. Scootch
+- Status: partly done — 79d90b5; stills for every mood, no animation, squeak or Skia backend yet
 - Do: the critter in Skia with its moods (waiting, listening, typing,
   bargaining, pleased, asleep, serious) and the squeak on tap. Reduce Motion
   form for each.
@@ -18,6 +19,7 @@ drop in. Board: Characters; the card on App flows.
   working loop, never a blank.
 
 ### 3. Monster generator
+- Status: done — a6f6d3b
 - Owns: `packages/art/src/monsters/` (one file per body).
 - Do: 20 bodies; parameters for ink, size, eyes, mouth, horns, antennae and
   legs; a pure function from a seed and parameters to a drawing. The same
