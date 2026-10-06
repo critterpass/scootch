@@ -1,0 +1,8 @@
+---
+import InvitePage from '../../../components/invite-page.astro';
+import { languagePaths } from '../../../copy';
+
+export const getStaticPaths = languagePaths;
+---
+
+<InvitePage language={Astro.params.lang === 'vi' ? 'vi' : 'en'} />
