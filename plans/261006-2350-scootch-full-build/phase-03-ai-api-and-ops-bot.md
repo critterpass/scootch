@@ -9,6 +9,7 @@ set, and the founder's Telegram bot. Read tech-decisions sections 2 and 5.
 - Do: Hono on Workers, D1, R2, anonymous device tokens, rate limits, the error
   shape, a cost ledger per route, feature flags.
 - Done when: it deploys to dev from CI.
+- Status: partly done — 7ab748c; deploy to dev pending
 
 ### 2. Model gateway
 - Owns: `apps/api/src/ai/`.
