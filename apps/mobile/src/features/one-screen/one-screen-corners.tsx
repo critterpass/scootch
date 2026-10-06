@@ -14,12 +14,12 @@ export interface CornersProps {
   readonly offline: boolean;
   /** Opens the world. Unset, the button is drawn and does nothing. */
   readonly onWorld?: () => void;
-  /** Opens the developer tools in the developer app. Unset, the more button does nothing yet. */
-  readonly onDeveloperTools?: () => void;
+  /** Opens Settings. Unset (a registry capture), the button is drawn and does nothing. */
+  readonly onMore?: () => void;
 }
 
 /** The quiet button in each top corner of the one screen, and the offline pill between them. */
-export function Corners({ offline, onWorld, onDeveloperTools }: CornersProps) {
+export function Corners({ offline, onWorld, onMore }: CornersProps) {
   const { palette, allowFontScaling, size } = useScreenStyle();
   const t = useT();
   return (
@@ -49,10 +49,10 @@ export function Corners({ offline, onWorld, onDeveloperTools }: CornersProps) {
       ) : null}
       <RoundButton
         label={t('oneScreen.more')}
-        hint={t('oneScreen.notOpenYet')}
-        inert={onDeveloperTools === undefined}
-        testID={onDeveloperTools === undefined ? 'more-button' : 'developer-tools'}
-        {...(onDeveloperTools ? { onPress: onDeveloperTools } : {})}
+        hint={onMore ? t('oneScreen.more.hint') : t('oneScreen.notOpenYet')}
+        inert={onMore === undefined}
+        testID="more-button"
+        {...(onMore ? { onPress: onMore } : {})}
       >
         <MoreIcon color={palette.ink} />
       </RoundButton>

@@ -1,5 +1,4 @@
 import {
-  isQuietTask,
   type SeriousLinePack,
   type SessionLine,
   type SessionLinePack,
@@ -16,7 +15,7 @@ import {
   type OfflineSlot,
 } from '@scootch/voice';
 
-import { careGate } from '../api/care-gate';
+import { showsComedy } from './shows-comedy';
 
 export type LineSlot = SessionLine | 'hatch' | 'working';
 
@@ -25,8 +24,7 @@ export type LineSlot = SessionLine | 'hatch' | 'working';
  * screened yet is quiet when the phone's own gate saw a dark or heavy word in it.
  */
 export function toneFor(task: Pick<TaskRow, 'screen' | 'seriousOverridden' | 'text'>): SessionTone {
-  if (isQuietTask(task)) return 'quiet';
-  return task.screen === 'unscreened' && careGate(task.text) !== 'clear' ? 'quiet' : 'full';
+  return showsComedy(task, 'burst') ? 'full' : 'quiet';
 }
 
 /** The plain-words lines, as a serious task stores them and as the offline pack holds them. */
@@ -67,7 +65,12 @@ export function lineFor(
   if (lines !== null) {
     return 'hatch' in lines ? fromSessionPack(lines, slot, turn) : fromPlain(lines, slot, turn);
   }
-  if (task.screen !== 'pass' || toneFor(task) === 'quiet') {
+  if (!showsComedy(task, 'joke')) {
+    // An ordinary task typed with no connection: under the timer Scootch says when its monster
+    // will come. A task the phone's gate held gets plain company and no word about monsters.
+    if (task.screen === 'unscreened' && showsComedy(task, 'burst') && slot === 'working') {
+      return noTaskLine(settings.language, settings.attitude, 'hatchesWhenBack');
+    }
     return fromPlain(offlinePacks[settings.language].plain, slot, turn);
   }
   return isOfflineSlot(slot) ? offlineLine(settings.language, settings.attitude, slot, turn) : null;

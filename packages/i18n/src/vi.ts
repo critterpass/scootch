@@ -1,3 +1,4 @@
+import { viCareAndSettings } from './vi-care-and-settings';
 import type { Catalogue } from './catalogue-types';
 
 /**
@@ -313,16 +314,5 @@ export const vi = {
   'morning.chip.hint': 'Gửi lời này làm điều bạn muốn làm.',
   'morning.note': '{thing} tới hạn {day}.',
 
-  'care.crisis.title': 'Lúc này bạn không cần phải làm gì cả.',
-  'care.crisis.body':
-    'Nghe như mọi thứ đang rất nặng nề. Nếu bạn đang nghĩ đến việc làm đau bản thân, hãy nói chuyện ngay với một người có thể giúp bạn.',
-  'care.crisis.findHelpline': 'Tìm đường dây hỗ trợ ở nước mình',
-  'care.crisis.findHelpline.hint': 'Mở danh sách đường dây hỗ trợ miễn phí và bảo mật',
-  'care.crisis.trusted': 'Nhắn cho một người bạn tin tưởng',
-  'care.crisis.trusted.hint': 'Mở ứng dụng Tin nhắn',
-  'care.crisis.note':
-    'Scootch là công cụ hỗ trợ, không phải dịch vụ khẩn cấp. Nếu bạn đang gặp nguy hiểm, hãy gọi số khẩn cấp tại nơi bạn ở.',
-  'care.crisis.sit': 'Ngồi với mình thôi',
-  'care.crisis.sit.hint': 'Ở lại màn hình này, không cần làm gì',
-  'care.crisis.here': 'Mình ở ngay đây. Bạn cứ từ từ.',
+  ...viCareAndSettings,
 } as const satisfies Catalogue;

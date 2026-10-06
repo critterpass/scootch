@@ -61,6 +61,12 @@ export type DayEvent =
       readonly resolution: 'keep' | 'discard';
     }
   | { readonly type: 'done_for_today' }
+  /** "It's fine, be funny" on a serious task. It never does anything on a crisis day. */
+  | { readonly type: 'be_funny_asked' }
+  /** "Not today" on a serious task: it waits in the drawer and the day is quietly over. */
+  | { readonly type: 'serious_set_aside' }
+  /** "Remind me at …" on a serious task: one plain notification. */
+  | { readonly type: 'reminder_asked' }
   /** Scootch says the next of the task's working lines. */
   | { readonly type: 'working_line_turned' }
   /** The screens are through with an ended session: what was handed over for it is cleared. */
@@ -68,9 +74,26 @@ export type DayEvent =
   /** Developer tools only: the running session's timer comes due this many seconds from now. */
   | { readonly type: 'developer_session_ends_in'; readonly seconds: number }
   | { readonly type: 'settings_changed'; readonly changes: Partial<Omit<SettingsRow, 'id'>> }
+  /** Every local table was erased or replaced (delete everything, a restore): today is rebuilt. */
+  | { readonly type: 'storage_replaced' }
   | { readonly type: 'connection_returned' }
   | { readonly type: 'app_foregrounded' }
-  | { readonly type: 'app_backgrounded' };
+  | { readonly type: 'app_backgrounded' }
+  /** A control, the Action button or a Live Activity button asked for something. */
+  | { readonly type: 'surface_action'; readonly action: SurfaceActionKind }
+  /** A screen has acted on `surfaceRequest`, so it is cleared. */
+  | { readonly type: 'surface_request_taken' }
+  /** Scootch was opened, or its Live Activity tapped, while a session was running. */
+  | { readonly type: 'opened_mid_session' };
+
+export type SurfaceActionKind = 'start_session' | 'brain_dump' | 'park_thought' | 'stuck';
+
+/** Something a system surface asked for that only a screen can do. */
+export type SurfaceRequest =
+  /** Open the composer; `listening` starts it on the microphone (the brain dump). */
+  | { readonly kind: 'composer'; readonly listening: boolean }
+  /** Open the session's park-a-thought field. */
+  | { readonly kind: 'park_thought' };
 
 /** What the brain dump puts on the screen before the one thing: the phrases, and which one it is. */
 export interface Reveal {
@@ -133,6 +156,10 @@ export interface DayState {
   readonly taskCall: 'idle' | 'waiting' | 'held';
   /** The server would not take the text: the person is asked to say it another way. */
   readonly notice: 'say_it_another_way' | null;
+  /** The last task call failed with a connection up: Scootch says so and the pick is the person's. */
+  readonly modelDown: boolean;
+  /** When the reminder asked for on today's serious task goes off; `null` when none was asked. */
+  readonly reminderAt: Instant | null;
   /** Dates heard in the last ramble, each with the line that says it out loud. */
   readonly heardDeadlines: readonly HeardDeadline[];
   readonly line: ShownLine | null;
@@ -142,6 +169,8 @@ export interface DayState {
   readonly parkedThoughts: readonly ParkedThought[];
   readonly drawer: { readonly open: boolean; readonly items: readonly DrawerItemRow[] };
   readonly settings: SettingsRow;
+  /** Set by a system surface and cleared by the screen that acts on it. Absent means none. */
+  readonly surfaceRequest?: SurfaceRequest | null;
 }
 
 export interface DayStoreDeps {
@@ -156,6 +185,8 @@ export interface DayStoreDeps {
   readonly phoneLanguage: () => SettingsRow['language'];
   /** Whether Plus is active. */
   readonly plus: () => boolean;
+  /** Called once a finish has been written, so the backup can follow it. */
+  readonly onFinished?: () => void;
 }
 
 /** The text a task call is being made for, kept in memory only until its one thing is picked. */
@@ -196,3 +227,13 @@ export interface DayContext {
    */
   later<T>(arrives: Promise<T>, work: (value: T) => Promise<void>): void;
 }
+
+/** What still reaches the store on a crisis day: settings, and the app coming and going. */
+export const PASSIVE_EVENTS: readonly DayEvent['type'][] = [
+  'settings_changed',
+  'storage_replaced',
+  'connection_returned',
+  'app_foregrounded',
+  'app_backgrounded',
+  'session_closed',
+];

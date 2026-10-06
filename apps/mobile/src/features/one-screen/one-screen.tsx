@@ -8,19 +8,20 @@ import type { Attitude, Energy } from '@scootch/domain';
 
 import type { ScootchProps } from '../../art/Scootch';
 import { useLanguage, useT } from '../../i18n/i18n-provider';
-import { developerToolsAllowed } from '../../screens/registry/support/developer-tools';
 import { useDispatch, useDrawer, useSession, useToday } from '../../state/day-store-provider';
 import type { DayEvent } from '../../state/day-types';
 import { lineFor, lineWithNoTask } from '../../state/lines';
 import { useScreenReader } from '../../ui/use-screen-style';
-import type { ComposerState } from '../composer/composer-machine';
+import { seriousShown } from '../care/serious-shown';
 import type { SpeechPort } from '../composer/speech';
 import { useComposer } from '../composer/use-composer';
 import { dayWords } from '../drawer/day-words';
 import { DrawerSheet } from '../drawer/drawer-sheet';
 import { QuietLink, Stack } from '../dump/dump-panels';
 import { HatchFigure } from '../monster/hatch-figure';
+import { wordsWhileUnscreened } from '../offline/waiting-words';
 
+import { composerMood } from './composer-mood';
 import { NotNow } from './not-now';
 import { minuteOptions } from './one-screen-panels';
 import { RETURN_CHIPS, stageOf } from './one-screen-stage';
@@ -41,17 +42,7 @@ type Held = { text: string; source: 'ramble' | 'typed'; sent: () => void };
 /** The routes other parts of the app provide, reached by name. */
 const WORLD = '/world' as Href;
 const CARE = '/care' as Href;
-
-/** How Scootch reacts to the composer: he listens, watches the typing, or thinks it over. */
-export function composerMood(state: ComposerState, taskCall: 'idle' | 'waiting' | 'held'): Mood {
-  // A dark or heavy word was seen: nothing playful while the answer is on its way.
-  if (taskCall === 'held') return 'serious';
-  if (taskCall === 'waiting' || state.phase === 'sending' || state.phase === 'finishing') {
-    return 'thinking';
-  }
-  if (state.phase === 'listening') return 'listening';
-  return state.mode === 'typing' ? 'typing' : 'waiting';
-}
+const SETTINGS = '/settings' as Href;
 
 /**
  * The one screen, driven by the day store: the composer, the one thing that comes back, its
@@ -125,7 +116,7 @@ export function OneScreen({ speech, warmUp, notificationsRefused }: OneScreenPro
         onClose={() => send({ type: 'drawer', event: { type: 'closed' } })}
       />
     ),
-    ...(developerToolsAllowed() ? { onDeveloperTools: () => router.push('/developer-tools') } : {}),
+    onMore: () => router.push(SETTINGS),
   };
 
   if (care) return null;
@@ -134,22 +125,38 @@ export function OneScreen({ speech, warmUp, notificationsRefused }: OneScreenPro
 
   if (stage.kind === 'done') {
     const said =
-      shownLine && (shownLine.slot === 'done' || shownLine.slot === 'caught')
+      // A finish says its own line; a serious task set aside says its plain one for leaving it.
+      shownLine && ['done', 'caught', 'notFinished'].includes(shownLine.slot)
         ? shownLine.text
         : lineWithNoTask('doneForToday', voice);
     return <OneScreenView {...frame} mood="asleep" line={said} shown={{ kind: 'done' }} />;
   }
 
+  const connection = { offline, modelDown: day.modelDown };
+  if (stage.kind === 'task_set' && stage.quiet) {
+    // A serious task: plain words, a quiet sitting, and nothing else on the screen.
+    const shown = seriousShown({
+      task: stage.task,
+      settings,
+      language,
+      reminderAt: day.reminderAt,
+      now: Date.now(),
+      dispatch,
+    });
+    return <OneScreenView {...frame} mood="serious" line={null} shown={shown} />;
+  }
+
   if (stage.kind === 'task_set') {
-    const { quiet, carried, monster } = stage;
-    const said = lineFor(quiet ? 'acknowledge' : 'hatch', stage.task, voice);
+    const { carried, monster } = stage;
+    const own = lineFor('hatch', stage.task, voice);
+    const said = own ?? wordsWhileUnscreened(stage.task, 'set', connection, voice);
     const smallest = morning.kind === 'smallest_ask' ? morning.minutes : null;
     const minutes = chosenMinutes ?? smallest ?? 10;
     const start = async () => {
       await dispatch({ type: 'session_set', minutes, treat: treat.trim() || null });
       await dispatch({ type: 'session', event: { type: 'started' } });
     };
-    const mood: Mood = quiet || said === null ? 'serious' : monster ? 'pleased' : 'waiting';
+    const mood: Mood = said === null ? 'serious' : monster ? 'pleased' : 'waiting';
     return (
       <OneScreenView
         {...frame}
@@ -157,8 +164,8 @@ export function OneScreen({ speech, warmUp, notificationsRefused }: OneScreenPro
         line={said}
         shown={{
           kind: 'task_set',
-          label: carried ? t('morning.fromYesterday') : quiet ? t('dump.justThis') : null,
-          taskText: said === null || quiet || carried ? stage.task.text : null,
+          label: carried ? t('morning.fromYesterday') : null,
+          taskText: own === null || carried ? stage.task.text : null,
           treat,
           minutes,
           options: minuteOptions(smallest),
@@ -222,7 +229,11 @@ export function OneScreen({ speech, warmUp, notificationsRefused }: OneScreenPro
         revealDone: () => setRevealedFor(task?.id ?? null),
       },
     });
-    return <OneScreenView {...frame} {...drawn} />;
+    const waiting =
+      stage.kind === 'one_thing'
+        ? wordsWhileUnscreened(stage.task, 'offered', connection, voice)
+        : null;
+    return <OneScreenView {...frame} {...drawn} line={drawn.line ?? waiting} />;
   }
 
   const { state } = composer;
@@ -280,7 +291,8 @@ export function OneScreen({ speech, warmUp, notificationsRefused }: OneScreenPro
     <OneScreenView
       {...frame}
       mood={composerMood(state, taskCall)}
-      line={quiet ? null : lineWithNoTask(slot, voice)}
+      // With no connection Scootch says so, in place of his usual ask: starting still works.
+      line={quiet ? null : lineWithNoTask(offline && slot === 'waiting' ? 'offline' : slot, voice)}
       shown={shown}
     />
   );

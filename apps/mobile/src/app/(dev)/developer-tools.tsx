@@ -8,7 +8,6 @@ import { colors, fonts, fontSizes, radius, spacing, type Palette } from '@scootc
 
 import { shortSession } from '../../features/session/dev/short-session';
 import { useLanguage } from '../../i18n/i18n-provider';
-import { useDispatch, useToday } from '../../state/day-store-provider';
 
 const SCREENS: readonly { id: string; label: string; href: Href }[] = [
   { id: 'dev-open-registry', label: 'Screen registry', href: '/registry' },
@@ -45,16 +44,13 @@ interface RowProps {
 }
 
 /**
- * The list of developer screens, reached from the more button on the one screen. The language
- * switch and the finish method here stand in until the Settings screen has its own; the control
- * that ends a session soon exists only for device flows.
+ * The list of developer screens, reached from the last row of Settings in the developer app. The
+ * control that ends a session soon exists only for device flows.
  */
 export default function DeveloperTools() {
   const palette = colors[useColorScheme() === 'dark' ? 'dark' : 'light'];
   const { language, chosen, choose } = useLanguage();
   const [shortSessions, setShortSessions] = useState(shortSession.isArmed);
-  const dispatch = useDispatch();
-  const tapTwice = useToday().settings.finishWith === 'double_tap';
 
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: palette.page }]}>
@@ -95,18 +91,6 @@ export default function DeveloperTools() {
             shortSession.arm(!shortSessions);
             setShortSessions(!shortSessions);
           }}
-        />
-        <Row
-          id="dev-finish-tap-twice"
-          label="Finish with two taps"
-          selected={tapTwice}
-          palette={palette}
-          onPress={() =>
-            void dispatch({
-              type: 'settings_changed',
-              changes: { finishWith: tapTwice ? 'hold' : 'double_tap' },
-            }).catch(() => undefined)
-          }
         />
 
         <Link href="/" replace asChild>

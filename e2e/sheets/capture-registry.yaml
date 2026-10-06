@@ -23,8 +23,14 @@ appId: app.scootch.dev
     id: 'launch-permission-skip'
 - extendedWaitUntil:
     visible:
-      id: 'developer-tools'
+      id: 'more-button'
     timeout: 15000
+- tapOn:
+    id: 'more-button'
+- scrollUntilVisible:
+    element:
+      id: 'developer-tools'
+    direction: DOWN
 - tapOn:
     id: 'developer-tools'
 - extendedWaitUntil:
