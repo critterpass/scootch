@@ -168,8 +168,15 @@ describe('POST /v1/screen-input', () => {
         }),
       });
 
+    // The fallback alone never clears a text: its pass reaches the phone as not screened.
     const calm = await screen(fast({ pass: 0.97, serious: 0.02, crisis: 0.01 }, 0.02));
-    expect(calm.body).toMatchObject({ verdict: 'pass', answeredBy: 'fallback' });
+    expect(calm.body).toEqual({
+      verdict: 'serious',
+      confidence: 0.97,
+      lowConfidence: true,
+      answeredBy: 'fallback',
+      reason: 'unscreened',
+    });
     const planned = await screen(fast({ pass: 0.9, serious: 0.08, crisis: 0.02 }, 0.8));
     expect(planned.body).toMatchObject({ verdict: 'crisis', answeredBy: 'fallback' });
   });
@@ -214,6 +221,7 @@ describe('POST /v1/screen-input', () => {
       confidence: 0,
       lowConfidence: true,
       answeredBy: 'default',
+      reason: 'unscreened',
     });
   });
 

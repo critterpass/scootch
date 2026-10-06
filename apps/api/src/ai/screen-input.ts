@@ -2,6 +2,7 @@ import type { ScreenInputResponse } from '../contracts';
 
 import { decide, type Decision, type DecideContext } from './decide';
 import type { ChoiceQuestion } from './jev';
+import { lacksVietnameseMarks, restoreMarks } from './vietnamese-marks';
 
 /**
  * The care screen's question and thresholds, in one place. The thresholds were measured against
@@ -85,12 +86,16 @@ export function screenVerdict({ care, preparing }: ScreenAnswers): ScreenLabel {
   return clear ? 'pass' : 'serious';
 }
 
-/** What the phone is told when no model answered: no joke, and nothing judged. */
+/**
+ * What the phone is told when no model answered: no joke, and nothing judged. `reason` says so in
+ * a word, so the phone treats the text as it does offline and asks again later.
+ */
 export const unscreenedResponse: ScreenInputResponse = {
   verdict: 'serious',
   confidence: 0,
   lowConfidence: true,
   answeredBy: 'default',
+  reason: 'unscreened',
 };
 
 type PreparationLabel = keyof typeof preparationQuestion.criteria;
@@ -144,46 +149,120 @@ export const misuseQuestion = {
 /** `reject` at or above this p(misuse). Provisional: set with the first eval cases, not tuned. */
 export const rejectAtLeast = 0.7;
 
+/** What the two care questions answered about one reading of the text. */
+export type ScreenView = {
+  readonly care: Decision<ScreenLabel> | null;
+  readonly preparation: Decision<PreparationLabel> | null;
+};
+
+type Verdict = ScreenInputResponse['verdict'];
+
+const strictness: Readonly<Record<Verdict, number>> = { pass: 0, reject: 0, serious: 1, crisis: 2 };
+
+/** The stricter of two verdicts: a crisis over anything, serious over a pass. A tie keeps the first. */
+export function stricterVerdict(first: Verdict, second: Verdict): Verdict {
+  return strictness[second] > strictness[first] ? second : first;
+}
+
+/**
+ * The verdict over every reading of one text (as typed, and with its marks restored when it came
+ * without them): the strictest reading wins. A `pass` is Jev's alone to give. When the fallback
+ * gave any answer behind it, the text is not cleared: it is `serious`, marked `unscreened` and
+ * answered by `fallback`, so the phone keeps plain company, tells no joke and asks again once Jev
+ * is back. A `crisis` or a `serious` the fallback found stands as it is.
+ */
+export function screenOutcome(views: readonly [ScreenView, ...ScreenView[]]): ScreenInputResponse {
+  let strictest = screenResponse(views[0].care, views[0].preparation);
+  for (const { care, preparation } of views.slice(1)) {
+    const response = screenResponse(care, preparation);
+    if (stricterVerdict(strictest.verdict, response.verdict) !== strictest.verdict) {
+      strictest = response;
+    }
+  }
+  const byFallback = views.some(
+    ({ care, preparation }) =>
+      care?.answeredBy === 'fallback' || preparation?.answeredBy === 'fallback',
+  );
+  if (!byFallback || strictest.answeredBy === 'default') return strictest;
+  if (strictest.verdict === 'pass') {
+    return {
+      verdict: 'serious',
+      confidence: strictest.confidence,
+      lowConfidence: true,
+      answeredBy: 'fallback',
+      reason: 'unscreened',
+    };
+  }
+  return { ...strictest, answeredBy: 'fallback' };
+}
+
+type Judged = { readonly view: ScreenView; readonly unanswered: readonly unknown[] };
+
+/** Both care questions about one reading, asked side by side. */
+async function judge(context: DecideContext, text: string): Promise<Judged> {
+  const [care, preparation] = await Promise.allSettled([
+    decide(context, { ...screenInputQuestion, text }),
+    decide(context, { ...preparationQuestion, text }),
+  ]);
+  return {
+    view: {
+      care: care.status === 'fulfilled' ? care.value : null,
+      preparation: preparation.status === 'fulfilled' ? preparation.value : null,
+    },
+    unanswered: [care, preparation].flatMap((asked) =>
+      asked.status === 'rejected' ? [asked.reason as unknown] : [],
+    ),
+  };
+}
+
 /**
  * The whole screen for one text, and the only way any route screens: the care, preparation and
  * misuse questions, asked side by side. Care and preparation decide; either can call a crisis
- * alone, and a `pass` needs both. Misuse turns a `pass` into `reject`, and also a `serious` that
- * the care question did not find heavy (an instruction to the app is no ordinary task, so it
- * rarely earns a confident `pass`). A crisis and a heavy text are never turned. When the misuse
- * question gets no answer the care verdict stands. When the care or the preparation question gets
- * no answer, the other can still call a crisis; short of that this throws, and the caller resolves
- * to `serious` as a text nobody screened, which no "be funny" can lift.
+ * alone, and a `pass` needs both, from Jev (`screenOutcome`). Misuse turns a `pass` into
+ * `reject`, and also a `serious` that the care question did not find heavy (an instruction to the
+ * app is no ordinary task, so it rarely earns a confident `pass`). A crisis and a heavy text are
+ * never turned. When the misuse question gets no answer the care verdict stands.
+ *
+ * Vietnamese typed without its marks is read twice: as typed, and with the marks restored by the
+ * fast tier (used only when it changed nothing but marks). Both readings are judged, the restored
+ * one as soon as it arrives, and the stricter verdict wins.
+ *
+ * When the care or the preparation question gets no answer about the text as typed, the other can
+ * still call a crisis; short of that this throws, and the caller resolves to `serious` as a text
+ * nobody screened, which no "be funny" can lift. The same holds for the restored reading, which
+ * then answers as unscreened.
  */
 export async function screenText(
   context: DecideContext,
   text: string,
 ): Promise<ScreenInputResponse> {
-  const [care, preparation, misuse] = await Promise.allSettled([
-    decide(context, { ...screenInputQuestion, text }),
-    decide(context, { ...preparationQuestion, text }),
-    decide(context, { ...misuseQuestion, text }),
+  const restoring = lacksVietnameseMarks(text)
+    ? restoreMarks(context, text).then((marked) =>
+        marked === null ? null : judge(context, marked),
+      )
+    : null;
+  const [typed, misuse, restored] = await Promise.all([
+    judge(context, text),
+    decide(context, { ...misuseQuestion, text }).catch(() => null),
+    restoring,
   ]);
-  const response = screenResponse(
-    care.status === 'fulfilled' ? care.value : null,
-    preparation.status === 'fulfilled' ? preparation.value : null,
-  );
+  const views: readonly [ScreenView, ...ScreenView[]] =
+    restored === null ? [typed.view] : [typed.view, restored.view];
+  const response = screenOutcome(views);
   if (response.verdict === 'crisis') return response;
   // Half a screen can call a crisis and nothing else: the rest counts as not screened.
-  if (care.status === 'rejected') throw care.reason;
-  if (preparation.status === 'rejected') throw preparation.reason;
-  const heavy = !(care.value.answer.probabilities.serious < screenThresholds.seriousAtLeast);
+  if (typed.unanswered.length > 0) throw typed.unanswered[0];
+  if (restored !== null && restored.unanswered.length > 0) return unscreenedResponse;
+  const heavy = views.some(
+    ({ care }) => !((care?.answer.probabilities.serious ?? 1) < screenThresholds.seriousAtLeast),
+  );
   if (response.verdict === 'serious' && heavy) return response;
-  if (misuse.status === 'rejected') {
+  if (misuse === null) {
     console.warn('misuse not judged', { route: context.route });
     return response;
   }
-  const likely = misuse.value.answer.probabilities.misuse;
+  const likely = misuse.answer.probabilities.misuse;
   return likely >= rejectAtLeast
-    ? {
-        verdict: 'reject',
-        confidence: likely,
-        lowConfidence: false,
-        answeredBy: misuse.value.answeredBy,
-      }
+    ? { verdict: 'reject', confidence: likely, lowConfidence: false, answeredBy: misuse.answeredBy }
     : response;
 }

@@ -1,0 +1,16 @@
+{
+  "route": "screen.input",
+  "case": "unscreened",
+  "request": {
+    "language": "vi",
+    "text": "Gọi thợ sửa cái máy giặt",
+    "source": "typed"
+  },
+  "response": {
+    "verdict": "serious",
+    "confidence": 0.97,
+    "lowConfidence": true,
+    "answeredBy": "fallback",
+    "reason": "unscreened"
+  }
+}

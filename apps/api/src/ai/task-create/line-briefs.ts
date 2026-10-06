@@ -1,5 +1,10 @@
 import type { Attitude, Language } from '@scootch/domain';
-import { controlsNotes, promptWordLimit, renderVoiceGuide } from '@scootch/voice';
+import {
+  controlsNotes,
+  exampleMonsterTitles,
+  promptWordLimit,
+  renderVoiceGuide,
+} from '@scootch/voice';
 
 /** Soft sends one notification a day; Cheeky and Unhinged up to three. */
 export function notificationCount(attitude: Attitude): number {
@@ -16,7 +21,7 @@ function briefs(language: Language, attitude: Attitude): Readonly<Record<string,
   if (language === 'en') {
     return {
       name: 'the monster\'s name: "Name, Title of Something Oddly Specific", exactly one comma, at most 9 words and 60 characters, made from this task\'s own nouns.',
-      title: 'its kind in two or three words ("Sink lurker").',
+      title: `its kind in two or three words of your own. "${exampleMonsterTitles.en[0]}" shows the shape only: never return it.`,
       flavourText: `the line on its card, at most ${flavour} words.`,
       hatch: 'said when the monster appears.',
       start: 'said as the work starts.',
@@ -42,7 +47,7 @@ function briefs(language: Language, attitude: Attitude): Readonly<Record<string,
   }
   return {
     name: 'tên con quái: "Tên, Chức danh của Thứ Gì Đó Rất Cụ Thể", có đúng một dấu phẩy, tối đa 9 chữ và 60 ký tự, lấy từ chính đồ vật của việc này.',
-    title: 'loại quái, hai ba chữ ("Cư dân lồng giặt").',
+    title: `loại quái, hai ba chữ do bạn tự đặt. "${exampleMonsterTitles.vi[0]}" chỉ để cho thấy dạng: không được trả lại nó.`,
     flavourText: `câu ghi trên thẻ của nó, tối đa ${flavour} chữ.`,
     hatch: 'nói lúc con quái nở ra.',
     start: 'nói lúc bắt đầu làm.',

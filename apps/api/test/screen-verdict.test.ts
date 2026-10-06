@@ -136,6 +136,7 @@ describe('the care screen response', () => {
       confidence: 0,
       lowConfidence: true,
       answeredBy: 'default',
+      reason: 'unscreened',
     });
   });
 });

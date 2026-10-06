@@ -3,6 +3,7 @@ import { contextWordReasons } from './context-words';
 import { treatPlaceholder } from '@scootch/domain';
 
 import { monsterFirstName, untrueControls, voiceGuides } from './guide';
+import { copiesExampleTitle, isSentenceCased } from './line-rules';
 import { offLimitsTopics, type OffLimitsTopic } from './guide/types';
 import { normalise, vietnameseShare, wordListPattern, wordsOf } from './text';
 
@@ -68,6 +69,11 @@ export function promptWordLimit(kind: LineKind): number {
   return Math.floor(lineLimits[kind].words * 0.8);
 }
 
+/** The same margin on the character limit. */
+export function promptCharacterLimit(kind: LineKind): number {
+  return Math.floor(lineLimits[kind].characters * 0.8);
+}
+
 export type CheckReason =
   | 'empty'
   | 'too_long'
@@ -81,7 +87,9 @@ export type CheckReason =
   | 'copied_example'
   | 'session_length'
   | 'untrue_control'
-  | 'treat_not_named';
+  | 'treat_not_named'
+  | 'sentence_case'
+  | 'repeated_step';
 
 export type LineToCheck = {
   readonly text: string;
@@ -224,7 +232,9 @@ export function checkLine({ text, kind, language, attitude, treat }: LineToCheck
   if (kind === 'monsterName') {
     if (!nameShapeIsRight(text)) reasons.push('name_shape');
     if (found.takenNames.test(line)) reasons.push('copied_example');
-  } else if (found.examples.has(line)) {
+  } else if (
+    kind === 'monsterTitle' ? copiesExampleTitle(text, language) : found.examples.has(line)
+  ) {
     reasons.push('copied_example');
   }
   if (
@@ -242,4 +252,20 @@ export function checkLine({ text, kind, language, attitude, treat }: LineToCheck
     if (!line.includes(named)) reasons.push('treat_not_named');
   }
   return { ok: reasons.length === 0, reasons };
+}
+
+/**
+ * The check for a line the writer wrote about a task. On top of `checkLine`, a Soft line must be
+ * in ordinary sentence case: Soft speaks in whole sentences, each opening with a capital letter.
+ * Names and titles have their own shape, and a deadline line is put together in code.
+ */
+export function checkWrittenLine(line: LineToCheck): LineCheck {
+  const check = checkLine(line);
+  const cased =
+    line.attitude !== 'soft' ||
+    namesAndTitles.has(line.kind) ||
+    line.kind === 'deadline' ||
+    check.reasons.includes('empty') ||
+    isSentenceCased(line.text);
+  return cased ? check : { ok: false, reasons: [...check.reasons, 'sentence_case'] };
 }
