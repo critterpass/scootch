@@ -18,6 +18,7 @@ import type { SessionContext } from '../effects/adapters';
 
 import type { DayContext } from './day-types';
 import { persistFinishEarnings } from './finish-earnings';
+import { shrinkTask } from './smaller';
 import { lineFor, toneFor } from './lines';
 
 const TEXT_MAX = 280;
@@ -92,7 +93,8 @@ async function persist(
       await save({ status: 'finished', finishedAt: isoFromInstant(ctx.now()) });
       await persistFinishEarnings(ctx, current, effect.tone, session?.treat ?? null);
     } else if (effect.kind === 'shrink_task') {
-      await save({ shrinkCount: current.shrinkCount + 1 });
+      await shrinkTask(ctx, current);
+      current = (await repositories.tasks.get(current.id)) ?? current;
     } else if (effect.kind === 'carry_task_to_tomorrow') {
       await save({ localDate: addDays(current.localDate, 1), carriedOver: true, status: 'set' });
     } else if (effect.kind === 'forget_task') {

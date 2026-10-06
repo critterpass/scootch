@@ -24,15 +24,19 @@ export type TaskFirstStage =
       readonly oneThing: OneThing;
       readonly parked: readonly ParkedItem[];
       readonly deadlines: readonly HeardDeadline[];
+      /** Known at once from the staged call, so a monster can be drawn before it has a name. */
+      readonly labels?: TaskLabels;
     };
 
 /** What follows: the monster's words and the lines of the session. */
 export type TaskRest =
   | {
       readonly verdict: 'pass';
-      readonly monster: MonsterCopy;
+      /** `null` when the server sent no name: the store gives the monster a plain one. */
+      readonly monster: MonsterCopy | null;
       readonly labels: TaskLabels;
-      readonly lines: SessionLinePack;
+      /** `null` when the server sent no lines: the offline pack speaks instead. */
+      readonly lines: SessionLinePack | null;
       readonly notifications: readonly DayNotification[];
     }
   | { readonly verdict: 'serious'; readonly lines: SeriousLinePack };
@@ -44,14 +48,15 @@ export interface TaskCall {
 }
 
 /**
- * The task call as the app sees it. Everything that knows how many requests the server needs for
- * one task is in this file: today it is one, and its answer is split into the two stages here.
+ * The task call as the app sees it: what arrives first, and a promise of the rest. How many
+ * requests the server needs for one task is known only to the clients behind this interface.
  */
 export interface TaskClient {
   createTask(input: TaskCreateRequest): Promise<TaskCall>;
 }
 
-export function createTaskClient(api: ScootchApi): TaskClient {
+/** The single call: one request, split into the two stages here. Kept beside the staged client. */
+export function createTaskClient(api: Pick<ScootchApi, 'screenInput' | 'taskCreate'>): TaskClient {
   return {
     async createTask(input) {
       const answer = await api.taskCreate(input);

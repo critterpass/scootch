@@ -8,7 +8,13 @@ import { useScreenStyle } from '../../ui/use-screen-style';
 
 /** The session lengths on offer, in minutes. */
 export const SESSION_MINUTES = [10, 25, 50] as const;
-export type SessionMinutes = (typeof SESSION_MINUTES)[number];
+export type SessionMinutes = number;
+/** The lengths offered when the ask is the smallest there is: it leads, and the longest goes. */
+export function minuteOptions(smallest: number | null): readonly number[] {
+  return smallest === null || smallest >= SESSION_MINUTES[0]
+    ? SESSION_MINUTES
+    : [smallest, ...SESSION_MINUTES.slice(0, -1)];
+}
 
 const ROW_SIZE = 17;
 const SMALL_SIZE = 15;
@@ -18,10 +24,18 @@ export interface TaskSetChoicesProps {
   readonly minutes: SessionMinutes;
   readonly onTreat: (treat: string) => void;
   readonly onMinutes: (minutes: SessionMinutes) => void;
+  /** The lengths on offer; the usual three when unset. */
+  readonly options?: readonly number[];
 }
 
 /** The two choices before a start: the treat for afterwards, and how long to go for. */
-export function TaskSetChoices({ treat, minutes, onTreat, onMinutes }: TaskSetChoicesProps) {
+export function TaskSetChoices({
+  treat,
+  minutes,
+  onTreat,
+  onMinutes,
+  options = SESSION_MINUTES,
+}: TaskSetChoicesProps) {
   const { palette, allowFontScaling, size, largeText } = useScreenStyle();
   const t = useT();
   return (
@@ -61,7 +75,7 @@ export function TaskSetChoices({ treat, minutes, onTreat, onMinutes }: TaskSetCh
           { backgroundColor: `${palette.ink}0F` },
         ]}
       >
-        {SESSION_MINUTES.map((option) => {
+        {options.map((option) => {
           const chosen = option === minutes;
           return (
             <Pressable
@@ -92,20 +106,16 @@ export function TaskSetChoices({ treat, minutes, onTreat, onMinutes }: TaskSetCh
   );
 }
 
-/**
- * The way into the world, on the quiet screen. The world is not built yet, so the row is drawn
- * faded, says so, and does nothing.
- */
-export function WorldRow() {
+/** The way into the world, on the quiet screen. */
+export function WorldRow({ onPress }: { readonly onPress: () => void }) {
   const { palette, allowFontScaling, size } = useScreenStyle();
   const t = useT();
   return (
-    <View
-      accessible
+    <Pressable
       accessibilityRole="button"
       accessibilityLabel={t('oneScreen.world')}
-      accessibilityHint={t('oneScreen.notOpenYet')}
-      accessibilityState={{ disabled: true }}
+      accessibilityHint={t('oneScreen.world.hint')}
+      onPress={onPress}
       testID="world-row"
       style={[styles.world, { backgroundColor: palette.surface }]}
     >
@@ -116,15 +126,9 @@ export function WorldRow() {
         >
           {t('oneScreen.world')}
         </Text>
-        <Text
-          allowFontScaling={allowFontScaling}
-          style={[styles.rowLabel, { color: palette.muted, fontSize: size(SMALL_SIZE) }]}
-        >
-          {t('oneScreen.notOpenYet')}
-        </Text>
       </View>
       <Chevron color={palette.muted} direction="right" />
-    </View>
+    </Pressable>
   );
 }
 
@@ -132,10 +136,13 @@ export interface ChipsProps {
   readonly chips: readonly string[];
   readonly disabled: boolean;
   readonly onChip: (text: string) => void;
+  /** What a tap does, for a screen reader; sending the chip as the one thing when unset. */
+  readonly hint?: string;
+  readonly testPrefix?: string;
 }
 
 /** The three tiny examples under the warm-up ask. Tapping one sends it as the one thing. */
-export function Chips({ chips, disabled, onChip }: ChipsProps) {
+export function Chips({ chips, disabled, onChip, hint, testPrefix = 'warm-up-chip' }: ChipsProps) {
   const { palette, allowFontScaling, size } = useScreenStyle();
   const t = useT();
   return (
@@ -145,10 +152,10 @@ export function Chips({ chips, disabled, onChip }: ChipsProps) {
           key={chip}
           accessibilityRole="button"
           accessibilityLabel={chip}
-          accessibilityHint={t('launch.chip.hint')}
+          accessibilityHint={hint ?? t('launch.chip.hint')}
           disabled={disabled}
           onPress={() => onChip(chip)}
-          testID={`warm-up-chip-${index}`}
+          testID={`${testPrefix}-${index}`}
           style={[
             styles.chip,
             { backgroundColor: palette.surface, borderColor: `${palette.ink}14` },
@@ -224,7 +231,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
     minHeight: 72,
-    opacity: 0.55,
   },
   worldWords: {
     flex: 1,
