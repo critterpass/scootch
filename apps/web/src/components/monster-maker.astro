@@ -1,8 +1,10 @@
 ---
 import type { Language } from '@scootch/i18n';
 
-import { appStoreUrl, copyFor, localPath } from '../copy';
+import { appStoreUrl, copyFor, localPath, pagesFor, preLaunch } from '../copy';
 import { scootchSvg } from '../lib/drawings';
+
+import WaitlistForm from './waitlist-form.astro';
 
 interface Props {
   language: Language;
@@ -10,6 +12,7 @@ interface Props {
 
 const { language } = Astro.props;
 const copy = copyFor(language).maker;
+const pages = pagesFor(language);
 const helplines = localPath(language, '/helplines');
 // The lines the script fills in once a monster has a name.
 const lines = {
@@ -19,6 +22,11 @@ const lines = {
   typedHidden: copy.typedHidden,
   empty: copy.empty,
   nonsense: copy.nonsense,
+  copied: pages.share.copied,
+  saved: pages.share.saved,
+  shareFailed: pages.share.failed,
+  unshare: pages.share.unshare,
+  unshared: pages.share.unshared,
 };
 ---
 
@@ -95,13 +103,28 @@ const lines = {
           <span class="small" data-typed-note></span>
         </span>
       </label>
+      {preLaunch && <WaitlistForm language={language} managed intro={pages.preLaunch.intro} />}
       <div class="actions">
-        <a class="button button-ink" href={appStoreUrl}>{copy.catchIt}</a>
+        {
+          !preLaunch && (
+            <a class="button button-ink" href={appStoreUrl}>
+              {copy.catchIt}
+            </a>
+          )
+        }
         <button type="button" class="button button-quiet" data-action="save">{copy.save}</button>
+        <button type="button" class="button button-quiet" data-action="share">{pages.share.share}</button>
       </div>
+      <p class="small share-status" aria-live="polite" data-share-status></p>
     </div>
     <div class="actions" data-show="nap" hidden>
-      <a class="button button-ink" href={appStoreUrl} data-last-only>{copy.napCatch}</a>
+      {
+        !preLaunch && (
+          <a class="button button-ink" href={appStoreUrl} data-last-only>
+            {copy.napCatch}
+          </a>
+        )
+      }
       <button type="button" class="button button-quiet" data-action="wake">{copy.napOk}</button>
     </div>
   </div>

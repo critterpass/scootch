@@ -1,7 +1,7 @@
 ---
 import type { Language } from '@scootch/i18n';
 
-import { appStoreUrl, copyFor } from '../copy';
+import { appStoreUrl, copyFor, pagesFor, preLaunch } from '../copy';
 
 interface Props {
   language: Language;
@@ -12,11 +12,17 @@ interface Props {
 const { language } = Astro.props;
 ---
 
-<a class="app-store-badge" href={appStoreUrl}>
-  <img
-    src="/badges/download-on-the-app-store.svg"
-    alt={copyFor(language).badge.alt}
-    width="150"
-    height="50"
-  />
-</a>
+{
+  preLaunch ? (
+    <span class="coming-soon">{pagesFor(language).preLaunch.comingSoon}</span>
+  ) : (
+    <a class="app-store-badge" href={appStoreUrl}>
+      <img
+        src="/badges/download-on-the-app-store.svg"
+        alt={copyFor(language).badge.alt}
+        width="150"
+        height="50"
+      />
+    </a>
+  )
+}

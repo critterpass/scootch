@@ -1,0 +1,44 @@
+---
+import { languagePaths, plainFor } from '../../copy';
+import SiteLayout from '../../layouts/site-layout.astro';
+
+export const getStaticPaths = languagePaths;
+const language = Astro.params.lang === 'vi' ? 'vi' : 'en';
+const copy = plainFor(language).privacy;
+---
+
+<SiteLayout language={language} path="/privacy" title={copy.title} description={copy.description}>
+  <article class="wrap plain plain-wide">
+    <h1>{copy.headline}</h1>
+    <p class="lede">{copy.intro}</p>
+    <div class="plain-table">
+      <table>
+        <thead>
+          <tr>{copy.columns.map((column) => <th scope="col">{column}</th>)}</tr>
+        </thead>
+        <tbody>
+          {
+            copy.rows.map(([data, kept]) => (
+              <tr>
+                <th scope="row">{data}</th>
+                <td>{kept}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+    {copy.notes.map((note) => <p class="plain-note">{note}</p>)}
+    <div class="plain-pair">
+      <section class="panel">
+        <h2>{copy.exportTitle}</h2>
+        <p>{copy.exportBody}</p>
+      </section>
+      <section class="panel">
+        <h2>{copy.deleteTitle}</h2>
+        <p>{copy.deleteBody}</p>
+      </section>
+    </div>
+    <p class="small">{copy.questions} {copy.updated}</p>
+  </article>
+</SiteLayout>

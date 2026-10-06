@@ -1,7 +1,7 @@
 ---
 import type { Language } from '@scootch/i18n';
 
-import { appStoreUrl, brand, copyFor, localPath } from '../copy';
+import { appStoreUrl, brand, copyFor, localPath, pagesFor, preLaunch } from '../copy';
 
 import AppStoreBadge from './app-store-badge.astro';
 
@@ -33,7 +33,17 @@ const links = [
       }
     </nav>
     <span class="nav-badge"><AppStoreBadge language={language} /></span>
-    <a class="button button-ink nav-get" href={appStoreUrl}>{copy.nav.getTheApp}</a>
+    {
+      preLaunch ? (
+        <a class="button button-ink nav-get" href={localPath(language, '/')}>
+          {pagesFor(language).preLaunch.tellMe}
+        </a>
+      ) : (
+        <a class="button button-ink nav-get" href={appStoreUrl}>
+          {copy.nav.getTheApp}
+        </a>
+      )
+    }
     <details class="nav-menu">
       <summary aria-label={copy.nav.menu}><span aria-hidden="true"></span></summary>
       <nav aria-label={copy.nav.menu}>

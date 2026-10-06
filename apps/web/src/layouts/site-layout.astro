@@ -6,6 +6,7 @@ import SiteFooter from '../components/site-footer.astro';
 import SiteNav from '../components/site-nav.astro';
 import { copyFor } from '../copy';
 import '../styles/site.css';
+import '../styles/pages.css';
 
 interface Props {
   language: Language;
@@ -13,9 +14,16 @@ interface Props {
   path: `/${string}`;
   title: string;
   description: string;
+  /**
+   * False on the pages of shared things: the Worker writes their link preview tags per request,
+   * from what was shared.
+   */
+  social?: boolean;
 }
 
-const { language, path, title, description } = Astro.props;
+const { language, path, title, description, social = true } = Astro.props;
+const pageUrl = new URL(path === '/' && language === 'vi' ? '/vi/' : language === 'vi' ? `/vi${path}` : path, Astro.site);
+const previewImage = new URL(`/og/home-${language}.png`, Astro.site);
 const copy = copyFor(language);
 
 /** The app's palette as custom properties, so the site and the app share one set of inks. */
@@ -40,8 +48,36 @@ const palette = `:root{color-scheme:light dark;${variables(colors.light)}}@media
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <link rel="alternate" hreflang="en" href={new URL(path, Astro.site)} />
-    <link rel="alternate" hreflang="vi" href={new URL(path === '/' ? '/vi/' : `/vi${path}`, Astro.site)} />
+    {
+      social && (
+        <>
+          <link rel="alternate" hreflang="en" href={new URL(path, Astro.site)} />
+          <link
+            rel="alternate"
+            hreflang="vi"
+            href={new URL(path === '/' ? '/vi/' : `/vi${path}`, Astro.site)}
+          />
+        </>
+      )
+    }
+    {
+      social && (
+        <>
+          <meta property="og:type" content="website" />
+          <meta property="og:site_name" content="Scootch" />
+          <meta property="og:title" content={title} />
+          <meta property="og:description" content={description} />
+          <meta property="og:url" content={pageUrl} />
+          <meta property="og:image" content={previewImage} />
+          <meta property="og:image:width" content="1200" />
+          <meta property="og:image:height" content="630" />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content={title} />
+          <meta name="twitter:description" content={description} />
+          <meta name="twitter:image" content={previewImage} />
+        </>
+      )
+    }
     <style is:inline set:html={palette} />
   </head>
   <body>

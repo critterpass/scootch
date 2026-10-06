@@ -1,6 +1,8 @@
 import { buildMonster, type MONSTER_BODIES, specFromSeed, toSvg } from '@scootch/art';
 
 import { saveCardImage } from './card-image';
+import { monsterPath, shareMonster, unshareMonster } from './monster-sharing';
+import { startWaitlistForm } from './waitlist-form';
 
 type State = 'empty' | 'hatching' | 'hatched' | 'nap' | 'offline' | 'serious';
 
@@ -59,6 +61,85 @@ export function startMonsterMaker(root: HTMLElement): void {
   const showTyped = find<HTMLInputElement>('[data-show-typed]');
   const card = find('[data-card]');
   let last: Monster | undefined;
+  /** The share of the monster on screen, and whether it shows the typed line. */
+  let shared: { id: string; typedShown: boolean } | undefined;
+  const shareStatus = find('[data-share-status]');
+
+  const say = (line: string, id?: string): void => {
+    const [before = '', after = ''] = line.split('{link}');
+    shareStatus.replaceChildren(before);
+    if (id === undefined) return;
+    const link = document.createElement('a');
+    link.href = monsterPath(id, language);
+    link.textContent = `${location.host}${monsterPath(id, language)}`;
+    const undo = document.createElement('button');
+    undo.type = 'button';
+    undo.className = 'link-button';
+    undo.dataset['action'] = 'unshare';
+    undo.textContent = lines['unshare'] ?? '';
+    shareStatus.append(link, after, ' ', undo);
+  };
+
+  /**
+   * Shares the monster on screen as the toggle stands now, once. A share made with the typed
+   * line showing is taken down before one without it goes up, and the other way round.
+   */
+  const ensureShared = async (): Promise<string | null> => {
+    if (!last) return null;
+    const typedShown = showTyped.checked;
+    if (shared?.typedShown === typedShown) return shared.id;
+    if (shared) await unshareMonster(shared.id);
+    shared = undefined;
+    const outcome = await shareMonster(
+      { ...last, typed: typedShown ? last.typed : null },
+      language,
+    );
+    if (outcome === 'heavy') {
+      // Screened again on the way out: no card and no share for a heavy thing.
+      last = undefined;
+      find('[data-card-art]').replaceChildren();
+      input.value = '';
+      show('serious');
+      return null;
+    }
+    if (outcome === 'failed') {
+      say(lines['shareFailed'] ?? '');
+      return null;
+    }
+    shared = { id: outcome.id, typedShown };
+    return outcome.id;
+  };
+
+  const share = async (): Promise<void> => {
+    const id = await ensureShared();
+    if (id === null) return;
+    const url = new URL(monsterPath(id, language), location.href).href;
+    try {
+      if (navigator.share) await navigator.share({ url, title: last?.name ?? '' });
+      else await navigator.clipboard.writeText(url);
+    } catch {
+      // The sheet was closed or the clipboard is off limits: the link is on screen either way.
+    }
+    say(lines['copied'] ?? '', id);
+  };
+
+  const save = async (): Promise<void> => {
+    if (!last) return;
+    const card = { ...last, typed: showTyped.checked ? last.typed : null };
+    const id = await ensureShared();
+    if (!last) return;
+    await saveCardImage(card);
+    if (id !== null) say(lines['saved'] ?? '', id);
+  };
+
+  const waitlist = root.querySelector<HTMLElement>('[data-waitlist]');
+  if (waitlist) {
+    startWaitlistForm(waitlist, async () => {
+      const id = await ensureShared();
+      // The line afterwards promises to keep the monster only when it was kept.
+      return { id, name: id === null ? null : (last?.name.split(',')[0] ?? null) };
+    });
+  }
 
   const show = (state: State): void => {
     root.dataset['state'] = state;
@@ -90,6 +171,8 @@ export function startMonsterMaker(root: HTMLElement): void {
 
   const drawCard = (monster: Monster): void => {
     last = monster;
+    shared = undefined;
+    shareStatus.replaceChildren();
     const spec = specFromSeed(monster.bodyType, monster.seed);
     find('[data-card-art]').innerHTML = toSvg(buildMonster(spec));
     find('[data-card-name]').textContent = monster.name;
@@ -151,8 +234,17 @@ export function startMonsterMaker(root: HTMLElement): void {
       input.focus();
     } else if (target.dataset['action'] === 'wake') {
       show(last ? 'hatched' : 'empty');
-    } else if (target.dataset['action'] === 'save' && last) {
-      void saveCardImage({ ...last, typed: showTyped.checked ? last.typed : null });
+    } else if (target.dataset['action'] === 'save') {
+      void save();
+    } else if (target.dataset['action'] === 'share') {
+      void share();
+    } else if (target.dataset['action'] === 'unshare' && shared) {
+      const { id } = shared;
+      void unshareMonster(id).then((gone) => {
+        if (!gone) return;
+        if (shared?.id === id) shared = undefined;
+        say(lines['unshared'] ?? '');
+      });
     }
   });
 }

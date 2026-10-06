@@ -1,0 +1,32 @@
+---
+import { languagePaths, localPath, plainFor, preLaunch } from '../../copy';
+import SiteLayout from '../../layouts/site-layout.astro';
+
+export const getStaticPaths = languagePaths;
+const language = Astro.params.lang === 'vi' ? 'vi' : 'en';
+const copy = plainFor(language).support;
+const last = copy.questions.length - 1;
+---
+
+<SiteLayout language={language} path="/support" title={copy.title} description={copy.description}>
+  <article class="wrap plain">
+    <h1>{copy.headline}</h1>
+    <p class="lede">{copy.intro}</p>
+    {preLaunch && <p class="plain-note">{copy.notOutYet}</p>}
+    <div class="questions">
+      {
+        copy.questions.map((question, index) => (
+          <details open={index === last}>
+            <summary>{question.q}</summary>
+            <p>{question.a}</p>
+            {index === last && (
+              <p>
+                <a href={localPath(language, '/helplines')}>{copy.helplinesLink}</a>
+              </p>
+            )}
+          </details>
+        ))
+      }
+    </div>
+  </article>
+</SiteLayout>

@@ -1,0 +1,27 @@
+---
+import WaitlistForm from '../../components/waitlist-form.astro';
+import { languagePaths, localPath, pagesFor } from '../../copy';
+import SiteLayout from '../../layouts/site-layout.astro';
+
+export const getStaticPaths = languagePaths;
+const language = Astro.params.lang === 'vi' ? 'vi' : 'en';
+const copy = pagesFor(language).android;
+---
+
+<SiteLayout language={language} path="/android" title={copy.title} description={copy.description}>
+  <article class="wrap plain">
+    <h1>{copy.headline}</h1>
+    <p class="lede">{copy.body}</p>
+    <WaitlistForm
+      language={language}
+      platform="android"
+      submit={copy.submit}
+      note={copy.note}
+      done={copy.done}
+    />
+    <p class="plain-note">
+      {copy.maker}
+      <a href={localPath(language, '/')}>{copy.tryIt}</a>
+    </p>
+  </article>
+</SiteLayout>
