@@ -1,0 +1,15 @@
+{
+  "name": "@scootch/art",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Scootch, monsters and cards (Skia) and the pose baker",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  }
+}

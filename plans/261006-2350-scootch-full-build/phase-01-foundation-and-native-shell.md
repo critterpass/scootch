@@ -15,12 +15,14 @@ Two lanes: A owns tasks 1 to 6 and 11, B owns tasks 7 to 10.
 - Do: pnpm workspace, TypeScript strict, lint, prettier, the folder layout in
   plan.md, `@scootch/<dir>` packages exporting source.
 - Done when: CI installs and typechecks an empty workspace.
+- Status: done — 32bab2f
 
 ### 2. CI
 - Owns: `.github/workflows/ci.yml`.
 - Do: one gate job that rolls up typecheck, lint, format, unit tests, the
   no-ids check and the eval suites. Auto-merge on, squash, branches deleted.
 - Done when: a trivial pull request merges itself on green.
+- Status: done — e2b3d5b
 
 ### 3. Device pipeline
 - Owns: `.github/workflows/device.yml`, `tools/scripts/capture-*`, `e2e/README.md`.
@@ -42,6 +44,7 @@ Two lanes: A owns tasks 1 to 6 and 11, B owns tasks 7 to 10.
 - Do: the generator used by screens, work modes, monster bodies, AI routes and
   bot commands. Generated files are ignored by prettier and never hand-edited.
 - Done when: adding a file to a registry folder needs no other edit.
+- Status: done — 32bab2f
 
 ### 6. Contracts
 - Owns: `packages/domain/src/contracts/`, `packages/voice/fixtures/`.
@@ -87,6 +90,7 @@ Two lanes: A owns tasks 1 to 6 and 11, B owns tasks 7 to 10.
   exists in one language only; every sheet captured in both languages. Fonts
   and layouts checked with Vietnamese diacritics and longer lines.
 - Done when: the sample screen appears in a sheet in both languages.
+- Status: done — 8e0292b
 
 ## Exit
 

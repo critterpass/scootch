@@ -1,0 +1,114 @@
+name: ci
+
+on:
+  pull_request:
+    # `edited` re-runs the checks when the title or body changes: the squash commit is made from them.
+    types: [opened, synchronize, reopened, edited]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with: { node-version: 24, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with: { node-version: 24, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+
+  format:
+    name: format check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with: { node-version: 24, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm format:check
+
+  test:
+    name: unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with: { node-version: 24, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
+
+  no-ids:
+    name: no plan ids or deferral words in source
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with: { node-version: 24, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec vitest run tools/scripts/no-plan-ids.test.ts
+
+  # This repository is public and a squash merge copies the pull request's title and body into
+  # history, so neither they nor the commits may carry a session link or an attribution line.
+  no-session-links:
+    name: no session links
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    steps:
+      - name: Title, body and commit messages carry no session link
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          # Read from the API, not the event, so a re-run sees the current title and body.
+          gh api "repos/$GITHUB_REPOSITORY/pulls/$PR" --jq '.title, .body // ""' > "$RUNNER_TEMP/text"
+          gh api "repos/$GITHUB_REPOSITORY/pulls/$PR/commits" --paginate \
+            --jq '.[].commit.message' >> "$RUNNER_TEMP/text"
+          # Counted, never printed: the log is public too.
+          count=$(grep -ciE 'claude\.ai/code/session|Claude-Session:' "$RUNNER_TEMP/text" || true)
+          if [ "$count" -gt 0 ]; then
+            echo "::error::$count line(s) in the title, body or commit messages hold a session link or a Claude-Session line. Remove them."
+            exit 1
+          fi
+
+  # The single required check for merging: a job skipped by its condition counts as passing.
+  ci-passed:
+    name: ci passed
+    if: always()
+    needs:
+      - typecheck
+      - lint
+      - format
+      - test
+      - no-ids
+      - no-session-links
+    runs-on: ubuntu-latest
+    steps:
+      - name: Every needed job passed or was skipped
+        env:
+          RESULTS: ${{ toJSON(needs.*.result) }}
+        run: |
+          echo "$RESULTS"
+          if echo "$RESULTS" | grep -qE '"(failure|cancelled)"'; then exit 1; fi
