@@ -18,7 +18,9 @@ Session.
 ### 2. First launch
 - Do: hello, attitude, permissions asked in character before the system
   prompt, the first tiny thing. No account, no tour.
-- States: microphone refused (typing only), notifications refused (said once).
+- States: microphone refused (typing only), notifications refused (said once);
+  arriving with a monster from the website, which skips straight to "Catch
+  Molar · 10 min" and asks the setup questions afterwards.
 
 ### 3. The composer
 - Do: hold to talk with on-device transcription, slide to cancel, typing, the

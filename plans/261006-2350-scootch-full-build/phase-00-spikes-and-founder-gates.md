@@ -47,24 +47,19 @@ no product code.
 ## Design
 
 ### 7. Export the boards
-- Status: partly done, 6 Oct 2026. Nine boards are in `design/` as HTML
-  (Camera, Care and Edge States, Characters, Growth, iPhone Duo, Monsters and
-  Keepsakes, Plus, System Surfaces, Tables). "App flows" and "Website" are
-  still over the export limit. No renders or `screens.json` yet.
-- Do: once the founder has split the last two boards, export every board to
-  `design/<board>.dc.html` and one PNG per screen to `design/renders/`.
-  Write `design/screens.json` (board, screen label, render path).
+- Status: partly done, 7 Oct 2026. All eleven boards and their three scripts
+  are in `design/`, from the founder's archive. No renders or `screens.json`
+  yet.
+- Do: render one PNG per screen to `design/renders/` with Playwright on a
+  GitHub runner, and write `design/screens.json` (board, screen label, render
+  path).
 - Done when: every screen named in the product brief has a render, or is
   listed as missing.
 
 ### 8. Review the unseen part
-- Status: partly done, 6 Oct 2026. Session, finish, rewards, not finished,
-  coming back, the world, the record, sharing and tables are reviewed, and
-  their findings are in product-brief section 11 and the phase files.
-- Do: review "Settings and icon" on App flows and Website sections 03 to 15
-  against the product brief and this plan. List conflicts and gaps.
-- Done when: the plan's unresolved question 4 is closed, with any plan edits
-  made.
+- Status: done, 7 Oct 2026. Every board has been read as text against the
+  brief and the plan; findings are in product-brief section 11 and the phase
+  files. The rendered screens have not been compared by eye.
 
 ## Founder
 

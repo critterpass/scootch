@@ -146,7 +146,11 @@ complex and isolated:
 | Stuck help "when nothing has moved" | The app cannot see the user's work | A timed check-in plus the "I'm stuck" button |
 | Gift redemption | No native gifting | After launch |
 | "Someone always shows up around ten" at an empty table | Untrue with friends-only tables | Say the seats are saved, and offer the invite |
-| Share story says "I finally emailed the dentist" | "Finally" is on Scootch's banned list | The story is the user's voice; let them edit the line |
+| The in-app share story says "I finally emailed the dentist" | "Finally" is banned, and the website's version reads "Emailed the dentist. It waited 214 days. Took 9 minutes." | Use the website's three lines in the app too |
+| Settings has a "Sit with strangers" switch | Strangers are after launch | Leave it out |
+| Settings shows an attitude dial and four switches only | The app also needs language, Plus and helplines | Add three rows; log in `docs/undesigned-states.md` |
+| "Catch it in the app" carries the monster through install | iOS has no deferred link of its own | The App Clip hands the monster to the app through the shared App Group; spike it in phase 10 |
+| "Send the link to my phone" by email or phone number | Needs a mail or text sender, and text costs money | QR code and email only (**open**) |
+| Helplines page lists six countries | Vietnam is missing, and the app launches in Vietnamese | Add verified Vietnamese helplines before launch |
+| "A person writes back within two working days" | The founder is that person | Keep the promise only if the founder accepts it (**open**) |
 | The weekly sentence shows in the free world | The brief puts the Scootch that learns you in Plus | Free users see it once a month, Plus weekly (**open**) |
-| App flows "Settings and icon" | Not reviewed (the board is still over the export limit) | Split once more, review in phase 00 |
-| Website sections 03 to 15 | Not reviewed (same limit) | Split the Website board, review in phase 00 |

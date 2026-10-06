@@ -4,34 +4,35 @@ The designs live in Claude Design, project
 `458d4c8c-ff01-4813-8bcc-9c7e9a1f821b`
 (https://claude.ai/design/p/458d4c8c-ff01-4813-8bcc-9c7e9a1f821b).
 
-## Boards (as of 6 Oct 2026, 23:59)
+## Boards (exported 7 Oct 2026 from the founder's archive)
 
-| Board | Covers | In this folder |
+All eleven boards are in this folder as `<board>.dc.html`, with the three
+scripts they load (`support.js`, `critters.js`, `fx.js`), so each opens in a
+browser as designed.
+
+| Board | Covers | At launch |
 |---|---|---|
-| Scootch (App flows) | First launch, the one screen, brain dump, session, hold to finish and rewards, not finished and coming back, settings and icon | No: over the export limit |
+| Scootch (App flows) | First launch, the one screen, brain dump, session, hold to finish and rewards, not finished and coming back, settings and icon | Yes |
 | Monsters and Keepsakes | The monster, the world, the week's song, share cards and stories, the binder | Yes |
-| Tables | Lobby, waiting alone, invite, full table, nudges, labels | Yes |
+| Tables | Lobby, waiting alone, invite, full table, nudges, labels | Yes, friends only |
 | Characters | 30 work modes, 20 monster bodies | Yes |
 | System Surfaces | Live Activities, widgets, controls, notifications | Yes |
-| Plus | Locked controls, the sheet, trial and renewal, friends, gifts, lifetime, shelf, manage | Yes |
+| Plus | Locked controls, the sheet, trial and renewal, friend pass, lifetime, shelf, manage | Yes, without gifts |
 | Care and Edge States | Serious mode, crisis, offline, AI unavailable, accessibility, privacy, seat controls | Yes |
 | Growth | Web monster maker, haunt a friend, the share loop | Yes |
-| Website | System, home, maker, monster page, shared pages, invites, getting the app, Plus, wall, Unwrapped, plain pages, before launch, link previews, motion, copy | No: over the export limit |
-| Camera | Four modes, before and after (after launch) | Yes |
-| iPhone Duo | Foldable layouts (after launch) | Yes |
+| Website | 15 sections: system, home, maker, monster page, shared pages, invites, getting the app, Plus, wall, Unwrapped, plain pages, before launch, link previews, motion, copy | Yes, without the wall, Unwrapped, gifts and before-and-after |
+| Camera | Four modes, before and after | After launch |
+| iPhone Duo | Foldable layouts | After launch |
 
-The boards also load `support.js`, `critters.js` and `fx.js` from the design
-project. They are not exported yet, so the HTML here is for reading, not for
-rendering.
+Every board has been read against the plan as text. Nobody has yet compared
+the rendered screens.
 
 ## What is still missing
 
-- "App flows" and "Website" must each be split into files under 200 KB. The
-  design tool returns at most 256 KiB per file.
 - One PNG per screen under `design/renders/<board>/<screen>.png`, and
-  `design/screens.json`. Phase 00 does both.
-- Not yet reviewed against the plan: "Settings and icon" on App flows, and
-  Website sections 03 to 15.
+  `design/screens.json` (board, screen label, render path). Phase 00 task 7.
+- Vietnamese: the boards are in English only. Vietnamese screens are checked
+  on device sheets, not against a render.
 
 ## Precedence
 

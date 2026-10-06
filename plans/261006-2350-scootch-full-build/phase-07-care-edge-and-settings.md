@@ -22,7 +22,10 @@ High effort for tasks 1 and 2.
   user's region first; "just sit with me". No override. Helplines stay one tap
   from Settings afterwards.
 - Do: a helpline table by country with a source and a checked date for each
-  entry, and a safe default when the country is unknown.
+  entry, and a safe default when the country is unknown. The board lists the
+  United States, Canada, the United Kingdom and Ireland, Australia, New
+  Zealand and India. Vietnam must be added and verified, because the app
+  launches in Vietnamese.
 - Test: crisis wins over every other state, including an active session.
 
 ### 3. Offline
@@ -51,8 +54,10 @@ High effort for tasks 1 and 2.
 - Done when: a device run restores a world onto a clean install.
 
 ### 8. Settings
-- Do: attitude, quiet hours, sounds, haptics, motion, finish method, privacy
-  and data, Plus, helplines, about.
+- Do: one page, as on the board: the attitude dial; music, effects, haptics
+  and motion; quiet hours; finish method; privacy and data; invite a friend.
+  Add three rows the board lacks: language, Plus and helplines. Leave out
+  "Sit with strangers".
 
 ## Exit
 

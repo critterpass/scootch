@@ -88,8 +88,7 @@ Things only the founder can do. Phase 00 lists them with the exact steps.
 4. Create the RevenueCat project and the three products.
 5. Provide the AI provider key under a no-training agreement, and the Jev key.
 6. Create the Telegram bot and send its token and your chat id.
-7. Split "App flows" once more and split "Website"; both are still over the
-   export limit.
+7. Done 7 Oct: the full design archive is in `design/`.
 8. Approve the voice (the Voice gate).
 
 ## Unresolved questions
@@ -99,5 +98,7 @@ Things only the founder can do. Phase 00 lists them with the exact steps.
 2. Who checks the Vietnamese voice and the Vietnamese banned-word list. The
    founder is the obvious reader.
 3. Does a free user see the weekly sentence in the world, or is it Plus only.
-4. "App flows" (Settings and icon) and "Website" (sections 03 to 15) have not
-   been reviewed, because both boards are still over the export limit.
+4. "Send the link to my phone": QR code and email only, or text messages too.
+5. Does the founder accept "a person writes back within two working days" on
+   the support page.
+6. Which Vietnamese helplines to list; each needs a source and a checked date.

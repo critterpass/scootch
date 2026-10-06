@@ -3,7 +3,8 @@
 Status: not started · Tasks: 8 · Needs: 02, 03 · Owns: `apps/web`
 
 Goal: anyone can play with Scootch in ten seconds, and every shared thing lands
-on a good page. Boards: Growth; Website (once designed and reviewed).
+on a good page. Boards: Growth; Website (15 sections, with a copy sheet and
+motion notes to follow exactly).
 
 The monster maker can go live before the app as the pre-launch page.
 
@@ -24,13 +25,15 @@ friends"). The home strip of example monsters uses a fixed, hand-checked set.
 ### 2. Monster maker
 - Do: one field; the input screen first (a heavy input gets one kind sentence
   and helplines, no monster); then name, flavour text and a monster drawn by
-  the same generator as the app; hide-the-task toggle; rate limit.
+  the same generator as the app; hide-the-task toggle; a nap after twelve
+  hatches in a row, for five minutes. Input is deleted after 24 hours unless
+  the card is shared.
 - States: empty, hatching, hatched, too many tries, nonsense, offline.
 - Test: a crisis input never returns a monster.
 
 ### 3. A page per monster
-- Do: `scootch.app/m/<id>` with the card and a link preview image rendered at
-  the sizes Messages, WhatsApp, Slack and X use; "Make your own" and "Catch it
+- Do: `scootch.app/m/<id>` with the card and a 1200 × 630 link preview image,
+  rendered per page, cached, and regenerated when the monster is caught; "Make your own" and "Catch it
   in the app"; flips to CAUGHT when the owner catches it.
 
 ### 4. Pages for things shared from the app
@@ -40,7 +43,12 @@ friends"). The home strip of example monsters uses a fixed, hand-checked set.
 ### 5. Into the app
 - Do: universal links and the smart app banner; "Catch it in the app" carries
   the monster through install so it is waiting on first launch; a desktop page
-  with a QR code.
+  with a QR code and "send the link to my phone" (the address is used once,
+  then dropped).
+- Risk: iOS has no deferred link of its own. First prove, in a ten-minute
+  spike, that the App Clip can hand the monster to the installed app through
+  the shared App Group. If it cannot, the link is opened a second time after
+  install, and the page says so.
 - Done when: a device run installs from a monster link and finds the monster.
 
 ### 6. Invite and haunt pages
@@ -54,7 +62,8 @@ friends"). The home strip of example monsters uses a fixed, hand-checked set.
 
 ### 8. Pre-launch
 - Do: the home page variant where "Catch it" becomes "Tell me when it's out"
-  with one email field; an Android interest field.
+  with one email field; an Android interest field. One email is sent on
+  launch day, with a link that carries that exact monster into the app.
 
 ## Exit
 

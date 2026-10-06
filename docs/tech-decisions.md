@@ -90,6 +90,21 @@ Apple's on-device model is a bonus where the phone has it. Every on-device job
 has a fallback (a small bundled classifier, then Jev), because it only runs on
 recent iPhones with Apple Intelligence on.
 
+### What the privacy page promises
+
+The website's privacy table is a commitment the build must match:
+
+| Data | Kept |
+|---|---|
+| Ramble audio | Never; transcribed on the phone where possible |
+| Ramble transcript | Until the one thing is picked (or seven days if the user turns that on) |
+| Typed tasks | Until the user deletes them |
+| Web monster-maker input | 24 hours, unless the card is shared |
+| Shared cards and records | Until unshared |
+| Table label | While seated |
+| Analytics | Counts only, no ad ids, 13 months |
+| Delete everything | Gone from phone and servers within 30 days |
+
 ## 3. Reuse from CritterPass
 
 Copied in, then owned by Scootch (no shared dependency between the repos):
