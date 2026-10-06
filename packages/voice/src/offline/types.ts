@@ -19,6 +19,26 @@ export type OfflineSlot = (typeof offlineSlots)[number];
 
 export type OfflineLines = Readonly<Record<OfflineSlot, readonly [string, ...string[]]>>;
 
+/**
+ * What Scootch says while there is no task to talk about: the first launch, the waiting screen
+ * and the quiet end of the day. One fixed line per slot.
+ */
+export const noTaskSlots = [
+  'hello',
+  'about',
+  'attitudeAsk',
+  'favours',
+  'notificationsWhy',
+  'microphoneWhy',
+  'firstOneThing',
+  'waiting',
+  'typing',
+  'doneForToday',
+] as const;
+export type NoTaskSlot = (typeof noTaskSlots)[number];
+
+export type NoTaskLines = Readonly<Record<NoTaskSlot, string>>;
+
 /** The plain-words lines for a heavy task: company, no comedy. */
 export type PlainLines = {
   readonly acknowledge: string;
@@ -35,6 +55,7 @@ export type PlainLines = {
 export type OfflinePack = {
   readonly lines: Readonly<Record<Attitude, OfflineLines>>;
   readonly plain: PlainLines;
+  readonly noTask: Readonly<Record<Attitude, NoTaskLines>>;
   /** "Name, Title" names for a monster whose own name failed the check. */
   readonly monsterNames: readonly [string, ...string[]];
   readonly monsterTitles: readonly [string, ...string[]];

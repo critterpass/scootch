@@ -81,6 +81,48 @@ export const viOffline: OfflinePack = {
     notFinished:
       'Hôm nay tới đây cũng được. Việc này vẫn nằm yên đó, khi nào bạn sẵn sàng thì mình làm.',
   },
+  noTask: {
+    soft: {
+      hello: 'Ơ, chào bạn. Mình là Scootch. Bạn tới rồi, mình vui lắm.',
+      about: 'Mỗi ngày mình giúp bạn bắt đầu một việc nhỏ, rồi ngồi cạnh trong lúc bạn làm.',
+      attitudeAsk: 'Bạn muốn mình kịch tính cỡ nào?',
+      favours: 'Mình xin hai điều nho nhỏ nha.',
+      notificationsWhy: 'để mình nhắc khẽ bạn',
+      microphoneWhy: 'để bạn kể cho mình nghe',
+      firstOneThing:
+        'Mình khởi động nhẹ nha. Có việc nhỏ nào cứ lởn vởn trong đầu bạn không? Càng nhỏ càng tốt.',
+      waiting: 'Mình ở đây rồi. Hôm nay mình làm một việc gì nè?',
+      typing: 'Gõ cũng được nha. Bạn cứ thong thả.',
+      doneForToday: 'Hôm nay vậy là xong. Bạn nghỉ ngơi đi, ở đây có mình trông.',
+    },
+    cheeky: {
+      hello: 'Ơ! Bạn tới rồi. Tui là Scootch. Tui ngồi đợi đúng mình bạn đó.',
+      about: 'Mỗi ngày tui giúp bạn bắt đầu một việc nhỏ, rồi ngồi cạnh trong lúc bạn làm.',
+      attitudeAsk: 'Bạn chịu được tui làm lố cỡ nào?',
+      favours: 'Tui xin hai chuyện nhỏ xíu.',
+      notificationsWhy: 'để tui làm lố cho đã',
+      microphoneWhy: 'để bạn kể lể thoải mái',
+      firstOneThing:
+        'Khởi động cái đã. Có việc gì cứ lởn vởn làm bạn khó chịu không? Càng nhỏ càng tốt.',
+      waiting: 'Tui ngồi nhìn cái cửa này ba tiếng rồi đó. Hôm nay một việc gì đây?',
+      typing: 'Gõ chữ luôn hả? Sang ghê. Tui đọc không sót chữ nào.',
+      doneForToday: 'Hôm nay xong rồi. Đi chơi đi, khỏi làm gì hết.',
+    },
+    unhinged: {
+      hello: 'BẠN TỚI RỒI. Tui là Scootch. Tui tập cảnh này trước gương cả buổi.',
+      about:
+        'Mỗi ngày tui giúp bạn bắt đầu một việc nhỏ, rồi ngồi cạnh trong lúc bạn làm. Ngồi rất ồn.',
+      attitudeAsk: 'BẠN CHỊU ĐƯỢC TUI LÀM LỐ CỠ NÀO?',
+      favours: 'HAI CHUYỆN NHỎ XÍU. Tui tập xin cả đêm.',
+      notificationsWhy: 'để tui làm lố HẾT CỠ',
+      microphoneWhy: 'để bạn kể lể cho tui nghe',
+      firstOneThing:
+        'HIỆP KHỞI ĐỘNG. Có việc gì cứ lởn vởn làm bạn khó chịu không? Càng nhỏ càng tốt. Bé xíu là nhất.',
+      waiting: 'TUI NHÌN CÁI CỬA NÀY BA TIẾNG RỒI. Hôm nay một việc gì đây?',
+      typing: 'GÕ CHỮ. Sang ghê. Tui đọc từng chữ một.',
+      doneForToday: 'HÔM NAY XONG RỒI. Đi chơi đi, khỏi làm gì hết. Tui trông cho.',
+    },
+  },
   monsterNames: [
     'Lấp Ló, Người Giữ Chìa Khoá Gầm Bàn',
     'Tần Ngần, Thủ Kho Của Mấy Việc Dở Dang',

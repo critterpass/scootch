@@ -6,7 +6,7 @@ import passVi from '../fixtures/task.create.vi.json' with { type: 'json' };
 
 import { checkLine, lineKinds, type CheckReason, type LineKind } from './check';
 import { renderVoiceGuide, sampleGuide, voiceGuides } from './guide';
-import { offlineLine, offlinePacks, offlineSlots } from './offline';
+import { noTaskSlots, offlineLine, offlinePacks, offlineSlots } from './offline';
 import { checkTaskCopy } from './task-lines';
 
 const languages: Language[] = ['en', 'vi'];
@@ -196,6 +196,25 @@ describe('the offline pack', () => {
       }
       for (const text of [pack.plain.tinyNextStep, ...pack.plain.working, pack.plain.done]) {
         check(text, 'plainStep', 'soft');
+      }
+
+      expect(failures).toEqual([]);
+    },
+  );
+
+  it.each(languages)(
+    'keeps every %s line said with no task inside the word lists, in its own pronoun',
+    (language) => {
+      const failures: string[] = [];
+      for (const attitude of attitudes) {
+        for (const slot of noTaskSlots) {
+          const text = offlinePacks[language].noTask[attitude][slot];
+          // These lines have screens of their own, so a session line's length limit is not theirs.
+          const reasons = checkLine({ text, kind: 'hatch', language, attitude }).reasons.filter(
+            (reason) => reason !== 'too_long',
+          );
+          if (reasons.length > 0) failures.push(`${attitude} ${slot}: ${reasons.join(', ')}`);
+        }
       }
 
       expect(failures).toEqual([]);

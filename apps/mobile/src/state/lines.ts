@@ -7,7 +7,14 @@ import {
   type SettingsRow,
   type TaskRow,
 } from '@scootch/domain';
-import { offlineLine, offlinePacks, offlineSlots, type OfflineSlot } from '@scootch/voice';
+import {
+  noTaskLine,
+  offlineLine,
+  offlinePacks,
+  offlineSlots,
+  type NoTaskSlot,
+  type OfflineSlot,
+} from '@scootch/voice';
 
 import { careGate } from '../api/care-gate';
 
@@ -64,4 +71,15 @@ export function lineFor(
     return fromPlain(offlinePacks[settings.language].plain, slot, turn);
   }
   return isOfflineSlot(slot) ? offlineLine(settings.language, settings.attitude, slot, turn) : null;
+}
+
+/**
+ * The words for a moment with no task to talk about (first launch, waiting, the end of the day),
+ * from the offline pack in the person's language and attitude.
+ */
+export function lineWithNoTask(
+  slot: NoTaskSlot,
+  settings: Pick<SettingsRow, 'language' | 'attitude'>,
+): string {
+  return noTaskLine(settings.language, settings.attitude, slot);
 }

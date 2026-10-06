@@ -2,15 +2,29 @@ appId: app.scootch.dev
 ---
 # Captures every registered screen state in every variant, for the design-beside-device sheets.
 # Run it with mode=capture and flows=e2e/sheets. It reaches the registry the way a developer does,
-# through the "Developer tools" entry on the one screen, and reads the list from the app itself:
+# through the more button on the one screen, and reads the list from the app itself:
 # `registry-count` holds the number of rows and `registry-name-<n>` the name of the n-th, so a new
 # registry file needs no change here. Each image is named `<state id>--<variant>`.
 - launchApp:
     clearState: true
+# A clean install meets first launch before the one screen: say hello, keep the attitude and skip
+# both favours. The developer tools then open from the more button in the top corner.
 - extendedWaitUntil:
     visible:
-      id: 'one-sentence'
+      id: 'launch-hello-next'
     timeout: 90000
+- tapOn:
+    id: 'launch-hello-next'
+- tapOn:
+    id: 'launch-attitude-confirm'
+- tapOn:
+    id: 'launch-permission-skip'
+- tapOn:
+    id: 'launch-permission-skip'
+- extendedWaitUntil:
+    visible:
+      id: 'developer-tools'
+    timeout: 15000
 - tapOn:
     id: 'developer-tools'
 - extendedWaitUntil:

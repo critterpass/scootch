@@ -42,7 +42,7 @@ interface RowProps {
 }
 
 /**
- * The list of developer screens, reached from the "Developer tools" entry on the one screen. The
+ * The list of developer screens, reached from the more button on the one screen. The
  * language switch here stands in until the Settings screen has its own.
  */
 export default function DeveloperTools() {

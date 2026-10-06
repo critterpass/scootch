@@ -1,15 +1,47 @@
 appId: app.scootch.dev
 ---
-# The fresh-user walk, step one: a clean install launches and reaches the one screen, with its
-# sentence and its action. No seed, no deep link, nothing granted beforehand.
+# The fresh-user walk, step one: a clean install meets first launch and walks through it the way a
+# new person does. Hello, the attitude as it stands, and "Not now" to both favours, so the system
+# is never asked for anything. It ends on the warm-up ask. No seed, no deep link, nothing granted
+# beforehand.
 - launchApp:
     clearState: true
 - extendedWaitUntil:
     visible:
-      id: 'one-sentence'
+      id: 'launch-hello-next'
     timeout: 90000
 - assertVisible:
     id: 'one-sentence'
+- takeScreenshot: fresh-01-hello
+- tapOn:
+    id: 'launch-hello-next'
+- extendedWaitUntil:
+    visible:
+      id: 'launch-attitude-confirm'
+    timeout: 15000
 - assertVisible:
-    id: 'one-action'
-- takeScreenshot: fresh-01-first-launch
+    id: 'launch-attitude-cheeky'
+- takeScreenshot: fresh-01-attitude
+- tapOn:
+    id: 'launch-attitude-confirm'
+- extendedWaitUntil:
+    visible:
+      id: 'launch-permission-skip'
+    timeout: 15000
+- takeScreenshot: fresh-01-permissions
+# Notifications, then the microphone: each skipped.
+- tapOn:
+    id: 'launch-permission-skip'
+- tapOn:
+    id: 'launch-permission-skip'
+- extendedWaitUntil:
+    visible:
+      id: 'warm-up-chip-0'
+    timeout: 15000
+- assertVisible:
+    id: 'one-sentence'
+- assertVisible:
+    id: 'composer-talk'
+- assertNotVisible:
+    id: 'launch-hello-next'
+- takeScreenshot: fresh-01-first-one-thing
