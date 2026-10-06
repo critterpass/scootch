@@ -58,6 +58,8 @@ export type JevConfig = {
   readonly apiKey: string | undefined;
   /** The network boundary, replaced by recorded answers in tests. */
   readonly fetch?: typeof fetch;
+  /** Less than the whole budget, for a second attempt inside what the first left over. */
+  readonly timeoutMs?: number;
 };
 
 const probability = z.number().min(0).max(1);
@@ -120,7 +122,7 @@ export async function askJev<Option extends string>(
         state: text,
         questions: { [questionKey]: { type: 'choice', ...question } },
       }),
-      signal: AbortSignal.timeout(jevTimeoutMs),
+      signal: AbortSignal.timeout(config.timeoutMs ?? jevTimeoutMs),
     });
     if (!response.ok) {
       await response.body?.cancel();

@@ -1,9 +1,17 @@
 import type { Attitude, Language } from '@scootch/domain';
+import { treatPlaceholder } from '@scootch/domain';
 import {
   checkLine,
+  checkWrittenLine,
   offlineLine,
   offlinePacks,
   offlineSlots,
+  promptCharacterLimit,
+  promptWordLimit,
+  repeatedStepSlots,
+  sentenceCased,
+  type CheckReason,
+  type LineCheck,
   type LineKind,
   type OfflineSlot,
   type TaskLineFailure,
@@ -99,16 +107,110 @@ export function slotsOf(fields: readonly Field[]): Slot[] {
   );
 }
 
-/** A missing or misshapen line reads as empty, so the check sends that one line back, not all. */
-const text = z.string().catch('');
+const namesAndTitles = new Set<LineKind>(['monsterName', 'monsterTitle']);
 
-/** What the writer is asked for: one flat object with a key per field. */
-export function schemaFor(fields: readonly Field[]) {
-  return z.object(
+/** A field's limits as the schema tells them: a margin under what the check allows. */
+function limitNote({ kinds, list }: Field, language: Language): string | undefined {
+  const [first] = kinds;
+  if (first === undefined || namesAndTitles.has(first)) return undefined;
+  const limit = (kind: LineKind) =>
+    language === 'vi'
+      ? `tối đa ${promptWordLimit(kind)} chữ và ${promptCharacterLimit(kind)} ký tự`
+      : `at most ${promptWordLimit(kind)} words and ${promptCharacterLimit(kind)} characters`;
+  if (!list) return language === 'vi' ? `Một câu, ${limit(first)}.` : `One line, ${limit(first)}.`;
+  const each = kinds.every((kind) => kind === first)
+    ? `${language === 'vi' ? 'mỗi câu' : 'each'} ${limit(first)}`
+    : kinds
+        .map((kind, index) => `${language === 'vi' ? 'câu' : 'number'} ${index + 1} ${limit(kind)}`)
+        .join('; ');
+  return language === 'vi'
+    ? `Một mảng JSON thật gồm đúng ${kinds.length} chuỗi (không phải một chuỗi chứa mảng), ${each}.`
+    : `A real JSON array of exactly ${kinds.length} strings (never one string holding an array), ${each}.`;
+}
+
+/**
+ * A list as the writer gave it. Now and then the list arrives as one string holding the JSON of
+ * the list: those are the lines, so they are read, not counted as missing.
+ */
+function linesOf(given: unknown): string[] {
+  let list = given;
+  if (typeof given === 'string' && given.trim().startsWith('[')) {
+    try {
+      list = JSON.parse(given);
+    } catch {
+      list = [];
+    }
+  }
+  return Array.isArray(list) ? list.map((line) => (typeof line === 'string' ? line : '')) : [];
+}
+
+/**
+ * What the writer is asked for: one flat object with a key per field, each telling its own
+ * limits. The schema the writer sees is plain (no defaults that invite leaving a key out). Its
+ * answer is read leniently, so one missing or misshapen line reads as empty and only that line is
+ * asked for again; an answer with no line at all (the provider hands back an empty object when
+ * the writer's JSON does not parse) is no answer, and the call is made once more.
+ */
+export function schemaFor(fields: readonly Field[], language: Language) {
+  const shape = z.object(
     Object.fromEntries(
-      fields.map(({ key, list }) => [key, list ? z.array(z.string()).catch([]) : text]),
+      fields.map((field) => {
+        const type = field.list ? z.array(z.string()) : z.string();
+        const note = limitNote(field, language);
+        return [field.key, note === undefined ? type : type.describe(note)];
+      }),
     ),
   );
+  return z.preprocess(
+    (given) => {
+      const answer = (typeof given === 'object' && given !== null ? given : {}) as Record<
+        string,
+        unknown
+      >;
+      return Object.fromEntries(
+        fields.map(({ key, list }) => {
+          const value = answer[key];
+          return [key, list ? linesOf(value) : typeof value === 'string' ? value : ''];
+        }),
+      );
+    },
+    shape.refine((answer) =>
+      Object.values(answer).some((value) =>
+        typeof value === 'string' ? value.trim() !== '' : value.some((line) => line.trim() !== ''),
+      ),
+    ),
+  );
+}
+
+const text = z.string().catch('');
+
+/**
+ * A line as it is kept: trimmed, and at the Soft attitude with each sentence opening on a capital
+ * letter. That is the one repair made in code; the words are never touched.
+ */
+export function tidied(line: string, kind: LineKind, attitude: Attitude): string {
+  const trimmed = line.trim();
+  return attitude === 'soft' && !namesAndTitles.has(kind) ? sentenceCased(trimmed) : trimmed;
+}
+
+/**
+ * The voice check on a line as the person will read it: the treat line is checked with the
+ * treat's name in place of the placeholder when the treat is known, so its length is the real one.
+ * Its sentence case is judged with the placeholder still in: the treat's letters are the person's.
+ */
+export function checkWritten(
+  line: { text: string; kind: LineKind; language: Language; attitude: Attitude },
+  treat?: string,
+): LineCheck {
+  if (line.kind !== 'treatHandOver' || treat === undefined) return checkWrittenLine(line);
+  const filled = checkLine({
+    ...line,
+    text: line.text.replaceAll(treatPlaceholder, treat),
+    treat,
+  });
+  return checkWrittenLine(line).reasons.includes('sentence_case')
+    ? { ok: false, reasons: [...filled.reasons, 'sentence_case'] }
+    : filled;
 }
 
 /** Only the lines that failed the check, written once more: one key per slot asked for. */
@@ -139,12 +241,21 @@ export function failuresIn(
   texts: ReadonlyMap<string, string>,
   language: Language,
   attitude: Attitude,
+  treat?: string,
 ): TaskLineFailure[] {
+  const repeated = repeatedStepSlots(
+    ['lines.tinyNextStep', 'lines.tinierNextSteps.0', 'lines.tinierNextSteps.1'].map(
+      (slot) => texts.get(slot) ?? '',
+    ),
+  );
   return slots.flatMap(({ slot, kind, optional }) => {
     const text = texts.get(slot) ?? '';
     if (optional && text === '') return [];
-    const { ok, reasons } = checkLine({ text, kind, language, attitude });
-    return ok ? [] : [{ slot, kind, reasons }];
+    const reasons: CheckReason[] = [
+      ...checkWritten({ text, kind, language, attitude }, treat).reasons,
+      ...(repeated.has(slot) ? (['repeated_step'] as const) : []),
+    ];
+    return reasons.length === 0 ? [] : [{ slot, kind, reasons }];
   });
 }
 

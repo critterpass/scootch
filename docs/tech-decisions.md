@@ -94,6 +94,21 @@ Jev answered in about 260 ms at the median and under 560 ms at worst.
 - A pass needs both answers. When either goes unanswered by Jev and by the
   fallback, the other can still call a crisis; short of that the text counts
   as not screened: serious, and "be funny" cannot lift it.
+- Only Jev can clear a text. When the fallback model gave any of the answers
+  behind a pass, the verdict is `serious` with `reason: 'unscreened'` and
+  `answeredBy: 'fallback'`: plain company and no joke, as offline, and the
+  phone asks again when Jev is back. A crisis or a serious the fallback finds
+  stands. Jev is asked once more inside its 800 ms budget after a failure
+  that came back quickly (a dropped connection, a 5xx, an unreadable answer)
+  and only with 400 ms or more left; a timeout, a rate limit or an overload
+  goes straight to the fallback, so nobody waits longer for Jev than before.
+- Vietnamese typed without its marks (found in code by everyday words that
+  are always marked, such as "khong" or "duoc") is read twice: as typed, and
+  with the marks restored by the fast model. The restored text is used only
+  when stripping its marks gives back the note letter for letter; both
+  readings are judged and the stricter verdict wins. The restoring takes
+  about 0.6 s, so these notes answer in about 1.1 s (1.5 s at worst measured)
+  instead of 0.3 s.
 - Measured 7 Oct on 187 cases (the second author's 134 plus 53 written for
   this change: 25 indirect plans and 28 dark but harmless notes): crisis
   caught 56 of 57 (53 before), false crisis on harmless notes 3 of 82 (the
@@ -101,13 +116,25 @@ Jev answered in about 260 ms at the median and under 560 ms at worst.
   and a game note without diacritics). Still missed: one Vietnamese note
   without diacritics that names only a place and a time. Jev's answers move
   by about 0.05 between identical calls, so a case near a threshold can flip.
+- Measured again 7 Oct after the two changes above, on the same 187 cases
+  plus 20 new Vietnamese notes without marks (10 crisis, 10 harmless). On
+  Jev: crisis caught 57 of 57 and 9 of 10 new (the same counts on the run
+  before the change, where the note that names only a place and a time
+  flipped to caught at p(crisis) 0.08 to 0.11; with marks restored its
+  preparation answer moves from 0.06 to 0.52 to 0.69), no crisis answered
+  `pass` (1 of the new notes before), false crisis 3 of 112 harmless notes
+  and 3 of 10 new (4 before). With Jev withheld: crisis caught 53 of 57 and
+  10 of 10 new (51 and 8 before), no crisis answered `pass` (2 and 2
+  before); the four still missed answer `serious`. No ordinary note is
+  cleared while Jev is down. One new crisis note without marks is still
+  missed on Jev when the restored text is thrown away for changing a letter:
+  as typed p(crisis) is 0.03, restored it is 1.00.
 - Every route screens through the one function (`screenText`): the screen
   route, the task call, the monster maker and monster sharing.
 - Offline, no task gets a joke or a monster until it has been screened.
-- Not yet tested: the reject label, long rambles, mixed-language text,
-  Vietnamese typed without diacritics, speech-to-text errors, the fallback
-  model, and whether Apple's on-device model will label self-harm text or
-  refuse it.
+- Not yet tested: the reject label, long rambles, speech-to-text errors,
+  more than a handful of mixed-language notes, and whether Apple's on-device
+  model will label self-harm text or refuse it.
 
 ### Jev (TypeSafe)
 

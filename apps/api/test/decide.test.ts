@@ -74,17 +74,19 @@ describe('decide', () => {
     ]);
   });
 
-  const jevFailures: [string, Reply][] = [
-    ['times out', timesOut],
-    ['is rate limited (429)', answersStatus(429)],
-    ['is overloaded (529)', answersStatus(529)],
-    ['cannot be reached', connectionDrops],
-    ['answers something unreadable', () => Response.json({ answers: {} })],
+  // The last column is how often Jev is asked: a failure that came back quickly and says nothing
+  // about the next attempt is tried once more inside the same time budget.
+  const jevFailures: [string, Reply, number][] = [
+    ['times out', timesOut, 1],
+    ['is rate limited (429)', answersStatus(429), 1],
+    ['is overloaded (529)', answersStatus(529), 1],
+    ['cannot be reached', connectionDrops, 2],
+    ['answers something unreadable', () => Response.json({ answers: {} }), 2],
   ];
 
   it.each(jevFailures)(
     'when Jev %s, the fast tier answers in the same shape and the ledger names it',
-    async (_, jev) => {
+    async (_, jev, asked) => {
       const doubles = providers({
         jev,
         deepseek: deepseekAnswers({ probabilities: { pass: 0.02, serious: 0.08, crisis: 0.9 } }),
@@ -102,7 +104,7 @@ describe('decide', () => {
         answeredBy: 'fallback',
         model: 'deepseek-flash',
       });
-      expect(doubles.sent.jev).toHaveLength(1);
+      expect(doubles.sent.jev).toHaveLength(asked);
       expect(doubles.sent.deepseek[0]).toMatchObject({
         model: 'deepseek-flash',
         thinking: { type: 'disabled' },

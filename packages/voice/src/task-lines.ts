@@ -7,7 +7,8 @@ import type {
   SessionLinePack,
 } from '@scootch/domain';
 
-import { checkLine, type CheckReason, type LineKind } from './check';
+import { checkWrittenLine, type CheckReason, type LineKind } from './check';
+import { repeatedSteps } from './line-rules';
 
 /** The parts of a task call's answer that Scootch says, as opposed to the user's own tasks. */
 export type TaskCopy = {
@@ -61,9 +62,15 @@ export function taskLines({ monster, lines, notifications, deadlines }: TaskCopy
   ];
 }
 
+/** The slots of the smaller steps that repeat the first step or one another. */
+export function repeatedStepSlots(steps: readonly string[]): Set<string> {
+  return new Set(repeatedSteps(steps).map((index) => `lines.tinierNextSteps.${index - 1}`));
+}
+
 /**
  * Runs the voice check on every line and name of a task call's answer. `treat` is the treat the
- * answer was asked with, when there was one.
+ * answer was asked with, when there was one. A smaller step that only repeats an earlier one
+ * fails too.
  */
 export function checkTaskCopy(
   copy: TaskCopy,
@@ -71,14 +78,22 @@ export function checkTaskCopy(
   attitude: Attitude,
   treat?: string,
 ): TaskLineFailure[] {
+  const repeated = repeatedStepSlots([
+    copy.lines.tinyNextStep,
+    ...(copy.lines.tinierNextSteps ?? []),
+  ]);
   return taskLines(copy).flatMap(({ slot, kind, text }) => {
-    const { ok, reasons } = checkLine({
+    const check = checkWrittenLine({
       text,
       kind,
       language,
       attitude,
       ...(treat === undefined ? {} : { treat }),
     });
-    return ok ? [] : [{ slot, kind, reasons }];
+    const reasons: CheckReason[] = [
+      ...check.reasons,
+      ...(repeated.has(slot) ? (['repeated_step'] as const) : []),
+    ];
+    return reasons.length === 0 ? [] : [{ slot, kind, reasons }];
   });
 }
