@@ -13,6 +13,7 @@ free and Plus states.
 - Do: days lurked, catch time, "dread" and rarity computed from the task's
   real history. Never random, never purchasable.
 - Test: the same history always gives the same rarity.
+- Status: partly done — ccdb754; pure logic and tests in packages/domain, no screens, storage or store SDK yet
 
 ### 2. The reveal
 - Do: after finishing, the card flip, the world piece landing, the bar of
@@ -55,6 +56,7 @@ free and Plus states.
   never purchasable, and never after a serious task.
 - Test: the drop rule is a pure function of the user's history and a seed, so
   a run can be replayed; nothing in the shop can produce a drop.
+- Status: partly done — ccdb754; pure logic and tests in packages/domain, no screens, storage or store SDK yet
 
 ## Exit
 
