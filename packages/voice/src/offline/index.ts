@@ -1,7 +1,7 @@
 import type { Attitude, Language } from '@scootch/domain';
 
 import { enOffline } from './en';
-import type { OfflinePack, OfflineSlot } from './types';
+import type { NoTaskSlot, OfflinePack, OfflineSlot } from './types';
 import { viOffline } from './vi';
 
 export * from './types';
@@ -20,4 +20,9 @@ export function offlineLine(
 ): string {
   const lines = offlinePacks[language].lines[attitude][slot];
   return lines[index % lines.length] ?? lines[0];
+}
+
+/** The line for a moment with no task to talk about: first launch, waiting, the end of the day. */
+export function noTaskLine(language: Language, attitude: Attitude, slot: NoTaskSlot): string {
+  return offlinePacks[language].noTask[attitude][slot];
 }

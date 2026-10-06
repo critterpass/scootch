@@ -4,6 +4,7 @@ import { addNetworkStateListener, getNetworkStateAsync } from 'expo-network';
 import { useSQLiteContext, type SQLiteDatabase } from 'expo-sqlite';
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -15,6 +16,7 @@ import {
 import { AccessibilityInfo, AppState } from 'react-native';
 
 import type { Language } from '@scootch/domain';
+import { CUES } from '@scootch/sound';
 
 import { apiBaseUrl, keychainTokenStore } from '../api/api-config';
 import { createHttpClient } from '../api/http-client';
@@ -80,6 +82,7 @@ function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
 }
 
 const DayStoreContext = createContext<DayStore | null>(null);
+const CueContext = createContext<(cue: string) => void>(() => undefined);
 
 /**
  * Makes the day store, rebuilds today from storage, and feeds it the app's comings and goings and
@@ -122,7 +125,28 @@ export function DayStoreProvider({ children }: { readonly children: ReactNode })
     };
   }, [app]);
 
-  return <DayStoreContext.Provider value={app.store}>{children}</DayStoreContext.Provider>;
+  // A cue asked for by a screen, through the runner's own player and under the same switches.
+  const playCue = useCallback(
+    (name: string) => {
+      const switches = effectSwitches(app.store.getState(), app.motion.reduced);
+      if (switches.effects) app.cues.play(name);
+      const taps = CUES[name]?.haptics ?? [];
+      const felt = switches.reducedMotion ? taps.slice(0, 1) : taps;
+      if (switches.haptics && felt.length > 0) nativeHaptics.play(felt);
+    },
+    [app],
+  );
+
+  return (
+    <DayStoreContext.Provider value={app.store}>
+      <CueContext.Provider value={playCue}>{children}</CueContext.Provider>
+    </DayStoreContext.Provider>
+  );
+}
+
+/** Plays one named sound cue with its haptics, obeying the person's sound and haptics switches. */
+export function useCue(): (cue: string) => void {
+  return useContext(CueContext);
 }
 
 function useDayStore(): DayStore {

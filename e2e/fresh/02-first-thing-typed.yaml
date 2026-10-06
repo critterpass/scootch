@@ -1,0 +1,37 @@
+appId: app.scootch.dev
+---
+# The fresh-user walk, step two, on the install step one left behind. The app is started again
+# without clearing anything: first launch must not come back. Then the first thing is typed and
+# sent, and the screen must show the task set with Start. The microphone was skipped, so nothing
+# here touches it.
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: 'composer-talk'
+    timeout: 90000
+- assertNotVisible:
+    id: 'launch-hello-next'
+- tapOn:
+    id: 'composer-switch'
+- extendedWaitUntil:
+    visible:
+      id: 'composer-input'
+    timeout: 15000
+- tapOn:
+    id: 'composer-input'
+- inputText: 'reply to one message'
+- takeScreenshot: fresh-02-typing
+- tapOn:
+    id: 'composer-send'
+# With or without a connection the typed text becomes the one thing.
+- extendedWaitUntil:
+    visible:
+      id: 'one-action'
+    timeout: 60000
+- assertVisible:
+    id: 'task-set-minutes-10'
+- assertVisible:
+    id: 'task-set-treat'
+- assertNotVisible:
+    id: 'composer-input'
+- takeScreenshot: fresh-02-task-set
