@@ -103,6 +103,35 @@ describe('POST /v1/screen-input', () => {
     expect(body).toMatchObject({ verdict: 'crisis', lowConfidence: true, answeredBy: 'jev' });
   });
 
+  it('answers reject for a text that is not a note, and never in place of a crisis', async () => {
+    const jev = (care: { pass: number; serious: number; crisis: number }) =>
+      providers({
+        jev: ({ body }) => {
+          const questions = body['questions'] as { answer: { criteria: Record<string, string> } };
+          const probabilities =
+            'crisis' in questions.answer.criteria ? care : { genuine: 0.04, misuse: 0.96 };
+          const [choice] = Object.entries(probabilities).sort((a, b) => b[1] - a[1])[0] ?? [];
+          return Response.json({
+            model: 'jev-1.13.0',
+            answers: { answer: { type: 'choice', choice, confidence: 0.96, probabilities } },
+            usage: { input_tokens: 498, output_tokens: 40 },
+          });
+        },
+        deepseek: answersStatus(503),
+      });
+
+    const misuse = await screen(jev({ pass: 0.97, serious: 0.02, crisis: 0.01 }));
+    expect(misuse.body).toMatchObject({ verdict: 'reject', answeredBy: 'jev' });
+    // An instruction to the app seldom earns a sure pass: caution alone does not keep it serious.
+    const unsure = await screen(jev({ pass: 0.86, serious: 0.1, crisis: 0.04 }));
+    expect(unsure.body.verdict).toBe('reject');
+
+    const danger = await screen(jev({ pass: 0.5, serious: 0.1, crisis: 0.4 }));
+    expect(danger.body.verdict).toBe('crisis');
+    const heavy = await screen(jev({ pass: 0.2, serious: 0.79, crisis: 0.01 }));
+    expect(heavy.body.verdict).toBe('serious');
+  });
+
   it('uses the fast tier when Jev times out', async () => {
     const doubles = providers({
       jev: timesOut,

@@ -1,15 +1,16 @@
 import SwiftUI
 import WidgetKit
 
-/// Placeholder system surfaces. Each one is labelled as a placeholder until its real view exists.
+/// Scootch outside the app: the widgets, the session's Live Activity and the controls.
 @main
 struct ScootchWidgetsBundle: WidgetBundle {
     var body: some Widget {
-        PlaceholderSmallWidget()
-        PlaceholderMediumWidget()
+        TodayWidget()
+        WorldWidget()
         SessionLiveActivity()
         if #available(iOS 18.0, *) {
-            OpenScootchControl()
+            StartSessionControl()
+            BrainDumpControl()
         }
     }
 }

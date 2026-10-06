@@ -108,9 +108,14 @@ describe('the day store', () => {
     expect(state.drawer.open).toBe(false);
     // Cheeky allows up to three, all after ten in the morning and in the task's own words.
     const scheduled = app.device.scheduled();
-    expect(scheduled.map((one) => one.text)).toEqual(pass.notifications.map((one) => one.text));
+    const today = scheduled.filter((one) => one.at < MORNING + 12 * 60 * 60_000);
+    expect(today.map((one) => one.text)).toEqual(pass.notifications.map((one) => one.text));
     expect(scheduled.every((one) => one.at >= MORNING)).toBe(true);
-    expect(scheduled.length).toBeGreaterThan(0);
+    expect(today.length).toBeGreaterThan(0);
+    // The days after are planned too, in case the app stays shut, and never in the task's words.
+    const later = scheduled.slice(today.length).map((one) => one.text);
+    expect(later.length).toBeGreaterThan(0);
+    for (const text of later) expect(pass.notifications.map((one) => one.text)).not.toContain(text);
   });
 
   it('falls back with no connection: the typed text unchanged, plain company, a monster pending', async () => {
@@ -125,7 +130,13 @@ describe('the day store', () => {
       lines: null,
     });
     expect(app.store.getState()).toMatchObject({ monster: null, monsterPending: true, line: null });
-    expect(app.device.scheduled()).toEqual([]);
+    // Nothing today, and nothing louder than the soft voice on the days after: no joke before
+    // the screen.
+    const scheduled = app.device.scheduled();
+    expect(scheduled.every((one) => one.at > MORNING + 12 * 60 * 60_000)).toBe(true);
+    for (const one of scheduled) {
+      expect(offlinePacks.en.lines.soft.notification).toContain(one.text);
+    }
 
     // The session still runs, and what Scootch says is the offline pack's plain words.
     await app.store.dispatch({ type: 'session_set', minutes: 10 });

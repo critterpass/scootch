@@ -38,6 +38,13 @@ import { nativeBackupTokens } from '../features/backup/native-token-stores';
 import { deleteEverything, retryServerDelete } from '../features/privacy/data/delete-everything';
 import { exportMyData } from '../features/privacy/data/export-data';
 import { nativeShareDevice } from '../features/share/native-share-device';
+import {
+  nativeSharedFiles,
+  nativeSharedStore,
+  skiaMonsterPainter,
+} from '../features/surfaces/native-surface-ports';
+import { createSurfaceSync } from '../features/surfaces/surface-sync';
+import { SurfaceSyncHost } from '../features/surfaces/surface-sync-host';
 import { useLanguage } from '../i18n/i18n-provider';
 
 import { createDayStore, effectSwitches, type DayStore } from './day-store';
@@ -72,6 +79,9 @@ function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
     onClock: () => void store.dispatch({ type: 'session', event: { type: 'clock' } }),
   });
   const repositories = openRepositories(db);
+  // Nothing in this layer knows about purchases: every phone has the free day.
+  const plus = () => false;
+  const timeZone = () => getCalendars()[0]?.timeZone ?? 'UTC';
   const tokens = nativeBackupTokens();
   const server = createBackupApi(http);
   const backup = createBackup({ tokens, api: server, repositories, db, clock: systemClock });
@@ -92,7 +102,7 @@ function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
     // A finished thing is backed up at once; a failed upload is tried again within the hour.
     onFinished: () => void backup.afterFinish().catch(() => undefined),
     clock: systemClock,
-    timeZone: () => getCalendars()[0]?.timeZone ?? 'UTC',
+    timeZone,
     nextId: randomUUID,
     tasks: createStagedTaskClient(createScootchApi(http)),
     online: async () => {
@@ -101,10 +111,20 @@ function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
     },
     runner,
     phoneLanguage: language,
-    // Nothing in this layer knows about purchases: every phone has the free day.
-    plus: () => false,
+    plus,
   });
-  return { store, motion, cues, data };
+  // The widgets, the Live Activity and the control read today from the App Group.
+  const surfaces = createSurfaceSync({
+    store,
+    repositories,
+    shared: nativeSharedStore(),
+    files: nativeSharedFiles(),
+    painter: skiaMonsterPainter,
+    plus,
+    now: () => systemClock.now(),
+    timeZone,
+  });
+  return { store, motion, cues, data, surfaces };
 }
 
 /** The person's data beyond today: the backup, the export and deleting everything. */
@@ -183,6 +203,7 @@ export function DayStoreProvider({ children }: { readonly children: ReactNode })
       <CueContext.Provider value={playCue}>
         <DataToolsContext.Provider value={app.data}>
           <SessionRelaunch store={app.store} />
+          <SurfaceSyncHost store={app.store} sync={app.surfaces} />
           {children}
         </DataToolsContext.Provider>
       </CueContext.Provider>

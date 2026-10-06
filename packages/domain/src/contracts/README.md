@@ -9,7 +9,7 @@ Import them from `@scootch/domain` through `index.ts`.
 | `art.ts` | Scootch's props, the 30 work-mode ids, the monster spec (20 bodies), the card data |
 | `ai-routes.ts` | The `aiRoutes` map: one request and one response schema per route id |
 | `ai-task-call.ts` | `task.create`, the one call per task, and its line packs |
-| `ai-task-stages.ts` | The same call in two stages: `task.create_start` (fast) and `task.create_lines` |
+| `ai-task-stages.ts` | The same call in stages: `task.create_start` (fast), then `task.create_lines`, or `task.create_name` and `task.create_pack` |
 | `ai-small-routes.ts` | Shrink, bargain, stuck help, pick for me, morning line, weekly sentence, record name |
 | `ai-labels.ts` | `screen.input` and the typed decisions (work mode, body type, size, energy, share, table name) |
 | `local-db.ts` | The phone's tables, one row schema each, with derived fields marked |

@@ -35,6 +35,8 @@ const taskOf = (today: TodayState) => {
 type Phone = Awaited<ReturnType<typeof carePhone>>;
 
 /** Everything on the phone that would be comedy, gathered so a test can assert it is all absent. */
+const SOFT_GENERIC: readonly string[] = offlinePacks.en.lines.soft.notification;
+
 async function comedyOnThePhone(phone: Phone) {
   const state = phone.store.getState();
   const task = 'task' in state.today ? state.today.task : null;
@@ -51,7 +53,9 @@ async function comedyOnThePhone(phone: Phone) {
     bursts: [...phone.device.calls.bursts],
     burstShown: state.burst,
     loudCues: phone.device.calls.cues.filter((cue) => LOUD_CUES.includes(cue)),
-    notifications: phone.device.scheduled().length,
+    // What is planned for the days ahead after a serious task is soft and never about a task.
+    notifications: phone.device.scheduled().filter((one) => !SOFT_GENERIC.includes(one.text))
+      .length,
     jokesSaid: phone.device.calls.lines.filter((line) =>
       cheeky.some((joke) => line.endsWith(joke)),
     ),
@@ -157,7 +161,8 @@ describe('a serious task', () => {
 
     await phone.store.dispatch({ type: 'serious_set_aside' });
     await phone.runner.settled();
-    expect(phone.device.scheduled()).toEqual([]);
+    // The reminder is gone, and what is planned for the days ahead is soft and not about a task.
+    for (const one of phone.device.scheduled()) expect(SOFT_GENERIC).toContain(one.text);
     expect(phone.store.getState().today.kind).toBe('done_for_today');
     expect(phone.store.getState().line?.text).toBe(seriousFixture.response.lines.notFinished);
     expect((await phone.repositories.drawerItems.all()).map((item) => item.screen)).toEqual([

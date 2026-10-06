@@ -1,0 +1,43 @@
+{
+  "route": "task.create_pack",
+  "request": {
+    "continuation": "eyJwYXlsb2FkIjoibmFtZWQifQ.c2lnbmF0dXJl",
+    "treat": "ly trà sữa"
+  },
+  "response": {
+    "lines": {
+      "start": "Cầm máy lên rồi. Lồng Lộn tự nhiên im re.",
+      "working": [
+        "Tui giữ cái thau, bạn giữ cái điện thoại.",
+        "Tui vẽ đường cho chú thợ rồi, toàn mũi tên không à.",
+        "Lồng Lộn đang giả làm cái móc áo. Không ai tin hết.",
+        "Cái thau đầy một nửa. Tui chọn nhìn theo hướng tích cực."
+      ],
+      "pickedUp": "Ơ, bạn nhấc tui lên hả? Nhẹ tay, tui đang bưng thau nước.",
+      "checkIn": "Cuộc gọi tới đâu rồi? Tui có sẵn một bước nhỏ xíu trong túi nè.",
+      "tinyNextStep": "Mở danh bạ, tìm số chú thợ, để đó nhìn thôi.",
+      "twoMinutesLeft": "Còn hai phút. Lồng Lộn đang xếp cái vali bé xíu.",
+      "timeUp": "Hết giờ. Lồng Lộn kẹt ở góc ban công rồi. Giữ nút để tóm nó.",
+      "caught": "Tóm được rồi. Cái máy giặt xin gửi lời cảm ơn, lần này nói nhỏ nhẹ.",
+      "notFinished": "Bạn bắt đầu rồi, Lồng Lộn thấy hết. Giờ tính sao với nó đây?",
+      "tinierNextSteps": [
+        "Mở danh bạ, gõ hai chữ đầu của tên chú thợ.",
+        "Cầm điện thoại lên và mở khoá."
+      ],
+      "treatHandOver": "Hứa là làm: ly trà sữa. Lồng Lộn ngồi trong thau mà ngó.",
+      "parkedThoughts": "Mấy ý bạn gửi tạm đây. Tui cất xa cái máy giặt, khô ráo hết.",
+      "releasedEarly": "Tuột khỏi nút rồi. Lồng Lộn suýt vỗ tay. Thích thì giữ nút lần nữa."
+    },
+    "notifications": [
+      {
+        "text": "Lồng Lộn vừa ra album đầu tay, thu trong lồng giặt."
+      },
+      {
+        "text": "Tui với cái thau sắp kết nghĩa anh em. Gọi một cuộc nha?"
+      },
+      {
+        "text": "Máy giặt lên sóng phát thanh phường rồi. Một cuộc gọi là tắt đài."
+      }
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+/* Fixed labels of the widgets, the Live Activity and the control. Spoken lines are never here:
+   they come from the app, in the shared snapshot. The key is the English text. */
+"TODAY" = "TODAY";
+"Nothing yet. What's the one thing?" = "Nothing yet. What's the one thing?";
+"Done for today" = "Done for today";
+"Here when you want." = "Here when you want.";
+"Park a thought" = "Park a thought";
+"Park" = "Park";
+"I'm stuck" = "I'm stuck";
+"10 min" = "10 min";
+"Start 10 min" = "Start 10 min";
+"Brain dump" = "Brain dump";
+"Your world" = "Your world";
+"THIS WEEK'S SONG" = "THIS WEEK'S SONG";
+"%lld things" = "%lld things";
+"1 thing" = "1 thing";
+"Scootch Plus" = "Scootch Plus";
+"Today" = "Today";
+"Today's one thing." = "Today's one thing.";
+"Your world, your week and today's one thing." = "Your world, your week and today's one thing.";
+"Scootch" = "Scootch";
+"Starts ten minutes on today's one thing." = "Starts ten minutes on today's one thing.";
+"Opens Scootch ready to listen." = "Opens Scootch ready to listen.";
+"Asks Scootch to hold a thought for after the session." = "Asks Scootch to hold a thought for after the session.";
+"Asks Scootch for a tiny next step." = "Asks Scootch for a tiny next step.";
+"Open Scootch" = "Open Scootch";
+"Opens Scootch." = "Opens Scootch.";

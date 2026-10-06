@@ -78,7 +78,22 @@ export type DayEvent =
   | { readonly type: 'storage_replaced' }
   | { readonly type: 'connection_returned' }
   | { readonly type: 'app_foregrounded' }
-  | { readonly type: 'app_backgrounded' };
+  | { readonly type: 'app_backgrounded' }
+  /** A control, the Action button or a Live Activity button asked for something. */
+  | { readonly type: 'surface_action'; readonly action: SurfaceActionKind }
+  /** A screen has acted on `surfaceRequest`, so it is cleared. */
+  | { readonly type: 'surface_request_taken' }
+  /** Scootch was opened, or its Live Activity tapped, while a session was running. */
+  | { readonly type: 'opened_mid_session' };
+
+export type SurfaceActionKind = 'start_session' | 'brain_dump' | 'park_thought' | 'stuck';
+
+/** Something a system surface asked for that only a screen can do. */
+export type SurfaceRequest =
+  /** Open the composer; `listening` starts it on the microphone (the brain dump). */
+  | { readonly kind: 'composer'; readonly listening: boolean }
+  /** Open the session's park-a-thought field. */
+  | { readonly kind: 'park_thought' };
 
 /** What the brain dump puts on the screen before the one thing: the phrases, and which one it is. */
 export interface Reveal {
@@ -154,6 +169,8 @@ export interface DayState {
   readonly parkedThoughts: readonly ParkedThought[];
   readonly drawer: { readonly open: boolean; readonly items: readonly DrawerItemRow[] };
   readonly settings: SettingsRow;
+  /** Set by a system surface and cleared by the screen that acts on it. Absent means none. */
+  readonly surfaceRequest?: SurfaceRequest | null;
 }
 
 export interface DayStoreDeps {

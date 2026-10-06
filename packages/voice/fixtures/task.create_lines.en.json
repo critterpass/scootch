@@ -24,7 +24,14 @@
       "twoMinutesLeft": "Two minutes on the clock. Drip is packing a very small suitcase.",
       "timeUp": "Time. Drip is cornered by the stopcock. Hold to catch him.",
       "caught": "Caught. The sink would like to thank you in person.",
-      "notFinished": "You started, and Drip noticed. What do we do with him now?"
+      "notFinished": "You started, and Drip noticed. What do we do with him now?",
+      "tinierNextSteps": [
+        "Open your contacts and type the first letters of plumber.",
+        "Pick up the phone and unlock it."
+      ],
+      "treatHandOver": "A deal is a deal: {treat}. Drip can watch from the bucket.",
+      "parkedThoughts": "Here are the thoughts you parked. I kept them dry, away from the sink.",
+      "releasedEarly": "Slipped off the button. Drip nearly cheered. Hold it again whenever you like."
     },
     "notifications": [
       {

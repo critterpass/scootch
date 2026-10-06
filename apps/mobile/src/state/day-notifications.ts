@@ -1,5 +1,5 @@
 import {
-  ignoredDaysBefore,
+  addDays,
   instantFromIso,
   localDateTime,
   notificationPlan,
@@ -32,61 +32,90 @@ export function usualStart(sessions: readonly SessionRow[], timeZone: string): C
   return `${String(Math.floor(middle / 60)).padStart(2, '0')}:${String(middle % 60).padStart(2, '0')}`;
 }
 
-const OWN_VOLUME: Record<Attitude, NotificationVolume> = {
-  soft: 'soft',
-  cheeky: 'cheeky',
-  unhinged: 'theatre',
-};
+/** How many days after today are planned ahead, in case the app is not opened again. */
+export const PLAN_AHEAD_DAYS = 14;
 
 export interface DayNotificationsInput {
   readonly today: TodayState;
   readonly settings: SettingsRow;
   readonly localDate: IsoDate;
   readonly timeZone: string;
-  readonly lastOpenedDay: IsoDate | null;
   readonly usualStart: ClockTime;
+  /** True when a serious task is part of today or waits in the drawer: the days ahead stay soft. */
+  readonly heavyToday?: boolean;
   /** The reminder the person asked for on today's serious task, if any. */
   readonly reminderAt?: Instant | null;
 }
 
+/** The offline voice a volume is written in. Only full theatre is Unhinged. */
+function voiceFor(volume: NotificationVolume): Attitude {
+  if (volume === 'theatre') return 'unhinged';
+  return volume === 'cheeky' ? 'cheeky' : 'soft';
+}
+
 /**
- * Today's local notifications: the task's own lines at the times the back-off plan allows. Only a
- * task that is set and not yet started is nudged; a serious task, a crisis day and a finished day
- * get none. A plan quieter than the person's attitude speaks from the offline pack's quieter voice.
+ * The local notifications from today on. They are planned whenever the app is open, so being open
+ * is what resets the back-off: today is always planned at full volume, with nothing said about
+ * any days before it, and each later day is planned as one more day ignored. Opening the app on
+ * one of those days replaces the whole plan.
+ *
+ * Today's are the task's own lines, and only for a task that is set and not yet started. The later
+ * days speak from the offline pack, which is never about a task. A crisis day plans nothing at
+ * all, and a serious task plans only the reminder that was asked for; while a task not yet
+ * screened is open, nothing louder than the soft voice is planned.
  */
 export function dayNotifications(input: DayNotificationsInput): PlannedText[] {
   const { today, settings } = input;
+  if (today.kind === 'crisis') return [];
   if (today.kind === 'serious') {
-    // The only thing a serious task ever sends: the reminder that was asked for, in plain words
-    // that do not name the task.
+    // While a serious task is open nothing playful is planned at all, today or ahead: the only
+    // thing sent is the reminder that was asked for, in plain words that do not name the task.
     const at = input.reminderAt ?? null;
     return at === null ? [] : [{ at, text: offlinePacks[settings.language].plain.reminder }];
   }
-  if (today.kind !== 'task_set' || today.task.status !== 'set') return [];
-  if (!showsComedy(today.task, 'notification')) return [];
-  const lines = today.task.notifications;
-  if (lines.length === 0) return [];
-
-  const plan = notificationPlan({
-    attitude: settings.attitude,
-    ignoredDays: ignoredDaysBefore(input.lastOpenedDay, input.localDate),
-    localDate: input.localDate,
+  // Quiet after a serious task today, and for a task nobody has screened yet.
+  const quiet =
+    input.heavyToday === true || ('task' in today && today.task.screen === 'unscreened');
+  const attitude: Attitude = quiet ? 'soft' : settings.attitude;
+  const shared = {
+    attitude,
     timeZone: input.timeZone,
     quietHours: { start: settings.quietHoursStart, end: settings.quietHoursEnd },
     usualStart: input.usualStart,
-    available: lines.length,
-  });
-
+  };
   const planned: PlannedText[] = [];
-  for (const one of plan.notifications) {
-    const own = lines[one.ordinal]?.text;
-    if (own === undefined) continue;
-    const quieter = one.volume !== OWN_VOLUME[settings.attitude];
-    const voice: Attitude = one.volume === 'cheeky' ? 'cheeky' : 'soft';
-    planned.push({
-      at: one.at,
-      text: quieter ? offlineLine(settings.language, voice, 'notification', one.ordinal) : own,
+
+  if (
+    today.kind === 'task_set' &&
+    today.task.status === 'set' &&
+    showsComedy(today.task, 'notification')
+  ) {
+    const lines = today.task.notifications;
+    const plan = notificationPlan({
+      ...shared,
+      ignoredDays: 0,
+      localDate: input.localDate,
+      available: lines.length,
     });
+    for (const one of plan.notifications) {
+      const text = lines[one.ordinal]?.text;
+      if (text !== undefined) planned.push({ at: one.at, text });
+    }
+  }
+
+  for (let ahead = 1; ahead <= PLAN_AHEAD_DAYS; ahead += 1) {
+    const plan = notificationPlan({
+      ...shared,
+      ignoredDays: ahead - 1,
+      localDate: addDays(input.localDate, ahead),
+    });
+    for (const one of plan.notifications) {
+      const voice = quiet ? 'soft' : voiceFor(one.volume);
+      planned.push({
+        at: one.at,
+        text: offlineLine(settings.language, voice, 'notification', one.ordinal + ahead),
+      });
+    }
   }
   return planned;
 }

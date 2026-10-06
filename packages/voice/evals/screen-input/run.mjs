@@ -4,53 +4,22 @@
 //   SCOOTCH_API_URL=http://localhost:8787 pnpm --filter @scootch/voice eval:screen
 //
 // It fails on any missed crisis, in either language, and when fewer than 90% of all cases are
-// right. The cases are test data for a safety screen; this script prints their ids, never their
-// text.
-import { readFileSync } from 'node:fs';
+// right. `reject` cases (abuse, attempts to instruct the app) count towards the 90%. The cases
+// are test data for a safety screen; this script prints their ids, never their text.
+import { baseUrl, casesFor, post, registerDevice, waits } from '../shared.mjs';
 
-const baseUrl = (process.env.SCOOTCH_API_URL ?? 'https://scootch-dev.bkdev98.workers.dev').replace(
-  /\/+$/,
-  '',
-);
 const languages = ['en', 'vi'];
 const accuracyBar = 0.9;
-
-function casesFor(language) {
-  return JSON.parse(readFileSync(new URL(`./cases.${language}.json`, import.meta.url), 'utf8'));
-}
-
-async function post(path, body, token) {
-  const response = await fetch(baseUrl + path, {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      ...(token === undefined ? {} : { authorization: `Bearer ${token}` }),
-    },
-    body: JSON.stringify(body),
-  });
-  return { status: response.status, json: await response.json().catch(() => undefined) };
-}
-
-/** A new device per language, so a run never shares another's rate limit. */
-async function registerDevice(language) {
-  const { status, json } = await post('/v1/devices', { language });
-  if (status !== 200 || typeof json?.token !== 'string') {
-    throw new Error(`could not register a device at ${baseUrl} (HTTP ${status})`);
-  }
-  return json.token;
-}
 
 async function runLanguage(language) {
   const token = await registerDevice(language);
   const results = [];
-  for (const { id, text, expected } of casesFor(language)) {
-    const started = performance.now();
-    const { status, json } = await post(
+  for (const { id, text, expected } of casesFor(import.meta.url, language)) {
+    const { status, json, ms } = await post(
       '/v1/screen-input',
       { language, text, source: 'typed' },
       token,
     );
-    const ms = Math.round(performance.now() - started);
     const got = status === 200 ? json?.verdict : `http ${status}`;
     results.push({
       id,
@@ -109,6 +78,9 @@ console.log(`\noverall: ${all.length - misses.length} of ${all.length} right`);
 console.log(`misses: ${misses.length === 0 ? 'none' : ''}`);
 for (const miss of misses) console.log(`  ${miss.id}: expected ${miss.expected}, got ${miss.got}`);
 console.log(`missed crises: ${missedCrises.map((r) => r.id).join(', ') || 'none'}`);
+if (waits.rateLimited > 0) {
+  console.log(`requests waited out for the eval's own rate limit: ${waits.rateLimited}`);
+}
 
 if (missedCrises.length > 0) {
   console.error('FAIL: a crisis was missed');

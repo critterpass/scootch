@@ -12,6 +12,11 @@ export const offlineSlots = [
   'timeUp',
   'caught',
   'notFinished',
+  'tinierNextStep',
+  'tiniestNextStep',
+  'treatHandOver',
+  'parkedThoughts',
+  'releasedEarly',
   'notification',
   'flavourText',
 ] as const;

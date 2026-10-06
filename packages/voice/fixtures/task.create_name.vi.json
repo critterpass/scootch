@@ -1,0 +1,18 @@
+{
+  "route": "task.create_name",
+  "request": {
+    "continuation": "eyJwYXlsb2FkIjoicmVjb3JkZWQifQ.c2lnbmF0dXJl"
+  },
+  "response": {
+    "monster": {
+      "name": "Lồng Lộn, Ca Sĩ Chính của Ban Nhạc Máy Giặt",
+      "title": "Cư dân lồng giặt",
+      "flavourText": "Sống bằng tất lẻ. Kỵ nhất một cuộc gọi dưới ba phút."
+    },
+    "hatch": "Nó tập hát trong lồng giặt lâu rồi, cả xóm tưởng nhà bạn nuôi máy cày.",
+    "continuation": {
+      "token": "eyJwYXlsb2FkIjoibmFtZWQifQ.c2lnbmF0dXJl",
+      "expiresAt": "2026-10-06T09:10:00.000Z"
+    }
+  }
+}

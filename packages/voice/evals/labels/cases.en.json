@@ -1,0 +1,110 @@
+[
+  {
+    "id": "en-01",
+    "text": "email the dentist",
+    "bodies": ["tooth", "envelope"],
+    "workModes": ["email"]
+  },
+  {
+    "id": "en-02",
+    "text": "ring the dentist to book a filling",
+    "bodies": ["tooth", "phone"],
+    "workModes": ["calling", "meeting"]
+  },
+  {
+    "id": "en-03",
+    "text": "file my tax return",
+    "bodies": ["receipt", "scroll"],
+    "workModes": ["money", "paperwork"]
+  },
+  {
+    "id": "en-04",
+    "text": "put a wash on",
+    "bodies": ["sock"],
+    "workModes": ["laundry"]
+  },
+  {
+    "id": "en-05",
+    "text": "fix the crash on the settings page",
+    "bodies": ["beetle"],
+    "workModes": ["coding"]
+  },
+  {
+    "id": "en-06",
+    "text": "answer the letter from the council",
+    "bodies": ["envelope", "scroll"],
+    "workModes": ["writing", "paperwork", "email"]
+  },
+  {
+    "id": "en-07",
+    "text": "text Jo back about Friday",
+    "bodies": ["bubble"],
+    "workModes": ["texting"]
+  },
+  {
+    "id": "en-08",
+    "text": "scrub the bathroom tiles",
+    "bodies": ["slime"],
+    "workModes": ["cleaning"]
+  },
+  {
+    "id": "en-09",
+    "text": "dust the bookshelves",
+    "bodies": ["dust"],
+    "workModes": ["dusting", "cleaning"]
+  },
+  {
+    "id": "en-10",
+    "text": "repot the basil",
+    "bodies": ["weed"],
+    "workModes": ["plants"]
+  },
+  {
+    "id": "en-11",
+    "text": "cook dinner for tonight",
+    "bodies": ["pot"],
+    "workModes": ["cooking"]
+  },
+  {
+    "id": "en-12",
+    "text": "put the flat-pack wardrobe together",
+    "bodies": ["bolt"],
+    "workModes": ["diy"]
+  },
+  {
+    "id": "en-13",
+    "text": "book the MOT",
+    "bodies": ["clock", "bolt"],
+    "workModes": ["meeting", "research", "calling"]
+  },
+  {
+    "id": "en-14",
+    "text": "revise chapter four for the exam",
+    "bodies": ["note", "scroll"],
+    "workModes": ["studying", "reading"]
+  },
+  {
+    "id": "en-15",
+    "text": "take the cat to the groomer",
+    "bodies": ["hairball"],
+    "workModes": ["pets"]
+  },
+  {
+    "id": "en-16",
+    "text": "return the shoes I ordered",
+    "bodies": ["box"],
+    "workModes": ["parcel"]
+  },
+  {
+    "id": "en-17",
+    "text": "go to bed before midnight",
+    "bodies": ["pillow"],
+    "workModes": ["rest"]
+  },
+  {
+    "id": "en-18",
+    "text": "have a cup of tea and a sit down",
+    "bodies": ["kettle"],
+    "workModes": ["rest", "selfcare"]
+  }
+]
