@@ -9,6 +9,7 @@ import type {
 import type { StringKey } from '@scootch/i18n';
 
 import type { DayState, Reveal } from '../../state/day-types';
+import { showsComedy } from '../../state/shows-comedy';
 import { MAX_SHRINKS, sizeStep } from '../../state/smaller';
 
 /** The three small ways in on a return: the person's own words, as chips. Nothing here counts anything. */
@@ -120,7 +121,8 @@ export function stageOf(input: StageInput): Stage {
   const { task } = today;
   // The flag is the task's own: a serious task never reaches the reveal, the hatch or a monster.
   const quiet = today.kind === 'serious';
-  if (pick.kind === 'offered') {
+  // A serious task is not offered and haggled over: its own quiet screen is shown at once.
+  if (pick.kind === 'offered' && !quiet) {
     return {
       kind: 'one_thing',
       task,
@@ -130,10 +132,10 @@ export function stageOf(input: StageInput): Stage {
       another: pick.another,
     };
   }
-  if (pick.kind === 'bargaining') {
+  if (pick.kind === 'bargaining' && !quiet) {
     return { kind: 'bargain', task, excuse: pick.excuse, ask: pick.ask };
   }
-  if (pick.kind === 'hatching' && !quiet && task.screen === 'pass') {
+  if (pick.kind === 'hatching' && showsComedy(task, 'monster')) {
     return {
       kind: 'hatch',
       task,
@@ -149,7 +151,7 @@ export function stageOf(input: StageInput): Stage {
     quiet,
     carried,
     monster:
-      quiet || monster === null
+      monster === null || !showsComedy(task, 'monster')
         ? null
         : { row: monster, sizeFactor: carried ? carriedSizeFactor(task) : 1 },
   };

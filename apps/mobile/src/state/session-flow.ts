@@ -92,6 +92,7 @@ async function persist(
     } else if (effect.kind === 'grant_finish_reward') {
       await save({ status: 'finished', finishedAt: isoFromInstant(ctx.now()) });
       await persistFinishEarnings(ctx, current, effect.tone, session?.treat ?? null);
+      ctx.deps.onFinished?.();
     } else if (effect.kind === 'shrink_task') {
       await shrinkTask(ctx, current);
       current = (await repositories.tasks.get(current.id)) ?? current;

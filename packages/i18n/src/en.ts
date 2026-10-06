@@ -1,3 +1,4 @@
+import { enCareAndSettings } from './en-care-and-settings';
 import { enPlus } from './en-plus';
 
 /**
@@ -315,17 +316,6 @@ export const en = {
   'morning.chip.hint': 'Sends this as what you want to do.',
   'morning.note': '{thing} is due {day}.',
 
-  'care.crisis.title': 'You don\u2019t have to do anything right now.',
-  'care.crisis.body':
-    'It sounds like things are really heavy. If you\u2019re thinking about hurting yourself, please talk to someone who can help, right now.',
-  'care.crisis.findHelpline': 'Find a helpline in my country',
-  'care.crisis.findHelpline.hint': 'Opens a list of free, confidential helplines',
-  'care.crisis.trusted': 'Text someone you trust',
-  'care.crisis.trusted.hint': 'Opens Messages',
-  'care.crisis.note':
-    'Scootch is a support tool, not a crisis service. If you\u2019re in immediate danger, call your local emergency number.',
-  'care.crisis.sit': 'Just sit with me',
-  'care.crisis.sit.hint': 'Stays on this screen, with nothing to do',
-  'care.crisis.here': 'I\u2019m right here. Take your time.',
+  ...enCareAndSettings,
   ...enPlus,
 } as const;

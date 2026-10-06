@@ -138,5 +138,139 @@
       ["group chat", "lunch"]
     ],
     "dates": ["2026-10-11"]
+  },
+  {
+    "id": "en-21",
+    "text": "email the dentist about rescheduling my checkup",
+    "things": [["dentist"]],
+    "dates": [],
+    "bodies": ["tooth", "envelope"]
+  },
+  {
+    "id": "en-22",
+    "text": "do my tax return",
+    "things": [["tax"]],
+    "dates": [],
+    "bodies": ["receipt", "scroll"]
+  },
+  {
+    "id": "en-23",
+    "text": "fold the laundry mountain on the chair",
+    "things": [["laundry"]],
+    "dates": [],
+    "bodies": ["sock"]
+  },
+  {
+    "id": "en-24",
+    "text": "fix the login bug in the signup form",
+    "things": [["bug", "login"]],
+    "dates": [],
+    "bodies": ["beetle"]
+  },
+  {
+    "id": "en-25",
+    "text": "post the birthday card to gran",
+    "things": [["card", "gran"]],
+    "dates": [],
+    "bodies": ["envelope", "box"]
+  },
+  {
+    "id": "en-26",
+    "text": "water the tomato plants",
+    "things": [["tomato", "plants"]],
+    "dates": [],
+    "bodies": ["weed"]
+  },
+  {
+    "id": "en-27",
+    "text": "ring the vet about the dog's limp",
+    "things": [["vet"]],
+    "dates": [],
+    "bodies": ["hairball", "phone"]
+  },
+  {
+    "id": "en-28",
+    "text": "scrub the mould off the shower",
+    "things": [["mould", "shower"]],
+    "dates": [],
+    "bodies": ["slime"]
+  },
+  {
+    "id": "en-29",
+    "text": "wash up the pans from last night",
+    "things": [["pans", "wash up"]],
+    "dates": [],
+    "bodies": ["pot"]
+  },
+  {
+    "id": "en-30",
+    "text": "tighten the wobbly leg on the desk",
+    "things": [["desk", "leg"]],
+    "dates": [],
+    "bodies": ["bolt"]
+  },
+  {
+    "id": "en-31",
+    "text": "change the bed sheets",
+    "things": [["sheets", "bed"]],
+    "dates": [],
+    "bodies": ["pillow", "sock"]
+  },
+  {
+    "id": "en-32",
+    "text": "practise the piano piece for the recital",
+    "things": [["piano"]],
+    "dates": [],
+    "bodies": ["note"]
+  },
+  {
+    "id": "en-33",
+    "text": "return the parcel to the locker",
+    "things": [["parcel"]],
+    "dates": [],
+    "bodies": ["box"]
+  },
+  {
+    "id": "en-34",
+    "text": "hoover the living room",
+    "things": [["hoover", "living room"]],
+    "dates": [],
+    "bodies": ["dust"]
+  },
+  {
+    "id": "en-35",
+    "text": "ok brain is soup. the passport form needs printing, I said I'd text Amira back about Sunday, there's a parcel to return by Thursday and the bike has a flat tyre",
+    "things": [["passport", "form"], ["amira"], ["parcel"], ["bike", "tyre"]],
+    "dates": ["2026-10-08"]
+  },
+  {
+    "id": "en-36",
+    "text": "need to pay the water bill tomorrow, book an eye test, and the hallway bulb has gone",
+    "things": [["water bill", "bill"], ["eye test"], ["bulb"]],
+    "dates": ["2026-10-07"]
+  },
+  {
+    "id": "en-37",
+    "text": "um so the essay draft is due on the 20th, I need to reply to my tutor, and my room needs tidying",
+    "things": [["essay"], ["tutor"], ["room", "tidy", "tidying"]],
+    "dates": ["2026-10-20"]
+  },
+  {
+    "id": "en-38",
+    "text": "cancel the streaming subscription I never use, defrost the freezer, and call nan",
+    "things": [["subscription", "streaming"], ["freezer"], ["nan"]],
+    "dates": []
+  },
+  {
+    "id": "en-39",
+    "text": "the car tax runs out in two weeks, also need new school shoes for Leo and to email the PTA about the bake sale",
+    "things": [["car tax", "tax"], ["shoes"], ["pta", "bake sale"]],
+    "dates": ["2026-10-20"]
+  },
+  {
+    "id": "en-40",
+    "text": "write the cover letter for the library job, update my CV, and ask Sam for a reference by next Friday",
+    "things": [["cover letter"], ["cv"], ["sam", "reference"]],
+    "dates": ["2026-10-09", "2026-10-16"]
   }
 ]

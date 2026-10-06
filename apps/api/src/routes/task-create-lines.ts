@@ -1,6 +1,6 @@
 import { taskCreateLinesRequestSchema } from '@scootch/domain';
 
-import { openContinuation } from '../ai/task-create/continuation';
+import { continuationSecret, openContinuation } from '../ai/task-create/continuation';
 import { writeLines } from '../ai/task-create/write-lines';
 import { ApiError } from '../errors';
 import { readBody, type RouteDefinition } from '../route';
@@ -21,7 +21,7 @@ export const taskCreateLinesRoute: RouteDefinition = {
   handle: async (c) => {
     const { continuation } = await readBody(c, taskCreateLinesRequestSchema);
     const payload = await openContinuation(
-      c.env.DEEPSEEK_API_KEY ?? '',
+      continuationSecret(c.env) ?? '',
       c.var.device.hash,
       continuation,
     );

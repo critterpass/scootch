@@ -1,17 +1,23 @@
-// The task call's eval: sends every ramble to a running API at each attitude, in two stages as the
-// phone does, and checks the answer and how long each stage took.
+// The task call's eval: sends every ramble to a running API as the phone does (stage one, then
+// the monster's name and hatch line, then the pack with a treat) and checks each answer and how
+// long each part took.
 //   SCOOTCH_API_URL=http://localhost:8787 EVAL_CONCURRENCY=1 pnpm --filter @scootch/voice eval:task
-//   (EVAL_LANGUAGES=vi and EVAL_OUTPUT=/tmp/answers.json narrow the run and keep the answers)
-// Per case and attitude it checks one clear thing the ramble names, nothing invented, the voice
-// check, the language, no date the ramble does not give, and the contract. Per language it reports
-// the time to each stage, lines asked for once more or replaced by offline lines, and names that
-// open with an example's or a default's word. It exits non-zero under 90% or on a contract
-// failure. EVAL_CONCURRENCY=1 gives the true latency. No ramble is heavy: the care screen has
-// its own eval.
-import { readFileSync, writeFileSync } from 'node:fs';
+//   EVAL_LANGUAGES=vi narrows the run; EVAL_OUTPUT=/tmp/answers.json keeps the answers;
+//   EVAL_ATTITUDES=soft,cheeky asks only those; EVAL_ATTITUDES=rotate gives each ramble one
+//   attitude in turn (a third of the calls). The default is every ramble at all three.
+//   EVAL_CASES=3 runs only the first three rambles of each language, to try the runner out.
+// Per answer it checks: one clear thing the ramble names, nothing invented, the voice check
+// (banned words, the user's worth, missed days, off-limits topics, limits), instructions that are
+// true to the app's controls, the language, no date the ramble does not give, the name-first and
+// pack contracts, the new line slots with the treat named, and, where the case lists them, a body
+// that fits. It exits non-zero under 96% on the checks, under 85% on body fit, or on a contract
+// failure. EVAL_CONCURRENCY=1 gives the true latency. No ramble is heavy: the care screen has its
+// own eval.
+import { writeFileSync } from 'node:fs';
 
 import {
-  taskCreateLinesResponseSchema,
+  taskCreateNameResponseSchema,
+  taskCreatePackResponseSchema,
   taskCreateResponseSchema,
   taskCreateStartResponseSchema,
 } from '@scootch/domain';
@@ -26,60 +32,27 @@ import {
   voiceGuides,
   wordsOf,
 } from '../../src/index.ts';
+import {
+  atOnce,
+  baseUrl,
+  casesFor,
+  languages,
+  median,
+  pooled,
+  post,
+  share,
+  spread,
+  startTask,
+  waits,
+} from '../shared.mjs';
 
-const baseUrl = (process.env.SCOOTCH_API_URL ?? 'https://scootch-dev.bkdev98.workers.dev').replace(
-  /\/+$/,
-  '',
-);
-const languages = (process.env.EVAL_LANGUAGES ?? 'en,vi').split(',');
-const attitudes = ['soft', 'cheeky', 'unhinged'];
-const passBar = 0.9;
-const atOnce = Number(process.env.EVAL_CONCURRENCY ?? 4);
-// A Tuesday, so every weekday in the rambles resolves to one known date.
-const localDate = '2026-10-06';
-const timeZones = { en: 'Europe/London', vi: 'Asia/Ho_Chi_Minh' };
-
-function casesFor(language) {
-  return JSON.parse(readFileSync(new URL(`./cases.${language}.json`, import.meta.url), 'utf8'));
-}
-
-let rateLimited = 0;
-
-async function post(path, body, token) {
-  for (;;) {
-    const started = performance.now();
-    const response = await fetch(baseUrl + path, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        ...(token === undefined ? {} : { authorization: `Bearer ${token}` }),
-      },
-      body: JSON.stringify(body),
-    });
-    // The eval's own request rate, not the route: wait and ask once more, timing only the answer.
-    if (response.status === 429) {
-      rateLimited += 1;
-      await response.body?.cancel();
-      await new Promise((resolve) => setTimeout(resolve, 15_000));
-      continue;
-    }
-    const json = await response.json().catch(() => undefined);
-    return {
-      status: response.status,
-      voice: response.headers.get('x-voice-check') ?? '',
-      json,
-      ms: Math.round(performance.now() - started),
-    };
-  }
-}
-
-async function registerDevice(language) {
-  const { status, json } = await post('/v1/devices', { language });
-  if (status !== 200 || typeof json?.token !== 'string') {
-    throw new Error(`could not register a device at ${baseUrl} (HTTP ${status})`);
-  }
-  return json.token;
-}
+const allAttitudes = ['soft', 'cheeky', 'unhinged'];
+const asked = process.env.EVAL_ATTITUDES ?? allAttitudes.join(',');
+const caseLimit = Number(process.env.EVAL_CASES ?? Infinity);
+const passBar = 0.96;
+const bodyBar = 0.85;
+const targets = { nameMs: 3000, packMs: 5000, askedAgain: 0.1 };
+const treats = { en: 'a flat white', vi: 'ly trà sữa' };
 
 function names(text, keywords) {
   const bare = stripMarks(text);
@@ -89,18 +62,16 @@ function names(text, keywords) {
 }
 
 function inRightLanguage(text, language) {
-  const share = vietnameseShare(text);
+  const part = vietnameseShare(text);
   const words = text.trim().split(/\s+/).length;
-  return language === 'vi' ? words < 4 || share >= 0.3 : words < 3 || share <= 0.3;
+  return language === 'vi' ? words < 4 || part >= 0.3 : words < 3 || part <= 0.3;
 }
 
-/** The names of the checks one answer fails. An empty list is a pass. */
+/** The names of the checks one whole answer fails. An empty list is a pass. */
 function failedChecks(testCase, language, attitude, answer) {
   const failed = [];
   if (!taskCreateResponseSchema.safeParse(answer).success) return ['contract'];
-  if (answer.verdict !== 'pass') return [`verdict:${answer.verdict}`];
-
-  const { oneThing, parked, deadlines } = answer;
+  const { oneThing, parked, deadlines, lines } = answer;
   const matched = testCase.things.filter((keywords) => names(oneThing.text, keywords)).length;
   if (matched !== 1) failed.push(matched === 0 ? 'one thing: not named' : 'one thing: not one');
 
@@ -112,16 +83,27 @@ function failedChecks(testCase, language, attitude, answer) {
     failed.push('invented');
   }
 
-  const voice = checkTaskCopy(answer, language, attitude);
-  if (voice.some(({ reasons }) => reasons.some((reason) => reason !== 'wrong_language'))) {
-    failed.push(`voice: ${[...new Set(voice.flatMap(({ reasons }) => reasons))].join(' ')}`);
-  }
-  const tasks = [oneThing.text, ...rest];
+  const reasons = new Set(
+    checkTaskCopy(answer, language, attitude, treats[language]).flatMap((line) => line.reasons),
+  );
+  if (reasons.has('untrue_control')) failed.push('instructions');
+  if (reasons.has('treat_not_named')) failed.push('slots: treat not named');
+  const voice = [...reasons].filter(
+    (reason) => !['wrong_language', 'untrue_control', 'treat_not_named'].includes(reason),
+  );
+  if (voice.length > 0) failed.push(`voice: ${voice.join(' ')}`);
   if (
-    voice.some(({ reasons }) => reasons.includes('wrong_language')) ||
-    tasks.some((text) => !inRightLanguage(text, language))
+    reasons.has('wrong_language') ||
+    [oneThing.text, ...rest].some((text) => !inRightLanguage(text, language))
   ) {
     failed.push('language');
+  }
+
+  if (
+    lines.tinierNextSteps?.length !== 2 ||
+    [lines.treatHandOver, lines.parkedThoughts, lines.releasedEarly].includes(undefined)
+  ) {
+    failed.push('slots: absent');
   }
 
   const heard = [
@@ -154,22 +136,14 @@ function takenOpening(name, language) {
   return taken.has(opening) ? opening : null;
 }
 
+const attempts = (voice) => Number(/attempts=(\d+)/.exec(voice)?.[1] ?? 0);
+const replaced = (voice) => Number(/replaced=(\d+)/.exec(voice)?.[1] ?? 0);
+
 async function runOne(language, token, testCase, attitude) {
-  const first = await post(
-    '/v1/task-create',
-    {
-      language,
-      attitude,
-      energy: 'medium',
-      text: testCase.text,
-      source: testCase.things.length > 1 ? 'ramble' : 'typed',
-      localDate,
-      timeZone: timeZones[language],
-      overrideSerious: false,
-      staged: true,
-    },
-    token,
-  );
+  const first = await startTask(language, token, testCase.text, {
+    attitude,
+    source: testCase.things.length > 1 ? 'ramble' : 'typed',
+  });
   const result = { id: testCase.id, language, attitude, stageOneMs: first.ms };
   const start = taskCreateStartResponseSchema.safeParse(first.json);
   if (first.status !== 200 || !start.success || start.data.verdict !== 'pass') {
@@ -181,82 +155,87 @@ async function runOne(language, token, testCase, attitude) {
           : ['contract'];
     return { ...result, failed, answer: first.json };
   }
-
   const { continuation, ...things } = start.data;
-  const second = await post('/v1/task-create/lines', { continuation: continuation.token }, token);
-  const lines = taskCreateLinesResponseSchema.safeParse(second.json);
-  const answer = { ...things, ...(lines.success ? lines.data : {}) };
-  const failed =
-    second.status !== 200
-      ? [`http ${second.status} (stage two)`]
-      : failedChecks(testCase, language, attitude, answer);
+  const fits =
+    testCase.bodies === undefined ? undefined : testCase.bodies.includes(things.labels.bodyType);
+
+  const second = await post('/v1/task-create/name', { continuation: continuation.token }, token);
+  const name = taskCreateNameResponseSchema.safeParse(second.json);
+  if (second.status !== 200 || !name.success) {
+    const failed = [second.status === 200 ? 'contract' : `http ${second.status} (name)`];
+    return { ...result, fits, failed, answer: second.json };
+  }
+  const third = await post(
+    '/v1/task-create/pack',
+    { continuation: name.data.continuation.token, treat: treats[language] },
+    token,
+  );
+  const pack = taskCreatePackResponseSchema.safeParse(third.json);
+  if (third.status !== 200 || !pack.success) {
+    const failed = [third.status === 200 ? 'contract' : `http ${third.status} (pack)`];
+    return { ...result, fits, failed, nameMs: second.ms, answer: third.json };
+  }
+
+  const answer = {
+    ...things,
+    monster: name.data.monster,
+    lines: { hatch: name.data.hatch, ...pack.data.lines },
+    notifications: pack.data.notifications,
+  };
   return {
     ...result,
-    failed,
-    stageTwoMs: second.ms,
-    attempts: Number(/attempts=(\d+)/.exec(second.voice)?.[1] ?? 0),
-    replaced: Number(/replaced=(\d+)/.exec(second.voice)?.[1] ?? 0),
-    offline: /source=offline/.test(second.voice),
-    takenOpening: lines.success ? takenOpening(lines.data.monster.name, language) : null,
+    fits,
+    failed: failedChecks(testCase, language, attitude, answer),
+    nameMs: second.ms,
+    packMs: third.ms,
+    askedAgain: attempts(second.voice) > 1 || attempts(third.voice) > 1,
+    replaced: replaced(second.voice) + replaced(third.voice),
+    offline: /source=offline/.test(second.voice) || /source=offline/.test(third.voice),
+    takenOpening: takenOpening(name.data.monster.name, language),
     answer,
   };
 }
 
-/** Runs the jobs a few at a time, in order. Each runner has its own device and its own limit. */
-async function pooled(language, jobs) {
-  const results = new Array(jobs.length);
-  let next = 0;
-  await Promise.all(
-    Array.from({ length: Math.min(atOnce, jobs.length) }, async () => {
-      const token = await registerDevice(language);
-      while (next < jobs.length) {
-        const index = next;
-        next += 1;
-        results[index] = await jobs[index](token);
-      }
-    }),
-  );
-  return results;
+function attitudesFor(index) {
+  if (asked === 'rotate') return [allAttitudes[index % allAttitudes.length]];
+  return asked.split(',');
 }
-
-function spread(values) {
-  const sorted = values.filter((value) => value !== undefined).sort((a, b) => a - b);
-  if (sorted.length === 0) return 'none';
-  const at = (share) => sorted[Math.min(sorted.length - 1, Math.ceil(share * sorted.length) - 1)];
-  return `median ${at(0.5)}, 95th percentile ${at(0.95)}, worst ${sorted.at(-1)} (${sorted.length} calls)`;
-}
-
-const share = (part, whole) => `${part} of ${whole} (${((part / whole) * 100).toFixed(1)}%)`;
 
 function report(name, results) {
-  const written = results.filter((result) => result.stageTwoMs !== undefined);
-  const passed = results.filter((result) => result.failed.length === 0).length;
+  const written = results.filter((result) => result.packMs !== undefined);
+  const judged = results.filter((result) => result.fits !== undefined);
   const openings = written.flatMap((result) => result.takenOpening ?? []);
+  const passed = results.filter((result) => result.failed.length === 0).length;
   console.log(`\n${name}: ${share(passed, results.length)} passed the checks`);
   console.log(`  stage one ms: ${spread(results.map((result) => result.stageOneMs))}`);
-  console.log(`  stage two ms: ${spread(written.map((result) => result.stageTwoMs))}`);
+  console.log(`  name and hatch line ms: ${spread(results.map((result) => result.nameMs))}`);
+  console.log(`  pack ms: ${spread(written.map((result) => result.packMs))}`);
   console.log(
-    `  asked the writer for lines once more: ${share(written.filter((result) => result.attempts > 1).length, Math.max(written.length, 1))}`,
+    `  calls that asked the writer for a line once more: ${share(written.filter((result) => result.askedAgain).length, written.length)}`,
   );
   console.log(
-    `  lines replaced by offline lines: ${written.reduce((sum, result) => sum + result.replaced, 0)} in ${written.filter((result) => result.replaced > 0).length} calls; wholly offline answers: ${written.filter((result) => result.offline).length}`,
+    `  lines replaced by offline lines: ${written.reduce((sum, result) => sum + result.replaced, 0)} in ${written.filter((result) => result.replaced > 0).length} calls; answers with an offline part: ${written.filter((result) => result.offline).length}`,
+  );
+  console.log(
+    `  body fits the task: ${share(judged.filter((result) => result.fits).length, judged.length)}`,
   );
   console.log(
     `  names opening with an example's or a default's word: ${openings.length}${openings.length > 0 ? ` (${[...new Set(openings)].join(', ')})` : ''}`,
   );
-  console.log(
-    `  5xx answers: ${results.filter((result) => result.failed.some((check) => /^http 5/.test(check))).length}`,
-  );
 }
 
-console.log(`task.create eval against ${baseUrl}, ${atOnce} at once`);
+console.log(`task.create eval against ${baseUrl}, ${atOnce} at once, attitudes: ${asked}`);
 const all = [];
 for (const language of languages) {
   const results = await pooled(
     language,
-    casesFor(language).flatMap((testCase) =>
-      attitudes.map((attitude) => (token) => runOne(language, token, testCase, attitude)),
-    ),
+    casesFor(import.meta.url, language)
+      .slice(0, caseLimit)
+      .flatMap((testCase, index) =>
+        attitudesFor(index).map(
+          (attitude) => (token) => runOne(language, token, testCase, attitude),
+        ),
+      ),
   );
   console.table(
     Object.values(Object.groupBy(results, (result) => result.id)).map((rows) => ({
@@ -264,8 +243,9 @@ for (const language of languages) {
       ...Object.fromEntries(
         rows.map((row) => [row.attitude, row.failed.length === 0 ? 'ok' : row.failed.join('; ')]),
       ),
-      'slowest stage one ms': Math.max(...rows.map((row) => row.stageOneMs)),
-      'slowest stage two ms': Math.max(...rows.map((row) => row.stageTwoMs ?? 0)),
+      body: rows[0].fits === undefined ? '' : rows.every((row) => row.fits) ? 'fits' : 'MISFIT',
+      'slowest name ms': Math.max(...rows.map((row) => row.nameMs ?? 0)),
+      'slowest pack ms': Math.max(...rows.map((row) => row.packMs ?? 0)),
     })),
   );
   report(language, results);
@@ -276,23 +256,36 @@ if (process.env.EVAL_OUTPUT !== undefined) {
   writeFileSync(process.env.EVAL_OUTPUT, JSON.stringify(all, null, 1));
 }
 
-const passed = all.filter((result) => result.failed.length === 0).length;
-const contractFailures = all.filter((result) => result.failed.includes('contract')).length;
 const count = (check) =>
   all.filter((result) => result.failed.some((name) => name.startsWith(check))).length;
+const written = all.filter((result) => result.packMs !== undefined);
+const judged = all.filter((result) => result.fits !== undefined);
+const passed = all.filter((result) => result.failed.length === 0).length / all.length;
+const bodyFit =
+  judged.length === 0 ? 1 : judged.filter((result) => result.fits).length / judged.length;
+const askedAgain =
+  written.filter((result) => result.askedAgain).length / Math.max(written.length, 1);
+const against = (value, target) => (value <= target ? 'met' : 'MISSED');
 
 report('overall', all);
 console.log(
-  `failed checks: one thing ${count('one thing')}, invented ${count('invented')}, voice ${count('voice')}, language ${count('language')}, deadline ${count('deadline')}, contract ${contractFailures}, not a pass verdict ${count('verdict')}, http ${count('http')}`,
+  `failed checks: one thing ${count('one thing')}, invented ${count('invented')}, voice ${count('voice')}, instructions ${count('instructions')}, slots ${count('slots')}, language ${count('language')}, deadline ${count('deadline')}, contract ${count('contract')}, not a pass verdict ${count('verdict')}, http ${count('http')}`,
 );
-if (rateLimited > 0)
-  console.log(`requests waited out for the eval's own rate limit: ${rateLimited}`);
+console.log(
+  `targets: name median under ${targets.nameMs} ms ${against(median(all.map((result) => result.nameMs)), targets.nameMs)}; pack median under ${targets.packMs} ms ${against(median(written.map((result) => result.packMs)), targets.packMs)}; under ${targets.askedAgain * 100}% of calls ask again ${askedAgain < targets.askedAgain ? 'met' : 'MISSED'}`,
+);
+if (waits.rateLimited > 0) {
+  console.log(`requests waited out for the eval's own rate limit: ${waits.rateLimited}`);
+}
 
-if (contractFailures > 0) {
+if (count('contract') > 0) {
   console.error('FAIL: an answer did not match the contract');
   process.exitCode = 1;
-} else if (passed / all.length < passBar) {
-  console.error(`FAIL: ${((passed / all.length) * 100).toFixed(1)}% is under ${passBar * 100}%`);
+} else if (passed < passBar) {
+  console.error(`FAIL: ${(passed * 100).toFixed(1)}% on the checks is under ${passBar * 100}%`);
+  process.exitCode = 1;
+} else if (bodyFit < bodyBar) {
+  console.error(`FAIL: body fit ${(bodyFit * 100).toFixed(1)}% is under ${bodyBar * 100}%`);
   process.exitCode = 1;
 } else {
   console.log('PASS');

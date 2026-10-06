@@ -36,5 +36,9 @@ enum AppGroup {
         static let clipInvocationURL = "clip.invocation-url"
         /// When the App Clip stored that link, in seconds since 1970.
         static let clipInvocationStoredAt = "clip.invocation-stored-at"
+        /// Today as the surfaces draw it: one JSON string the app writes (`SurfaceSnapshot`).
+        static let surfaceSnapshot = "surfaces.snapshot"
+        /// What the controls and buttons asked for, as one JSON string the app reads and removes.
+        static let pendingSurfaceActions = "surfaces.pending-actions"
     }
 }

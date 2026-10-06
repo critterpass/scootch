@@ -1,6 +1,6 @@
 import { taskCreateRequestSchema, type TaskCreateStartResponse } from '@scootch/domain';
 
-import { sealContinuation } from '../ai/task-create/continuation';
+import { continuationSecret, sealContinuation } from '../ai/task-create/continuation';
 import { createTask, startTask } from '../ai/task-create/create-task';
 import { ApiError } from '../errors';
 import { readBody, type RouteDefinition } from '../route';
@@ -8,8 +8,9 @@ import { readBody, type RouteDefinition } from '../route';
 /**
  * The task call. With `staged: true` it answers with stage one alone: the verdict, the one thing,
  * the parked rest, any dates heard and the labels, plus a continuation that
- * `POST /v1/task-create/lines` turns into the monster's words. Without it, both stages are
- * answered at once, as before.
+ * `POST /v1/task-create/lines` turns into the monster's words (or `/name` and then `/pack`, when
+ * the monster is to hatch before the whole pack is written). Without it, both stages are answered
+ * at once, as before.
  *
  * The `X-Voice-Check` header carries counts only (writer calls made, lines replaced by offline
  * lines), so an eval can see how often the check fired without the answer changing shape.
@@ -34,7 +35,7 @@ export const taskCreateRoute: RouteDefinition = {
 
     const start = await startTask(context, request);
     if (start.verdict !== 'pass') return c.json(start.response satisfies TaskCreateStartResponse);
-    const secret = c.env.DEEPSEEK_API_KEY;
+    const secret = continuationSecret(c.env);
     if (secret === undefined || secret === '') {
       throw new ApiError('model_unavailable', 'The model is not answering', {
         reason: 'missing_key',

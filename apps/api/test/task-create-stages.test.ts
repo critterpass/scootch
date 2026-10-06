@@ -1,11 +1,18 @@
 import {
   taskCreateLinesResponseSchema,
+  taskCreateNameResponseSchema,
+  taskCreatePackResponseSchema,
   taskCreateStartResponseSchema,
   type TaskCreateStartPass,
 } from '@scootch/domain';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { continuationLifetimeMs } from '../src/ai/task-create/continuation';
+import {
+  continuationLifetimeMs,
+  continuationSecret,
+  openContinuation,
+  sealContinuation,
+} from '../src/ai/task-create/continuation';
 
 import { registerDevice, wireErrorOf } from './support';
 import {
@@ -130,5 +137,66 @@ describe('the task call in two stages', () => {
     expect(await wireErrorOf(late.response)).toMatchObject({
       detail: { reason: 'continuation_expired' },
     });
+  });
+
+  it('names the monster first, then writes the pack about it and names the treat', async () => {
+    const { device, body } = await start();
+    const { monster, lines, notifications } = passFixture.response;
+
+    const named = await createTask(
+      replies(),
+      { continuation: body.continuation.token },
+      { path: '/v1/task-create/name', device },
+    );
+    const name = taskCreateNameResponseSchema.parse(JSON.parse(named.raw));
+    expect(name).toMatchObject({ monster, hatch: lines.hatch });
+    // One small writer call, and nothing but the name and the hatch line is asked of it.
+    expect(writerCalls(named.doubles)).toHaveLength(1);
+    expect(held(name.continuation.token)).toContain(monster.name);
+
+    const packed = await createTask(
+      replies(),
+      { continuation: name.continuation.token, treat: 'a flat white' },
+      { path: '/v1/task-create/pack', device },
+    );
+    const pack = taskCreatePackResponseSchema.parse(JSON.parse(packed.raw));
+    const { hatch, ...rest } = lines;
+    expect(hatch).toBe(name.hatch);
+    expect(pack).toEqual({
+      lines: { ...rest, treatHandOver: rest.treatHandOver?.replace('{treat}', 'a flat white') },
+      notifications,
+    });
+    expect(pack.lines.treatHandOver).toContain('a flat white');
+    // The pack is written about the monster already named.
+    expect(JSON.stringify(writerCalls(packed.doubles))).toContain(monster.name);
+
+    // Stage one's continuation names no monster, so the pack cannot be asked with it.
+    const early = await createTask(
+      replies(),
+      { continuation: body.continuation.token },
+      { path: '/v1/task-create/pack', device },
+    );
+    expect(early.response.status).toBe(400);
+    expect(writerCalls(early.doubles)).toEqual([]);
+  });
+
+  it('signs with its own secret when one is set, and with the derived key only without it', async () => {
+    const payload = {
+      oneThing: 'Call mum.',
+      language: 'en',
+      attitude: 'soft',
+      bodyType: null,
+      seed: 1,
+    } as const;
+    const own = continuationSecret({ TASK_CONTINUATION_SECRET: 'own', DEEPSEEK_API_KEY: 'model' });
+    const derived = continuationSecret({ DEEPSEEK_API_KEY: 'model' });
+    expect([own, derived]).toEqual(['own', 'model']);
+    expect(continuationSecret({ TASK_CONTINUATION_SECRET: '', DEEPSEEK_API_KEY: 'model' })).toBe(
+      'model',
+    );
+
+    const { token } = await sealContinuation('own', 'device', payload);
+    expect(await openContinuation('own', 'device', token)).toEqual(payload);
+    expect(await openContinuation('model', 'device', token)).toBe('invalid');
   });
 });

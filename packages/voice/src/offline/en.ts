@@ -18,6 +18,11 @@ export const enOffline: OfflinePack = {
       timeUp: ["Time. Hold to catch it whenever you're ready."],
       caught: ['Caught. That was the whole job.'],
       notFinished: ['You started, and that counts. What would you like to do with it now?'],
+      tinierNextStep: ['Only look at the first piece. Looking counts.'],
+      tiniestNextStep: ['Put one hand on it. That is all.'],
+      treatHandOver: ['As promised: {treat}. It kept warm for you.'],
+      parkedThoughts: ['Here are the thoughts you parked. I kept them safe and dry.'],
+      releasedEarly: ['Let go a little early. No harm done; hold the button when you like.'],
       notification: [
         "I'm by the door with one small thing, whenever you like.",
         'One small thing is keeping warm here. No hurry.',
@@ -41,6 +46,11 @@ export const enOffline: OfflinePack = {
       timeUp: ["Time. It's cornered and it knows it. Hold to catch it."],
       caught: ['Caught. It went quietly, apart from the speech.'],
       notFinished: ['You started, and the monster noticed. What do we do with it now?'],
+      tinierNextStep: ['Just look at the first bit. Staring is allowed.'],
+      tiniestNextStep: ['Touch it with one finger. Done.'],
+      treatHandOver: ['A deal is a deal: {treat}. I only sniffed it once.'],
+      parkedThoughts: ['Your parked thoughts, as left. One of them tried to escape.'],
+      releasedEarly: ['Slipped off the button. It happens to paws too. Hold it when you like.'],
       notification: [
         'Your monster has started rearranging the furniture. One small start?',
         "The monster wants a word. I told it you'd bring ten minutes.",
@@ -64,6 +74,11 @@ export const enOffline: OfflinePack = {
       timeUp: ['TIME. IT IS CORNERED. Hold to catch it before I try and lose.'],
       caught: ['CAUGHT. I have told the spoon. The spoon wept.'],
       notFinished: ['You started, and the monster saw everything. What do we do with it now?'],
+      tinierNextStep: ['JUST LOOK AT THE FIRST BIT. Looking is a move.'],
+      tiniestNextStep: ['ONE FINGER. Touch it. Run.'],
+      treatHandOver: ['CEREMONY TIME: {treat}. I polished it with my whole face.'],
+      parkedThoughts: ['YOUR PARKED THOUGHTS. I guarded them. One bit me.'],
+      releasedEarly: ['THE BUTTON GOT AWAY. It is fine. Hold it when you like. I will guard it.'],
       notification: [
         'UPDATE: your monster has learned to whistle. Ten minutes ends the concert.',
         'BREAKING: the monster has named a chair after itself. One small start?',
@@ -79,6 +94,7 @@ export const enOffline: OfflinePack = {
     tinyNextStep: 'Write down the first small step, and only that.',
     done: "That's done. I'm here if you want to sit a while.",
     notFinished: "We can leave it here for today. It will keep until you're ready.",
+    reminder: "One quiet thing is waiting here. I'm around whenever you're ready.",
   },
   noTask: {
     soft: {
@@ -103,6 +119,13 @@ export const enOffline: OfflinePack = {
       renewalOff: "Done. Plus won't renew.",
       plusCancelled: "That's fair. I'll still be here. The one thing a day is yours to keep.",
       lifetime: "You're staying for good. I'm so glad.",
+      offline: 'No signal just now. I can still sit with you.',
+      modelDown: "My thinking is slow just now. You pick today, and I'll join in soon.",
+      modelDownMore: "What you type still counts, and your monster hatches as soon as I'm here.",
+      hatchesWhenBack: "Your monster will hatch when we're back online.",
+      backupOff:
+        "I can't keep a spare copy while iCloud is off, so your world lives on this phone only.",
+      restoreOffer: 'I found the world you made before. Shall I bring it over?',
     },
     cheeky: {
       hello: "Oh! You're here. I'm Scootch. I've been waiting for you specifically.",
@@ -125,6 +148,14 @@ export const enOffline: OfflinePack = {
       renewalOff: "Done. Plus won't renew.",
       plusCancelled: "Fair. I'll still be here. The one thing a day is yours to keep.",
       lifetime: "You're stuck with me now. Forever. I'm thrilled.",
+      offline: 'No signal. My jokes need wifi, but I can still sit with you.',
+      modelDown: "My brain is buffering. You pick today, I'll be witty later.",
+      modelDownMore:
+        "Tasks you type now still count, and your monster hatches as soon as I'm here.",
+      hatchesWhenBack: "Your monster will hatch when we're back online.",
+      backupOff:
+        "iCloud is off, so I can't keep a spare copy. Your world lives on this phone only.",
+      restoreOffer: 'I found your old world in my pocket. Want it on this phone?',
     },
     unhinged: {
       hello: "YOU'RE HERE. I'm Scootch. I have been rehearsing this moment in a mirror.",
@@ -152,6 +183,13 @@ export const enOffline: OfflinePack = {
       plusCancelled:
         "FAIR. I'll still be here. The one thing a day is yours to keep. I am guarding it.",
       lifetime: "YOU'RE STUCK WITH ME NOW. FOREVER. I'm thrilled. The spoon is thrilled.",
+      offline: 'NO SIGNAL. My jokes need wifi. I can still sit with you, dramatically.',
+      modelDown: "MY BRAIN IS BUFFERING. You pick today, I'll be witty later.",
+      modelDownMore:
+        "Tasks you type now STILL COUNT, and your monster hatches as soon as I'm here.",
+      hatchesWhenBack: "YOUR MONSTER WILL HATCH when we're back online. I am guarding the egg.",
+      backupOff: "ICLOUD IS OFF. I can't keep a spare copy. Your world lives on this phone only.",
+      restoreOffer: 'I FOUND YOUR OLD WORLD IN MY POCKET. Want it on this phone?',
     },
   },
   monsterNames: [

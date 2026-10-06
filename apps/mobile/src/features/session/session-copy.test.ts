@@ -84,6 +84,7 @@ describe('the session in the screen registry', () => {
       'session-finish-tap-twice',
       'session-hold-to-finish',
       'session-not-finished',
+      'session-offline',
       'session-park-a-thought',
       'session-parked-thoughts',
       'session-quiet',

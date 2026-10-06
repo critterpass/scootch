@@ -24,7 +24,14 @@
       "twoMinutesLeft": "Còn hai phút. Lồng Lộn đang xếp cái vali bé xíu.",
       "timeUp": "Hết giờ. Lồng Lộn kẹt ở góc ban công rồi. Giữ nút để tóm nó.",
       "caught": "Tóm được rồi. Cái máy giặt xin gửi lời cảm ơn, lần này nói nhỏ nhẹ.",
-      "notFinished": "Bạn bắt đầu rồi, Lồng Lộn thấy hết. Giờ tính sao với nó đây?"
+      "notFinished": "Bạn bắt đầu rồi, Lồng Lộn thấy hết. Giờ tính sao với nó đây?",
+      "tinierNextSteps": [
+        "Mở danh bạ, gõ hai chữ đầu của tên chú thợ.",
+        "Cầm điện thoại lên và mở khoá."
+      ],
+      "treatHandOver": "Hứa là làm: {treat}. Lồng Lộn ngồi trong thau mà ngó.",
+      "parkedThoughts": "Mấy ý bạn gửi tạm đây. Tui cất xa cái máy giặt, khô ráo hết.",
+      "releasedEarly": "Tuột khỏi nút rồi. Lồng Lộn suýt vỗ tay. Thích thì giữ nút lần nữa."
     },
     "notifications": [
       {

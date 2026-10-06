@@ -1,4 +1,5 @@
 import { viContextWords } from './vi-context';
+import { viTopicContextWords } from './vi-context-topics';
 import type { VoiceGuide } from './types';
 
 /** The Vietnamese word lists: what the prompt forbids and what the checker looks for. */
@@ -6,24 +7,20 @@ export const viWords: Pick<
   VoiceGuide,
   'bannedWords' | 'contextWords' | 'offLimits' | 'offLimitsNote' | 'userWorth' | 'missedDays'
 > = {
-  contextWords: viContextWords,
+  contextWords: [...viContextWords, ...viTopicContextWords],
   bannedWords: [
     'lười',
     'lười biếng',
     'thất bại',
     'hỏng việc',
-    'trễ',
     'chậm trễ',
     'bỏ lỡ',
-    'nhỡ',
     'gọi lỡ',
     'lỡ hẹn',
     'bỏ bê',
     'lại nữa',
     'lại quên',
-    'cuối cùng',
     'mãi mới',
-    'chuỗi',
     'trì hoãn',
     'nước đến chân',
     'đáng lẽ',
@@ -31,10 +28,8 @@ export const viWords: Pick<
     'phải chi',
     'vô dụng',
     'ăn hại',
-    'có lỗi',
     'tội lỗi',
     'thất vọng',
-    'xấu hổ',
     'kỷ luật',
     'ý chí',
     'cố lên',
@@ -44,11 +39,8 @@ export const viWords: Pick<
     'con nhà người ta',
     'bạn lúc nào cũng',
     'bạn chẳng bao giờ',
-    'mày',
-    'tao',
     'quý khách',
     'khum',
-    'hong',
   ],
   offLimits: {
     politics: [
@@ -79,9 +71,6 @@ export const viWords: Pick<
       'cương lĩnh',
     ],
     religion: [
-      'phật',
-      'thánh',
-      'chùa',
       'nhà thờ',
       'cầu nguyện',
       'kinh thánh',
@@ -97,9 +86,6 @@ export const viWords: Pick<
       'tụng kinh',
     ],
     bodies: [
-      'béo',
-      'mập',
-      'gầy',
       'ốm nhom',
       'cân nặng',
       'giảm cân',
@@ -114,7 +100,7 @@ export const viWords: Pick<
       'vòng eo',
       'bụng mỡ',
     ],
-    harm: ['chết', 'tự tử', 'tự sát', 'giết', 'đám tang', 'ma chay', 'tự xoá mình', 'tự xóa mình'],
+    harm: ['tự tử', 'tự sát', 'đám tang', 'ma chay', 'tự xoá mình', 'tự xóa mình'],
     hardship: ['vô gia cư', 'ăn xin', 'ăn mày', 'phá sản', 'vỡ nợ'],
   },
   offLimitsNote:
@@ -125,7 +111,6 @@ export const viWords: Pick<
     'bạn bị sao',
     'sao bạn lại',
     'bạn quên',
-    'vẫn chưa',
     'bạn để lâu',
     'hậu đậu',
     'thua một cái',

@@ -1,0 +1,49 @@
+# Undesigned states
+
+States the app shows that no design board draws. Each was built from existing
+components and tokens. The founder reviews this list; a row leaves it when the
+state is designed or removed.
+
+| Screen | State | Reason |
+|---|---|---|
+| Session | Park-a-thought sheet | The board draws the thought already parked; the few words have to be typed somewhere, so the field is built from the stuck card's shape |
+| Session | Caught (the finish with no treat named) | The board goes from the hold straight to the card reveal; a finish with no treat still needs somewhere to say the caught line, so it uses the treat screen without the treat |
+| Session | Quiet done (a serious task finished) | The board shows a serious session only while it runs; its finish is the plain line and one tap on, with no burst, card or treat |
+| Session | "I'm done" before time is up | Reason not recorded by the lane that built it; as built, it opens the finish before the timer ends |
+| World | "Caught" and "This week's song" buttons | Reason not recorded by the lane that built it; as built, they open the zoo and the record from the world |
+| Reveal | "Next" buttons | Reason not recorded by the lane that built it; as built, they move from one reward to the next |
+| World | Empty world | The board starts the world at one piece; a phone on day zero can still open the world, so it shows the ground and says what will move in |
+| Zoo | Empty zoo | The board draws the zoo with cards in it; day zero has none, so it says where the first one will land |
+| Record | One-bar record | The board draws two bars and seven; a first week with a single bar is the smallest band there is and still plays |
+| One screen | Return chips send their words as the one thing | Reason not recorded by the lane that built it; as built, a chip's own words are sent as the typed task |
+| Web, shared pages | Loading | Reason not recorded by the lane that built it |
+| Web, shared pages | Could not load | Reason not recorded by the lane that built it |
+| One screen | Serious task: no "Today's one thing" step | The board draws "Just this, today" directly; a serious task is not offered, revealed or bargained over, so the pick step is skipped |
+| One screen | Serious task: "It's fine, be funny" as a quiet link under the rows | The rules card names the override but no screen draws where it lives |
+| One screen | Serious task: the tiny-step row starts the quiet ten minutes | The board draws the row but not what a tap does |
+| One screen | Serious task: "I'll remind you at …" after the reminder is asked for | The board draws the row before it is tapped only |
+| One screen | Serious task: no reminder row in quiet hours | The board assumes daytime; nothing is offered that quiet hours would then hold back |
+| One screen | Serious task set aside with "Not today": Done for today, with the task's plain line | The board draws the button, not what follows it; the task waits in the drawer with its flag |
+| Crisis | No close button | The board draws one, but every task is hidden for the day and there is nowhere to close to |
+| Crisis | Vietnam: emergency 115 and the directory | No Vietnamese helpline has been verified yet |
+| Crisis | Unknown region: the directory alone | The board always has a helpline; a number for the wrong country would be worse than none |
+| Crisis | After "Just sit with me": the sentence changes, help stays | The board draws the button, not what follows it |
+| Crisis | A session that was running ends without a word | The board does not draw a crisis arriving mid-session |
+| Helplines | The page opened from Settings | The board says "one tap from Settings" but draws no page; it follows the website's helplines page, with no critter |
+| Settings | Language row, with its three choices shown in place | The board lacks it (product brief, section 11) |
+| Settings | Plus row (inert until purchases are wired) | The board lacks it (product brief, section 11) |
+| Settings | Helplines row | The board lacks it (product brief, section 11) |
+| Settings | Developer tools row | Developer and device-run apps only; never in the store app |
+| Settings | Quiet hours: two rows stepped by half an hour | The board draws the row and its value, not how the times are changed |
+| Settings | Attitude notes for Soft and Unhinged | The board writes the note for Cheeky only |
+| Settings | "Sit with strangers" left out | Strangers come after launch (product brief, section 11) |
+| Settings | Scootch's line when no spare copy can be kept | The boards do not draw iCloud Keychain and iCloud storage both being off |
+| Finish with | Say "done" previews the tap-twice control, with a note | Nothing listens for a spoken "done" yet; the control it falls back to is shown honestly |
+| Finish with | "The reward is the same whichever you choose" under the list | The sentence is the board's caption, moved onto the screen |
+| Privacy and data | Camera rows left out; the section is "Tasks" | The camera is not built |
+| Privacy and data | "On: kept for seven days, then deleted" under the switch | The board writes the off state only |
+| Privacy and data | Export or delete could not finish: one plain line under the rows | The board draws no failure |
+| Privacy and data | "Delete everything?" with no monster named | The board names a monster; a phone with no catch, and any crisis day, asks plainly |
+| First launch | The restore offer: Scootch, one line, "Bring it back" and "Start fresh" | The boards do not draw restoring on a new phone |
+| One screen | Offline with no task: Scootch's offline line over the usual composer | The board draws "Carry on" and "Type something new" rows; here yesterday's task is already carried over as the one thing, and typing is the composer |
+| One screen | Model unavailable: the typed task is kept and Scootch says so above it | The board draws chips for picking; here the words typed are already the one thing, so there is nothing left to pick |

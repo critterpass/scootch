@@ -19,6 +19,11 @@ export const viOffline: OfflinePack = {
       timeUp: ['Hết giờ rồi. Lúc nào sẵn sàng thì giữ nút để tóm nó.'],
       caught: ['Tóm được rồi. Vậy là xong việc hôm nay.'],
       notFinished: ['Bạn bắt đầu rồi, vậy là tính. Giờ bạn muốn làm gì với nó?'],
+      tinierNextStep: ['Chỉ cần nhìn phần đầu tiên thôi. Nhìn cũng tính.'],
+      tiniestNextStep: ['Đặt một tay lên nó. Vậy thôi.'],
+      treatHandOver: ['Như đã hứa: {treat}. Mình giữ ấm cho bạn nãy giờ.'],
+      parkedThoughts: ['Mấy ý bạn gửi tạm đây. Mình cất kỹ, không sót ý nào.'],
+      releasedEarly: ['Thả tay hơi sớm chút thôi. Không sao, lúc nào thích thì giữ nút nha.'],
       notification: [
         'Mình ngồi ở cửa với một việc nhỏ, lúc nào bạn tới cũng được.',
         'Một việc nhỏ đang được ủ ấm ở đây. Không vội.',
@@ -42,6 +47,11 @@ export const viOffline: OfflinePack = {
       timeUp: ['Hết giờ. Nó kẹt trong góc rồi, nó biết luôn. Giữ nút để tóm nó.'],
       caught: ['Tóm được rồi. Nó đi êm lắm, trừ đoạn phát biểu cảm nghĩ.'],
       notFinished: ['Bạn bắt đầu rồi, con quái thấy hết. Giờ tính sao với nó đây?'],
+      tinierNextStep: ['Nhìn cái phần đầu tiên thôi. Nhìn chằm chằm cũng được.'],
+      tiniestNextStep: ['Chạm nó bằng một ngón tay. Xong.'],
+      treatHandOver: ['Hứa là làm: {treat}. Tui mới ngửi có một cái.'],
+      parkedThoughts: ['Mấy ý bạn gửi tạm, còn nguyên. Có một ý định trốn.'],
+      releasedEarly: ['Tuột khỏi nút rồi. Chân tui cũng hay vậy. Thích thì giữ nút lần nữa.'],
       notification: [
         'Con quái đang tự ý kê lại bàn ghế. Bắt đầu chút nha?',
         'Con quái đòi gặp bạn. Tui hứa đại là mười phút.',
@@ -65,6 +75,11 @@ export const viOffline: OfflinePack = {
       timeUp: ['HẾT GIỜ. NÓ KẸT TRONG GÓC RỒI. Giữ nút tóm nó, kẻo tui xông vô rồi thua.'],
       caught: ['TÓM ĐƯỢC RỒI. Tui báo cho cái muỗng rồi. Cái muỗng rưng rưng.'],
       notFinished: ['Bạn bắt đầu rồi, con quái thấy hết trơn. Giờ tính sao với nó đây?'],
+      tinierNextStep: ['NHÌN PHẦN ĐẦU TIÊN THÔI. Nhìn cũng là ra đòn.'],
+      tiniestNextStep: ['MỘT NGÓN TAY. Chạm nó. Rồi chạy.'],
+      treatHandOver: ['GIỜ LÀM LỄ: {treat}. Tui lấy nguyên cái mặt ra đánh bóng nó.'],
+      parkedThoughts: ['MẤY Ý BẠN GỬI TẠM ĐÂY. Tui canh hết. Có một ý cắn tui.'],
+      releasedEarly: ['CÁI NÚT TUỘT MẤT. Không sao hết. Thích thì giữ nút, tui canh nó cho.'],
       notification: [
         'CẬP NHẬT: con quái mới học huýt sáo. Mười phút là hết buổi diễn.',
         'TIN NÓNG: con quái lấy tên nó đặt cho cái ghế. Mười phút?',
@@ -80,6 +95,7 @@ export const viOffline: OfflinePack = {
     done: 'Xong rồi. Bạn muốn ngồi thêm một lát thì mình vẫn ở đây.',
     notFinished:
       'Hôm nay tới đây cũng được. Việc này vẫn nằm yên đó, khi nào bạn sẵn sàng thì mình làm.',
+    reminder: 'Có một việc đang chờ ở đây, không vội đâu. Khi nào bạn sẵn sàng thì có mình.',
   },
   noTask: {
     soft: {
@@ -104,6 +120,13 @@ export const viOffline: OfflinePack = {
       renewalOff: 'Xong rồi. Plus sẽ không gia hạn nữa.',
       plusCancelled: 'Vậy cũng được mà. Mình vẫn ở đây. Mỗi ngày một việc vẫn là của bạn.',
       lifetime: 'Vậy là bạn ở lại luôn rồi. Mình vui lắm.',
+      offline: 'Đang mất mạng rồi. Mình vẫn ngồi cạnh bạn được nha.',
+      modelDown: 'Đầu mình đang chạy hơi chậm. Hôm nay bạn chọn nha, lát mình theo kịp.',
+      modelDownMore: 'Việc bạn gõ bây giờ vẫn tính, mình tỉnh lại là con quái của bạn nở liền.',
+      hatchesWhenBack: 'Có mạng lại là con quái của bạn sẽ nở.',
+      backupOff:
+        'iCloud đang tắt nên mình chưa giữ được bản dự phòng. Thế giới của bạn chỉ nằm trên máy này thôi.',
+      restoreOffer: 'Mình tìm thấy thế giới bạn dựng hồi trước rồi. Mình mang qua máy này nha?',
     },
     cheeky: {
       hello: 'Ơ! Bạn tới rồi. Tui là Scootch. Tui ngồi đợi đúng mình bạn đó.',
@@ -127,6 +150,13 @@ export const viOffline: OfflinePack = {
       renewalOff: 'Xong. Plus sẽ không gia hạn nữa.',
       plusCancelled: 'Cũng được. Tui vẫn ở đây. Mỗi ngày một việc là của bạn luôn.',
       lifetime: 'Giờ bạn dính với tui rồi. Mãi mãi. Tui khoái lắm.',
+      offline: 'Mất sóng rồi. Mấy câu đùa của tui cần wifi, nhưng tui vẫn ngồi cạnh bạn được.',
+      modelDown: 'Não tui đang quay vòng vòng. Hôm nay bạn chọn đi, lát tui duyên dáng bù.',
+      modelDownMore: 'Việc bạn gõ bây giờ vẫn tính, tui tỉnh lại là con quái của bạn nở liền.',
+      hatchesWhenBack: 'Có mạng lại là con quái của bạn nở liền.',
+      backupOff:
+        'iCloud đang tắt nên tui chưa cất được bản dự phòng. Thế giới của bạn chỉ nằm trên máy này thôi.',
+      restoreOffer: 'Tui lục túi thấy thế giới cũ của bạn nè. Lấy qua máy này không?',
     },
     unhinged: {
       hello: 'BẠN TỚI RỒI. Tui là Scootch. Tui tập cảnh này trước gương cả buổi.',
@@ -154,6 +184,13 @@ export const viOffline: OfflinePack = {
       renewalOff: 'XONG. Plus sẽ không gia hạn nữa. Tui cất vô ngăn xong xuôi rồi.',
       plusCancelled: 'CŨNG ĐƯỢC. Tui vẫn ở đây. Mỗi ngày một việc là của bạn luôn. Tui canh cho.',
       lifetime: 'GIỜ BẠN DÍNH VỚI TUI RỒI. MÃI MÃI. Tui khoái lắm. Cái muỗng cũng khoái.',
+      offline: 'MẤT SÓNG RỒI. Mấy câu đùa của tui cần wifi. Tui vẫn ngồi cạnh bạn, ngồi rất kịch.',
+      modelDown: 'NÃO TUI ĐANG QUAY VÒNG VÒNG. Hôm nay bạn chọn đi, lát tui duyên dáng bù.',
+      modelDownMore: 'Việc bạn gõ bây giờ VẪN TÍNH, tui tỉnh lại là con quái của bạn nở liền.',
+      hatchesWhenBack: 'CÓ MẠNG LẠI LÀ CON QUÁI CỦA BẠN NỞ LIỀN. Tui đang canh quả trứng.',
+      backupOff:
+        'ICLOUD ĐANG TẮT. Tui chưa cất được bản dự phòng. Thế giới của bạn chỉ nằm trên máy này thôi.',
+      restoreOffer: 'TUI LỤC TÚI THẤY THẾ GIỚI CŨ CỦA BẠN. Lấy qua máy này không?',
     },
   },
   monsterNames: [

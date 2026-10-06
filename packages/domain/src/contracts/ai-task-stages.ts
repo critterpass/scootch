@@ -13,7 +13,7 @@ import {
   taskCreateSeriousSchema,
   taskLabelsSchema,
 } from './ai-task-call';
-import { energySchema } from './common';
+import { energySchema, lineSchema } from './common';
 
 /**
  * The task call in two stages, for the moment after the user stops talking. Stage one answers
@@ -74,3 +74,36 @@ export const taskCreateLinesResponseSchema = z.object({
   notifications: z.array(dayNotificationSchema).max(3),
 });
 export type TaskCreateLinesResponse = z.infer<typeof taskCreateLinesResponseSchema>;
+
+/**
+ * Stage two can also be asked for in two parts, so the monster can hatch before the whole pack
+ * is written. `POST /v1/task-create/name` takes stage one's continuation and answers first with
+ * the monster and the hatch line, plus a continuation of its own; `POST /v1/task-create/pack`
+ * takes that one, while the hatch plays, and answers with every other line.
+ */
+export const taskCreateNameRequestSchema = taskCreateLinesRequestSchema;
+export type TaskCreateNameRequest = z.infer<typeof taskCreateNameRequestSchema>;
+
+export const taskCreateNameResponseSchema = z.object({
+  monster: monsterCopySchema,
+  /** Said when the monster appears. */
+  hatch: lineSchema,
+  /** What the pack is asked with. It carries the monster's name, so the pack is about it. */
+  continuation: taskContinuationSchema,
+});
+export type TaskCreateNameResponse = z.infer<typeof taskCreateNameResponseSchema>;
+
+export const taskCreatePackRequestSchema = z.object({
+  continuation: taskContinuationSchema.shape.token,
+  /** The treat named for after the session, when it is known already. */
+  treat: z.string().trim().min(1).max(40).optional(),
+});
+export type TaskCreatePackRequest = z.infer<typeof taskCreatePackRequestSchema>;
+
+/** Every session line but the hatch, which the name answer already brought. */
+export const taskCreatePackResponseSchema = z.object({
+  lines: sessionLinePackSchema.omit({ hatch: true }),
+  /** Soft: at most one. Cheeky and Unhinged: at most three. */
+  notifications: z.array(dayNotificationSchema).max(3),
+});
+export type TaskCreatePackResponse = z.infer<typeof taskCreatePackResponseSchema>;

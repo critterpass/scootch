@@ -29,19 +29,23 @@ export type TaskLineFailure = {
 
 /** Every line and name of a task call's answer, in a fixed order. */
 export function taskLines({ monster, lines, notifications, deadlines }: TaskCopy): TaskLine[] {
-  const { working, ...single } = lines;
+  const { working, tinierNextSteps = [], ...single } = lines;
+  const tinierKinds = ['tinierNextStep', 'tiniestNextStep'] as const;
   return [
     { slot: 'monster.name', kind: 'monsterName', text: monster.name },
     { slot: 'monster.title', kind: 'monsterTitle', text: monster.title },
     { slot: 'monster.flavourText', kind: 'flavourText', text: monster.flavourText },
-    ...Object.entries(single).map(([slot, text]): TaskLine => ({
-      slot: `lines.${slot}`,
-      kind: slot as LineKind,
-      text,
-    })),
+    ...Object.entries(single).flatMap(([slot, text]): TaskLine[] =>
+      text === undefined ? [] : [{ slot: `lines.${slot}`, kind: slot as LineKind, text }],
+    ),
     ...working.map((text, index): TaskLine => ({
       slot: `lines.working.${index}`,
       kind: 'working',
+      text,
+    })),
+    ...tinierNextSteps.map((text, index): TaskLine => ({
+      slot: `lines.tinierNextSteps.${index}`,
+      kind: tinierKinds[index] ?? 'tiniestNextStep',
       text,
     })),
     ...notifications.map(({ text }, index): TaskLine => ({
@@ -57,14 +61,24 @@ export function taskLines({ monster, lines, notifications, deadlines }: TaskCopy
   ];
 }
 
-/** Runs the voice check on every line and name of a task call's answer. */
+/**
+ * Runs the voice check on every line and name of a task call's answer. `treat` is the treat the
+ * answer was asked with, when there was one.
+ */
 export function checkTaskCopy(
   copy: TaskCopy,
   language: Language,
   attitude: Attitude,
+  treat?: string,
 ): TaskLineFailure[] {
   return taskLines(copy).flatMap(({ slot, kind, text }) => {
-    const { ok, reasons } = checkLine({ text, kind, language, attitude });
+    const { ok, reasons } = checkLine({
+      text,
+      kind,
+      language,
+      attitude,
+      ...(treat === undefined ? {} : { treat }),
+    });
     return ok ? [] : [{ slot, kind, reasons }];
   });
 }

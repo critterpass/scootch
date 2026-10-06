@@ -1,0 +1,110 @@
+[
+  {
+    "id": "vi-01",
+    "text": "gửi email cho nha sĩ",
+    "bodies": ["tooth", "envelope"],
+    "workModes": ["email"]
+  },
+  {
+    "id": "vi-02",
+    "text": "gọi nha sĩ đặt lịch trám răng",
+    "bodies": ["tooth", "phone"],
+    "workModes": ["calling", "meeting"]
+  },
+  {
+    "id": "vi-03",
+    "text": "nộp tờ khai thuế",
+    "bodies": ["receipt", "scroll"],
+    "workModes": ["money", "paperwork"]
+  },
+  {
+    "id": "vi-04",
+    "text": "giặt một mẻ đồ",
+    "bodies": ["sock"],
+    "workModes": ["laundry"]
+  },
+  {
+    "id": "vi-05",
+    "text": "sửa lỗi văng app ở trang cài đặt",
+    "bodies": ["beetle"],
+    "workModes": ["coding"]
+  },
+  {
+    "id": "vi-06",
+    "text": "trả lời lá thư của phường",
+    "bodies": ["envelope", "scroll"],
+    "workModes": ["writing", "paperwork", "email"]
+  },
+  {
+    "id": "vi-07",
+    "text": "nhắn lại Vy vụ thứ sáu",
+    "bodies": ["bubble"],
+    "workModes": ["texting"]
+  },
+  {
+    "id": "vi-08",
+    "text": "chà gạch nhà tắm",
+    "bodies": ["slime"],
+    "workModes": ["cleaning"]
+  },
+  {
+    "id": "vi-09",
+    "text": "lau bụi kệ sách",
+    "bodies": ["dust"],
+    "workModes": ["dusting", "cleaning"]
+  },
+  {
+    "id": "vi-10",
+    "text": "thay chậu cho cây húng quế",
+    "bodies": ["weed"],
+    "workModes": ["plants"]
+  },
+  {
+    "id": "vi-11",
+    "text": "nấu cơm tối nay",
+    "bodies": ["pot"],
+    "workModes": ["cooking"]
+  },
+  {
+    "id": "vi-12",
+    "text": "lắp cái tủ quần áo mới mua",
+    "bodies": ["bolt"],
+    "workModes": ["diy"]
+  },
+  {
+    "id": "vi-13",
+    "text": "đặt lịch đăng kiểm xe",
+    "bodies": ["clock", "bolt"],
+    "workModes": ["meeting", "research", "calling"]
+  },
+  {
+    "id": "vi-14",
+    "text": "ôn chương bốn để thi",
+    "bodies": ["note", "scroll"],
+    "workModes": ["studying", "reading"]
+  },
+  {
+    "id": "vi-15",
+    "text": "đem con mèo đi cắt tỉa lông",
+    "bodies": ["hairball"],
+    "workModes": ["pets"]
+  },
+  {
+    "id": "vi-16",
+    "text": "trả lại đôi giày đặt trên mạng",
+    "bodies": ["box"],
+    "workModes": ["parcel"]
+  },
+  {
+    "id": "vi-17",
+    "text": "đi ngủ trước mười hai giờ",
+    "bodies": ["pillow"],
+    "workModes": ["rest"]
+  },
+  {
+    "id": "vi-18",
+    "text": "pha ly trà rồi ngồi nghỉ một chút",
+    "bodies": ["kettle"],
+    "workModes": ["rest", "selfcare"]
+  }
+]

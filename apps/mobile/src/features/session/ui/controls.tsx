@@ -58,7 +58,7 @@ export function Tag({ label, inks }: { readonly label: string; readonly inks: Se
   return (
     <View style={[styles.capsule, styles.tag, lift(inks)]}>
       <View style={[styles.dot, { backgroundColor: inks.tomato }]} />
-      <SessionText face="caption" color={inks.ink} numberOfLines={1} style={styles.tagLabel}>
+      <SessionText face="caption" color={inks.ink} style={styles.tagLabel}>
         {label}
       </SessionText>
     </View>

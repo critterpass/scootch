@@ -36,6 +36,10 @@ import { taskCreateRequestSchema, taskCreateResponseSchema } from './ai-task-cal
 import {
   taskCreateLinesRequestSchema,
   taskCreateLinesResponseSchema,
+  taskCreateNameRequestSchema,
+  taskCreateNameResponseSchema,
+  taskCreatePackRequestSchema,
+  taskCreatePackResponseSchema,
   taskCreateStartRequestSchema,
   taskCreateStartResponseSchema,
 } from './ai-task-stages';
@@ -61,6 +65,15 @@ export const aiRoutes = {
   'task.create_lines': {
     request: taskCreateLinesRequestSchema,
     response: taskCreateLinesResponseSchema,
+  },
+  // Stage two in two parts: the name and the hatch line first, then the rest of the pack.
+  'task.create_name': {
+    request: taskCreateNameRequestSchema,
+    response: taskCreateNameResponseSchema,
+  },
+  'task.create_pack': {
+    request: taskCreatePackRequestSchema,
+    response: taskCreatePackResponseSchema,
   },
   'task.shrink': { request: taskShrinkRequestSchema, response: taskShrinkResponseSchema },
   'task.bargain': { request: taskBargainRequestSchema, response: taskBargainResponseSchema },

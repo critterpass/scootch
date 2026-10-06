@@ -165,7 +165,7 @@ export function ZooScreen({ model, actions }: { model: ZooModel; actions: ZooAct
                 </View>
               ) : null}
             </View>
-            <SessionText face="caption" color={palette.ink} numberOfLines={2}>
+            <SessionText face="caption" color={palette.ink}>
               {monster.name}
             </SessionText>
             <SessionText face="caption" color={palette.muted}>

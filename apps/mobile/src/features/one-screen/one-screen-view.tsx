@@ -80,8 +80,8 @@ export interface OneScreenViewProps {
   /** Scootch's sentence, from the day store or the offline pack; `null` when he says nothing. */
   readonly line: string | null;
   readonly offline: boolean;
-  /** Opens the developer tools in the developer app. Unset, the more button does nothing yet. */
-  readonly onDeveloperTools?: () => void;
+  /** Opens Settings. Unset, the more button is drawn and does nothing. */
+  readonly onMore?: () => void;
   /** Opens the world. Unset, the button is drawn and does nothing. */
   readonly onWorld?: () => void;
   /** The person pulled the screen down on purpose: the drawer's own gesture. */
@@ -100,7 +100,7 @@ export function OneScreenView({
   attitude,
   line,
   offline,
-  onDeveloperTools,
+  onMore,
   onWorld,
   onPull,
   overlay = null,
@@ -227,7 +227,7 @@ export function OneScreenView({
         <Corners
           offline={offline}
           {...(onWorld ? { onWorld } : {})}
-          {...(onDeveloperTools ? { onDeveloperTools } : {})}
+          {...(onMore ? { onMore } : {})}
         />
         <ScrollView
           contentContainerStyle={styles.content}

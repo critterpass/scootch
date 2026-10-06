@@ -4,20 +4,44 @@ appId: app.scootch.dev
 # tapping twice. It ends on the first screen of the reveal. It carries on from the step before it, on the one screen with today's one thing
 # set; nothing is cleared and nothing is seeded. A flow cannot wait ten minutes, so it turns on the
 # developer control that ends the running session's timer in a few seconds. That control is reached
-# the way a developer reaches it, through the "Developer tools" entry, and is not in the store app.
+# the way a developer reaches it, through the "Developer tools" row of Settings, and is not in the
+# store app.
 - extendedWaitUntil:
     visible:
       id: 'one-action'
     timeout: 90000
+# Finishing with two taps is a setting: Settings, then "Finish with".
+- tapOn:
+    id: 'more-button'
+- extendedWaitUntil:
+    visible:
+      id: 'settings'
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: 'settings-finish-with'
+    direction: DOWN
+- tapOn:
+    id: 'settings-finish-with'
+- extendedWaitUntil:
+    visible:
+      id: 'finish-with-double_tap'
+    timeout: 15000
+- tapOn:
+    id: 'finish-with-double_tap'
+- tapOn:
+    id: 'finish-with-close'
+# The developer tools are the last row of Settings in the developer app.
+- scrollUntilVisible:
+    element:
+      id: 'developer-tools'
+    direction: DOWN
 - tapOn:
     id: 'developer-tools'
 - extendedWaitUntil:
     visible:
       id: 'dev-short-session'
     timeout: 15000
-# Finishing with two taps is a setting. Until the Settings screen exists its switch lives here.
-- tapOn:
-    id: 'dev-finish-tap-twice'
 - tapOn:
     id: 'dev-short-session'
 - scrollUntilVisible:

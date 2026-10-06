@@ -93,6 +93,8 @@ describe('the house rules', () => {
         '/care',
         '/characters',
         '/developer-tools',
+        '/finish-with',
+        '/helplines',
         '/plus',
         '/plus/last-day',
         '/plus/lifetime',
@@ -100,11 +102,13 @@ describe('the house rules', () => {
         '/plus/records',
         '/plus/renewal-off',
         '/plus/trial-started',
+        '/privacy',
         '/record',
         '/registry',
         '/registry/[capture]',
         '/reveal',
         '/session',
+        '/settings',
         '/shelf',
         '/world',
         '/zoo',
@@ -141,7 +145,9 @@ describe('the house rules', () => {
   it('reaches no selling route from first launch, a session, the reveal or the care screens', () => {
     const quiet = [
       ...filesUnder(path.join(SOURCE, 'features/launch')),
-      ...['/session', '/reveal', '/care'].flatMap((route) => closureOf(routes.get(route) ?? '')),
+      ...['/session', '/reveal', '/care', '/helplines'].flatMap((route) =>
+        closureOf(routes.get(route) ?? ''),
+      ),
     ];
     expect(quiet.length).toBeGreaterThan(20);
     expect(quiet.filter((file) => waysIn(file).length > 0).map(relative)).toEqual([]);

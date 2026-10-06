@@ -10,7 +10,7 @@ import type { ChoiceQuestion } from '../jev';
 const oneThingNote = 'The state is one thing a person wants to do, in English or Vietnamese.';
 
 export const workModeQuestion = {
-  instructions: `${oneThingNote} Which kind of activity is it?`,
+  instructions: `${oneThingNote} Which kind of activity will the person be doing while they do it? Go by the action itself (writing an email, making a call, scrubbing, filling in a form), not by who or what it is about: emailing the dentist is email, ringing the dentist is calling.`,
   criteria: {
     email: 'Writing or answering email',
     writing: 'Writing text: an essay, a report, a letter, a post',
@@ -45,29 +45,39 @@ export const workModeQuestion = {
   },
 } as const satisfies ChoiceQuestion<WorkMode>;
 
+/**
+ * The monster bodies, each with what it is and what it stands for. The first words are the object
+ * the art draws (`packages/art/src/monsters/`); the rest are the tasks it fits.
+ */
 export const bodyTypeQuestion = {
-  instructions: `${oneThingNote} Which object fits it best as a small cartoon creature?`,
+  instructions: `${oneThingNote} The app draws the task as a small cartoon creature shaped like an everyday object. Which object fits it? Prefer the object the task literally names or is about: the dentist is a tooth, taxes are a receipt, laundry is a sock, a software bug is a beetle, a letter or an email is an envelope. Choose the paint splat only when no other object fits at all.`,
   criteria: {
-    tooth: 'Dentist, doctor, a health appointment',
-    envelope: 'Email, letters, post',
-    bubble: 'A message, a chat, a reply to someone',
-    receipt: 'Money, bills, taxes, expenses',
-    scroll: 'Forms, documents, long writing, official paperwork',
-    slime: 'A bathroom, mould, something sticky to scrub',
-    sock: 'Laundry and clothes',
-    dust: 'Dusting, vacuuming, general tidying',
-    phone: 'A phone call',
-    weed: 'Plants and gardens',
-    beetle: 'Code, bugs, technical fixes',
-    pot: 'Cooking, dishes, the kitchen',
-    bolt: 'Repairs, tools, assembling, vehicles',
-    clock: 'Scheduling, bookings, anything with a date',
-    kettle: 'A break, a drink, self-care',
-    splat: 'A spill, a mess, paint or art',
-    note: 'Studying, notes, reading, music',
-    hairball: 'Pets and grooming',
-    box: 'Parcels, shopping, decluttering, packing',
-    pillow: 'Sleep, the bed, rest',
+    tooth:
+      'A tooth: the dentist, teeth, and by extension a doctor, a clinic or a health appointment',
+    envelope:
+      'An envelope: an email, a letter, the post, an inbox, something to send or answer in writing',
+    bubble: 'A speech bubble: a text message, a chat, a reply to a friend, a conversation to have',
+    receipt:
+      'A till receipt: taxes, bills, invoices, expenses, refunds, banking, anything about money',
+    scroll:
+      'A paper scroll: forms, applications, contracts, reports, essays, a CV, official paperwork',
+    slime:
+      'A blob of slime: mould, grime, a bathroom, a drain, a fridge, something sticky or smelly to scrub',
+    sock: 'A sock: laundry, clothes, ironing, folding, a wardrobe',
+    dust: 'A dust bunny: dusting, vacuuming, sweeping, tidying a room',
+    phone: 'A telephone: a phone call to make or return, a voicemail',
+    weed: 'A weed: plants, watering, the garden, the lawn',
+    beetle: 'A beetle: a software bug, code, a computer or technical problem to fix',
+    pot: 'A cooking pot: cooking, meal prep, washing up, the kitchen',
+    bolt: 'A bolt: repairs, tools, assembling furniture, a car or a bike',
+    clock: 'A clock: booking, scheduling, a calendar, a reminder or an appointment to arrange',
+    kettle: 'A kettle: a break, a drink, a moment of looking after yourself',
+    splat:
+      'A paint splat: paint, art, a spill or a stain. Also the last resort when no other object fits',
+    note: 'A music note: music practice, an instrument, singing; also studying, revising and reading',
+    hairball: 'A hairball: pets, the vet, grooming, a haircut',
+    box: 'A cardboard box: parcels, returns, deliveries, shopping, packing, decluttering, recycling',
+    pillow: 'A pillow: sleep, the bed, bedtime, changing the sheets',
   },
 } as const satisfies ChoiceQuestion<MonsterBodyType>;
 
@@ -100,6 +110,13 @@ export const energyQuestion = {
 
 /** A label is used only when its probability reaches this; otherwise the quiet default. */
 export const labelConfidenceAtLeast = 0.5;
+/**
+ * A work mode or a body is one of twenty or thirty, and a task often fits two (a dentist email is
+ * a tooth and an envelope), so the likeliest is used from this probability up.
+ */
+export const oneOfManyAtLeast = 0.3;
+/** The body that fits nothing in particular. It is used only when no other body fits. */
+export const genericBody: MonsterBodyType = 'splat';
 /** Sharing is offered only when the decision model is this sure the task is not private. */
 export const shareableAtLeast = 0.7;
 
@@ -129,9 +146,25 @@ async function ask<Option extends string>(
 }
 
 /** The choice when the decision model is sure enough of it, otherwise nothing. */
-function sure<Option extends string>(answer: Answer<Option> | null): Option | null {
+function sure<Option extends string>(
+  answer: Answer<Option> | null,
+  atLeast = labelConfidenceAtLeast,
+): Option | null {
   if (answer === null) return null;
-  return answer.probabilities[answer.choice] >= labelConfidenceAtLeast ? answer.choice : null;
+  return answer.probabilities[answer.choice] >= atLeast ? answer.choice : null;
+}
+
+/**
+ * The body for a task. A literal fit wins over the generic body: the likeliest body that is not
+ * the generic one is used when it is likely enough, and the generic body only when nothing else
+ * is. No answer at all gives nothing, and the caller picks.
+ */
+export function bodyFrom(answer: Answer<MonsterBodyType> | null): MonsterBodyType | null {
+  if (answer === null) return null;
+  const literal = (Object.entries(answer.probabilities) as [MonsterBodyType, number][])
+    .filter(([body]) => body !== genericBody)
+    .sort((a, b) => b[1] - a[1])[0];
+  return literal !== undefined && literal[1] >= oneOfManyAtLeast ? literal[0] : genericBody;
 }
 
 /** The four labels of the one thing, asked side by side. */
@@ -143,8 +176,8 @@ export async function labelsFor(context: DecideContext, oneThing: string): Promi
     ask(context, { ...sharePrivateQuestion, text: oneThing }),
   ]);
   return {
-    workMode: sure(workMode),
-    bodyType: sure(bodyType),
+    workMode: sure(workMode, oneOfManyAtLeast),
+    bodyType: bodyFrom(bodyType),
     fitsTenMinutes:
       size === null
         ? defaultLabels.fitsTenMinutes

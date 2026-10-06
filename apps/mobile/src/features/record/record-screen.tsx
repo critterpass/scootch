@@ -61,7 +61,7 @@ function CreditRow({ row, lit, language }: { row: RecordRow; lit: boolean; langu
         <SessionText face="action" color={palette.ink}>
           {instrument}
         </SessionText>
-        <SessionText face="caption" color={palette.muted} numberOfLines={2}>
+        <SessionText face="caption" color={palette.muted}>
           {detail}
         </SessionText>
       </View>

@@ -33,14 +33,24 @@ import {
   systemTimers,
 } from '../effects/native-adapters';
 import { revenueCatPurchases } from '../features/plus/revenuecat-port';
+import {
+  nativeSharedFiles,
+  nativeSharedStore,
+  skiaMonsterPainter,
+} from '../features/surfaces/native-surface-ports';
+import { createSurfaceSync } from '../features/surfaces/surface-sync';
+import { SurfaceSyncHost } from '../features/surfaces/surface-sync-host';
 import { useLanguage } from '../i18n/i18n-provider';
 
+import { DataToolsContext, createAppDataTools } from './data-tools';
 import { createDayStore, effectSwitches, type DayStore } from './day-store';
 import type { DayEvent, DayState } from './day-types';
 import { lineFor } from './lines';
 import { PlusContext } from './plus-context';
 import { createPlusRuntime, readOfferFacts } from './plus-runtime';
 import { SessionRelaunch } from './session-relaunch';
+
+export { useDataTools } from './data-tools';
 
 /** The day store on the real phone: its database, the API, and the native effects. */
 function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
@@ -80,8 +90,13 @@ function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
     voice: () => ({ language: language(), attitude: store.getState().settings.attitude }),
     offerFacts: () => readOfferFacts(repositories, store.getState()),
   });
+  // The daily limit follows what the store last said, through the domain's entitlement rules.
+  const unlocked = () => plus.store.getState().unlocked.plus;
+  const data = createAppDataTools({ db, http, repositories });
   const store: DayStore = createDayStore({
     repositories,
+    // A finished thing is backed up at once; a failed upload is tried again within the hour.
+    onFinished: () => void data.backup.afterFinish().catch(() => undefined),
     clock: systemClock,
     timeZone,
     nextId: randomUUID,
@@ -92,10 +107,20 @@ function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
     },
     runner,
     phoneLanguage: language,
-    // The daily limit follows what the store last said, through the domain's entitlement rules.
-    plus: () => plus.store.getState().unlocked.plus,
+    plus: unlocked,
   });
-  return { store, motion, cues, plus };
+  // The widgets, the Live Activity and the control read today from the App Group.
+  const surfaces = createSurfaceSync({
+    store,
+    repositories,
+    shared: nativeSharedStore(),
+    files: nativeSharedFiles(),
+    painter: skiaMonsterPainter,
+    plus: unlocked,
+    now: () => systemClock.now(),
+    timeZone,
+  });
+  return { store, motion, cues, data, surfaces, plus };
 }
 
 const DayStoreContext = createContext<DayStore | null>(null);
@@ -113,7 +138,7 @@ export function DayStoreProvider({ children }: { readonly children: ReactNode })
   const [app] = useState(() => createAppDayStore(db, () => languageNow.current));
 
   useEffect(() => {
-    const { store, motion, cues, plus } = app;
+    const { store, motion, cues, data, plus } = app;
     const send = (event: DayEvent) => void store.dispatch(event).catch(() => undefined);
     // What was last known about Plus is read before today is built, so the daily limit is right
     // with no connection; the store is asked afterwards and on every return to the app.
@@ -125,8 +150,9 @@ export function DayStoreProvider({ children }: { readonly children: ReactNode })
       .load()
       .then(() => store.start())
       .then(() => cues.warm())
-      .then(() => plus.refresh())
-      .catch(() => undefined);
+      .then(() => void plus.refresh().catch(() => undefined))
+      .catch(() => undefined)
+      .then(() => data.keepUp());
 
     void AccessibilityInfo.isReduceMotionEnabled()
       .then((reduced) => {
@@ -140,6 +166,7 @@ export function DayStoreProvider({ children }: { readonly children: ReactNode })
       if (next === 'active') {
         send({ type: 'app_foregrounded' });
         void plus.refresh();
+        void data.keepUp();
       }
       if (next === 'background') send({ type: 'app_backgrounded' });
     });
@@ -170,8 +197,11 @@ export function DayStoreProvider({ children }: { readonly children: ReactNode })
     <DayStoreContext.Provider value={app.store}>
       <PlusContext.Provider value={app.plus}>
         <CueContext.Provider value={playCue}>
-          <SessionRelaunch store={app.store} />
-          {children}
+          <DataToolsContext.Provider value={app.data}>
+            <SessionRelaunch store={app.store} />
+            <SurfaceSyncHost store={app.store} sync={app.surfaces} />
+            {children}
+          </DataToolsContext.Provider>
         </CueContext.Provider>
       </PlusContext.Provider>
     </DayStoreContext.Provider>
@@ -199,6 +229,7 @@ export function useToday() {
   const state = useDayState();
   const { ready, localDate, today, morning, monster, monsterPending } = state;
   const { taskCall, notice, heardDeadlines, settings, pick, energyNeeded, oneMore } = state;
+  const { modelDown, reminderAt } = state;
   return useMemo(
     () => ({
       ready,
@@ -214,6 +245,8 @@ export function useToday() {
       pick,
       energyNeeded,
       oneMore,
+      modelDown,
+      reminderAt,
     }),
     [
       ready,
@@ -229,6 +262,8 @@ export function useToday() {
       pick,
       energyNeeded,
       oneMore,
+      modelDown,
+      reminderAt,
     ],
   );
 }

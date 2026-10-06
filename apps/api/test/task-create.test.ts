@@ -14,6 +14,8 @@ import {
   passFixture,
   pickAnswers,
   pickOutputOf,
+  rewriteAnswers,
+  whenRewriting,
   writerAnswers,
   writerCalls,
 } from './task-create-support';
@@ -39,6 +41,14 @@ function models(writes: readonly unknown[], picks: readonly unknown[] = [picked]
   return pickAnswers(picks, writerAnswers(writes));
 }
 
+/** The writer leaking a banned hatch line, and answering `again` when asked for it once more. */
+function leaks(again: string) {
+  return pickAnswers(
+    [picked],
+    rewriteAnswers([{ 'lines.hatch': again }], writerAnswers([leaking])),
+  );
+}
+
 async function bodyOf(response: Response): Promise<TaskCreateResponse> {
   expect(response.status).toBe(200);
   return taskCreateResponseSchema.parse(await response.json());
@@ -54,18 +64,21 @@ afterEach(() => {
 });
 
 describe('POST /v1/task-create', () => {
-  it('answers an ordinary ramble with everything the day needs, from one pick and one writer call', async () => {
+  it('answers an ordinary ramble with everything the day needs: one pick, the name, then the pack in two halves', async () => {
     const { response, doubles, token } = await createTask({
       jev: jevDecides(ordinary),
       deepseek: models([written]),
     });
 
     expect(await bodyOf(response)).toEqual(passFixture.response);
-    expect(writerCalls(doubles)).toHaveLength(1);
+    expect(
+      writerCalls(doubles).map((sent) => (sent['tools'] as { name: string }[])[0]?.name),
+    ).toEqual(['write_name', 'write_pack_1', 'write_pack_2']);
     expect(response.headers.get('X-Voice-Check')).toBe('attempts=1; replaced=0');
     // The writer is given the one thing, never the text it came from.
     expect(JSON.stringify(writerCalls(doubles))).not.toMatch(/passport|Japan/);
-    // One ledger row per model call: the screen, the pick, the writer and the four labels.
+    // One ledger row per model call: the screen's two questions, the pick, the three writer calls
+    // and the four labels.
     const usage = await env.DB.prepare(
       'SELECT model FROM ai_usage WHERE route = ? AND device_hash = ?',
     )
@@ -73,8 +86,8 @@ describe('POST /v1/task-create', () => {
       .all<{ model: string }>();
     expect(usage.results.map(({ model }) => model).sort()).toEqual([
       'deepseek-flash',
-      'deepseek-v4-pro',
-      ...Array<string>(5).fill('jev-1.13.0'),
+      ...Array<string>(3).fill('deepseek-v4-pro'),
+      ...Array<string>(6).fill('jev-1.13.0'),
     ]);
   });
 
@@ -148,7 +161,7 @@ describe('POST /v1/task-create', () => {
   it('asks again for only the line that failed the voice check, with the reason and not the line', async () => {
     const { response, doubles } = await createTask({
       jev: jevDecides(ordinary),
-      deepseek: models([leaking, { 'lines.hatch': written.hatch }]),
+      deepseek: leaks(written.hatch),
     });
 
     expect(await bodyOf(response)).toEqual(passFixture.response);
@@ -165,11 +178,11 @@ describe('POST /v1/task-create', () => {
   it('replaces a line that fails twice with an offline line and keeps every other line', async () => {
     const { response, doubles } = await createTask({
       jev: jevDecides(ordinary),
-      deepseek: models([leaking, { 'lines.hatch': bannedHatch }]),
+      deepseek: leaks(bannedHatch),
     });
 
     const body = await bodyOf(response);
-    expect(writerCalls(doubles)).toHaveLength(2);
+    expect(writerCalls(doubles)).toHaveLength(4);
     expect(response.headers.get('X-Voice-Check')).toBe('attempts=2; replaced=1');
     expect(body).toEqual({
       ...passFixture.response,
@@ -178,13 +191,9 @@ describe('POST /v1/task-create', () => {
   });
 
   it('keeps the first answer, with an offline line, when the line cannot be asked for again', async () => {
-    let writes = 0;
     const { response } = await createTask({
       jev: jevDecides(ordinary),
-      deepseek: pickAnswers([picked], (request) => {
-        writes += 1;
-        return writes === 1 ? writerAnswers([leaking])(request) : answersStatus(400)(request);
-      }),
+      deepseek: pickAnswers([picked], whenRewriting(answersStatus(400), writerAnswers([leaking]))),
     });
 
     expect(await bodyOf(response)).toEqual({
@@ -204,7 +213,8 @@ describe('POST /v1/task-create', () => {
     });
 
     const body = await bodyOf(response);
-    expect(writerCalls(doubles).length).toBeLessThanOrEqual(2);
+    // The name and the two halves of the pack, each tried at most twice; nothing is asked again.
+    expect(writerCalls(doubles).length).toBeLessThanOrEqual(6);
     expect(body).toMatchObject({
       verdict: 'pass',
       oneThing: passFixture.response.oneThing,
@@ -236,10 +246,7 @@ describe('POST /v1/task-create', () => {
     expect(await refused.clone().text()).not.toContain('plumber');
 
     // Every path that logs: an unscreened text, a failed check, a failed rewrite, a refused pick.
-    await createTask({
-      jev: jevDecides(ordinary),
-      deepseek: models([leaking, { 'lines.hatch': bannedHatch }]),
-    });
+    await createTask({ jev: jevDecides(ordinary), deepseek: leaks(bannedHatch) });
     await createTask({ jev: jevDecides(connectionDrops), deepseek: timesOut });
     await createTask({ jev: jevDecides(ordinary), deepseek: pickAnswers([picked], timesOut) });
     await createTask({

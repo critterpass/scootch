@@ -12,8 +12,10 @@ import {
 import { defaultSettings } from '../data/repositories/settings';
 import type { EffectSwitches, ScreenSink } from '../effects/adapters';
 
+import { askReminder, crisisInWords, setSeriousAside } from './care-flow';
 import { DEFAULT_USUAL_START, dayNotifications, usualStart } from './day-notifications';
 import {
+  PASSIVE_EVENTS,
   isPickEvent,
   type DayContext,
   type DayEvent,
@@ -25,7 +27,8 @@ import { applyPickEvent } from './pick-events';
 import { drawerEvent, setBargainedSession } from './pick-flow';
 import { applySession, resolveThought, restoreSession } from './session-flow';
 import { closeSession, shortenSession, turnWorkingLine } from './session-moments';
-import { askAnother, fetchPending, resolveTranscript, submitText } from './task-flow';
+import { applySurfaceAction, noticePickUp } from './surface-actions';
+import { askAnother, beFunny, fetchPending, resolveTranscript, submitText } from './task-flow';
 
 export interface DayStore {
   readonly getState: () => DayState;
@@ -55,6 +58,8 @@ const NOT_READY: DayState = {
   monsterPending: false,
   taskCall: 'idle',
   notice: null,
+  modelDown: false,
+  reminderAt: null,
   heardDeadlines: [],
   line: null,
   burst: null,
@@ -129,8 +134,19 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
       ? ((await repositories.monsters.where('taskId', task.id))[0] ?? null)
       : null;
     const items = await repositories.drawerItems.all();
+    // The reminder belongs to today's serious task while it is still only set, and to nothing else.
+    const asked = await repositories.careReminder.read();
+    const reminderAt =
+      asked !== null &&
+      today.kind === 'serious' &&
+      today.session === null &&
+      asked.taskId === task?.id
+        ? asked.at
+        : null;
+    if (asked !== null && reminderAt === null) await repositories.careReminder.clear();
     set({
       today,
+      reminderAt,
       // Asked once a day, before the first thing is picked.
       energyNeeded: (day?.energy ?? null) === null && tasks.length === 0,
       // The ask stays open only while the day is finished and the daily limit has a start left.
@@ -153,8 +169,12 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
         settings,
         localDate,
         timeZone: deps.timeZone(),
-        lastOpenedDay: memory.lastOpenedDay,
         usualStart: usual,
+        // Soft while something heavy is around: a serious task today, or one waiting in the drawer.
+        heavyToday:
+          tasks.some((one) => one.screen === 'serious') ||
+          items.some((one) => one.screen === 'serious'),
+        reminderAt,
       }),
     );
   }
@@ -203,6 +223,9 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
   }
 
   async function handle(event: DayEvent): Promise<void> {
+    // A crisis day takes no events but the app's own comings and goings; nothing overrides it.
+    if (memory.state.today.kind === 'crisis' && !PASSIVE_EVENTS.includes(event.type)) return;
+    if (await crisisInWords(ctx, event)) return;
     if (isPickEvent(event)) return applyPickEvent(ctx, event);
     switch (event.type) {
       case 'text_submitted':
@@ -238,12 +261,27 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
       }
       case 'entitlement_changed':
         return refresh();
+      case 'be_funny_asked':
+        return beFunny(ctx);
+      case 'serious_set_aside':
+        await resolveTranscript(ctx);
+        return setSeriousAside(ctx);
+      case 'reminder_asked':
+        return askReminder(ctx);
       case 'settings_changed':
         await repositories.settings.write(event.changes);
         set({ settings: await repositories.settings.read(deps.phoneLanguage()) });
         return refresh();
+      case 'storage_replaced':
+        return rebuild();
       case 'connection_returned':
         return fetchPending(ctx);
+      case 'surface_action':
+        return applySurfaceAction(ctx, event.action);
+      case 'surface_request_taken':
+        return set({ surfaceRequest: null });
+      case 'opened_mid_session':
+        return noticePickUp(ctx);
       case 'app_backgrounded':
         return applySession(ctx, { type: 'backgrounded' });
       case 'app_foregrounded': {

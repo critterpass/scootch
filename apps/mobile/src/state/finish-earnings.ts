@@ -8,6 +8,7 @@ import {
 } from '@scootch/domain';
 
 import type { DayContext } from './day-types';
+import { showsComedy } from './shows-comedy';
 
 /** A number from 0 up to 1 that depends on every character of `text` and on nothing else. */
 function fractionOf(text: string): number {
@@ -65,7 +66,7 @@ export async function persistFinishEarnings(
   await repositories.transaction(async () => {
     for (const earning of earned) {
       if (earning.kind === 'card') {
-        if (!monster || monster.number !== null) continue;
+        if (!monster || monster.number !== null || !showsComedy(task, 'card')) continue;
         await repositories.monsters.put({
           ...monster,
           caughtAt: isoFromInstant(ctx.now()),

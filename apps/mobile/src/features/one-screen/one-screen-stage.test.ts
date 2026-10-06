@@ -35,8 +35,9 @@ describe('the one screen, from the day', () => {
     const app = await stagedPhone(server);
     await app.say(seriousFixture.request.text);
 
+    // It is not offered, revealed or bargained over: its own quiet screen is shown at once.
     const offered = stage(app.store);
-    expect(offered).toMatchObject({ kind: 'one_thing', quiet: true, reveal: null });
+    expect(offered).toMatchObject({ kind: 'task_set', quiet: true, monster: null });
     expect(server.lineCalls).toBe(0);
     // Its only words are the plain pack the call wrote for it.
     expect(app.task().lines).toEqual(seriousFixture.response.lines);
