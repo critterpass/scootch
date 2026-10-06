@@ -62,9 +62,10 @@ export class Pen {
     centre: Point,
     grainWidth: number,
     grainHeight: number,
+    print: { readonly offset?: number; readonly grains?: number } = {},
   ): void {
-    const offset = 8;
-    const grains = 90;
+    const offset = print.offset ?? 8;
+    const grains = print.grains ?? 90;
     const outline = this.jitter(pts, 0.38);
     const path = closedPath(outline);
     this.commands.push({ op: 'fill', path, color, alpha: 1, rule: 'nonzero' });
