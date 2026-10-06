@@ -42,6 +42,8 @@ export function TableStripView({ seats, you, workMode, reconnecting }: TableStri
               mood="working"
               workMode={seat.userId === you ? workMode : null}
               reducedMotion={reducedMotion}
+              ownLoop={false}
+              seed={seat.userId}
               size={36}
             />
           </View>

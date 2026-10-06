@@ -46,6 +46,18 @@ const mustPass: readonly string[] = [
   'Vẫn chưa tới giờ hẹn. Mình ngồi ngó cái điện thoại chút.',
   'Con quái đọc chùa báo của hàng xóm mỗi sáng.',
   'Tui sợ muốn chết cái máy hút bụi. Bạn cầm nó giùm.',
+  // "nếp nhăn" on cloth and paper is the task's own noun.
+  'Cái quần jean đang kê khai thêm nếp nhăn. Bàn ủi nóng rồi.',
+  'Áo sơ mi có nếp nhăn như bản đồ. Ủi một tay áo thôi.',
+  'Tấm ga giường đầy nếp nhăn đang gọi cái bàn ủi.',
+  'Cái rèm cửa khoe nếp nhăn mới. Tui đứng xem cho vui.',
+  'Tờ giấy khai sinh có một nếp nhăn ngay góc. Vuốt nhẹ là hết.',
+  'Bộ đồng phục xếp nếp nhăn thành hàng chờ bàn là.',
+  'Nếp nhăn trên áo dài đang họp chợ. Cắm bàn ủi đi.',
+  'Cái khăn trải bàn giấu nếp nhăn dưới lọ hoa.',
+  'Váy cưới của chị Hai còn một nếp nhăn ở gấu. Ủi chỗ đó thôi.',
+  'Nếp nhăn của cái áo khoác đang ngủ trong tủ. Lấy móc ra trước.',
+  'Bàn ủi hứa xử hết nếp nhăn trong ba đường.',
 ];
 
 const mustFail: readonly (readonly [string, CheckReason])[] = [
@@ -91,6 +103,18 @@ const mustFail: readonly (readonly [string, CheckReason])[] = [
   ['Không làm là tui tự xoá mình đó.', 'topic_harm'],
   ['Đám tang của cái bóng đèn tổ chức ngoài hiên.', 'topic_harm'],
   ['Con quái ăn xin trước cửa tủ lạnh.', 'topic_hardship'],
+  // "nếp nhăn" on a face, or with nothing to say whose it is, stays about a body.
+  ['Nếp nhăn trên trán bạn nhiều hơn số email trong hộp thư.', 'topic_bodies'],
+  ['Mẹ có thêm nếp nhăn vì chờ bạn gọi.', 'topic_bodies'],
+  ['Kem chống nếp nhăn nằm cạnh tờ hoá đơn.', 'topic_bodies'],
+  ['Bạn có nếp nhăn mới kìa, đi ngủ sớm đi.', 'topic_bodies'],
+  ['Nếp nhăn quanh mắt tui sâu thêm theo từng tờ khai.', 'topic_bodies'],
+  ['Soi gương đếm nếp nhăn rồi thì mở email.', 'topic_bodies'],
+  ['Da mặt đầy nếp nhăn như cái hộp thư này.', 'topic_bodies'],
+  ['Nếp nhăn của bà ngoại kể chuyện hay hơn cái tủ lạnh.', 'topic_bodies'],
+  ['Con quái chê bạn già, có nếp nhăn ở đuôi mắt.', 'topic_bodies'],
+  ['Xoá nếp nhăn trước, rửa chén sau, con quái nói vậy.', 'topic_bodies'],
+  ['Nếp nhăn nhiều lên rồi đó, tại cái tờ khai.', 'topic_bodies'],
 ];
 
 const check = (text: string) =>

@@ -5,6 +5,7 @@ import {
   type TaskCreateRequest,
   type TaskCreateResponse,
   type TaskCreateStartPass,
+  type TaskJudge,
   type TaskLabels,
 } from '@scootch/domain';
 import { checkLine, offlinePacks, wordsOf } from '@scootch/voice';
@@ -50,20 +51,33 @@ export type TaskStart =
       readonly response: Exclude<TaskCreateResponse, { verdict: 'pass' }>;
     };
 
+type Screened = {
+  readonly verdict: ScreenVerdict;
+  /** False for a text nobody trusted has judged: "be funny" lifts nothing then. */
+  readonly screened: boolean;
+  /** Who answered, as the screen route would say it, for the phone to ask again when it must. */
+  readonly judge: TaskJudge;
+};
+
 /** The screen's verdict. When no model answers, nothing was judged and nothing is funny. */
-async function screen(
-  context: TaskCreateContext,
-  text: string,
-): Promise<{ verdict: ScreenVerdict; screened: boolean }> {
+async function screen(context: TaskCreateContext, text: string): Promise<Screened> {
   try {
-    const { verdict } = await screenText(decideContext(context), text);
-    return { verdict, screened: true };
+    const { verdict, answeredBy, reason } = await screenText(decideContext(context), text);
+    return {
+      verdict,
+      screened: reason !== 'unscreened',
+      judge: reason === undefined ? { answeredBy } : { answeredBy, reason },
+    };
   } catch (error) {
     console.error('task not screened', {
       requestId: context.requestId,
       reason: error instanceof ApiError ? error.code : 'internal',
     });
-    return { verdict: 'serious' as const, screened: false };
+    return {
+      verdict: 'serious',
+      screened: false,
+      judge: { answeredBy: 'default', reason: 'unscreened' },
+    };
   }
 }
 
@@ -131,7 +145,9 @@ function held<T>(work: Promise<T>): Promise<T> {
  * Stage one: what the screen shows first. The care screen, the fast pick and the energy guess all
  * start at once, and nothing is answered until the screen has: a crisis or a text that is not a
  * note answers with the verdict alone, and a heavy task with plain words and no monster, exactly as if nothing else had run.
- * "It's fine, be funny" lifts a serious verdict only when a model really judged the text.
+ * "It's fine, be funny" lifts a serious verdict only when a judge that can be trusted gave it:
+ * never a text nobody screened, one only the fallback cleared, or one whose marks were not read.
+ * Every answer says who judged (`answeredBy`, and `reason` when the text is unscreened).
  *
  * The text goes to the models and nowhere else: it is not logged and not stored.
  */
@@ -151,16 +167,16 @@ export async function startTask(
     wordsOf(text).length <= ownWordsAtMost ? held(labelsFor(decideContext(context), text)) : null;
   const speculative = Promise.allSettled([picking, energy, ...(early === null ? [] : [early])]);
 
-  const { verdict, screened } = await screen(context, request.text);
+  const { verdict, screened, judge } = await screen(context, request.text);
   // A crisis and a text that is not a note answer with the verdict alone: nothing is written.
   if (verdict === 'crisis' || verdict === 'reject') {
     context.defer?.(speculative);
-    return { verdict, response: { verdict } };
+    return { verdict, response: { verdict, ...judge } };
   }
   const serious = verdict === 'serious';
   if (serious && !(request.overrideSerious && screened)) {
     context.defer?.(speculative);
-    return { verdict: 'serious', response: await plainTask(context, request) };
+    return { verdict: 'serious', response: { ...(await plainTask(context, request)), ...judge } };
   }
 
   const sorted = await picking;
@@ -172,6 +188,7 @@ export async function startTask(
     verdict: 'pass',
     response: {
       verdict: 'pass',
+      ...judge,
       seriousOverridden: serious,
       energy: await energy,
       oneThing: sorted.oneThing,

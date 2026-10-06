@@ -100,7 +100,8 @@ describe('POST /v1/task-create', () => {
       );
 
       expect(response.status).toBe(200);
-      expect(JSON.parse(raw)).toEqual({ verdict: 'crisis' });
+      // The verdict and who gave it, and nothing written.
+      expect(JSON.parse(raw)).toEqual({ verdict: 'crisis', answeredBy: 'jev' });
       expect(writerCalls(doubles)).toEqual([]);
     },
   );
@@ -115,11 +116,12 @@ describe('POST /v1/task-create', () => {
 
       const body = await bodyOf(response);
       expect(Object.keys(JSON.parse(raw) as object).sort()).toEqual(
-        ['deadlines', 'energy', 'lines', 'oneThing', 'parked', 'verdict'].sort(),
+        ['answeredBy', 'deadlines', 'energy', 'lines', 'oneThing', 'parked', 'verdict'].sort(),
       );
       const plain = offlinePacks.en.plain;
       expect(body).toEqual({
         verdict: 'serious',
+        answeredBy: 'jev',
         energy: 'low',
         oneThing: { text: 'Call the plumber about the leak under the sink.', dueDate: null },
         parked: [{ text: 'Reply to Sam about Saturday' }],

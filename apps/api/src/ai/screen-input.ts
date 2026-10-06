@@ -225,7 +225,10 @@ async function judge(context: DecideContext, text: string): Promise<Judged> {
  *
  * Vietnamese typed without its marks is read twice: as typed, and with the marks restored by the
  * fast tier (used only when it changed nothing but marks). Both readings are judged, the restored
- * one as soon as it arrives, and the stricter verdict wins.
+ * one as soon as it arrives, and the stricter verdict wins. When no restored reading can be
+ * trusted (`unread`), the reading as typed can still call a crisis or find the note heavy, but its
+ * `pass` clears nothing: the judge reads bare Vietnamese poorly, so the answer is the unscreened
+ * one and the phone asks again later.
  *
  * When the care or the preparation question gets no answer about the text as typed, the other can
  * still call a crisis; short of that this throws, and the caller resolves to `serious` as a text
@@ -237,15 +240,17 @@ export async function screenText(
   text: string,
 ): Promise<ScreenInputResponse> {
   const restoring = lacksVietnameseMarks(text)
-    ? restoreMarks(context, text).then((marked) =>
-        marked === null ? null : judge(context, marked),
-      )
+    ? restoreMarks(context, text).then(async (marks) => ({
+        unread: marks.outcome === 'unread',
+        judged: marks.outcome === 'restored' ? await judge(context, marks.text) : null,
+      }))
     : null;
-  const [typed, misuse, restored] = await Promise.all([
+  const [typed, misuse, marks] = await Promise.all([
     judge(context, text),
     decide(context, { ...misuseQuestion, text }).catch(() => null),
     restoring,
   ]);
+  const restored = marks?.judged ?? null;
   const views: readonly [ScreenView, ...ScreenView[]] =
     restored === null ? [typed.view] : [typed.view, restored.view];
   const response = screenOutcome(views);
@@ -257,12 +262,12 @@ export async function screenText(
     ({ care }) => !((care?.answer.probabilities.serious ?? 1) < screenThresholds.seriousAtLeast),
   );
   if (response.verdict === 'serious' && heavy) return response;
+  let answer = response;
   if (misuse === null) {
     console.warn('misuse not judged', { route: context.route });
-    return response;
+  } else if (misuse.answer.probabilities.misuse >= rejectAtLeast) {
+    const confidence = misuse.answer.probabilities.misuse;
+    answer = { verdict: 'reject', confidence, lowConfidence: false, answeredBy: misuse.answeredBy };
   }
-  const likely = misuse.answer.probabilities.misuse;
-  return likely >= rejectAtLeast
-    ? { verdict: 'reject', confidence: likely, lowConfidence: false, answeredBy: misuse.answeredBy }
-    : response;
+  return answer.verdict === 'pass' && marks?.unread === true ? unscreenedResponse : answer;
 }

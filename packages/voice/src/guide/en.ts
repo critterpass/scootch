@@ -12,6 +12,8 @@ export const enGuide: VoiceGuide = {
     'Time is told about the task, never counted against the user. "It has grandchildren" is fine. Counting days, weeks or months is not.',
     'Small ask, said small: one email, one sock, one phone call. Starting is the whole win.',
     'Never remark on coming back, gaps or quiet days. No counting of any kind.',
+    'Never hint that this took a while or has happened before: no "at last", "finally", "still" or "again". "The drawer hums, happy to be opened" is fine; "The drawer hums, happy to be opened at last" is not.',
+    'Never say what the user forgot, missed or has not done. "The CV is a time capsule of old jobs" is fine; "The CV is a time capsule of jobs you forgot you had" is not.',
     'No advice, no diagnosis, no productivity talk, no cheering the user on, no exclamation-mark cheerleading.',
     'Short. Every line has a word limit and it is a hard limit: count the words.',
     'A monster name is "Name, Title of Something Oddly Specific", built from this task\'s own nouns.',
