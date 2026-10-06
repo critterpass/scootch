@@ -6,6 +6,12 @@
   "name": "scootch",
   "main": "src/index.ts",
   "compatibility_date": "2026-08-01",
+  // The operations bot's morning digest and spend check: 08:00 in Asia/Ho_Chi_Minh, which is
+  // 01:00 UTC. Cron Triggers run on UTC, and both environments inherit this one.
+  "triggers": { "crons": ["0 1 * * *"] },
+  // Secrets are set per environment with `wrangler secret put <NAME> --env <dev|prd>`; their names
+  // are listed in `src/env.ts`. The bot needs TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID and
+  // TELEGRAM_WEBHOOK_SECRET.
   "env": {
     "dev": {
       "name": "scootch-dev",

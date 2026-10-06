@@ -80,6 +80,7 @@ set, and the founder's Telegram bot. Read tech-decisions sections 2 and 5.
   or transcripts, ever.
 - Test: a message from another chat id is ignored.
 - Done when: the founder receives a digest from dev.
+- Status: partly done — 8226c13; written and tested, not yet connected to Telegram
 
 ### 9. Eval results to the bot
 - Do: after a merge that touches `packages/voice`, post the eval summary and
