@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 50" role="img" aria-label="Download on the App Store">
+  <!-- A stand-in. Replace this file with Apple's official "Download on the App Store" badge
+       artwork (developer.apple.com/app-store/marketing/guidelines) before the site is public. -->
+  <rect width="150" height="50" rx="9" fill="#000"/>
+  <text x="75" y="19" text-anchor="middle" font-family="system-ui, sans-serif" font-size="9" fill="#fff">Download on the</text>
+  <text x="75" y="38" text-anchor="middle" font-family="system-ui, sans-serif" font-size="18" font-weight="700" fill="#fff">App Store</text>
+</svg>

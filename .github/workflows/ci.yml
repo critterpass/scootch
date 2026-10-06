@@ -80,6 +80,21 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @scootch/mobile test
 
+  # The site is bundled once, then the monster maker's states run in a real browser with the API
+  # answered at the network boundary.
+  web:
+    name: site tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with: { node-version: 24, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @scootch/web exec playwright install --with-deps chromium
+      - run: pnpm --filter @scootch/web build
+      - run: pnpm --filter @scootch/web test:site
+
   no-ids:
     name: no plan ids or deferral words in source
     runs-on: ubuntu-latest
@@ -127,6 +142,7 @@ jobs:
       - test
       - api
       - mobile
+      - web
       - no-ids
       - no-session-links
     runs-on: ubuntu-latest
