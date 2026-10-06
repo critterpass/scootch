@@ -1,0 +1,16 @@
+node_modules/
+.env
+.env.*
+!.env.example
+certs/
+.expo/
+.turbo/
+.wrangler/
+dist/
+build/
+coverage/
+*.log
+.DS_Store
+/apps/mobile/ios
+/apps/mobile/android
+.claude/agent-memory/

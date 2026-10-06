@@ -1,0 +1,63 @@
+# Phase 10: website and growth
+
+Status: not started · Tasks: 8 · Needs: 02, 03 · Owns: `apps/web`
+
+Goal: anyone can play with Scootch in ten seconds, and every shared thing lands
+on a good page. Boards: Growth; Website (once designed and reviewed).
+
+The monster maker can go live before the app as the pre-launch page.
+
+The site is in English and Vietnamese. Monster names and flavour text are
+written in the visitor's language, not translated.
+
+The Website board shows things that are after launch. At launch, leave out:
+the wall (navigation link and home strip link), Unwrapped, the camera modes
+in the Plus list, gifts, and "tables with strangers" (say "tables with
+friends"). The home strip of example monsters uses a fixed, hand-checked set.
+
+### 1. Site shell
+- Do: Astro on Cloudflare, tokens shared with the app, navigation and footer
+  (helplines and the support-tool statement on every page), both languages,
+  light and dark, Reduce Motion, large text up to 310%, Apple's official
+  badge artwork.
+
+### 2. Monster maker
+- Do: one field; the input screen first (a heavy input gets one kind sentence
+  and helplines, no monster); then name, flavour text and a monster drawn by
+  the same generator as the app; hide-the-task toggle; rate limit.
+- States: empty, hatching, hatched, too many tries, nonsense, offline.
+- Test: a crisis input never returns a monster.
+
+### 3. A page per monster
+- Do: `scootch.app/m/<id>` with the card and a link preview image rendered at
+  the sizes Messages, WhatsApp, Slack and X use; "Make your own" and "Catch it
+  in the app"; flips to CAUGHT when the owner catches it.
+
+### 4. Pages for things shared from the app
+- Do: caught card, share story and record clip pages, with a player for the
+  clip. Replaces the phase 05 placeholder.
+
+### 5. Into the app
+- Do: universal links and the smart app banner; "Catch it in the app" carries
+  the monster through install so it is waiting on first launch; a desktop page
+  with a QR code.
+- Done when: a device run installs from a monster link and finds the monster.
+
+### 6. Invite and haunt pages
+- Do: table invite and haunt landing pages, with expired states; shooing a
+  haunt works on the web in one tap. No gift page at launch.
+
+### 7. Home, Plus and plain pages
+- Do: the home page with the maker as hero; the Plus page with prices and the
+  house rules; privacy, terms, support, helplines by country, "what Scootch is
+  and isn't", press kit, not found.
+
+### 8. Pre-launch
+- Do: the home page variant where "Catch it" becomes "Tell me when it's out"
+  with one email field; an Android interest field.
+
+## Exit
+
+- Playwright sheets at 1440 and 390 wide for every page and state.
+- The share loop walked: share a card, open its page on another device, make a
+  monster, install, find it waiting.
