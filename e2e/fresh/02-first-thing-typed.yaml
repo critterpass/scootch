@@ -2,8 +2,9 @@ appId: app.scootch.dev
 ---
 # The fresh-user walk, step two, on the install step one left behind. The app is started again
 # without clearing anything: first launch must not come back. Then the first thing is typed and
-# sent, and the screen must show the task set with Start. The microphone was skipped, so nothing
-# here touches it.
+# sent: the battery question is answered, the one thing comes back and is taken, its monster
+# hatches and is caught, and the screen must show the task set with Start. The microphone was
+# skipped, so nothing here touches it.
 - launchApp
 - extendedWaitUntil:
     visible:
@@ -23,7 +24,34 @@ appId: app.scootch.dev
 - takeScreenshot: fresh-02-typing
 - tapOn:
     id: 'composer-send'
-# With or without a connection the typed text becomes the one thing.
+# The first words of the day wait for the battery question.
+- extendedWaitUntil:
+    visible:
+      id: 'energy-read'
+    timeout: 15000
+- takeScreenshot: fresh-02-energy-read
+- tapOn:
+    id: 'energy-guess'
+# With or without a connection the typed text comes back as today's one thing.
+- extendedWaitUntil:
+    visible:
+      id: 'one-thing-accept'
+    timeout: 60000
+- assertVisible:
+    id: 'one-thing'
+- takeScreenshot: fresh-02-the-one-thing
+- tapOn:
+    id: 'one-thing-accept'
+# An ordinary task hatches, and "Catch him" sets it. With no connection there is no monster yet
+# and no hatch: the pick lands on the set task by itself.
+- runFlow:
+    when:
+      visible:
+        id: 'hatch-catch'
+    commands:
+      - takeScreenshot: fresh-02-hatched
+      - tapOn:
+          id: 'hatch-catch'
 - extendedWaitUntil:
     visible:
       id: 'one-action'

@@ -37,10 +37,12 @@ friends"). The home strip of example monsters uses a fixed, hand-checked set.
 - Do: `scootch.app/m/<id>` with the card and a 1200 × 630 link preview image,
   rendered per page, cached, and regenerated when the monster is caught; "Make your own" and "Catch it
   in the app"; flips to CAUGHT when the owner catches it.
+- Status: partly done — 78eff49; sharing from the maker (`POST /v1/monster-share`, unshare by token), the monster's page in both languages with wild, caught and not-found states, and a 1200 × 630 preview rendered in the Worker and kept per status; nothing marks a monster caught yet, not deployed
 
 ### 4. Pages for things shared from the app
 - Do: caught card, share story and record clip pages, with a player for the
   clip. Replaces the phase 05 placeholder.
+- Status: partly done — 78eff49; the caught card page with the tilting card and the share story page, with their read routes; the app does not post to them yet and the record clip page is not built, not deployed
 
 ### 5. Into the app
 - Do: universal links and the smart app banner; "Catch it in the app" carries
@@ -61,12 +63,13 @@ friends"). The home strip of example monsters uses a fixed, hand-checked set.
 - Do: the home page with the maker as hero; the Plus page with prices and the
   house rules; privacy, terms, support, helplines by country, "what Scootch is
   and isn't", press kit, not found.
-- Status: partly done — 3e9df8e; the home page with the maker as hero, stills, ideas, the fixed monster strip, prices and who it's for; the Plus page and the plain pages are not written, not deployed
+- Status: partly done — 78eff49; the home page, the Plus page and the plain pages (privacy, terms, support, helplines, what Scootch is and isn't, press kit, not found) in both languages; helpline numbers are unverified and the press kit has no downloads, not deployed
 
 ### 8. Pre-launch
 - Do: the home page variant where "Catch it" becomes "Tell me when it's out"
   with one email field; an Android interest field. One email is sent on
   launch day, with a link that carries that exact monster into the app.
+- Status: partly done — 78eff49; the bundle-time switch (`PUBLIC_PRE_LAUNCH=1`), the email field in place of "Catch it", the Android interest page and `POST /v1/waitlist`; no launch-day email is sent, not deployed
 
 ## Exit
 

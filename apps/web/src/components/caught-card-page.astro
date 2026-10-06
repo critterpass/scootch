@@ -1,0 +1,76 @@
+---
+import type { Language } from '@scootch/i18n';
+
+import { localPath, pagesFor } from '../copy';
+import { scootchSvg } from '../lib/drawings';
+import SiteLayout from '../layouts/site-layout.astro';
+
+import NotFound from './not-found.astro';
+
+interface Props {
+  language: Language;
+}
+
+// A caught card shared from the app. It shows what the sharer chose to show and nothing more:
+// a hidden task is not in what this page receives.
+const { language } = Astro.props;
+const copy = pagesFor(language).caughtCard;
+---
+
+<SiteLayout language={language} path="/c" title={copy.title} description={copy.description} social={false}>
+  <section
+    class="wrap shared-page"
+    data-caught-card-page
+    data-state="loading"
+    data-language={language}
+    data-lines={JSON.stringify(copy)}
+  >
+    <p class="lede" data-show="loading" aria-live="polite">{pagesFor(language).monster.loading}</p>
+
+    <div class="shared-grid" data-show="found" hidden>
+      <div class="maker-stage">
+        <div class="blob tilt-stage">
+          <div class="tilt-card" role="img" data-tilt data-card></div>
+        </div>
+      </div>
+      <div>
+        <p class="eyebrow tomato-text" data-eyebrow></p>
+        <h1 data-home tabindex="-1"></h1>
+        <p class="lede" data-story></p>
+        <dl class="tiles" data-facts></dl>
+        <p class="small tilt-hint tilt-hint-pointer">{copy.tiltPointer}</p>
+        <button type="button" class="link-button tilt-hint tilt-hint-motion" data-tilt-allow hidden>
+          {copy.tiltMotion}
+        </button>
+      </div>
+    </div>
+
+    <div data-show="missing" hidden>
+      <NotFound language={language} focusable />
+    </div>
+    <div data-show="offline" hidden>
+      <h1 tabindex="-1">{pagesFor(language).monster.offlineTitle}</h1>
+      <p class="lede">{pagesFor(language).monster.offlineBody}</p>
+    </div>
+  </section>
+
+  <section class="wrap panel ask" data-ask>
+    <span class="blob blob-small">
+      <span class="drawing" aria-hidden="true" set:html={scootchSvg('bargaining')} />
+    </span>
+    <div>
+      <h2>{copy.askTitle}</h2>
+      <p class="lede">{copy.askBody}</p>
+    </div>
+    <a class="button button-ink" href={localPath(language, '/')}>{copy.makeYourOwn}</a>
+    <p class="small ask-note" data-only-shown></p>
+  </section>
+</SiteLayout>
+
+<script>
+  import { startCaughtCardPage } from '../scripts/shared-card-pages';
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-caught-card-page]')) {
+    void startCaughtCardPage(root);
+  }
+</script>

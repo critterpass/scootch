@@ -1,51 +1,28 @@
-import { StyleSheet, Text } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
+import { useEffect } from 'react';
 
-import { colors, fonts, fontSizes, spacing } from '@scootch/tokens';
-
-import { useT } from '../i18n/i18n-provider';
-import { useAppearance } from '../screens/registry/support/forced-variant';
-import { useSession } from '../state/day-store-provider';
+import { SessionScreen } from '../features/session/session-screen';
+import { useSessionScreen } from '../features/session/use-session-screen';
+import { useDispatch, useToday } from '../state/day-store-provider';
 
 /**
- * Where a started session lands until the session screens exist: the day store's session, shown
- * as plain values. It has no controls of its own.
+ * The session, from the start burst to the last parked thought. The one screen sends the person
+ * here when Start is tapped, and opening the app mid-session lands here too. When there is nothing
+ * left to show, what the session handed over is cleared and the one screen is back.
  */
-export default function SessionPlaceholder() {
-  const palette = colors[useAppearance()];
-  const { session } = useSession();
-  const t = useT();
-  const live = session && session.phase !== 'let_go' ? session : null;
-  const values = [
-    session?.phase ?? '-',
-    live ? t('taskSet.minutes', { minutes: live.ask.minutes }) : '-',
-    live?.endsAt ? new Date(live.endsAt).toISOString() : '-',
-    live?.treat ?? '-',
-  ];
+export default function SessionRoute() {
+  const { model, actions } = useSessionScreen();
+  const router = useRouter();
+  const dispatch = useDispatch();
+  // Until today has been rebuilt from storage there is no session to judge.
+  const { ready } = useToday();
+  const over = ready && model.view.kind === 'home';
 
-  return (
-    <SafeAreaView testID="session" style={[styles.page, { backgroundColor: palette.page }]}>
-      {values.map((value, index) => (
-        <Text
-          key={index}
-          testID={`session-value-${index}`}
-          style={[styles.value, { color: palette.ink }]}
-        >
-          {value}
-        </Text>
-      ))}
-    </SafeAreaView>
-  );
+  useEffect(() => {
+    if (!over) return;
+    void dispatch({ type: 'session_closed' }).catch(() => undefined);
+    router.replace('/');
+  }, [over, dispatch, router]);
+
+  return <SessionScreen model={model} actions={actions} />;
 }
-
-const styles = StyleSheet.create({
-  page: {
-    flex: 1,
-    padding: spacing.lg,
-    gap: spacing.sm,
-  },
-  value: {
-    fontFamily: fonts.body,
-    fontSize: fontSizes.body,
-  },
-});

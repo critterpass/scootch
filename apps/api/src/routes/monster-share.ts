@@ -1,0 +1,117 @@
+import { monsterBodyTypeSchema } from '@scootch/domain';
+import { z } from 'zod';
+
+import { decide, type DecideContext } from '../ai/decide';
+import { screenInputQuestion, screenVerdict } from '../ai/screen-input';
+import { languageSchema } from '../contracts';
+import { hashDeviceToken, newDeviceToken } from '../device-auth';
+import { ApiError } from '../errors';
+import { readBody, type RouteDefinition } from '../route';
+import { newShareId, previewPrefix } from '../sharing/shared-monsters';
+
+const routeId = 'monster.share';
+
+const monsterShareRequestSchema = z.strictObject({
+  seed: z.string().min(1).max(64),
+  bodyType: monsterBodyTypeSchema,
+  name: z.string().trim().min(1).max(60),
+  flavourText: z.string().trim().min(1).max(160),
+  language: languageSchema,
+  /** Sent only when the visitor left "show what I typed" on. Absent or null: never stored. */
+  typed: z.string().trim().min(1).max(280).nullish(),
+});
+
+const monsterShareResponseSchema = z.union([
+  /** A heavy text is never shared: the verdict alone, and nothing is stored. */
+  z.strictObject({ verdict: z.enum(['serious', 'crisis']) }),
+  z.strictObject({
+    verdict: z.literal('pass'),
+    id: z.string(),
+    /** Kept by the visitor's browser; the only way to unshare. Never stored as it is. */
+    unshareToken: z.string(),
+  }),
+]);
+export type MonsterShareResponse = z.infer<typeof monsterShareResponseSchema>;
+
+/**
+ * Shares a hatched monster from the website's maker: its seed, body, name and card line, its
+ * language, and the typed line only when the visitor chose to show it. Nothing else from the
+ * maker is stored, and a shared monster is kept until it is unshared.
+ *
+ * Every word that would be public is screened again here, because the request comes from a
+ * browser. A text that is not clearly fine, or that no model could screen, is not stored.
+ */
+export const monsterShareRoute: RouteDefinition = {
+  method: 'POST',
+  path: '/v1/monster-share',
+  access: 'public',
+  handle: async (c) => {
+    const request = await readBody(c, monsterShareRequestSchema);
+    const typed = request.typed ?? null;
+    const context: DecideContext = { env: c.env, route: routeId, deviceHash: null };
+
+    let verdict: ReturnType<typeof screenVerdict>;
+    try {
+      const text = [typed, request.name, request.flavourText].filter((line) => line).join('\n');
+      const decision = await decide(context, { ...screenInputQuestion, text });
+      verdict = screenVerdict(decision.answer.probabilities);
+    } catch (error) {
+      console.error('shared monster not screened', {
+        requestId: c.var.requestId,
+        reason: error instanceof ApiError ? error.code : 'internal',
+      });
+      verdict = 'serious';
+    }
+    if (verdict !== 'pass') return c.json(monsterShareResponseSchema.parse({ verdict }));
+
+    const id = newShareId(request.name);
+    const unshareToken = newDeviceToken();
+    await c.env.DB.prepare(
+      `INSERT INTO shared_monsters
+         (id, seed, body_type, name, flavour_text, language, typed_line, unshare_token_hash, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    )
+      .bind(
+        id,
+        request.seed,
+        request.bodyType,
+        request.name,
+        request.flavourText,
+        request.language,
+        typed,
+        await hashDeviceToken(unshareToken),
+        new Date().toISOString(),
+      )
+      .run();
+    return c.json(monsterShareResponseSchema.parse({ verdict, id, unshareToken }));
+  },
+};
+
+/**
+ * Unshares a monster: its row and its link preview images are deleted. Needs the token the share
+ * answered with, as a bearer token.
+ */
+export const monsterUnshareRoute: RouteDefinition = {
+  method: 'DELETE',
+  path: '/v1/monster-share/:id',
+  access: 'public',
+  handle: async (c) => {
+    const id = c.req.param('id') ?? '';
+    const token = c.req.header('Authorization')?.match(/^Bearer (.+)$/)?.[1];
+    const row = await c.env.DB.prepare(
+      'SELECT unshare_token_hash FROM shared_monsters WHERE id = ?',
+    )
+      .bind(id)
+      .first<{ unshare_token_hash: string }>();
+    if (!row) throw new ApiError('not_found', 'No such shared monster');
+    if (token === undefined || (await hashDeviceToken(token)) !== row.unshare_token_hash) {
+      throw new ApiError('unauthorized', 'This monster was shared from another browser');
+    }
+    await c.env.DB.prepare('DELETE FROM shared_monsters WHERE id = ?').bind(id).run();
+    const previews = await c.env.FILES.list({ prefix: previewPrefix(id) });
+    if (previews.objects.length > 0) {
+      await c.env.FILES.delete(previews.objects.map((object) => object.key));
+    }
+    return c.json({ unshared: true });
+  },
+};

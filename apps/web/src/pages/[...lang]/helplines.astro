@@ -1,0 +1,49 @@
+---
+import { languagePaths, plainFor } from '../../copy';
+import SiteLayout from '../../layouts/site-layout.astro';
+import { findAHelpline, helplines, vietnam } from '../../lib/helplines';
+
+export const getStaticPaths = languagePaths;
+const language = Astro.params.lang === 'vi' ? 'vi' : 'en';
+const copy = plainFor(language).helplines;
+
+type Row = { country: string; name: string; links: { href: string; label: string }[] };
+
+// No critter and no joke on this page. Vietnam comes first for a reader in Vietnamese.
+const find = { href: findAHelpline.href, label: findAHelpline.label };
+const vietnamRow: Row = {
+  country: vietnam.country[language],
+  name: copy.emergency,
+  links: [{ href: vietnam.emergency.href, label: vietnam.emergency.action[language] }, find],
+};
+const others: Row[] = helplines.map((line) => ({
+  country: line.country[language],
+  name: line.name,
+  links: [{ href: line.href, label: line.action[language] }],
+}));
+const rows: Row[] = [
+  ...(language === 'vi' ? [vietnamRow, ...others] : [...others, vietnamRow]),
+  { country: copy.anywhere, name: findAHelpline.name, links: [find] },
+];
+---
+
+<SiteLayout language={language} path="/helplines" title={copy.title} description={copy.description}>
+  <article class="wrap plain helplines">
+    <h1>{copy.headline}</h1>
+    <p class="lede">{copy.intro}</p>
+    <ul class="helpline-list">
+      {
+        rows.map((row) => (
+          <li>
+            <span class="small">{row.country}</span>
+            <strong>{row.name}</strong>
+            {row.links.map((link) => (
+              <a href={link.href}>{link.label}</a>
+            ))}
+          </li>
+        ))
+      }
+    </ul>
+    <p class="small">{copy.footnote}</p>
+  </article>
+</SiteLayout>

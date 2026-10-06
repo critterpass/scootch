@@ -1,0 +1,109 @@
+import { describe, expect, it } from '@jest/globals';
+
+import type { SessionEvent } from '@scootch/domain';
+import { t } from '@scootch/i18n';
+
+import {
+  CONFIRM_WINDOW_MS,
+  HOLD_DRAIN_MS,
+  HOLD_FILL_MS,
+  holdControl,
+  holdReducer,
+  type HoldControl,
+  type HoldInput,
+} from './hold-control';
+
+/** Feeds inputs through the control and collects every session event it asks for. */
+function play(start: HoldControl, inputs: readonly HoldInput[]) {
+  let control = start;
+  const sent: SessionEvent['type'][] = [];
+  for (const input of inputs) {
+    const step = holdReducer(control, input);
+    control = step.control;
+    sent.push(...step.send.map((event) => event.type));
+  }
+  return { control, sent };
+}
+
+const frames = (totalMs: number, each = 16): HoldInput[] =>
+  Array.from({ length: Math.ceil(totalMs / each) }, () => ({ type: 'frame', elapsedMs: each }));
+
+describe('the finish control', () => {
+  it('finishes when the hold reaches the end, once', () => {
+    const { control, sent } = play(holdControl('hold'), [
+      { type: 'pressed' },
+      ...frames(HOLD_FILL_MS + 100),
+      { type: 'released' },
+      { type: 'pressed' },
+    ]);
+    expect(sent).toEqual(['hold_started', 'hold_completed']);
+    expect(control).toMatchObject({ finished: true, progress: 1 });
+  });
+
+  it('does not finish when let go early: the ring drains and the caption stays kind', () => {
+    const held = play(holdControl('hold'), [
+      { type: 'pressed' },
+      ...frames(HOLD_FILL_MS * 0.6),
+      { type: 'released' },
+    ]);
+    expect(held.sent).toEqual(['hold_started', 'hold_released']);
+    expect(held.control).toMatchObject({ finished: false, holding: false, caption: 'nearly' });
+    expect(held.control.progress).toBeGreaterThan(0.5);
+
+    const drained = play(held.control, frames(HOLD_DRAIN_MS + 50));
+    expect(drained.sent).toEqual([]);
+    expect(drained.control).toMatchObject({ progress: 0, finished: false });
+
+    // What is said after letting go has no blame in it, and a second go works as the first did.
+    expect(t('en', 'session.finish.holdNearly')).not.toMatch(
+      /fail|missed|wrong|too (early|soon)|lazy|behind|again|streak|should/i,
+    );
+    const again = play(drained.control, [{ type: 'pressed' }, ...frames(HOLD_FILL_MS + 100)]);
+    expect(again.sent).toEqual(['hold_started', 'hold_completed']);
+  });
+
+  it('says nothing about a brush that barely touched the button', () => {
+    const { control } = play(holdControl('hold'), [
+      { type: 'pressed' },
+      ...frames(60),
+      { type: 'released' },
+    ]);
+    expect(control.caption).toBe('idle');
+  });
+
+  it('needs both taps to finish by tapping twice', () => {
+    const first = play(holdControl('double_tap'), [{ type: 'tapped', at: 1000 }]);
+    expect(first.sent).toEqual([]);
+    expect(first.control).toMatchObject({ finished: false, caption: 'confirm' });
+
+    const second = play(first.control, [{ type: 'tapped', at: 1800 }]);
+    expect(second.sent).toEqual(['double_tapped']);
+    expect(second.control.finished).toBe(true);
+  });
+
+  it('forgets a first tap that was never confirmed', () => {
+    const late = play(holdControl('double_tap'), [
+      { type: 'tapped', at: 1000 },
+      { type: 'tapped', at: 1000 + CONFIRM_WINDOW_MS + 1 },
+    ]);
+    expect(late.sent).toEqual([]);
+    expect(late.control.finished).toBe(false);
+  });
+
+  it('never fills the tap-twice control by pressing it', () => {
+    const { control, sent } = play(holdControl('double_tap'), [
+      { type: 'pressed' },
+      ...frames(HOLD_FILL_MS * 2),
+    ]);
+    expect(sent).toEqual([]);
+    expect(control.progress).toBe(0);
+  });
+
+  it('lets VoiceOver finish the hold control with two activations instead of a hold', () => {
+    const { sent } = play(holdControl('hold'), [
+      { type: 'tapped', at: 0 },
+      { type: 'tapped', at: 900 },
+    ]);
+    expect(sent).toEqual(['double_tapped']);
+  });
+});

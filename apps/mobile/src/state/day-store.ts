@@ -1,7 +1,6 @@
 import {
   DRAWER_CLOSED,
   currentScootchDay,
-  drawerViewReducer,
   fadeDrawer,
   isoFromInstant,
   morningOffer,
@@ -14,14 +13,28 @@ import { defaultSettings } from '../data/repositories/settings';
 import type { EffectSwitches, ScreenSink } from '../effects/adapters';
 
 import { DEFAULT_USUAL_START, dayNotifications, usualStart } from './day-notifications';
-import type { DayContext, DayEvent, DayMemory, DayState, DayStoreDeps } from './day-types';
-import { applySession, resolveThought, restoreSession, setSession } from './session-flow';
+import {
+  isPickEvent,
+  type DayContext,
+  type DayEvent,
+  type DayMemory,
+  type DayState,
+  type DayStoreDeps,
+} from './day-types';
+import { applyPickEvent } from './pick-events';
+import { drawerEvent, setBargainedSession } from './pick-flow';
+import { applySession, resolveThought, restoreSession } from './session-flow';
+import { closeSession, shortenSession, turnWorkingLine } from './session-moments';
 import { askAnother, fetchPending, resolveTranscript, submitText } from './task-flow';
 
 export interface DayStore {
   readonly getState: () => DayState;
   readonly subscribe: (listener: () => void) => () => void;
   /** Applies one event at the current time. Events run one after another, in the order sent. */
+  /**
+   * Resolves once the event is applied, and anything it left arriving (the second stage of a task
+   * call) has been applied too. Events sent in the meantime do not wait for that.
+   */
   readonly dispatch: (event: DayEvent) => Promise<void>;
   /** Rebuilds today from storage and the clock. The app calls it once, before the first screen. */
   readonly start: () => Promise<void>;
@@ -34,6 +47,8 @@ const NOT_READY: DayState = {
   localDate: '1970-01-01',
   today: { kind: 'nothing_yet', startsLeft: 0 },
   morning: { kind: 'fresh_ask' },
+  pick: { kind: 'none' },
+  energyNeeded: false,
   session: null,
   monster: null,
   monsterPending: false,
@@ -71,9 +86,29 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
     sessionRowId: null,
     lastOpenedDay: null,
     workingTurn: 0,
+    restPending: false,
+    turnedDown: [],
   };
   let usual: ClockTime = DEFAULT_USUAL_START;
   let queue: Promise<void> = Promise.resolve();
+  let arriving: Promise<void> = Promise.resolve();
+
+  const enqueue = (work: () => Promise<void>) => {
+    const run = queue.then(work);
+    queue = run.catch(() => undefined);
+    return run;
+  };
+  const later: DayContext['later'] = (arrives, work) => {
+    const applied = arrives.then((value) => enqueue(() => work(value))).catch(() => undefined);
+    arriving = Promise.all([arriving, applied]).then(() => undefined);
+  };
+  /** Waits for everything that is arriving, including what arrives while waiting. */
+  const settle = async () => {
+    for (let seen: Promise<void> | null = null; seen !== arriving;) {
+      seen = arriving;
+      await seen;
+    }
+  };
 
   const set = (changes: Partial<DayState>) => {
     memory.state = { ...memory.state, ...changes };
@@ -95,6 +130,8 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
     const items = await repositories.drawerItems.all();
     set({
       today,
+      // Asked once a day, before the first thing is picked.
+      energyNeeded: (day?.energy ?? null) === null && tasks.length === 0,
       monster,
       monsterPending:
         task !== null && (task.screen === 'unscreened' || (task.screen === 'pass' && !monster)),
@@ -119,7 +156,7 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
     );
   }
 
-  const ctx: DayContext = { deps, memory, set, refresh, now: () => deps.clock.now() };
+  const ctx: DayContext = { deps, memory, set, refresh, later, now: () => deps.clock.now() };
 
   async function rebuild(): Promise<void> {
     const now = ctx.now();
@@ -151,6 +188,8 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
     usual = usualStart(await repositories.sessions.all(), timeZone);
     memory.offer = null;
     memory.sessionRowId = null;
+    memory.restPending = false;
+    memory.turnedDown = [];
     set({ ...NOT_READY, settings, localDate, drawer: { ...DRAWER_CLOSED, items: [] } });
     await refresh();
     if (memory.state.today.kind !== 'crisis') {
@@ -161,24 +200,27 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
   }
 
   async function handle(event: DayEvent): Promise<void> {
+    if (isPickEvent(event)) return applyPickEvent(ctx, event);
     switch (event.type) {
       case 'text_submitted':
-        return submitText(ctx, { ...event, declined: [], transcriptId: null });
+        return submitText(ctx, { ...event, declined: [], transcriptId: null, candidates: [] });
       case 'another_asked':
         return askAnother(ctx);
-      case 'one_thing_picked':
-        return resolveTranscript(ctx);
       case 'session_set':
         await resolveTranscript(ctx);
-        return setSession(ctx, event.minutes, event.treat ?? null);
+        return setBargainedSession(ctx, event.minutes, event.treat ?? null);
       case 'session':
         return applySession(ctx, event.event);
-      case 'drawer': {
-        const { view } = drawerViewReducer({ open: memory.state.drawer.open }, event.event);
-        return set({ drawer: { ...memory.state.drawer, open: view.open } });
-      }
+      case 'drawer':
+        return drawerEvent(ctx, event.event);
       case 'thought_resolved':
         return resolveThought(ctx, event.thought, event.resolution);
+      case 'working_line_turned':
+        return turnWorkingLine(ctx);
+      case 'session_closed':
+        return closeSession(ctx);
+      case 'developer_session_ends_in':
+        return shortenSession(ctx, event.seconds);
       case 'done_for_today': {
         const day = await repositories.days.get(memory.state.localDate);
         if (day && day.status === 'open') await repositories.days.put({ ...day, status: 'done' });
@@ -203,20 +245,14 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
     }
   }
 
-  const enqueue = (work: () => Promise<void>) => {
-    const run = queue.then(work);
-    queue = run.catch(() => undefined);
-    return run;
-  };
-
   return {
     getState: () => memory.state,
     subscribe: (listener) => {
       listeners.add(listener);
       return () => void listeners.delete(listener);
     },
-    dispatch: (event) => enqueue(() => handle(event)),
-    start: () => enqueue(rebuild),
+    dispatch: (event) => enqueue(() => handle(event)).then(settle),
+    start: () => enqueue(rebuild).then(settle),
     screen: {
       showLine: (slot, text) => set({ line: { slot, text } }),
       showBurst: (burst) => set({ burst }),

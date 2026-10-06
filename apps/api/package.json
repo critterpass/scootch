@@ -11,6 +11,8 @@
     "test": "tsx ../../tools/scripts/generate-index.ts --check src/routes && vitest run"
   },
   "dependencies": {
+    "@resvg/resvg-wasm": "2.6.2",
+    "@scootch/art": "workspace:*",
     "@scootch/domain": "workspace:*",
     "@scootch/voice": "workspace:*",
     "hono": "catalog:",

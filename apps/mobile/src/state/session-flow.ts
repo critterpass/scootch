@@ -1,5 +1,6 @@
 import {
   addDays,
+  checkInAt,
   instantFromIso,
   isoFromInstant,
   parkThings,
@@ -16,12 +17,14 @@ import {
 import type { SessionContext } from '../effects/adapters';
 
 import type { DayContext } from './day-types';
+import { persistFinishEarnings } from './finish-earnings';
+import { shrinkTask } from './smaller';
 import { lineFor, toneFor } from './lines';
 
 const TEXT_MAX = 280;
 const TREAT_MAX = 80;
 
-function contextFor(ctx: DayContext, task: TaskRow): SessionContext {
+export function contextFor(ctx: DayContext, task: TaskRow): SessionContext {
   const { settings } = ctx.memory.state;
   return {
     title: task.text,
@@ -88,8 +91,10 @@ async function persist(
       ctx.memory.sessionRowId = null;
     } else if (effect.kind === 'grant_finish_reward') {
       await save({ status: 'finished', finishedAt: isoFromInstant(ctx.now()) });
+      await persistFinishEarnings(ctx, current, effect.tone, session?.treat ?? null);
     } else if (effect.kind === 'shrink_task') {
-      await save({ shrinkCount: current.shrinkCount + 1 });
+      await shrinkTask(ctx, current);
+      current = (await repositories.tasks.get(current.id)) ?? current;
     } else if (effect.kind === 'carry_task_to_tomorrow') {
       await save({ localDate: addDays(current.localDate, 1), carriedOver: true, status: 'set' });
     } else if (effect.kind === 'forget_task') {
@@ -100,7 +105,7 @@ async function persist(
   }
 }
 
-function currentTask(ctx: DayContext): TaskRow | null {
+export function currentTask(ctx: DayContext): TaskRow | null {
   const { today } = ctx.memory.state;
   return 'task' in today ? today.task : null;
 }
@@ -132,9 +137,22 @@ export async function applySession(ctx: DayContext, event: SessionEvent): Promis
 
   const step = sessionReducer(session, event, ctx.now());
   ctx.set({ session: step.state });
+  if (step.state.phase === 'not_finished' && session.phase !== 'not_finished') {
+    await markNotFinished(ctx);
+  }
   await persist(ctx, step.state.phase === 'let_go' ? null : step.state, task, step.effects);
   ctx.deps.runner.run(step.effects, contextFor(ctx, task));
   await ctx.refresh();
+}
+
+/**
+ * "Not finished" was tapped: the stored session says so at once, before any of the three choices,
+ * so the tap is still there after the app is killed. The row keeps no end until a choice is made.
+ */
+async function markNotFinished(ctx: DayContext): Promise<void> {
+  const { sessions } = ctx.deps.repositories;
+  const row = ctx.memory.sessionRowId ? await sessions.get(ctx.memory.sessionRowId) : null;
+  if (row) await sessions.put({ ...row, outcome: 'not_finished' });
 }
 
 /**
@@ -151,7 +169,9 @@ export async function restoreSession(ctx: DayContext, tasks: readonly TaskRow[])
     const thoughts: ParkedThought[] = (await repositories.parkedThoughts.where('sessionId', row.id))
       .map((one) => ({ text: one.text, parkedAt: instantFromIso(one.parkedAt) }))
       .sort((a, b) => a.parkedAt - b.parkedAt);
-    const stored: LiveSession = {
+    const startedAt = instantFromIso(row.startedAt);
+    const endsAt = instantFromIso(row.endsAt);
+    const base: LiveSession = {
       ...sessionSet({
         taskId: task.id,
         tone: toneFor(task),
@@ -159,13 +179,28 @@ export async function restoreSession(ctx: DayContext, tasks: readonly TaskRow[])
         shrinkCount: task.shrinkCount,
         treat: row.treat,
       }),
-      phase: 'running',
-      startedAt: instantFromIso(row.startedAt),
-      endsAt: instantFromIso(row.endsAt),
-      inForeground: false,
+      startedAt,
+      endsAt,
       thoughts,
     };
     ctx.memory.sessionRowId = row.id;
+    if (row.outcome === 'not_finished') {
+      // The three choices are still waiting. The tap's own moment is not stored: time was up.
+      ctx.set({
+        session: { ...base, phase: 'not_finished', endedAt: endsAt, warned: true, checkedIn: true },
+      });
+      ctx.deps.runner.run([{ kind: 'show_line', line: 'notFinished' }], contextFor(ctx, task));
+      return;
+    }
+    // A check-in whose moment has passed was offered while the app was open, or belongs to a
+    // stretch nobody was looking at: either way it is not offered now. "I'm stuck" is still there.
+    const checkAt = checkInAt({ ...base, phase: 'running' });
+    const stored: LiveSession = {
+      ...base,
+      phase: 'running',
+      inForeground: false,
+      checkedIn: checkAt !== null && ctx.now() >= checkAt,
+    };
     const step = sessionReducer(stored, { type: 'relaunched' }, ctx.now());
     ctx.set({ session: step.state });
     ctx.deps.runner.run(step.effects, contextFor(ctx, task));

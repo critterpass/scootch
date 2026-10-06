@@ -19,16 +19,19 @@ free and Plus states.
 - Do: after finishing, the card flip, the world piece landing, the bar of
   music, then the treat handed over with ceremony, in that order, skippable.
 - States: Reduce Motion; a serious task gets none of it.
+- Status: partly done — b47f3d1; built and tested with fakes, not yet run on a device
 
 ### 3. The world
 - Do: every finished thing adds a permanent piece; day zero, one piece and
   three hundred pieces all look intended. A task the user let go leaves no
   trace.
 - Done when: sheets at 0, 1, 7, 60 and 300 pieces.
+- Status: partly done — b47f3d1; built and tested with fakes, not yet run on a device
 
 ### 4. The zoo
 - Do: every caught monster, always visible; tap for its card.
 - States: empty zoo.
+- Status: partly done — b47f3d1; built and tested with fakes, not yet run on a device
 
 ### 5. The record
 - Do: each finished day adds a bar and an instrument; Sunday playback with
@@ -36,6 +39,7 @@ free and Plus states.
   the week's name and a cover printed from that week's monsters; a week with
   fewer than seven bars is a smaller band.
 - States: first week, one bar.
+- Status: partly done — b47f3d1; built and tested with fakes, not yet run on a device
 
 ### 6. Share
 - Do: the share story (what you did, how long it waited) at 4:5 and 9:16,
@@ -44,11 +48,13 @@ free and Plus states.
   hides the task line. Scootch never offers to share a task flagged private or
   serious.
 - Test: a serious task has no share path.
+- Status: partly done — b47f3d1; built and tested with fakes, not yet run on a device
 
 ### 7. Shared pages, app side
 - Do: upload the card or clip and return its page link, using the phase 03
   API. The page itself is phase 10.
 - Done when: a shared link opens a placeholder page with the right image.
+- Status: not started — the app shares files through the system sheet only; nothing is uploaded
 
 ### 8. Surprise drops
 - Do: now and then a finish also gives something rare (an outfit, an odd

@@ -1,0 +1,175 @@
+import {
+  MINUTE_MS,
+  type Instant,
+  type LiveSession,
+  type ParkedThought,
+  type SessionState,
+  type SettingsRow,
+} from '@scootch/domain';
+
+import type { ShownLine } from '../../state/day-types';
+
+/** The control a finish is made with. Saying "done" has no control of its own. */
+export type FinishControl = 'hold' | 'double_tap';
+
+/** What the session screens show, worked out from the store's state and nothing else. */
+export type SessionView =
+  /** Nothing left to show: back to the one screen. */
+  | { readonly kind: 'home' }
+  /** The session is set and its start is on the way. */
+  | { readonly kind: 'starting' }
+  | { readonly kind: 'burst' }
+  | {
+      readonly kind: 'working';
+      readonly quiet: boolean;
+      readonly stuck: boolean;
+      readonly twoMinutesLeft: boolean;
+      readonly timeUp: boolean;
+    }
+  | {
+      readonly kind: 'finish';
+      readonly control: FinishControl;
+      /** Time is up, so "Not finished" is offered beside finishing. */
+      readonly timeUp: boolean;
+    }
+  | { readonly kind: 'not_finished' }
+  /** What the finish gave is shown on its own screens; the session waits behind them. */
+  | { readonly kind: 'reveal' }
+  /** The finish itself: the caught line, or the plain one of a serious task. */
+  | { readonly kind: 'moment'; readonly quiet: boolean }
+  | { readonly kind: 'treat'; readonly treat: string }
+  | { readonly kind: 'thoughts'; readonly thoughts: readonly ParkedThought[] };
+
+/** What the person has already passed on this visit to the session screens. */
+export interface Passed {
+  readonly burst: boolean;
+  readonly moment: boolean;
+  readonly treat: boolean;
+  readonly thoughts: boolean;
+  /** "I'm done" was tapped before time was up, and not taken back. */
+  readonly finishingEarly: boolean;
+}
+
+export const NOTHING_PASSED: Passed = {
+  burst: false,
+  moment: false,
+  treat: false,
+  thoughts: false,
+  finishingEarly: false,
+};
+
+export interface SessionViewInput {
+  readonly session: SessionState | null;
+  readonly burst: 'start' | 'confetti' | null;
+  readonly treat: string | null;
+  readonly parkedThoughts: readonly ParkedThought[];
+  readonly finishWith: SettingsRow['finishWith'];
+  readonly passed: Passed;
+  /**
+   * The reveal of a finish: `pending` hands over to it, `seen` comes back from it. Left out, there
+   * is no reveal and the finish says its caught line here.
+   */
+  readonly reveal?: 'pending' | 'seen';
+}
+
+/**
+ * The control shown for a finish method. Someone who chose to say "done" gets the tap-twice
+ * control, which needs no holding either, alone until a spoken "done" can be heard and beside it
+ * afterwards.
+ */
+export function finishControl(finishWith: SettingsRow['finishWith']): FinishControl {
+  return finishWith === 'hold' ? 'hold' : 'double_tap';
+}
+
+function afterTheEnd(input: SessionViewInput): SessionView {
+  const { parkedThoughts, passed } = input;
+  if (parkedThoughts.length > 0 && !passed.thoughts) {
+    return { kind: 'thoughts', thoughts: parkedThoughts };
+  }
+  return { kind: 'home' };
+}
+
+function afterFinish(session: LiveSession, input: SessionViewInput): SessionView {
+  const quiet = session.tone === 'quiet';
+  const { treat, passed } = input;
+  // A serious task has no ceremony: no reveal, and the treat is never handed over with one.
+  if (!quiet && input.reveal === 'pending') return { kind: 'reveal' };
+  if (!quiet && treat !== null) {
+    if (!passed.treat) return { kind: 'treat', treat };
+  } else if (!passed.moment && (quiet || input.reveal !== 'seen')) {
+    return { kind: 'moment', quiet };
+  }
+  return afterTheEnd(input);
+}
+
+export function sessionView(input: SessionViewInput): SessionView {
+  const { session, passed } = input;
+  if (session === null) return { kind: 'home' };
+  switch (session.phase) {
+    case 'let_go':
+    case 'carried_over':
+    case 'made_smaller':
+      return afterTheEnd(input);
+    case 'left_early':
+      return { kind: 'home' };
+    case 'set':
+      return { kind: 'starting' };
+    case 'finished':
+      return afterFinish(session, input);
+    case 'not_finished':
+      return { kind: 'not_finished' };
+    case 'running':
+    case 'stuck':
+    case 'holding':
+    case 'time_up':
+      break;
+  }
+
+  const quiet = session.tone === 'quiet';
+  const timeUp = session.phase === 'time_up' || session.heldFrom === 'time_up';
+  const working: SessionView = {
+    kind: 'working',
+    quiet,
+    stuck: session.phase === 'stuck',
+    twoMinutesLeft: session.warned && !timeUp,
+    timeUp,
+  };
+  // A serious task has no burst and finishes with a plain tap on the working screen.
+  if (quiet) return working;
+  if (input.burst === 'start' && !passed.burst && session.phase === 'running') {
+    return { kind: 'burst' };
+  }
+  if (timeUp || session.phase === 'holding' || passed.finishingEarly) {
+    return { kind: 'finish', control: finishControl(input.finishWith), timeUp };
+  }
+  return working;
+}
+
+/** Whole minutes left, rounded up, so the last minute reads "1 min" until time is up. */
+export function minutesLeft(session: Pick<LiveSession, 'endsAt'>, now: Instant): number {
+  if (session.endsAt === null) return 0;
+  return Math.max(0, Math.ceil((session.endsAt - now) / MINUTE_MS));
+}
+
+/** How much of the session is left, from 1 at the start down to 0 when time is up. */
+export function timeLeftFraction(
+  session: Pick<LiveSession, 'startedAt' | 'endsAt'>,
+  now: Instant,
+): number {
+  if (session.startedAt === null || session.endsAt === null) return 0;
+  const length = session.endsAt - session.startedAt;
+  if (length <= 0) return 0;
+  return Math.min(1, Math.max(0, (session.endsAt - now) / length));
+}
+
+/** The disc's diameter as a share of its full size: its area, not its width, follows the time. */
+export function discScale(fraction: number): number {
+  return Math.sqrt(Math.min(1, Math.max(0, fraction)));
+}
+
+/** The line shown under the timer: any line but the ones the stuck card and the finish carry. */
+export function companyLine(line: ShownLine | null): string | null {
+  if (line === null) return null;
+  const elsewhere: readonly string[] = ['checkIn', 'tinyNextStep', 'timeUp', 'releasedEarly'];
+  return elsewhere.includes(line.slot) ? null : line.text;
+}

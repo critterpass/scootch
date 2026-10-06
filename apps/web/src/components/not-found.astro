@@ -1,0 +1,43 @@
+---
+import type { Language } from '@scootch/i18n';
+
+import { copyFor, localPath, pagesFor } from '../copy';
+import { monsterSvg } from '../lib/drawings';
+
+interface Props {
+  language: Language;
+  /** The headline's level: 1 on the not-found page itself, 1 too where it replaces a page. */
+  focusable?: boolean;
+}
+
+const { language, focusable = false } = Astro.props;
+const copy = pagesFor(language).notFound;
+const maker = copyFor(language).maker;
+---
+
+<div class="shared-grid not-found">
+  <div class="maker-stage">
+    <div class="blob">
+      <figure class="card card-large" role="img" aria-label={`${copy.cardName}. ${copy.cardFlavour}`}>
+        <div class="card-head">
+          <span class="card-name">{copy.cardName}</span>
+          <span class="card-badge">{maker.wild}</span>
+        </div>
+        <div class="card-art" set:html={monsterSvg('dust', 'lostling')} />
+        <p class="card-flavour">{copy.cardFlavour}</p>
+        <div class="card-foot">
+          <span>{maker.notCaught}</span>
+          <strong>scootch.app</strong>
+        </div>
+      </figure>
+    </div>
+  </div>
+  <div>
+    <p class="eyebrow tomato-text">{copy.eyebrow}</p>
+    <h1 tabindex={focusable ? -1 : undefined}>{copy.headline}</h1>
+    <p class="lede">{copy.body}</p>
+    <div class="actions">
+      <a class="button button-ink" href={localPath(language, '/')}>{copy.make}</a>
+    </div>
+  </div>
+</div>

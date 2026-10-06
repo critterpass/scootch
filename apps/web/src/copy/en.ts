@@ -102,7 +102,7 @@ export const en = {
     },
   ],
   strip: {
-    headline: 'Fresh from other people’s lists.',
+    headline: 'A few I hatched earlier.',
     monsters: [
       { name: 'Unread, the Ever-Bold', flavour: '412 unread. Has started naming them.' },
       { name: 'The Receipt Hydra', flavour: 'Grows a head for every receipt you lost.' },
@@ -147,7 +147,7 @@ export const en = {
   },
 } as const;
 
-type Loosen<T> = T extends string
+export type Loosen<T> = T extends string
   ? string
   : T extends readonly (infer Item)[]
     ? readonly Loosen<Item>[]

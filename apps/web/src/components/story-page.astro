@@ -1,0 +1,69 @@
+---
+import type { Language } from '@scootch/i18n';
+
+import { localPath, pagesFor } from '../copy';
+import { scootchSvg } from '../lib/drawings';
+import SiteLayout from '../layouts/site-layout.astro';
+
+import NotFound from './not-found.astro';
+
+interface Props {
+  language: Language;
+}
+
+// A share story from the app: what was done, how long it waited and how long it took.
+const { language } = Astro.props;
+const pages = pagesFor(language);
+const lines = { ...pages.caughtCard, ...pages.story };
+---
+
+<SiteLayout
+  language={language}
+  path="/s"
+  title={pages.story.title}
+  description={pages.story.description}
+  social={false}
+>
+  <section
+    class="wrap shared-page"
+    data-story-page
+    data-state="loading"
+    data-language={language}
+    data-lines={JSON.stringify(lines)}
+  >
+    <p class="lede" data-show="loading" aria-live="polite">{pages.monster.loading}</p>
+
+    <div class="story" data-show="found" hidden>
+      <p class="eyebrow" data-kicker></p>
+      <h1 tabindex="-1">
+        <span data-did></span>
+        <span class="tomato-text" data-waited></span>
+        <span data-took></span>
+      </h1>
+      <div class="story-cast" aria-hidden="true">
+        <span class="drawing" set:html={scootchSvg('celebrating')} />
+        <span class="drawing story-monster" data-monster></span>
+      </div>
+      <div class="actions">
+        <a class="button button-ink" href={localPath(language, '/')}>{pages.caughtCard.makeYourOwn}</a>
+      </div>
+      <p class="small" data-only-shown></p>
+    </div>
+
+    <div data-show="missing" hidden>
+      <NotFound language={language} focusable />
+    </div>
+    <div data-show="offline" hidden>
+      <h1 tabindex="-1">{pages.monster.offlineTitle}</h1>
+      <p class="lede">{pages.monster.offlineBody}</p>
+    </div>
+  </section>
+</SiteLayout>
+
+<script>
+  import { startStoryPage } from '../scripts/shared-card-pages';
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-story-page]')) {
+    void startStoryPage(root);
+  }
+</script>

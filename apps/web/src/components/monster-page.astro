@@ -1,0 +1,97 @@
+---
+import type { Language } from '@scootch/i18n';
+
+import { appStoreUrl, copyFor, localPath, pagesFor, preLaunch } from '../copy';
+import SiteLayout from '../layouts/site-layout.astro';
+
+import NotFound from './not-found.astro';
+import WaitlistForm from './waitlist-form.astro';
+
+interface Props {
+  language: Language;
+}
+
+// One page for every shared monster: the browser fetches the monster named in the address and
+// fills this in. The Worker serves it at `/m/<id>` with that monster's link preview tags.
+const { language } = Astro.props;
+const pages = pagesFor(language);
+const copy = pages.monster;
+const lines = { ...copy, unshared: pages.share.unshared };
+---
+
+<SiteLayout language={language} path="/m" title={copy.title} description={copy.description} social={false}>
+  <section
+    class="wrap shared-page"
+    data-monster-page
+    data-state="loading"
+    data-language={language}
+    data-lines={JSON.stringify(lines)}
+  >
+    <p class="lede" data-show="loading" aria-live="polite">{copy.loading}</p>
+
+    <div class="shared-grid" data-show="found" hidden>
+      <div class="maker-stage">
+        <div class="blob">
+          <figure class="card card-large" role="img" data-card>
+            <div class="card-head">
+              <span class="card-name" data-card-name></span>
+              <span class="card-badge" data-card-badge></span>
+            </div>
+            <div class="card-art" data-card-art></div>
+            <p class="card-typed" data-card-typed></p>
+            <p class="card-flavour" data-card-flavour></p>
+            <div class="card-foot">
+              <span data-card-foot></span>
+              <strong>scootch.app</strong>
+            </div>
+          </figure>
+        </div>
+      </div>
+      <div>
+        <p class="eyebrow" data-eyebrow></p>
+        <h1 data-name tabindex="-1"></h1>
+        <p class="lede flavour" data-flavour></p>
+        <dl class="facts" data-facts></dl>
+        {
+          preLaunch && (
+            <WaitlistForm language={language} managed intro={pages.preLaunch.intro} />
+          )
+        }
+        <div class="actions actions-swap">
+          <a class="button action-make" href={localPath(language, '/')}>{copy.makeYourOwn}</a>
+          {
+            !preLaunch && (
+              <a class="button action-catch" href={appStoreUrl} data-catch>
+                {copy.catchIt}
+              </a>
+            )
+          }
+        </div>
+        <p class="small" data-yours hidden>
+          {copy.yours}
+          <button type="button" class="link-button" data-action="unshare">{pages.share.unshare}</button>
+        </p>
+      </div>
+    </div>
+
+    <div data-show="missing" hidden>
+      <NotFound language={language} focusable />
+    </div>
+
+    <div data-show="offline" hidden>
+      <h1 tabindex="-1">{copy.offlineTitle}</h1>
+      <p class="lede">{copy.offlineBody}</p>
+      <div class="actions">
+        <a class="button button-ink" href={localPath(language, '/')}>{copyFor(language).nav.maker}</a>
+      </div>
+    </div>
+  </section>
+</SiteLayout>
+
+<script>
+  import { startMonsterPage } from '../scripts/monster-page';
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-monster-page]')) {
+    void startMonsterPage(root);
+  }
+</script>

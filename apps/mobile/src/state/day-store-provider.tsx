@@ -21,7 +21,7 @@ import { CUES } from '@scootch/sound';
 import { apiBaseUrl, keychainTokenStore } from '../api/api-config';
 import { createHttpClient } from '../api/http-client';
 import { createScootchApi } from '../api/scootch-api';
-import { createTaskClient } from '../api/task-client';
+import { createStagedTaskClient } from '../api/staged-task-client';
 import { openRepositories } from '../data/repositories';
 import { createEffectsRunner } from '../effects/effects-runner';
 import {
@@ -36,6 +36,8 @@ import { useLanguage } from '../i18n/i18n-provider';
 
 import { createDayStore, effectSwitches, type DayStore } from './day-store';
 import type { DayEvent, DayState } from './day-types';
+import { lineFor } from './lines';
+import { SessionRelaunch } from './session-relaunch';
 
 /** The day store on the real phone: its database, the API, and the native effects. */
 function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
@@ -68,7 +70,7 @@ function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
     clock: systemClock,
     timeZone: () => getCalendars()[0]?.timeZone ?? 'UTC',
     nextId: randomUUID,
-    tasks: createTaskClient(createScootchApi(http)),
+    tasks: createStagedTaskClient(createScootchApi(http)),
     online: async () => {
       const network = await getNetworkStateAsync();
       return network.isInternetReachable ?? network.isConnected ?? false;
@@ -139,7 +141,10 @@ export function DayStoreProvider({ children }: { readonly children: ReactNode })
 
   return (
     <DayStoreContext.Provider value={app.store}>
-      <CueContext.Provider value={playCue}>{children}</CueContext.Provider>
+      <CueContext.Provider value={playCue}>
+        <SessionRelaunch store={app.store} />
+        {children}
+      </CueContext.Provider>
     </DayStoreContext.Provider>
   );
 }
@@ -164,7 +169,7 @@ function useDayState(): DayState {
 export function useToday() {
   const state = useDayState();
   const { ready, localDate, today, morning, monster, monsterPending } = state;
-  const { taskCall, notice, heardDeadlines, settings } = state;
+  const { taskCall, notice, heardDeadlines, settings, pick, energyNeeded } = state;
   return useMemo(
     () => ({
       ready,
@@ -177,6 +182,8 @@ export function useToday() {
       notice,
       heardDeadlines,
       settings,
+      pick,
+      energyNeeded,
     }),
     [
       ready,
@@ -189,16 +196,29 @@ export function useToday() {
       notice,
       heardDeadlines,
       settings,
+      pick,
+      energyNeeded,
     ],
   );
 }
 
-/** The session, and what the effects runner last showed: a line, a burst, the treat, parked thoughts. */
+/**
+ * The session, and what the effects runner last showed: a line, a burst, the treat, parked
+ * thoughts. `tinyNextStep` is the task's own smallest step, for stuck help.
+ */
 export function useSession() {
-  const { session, line, burst, treat, parkedThoughts } = useDayState();
+  const { session, line, burst, treat, parkedThoughts, today, settings } = useDayState();
+  const task = 'task' in today ? today.task : null;
   return useMemo(
-    () => ({ session, line, burst, treat, parkedThoughts }),
-    [session, line, burst, treat, parkedThoughts],
+    () => ({
+      session,
+      line,
+      burst,
+      treat,
+      parkedThoughts,
+      tinyNextStep: task ? lineFor('tinyNextStep', task, settings) : null,
+    }),
+    [session, line, burst, treat, parkedThoughts, task, settings],
   );
 }
 

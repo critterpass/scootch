@@ -1,0 +1,8 @@
+---
+import CaughtCardPage from '../../../components/caught-card-page.astro';
+import { languagePaths } from '../../../copy';
+
+export const getStaticPaths = languagePaths;
+---
+
+<CaughtCardPage language={Astro.params.lang === 'vi' ? 'vi' : 'en'} />
