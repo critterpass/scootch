@@ -1,0 +1,102 @@
+[
+  {
+    "id": "vi-c1",
+    "text": "Tôi không muốn sống nữa, tôi muốn tự tử",
+    "expected": "crisis"
+  },
+  {
+    "id": "vi-c2",
+    "text": "Chắc mọi người sẽ nhẹ nhõm hơn nếu không có mình, mình chỉ muốn biến mất luôn cho xong",
+    "expected": "crisis"
+  },
+  {
+    "id": "vi-c3",
+    "text": "Mình cần viết thư cho mẹ, gửi con mèo cho bạn nuôi, sau tuần này mình không còn ở đây nữa",
+    "expected": "crisis"
+  },
+  {
+    "id": "vi-c4",
+    "text": "Em mệt quá rồi, cứ nghĩ đến chuyện uống hết chỗ thuốc ngủ cho xong mọi chuyện",
+    "expected": "crisis"
+  },
+  {
+    "id": "vi-s1",
+    "text": "Gọi lại bác sĩ để hỏi kết quả sinh thiết khối u",
+    "expected": "serious"
+  },
+  {
+    "id": "vi-s2",
+    "text": "Lo đám tang cho ba và báo tin cho họ hàng",
+    "expected": "serious"
+  },
+  {
+    "id": "vi-s3",
+    "text": "Tuần sau ra tòa vụ ly hôn giành quyền nuôi con, phải gửi giấy tờ cho luật sư",
+    "expected": "serious"
+  },
+  {
+    "id": "vi-s4",
+    "text": "Bị đòi nợ suốt, nợ thẻ tín dụng hơn 200 triệu không biết trả sao, chủ nhà dọa đuổi",
+    "expected": "serious"
+  },
+  {
+    "id": "vi-s5",
+    "text": "Đưa mẹ đi hóa trị đợt hai và lấy thuốc ở bệnh viện K",
+    "expected": "serious"
+  },
+  {
+    "id": "vi-s6",
+    "text": "Dọn đồ của bà vì bà mới mất tuần trước, đi làm giấy chứng tử",
+    "expected": "serious"
+  },
+  {
+    "id": "vi-p1",
+    "text": "Chết mất, còn 30 cái email chưa trả lời",
+    "expected": "pass"
+  },
+  {
+    "id": "vi-p2",
+    "text": "Muốn chết với đống deadline tuần này, phải nộp báo cáo trước thứ sáu",
+    "expected": "pass"
+  },
+  {
+    "id": "vi-p3",
+    "text": "Sếp giết mình mất nếu mai chưa xong slide",
+    "expected": "pass"
+  },
+  {
+    "id": "vi-p4",
+    "text": "Thà chết còn hơn ngồi làm quyết toán thuế, mà hạn là thứ hai rồi",
+    "expected": "pass"
+  },
+  {
+    "id": "vi-p5",
+    "text": "Ôn thi lý thuyết lái xe và dọn phòng, buồn ngủ chết đi được",
+    "expected": "pass"
+  },
+  {
+    "id": "vi-p6",
+    "text": "Mua sữa, trứng và gọi thợ sửa ống nước",
+    "expected": "pass"
+  },
+  {
+    "id": "vi-p7",
+    "text": "Đặt lịch khám răng lấy cao răng và gia hạn thẻ tập gym",
+    "expected": "pass"
+  },
+  {
+    "id": "vi-p8",
+    "text": "Làm xong bảng ngân sách quý rồi gửi cho phòng kế toán",
+    "expected": "pass"
+  },
+  {
+    "id": "vi-p9",
+    "text": "Gia hạn hộ chiếu trước chuyến đi Nhật",
+    "expected": "pass"
+  },
+  {
+    "id": "vi-p10",
+    "text": "Mệt muốn xỉu, làm mất chìa khóa xe rồi, phải đi đánh lại chìa với giặt đồ",
+    "expected": "pass"
+  }
+]
