@@ -1,6 +1,6 @@
 # Phase 03: AI routes, API and ops bot
 
-Status: not started · Tasks: 9 · Needs: 01 · Owns: `apps/api`, `packages/voice`
+Status: in progress · Tasks: 9 · Needs: 01 · Owns: `apps/api`, `packages/voice`
 
 Goal: every model call the app makes, behind one small API, each with an eval
 set, and the founder's Telegram bot. Read tech-decisions sections 2 and 5.
@@ -9,7 +9,7 @@ set, and the founder's Telegram bot. Read tech-decisions sections 2 and 5.
 - Do: Hono on Workers, D1, R2, anonymous device tokens, rate limits, the error
   shape, a cost ledger per route, feature flags.
 - Done when: it deploys to dev from CI.
-- Status: partly done — 7ab748c; deploy to dev pending
+- Status: done — 7ab748c; dev is live at https://scootch-dev.bkdev98.workers.dev (health, error shape and device registration checked 7 Oct 2026). Deploys are by hand until CI has a Cloudflare token; prd resources are not created yet.
 
 ### 2. Model gateway
 - Owns: `apps/api/src/ai/`.
