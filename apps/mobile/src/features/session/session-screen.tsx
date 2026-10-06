@@ -29,6 +29,7 @@ export function SessionScreen({ model, actions }: SessionScreenProps) {
   switch (model.view.kind) {
     case 'home':
     case 'starting':
+    case 'reveal':
       // Between screens: the page, and nothing on it.
       return <View style={{ flex: 1, backgroundColor: inks.page }} />;
     case 'burst':
