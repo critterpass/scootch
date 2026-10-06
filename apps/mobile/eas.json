@@ -1,0 +1,59 @@
+{
+  "cli": {
+    "version": ">= 16.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "channel": "dev",
+      "node": "24.21.0",
+      "pnpm": "12.6.0",
+      "env": {
+        "APP_VARIANT": "dev",
+        "ORG_GRADLE_PROJECT_reactNativeArchitectures": "arm64-v8a"
+      }
+    },
+    "dev": {
+      "distribution": "store",
+      "channel": "dev",
+      "autoIncrement": true,
+      "node": "24.21.0",
+      "pnpm": "12.6.0",
+      "env": {
+        "APP_VARIANT": "dev",
+        "ORG_GRADLE_PROJECT_reactNativeArchitectures": "arm64-v8a"
+      }
+    },
+    "e2e-test": {
+      "distribution": "internal",
+      "withoutCredentials": true,
+      "node": "24.21.0",
+      "pnpm": "12.6.0",
+      "env": {
+        "APP_VARIANT": "e2e-test",
+        "ORG_GRADLE_PROJECT_reactNativeArchitectures": "arm64-v8a,x86_64"
+      },
+      "ios": {
+        "simulator": true,
+        "image": "latest"
+      },
+      "android": {
+        "buildType": "apk",
+        "image": "latest"
+      }
+    },
+    "prd": {
+      "distribution": "store",
+      "channel": "prd",
+      "autoIncrement": true,
+      "node": "24.21.0",
+      "pnpm": "12.6.0",
+      "env": {
+        "APP_VARIANT": "prd",
+        "ORG_GRADLE_PROJECT_reactNativeArchitectures": "arm64-v8a"
+      }
+    }
+  }
+}
