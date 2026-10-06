@@ -34,6 +34,7 @@ Session.
 - Do: the task call; one phrase lights up and the rest falls away; "Another"
   and "That's the one"; energy read; pick for me.
 - States: slow model, model unavailable (the user picks; see phase 07).
+- Status: partly done; screens built and tested with fakes — 8091f09, not yet run on a device
 
 ### 5. Deadlines and the drawer
 - Owns: `packages/domain/src/drawer/`.
@@ -41,17 +42,19 @@ Session.
   the one thing on its day; the drawer opens only by a deliberate pull; swap
   in; undated items fade after two weeks.
 - Test: return dates, fading, and that the drawer never opens by itself.
-- Status: partly done — f29e5c7; pure logic and tests in packages/domain, no screens or storage yet
+- Status: partly done — f29e5c7; pure logic and tests in packages/domain, no screens or storage yet; screens built and tested with fakes — 8091f09, not yet run on a device
 
 ### 6. Bargaining and shrinking
 - Do: an excuse gets a smaller counter-offer; "too big" shrinks the task and
   the monster. The ask only ever gets smaller.
 - Test: no path makes the ask larger.
+- Status: partly done; screens built and tested with fakes — 8091f09, not yet run on a device
 
 ### 7. Hatching
 - Do: the monster appears with its name and flavour text; "Catch him" sets the
   task; the treat is named before starting.
 - States: a serious task skips hatching entirely.
+- Status: partly done; screens built and tested with fakes — 8091f09, not yet run on a device
 
 ### 8. Session
 - Owns: `packages/domain/src/session/`.
@@ -73,6 +76,7 @@ Session.
 - Do: the morning line about yesterday's leftover on days two and three; a
   return after a week or more with no mention of the gap.
 - Done when: the fresh-user walk covers day one, day two and a return.
+- Status: partly done; screens built and tested with fakes — 8091f09, not yet run on a device
 
 ## Exit
 
