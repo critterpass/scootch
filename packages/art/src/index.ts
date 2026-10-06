@@ -31,6 +31,7 @@ export {
   type TextAlign,
   type TextCommand,
 } from './core/commands';
+export * from './motion';
 export { estimateTextWidth, type MeasureText, type TextStyle } from './core/text';
 export { specFromSeed } from './core/spec-from-seed';
 export { buildScootch, SCOOTCH_MOODS } from './scootch/build-scootch';

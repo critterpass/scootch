@@ -70,6 +70,8 @@ export function Seat({
           mood="working"
           workMode={workMode ?? null}
           reducedMotion={reducedMotion}
+          ownLoop={false}
+          seed={seat.userId}
           size={size}
         />
       </View>

@@ -26,7 +26,15 @@ export function Characters({
   return (
     <View style={styles.row}>
       <Scootch mood={mood} attitude={attitude} reducedMotion={reducedMotion} size={size} />
-      {monster ? <Monster spec={monster.spec} size={size * 0.6} testID="session-monster" /> : null}
+      {monster ? (
+        <Monster
+          spec={monster.spec}
+          idle
+          reducedMotion={reducedMotion}
+          size={size * 0.6}
+          testID="session-monster"
+        />
+      ) : null}
     </View>
   );
 }
