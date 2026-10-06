@@ -6,12 +6,14 @@ Goal: Scootch, every monster and every sound exist as components other lanes
 drop in. Board: Characters; the card on App flows.
 
 ### 1. Scootch
+- Status: partly done — 79d90b5; stills for every mood, no animation, squeak or Skia backend yet
 - Do: the critter in Skia with its moods (waiting, listening, typing,
   bargaining, pleased, asleep, serious) and the squeak on tap. Reduce Motion
   form for each.
 - Done when: every mood renders in the registry sheet beside its render.
 
 ### 2. Work modes
+- Status: partly done — e02ea2a; stills for thirty modes, no loops yet
 - Owns: `packages/art/src/work-modes/` (one file per mode).
 - Do: all 30 modes, each with prop, accessory and loop.
 - Done when: the 30 appear in a sheet; a missing mode falls back to a plain
@@ -44,6 +46,7 @@ drop in. Board: Characters; the card on App flows.
 - Done when: a baked pose shows in the widget stub.
 
 ### 7. Sound and haptics cues
+- Status: partly done — 0057445; composed and measured, not yet heard by the founder or played in the app
 - Owns: `packages/sound/src/cues/`.
 - Do: a named cue list (start burst, hatch, shrink, park, two minutes left,
   hold rising, finish, quiet finish for serious mode, nudge) with matching
@@ -51,6 +54,7 @@ drop in. Board: Characters; the card on App flows.
 - Done when: every cue plays from a lab screen on a device.
 
 ### 8. The record
+- Status: partly done — 0057445; composed and measured, not yet heard by the founder or played in the app
 - Do: one bar of music from a finished day (seeded by the day's monster); a
   full track from up to seven bars; a 15-second clip export; a record with
   fewer than seven bars still sounds finished.

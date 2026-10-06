@@ -73,6 +73,7 @@ Two lanes: A owns tasks 1 to 6 and 11, B owns tasks 7 to 10.
   with Apple and App Intents.
 - Done when: the build signs with every capability, and each stub shows a
   placeholder on a device.
+- Status: partly done — 3ff74c3; every launch module declared and generated, not yet built or signed
 
 ### 9. First native build
 - Do: cut native batch one, submit to TestFlight, publish one over-the-air
