@@ -27,10 +27,40 @@ browser as designed.
 Every board has been read against the plan as text. Nobody has yet compared
 the rendered screens.
 
+## One image per screen
+
+`design/screens.json` lists every designed screen: board, section, screen
+label, image path, and width and height in design points. The images are not
+in the repository. Get them with:
+
+```
+tools/scripts/fetch-design-renders.sh
+```
+
+This unpacks them into `design/renders/<board>/<section>--<screen>.png`
+(ignored by git). They are twice the design size, with a 12-point margin so
+the device frame around a screen is not cut.
+
+The `design renders` workflow makes them with
+`tools/scripts/render-design-screens.ts` whenever a board or the script
+changes on main, and keeps them as one zip on the `design-renders` release.
+After changing a board, run the script here and commit the new
+`design/screens.json`.
+
+Know before comparing:
+
+- A screen is a labelled element inside a numbered section. A board's title
+  block and the three introductory blocks at the top of the app flows board
+  hold no screens and are not rendered.
+- The workflow runs on Linux, which has no San Francisco font: text the
+  boards set in the system font is drawn in the runner's default sans-serif,
+  so line breaks can differ slightly from an iPhone. Nunito is loaded.
+- Moving parts (the characters, banners that fade in) are caught at whatever
+  frame they were on.
+
 ## What is still missing
 
-- One PNG per screen under `design/renders/<board>/<screen>.png`, and
-  `design/screens.json` (board, screen label, render path). Phase 00 task 7.
+- Nobody has yet compared the rendered screens with the product brief by eye.
 - Vietnamese: the boards are in English only. Vietnamese screens are checked
   on device sheets, not against a render.
 
