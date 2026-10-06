@@ -8,6 +8,8 @@ import { useLanguage } from '../../i18n/i18n-provider';
 import { useToday } from '../../state/day-store-provider';
 import { useKeepsakes, usePlus } from '../../state/keepsakes';
 import { useScreenStyle } from '../../ui/use-screen-style';
+import { useKeptWeeks } from '../plus/kept-records';
+import { PLUS_RECORDS, PLUS_SHEET } from '../plus/routes';
 import { nativeShareDevice } from '../share/native-share-device';
 import { shareWeekClip } from '../share/share-flow';
 
@@ -25,6 +27,7 @@ export function RecordContainer() {
   const { localDate, settings } = useToday();
   const { keepsakes } = useKeepsakes();
   const plus = usePlus();
+  const shelf = useKeptWeeks();
   const player = useMemo(() => nativePcmPlayer(), []);
   const week = useMemo(() => {
     const { week: thisWeek, weekday } = isoWeekOf(localDate);
@@ -48,10 +51,18 @@ export function RecordContainer() {
         plus,
         playback,
         reducedMotion: reducedMotion || settings.motion === 'calm',
+        kept: shelf.weeks.includes(week.week),
+        keptCount: shelf.weeks.length,
       }}
       actions={{
         close: () => router.replace('/world'),
         togglePlay: toggle,
+        openPlus: () => router.push(PLUS_SHEET),
+        // The entitlement decides again here, whatever the dock drew.
+        keep: () => {
+          if (plus) shelf.keep(week.week);
+        },
+        openShelf: () => router.replace(PLUS_RECORDS),
         shareWeek: () => {
           if (!weekShareOffered(week)) return;
           // The clip goes out as an audio file by itself: whether it becomes a video is undecided.

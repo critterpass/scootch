@@ -7,6 +7,7 @@ import { spacing } from '@scootch/tokens';
 import { useT } from '../../i18n/i18n-provider';
 import { useAppearance } from '../../screens/registry/support/forced-variant';
 import { useScreenStyle } from '../../ui/use-screen-style';
+import { FirstOffer } from '../plus/first-offer';
 import { CommandCanvas } from '../reveal/ui/command-canvas';
 import { Dock, KeepFrame } from '../reveal/ui/keep-frame';
 import { SessionText } from '../session/ui/session-text';
@@ -56,20 +57,23 @@ export function WorldScreen({ model, actions }: { model: WorldModel; actions: Wo
       closeTestID="world-close"
       scroll={false}
       footer={
-        <Dock
-          quiet={{
-            label: t('world.caught'),
-            hint: t('world.caught.hint'),
-            testID: 'world-open-zoo',
-            onPress: actions.openZoo,
-          }}
-          action={{
-            label: t('world.song'),
-            hint: t('world.song.hint'),
-            testID: 'world-open-record',
-            onPress: actions.openRecord,
-          }}
-        />
+        <>
+          <FirstOffer />
+          <Dock
+            quiet={{
+              label: t('world.caught'),
+              hint: t('world.caught.hint'),
+              testID: 'world-open-zoo',
+              onPress: actions.openZoo,
+            }}
+            action={{
+              label: t('world.song'),
+              hint: t('world.song.hint'),
+              testID: 'world-open-record',
+              onPress: actions.openRecord,
+            }}
+          />
+        </>
       }
     >
       <FlatList

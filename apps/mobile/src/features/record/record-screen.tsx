@@ -22,12 +22,20 @@ export interface RecordModel {
   readonly plus: boolean;
   readonly playback: Omit<RecordPlayback, 'toggle'>;
   readonly reducedMotion: boolean;
+  /** This week's record is on the shelf. */
+  readonly kept?: boolean;
+  /** How many records are on the shelf. They stay there whatever happens to Plus. */
+  readonly keptCount?: number;
 }
 
 export interface RecordActions {
   readonly close: () => void;
   readonly togglePlay: () => void;
   readonly shareWeek: () => void;
+  /** The locked control was tapped: the Plus sheet opens. Unset, it does nothing. */
+  readonly openPlus?: () => void;
+  readonly keep?: () => void;
+  readonly openShelf?: () => void;
 }
 
 /** One line of the liner notes: an instrument, its day and the task that earned it. */
@@ -88,13 +96,30 @@ export function RecordScreen({ model, actions }: { model: RecordModel; actions: 
       closeTestID="record-close"
       footer={
         <Dock
-          quiet={{
-            label: t('record.keep'),
-            hint: t('keep.plusOnly.hint'),
-            testID: 'record-keep',
-            // Keeping, exporting and the shelf of past weeks come with purchases.
-            locked: true,
-          }}
+          quiet={
+            // What was kept stays reachable without Plus; keeping another needs it.
+            model.kept === true || (!model.plus && (model.keptCount ?? 0) > 0)
+              ? {
+                  label: t('record.shelf', { count: model.keptCount ?? 0 }),
+                  hint: t('record.shelf.hint'),
+                  testID: 'record-shelf-open',
+                  ...(actions.openShelf ? { onPress: actions.openShelf } : {}),
+                }
+              : model.plus
+                ? {
+                    label: t('record.keep'),
+                    hint: t('record.keep.hint'),
+                    testID: 'record-keep',
+                    ...(actions.keep ? { onPress: actions.keep } : {}),
+                  }
+                : {
+                    label: t('record.keep'),
+                    hint: t('keep.plusOnly.hint'),
+                    testID: 'record-keep',
+                    locked: true,
+                    ...(actions.openPlus ? { onPress: actions.openPlus } : {}),
+                  }
+          }
           {...(weekShareOffered(week)
             ? {
                 action: {

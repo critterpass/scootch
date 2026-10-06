@@ -26,3 +26,14 @@ export function offlineLine(
 export function noTaskLine(language: Language, attitude: Attitude, slot: NoTaskSlot): string {
   return offlinePacks[language].noTask[attitude][slot];
 }
+
+/** The line that announces the next renewal of Plus, from the store's own day and price. */
+export function renewalLine(
+  language: Language,
+  attitude: Attitude,
+  plan: 'monthly' | 'yearly',
+  day: string,
+  price: string | null,
+): string {
+  return offlinePacks[language].renewal(attitude, plan, day, price);
+}
