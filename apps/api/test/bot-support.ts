@@ -14,6 +14,7 @@ export function botEnv(overrides: Partial<Bindings> = {}): Bindings {
     FILES: env.FILES,
     IP_RATE_LIMIT: env.IP_RATE_LIMIT,
     DEVICE_RATE_LIMIT: env.DEVICE_RATE_LIMIT,
+    TABLE: env.TABLE,
     ENVIRONMENT: 'dev',
     COMMIT_SHA: 'abc1234',
     TELEGRAM_BOT_TOKEN: 'test-bot-token',

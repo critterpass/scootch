@@ -1,0 +1,37 @@
+{
+  "client": [
+    { "type": "start", "minutes": 25 },
+    { "type": "nudge", "to": "abcdefghijkl" },
+    { "type": "mode", "workMode": "paperwork", "hidden": false },
+    { "type": "mode", "workMode": null, "hidden": true },
+    { "type": "leave" }
+  ],
+  "server": [
+    {
+      "type": "state",
+      "you": "abcdefghijkl",
+      "hostId": "abcdefghijkl",
+      "seats": [
+        {
+          "userId": "abcdefghijkl",
+          "label": "admin",
+          "name": "Mai",
+          "online": true,
+          "nudgesLeft": 3
+        },
+        { "userId": "mnopqrstuvwx", "label": "", "name": "Bo", "online": false, "nudgesLeft": 1 },
+        { "userId": "yz234567abcd", "label": "đang bận", "online": true, "nudgesLeft": 0 }
+      ],
+      "endsAt": 1791342000000,
+      "minutes": 25,
+      "serverNow": 1791340500000
+    },
+    { "type": "nudged", "from": "mnopqrstuvwx" },
+    { "type": "nudge_sent", "to": "abcdefghijkl", "nudgesLeft": 2 },
+    { "type": "session_ended" },
+    { "type": "replaced" },
+    { "type": "error", "code": "label_text_refused" },
+    { "type": "error", "code": "seat_removed" },
+    { "type": "error", "code": "not_seated" }
+  ]
+}
