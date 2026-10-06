@@ -89,6 +89,7 @@ Two lanes: A owns tasks 1 to 6 and 11, B owns tasks 7 to 10.
   exists in one language only; every sheet captured in both languages. Fonts
   and layouts checked with Vietnamese diacritics and longer lines.
 - Done when: the sample screen appears in a sheet in both languages.
+- Status: done — 8e0292b
 
 ## Exit
 
