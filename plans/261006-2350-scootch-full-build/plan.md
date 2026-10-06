@@ -50,7 +50,7 @@ A and C merge.
 
 | Gate | When | What must be true |
 |---|---|---|
-| Voice | End of 00 | The founder has read sample lines at all three attitudes and picked the model |
+| Voice | End of 00 | Passed 7 Oct 2026: the founder read the samples in both languages; DeepSeek writes Scootch |
 | Native batch one | End of 01 | A TestFlight build on the dev channel with every launch capability declared; an over-the-air update reaches it |
 | First minute | End of 04 | A fresh install goes from "Hello" to a caught monster with no seed, on a device run, and offline for the session |
 | Care | End of 07 | The serious and crisis eval set passes with no miss, and the walk shows no joke on a heavy task |
@@ -82,25 +82,27 @@ Ownership is by folder. Two lanes never own the same folder in the same round.
 
 Things only the founder can do. Phase 00 lists them with the exact steps.
 
-1. Put scootch.app on Cloudflare (it is registered).
+1. Done: scootch.app is registered through Cloudflare.
 2. Done 7 Oct: the EAS project exists (id in tech-decisions section 1).
-3. Create the Apple app id and tick every capability in tech-decisions section 4.
-4. Create the RevenueCat project and the three products.
+3. Bundle ids chosen 7 Oct: `app.scootch.dev` and `app.scootch`. Still to
+   confirm: both app ids exist in the developer portal with every capability
+   in tech-decisions section 4 ticked (Time Sensitive needs a manual tick).
+4. RevenueCat key received 7 Oct. Still to confirm: the three products exist
+   in App Store Connect and RevenueCat.
 5. Done 7 Oct: the CritterPass Jev, DeepSeek and ElevenLabs keys are reused.
    Still open: confirm DeepSeek's terms allow the privacy page's promise that
    brain dumps are never used for training, or pick a provider that does.
-6. Create the Telegram bot and send its token and your chat id.
+6. Bot token received 7 Oct. The chat id given equals the bot's own id; the
+   founder's own chat id is still needed (message the bot once).
 7. Done 7 Oct: the full design archive is in `design/`.
-8. Approve the voice (the Voice gate).
+8. Done 7 Oct: voice approved.
 
 ## Unresolved questions
 
-1. Which generation model writes Scootch in each language (the phase 00
-   bake-off decides).
-2. Who checks the Vietnamese voice and the Vietnamese banned-word list. The
+1. Who checks the Vietnamese voice and the Vietnamese banned-word list. The
    founder is the obvious reader.
-3. Does a free user see the weekly sentence in the world, or is it Plus only.
-4. "Send the link to my phone": QR code and email only, or text messages too.
-5. Does the founder accept "a person writes back within two working days" on
+2. Does a free user see the weekly sentence in the world, or is it Plus only.
+3. "Send the link to my phone": QR code and email only, or text messages too.
+4. Does the founder accept "a person writes back within two working days" on
    the support page.
-6. Which Vietnamese helplines to list; each needs a source and a checked date.
+5. Which Vietnamese helplines to list; each needs a source and a checked date.

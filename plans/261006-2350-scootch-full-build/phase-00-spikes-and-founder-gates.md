@@ -2,9 +2,9 @@
 
 Status: in progress · Tasks: 9 · Needs: nothing
 
-Done: spikes 2 to 6 and the design review (task 8). Open: the voice bake-off
-needs a direct Anthropic key and the founder's read (task 1); screen renders
-(task 7); the founder gates (task 9).
+Done: all six spikes and the design review (task 8). Open: screen renders
+(task 7, after CI exists) and three founder gates (task 9): app ids with
+capabilities, RevenueCat products, and the founder's Telegram chat id.
 
 Goal: remove the unknowns that would change the plan, and get the accounts and
 designs in place. Every spike is one lane, ten to fifteen minutes, three to
@@ -14,12 +14,9 @@ no product code.
 ## Spikes
 
 ### 1. Voice bake-off
-- Status: half done 7 Oct 2026. Both voice guide drafts exist and two
-  DeepSeek models were compared. No Claude model has been tested: the only
-  key on this Mac is a proxy to DeepSeek. The founder reads the sample page,
-  Vietnamese first. If DeepSeek's voice is good enough, the gate closes on
-  it; if not, rerun `plans/reports/voice/voice-bake-off-script.mjs` with a
-  direct Anthropic key. The Voice gate is open.
+- Status: done 7 Oct 2026. Two DeepSeek models were compared; the founder
+  read the samples in both languages and judged them good enough. No Claude
+  model was tested. The Voice gate is passed.
   Report: `plans/reports/spike-261007-0005-voice-bake-off-report.md`.
 - Do: write the voice guide draft in English and in Vietnamese (rules, ten
   good and ten banned lines per attitude, the banned-word list). Run five

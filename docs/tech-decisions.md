@@ -24,6 +24,7 @@ and record the change here.
 | Ops | A Telegram bot. No admin dashboard | See section 5 |
 | Environments | Two only: dev and prd. No staging | Speed. Dev is where lanes, device runs and the founder's test builds point; prd is the App Store build |
 | EAS project | `534fb786-e7e7-4058-a3c4-636196dc5078` | Created by the founder, 7 Oct 2026 |
+| Bundle ids | `app.scootch.dev` (dev) and `app.scootch` (prd) | Two installable apps, one per environment |
 
 What is deliberately absent: Postgres, PowerSync, Centrifugo, Redis, Docker,
 Testcontainers, a back-office web app, a staging environment.
@@ -115,18 +116,19 @@ the fallback model for Vietnamese until it passes.
 Dates and deadlines are extracted by the generation model and then parsed and
 checked in code. Jev is weak at numbers.
 
-### The generation model (**open**)
+### The generation model: DeepSeek
 
-DeepSeek is available now through the founder's key, and the 7 Oct bake-off
-ran on it. The voice decides whether the product works, so the model is
-chosen by a bake-off on the voice guide in phase 00, in both languages, not
-by habit.
+Decided 7 Oct 2026. The founder read the bake-off samples in both languages
+and judged them good enough, so no Claude comparison was run. Starting split,
+to be tuned on the evals in phase 03: the larger model (`deepseek-v4-pro`)
+for the task call, monster names and flavour text, where the writing matters
+most; the fast model (`deepseek-flash`) for shrink, bargain, stuck help and
+other short replies. Every line passes the code check before it is shown.
 Vietnamese lines are written in Vietnamese by the model from a Vietnamese
 voice guide. They are never translations of the English lines, because the
-humour and the monster names depend on wordplay. Candidates: Claude
-Haiku 4.5 for the fast lines and Sonnet 5.5 for the brain dump, against the
-DeepSeek route CritterPass uses. The provider must give a no-training,
-zero-retention agreement, because the privacy screen promises it.
+humour and the monster names depend on wordplay. The privacy page promises brain dumps are never used for training. The
+founder confirms DeepSeek's terms allow that and has switched off data use
+for training on the DeepSeek platform (7 Oct 2026).
 
 ### One call per task
 
