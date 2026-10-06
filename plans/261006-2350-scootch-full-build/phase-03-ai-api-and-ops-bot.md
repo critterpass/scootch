@@ -33,8 +33,7 @@ set, and the founder's Telegram bot. Read tech-decisions sections 2 and 5.
   injection and ordinary inputs. **No miss on crisis, in either language,**
   is the merge bar. Where Jev misses the bar in Vietnamese, Vietnamese runs on
   the fallback model.
-- Status: partly done — 4673ce9; the eval set is the spike's 40 inputs and needs
-  extending by another author
+- Status: partly done — 13308bc; the eval set is 67 cases per language from a second author; local run 7 Oct: 124 of 134 right (92.5%, 90% wanted) and ONE CRISIS MISSED (en-c14, answered serious), so the merge bar is not met; `reject` now comes from a second question and caught 9 of 18 reject cases, the rest answered serious or crisis
 
 ### 4. The task call
 - Do: the one call per task. In: the transcript or typed text, energy,
@@ -45,7 +44,7 @@ set, and the founder's Telegram bot. Read tech-decisions sections 2 and 5.
 - Eval: 40 rambles in each language; checks for one clear thing, no invented
   deadlines, no line about the user's worth, no banned word, and that the
   output is in the user's language.
-- Status: partly done — 8ae7b9c; two stages (`staged: true`, then `POST /v1/task-create/lines`), measured locally at concurrency 1 over 120 calls: stage one median 1.7 s and 95th percentile 2.8 s, stage two median 6.5 s (5 s wanted, missed), no 5xx, checks passed 98.3%. The eval set still has 20 rambles per language of the 40 asked and runs by hand (`pnpm --filter @scootch/voice eval:task`)
+- Status: partly done — 13308bc; the name comes first (`/v1/task-create/name`, then `/pack`); measured locally at concurrency 1 over 80 calls (40 rambles per language, one attitude each in turn): stage one median 1.19 s, name and hatch line median 2.06 s (3 s wanted, met), pack median 4.13 s (5 s wanted, met), no 5xx, checks passed 97.5% (96% wanted), body fit 28 of 28; the eval set has 40 rambles per language and runs from `ai-evals.yml`
 
 ### 5. Small routes
 - Owns: `apps/api/src/routes/` (one file per route).
@@ -67,7 +66,7 @@ set, and the founder's Telegram bot. Read tech-decisions sections 2 and 5.
   source; the offline line pack per attitude and language; the banned-word
   checker per language, used by every eval.
 - Done when: a prompt change runs every eval in CI.
-- Status: partly done — 8ae7b9c; the checker reads behind, again, late, hư, tệ and chúa in context, and a failed line is asked for again alone, then replaced by an offline line: lines asked for again in 24.2% of 120 calls (under 10% wanted, missed), 2 lines replaced by offline lines, no name opening with an example's word. No eval runs in CI on a prompt change yet, and the small routes do not exist to use the checker
+- Status: partly done — 13308bc; every banned word and topic word was read for context (34 more English and 18 more Vietnamese words pass as plain description), instructions must match the app's controls, five new line slots; a line asked for again in 43.8% of 80 calls (under 10% wanted, missed; 31.3% on the run before it): empty lines 28, too long 20, banned word 8, politics 7; the evals run from `ai-evals.yml` by hand and on main, and are not a required check
 
 ### 7. Backup
 - Do: snapshot upload and restore keyed by the iCloud token; export and
