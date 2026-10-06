@@ -22,10 +22,7 @@
     "deadlines": [],
     "lines": {
       "acknowledge": "That sounds like a lot. I'll keep this one simple and quiet. I can sit with you while you call.",
-      "working": [
-        "I'm right here. Take your time.",
-        "No rush. I am staying put."
-      ],
+      "working": ["I'm right here. Take your time.", "No rush. I am staying put."],
       "tinyNextStep": "Write down the questions you want to ask first.",
       "done": "That's done. I'm here if you want to sit a while.",
       "notFinished": "We can leave it here for today. It will keep until you're ready."

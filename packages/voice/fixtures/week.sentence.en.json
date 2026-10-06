@@ -20,11 +20,7 @@
           "finished": 1
         }
       ],
-      "workModes": [
-        "calling",
-        "email",
-        "dishes"
-      ]
+      "workModes": ["calling", "email", "dishes"]
     }
   },
   "response": {
