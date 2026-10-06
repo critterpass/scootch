@@ -1,0 +1,11 @@
+{
+  "name": "@scootch/scripts",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Repo scripts: lane install, registry index generator, checks",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  }
+}
