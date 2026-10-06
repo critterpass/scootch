@@ -1,0 +1,22 @@
+/**
+ * The App Clip: a native SwiftUI target with no JavaScript bundle. It shares the app's App Group so
+ * the link it was opened with reaches the full app. The plugin adds the parent application
+ * identifier itself.
+ *
+ * @type {import('@bacons/apple-targets').ConfigFunction}
+ */
+module.exports = (config) => ({
+  type: 'clip',
+  name: 'ScootchClip',
+  displayName: 'Scootch',
+  bundleIdentifier: '.Clip',
+  deploymentTarget: '16.4',
+  exportJs: false,
+  entitlements: {
+    'com.apple.security.application-groups':
+      config.ios.entitlements['com.apple.security.application-groups'],
+    'com.apple.developer.associated-domains': config.ios.associatedDomains.filter((domain) =>
+      domain.startsWith('appclips:'),
+    ),
+  },
+});

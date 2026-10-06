@@ -72,6 +72,7 @@ Two lanes: A owns tasks 1 to 6 and 11, B owns tasks 7 to 10.
   with Apple and App Intents.
 - Done when: the build signs with every capability, and each stub shows a
   placeholder on a device.
+- Status: partly done — 184eaaf; declared and generated, not yet built or signed. The Live Activity bridge (starting the activity from JavaScript) is not in yet and must be added before the first native build.
 
 ### 9. First native build
 - Do: cut native batch one, submit to TestFlight, publish one over-the-air
