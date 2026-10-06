@@ -5,6 +5,7 @@ import { SQLiteProvider } from 'expo-sqlite';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { DATABASE_NAME, prepareDatabase } from '../db/database';
+import { I18nProvider } from '../i18n/i18n-provider';
 import { JsCommitMarker } from '../js-commit-marker';
 
 // Crash reporting starts only when a DSN is set; with none, nothing is initialised or sent.
@@ -22,7 +23,9 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SQLiteProvider databaseName={DATABASE_NAME} onInit={prepareDatabase}>
-        <Slot />
+        <I18nProvider>
+          <Slot />
+        </I18nProvider>
         <JsCommitMarker />
       </SQLiteProvider>
     </GestureHandlerRootView>

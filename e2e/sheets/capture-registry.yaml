@@ -1,0 +1,57 @@
+appId: app.scootch.dev
+---
+# Captures every registered screen state in every variant, for the design-beside-device sheets.
+# Run it with mode=capture and flows=e2e/sheets. It reaches the registry the way a developer does,
+# through the "Developer tools" entry on the one screen, and reads the list from the app itself:
+# `registry-count` holds the number of rows and `registry-name-<n>` the name of the n-th, so a new
+# registry file needs no change here. Each image is named `<state id>--<variant>`.
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: 'one-sentence'
+    timeout: 90000
+- tapOn:
+    id: 'developer-tools'
+- extendedWaitUntil:
+    visible:
+      id: 'dev-open-registry'
+    timeout: 15000
+- tapOn:
+    id: 'dev-open-registry'
+- extendedWaitUntil:
+    visible:
+      id: 'registry-count'
+    timeout: 15000
+- copyTextFrom:
+    id: 'registry-count'
+- evalScript: ${output.count = Number(maestro.copiedText); output.row = 0}
+- repeat:
+    while:
+      true: ${output.row < output.count}
+    commands:
+      - scrollUntilVisible:
+          element:
+            id: registry-name-${output.row}
+          direction: DOWN
+          timeout: 30000
+          centerElement: true
+      - copyTextFrom:
+          id: registry-name-${output.row}
+      - evalScript: ${output.name = maestro.copiedText}
+      - tapOn:
+          id: registry-row-${output.name}
+      - extendedWaitUntil:
+          visible:
+            id: registry-state-${output.name}
+          timeout: 15000
+      - waitForAnimationToEnd:
+          timeout: 3000
+      - takeScreenshot: ${output.name}
+      - tapOn:
+          id: 'registry-state-close'
+      - extendedWaitUntil:
+          visible:
+            id: 'registry-count'
+          timeout: 15000
+      - evalScript: ${output.row = output.row + 1}

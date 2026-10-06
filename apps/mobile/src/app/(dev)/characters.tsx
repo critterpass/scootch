@@ -1,5 +1,3 @@
-import Constants from 'expo-constants';
-import { Redirect } from 'expo-router';
 import { useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -18,13 +16,6 @@ const ATTITUDES: readonly Attitude[] = ['soft', 'cheeky', 'unhinged'];
 const MOODS = Object.keys(SCOOTCH_MOODS) as Mood[];
 const BODIES = Object.keys(MONSTER_BODIES) as MonsterBody[];
 const TILE_SIZE = 104;
-
-/** The developer and device-run apps show this screen; the store app never does. */
-function galleryAllowed(): boolean {
-  if (__DEV__) return true;
-  const variant: unknown = Constants.expoConfig?.extra?.['appVariant'];
-  return variant === 'dev' || variant === 'e2e-test';
-}
 
 function Tile({ id, label, palette, children }: TileProps) {
   return (
@@ -45,13 +36,11 @@ interface TileProps {
 /**
  * Every character the app can draw, for checking the Skia drawing on a device: each Scootch mood
  * at the three attitudes, then the monster bodies. All are drawn still, so a capture is the same
- * every time.
+ * every time. This folder's layout keeps it out of reach in the store app.
  */
 export default function CharacterGallery() {
   const palette = colors[useColorScheme() === 'dark' ? 'dark' : 'light'];
   const monsters = useMemo(() => BODIES.map((body) => specFromSeed(body, body)), []);
-
-  if (!galleryAllowed()) return <Redirect href="/" />;
 
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: palette.page }]}>
