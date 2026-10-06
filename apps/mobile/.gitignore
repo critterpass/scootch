@@ -4,3 +4,6 @@
 
 .expo/
 expo-env.d.ts
+
+# The App Clip icon set is written into its target folder from assets/icon.png on every generation.
+targets/*/Assets.xcassets/
