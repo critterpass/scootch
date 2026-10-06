@@ -1,0 +1,80 @@
+{
+  "route": "task.create",
+  "request": {
+    "language": "en",
+    "attitude": "cheeky",
+    "energy": "medium",
+    "text": "ok so I need to renew my passport before the Japan trip, and nobody has called the plumber about the leak under the sink, council tax is due on Friday, oh and reply to Sam about Saturday, and the bathroom is a state",
+    "source": "ramble",
+    "localDate": "2026-10-06",
+    "timeZone": "Europe/London",
+    "overrideSerious": false
+  },
+  "response": {
+    "verdict": "pass",
+    "seriousOverridden": false,
+    "energy": "medium",
+    "oneThing": {
+      "text": "Call the plumber about the leak under the sink.",
+      "dueDate": null
+    },
+    "parked": [
+      {
+        "text": "Renew the passport before the Japan trip"
+      },
+      {
+        "text": "Reply to Sam about Saturday"
+      },
+      {
+        "text": "Bathroom"
+      }
+    ],
+    "deadlines": [
+      {
+        "text": "Council tax",
+        "dueDate": "2026-10-09",
+        "heardAs": "due on Friday",
+        "line": "I heard a deadline: council tax, due Friday."
+      }
+    ],
+    "monster": {
+      "name": "Drip Van Winkle, Tenant of the U-Bend",
+      "title": "Sink lurker",
+      "flavourText": "Collects washers. Weak against one short phone call."
+    },
+    "labels": {
+      "workMode": "calling",
+      "bodyType": "phone",
+      "fitsTenMinutes": true,
+      "sharePrivate": false
+    },
+    "lines": {
+      "hatch": "He's been tapping out a drum solo under your sink and charging nothing for tickets.",
+      "start": "Phone in hand. Drip Van Winkle has gone very quiet.",
+      "working": [
+        "I'm holding the bucket. You hold the phone.",
+        "I've drawn the plumber a map. It is mostly arrows.",
+        "Drip is pretending to be a houseplant. Nobody is fooled.",
+        "The bucket is half full. I am choosing to see it that way."
+      ],
+      "pickedUp": "Oh! You picked me up. Careful, I'm carrying a bucket.",
+      "checkIn": "How's the call going? I have a tinier step in my pocket.",
+      "tinyNextStep": "Find the plumber's number and leave it on the screen.",
+      "twoMinutesLeft": "Two minutes on the clock. Drip is packing a very small suitcase.",
+      "timeUp": "Time. Drip is cornered by the stopcock. Hold to catch him.",
+      "caught": "Caught. The sink would like to thank you in person.",
+      "notFinished": "You started, and Drip noticed. What do we do with him now?"
+    },
+    "notifications": [
+      {
+        "text": "Drip Van Winkle has started charging the sink rent."
+      },
+      {
+        "text": "The bucket and I are on first-name terms now. One call?"
+      },
+      {
+        "text": "Drip is learning the drums. One phone call ends the tour."
+      }
+    ]
+  }
+}

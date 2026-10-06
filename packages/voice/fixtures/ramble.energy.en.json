@@ -1,0 +1,13 @@
+{
+  "route": "ramble.energy",
+  "request": {
+    "language": "en",
+    "text": "ugh. so tired. need to do the dishes i guess. and email. whatever"
+  },
+  "response": {
+    "energy": "low",
+    "confidence": 0.88,
+    "lowConfidence": false,
+    "answeredBy": "jev"
+  }
+}

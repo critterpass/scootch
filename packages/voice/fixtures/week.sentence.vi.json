@@ -1,0 +1,33 @@
+{
+  "route": "week.sentence",
+  "request": {
+    "language": "vi",
+    "attitude": "cheeky",
+    "week": "2026-W41",
+    "stats": {
+      "sessionsStarted": 6,
+      "sessionsFinished": 5,
+      "usualStartHour": 13,
+      "byLength": [
+        {
+          "minutes": 10,
+          "started": 4,
+          "finished": 4
+        },
+        {
+          "minutes": 25,
+          "started": 2,
+          "finished": 1
+        }
+      ],
+      "workModes": [
+        "calling",
+        "email",
+        "dishes"
+      ]
+    }
+  },
+  "response": {
+    "sentence": "Mấy phiên của bạn khoái bắt đầu ngay sau bữa trưa, còn phiên mười phút thì gần như lần nào cũng tóm gọn."
+  }
+}

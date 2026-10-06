@@ -1,0 +1,13 @@
+{
+  "route": "task.body_type",
+  "request": {
+    "language": "vi",
+    "text": "Gấp núi quần áo trên ghế"
+  },
+  "response": {
+    "bodyType": "sock",
+    "confidence": 0.94,
+    "lowConfidence": false,
+    "answeredBy": "jev"
+  }
+}

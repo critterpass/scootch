@@ -1,0 +1,77 @@
+{
+  "route": "task.create",
+  "request": {
+    "language": "vi",
+    "attitude": "cheeky",
+    "energy": "medium",
+    "text": "trời ơi nhiều việc quá, phải nộp tờ khai thuế trước thứ sáu, rồi gọi thợ sửa cái máy giặt kêu như máy cày, nhắn lại chị Hạnh vụ họp lớp, với mấy chậu cây ngoài ban công khô queo hết rồi",
+    "source": "ramble",
+    "localDate": "2026-10-06",
+    "timeZone": "Asia/Ho_Chi_Minh",
+    "overrideSerious": false
+  },
+  "response": {
+    "verdict": "pass",
+    "seriousOverridden": false,
+    "energy": "medium",
+    "oneThing": {
+      "text": "Gọi thợ sửa cái máy giặt.",
+      "dueDate": null
+    },
+    "parked": [
+      {
+        "text": "Nhắn lại chị Hạnh vụ họp lớp"
+      },
+      {
+        "text": "Tưới mấy chậu cây ngoài ban công"
+      }
+    ],
+    "deadlines": [
+      {
+        "text": "Tờ khai thuế",
+        "dueDate": "2026-10-09",
+        "heardAs": "trước thứ sáu",
+        "line": "Tui nghe có hạn nha: tờ khai thuế, trước thứ Sáu."
+      }
+    ],
+    "monster": {
+      "name": "Lồng Lộn, Ca Sĩ Chính của Ban Nhạc Máy Giặt",
+      "title": "Cư dân lồng giặt",
+      "flavourText": "Sống bằng tất lẻ. Kỵ nhất một cuộc gọi dưới ba phút."
+    },
+    "labels": {
+      "workMode": "calling",
+      "bodyType": "phone",
+      "fitsTenMinutes": true,
+      "sharePrivate": false
+    },
+    "lines": {
+      "hatch": "Nó tập hát trong lồng giặt lâu rồi, cả xóm tưởng nhà bạn nuôi máy cày.",
+      "start": "Cầm máy lên rồi. Lồng Lộn tự nhiên im re.",
+      "working": [
+        "Tui giữ cái thau, bạn giữ cái điện thoại.",
+        "Tui vẽ đường cho chú thợ rồi, toàn mũi tên không à.",
+        "Lồng Lộn đang giả làm cái móc áo. Không ai tin hết.",
+        "Cái thau đầy một nửa. Tui chọn nhìn theo hướng tích cực."
+      ],
+      "pickedUp": "Ơ, bạn nhấc tui lên hả? Nhẹ tay, tui đang bưng thau nước.",
+      "checkIn": "Cuộc gọi tới đâu rồi? Tui có sẵn một bước nhỏ xíu trong túi nè.",
+      "tinyNextStep": "Mở danh bạ, tìm số chú thợ, để đó nhìn thôi.",
+      "twoMinutesLeft": "Còn hai phút. Lồng Lộn đang xếp cái vali bé xíu.",
+      "timeUp": "Hết giờ. Lồng Lộn kẹt ở góc ban công rồi. Giữ nút để tóm nó.",
+      "caught": "Tóm được rồi. Cái máy giặt xin gửi lời cảm ơn, lần này nói nhỏ nhẹ.",
+      "notFinished": "Bạn bắt đầu rồi, Lồng Lộn thấy hết. Giờ tính sao với nó đây?"
+    },
+    "notifications": [
+      {
+        "text": "Lồng Lộn vừa ra album đầu tay, thu trong lồng giặt."
+      },
+      {
+        "text": "Tui với cái thau sắp kết nghĩa anh em. Gọi một cuộc nha?"
+      },
+      {
+        "text": "Máy giặt lên sóng phát thanh phường rồi. Một cuộc gọi là tắt đài."
+      }
+    ]
+  }
+}

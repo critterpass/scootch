@@ -1,0 +1,15 @@
+{
+  "route": "screen.input",
+  "case": "crisis",
+  "request": {
+    "language": "vi",
+    "text": "Chắc mọi người sẽ nhẹ nhõm hơn nếu không có mình, mình chỉ muốn biến mất luôn cho xong",
+    "source": "ramble"
+  },
+  "response": {
+    "verdict": "crisis",
+    "confidence": 0.94,
+    "lowConfidence": false,
+    "answeredBy": "jev"
+  }
+}

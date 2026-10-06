@@ -1,0 +1,16 @@
+{
+  "route": "session.stuck",
+  "request": {
+    "language": "vi",
+    "attitude": "cheeky",
+    "task": {
+      "text": "Gọi thợ sửa cái máy giặt.",
+      "serious": false,
+      "monsterName": "Lồng Lộn, Ca Sĩ Chính của Ban Nhạc Máy Giặt"
+    },
+    "previousSteps": []
+  },
+  "response": {
+    "step": "Gõ chữ \"thợ\" vô ô tìm danh bạ. Vậy thôi, tui bưng thau chờ."
+  }
+}

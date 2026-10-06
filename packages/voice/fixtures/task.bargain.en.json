@@ -1,0 +1,21 @@
+{
+  "route": "task.bargain",
+  "request": {
+    "language": "en",
+    "attitude": "cheeky",
+    "task": {
+      "text": "Call the plumber about the leak under the sink.",
+      "serious": false,
+      "monsterName": "Drip Van Winkle, Tenant of the U-Bend"
+    },
+    "excuse": "I've got a meeting in fifteen minutes and my brain is soup",
+    "minutes": 10
+  },
+  "response": {
+    "counterOffer": {
+      "task": "Find the plumber's number and save it where you can see it.",
+      "minutes": 3
+    },
+    "line": "Soup brain accepted. Three minutes, one phone number, and Drip sulks in the bucket."
+  }
+}

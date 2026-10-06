@@ -1,0 +1,13 @@
+{
+  "route": "share.private",
+  "request": {
+    "language": "en",
+    "text": "Book the appointment at the sexual health clinic"
+  },
+  "response": {
+    "private": true,
+    "confidence": 0.96,
+    "lowConfidence": false,
+    "answeredBy": "jev"
+  }
+}

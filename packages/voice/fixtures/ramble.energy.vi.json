@@ -1,0 +1,13 @@
+{
+  "route": "ramble.energy",
+  "request": {
+    "language": "vi",
+    "text": "mệt xỉu... còn đống chén chưa rửa, mail chưa trả lời, thôi kệ"
+  },
+  "response": {
+    "energy": "low",
+    "confidence": 0.9,
+    "lowConfidence": false,
+    "answeredBy": "jev"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "route": "session.stuck",
+  "request": {
+    "language": "en",
+    "attitude": "cheeky",
+    "task": {
+      "text": "Call the plumber about the leak under the sink.",
+      "serious": false,
+      "monsterName": "Drip Van Winkle, Tenant of the U-Bend"
+    },
+    "previousSteps": []
+  },
+  "response": {
+    "step": "Type the plumber's name into your contacts search. Nothing else. I'll hold the bucket."
+  }
+}

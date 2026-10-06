@@ -1,0 +1,14 @@
+{
+  "route": "screen.input",
+  "request": {
+    "language": "en",
+    "text": "Renew my passport before the trip to Japan, and call the plumber about the leak",
+    "source": "ramble"
+  },
+  "response": {
+    "verdict": "pass",
+    "confidence": 0.99,
+    "lowConfidence": false,
+    "answeredBy": "jev"
+  }
+}
