@@ -1,0 +1,351 @@
+/* The pages of shared things, the plain pages and the pre-launch pieces. Sizes in rem, colours
+   from the tokens, as in site.css. */
+
+/* Shared things: the card on one side, its words on the other. */
+.shared-page {
+  padding-block: clamp(2rem, 6vw, 5rem);
+}
+.shared-page h1:focus,
+.waitlist-done:focus {
+  outline: none;
+}
+.shared-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+  gap: 2rem 3rem;
+  align-items: center;
+}
+.shared-grid .blob {
+  width: min(100%, 26rem);
+}
+.flavour {
+  font-style: italic;
+}
+.facts {
+  margin: 1.5rem 0 0;
+  max-width: 30rem;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: 1.25rem;
+}
+.facts > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1.125rem;
+}
+.facts > div + div {
+  border-top: 1px solid var(--hairline);
+}
+.facts dt {
+  color: var(--muted);
+}
+.facts dd {
+  margin: 0;
+  font-weight: 700;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+/* "Make your own" leads on a desktop, where the app cannot be opened; "Catch it" leads on a phone. */
+.action-make {
+  background: var(--ink);
+  color: var(--page);
+}
+.action-catch {
+  background: var(--soft);
+}
+[data-status='caught'] .card-badge {
+  background: var(--tomato);
+  color: var(--on-tomato);
+}
+.share-status:empty {
+  display: none;
+}
+.share-status {
+  margin-top: 0.75rem;
+}
+
+/* The caught card: the app's own card, leaning towards the pointer. */
+.tilt-stage {
+  perspective: 60rem;
+}
+.tilt-card {
+  position: relative;
+  width: min(74%, 19rem);
+  transition: transform 0.15s ease-out;
+  filter: drop-shadow(0 1.5rem 1.25rem color-mix(in srgb, var(--ink) 30%, transparent));
+}
+.tilt-card svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.tilt-card[data-tilt='on']::after {
+  content: '';
+  position: absolute;
+  inset: 2% 7% 2% 2%;
+  border-radius: 1.25rem;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent calc(var(--sheen, 50%) - 22%),
+    color-mix(in srgb, white 28%, transparent) var(--sheen, 50%),
+    transparent calc(var(--sheen, 50%) + 22%)
+  );
+  mix-blend-mode: soft-light;
+}
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 1.5rem 0 0.5rem;
+  max-width: 36rem;
+}
+.tiles > div {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: 1rem;
+  padding: 0.75rem 1rem;
+}
+.tiles dt {
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+.tiles dd {
+  margin: 0;
+  font: 800 1.1875rem var(--heading);
+  overflow-wrap: anywhere;
+}
+@media (hover: none) {
+  .tilt-hint-pointer {
+    display: none;
+  }
+}
+.tilt-card[data-tilt='off'] ~ .tilt-hint,
+.shared-grid:has([data-tilt='off']) .tilt-hint {
+  display: none;
+}
+.ask {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 1.5rem;
+  align-items: center;
+}
+.ask .lede {
+  margin-top: 0.25rem;
+}
+.ask-note {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+/* The share story: three lines, sized to be read from a screenshot. */
+.story {
+  max-width: 40rem;
+  margin-inline: auto;
+}
+.story h1 span {
+  display: block;
+}
+.story-cast {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.story-cast .drawing {
+  width: min(55%, 16rem);
+}
+.story-cast .story-monster {
+  width: min(32%, 9rem);
+}
+
+/* Plain pages. */
+.plain {
+  max-width: 46rem;
+  padding-block: clamp(2rem, 6vw, 4.5rem);
+}
+.plain-wide {
+  max-width: 62rem;
+}
+.plain > * + * {
+  margin-top: 1.5rem;
+}
+.plain h2 {
+  font-size: 1.375rem;
+}
+.plain-sections {
+  display: grid;
+  gap: 1.25rem;
+  margin: 2rem 0 0;
+}
+.plain-sections dt {
+  font: 800 1.1875rem var(--heading);
+}
+.plain-sections dd {
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+}
+.rules {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.plain-table {
+  overflow-x: auto;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: 1.25rem;
+}
+.plain-table table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+.plain-table th,
+.plain-table td {
+  padding: 0.875rem 1.25rem;
+  vertical-align: top;
+}
+.plain-table thead th {
+  background: var(--soft);
+  font-size: 0.875rem;
+}
+.plain-table tbody tr + tr {
+  border-top: 1px solid var(--hairline);
+}
+.plain-table tbody th {
+  width: 38%;
+}
+.plain-note {
+  color: var(--muted);
+}
+.plain-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  align-items: start;
+}
+.plain-pair p {
+  color: var(--muted);
+}
+.plain-pair h2 + p {
+  margin-top: 0.5rem;
+}
+.questions details {
+  border-top: 1px solid var(--hairline);
+  padding-block: 1rem;
+}
+.questions details:last-child {
+  border-bottom: 1px solid var(--hairline);
+}
+.questions summary {
+  font: 800 1.125rem var(--heading);
+  cursor: pointer;
+}
+.questions details p {
+  margin: 0.75rem 0 0;
+  color: var(--muted);
+  max-width: 38em;
+}
+.helpline-list {
+  list-style: none;
+  padding: 0;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: 1.25rem;
+}
+.helpline-list li {
+  display: grid;
+  gap: 0.125rem;
+  justify-items: start;
+  padding: 1rem 1.25rem;
+}
+.helpline-list li + li {
+  border-top: 1px solid var(--hairline);
+}
+.helpline-list strong {
+  font: 800 1.1875rem var(--heading);
+}
+.helpline-list a {
+  min-height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+}
+.plus-plans {
+  list-style: none;
+  padding: 0;
+  max-width: 44rem;
+}
+.plan-note {
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+/* Before launch: no badge, one email field. */
+.coming-soon {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0.5rem 1rem;
+  border-radius: 62rem;
+  background: var(--soft);
+  font-weight: 700;
+  font-size: 0.9375rem;
+}
+.waitlist {
+  margin-top: 1.25rem;
+}
+.waitlist-intro {
+  margin: 0;
+  font-weight: 700;
+}
+.waitlist .maker-form {
+  margin-top: 0.75rem;
+}
+.waitlist-field {
+  display: flex;
+  flex: 1 1 14rem;
+  min-width: 0;
+}
+.waitlist-done {
+  font: 800 1.1875rem var(--heading);
+}
+
+@media (max-width: 44rem) {
+  .shared-grid,
+  .plain-pair,
+  .rules,
+  .ask {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .shared-grid .blob {
+    width: 100%;
+    border-radius: 2rem;
+    aspect-ratio: auto;
+    padding: 1.5rem;
+  }
+  .action-catch {
+    background: var(--ink);
+    color: var(--page);
+    order: -1;
+  }
+  .action-make {
+    background: var(--soft);
+    color: var(--ink);
+  }
+  .tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .waitlist .button {
+    flex: 1 1 100%;
+  }
+  .plus-plans {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tilt-card {
+    transform: none !important;
+  }
+}

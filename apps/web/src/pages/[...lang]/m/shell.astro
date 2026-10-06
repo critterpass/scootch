@@ -1,0 +1,8 @@
+---
+import MonsterPage from '../../../components/monster-page.astro';
+import { languagePaths } from '../../../copy';
+
+export const getStaticPaths = languagePaths;
+---
+
+<MonsterPage language={Astro.params.lang === 'vi' ? 'vi' : 'en'} />

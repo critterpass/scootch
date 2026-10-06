@@ -109,7 +109,7 @@ export const vi = {
     },
   ],
   strip: {
-    headline: 'Mới ra lò từ danh sách của người khác.',
+    headline: 'Vài con tui ấp sẵn từ trước.',
     monsters: [
       {
         name: 'Thư Chưa Đọc, Kẻ Lì Đòn',

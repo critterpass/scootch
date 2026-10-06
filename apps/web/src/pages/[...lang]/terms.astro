@@ -1,0 +1,9 @@
+---
+import PlainSections from '../../components/plain-sections.astro';
+import { languagePaths, plainFor } from '../../copy';
+
+export const getStaticPaths = languagePaths;
+const language = Astro.params.lang === 'vi' ? 'vi' : 'en';
+---
+
+<PlainSections language={language} path="/terms" page={plainFor(language).terms} />

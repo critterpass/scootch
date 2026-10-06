@@ -1,0 +1,13 @@
+---
+import PlainSections from '../../components/plain-sections.astro';
+import { copyFor, languagePaths, localPath, plainFor } from '../../copy';
+
+export const getStaticPaths = languagePaths;
+const language = Astro.params.lang === 'vi' ? 'vi' : 'en';
+---
+
+<PlainSections language={language} path="/what-scootch-is" page={plainFor(language).about}>
+  <p>
+    <a href={localPath(language, '/helplines')}>{copyFor(language).footer.findHelpline}</a>
+  </p>
+</PlainSections>

@@ -1,6 +1,9 @@
 import { test, type Page } from '@playwright/test';
 
-// Sheets of the home page and the maker's states, for looking at beside the design. Runs only
+import { preLaunchUrl } from './playwright.config';
+import { answerApi, caughtMonster, notFound, sharedCard, wildMonster } from './shared-fixtures';
+
+// Sheets of the home page, the maker's states, the pages of shared things and the plain pages, for looking at beside the design. Runs only
 // when CAPTURE_DIR names a folder to write into.
 const out = process.env['CAPTURE_DIR'] ?? '';
 test.skip(out === '', 'CAPTURE_DIR is not set');
@@ -46,5 +49,52 @@ for (const [size, viewport] of Object.entries(sizes)) {
     await page.goto('/');
     await hatch(page, { verdict: 'serious' }, 'a heavy thing');
     await page.screenshot({ path: `${out}/serious-${size}-light-en.png` });
+  });
+}
+
+/** One page in one size, once its fetched parts have settled. */
+function sheet(name: string, size: keyof typeof sizes, open: (page: Page) => Promise<void>): void {
+  test(`${name} ${size}`, async ({ browser }) => {
+    const page = await browser.newPage({ viewport: sizes[size] });
+    await open(page);
+    await page.waitForTimeout(600);
+    await page.screenshot({ path: `${out}/${name}-${size}.png`, fullPage: true });
+  });
+}
+
+for (const size of ['desktop', 'phone'] as const) {
+  sheet('monster-wild', size, async (page) => {
+    await answerApi(page, 'monster-page/*', wildMonster);
+    await page.goto('/m/molar-7f3k9x');
+  });
+  sheet('monster-caught', size, async (page) => {
+    await answerApi(page, 'monster-page/*', caughtMonster);
+    await page.goto('/m/molar-7f3k9x');
+  });
+  sheet('monster-missing', size, async (page) => {
+    await answerApi(page, 'monster-page/*', notFound, 404);
+    await page.goto('/m/gone-000000');
+  });
+  sheet('caught-card', size, async (page) => {
+    await answerApi(page, 'shared-card/*', sharedCard);
+    await page.goto('/c/molar-041');
+  });
+  sheet('share-story', size, async (page) => {
+    await answerApi(page, 'shared-story/*', { ...sharedCard, kind: 'story' });
+    await page.goto('/s/priya-tue');
+  });
+  for (const plain of ['privacy', 'terms', 'support', 'helplines', 'what-scootch-is', 'press']) {
+    sheet(plain, size, (page) => page.goto(`/${plain}`).then(() => undefined));
+  }
+  sheet('plus', size, (page) => page.goto('/plus').then(() => undefined));
+  sheet('privacy-vi', size, (page) => page.goto('/vi/privacy').then(() => undefined));
+  sheet('android', size, (page) => page.goto('/android').then(() => undefined));
+  sheet('pre-launch-hatched', size, async (page) => {
+    await page.goto(`${preLaunchUrl}/`);
+    await hatch(page, monster, 'the dentist email');
+  });
+  sheet('pre-launch-monster', size, async (page) => {
+    await answerApi(page, 'monster-page/*', wildMonster);
+    await page.goto(`${preLaunchUrl}/m/molar-7f3k9x`);
   });
 }
