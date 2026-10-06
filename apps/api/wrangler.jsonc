@@ -15,8 +15,7 @@
         {
           "binding": "DB",
           "database_name": "scootch-dev",
-          // Placeholder: the controller replaces it with the id `wrangler d1 create` prints.
-          "database_id": "00000000-0000-0000-0000-000000000000",
+          "database_id": "05727e3e-154e-4128-b94f-e6100444b936",
           "migrations_dir": "migrations",
         },
       ],

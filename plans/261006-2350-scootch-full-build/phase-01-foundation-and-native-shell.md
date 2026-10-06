@@ -1,6 +1,6 @@
 # Phase 01: foundation and native shell
 
-Status: not started · Tasks: 11 · Needs: 00
+Status: in progress · Tasks: 11 · Needs: 00
 
 Goal: a repository where three lanes can work without colliding, a pipeline
 that proves work on devices without this Mac, and a first native build that
@@ -91,7 +91,7 @@ Two lanes: A owns tasks 1 to 6 and 11, B owns tasks 7 to 10.
   exists in one language only; every sheet captured in both languages. Fonts
   and layouts checked with Vietnamese diacritics and longer lines.
 - Done when: the sample screen appears in a sheet in both languages.
-- Status: done — 8e0292b
+- Status: partly done — 8e0292b; the catalogues and completeness check exist. Still to do with the screen registry: the language switch and every sheet in both languages.
 
 ## Exit
 
