@@ -1,0 +1,138 @@
+---
+import type { Language } from '@scootch/i18n';
+
+import { copyFor, localPath } from '../copy';
+import { monsterSvg, scootchSvg, stripMonsters } from '../lib/drawings';
+import SiteLayout from '../layouts/site-layout.astro';
+
+import MonsterMaker from './monster-maker.astro';
+
+interface Props {
+  language: Language;
+}
+
+const { language } = Astro.props;
+const copy = copyFor(language);
+
+// The four beats as stills: ramble, hatch, start, catch.
+const molar = monsterSvg('tooth', 'dentist');
+const stills = [scootchSvg('listening'), molar, scootchSvg('celebrating'), molar];
+const ideaDrawings = [scootchSvg('thinking'), molar, scootchSvg('working')];
+---
+
+<SiteLayout language={language} path="/" title={copy.meta.title} description={copy.meta.description}>
+  <MonsterMaker language={language} />
+
+  <section class="wrap panel demo" aria-labelledby="demo-title">
+    <p class="eyebrow">{copy.demo.eyebrow}</p>
+    <h2 id="demo-title">{copy.demo.headline}</h2>
+    <ol class="beats">
+      {
+        copy.demo.beats.map((beat, index) => (
+          <li>
+            <figure>
+              <span class={`still${index === 3 ? ' still-caught' : ''}`}>
+                <span class="drawing" aria-hidden="true" set:html={stills[index]} />
+              </span>
+              <figcaption>
+                <span class="beat-number" aria-hidden="true">
+                  {index + 1}
+                </span>
+                {beat}
+              </figcaption>
+            </figure>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+  <section class="wrap ideas">
+    {
+      copy.ideas.map((idea, index) => (
+        <div class="idea">
+          <span class="blob blob-small">
+            <span class="drawing" aria-hidden="true" set:html={ideaDrawings[index]} />
+          </span>
+          <div>
+            <h2>{idea.title}</h2>
+            <p>{idea.body}</p>
+          </div>
+        </div>
+      ))
+    }
+  </section>
+
+  <section class="wrap strip" aria-labelledby="strip-title">
+    <h2 id="strip-title">{copy.strip.headline}</h2>
+    <ul class="strip-cards">
+      {
+        stripMonsters.map((monster, index) => {
+          const words = copy.strip.monsters[index];
+          return (
+            words && (
+              <li>
+                <figure class="card" role="img" aria-label={`${words.name}. ${words.flavour}`}>
+                  <div class="card-head">
+                    <span class="card-name">{words.name}</span>
+                    <span class="card-badge">{copy.maker.wild}</span>
+                  </div>
+                  <div class="card-art" set:html={monsterSvg(monster.bodyType, monster.seed)} />
+                  <p class="card-flavour">{words.flavour}</p>
+                  <div class="card-foot">
+                    <span>{copy.maker.notCaught}</span>
+                    <strong>scootch.app</strong>
+                  </div>
+                </figure>
+              </li>
+            )
+          );
+        })
+      }
+    </ul>
+  </section>
+
+  <section class="wrap prices">
+    <div class="panel price-free">
+      <p class="eyebrow">{copy.prices.freeEyebrow}</p>
+      <h2>{copy.prices.freeHeadline}</h2>
+      <ul class="ticks">
+        {copy.prices.free.map((item) => <li>{item}</li>)}
+      </ul>
+    </div>
+    <div class="panel price-plus">
+      <p class="eyebrow tomato-text">{copy.prices.plusEyebrow}</p>
+      <h2>{copy.prices.plusHeadline}</h2>
+      <ul class="plans">
+        {
+          copy.prices.plans.map((plan, index) => (
+            <li class={index === 1 ? 'plan plan-picked' : 'plan'}>
+              <span class="plan-name">{plan.name}</span>
+              <strong>{plan.price}</strong>
+              <span class="plan-detail">{plan.detail}</span>
+            </li>
+          ))
+        }
+      </ul>
+      <ul class="ticks">
+        {copy.prices.plus.map((item) => <li>{item}</li>)}
+      </ul>
+      <p class="small">
+        {copy.prices.reminder}{' '}
+        <a href={localPath(language, '/plus')}>{copy.prices.allAboutPlus}</a>
+      </p>
+    </div>
+  </section>
+
+  <section class="wrap who">
+    <span class="who-art"><span class="drawing" aria-hidden="true" set:html={scootchSvg('pleased')} /></span>
+    <div>
+      <p class="eyebrow">{copy.who.eyebrow}</p>
+      <h2>{copy.who.headline}</h2>
+      <p>
+        {copy.footer.supportTool}{' '}
+        <a href={localPath(language, '/what-scootch-is')}>{copy.footer.whatItIs}</a>
+      </p>
+    </div>
+  </section>
+</SiteLayout>

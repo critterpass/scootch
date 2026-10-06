@@ -1,0 +1,138 @@
+---
+import type { Language } from '@scootch/i18n';
+
+import { appStoreUrl, copyFor, localPath } from '../copy';
+import { scootchSvg } from '../lib/drawings';
+
+interface Props {
+  language: Language;
+}
+
+const { language } = Astro.props;
+const copy = copyFor(language).maker;
+const helplines = localPath(language, '/helplines');
+// The lines the script fills in once a monster has a name.
+const lines = {
+  meet: copy.meet,
+  cardLabel: copy.cardLabel,
+  typedShown: copy.typedShown,
+  typedHidden: copy.typedHidden,
+  empty: copy.empty,
+  nonsense: copy.nonsense,
+};
+---
+
+<section class="maker wrap" data-maker data-state="empty" data-language={language} data-lines={JSON.stringify(lines)}>
+  <div class="maker-words">
+    <div data-show="empty hatching">
+      <h1>{copy.headline}</h1>
+      <p class="lede">{copy.sub}</p>
+    </div>
+    <div data-show="hatched" hidden>
+      <p class="eyebrow tomato-text">{copy.hatchedEyebrow}</p>
+      <h1 data-meet tabindex="-1"></h1>
+      <p class="lede" data-flavour></p>
+    </div>
+    <div data-show="nap" hidden>
+      <h1 tabindex="-1">{copy.napTitle}</h1>
+      <p class="lede">{copy.napBody}</p>
+    </div>
+    <div data-show="offline" hidden>
+      <h1 tabindex="-1">{copy.offlineTitle}</h1>
+      <p class="lede">{copy.offlineBody}</p>
+    </div>
+    <div class="care" data-show="serious" hidden>
+      <h1 tabindex="-1">{copy.seriousTitle}</h1>
+      <p class="lede">{copy.seriousBody}</p>
+      <ul class="care-rows">
+        <li><a href={copy.helplineLocalHref}>{copy.helplineLocal}</a></li>
+        <li><a href={helplines}>{copy.helplineElsewhere}</a></li>
+        <li>{copy.someoneYouTrust}</li>
+      </ul>
+      <p class="small">{copy.helplineNote}</p>
+      <button type="button" class="button button-quiet" data-action="reset">{copy.somethingElse}</button>
+    </div>
+
+    <form class="maker-form" data-show="empty hatching hatched offline" novalidate>
+      <label class="sr-only" for="maker-text">{copy.fieldLabel}</label>
+      <input
+        id="maker-text"
+        name="text"
+        type="text"
+        maxlength="280"
+        autocomplete="off"
+        enterkeyhint="go"
+        placeholder={copy.placeholder}
+        aria-describedby="maker-error"
+      />
+      <button type="submit" class="button button-tomato" data-show="empty hatching">{copy.hatch}</button>
+      <button type="submit" class="link-button" data-show="hatched" hidden>{copy.another}</button>
+      <button type="submit" class="button button-tomato" data-show="offline" hidden>{copy.tryAgain}</button>
+    </form>
+    <p class="maker-error" id="maker-error" role="alert" data-error></p>
+    <p class="maker-status" role="status" aria-live="polite" data-status data-hatching={copy.hatching}></p>
+
+    <div data-show="empty">
+      <ul class="chips" aria-label={copy.examplesLabel}>
+        {
+          copy.examples.map((example) => (
+            <li>
+              <button type="button" class="chip" data-example>
+                {example}
+              </button>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="small">{copy.note}</p>
+    </div>
+
+    <div data-show="hatched" hidden>
+      <label class="toggle">
+        <input type="checkbox" data-show-typed checked />
+        <span>
+          <strong>{copy.showTyped}</strong>
+          <span class="small" data-typed-note></span>
+        </span>
+      </label>
+      <div class="actions">
+        <a class="button button-ink" href={appStoreUrl}>{copy.catchIt}</a>
+        <button type="button" class="button button-quiet" data-action="save">{copy.save}</button>
+      </div>
+    </div>
+    <div class="actions" data-show="nap" hidden>
+      <a class="button button-ink" href={appStoreUrl} data-last-only>{copy.napCatch}</a>
+      <button type="button" class="button button-quiet" data-action="wake">{copy.napOk}</button>
+    </div>
+  </div>
+
+  <div class="maker-stage">
+    <div class="blob" data-show="empty hatching nap offline">
+      <span class="drawing" aria-hidden="true" set:html={scootchSvg('waiting')} />
+    </div>
+    <div class="blob blob-quiet" data-show="serious" hidden>
+      <span class="drawing" aria-hidden="true" set:html={scootchSvg('serious')} />
+    </div>
+    <div class="blob" data-show="hatched" hidden>
+      <figure class="card card-large" role="img" data-card>
+        <div class="card-head">
+          <span class="card-name" data-card-name></span>
+          <span class="card-badge">{copy.wild}</span>
+        </div>
+        <div class="card-art" data-card-art></div>
+        <p class="card-typed" data-card-typed></p>
+        <p class="card-flavour" data-card-flavour></p>
+        <div class="card-foot">
+          <span>{copy.notCaught}</span>
+          <strong>scootch.app</strong>
+        </div>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { startMonsterMaker } from '../scripts/monster-maker';
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-maker]')) startMonsterMaker(root);
+</script>

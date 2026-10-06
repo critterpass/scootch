@@ -1,0 +1,26 @@
+{
+  "name": "@scootch/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "scootch.app: Astro on Cloudflare Workers",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "typecheck": "astro check",
+    "test:site": "playwright test -c tests/playwright.config.ts"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "catalog:",
+    "@scootch/art": "workspace:*",
+    "@scootch/i18n": "workspace:*",
+    "@scootch/tokens": "workspace:*",
+    "astro": "catalog:"
+  },
+  "devDependencies": {
+    "@astrojs/check": "catalog:",
+    "@playwright/test": "catalog:",
+    "typescript": "catalog:",
+    "wrangler": "catalog:"
+  }
+}
