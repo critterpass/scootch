@@ -107,6 +107,23 @@ describe('which session screen is on', () => {
     expect(sessionView({ ...base, treat: null })).toEqual({ kind: 'moment', quiet: false });
   });
 
+  it('hands a finish to the reveal first, then the treat, and never a serious one', () => {
+    const done = sessionReducer(started('full'), { type: 'double_tapped' }, START + MINUTE_MS);
+    const base = input({ session: done.state, burst: 'confetti', treat: 'coffee' });
+    expect(sessionView({ ...base, reveal: 'pending' })).toEqual({ kind: 'reveal' });
+    expect(sessionView({ ...base, reveal: 'seen' })).toEqual({ kind: 'treat', treat: 'coffee' });
+    // The reveal has said the caught line already: with no treat there is nothing more to show.
+    expect(sessionView({ ...base, treat: null, reveal: 'seen' })).toEqual({ kind: 'home' });
+
+    const quiet = sessionReducer(started('quiet'), { type: 'finish_tapped' }, START + MINUTE_MS);
+    for (const reveal of ['pending', 'seen'] as const) {
+      expect(sessionView(input({ session: quiet.state, reveal }))).toEqual({
+        kind: 'moment',
+        quiet: true,
+      });
+    }
+  });
+
   it('goes home without a word when the person leaves early', () => {
     const left = sessionReducer(started('full'), { type: 'left' }, START + MINUTE_MS).state;
     expect(sessionView(input({ session: left }))).toEqual({ kind: 'home' });

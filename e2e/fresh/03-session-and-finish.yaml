@@ -1,7 +1,7 @@
 appId: app.scootch.dev
 ---
 # The fresh-user walk, step three: from a set task, start a session, park a thought, and finish by
-# tapping twice. It carries on from the step before it, on the one screen with today's one thing
+# tapping twice. It ends on the first screen of the reveal. It carries on from the step before it, on the one screen with today's one thing
 # set; nothing is cleared and nothing is seeded. A flow cannot wait ten minutes, so it turns on the
 # developer control that ends the running session's timer in a few seconds. That control is reached
 # the way a developer reaches it, through the "Developer tools" entry, and is not in the store app.
@@ -71,26 +71,9 @@ appId: app.scootch.dev
     id: 'session-finish-tap-button'
 - tapOn:
     id: 'session-finish-tap-button'
-# The parked thought comes back only now.
+# What the finish gave is shown next: the walk carries on in the step after this one.
 - extendedWaitUntil:
     visible:
-      id: 'session-moment-done'
+      id: 'reveal-skip'
     timeout: 15000
-- takeScreenshot: fresh-03-caught
-- tapOn:
-    id: 'session-moment-done'
-- extendedWaitUntil:
-    visible:
-      id: 'session-parked-thoughts'
-    timeout: 15000
-- assertVisible: 'Bin bags'
-- takeScreenshot: fresh-03-parked-thoughts
-- tapOn:
-    id: 'session-thought-0-tomorrow'
-- tapOn:
-    id: 'session-thoughts-done'
-- extendedWaitUntil:
-    visible:
-      id: 'one-sentence'
-    timeout: 15000
-- takeScreenshot: fresh-03-back-on-the-one-screen
+- takeScreenshot: fresh-03-finished

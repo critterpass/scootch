@@ -33,6 +33,8 @@ export type SessionView =
       readonly timeUp: boolean;
     }
   | { readonly kind: 'not_finished' }
+  /** What the finish gave is shown on its own screens; the session waits behind them. */
+  | { readonly kind: 'reveal' }
   /** The finish itself: the caught line, or the plain one of a serious task. */
   | { readonly kind: 'moment'; readonly quiet: boolean }
   | { readonly kind: 'treat'; readonly treat: string }
@@ -63,6 +65,11 @@ export interface SessionViewInput {
   readonly parkedThoughts: readonly ParkedThought[];
   readonly finishWith: SettingsRow['finishWith'];
   readonly passed: Passed;
+  /**
+   * The reveal of a finish: `pending` hands over to it, `seen` comes back from it. Left out, there
+   * is no reveal and the finish says its caught line here.
+   */
+  readonly reveal?: 'pending' | 'seen';
 }
 
 /**
@@ -85,10 +92,11 @@ function afterTheEnd(input: SessionViewInput): SessionView {
 function afterFinish(session: LiveSession, input: SessionViewInput): SessionView {
   const quiet = session.tone === 'quiet';
   const { treat, passed } = input;
-  // A serious task has no ceremony: the treat is never handed over with one.
+  // A serious task has no ceremony: no reveal, and the treat is never handed over with one.
+  if (!quiet && input.reveal === 'pending') return { kind: 'reveal' };
   if (!quiet && treat !== null) {
     if (!passed.treat) return { kind: 'treat', treat };
-  } else if (!passed.moment) {
+  } else if (!passed.moment && (quiet || input.reveal !== 'seen')) {
     return { kind: 'moment', quiet };
   }
   return afterTheEnd(input);

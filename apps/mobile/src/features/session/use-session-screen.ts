@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AccessibilityInfo } from 'react-native';
 import { useReducedMotion } from 'react-native-reanimated';
@@ -6,6 +7,7 @@ import type { ParkedThought, SessionEvent } from '@scootch/domain';
 
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { useDispatch, useSession, useToday } from '../../state/day-store-provider';
+import { revealSeen } from '../reveal/reveal-seen';
 
 import { SHORT_SESSION_SECONDS, shortSession } from './dev/short-session';
 import type { SessionActions, SessionModel } from './screens/screen-props';
@@ -73,7 +75,17 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
     parkedThoughts,
     finishWith: settings.finishWith,
     passed,
+    ...(session?.phase === 'finished'
+      ? { reveal: revealSeen(session.taskId) ? ('seen' as const) : ('pending' as const) }
+      : {}),
   });
+
+  // A finish hands over to the reveal: the card, the world piece, the bar. The treat and the
+  // parked thoughts follow when it comes back.
+  const router = useRouter();
+  useEffect(() => {
+    if (view.kind === 'reveal') router.replace('/reveal');
+  }, [view.kind, router]);
 
   // Arriving here with a session that is set means Start was tapped: the session begins.
   useEffect(() => {

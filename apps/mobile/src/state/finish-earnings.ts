@@ -21,8 +21,8 @@ function fractionOf(text: string): number {
 /**
  * Writes what a finished session earned, as the rewards rules name it: the caught monster's card
  * numbers, one permanent piece of the world, and the day's bar of the record when the day has
- * none yet. A serious task leaves a plain piece and its bar and no card. The treat is handed over
- * by the screen and a surprise drop has no table of its own, so neither is written here.
+ * none yet, and the surprise drop when the rules gave one. A serious task leaves a plain piece and
+ * its bar and no card. The treat is handed over by the screen, so it is not written here.
  *
  * A task finished before the server answered for it has no monster: its piece is a plain one.
  */
@@ -92,6 +92,15 @@ export async function persistFinishEarnings(
           ...earning.bar,
           seed: monster?.spec.seed ?? caughtOn,
           monsterId: monster?.id ?? null,
+        });
+      } else if (earning.kind === 'surprise_drop') {
+        await repositories.surpriseDrops.put({
+          id: nextId(),
+          taskId: task.id,
+          catchNumber: caughtBefore + 1,
+          pick: earning.drop.pick,
+          droppedOn: caughtOn,
+          choice: null,
         });
       }
     }

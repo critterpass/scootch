@@ -8,6 +8,7 @@ import { parkedThoughtsRepository } from './repositories/parked-thoughts';
 import { recordBarsRepository } from './repositories/record-bars';
 import { sessionsRepository } from './repositories/sessions';
 import { settingsRepository } from './repositories/settings';
+import { surpriseDropsRepository } from './repositories/surprise-drops';
 import { tasksRepository } from './repositories/tasks';
 import { weekRecordsRepository } from './repositories/week-records';
 import { worldPiecesRepository } from './repositories/world-pieces';
@@ -44,6 +45,7 @@ export function openRepositories(db: SqlDatabase) {
     worldPieces: worldPiecesRepository(db),
     recordBars: recordBarsRepository(db),
     weekRecords: weekRecordsRepository(db),
+    surpriseDrops: surpriseDropsRepository(db),
     settings: settingsRepository(db),
     transcripts: rambleTranscripts(db),
     forgetTask,
