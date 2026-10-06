@@ -17,7 +17,7 @@ import { dotScreen, fill, placed, roundRect, type Box } from './shapes';
 export type StoryFormat = '4:5' | '9:16';
 
 export interface StoryOptions extends Omit<CardOptions, 'wild'> {
-  /** What the user did, in a sentence: "I finally emailed the dentist." Dropped when the task is hidden. */
+  /** What the user did, in a sentence: "Emailed the dentist." Dropped when the task is hidden. */
   readonly headline?: string;
   /** The time of the catch as the user's clock showed it, "14:52". */
   readonly time?: string;

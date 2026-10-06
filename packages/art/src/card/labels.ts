@@ -52,7 +52,7 @@ export const CARD_LABELS: Record<CardLanguage, CardLabels> = {
     date: (weekday, day, month) => `${weekday} ${day} ${EN_MONTHS[month - 1] ?? ''}`,
     storyTook: (duration) => `It took ${duration}.`,
     storyWaited: (days) => `It had been ${days}.`,
-    storyHeadline: 'I finally did the thing.',
+    storyHeadline: 'Did the thing.',
   },
   vi: {
     rarity: { common: 'Thường', uncommon: 'Ít gặp', rare: 'Hiếm' },
@@ -71,7 +71,7 @@ export const CARD_LABELS: Record<CardLanguage, CardLabels> = {
     date: (weekday, day, month) => `${weekday}, ${day} thg ${month}`,
     storyTook: (duration) => `Chỉ mất ${duration}.`,
     storyWaited: (days) => `Mà để tận ${days}.`,
-    storyHeadline: 'Cuối cùng mình cũng làm xong.',
+    storyHeadline: 'Làm xong việc đó rồi.',
   },
 };
 

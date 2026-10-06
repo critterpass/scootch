@@ -1,11 +1,51 @@
-import { Canvas, Group, Path } from '@shopify/react-native-skia';
+import { Canvas, Group, matchFont, Path, Text } from '@shopify/react-native-skia';
 import { memo, useMemo, type ReactElement, type ReactNode } from 'react';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 import type { SharedValue } from 'react-native-reanimated';
 
 import { VIEW_SIZE, type DrawCommand } from '@scootch/art';
 
 import { toSkiaNodes, type SkiaNode } from './skia-nodes';
+
+type TextNode = Extract<SkiaNode, { kind: 'text' }>;
+
+/** The system faces: the rounded display face where the platform has one, else the plain one. */
+const FAMILIES = {
+  rounded: Platform.select({ ios: 'ui-rounded', default: 'sans-serif' }),
+  sans: Platform.select({ ios: 'Helvetica Neue', default: 'sans-serif' }),
+};
+
+const WEIGHTS = ['100', '200', '300', '400', '500', '600', '700', '800', '900'] as const;
+
+/**
+ * One fitted line. The art package gives the anchor (left edge, centre or right edge) and the
+ * baseline; Skia draws from the left edge, so the line is measured to place it. Letter spacing is
+ * not applied here: Skia's simple text node has no setting for it.
+ */
+function TextLine({ node }: { readonly node: TextNode }) {
+  const font = useMemo(
+    () =>
+      matchFont({
+        fontFamily: FAMILIES[node.font],
+        fontSize: node.size,
+        fontStyle: node.italic ? 'italic' : 'normal',
+        fontWeight: WEIGHTS[Math.min(8, Math.max(0, Math.round(node.weight / 100) - 1))] ?? '400',
+      }),
+    [node.font, node.size, node.italic, node.weight],
+  );
+  const width = node.align === 'left' ? 0 : font.measureText(node.text).width;
+  const x = node.align === 'center' ? node.x - width / 2 : node.x - width;
+  return (
+    <Text
+      text={node.text}
+      x={node.align === 'left' ? node.x : x}
+      y={node.y}
+      font={font}
+      color={node.color}
+      opacity={node.opacity}
+    />
+  );
+}
 
 function element(node: SkiaNode, key: number): ReactElement {
   switch (node.kind) {
@@ -42,6 +82,8 @@ function element(node: SkiaNode, key: number): ReactElement {
           strokeJoin="round"
         />
       );
+    case 'text':
+      return <TextLine key={key} node={node} />;
   }
 }
 

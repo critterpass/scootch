@@ -63,7 +63,7 @@ describe('buildCard', () => {
     const data = { ...molar, taskLine: task };
     expect(JSON.stringify(buildCard(data))).toContain('zzqx');
     for (const language of ['en', 'vi'] as const) {
-      const options = { hideTask: true, language, headline: `I finally did ${task}.` };
+      const options = { hideTask: true, language, headline: `Did ${task}.` };
       expect(JSON.stringify(buildCard(data, options))).not.toContain('zzqx');
       for (const format of ['4:5', '9:16'] as const) {
         expect(JSON.stringify(buildStory(data, format, options).commands)).not.toContain('zzqx');
