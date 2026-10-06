@@ -94,6 +94,7 @@ export const enOffline: OfflinePack = {
     tinyNextStep: 'Write down the first small step, and only that.',
     done: "That's done. I'm here if you want to sit a while.",
     notFinished: "We can leave it here for today. It will keep until you're ready.",
+    reminder: "One quiet thing is waiting here. I'm around whenever you're ready.",
   },
   noTask: {
     soft: {
@@ -108,6 +109,13 @@ export const enOffline: OfflinePack = {
       waiting: "I'm here. What's the one thing today?",
       typing: 'Typing is lovely. Take your time.',
       doneForToday: "Done for today. Go and rest. I'll keep things cosy here.",
+      offline: 'No signal just now. I can still sit with you.',
+      modelDown: "My thinking is slow just now. You pick today, and I'll join in soon.",
+      modelDownMore: "What you type still counts, and your monster hatches as soon as I'm here.",
+      hatchesWhenBack: "Your monster will hatch when we're back online.",
+      backupOff:
+        "I can't keep a spare copy while iCloud is off, so your world lives on this phone only.",
+      restoreOffer: 'I found the world you made before. Shall I bring it over?',
     },
     cheeky: {
       hello: "Oh! You're here. I'm Scootch. I've been waiting for you specifically.",
@@ -120,6 +128,14 @@ export const enOffline: OfflinePack = {
       waiting: "I've been guarding this door all morning. What's the one thing today?",
       typing: "Typing? Fancy. I'll read every letter.",
       doneForToday: 'Done for today. Go do absolutely nothing.',
+      offline: 'No signal. My jokes need wifi, but I can still sit with you.',
+      modelDown: "My brain is buffering. You pick today, I'll be witty later.",
+      modelDownMore:
+        "Tasks you type now still count, and your monster hatches as soon as I'm here.",
+      hatchesWhenBack: "Your monster will hatch when we're back online.",
+      backupOff:
+        "iCloud is off, so I can't keep a spare copy. Your world lives on this phone only.",
+      restoreOffer: 'I found your old world in my pocket. Want it on this phone?',
     },
     unhinged: {
       hello: "YOU'RE HERE. I'm Scootch. I have been rehearsing this moment in a mirror.",
@@ -133,6 +149,13 @@ export const enOffline: OfflinePack = {
       waiting: "I HAVE BEEN STARING AT THIS DOOR FOR THREE HOURS. What's the one thing today?",
       typing: 'TYPING. Fancy. I will read every single letter.',
       doneForToday: "DONE FOR TODAY. Go do absolutely nothing. I'll supervise.",
+      offline: 'NO SIGNAL. My jokes need wifi. I can still sit with you, dramatically.',
+      modelDown: "MY BRAIN IS BUFFERING. You pick today, I'll be witty later.",
+      modelDownMore:
+        "Tasks you type now STILL COUNT, and your monster hatches as soon as I'm here.",
+      hatchesWhenBack: "YOUR MONSTER WILL HATCH when we're back online. I am guarding the egg.",
+      backupOff: "ICLOUD IS OFF. I can't keep a spare copy. Your world lives on this phone only.",
+      restoreOffer: 'I FOUND YOUR OLD WORLD IN MY POCKET. Want it on this phone?',
     },
   },
   monsterNames: [

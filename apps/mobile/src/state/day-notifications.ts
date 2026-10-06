@@ -5,15 +5,18 @@ import {
   notificationPlan,
   type Attitude,
   type ClockTime,
+  type Instant,
   type IsoDate,
   type NotificationVolume,
   type SessionRow,
   type SettingsRow,
   type TodayState,
 } from '@scootch/domain';
-import { offlineLine } from '@scootch/voice';
+import { offlineLine, offlinePacks } from '@scootch/voice';
 
 import type { PlannedText } from '../effects/effects-runner';
+
+import { showsComedy } from './shows-comedy';
 
 /** The start time assumed on a phone with no sessions to learn from. */
 export const DEFAULT_USUAL_START: ClockTime = '10:00';
@@ -38,6 +41,10 @@ export interface DayNotificationsInput {
   readonly localDate: IsoDate;
   readonly timeZone: string;
   readonly usualStart: ClockTime;
+  /** True when a serious task is part of today or waits in the drawer: the days ahead stay soft. */
+  readonly heavyToday?: boolean;
+  /** The reminder the person asked for on today's serious task, if any. */
+  readonly reminderAt?: Instant | null;
 }
 
 /** The offline voice a volume is written in. Only full theatre is Unhinged. */
@@ -54,14 +61,21 @@ function voiceFor(volume: NotificationVolume): Attitude {
  *
  * Today's are the task's own lines, and only for a task that is set and not yet started. The later
  * days speak from the offline pack, which is never about a task. A crisis day plans nothing at
- * all; while a serious task, or one not yet screened, is open, nothing louder than the soft voice
- * is planned.
+ * all, and a serious task plans only the reminder that was asked for; while a task not yet
+ * screened is open, nothing louder than the soft voice is planned.
  */
 export function dayNotifications(input: DayNotificationsInput): PlannedText[] {
   const { today, settings } = input;
   if (today.kind === 'crisis') return [];
-  // Quiet for a serious task, and for one nobody has screened yet: no joke before the screen.
-  const quiet = today.kind === 'serious' || ('task' in today && today.task.screen === 'unscreened');
+  if (today.kind === 'serious') {
+    // While a serious task is open nothing playful is planned at all, today or ahead: the only
+    // thing sent is the reminder that was asked for, in plain words that do not name the task.
+    const at = input.reminderAt ?? null;
+    return at === null ? [] : [{ at, text: offlinePacks[settings.language].plain.reminder }];
+  }
+  // Quiet after a serious task today, and for a task nobody has screened yet.
+  const quiet =
+    input.heavyToday === true || ('task' in today && today.task.screen === 'unscreened');
   const attitude: Attitude = quiet ? 'soft' : settings.attitude;
   const shared = {
     attitude,
@@ -71,7 +85,11 @@ export function dayNotifications(input: DayNotificationsInput): PlannedText[] {
   };
   const planned: PlannedText[] = [];
 
-  if (today.kind === 'task_set' && today.task.status === 'set') {
+  if (
+    today.kind === 'task_set' &&
+    today.task.status === 'set' &&
+    showsComedy(today.task, 'notification')
+  ) {
     const lines = today.task.notifications;
     const plan = notificationPlan({
       ...shared,

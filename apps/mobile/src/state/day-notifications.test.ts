@@ -113,14 +113,27 @@ describe('the notifications planned from today on', () => {
         { kind: 'serious', task: seriousTask(), session },
         { attitude: 'unhinged' },
       );
-      expect(onDay(planned, 0)).toEqual([]);
-      expect(planned.length).toBeGreaterThan(0);
-      for (const one of planned) {
-        expect(voiceLines('soft')).toContain(one.text);
-        expect(OWN).not.toContain(one.text);
-      }
-      expect([1, 2, 3].map((ahead) => onDay(planned, ahead).length)).toEqual([1, 1, 1]);
+      // Nothing playful at all while it is open, today or ahead.
+      expect(planned).toEqual([]);
     }
+  });
+
+  it('keeps the days ahead soft once a serious task has been part of today', () => {
+    const planned = dayNotifications({
+      today: { kind: 'done_for_today' } as TodayState,
+      settings: { ...defaultSettings('en'), attitude: 'unhinged' },
+      localDate: TODAY,
+      timeZone: ZONE,
+      usualStart: '10:00',
+      heavyToday: true,
+    });
+    expect(onDay(planned, 0)).toEqual([]);
+    expect(planned.length).toBeGreaterThan(0);
+    for (const one of planned) {
+      expect(voiceLines('soft')).toContain(one.text);
+      expect(OWN).not.toContain(one.text);
+    }
+    expect([1, 2, 3].map((ahead) => onDay(planned, ahead).length)).toEqual([1, 1, 1]);
   });
 
   it('stays in the soft voice while the task has not been screened', () => {

@@ -1,0 +1,59 @@
+appId: app.scootch.dev
+---
+# The fresh-user walk, step five: Settings and privacy. It carries on from the step before it, on
+# the one screen; nothing is cleared and nothing is seeded. The more button opens Settings, the
+# attitude is changed, and "Delete everything" is started and then turned down with "Keep
+# everything", so nothing is deleted.
+- extendedWaitUntil:
+    visible:
+      id: 'more-button'
+    timeout: 90000
+- tapOn:
+    id: 'more-button'
+- extendedWaitUntil:
+    visible:
+      id: 'settings'
+    timeout: 15000
+- takeScreenshot: fresh-05-settings
+- tapOn:
+    id: 'settings-attitude-soft'
+- assertVisible:
+    id: 'settings-attitude-note'
+- takeScreenshot: fresh-05-attitude-soft
+- scrollUntilVisible:
+    element:
+      id: 'settings-privacy'
+    direction: DOWN
+- tapOn:
+    id: 'settings-privacy'
+- extendedWaitUntil:
+    visible:
+      id: 'privacy'
+    timeout: 15000
+- assertVisible:
+    id: 'privacy-keep-transcripts'
+- takeScreenshot: fresh-05-privacy
+- tapOn:
+    id: 'privacy-delete'
+- extendedWaitUntil:
+    visible:
+      id: 'delete-keep'
+    timeout: 15000
+- takeScreenshot: fresh-05-delete-everything
+- tapOn:
+    id: 'delete-keep'
+# Nothing was deleted: the page is as it was.
+- assertVisible:
+    id: 'privacy-export'
+- tapOn:
+    id: 'privacy-close'
+- extendedWaitUntil:
+    visible:
+      id: 'settings'
+    timeout: 15000
+- tapOn:
+    id: 'settings-close'
+- extendedWaitUntil:
+    visible:
+      id: 'one-sentence'
+    timeout: 15000

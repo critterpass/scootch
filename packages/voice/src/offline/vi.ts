@@ -95,6 +95,7 @@ export const viOffline: OfflinePack = {
     done: 'Xong rồi. Bạn muốn ngồi thêm một lát thì mình vẫn ở đây.',
     notFinished:
       'Hôm nay tới đây cũng được. Việc này vẫn nằm yên đó, khi nào bạn sẵn sàng thì mình làm.',
+    reminder: 'Có một việc đang chờ ở đây, không vội đâu. Khi nào bạn sẵn sàng thì có mình.',
   },
   noTask: {
     soft: {
@@ -109,6 +110,13 @@ export const viOffline: OfflinePack = {
       waiting: 'Mình ở đây rồi. Hôm nay mình làm một việc gì nè?',
       typing: 'Gõ cũng được nha. Bạn cứ thong thả.',
       doneForToday: 'Hôm nay vậy là xong. Bạn nghỉ ngơi đi, ở đây có mình trông.',
+      offline: 'Đang mất mạng rồi. Mình vẫn ngồi cạnh bạn được nha.',
+      modelDown: 'Đầu mình đang chạy hơi chậm. Hôm nay bạn chọn nha, lát mình theo kịp.',
+      modelDownMore: 'Việc bạn gõ bây giờ vẫn tính, mình tỉnh lại là con quái của bạn nở liền.',
+      hatchesWhenBack: 'Có mạng lại là con quái của bạn sẽ nở.',
+      backupOff:
+        'iCloud đang tắt nên mình chưa giữ được bản dự phòng. Thế giới của bạn chỉ nằm trên máy này thôi.',
+      restoreOffer: 'Mình tìm thấy thế giới bạn dựng hồi trước rồi. Mình mang qua máy này nha?',
     },
     cheeky: {
       hello: 'Ơ! Bạn tới rồi. Tui là Scootch. Tui ngồi đợi đúng mình bạn đó.',
@@ -122,6 +130,13 @@ export const viOffline: OfflinePack = {
       waiting: 'Tui ngồi nhìn cái cửa này ba tiếng rồi đó. Hôm nay một việc gì đây?',
       typing: 'Gõ chữ luôn hả? Sang ghê. Tui đọc không sót chữ nào.',
       doneForToday: 'Hôm nay xong rồi. Đi chơi đi, khỏi làm gì hết.',
+      offline: 'Mất sóng rồi. Mấy câu đùa của tui cần wifi, nhưng tui vẫn ngồi cạnh bạn được.',
+      modelDown: 'Não tui đang quay vòng vòng. Hôm nay bạn chọn đi, lát tui duyên dáng bù.',
+      modelDownMore: 'Việc bạn gõ bây giờ vẫn tính, tui tỉnh lại là con quái của bạn nở liền.',
+      hatchesWhenBack: 'Có mạng lại là con quái của bạn nở liền.',
+      backupOff:
+        'iCloud đang tắt nên tui chưa cất được bản dự phòng. Thế giới của bạn chỉ nằm trên máy này thôi.',
+      restoreOffer: 'Tui lục túi thấy thế giới cũ của bạn nè. Lấy qua máy này không?',
     },
     unhinged: {
       hello: 'BẠN TỚI RỒI. Tui là Scootch. Tui tập cảnh này trước gương cả buổi.',
@@ -136,6 +151,13 @@ export const viOffline: OfflinePack = {
       waiting: 'TUI NHÌN CÁI CỬA NÀY BA TIẾNG RỒI. Hôm nay một việc gì đây?',
       typing: 'GÕ CHỮ. Sang ghê. Tui đọc từng chữ một.',
       doneForToday: 'HÔM NAY XONG RỒI. Đi chơi đi, khỏi làm gì hết. Tui trông cho.',
+      offline: 'MẤT SÓNG RỒI. Mấy câu đùa của tui cần wifi. Tui vẫn ngồi cạnh bạn, ngồi rất kịch.',
+      modelDown: 'NÃO TUI ĐANG QUAY VÒNG VÒNG. Hôm nay bạn chọn đi, lát tui duyên dáng bù.',
+      modelDownMore: 'Việc bạn gõ bây giờ VẪN TÍNH, tui tỉnh lại là con quái của bạn nở liền.',
+      hatchesWhenBack: 'CÓ MẠNG LẠI LÀ CON QUÁI CỦA BẠN NỞ LIỀN. Tui đang canh quả trứng.',
+      backupOff:
+        'ICLOUD ĐANG TẮT. Tui chưa cất được bản dự phòng. Thế giới của bạn chỉ nằm trên máy này thôi.',
+      restoreOffer: 'TUI LỤC TÚI THẤY THẾ GIỚI CŨ CỦA BẠN. Lấy qua máy này không?',
     },
   },
   monsterNames: [

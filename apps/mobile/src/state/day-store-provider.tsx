@@ -32,6 +32,12 @@ import {
   systemClock,
   systemTimers,
 } from '../effects/native-adapters';
+import { createBackup, type Backup } from '../features/backup/backup';
+import { createBackupApi } from '../features/backup/backup-api';
+import { nativeBackupTokens } from '../features/backup/native-token-stores';
+import { deleteEverything, retryServerDelete } from '../features/privacy/data/delete-everything';
+import { exportMyData } from '../features/privacy/data/export-data';
+import { nativeShareDevice } from '../features/share/native-share-device';
 import {
   nativeSharedFiles,
   nativeSharedStore,
@@ -76,8 +82,25 @@ function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
   // Nothing in this layer knows about purchases: every phone has the free day.
   const plus = () => false;
   const timeZone = () => getCalendars()[0]?.timeZone ?? 'UTC';
+  const tokens = nativeBackupTokens();
+  const server = createBackupApi(http);
+  const backup = createBackup({ tokens, api: server, repositories, db, clock: systemClock });
+  const data: DataTools = {
+    backup,
+    exportMyData: () =>
+      exportMyData({ repositories, clock: systemClock, device: nativeShareDevice }),
+    deleteEverything: () => deleteEverything({ db, tokens, server }),
+    // A delete the server never heard about is finished first, so nothing is uploaded before it.
+    keepUp: () =>
+      retryServerDelete({ db, tokens, server })
+        .catch(() => undefined)
+        .then(() => backup.maybeUpload())
+        .catch(() => undefined),
+  };
   const store: DayStore = createDayStore({
     repositories,
+    // A finished thing is backed up at once; a failed upload is tried again within the hour.
+    onFinished: () => void backup.afterFinish().catch(() => undefined),
     clock: systemClock,
     timeZone,
     nextId: randomUUID,
@@ -101,11 +124,22 @@ function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
     now: () => systemClock.now(),
     timeZone,
   });
-  return { store, motion, cues, surfaces };
+  return { store, motion, cues, data, surfaces };
+}
+
+/** The person's data beyond today: the backup, the export and deleting everything. */
+export interface DataTools {
+  readonly backup: Backup;
+  readonly exportMyData: () => Promise<unknown>;
+  /** `pending` when the phone is erased and the server has not been reached yet. */
+  readonly deleteEverything: () => Promise<'deleted' | 'pending'>;
+  /** Finishes a delete the server has not heard of, then backs up if an hour has passed. */
+  readonly keepUp: () => Promise<void>;
 }
 
 const DayStoreContext = createContext<DayStore | null>(null);
 const CueContext = createContext<(cue: string) => void>(() => undefined);
+const DataToolsContext = createContext<DataTools | null>(null);
 
 /**
  * Makes the day store, rebuilds today from storage, and feeds it the app's comings and goings and
@@ -119,12 +153,13 @@ export function DayStoreProvider({ children }: { readonly children: ReactNode })
   const [app] = useState(() => createAppDayStore(db, () => languageNow.current));
 
   useEffect(() => {
-    const { store, motion, cues } = app;
+    const { store, motion, cues, data } = app;
     const send = (event: DayEvent) => void store.dispatch(event).catch(() => undefined);
     void store
       .start()
       .then(() => cues.warm())
-      .catch(() => undefined);
+      .catch(() => undefined)
+      .then(() => data.keepUp());
 
     void AccessibilityInfo.isReduceMotionEnabled()
       .then((reduced) => {
@@ -135,7 +170,10 @@ export function DayStoreProvider({ children }: { readonly children: ReactNode })
       motion.reduced = reduced;
     });
     const appState = AppState.addEventListener('change', (next) => {
-      if (next === 'active') send({ type: 'app_foregrounded' });
+      if (next === 'active') {
+        send({ type: 'app_foregrounded' });
+        void data.keepUp();
+      }
       if (next === 'background') send({ type: 'app_backgrounded' });
     });
     const network = addNetworkStateListener((state) => {
@@ -163,12 +201,21 @@ export function DayStoreProvider({ children }: { readonly children: ReactNode })
   return (
     <DayStoreContext.Provider value={app.store}>
       <CueContext.Provider value={playCue}>
-        <SessionRelaunch store={app.store} />
-        <SurfaceSyncHost store={app.store} sync={app.surfaces} />
-        {children}
+        <DataToolsContext.Provider value={app.data}>
+          <SessionRelaunch store={app.store} />
+          <SurfaceSyncHost store={app.store} sync={app.surfaces} />
+          {children}
+        </DataToolsContext.Provider>
       </CueContext.Provider>
     </DayStoreContext.Provider>
   );
+}
+
+/** The backup, the export and deleting everything, on the real phone. */
+export function useDataTools(): DataTools {
+  const tools = useContext(DataToolsContext);
+  if (!tools) throw new Error('The data tools are read outside their provider');
+  return tools;
 }
 
 /** Plays one named sound cue with its haptics, obeying the person's sound and haptics switches. */
@@ -192,6 +239,7 @@ export function useToday() {
   const state = useDayState();
   const { ready, localDate, today, morning, monster, monsterPending } = state;
   const { taskCall, notice, heardDeadlines, settings, pick, energyNeeded } = state;
+  const { modelDown, reminderAt } = state;
   return useMemo(
     () => ({
       ready,
@@ -206,6 +254,8 @@ export function useToday() {
       settings,
       pick,
       energyNeeded,
+      modelDown,
+      reminderAt,
     }),
     [
       ready,
@@ -220,6 +270,8 @@ export function useToday() {
       settings,
       pick,
       energyNeeded,
+      modelDown,
+      reminderAt,
     ],
   );
 }

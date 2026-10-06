@@ -19,6 +19,7 @@ High effort for tasks 1 and 2.
 - Test: every place that renders a monster, a joke, a card or a share checks
   the flag. One test walks a serious task through the whole day loop and
   asserts none appears.
+- Status: partly done — 45cd82d; built and tested with fakes, not yet run on a device
 
 ### 2. Crisis
 - Do: all tasks hidden for the day; one human sentence; helplines for the
@@ -30,6 +31,7 @@ High effort for tasks 1 and 2.
   Zealand and India. Vietnam must be added and verified, because the app
   launches in Vietnamese.
 - Test: crisis wins over every other state, including an active session.
+- Status: partly done — 45cd82d; built and tested with fakes, not yet run on a device
 
 ### 3. Offline
 - Do: starting works with no connection: carry on from yesterday or type
@@ -38,20 +40,24 @@ High effort for tasks 1 and 2.
   world piece and bar arrive later. A task typed offline gets plain company
   until it has been screened.
 - Test: a task created offline syncs once, not twice.
+- Status: partly done — 45cd82d; built and tested with fakes, not yet run on a device
 
 ### 4. Model unavailable
 - Do: Scootch says so in one line and the user picks. Lines are written later.
+- Status: partly done — 45cd82d; built and tested with fakes, not yet run on a device
 
 ### 5. Accessibility
 - Do: largest text size reflows; VoiceOver labels and hints on every element;
   Reduce Motion forms; the finish-method setting.
 - Done when: sheets at the largest text size for every screen in the registry,
   and a VoiceOver pass on the day loop.
+- Status: partly done — 45cd82d; built and tested with fakes, not yet run on a device
 
 ### 6. Privacy and data
 - Do: the plain privacy page; keep transcripts for seven days, off by default;
   export my data; delete everything, in two clear steps.
 - Test: delete removes local data and calls the server delete.
+- Status: partly done — 45cd82d; built and tested with fakes, not yet run on a device
 
 ### 7. Backup and restore
 - Do: the token is written to a synchronisable Keychain item and to iCloud
@@ -61,12 +67,14 @@ High effort for tasks 1 and 2.
 - Test on two real phones: reinstall, a second phone on the same Apple ID,
   iCloud Keychain off, iCloud off, and how long the token takes to arrive.
 - Done when: a device run restores a world onto a clean install.
+- Status: partly done — 45cd82d; built and tested with fakes, not yet run on a device
 
 ### 8. Settings
 - Do: one page, as on the board: the attitude dial; music, effects, haptics
   and motion; quiet hours; finish method; privacy and data; invite a friend.
   Add three rows the board lacks: language, Plus and helplines. Leave out
   "Sit with strangers".
+- Status: partly done — 45cd82d; built and tested with fakes, not yet run on a device
 
 ## Exit
 

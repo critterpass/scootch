@@ -3,6 +3,7 @@ import { View } from 'react-native';
 
 import { colors } from '@scootch/tokens';
 
+import { RestoreGate } from '../features/backup/restore-offer';
 import { nativeSpeech } from '../features/composer/speech';
 import { FirstLaunch } from '../features/launch/first-launch';
 import { firstLaunchPending, type LaunchOutcome } from '../features/launch/launch-machine';
@@ -22,7 +23,14 @@ export default function Home() {
   const [arrival, setArrival] = useState<LaunchOutcome | null>(null);
 
   if (!ready) return <View style={{ flex: 1, backgroundColor: palette.page }} />;
-  if (firstLaunchPending(settings)) return <FirstLaunch speech={speech} onDone={setArrival} />;
+  if (firstLaunchPending(settings)) {
+    // A new phone that already holds the backup token is offered its world back before anything.
+    return (
+      <RestoreGate>
+        <FirstLaunch speech={speech} onDone={setArrival} />
+      </RestoreGate>
+    );
+  }
   return (
     <OneScreen
       speech={speech}
