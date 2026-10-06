@@ -1,29 +1,34 @@
-import { Pressable, StyleSheet, Text, useColorScheme, View } from 'react-native';
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  useColorScheme,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { colors, fonts, fontSizes, radius, spacing } from '@scootch/tokens';
+
+import { Scootch } from '../art/Scootch';
 
 // Stand-ins until the voice package supplies Scootch's lines.
 const SENTENCE = "What's the one thing today?";
 const ACTION = 'Start';
 
-const CRITTER_SIZE = 120;
-const BLOB_SIZE = 220;
+/** The canvas Scootch stands in, as the design draws him; narrower on a small phone. */
+const SCOOTCH_SIZE = 300;
 
 /** The one screen: one critter, one sentence, one action. */
 export default function OneScreen() {
   const palette = colors[useColorScheme() === 'dark' ? 'dark' : 'light'];
+  const { width } = useWindowDimensions();
+  const scootchSize = Math.min(SCOOTCH_SIZE, width - spacing.lg * 2);
 
   return (
     <SafeAreaView style={[styles.screen, { backgroundColor: palette.page }]}>
       <View style={styles.middle}>
-        {/* Placeholder critter: a plain tomato shape on the riso blob, until the art arrives. */}
-        <View
-          testID="critter-placeholder"
-          style={[styles.blob, { backgroundColor: palette.risoBlob }]}
-        >
-          <View style={[styles.critter, { backgroundColor: palette.tomato }]} />
-        </View>
+        <Scootch mood="waiting" size={scootchSize} testID="scootch" />
         <Text
           accessibilityRole="header"
           testID="one-sentence"
@@ -56,18 +61,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: spacing.xl,
-  },
-  blob: {
-    width: BLOB_SIZE,
-    height: BLOB_SIZE,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  critter: {
-    width: CRITTER_SIZE,
-    height: CRITTER_SIZE,
-    borderRadius: radius.lg,
   },
   sentence: {
     fontFamily: fonts.heading,
