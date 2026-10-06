@@ -1,0 +1,43 @@
+{
+  "route": "task.create_pack",
+  "request": {
+    "continuation": "eyJwYXlsb2FkIjoibmFtZWQifQ.c2lnbmF0dXJl",
+    "treat": "a flat white"
+  },
+  "response": {
+    "lines": {
+      "start": "Phone in hand. Drip Van Winkle has gone very quiet.",
+      "working": [
+        "I'm holding the bucket. You hold the phone.",
+        "I've drawn the plumber a map. It is mostly arrows.",
+        "Drip is pretending to be a houseplant. Nobody is fooled.",
+        "The bucket is half full. I am choosing to see it that way."
+      ],
+      "pickedUp": "Oh! You picked me up. Careful, I'm carrying a bucket.",
+      "checkIn": "How's the call going? I have a tinier step in my pocket.",
+      "tinyNextStep": "Find the plumber's number and leave it on the screen.",
+      "twoMinutesLeft": "Two minutes on the clock. Drip is packing a very small suitcase.",
+      "timeUp": "Time. Drip is cornered by the stopcock. Hold to catch him.",
+      "caught": "Caught. The sink would like to thank you in person.",
+      "notFinished": "You started, and Drip noticed. What do we do with him now?",
+      "tinierNextSteps": [
+        "Open your contacts and type the first letters of plumber.",
+        "Pick up the phone and unlock it."
+      ],
+      "treatHandOver": "A deal is a deal: a flat white. Drip can watch from the bucket.",
+      "parkedThoughts": "Here are the thoughts you parked. I kept them dry, away from the sink.",
+      "releasedEarly": "Slipped off the button. Drip nearly cheered. Hold it again whenever you like."
+    },
+    "notifications": [
+      {
+        "text": "Drip Van Winkle has started charging the sink rent."
+      },
+      {
+        "text": "The bucket and I are on first-name terms now. One call?"
+      },
+      {
+        "text": "Drip is learning the drums. One phone call ends the tour."
+      }
+    ]
+  }
+}

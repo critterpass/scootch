@@ -4,7 +4,7 @@ import type { TaskCreatePass, TaskCreateRequest } from '@scootch/domain';
 import { vi } from 'vitest';
 
 import passEn from '../../../packages/voice/fixtures/task.create.en.json';
-import type { LinesOutput, PickOutput } from '../src/ai/task-create/schema';
+import type { PickOutput } from '../src/ai/task-create/schema';
 import { createApp } from '../src/app';
 import * as routes from '../src/routes/index.generated';
 
@@ -28,7 +28,7 @@ export function pickOutputOf(response: TaskCreatePass): PickOutput {
 }
 
 /** The recorded answer's words as the writer would have given them, before code checked them. */
-export function linesOutputOf(response: TaskCreatePass): LinesOutput {
+export function linesOutputOf(response: TaskCreatePass) {
   return {
     ...response.monster,
     ...response.lines,
@@ -38,7 +38,7 @@ export function linesOutputOf(response: TaskCreatePass): LinesOutput {
 
 type Verdict = { pass: number; serious: number; crisis: number };
 
-const labelChoices = ['calling', 'phone', 'fits', 'shareable', 'medium'];
+const labelChoices = ['calling', 'phone', 'fits', 'shareable', 'medium', 'genuine'];
 
 /** Jev answering the screen with `screen` and every label question with a confident choice. */
 export function jevDecides(screen: Verdict | Reply): Reply {
@@ -89,6 +89,19 @@ function toolAnswers(prefix: string, outputs: readonly unknown[], otherwise?: Re
 /** The writer answering each of its calls in turn with the next output. */
 export function writerAnswers(outputs: readonly unknown[], otherwise?: Reply): Reply {
   return toolAnswers('write_', outputs, otherwise);
+}
+
+/** The writer asked for failed lines once more answers with `outputs` in turn. */
+export function rewriteAnswers(outputs: readonly unknown[], otherwise?: Reply): Reply {
+  return toolAnswers('write_lines_again', outputs, otherwise);
+}
+
+/** `reply` for the call that asks for failed lines once more, `otherwise` for every other call. */
+export function whenRewriting(reply: Reply, otherwise: Reply): Reply {
+  return (request) => {
+    const tool = (request.body['tools'] as { name: string }[])[0]?.name ?? '';
+    return tool === 'write_lines_again' ? reply(request) : otherwise(request);
+  };
 }
 
 /** The fast pick answering each of its calls in turn, with the writer behind it. */

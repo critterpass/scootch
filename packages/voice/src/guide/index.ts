@@ -4,6 +4,7 @@ import { enGuide } from './en';
 import type { VoiceGuide } from './types';
 import { viGuide } from './vi';
 
+export * from './controls';
 export * from './types';
 
 export const voiceGuides: Readonly<Record<Language, VoiceGuide>> = { en: enGuide, vi: viGuide };
@@ -82,7 +83,7 @@ export function renderVoiceGuide(language: Language, attitude: Attitude, seed: n
     guide.intro,
     section(guide.headings.rules, guide.rules),
     `# ${guide.headings.attitude}: ${chosen.name}\n${chosen.description}`,
-    `# ${guide.headings.bannedWords}\n${[...guide.bannedWords, ...guide.contextWords.filter(({ reason }) => reason === 'banned_word').map(({ word }) => word)].map((word) => word.replace('*', '')).join(', ')}`,
+    `# ${guide.headings.bannedWords}\n${[...guide.bannedWords, ...guide.contextWords.filter(({ reason }) => reason === 'banned_word').map(({ word, label }) => label ?? word)].map((word) => word.replace('*', '')).join(', ')}`,
     `# ${guide.headings.offLimits}\n${guide.offLimitsNote}`,
     section(guide.headings.examples, sample.examples),
     section(guide.headings.never, sample.never),

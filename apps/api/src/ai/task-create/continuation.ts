@@ -7,6 +7,8 @@ import {
 } from '@scootch/domain';
 import { z } from 'zod';
 
+import type { Bindings } from '../../env';
+
 /** How long stage two may be asked for after stage one answered. */
 export const continuationLifetimeMs = 10 * 60 * 1000;
 
@@ -20,6 +22,8 @@ export const continuationPayloadSchema = z.object({
   attitude: attitudeSchema,
   bodyType: monsterBodyTypeSchema.nullable(),
   seed: z.number().int().min(0),
+  /** The monster's name once it has been written: what the pack is asked with. */
+  monsterName: z.string().min(1).max(60).optional(),
 });
 export type ContinuationPayload = z.infer<typeof continuationPayloadSchema>;
 
@@ -46,7 +50,21 @@ function fromBase64Url(text: string): Uint8Array<ArrayBuffer> | null {
   }
 }
 
-/** A signing key of its own, derived from a secret the Worker already holds. */
+/**
+ * The secret continuations are signed with. `TASK_CONTINUATION_SECRET` is a secret of its own,
+ * which the controller sets on Cloudflare for each environment (`wrangler secret put`). Until it
+ * is set, the key is derived from the model key the Worker already holds, as it was before; a
+ * token signed with one stops opening when the other takes over, which costs one asked-again
+ * stage one.
+ */
+export function continuationSecret(
+  env: Pick<Bindings, 'TASK_CONTINUATION_SECRET' | 'DEEPSEEK_API_KEY'>,
+): string | undefined {
+  const own = env.TASK_CONTINUATION_SECRET;
+  return own !== undefined && own !== '' ? own : env.DEEPSEEK_API_KEY;
+}
+
+/** The signing key, derived from the secret so the secret itself is never the key. */
 async function signingKey(secret: string): Promise<CryptoKey> {
   const material = await crypto.subtle.digest(
     'SHA-256',

@@ -1,6 +1,7 @@
 import {
   taskCreateResponseSchema,
   type Energy,
+  type ScreenVerdict,
   type TaskCreateRequest,
   type TaskCreateResponse,
   type TaskCreateStartPass,
@@ -9,9 +10,8 @@ import {
 import { checkLine, offlinePacks, wordsOf } from '@scootch/voice';
 
 import { ApiError } from '../../errors';
-import { decide } from '../decide';
 import { generate } from '../deepseek';
-import { screenInputQuestion, screenVerdict } from '../screen-input';
+import { screenText } from '../screen-input';
 
 import {
   decideContext,
@@ -46,15 +46,18 @@ export type TaskStart =
       readonly payload: ContinuationPayload;
     }
   | {
-      readonly verdict: 'serious' | 'crisis';
+      readonly verdict: 'serious' | 'crisis' | 'reject';
       readonly response: Exclude<TaskCreateResponse, { verdict: 'pass' }>;
     };
 
-/** The care screen's verdict. When no model answers, nothing was judged and nothing is funny. */
-async function screen(context: TaskCreateContext, text: string) {
+/** The screen's verdict. When no model answers, nothing was judged and nothing is funny. */
+async function screen(
+  context: TaskCreateContext,
+  text: string,
+): Promise<{ verdict: ScreenVerdict; screened: boolean }> {
   try {
-    const decision = await decide(decideContext(context), { ...screenInputQuestion, text });
-    return { verdict: screenVerdict(decision.answer.probabilities), screened: true };
+    const { verdict } = await screenText(decideContext(context), text);
+    return { verdict, screened: true };
   } catch (error) {
     console.error('task not screened', {
       requestId: context.requestId,
@@ -126,8 +129,8 @@ function held<T>(work: Promise<T>): Promise<T> {
 
 /**
  * Stage one: what the screen shows first. The care screen, the fast pick and the energy guess all
- * start at once, and nothing is answered until the screen has: a crisis answers with the verdict
- * alone and a heavy task with plain words and no monster, exactly as if nothing else had run.
+ * start at once, and nothing is answered until the screen has: a crisis or a text that is not a
+ * note answers with the verdict alone, and a heavy task with plain words and no monster, exactly as if nothing else had run.
  * "It's fine, be funny" lifts a serious verdict only when a model really judged the text.
  *
  * The text goes to the models and nowhere else: it is not logged and not stored.
@@ -149,9 +152,10 @@ export async function startTask(
   const speculative = Promise.allSettled([picking, energy, ...(early === null ? [] : [early])]);
 
   const { verdict, screened } = await screen(context, request.text);
-  if (verdict === 'crisis') {
+  // A crisis and a text that is not a note answer with the verdict alone: nothing is written.
+  if (verdict === 'crisis' || verdict === 'reject') {
     context.defer?.(speculative);
-    return { verdict, response: { verdict: 'crisis' } };
+    return { verdict, response: { verdict } };
   }
   const serious = verdict === 'serious';
   if (serious && !(request.overrideSerious && screened)) {
