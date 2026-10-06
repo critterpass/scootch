@@ -1,17 +1,24 @@
 import type { MoodPose } from '../expression';
 
-/** Something heavy: quiet company. Open eyes on the user, soft brows, a small closed mouth, hands down, nothing floating. It takes no attitude and no gag. */
+/**
+ * Something heavy: Scootch listens. A hand to its ear, open eyes, a small round mouth and no
+ * smile. It takes no attitude and no gag, so it is the same drawing for everyone.
+ */
 export const serious: MoodPose = () => ({
-  open: 1,
-  pup: 0.6,
-  ly: -0.08,
+  dy: -3,
+  sy: 1.04,
+  sx: 0.97,
+  open: 1.12,
+  pup: 0.5,
+  lx: -0.15,
+  ly: -0.25,
   brows: [
-    [-2, -0.14],
-    [-2, -0.14],
+    [-6, -0.15],
+    [-6, -0.15],
   ],
-  mouth: 'smile',
-  mw: 0.42,
-  blush: 0.55,
-  hl: [1.0, 0.7],
-  hr: [1.0, 0.7],
+  mouth: 'o',
+  mw: 0.8,
+  hl: [1.0, -0.28],
+  lean: -2,
+  fx: 'waves',
 });

@@ -46,13 +46,6 @@ describe('buildScootch', () => {
     expect(buildScootch({ ...props, reducedMotion: false }, motion)).not.toEqual(still);
   });
 
-  it('draws the plain working pose for every work mode until one attaches', () => {
-    const props = { mood: 'working', attitude: 'cheeky', reducedMotion: false } as const;
-    expect(buildScootch({ ...props, workMode: 'email' })).toEqual(
-      buildScootch({ ...props, workMode: null }),
-    );
-  });
-
   it('has the contract reject an unknown mood', () => {
     const props = { mood: 'waiting', attitude: 'soft', workMode: null, reducedMotion: false };
     expect(scootchPropsSchema.safeParse(props).success).toBe(true);

@@ -16,6 +16,7 @@ export { buildScootch, SCOOTCH_MOODS } from './scootch/build-scootch';
 export type { ScootchMotion } from './scootch/expression';
 export {
   WORK_MODE_ATTACHMENTS,
+  type LoopValues,
   type ScootchFrame,
   type WorkModeAttachment,
 } from './scootch/work-mode-attachment';
