@@ -61,6 +61,7 @@ Two lanes: A owns tasks 1 to 6 and 11, B owns tasks 7 to 10.
   skeleton with a placeholder critter, expo-sqlite, over-the-air updates on
   two channels (dev and prd), the `e2e-test` variant. Two environments only.
 - Done when: it runs in the device pipeline.
+- Status: done — 41772ce
 
 ### 8. Every target and capability
 - Owns: `apps/mobile/targets/`, `apps/mobile/app.config.ts`.
