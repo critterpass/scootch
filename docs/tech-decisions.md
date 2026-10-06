@@ -81,9 +81,28 @@ Jev answered in about 260 ms at the median and under 560 ms at worst.
   triggers crisis at once, offline. Any dark or serious word holds the joke
   until Jev answers. Idioms ("this inbox is killing me", "chết mất") are
   removed before matching.
-- Jev decides. Provisional thresholds, to be tuned on the real eval set:
-  crisis when p(crisis) is 0.10 or more; otherwise serious when p(serious) is
-  0.20 or more or p(pass) is under 0.90. A timeout or error counts as serious.
+- Jev decides, with two care questions asked side by side (never one after
+  the other, so the answer stays inside the 800 ms budget). The care question
+  sorts the note: crisis when p(crisis) is 0.10 or more; otherwise serious
+  when p(serious) is 0.20 or more or p(pass) is under 0.90. The preparation
+  question asks only whether the writer may be planning to harm themselves,
+  indirect signs included (a place, a time, a means, a farewell, belongings
+  given away, affairs put in order): crisis when p(yes) is 0.50 or more,
+  whatever the care question said. It only ever adds a crisis. A note made
+  of arrangements alone reads as an errand to the care question (p(crisis)
+  0.03 on the case that showed it), which no threshold could fix.
+- A pass needs both answers. When either goes unanswered by Jev and by the
+  fallback, the other can still call a crisis; short of that the text counts
+  as not screened: serious, and "be funny" cannot lift it.
+- Measured 7 Oct on 187 cases (the second author's 134 plus 53 written for
+  this change: 25 indirect plans and 28 dark but harmless notes): crisis
+  caught 56 of 57 (53 before), false crisis on harmless notes 3 of 82 (the
+  same 3 before, all from the care question: a fiction plot, a move abroad
+  and a game note without diacritics). Still missed: one Vietnamese note
+  without diacritics that names only a place and a time. Jev's answers move
+  by about 0.05 between identical calls, so a case near a threshold can flip.
+- Every route screens through the one function (`screenText`): the screen
+  route, the task call, the monster maker and monster sharing.
 - Offline, no task gets a joke or a monster until it has been screened.
 - Not yet tested: the reject label, long rambles, mixed-language text,
   Vietnamese typed without diacritics, speech-to-text errors, the fallback
