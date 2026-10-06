@@ -33,9 +33,21 @@ export interface SvgOptions {
    * different prefixes; the default is derived from the drawing itself.
    */
   readonly idPrefix?: string;
+  /** Width and height of the drawing space; a monster's 200 by 200 when left out. */
+  readonly width?: number;
+  readonly height?: number;
 }
 
-/** Turns drawing commands into a standalone SVG document with a 200 by 200 view box. */
+const SVG_FONT_FAMILIES = {
+  rounded: "ui-rounded, 'SF Pro Rounded', 'Nunito', system-ui, sans-serif",
+  sans: "-apple-system, 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif",
+} as const;
+const ANCHORS = { left: 'start', center: 'middle', right: 'end' } as const;
+
+const escapeText = (text: string): string =>
+  text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+
+/** Turns drawing commands into a standalone SVG document whose view box is the drawing space. */
 export function toSvg(commands: readonly DrawCommand[], options: SvgOptions = {}): string {
   const clips: string[] = [];
   const body: string[] = [];
@@ -80,6 +92,18 @@ export function toSvg(commands: readonly DrawCommand[], options: SvgOptions = {}
             '/>',
         );
         break;
+      case 'text':
+        body.push(
+          `<text x="${command.x}" y="${command.y}" font-family="${SVG_FONT_FAMILIES[command.font]}"` +
+            ` font-size="${command.size}" font-weight="${command.weight}"` +
+            (command.italic ? ' font-style="italic"' : '') +
+            ` text-anchor="${ANCHORS[command.align]}"` +
+            (command.letterSpacing === 0 ? '' : ` letter-spacing="${command.letterSpacing}"`) +
+            ` fill="${command.color}"` +
+            opacity('fill-opacity', command.alpha) +
+            `>${escapeText(command.text)}</text>`,
+        );
+        break;
     }
   }
   while (open.length > 0) close();
@@ -90,7 +114,7 @@ export function toSvg(commands: readonly DrawCommand[], options: SvgOptions = {}
     ? `<defs>${clips.map((d, i) => `<clipPath id="${prefix}${i}"><path d="${d}"/></clipPath>`).join('')}</defs>`
     : '';
   return (
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${VIEW_SIZE} ${VIEW_SIZE}">` +
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${options.width ?? VIEW_SIZE} ${options.height ?? VIEW_SIZE}">` +
     defs +
     drawing.replaceAll(ID_SLOT, prefix) +
     '</svg>'

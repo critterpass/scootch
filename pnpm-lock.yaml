@@ -626,13 +626,13 @@ importers:
 
   packages/art:
     dependencies:
+      '@napi-rs/canvas':
+        specifier: 'catalog:'
+        version: 1.0.10
       '@scootch/domain':
         specifier: workspace:*
         version: link:../domain
     devDependencies:
-      '@napi-rs/canvas':
-        specifier: 'catalog:'
-        version: 1.0.10
       '@types/node':
         specifier: 'catalog:'
         version: 26.6.3
