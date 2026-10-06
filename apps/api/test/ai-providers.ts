@@ -27,18 +27,23 @@ export function providers(replies: { jev: Reply; deepseek: Reply }): Providers {
   return { fetch: send, sent };
 }
 
+/** Jev answering the care question with `probabilities`, and the misuse question with "genuine". */
 export function jevAnswers(probabilities: {
   pass: number;
   serious: number;
   crisis: number;
 }): Reply {
-  const [choice] = Object.entries(probabilities).sort((a, b) => b[1] - a[1])[0] ?? [];
-  return () =>
-    Response.json({
+  return ({ body }) => {
+    const questions = body['questions'] as { answer: { criteria: Record<string, string> } };
+    const given: Record<string, number> =
+      'crisis' in questions.answer.criteria ? probabilities : { genuine: 0.99, misuse: 0.01 };
+    const [choice] = Object.entries(given).sort((a, b) => b[1] - a[1])[0] ?? [];
+    return Response.json({
       model: 'jev-1.13.0',
-      answers: { answer: { type: 'choice', choice, confidence: 0.98, probabilities } },
+      answers: { answer: { type: 'choice', choice, confidence: 0.98, probabilities: given } },
       usage: { input_tokens: 498, output_tokens: 40 },
     });
+  };
 }
 
 /** The fast tier answering through the forced tool call. */

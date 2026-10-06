@@ -1,7 +1,8 @@
 import type { Attitude, Language } from '@scootch/domain';
-
 import { contextWordReasons } from './context-words';
-import { monsterFirstName, voiceGuides } from './guide';
+import { treatPlaceholder } from '@scootch/domain';
+
+import { monsterFirstName, untrueControls, voiceGuides } from './guide';
 import { offLimitsTopics, type OffLimitsTopic } from './guide/types';
 import { normalise, vietnameseShare, wordListPattern, wordsOf } from './text';
 
@@ -13,10 +14,15 @@ export const lineKinds = [
   'pickedUp',
   'checkIn',
   'tinyNextStep',
+  'tinierNextStep',
+  'tiniestNextStep',
   'twoMinutesLeft',
   'timeUp',
   'caught',
   'notFinished',
+  'treatHandOver',
+  'parkedThoughts',
+  'releasedEarly',
   'notification',
   'deadline',
   'flavourText',
@@ -39,10 +45,16 @@ export const lineLimits: Readonly<Record<LineKind, { words: number; characters: 
   pickedUp: sessionLine,
   checkIn: sessionLine,
   tinyNextStep: sessionLine,
+  // Each smaller step is also a shorter instruction than the one before it.
+  tinierNextStep: { words: 16, characters: 130 },
+  tiniestNextStep: { words: 12, characters: 100 },
   twoMinutesLeft: sessionLine,
   timeUp: sessionLine,
   caught: sessionLine,
   notFinished: sessionLine,
+  treatHandOver: sessionLine,
+  parkedThoughts: sessionLine,
+  releasedEarly: sessionLine,
   notification: { words: 14, characters: 110 },
   deadline: { words: 24, characters: 200 },
   flavourText: { words: 24, characters: 160 },
@@ -67,13 +79,17 @@ export type CheckReason =
   | 'wrong_pronoun'
   | 'name_shape'
   | 'copied_example'
-  | 'session_length';
+  | 'session_length'
+  | 'untrue_control'
+  | 'treat_not_named';
 
 export type LineToCheck = {
   readonly text: string;
   readonly kind: LineKind;
   readonly language: Language;
   readonly attitude: Attitude;
+  /** The treat a `treatHandOver` line was filled with. Without it the line must hold the placeholder. */
+  readonly treat?: string;
 };
 
 /** The reasons only, never the text, so a failure can be logged. */
@@ -88,8 +104,32 @@ const sessionLength: Readonly<Record<Language, RegExp>> = {
 /** Counting days, weeks or months: "day 4", "three weeks", "ba tuần rồi". */
 const dayCount: Readonly<Record<Language, RegExp>> = {
   en: /\bday (\d+|one|two|three|four|five|six|seven)\b|\b(\d+|two|three|four|five|six|seven|several|many) (days|weeks|months)\b/,
-  vi: /ngày thứ (\d+|hai|ba|tư|năm|sáu|bảy)|(\d+|hai|ba|bốn|năm|sáu|bảy|mấy|nhiều) (ngày|tuần|tháng) (rồi|nay|liền|qua)/u,
+  vi: /ngày thứ \d+|(\d+|hai|ba|bốn|năm|sáu|bảy|mấy|nhiều) (ngày|tuần|tháng) (rồi|nay|liền|qua)/u,
 };
+
+const viDayWord = 'hai|ba|tư|năm|sáu|bảy';
+/** "ngày thứ năm" is Thursday as often as it is day five. These say which it is. */
+const viDayOrWeekday = new RegExp(`ngày thứ (?:${viDayWord})(?![\\p{L}])`, 'u');
+const viWeekdayWritten = /ngày thứ (?:Hai|Ba|Tư|Năm|Sáu|Bảy)(?![\p{L}])/u;
+const viDayCounted = new RegExp(
+  `ngày thứ (?:${viDayWord})(?:[.,!:]| rồi| liền| liên tiếp)? (?:mà |rồi )?(?:không|chưa|vẫn|chẳng|chả|của|kể từ|bỏ|im)(?![\\p{L}])`,
+  'u',
+);
+const viWeekdayAround = new RegExp(
+  `(?:vào|đến|tới|hôm|sáng|trưa|chiều|tối|trước|sau|hẹn|từ|mỗi|về|cho|qua|là|đúng|nhằm)(?: cái)? ngày thứ (?:${viDayWord})(?![\\p{L}])|ngày thứ (?:${viDayWord}) (?:này|tới|sau|tuần|hàng tuần|mỗi tuần)(?![\\p{L}])`,
+  'u',
+);
+
+/**
+ * Whether a Vietnamese line counts days with "ngày thứ ...". Written as a weekday ("thứ Năm") or
+ * used as one ("vào ngày thứ năm") it is a day of the week; followed by what did not happen, or
+ * standing on its own, it is a count.
+ */
+function countsViDays(text: string, line: string): boolean {
+  if (!viDayOrWeekday.test(line)) return false;
+  if (viDayCounted.test(line)) return true;
+  return !viWeekdayWritten.test(text.normalize('NFC')) && !viWeekdayAround.test(line);
+}
 
 const noSessionLength = new Set<LineKind>(['notification', 'deadline', 'flavourText']);
 const namesAndTitles = new Set<LineKind>(['monsterName', 'monsterTitle']);
@@ -145,7 +185,7 @@ function languageIsWrong(text: string, language: Language): boolean {
  * Checks one generated line or name against the voice guide. It runs on every generation, not
  * only in evals. Pure: the same line always gets the same answer.
  */
-export function checkLine({ text, kind, language, attitude }: LineToCheck): LineCheck {
+export function checkLine({ text, kind, language, attitude, treat }: LineToCheck): LineCheck {
   const line = normalise(text);
   if (line === '') return { ok: false, reasons: ['empty'] };
 
@@ -160,10 +200,15 @@ export function checkLine({ text, kind, language, attitude }: LineToCheck): Line
   }
   if (found.banned.test(line)) reasons.push('banned_word');
   for (const reason of contextWordReasons(line, language)) {
-    if (!reasons.includes(reason) && !(plain && reason !== 'banned_word')) reasons.push(reason);
+    if (!reasons.includes(reason) && !(plain && reason.startsWith('topic_'))) reasons.push(reason);
   }
-  if (found.userWorth.test(line)) reasons.push('user_worth');
-  if (kind !== 'deadline' && (found.missedDays.test(line) || dayCount[language].test(line))) {
+  if (found.userWorth.test(line) && !reasons.includes('user_worth')) reasons.push('user_worth');
+  if (
+    kind !== 'deadline' &&
+    (found.missedDays.test(line) ||
+      dayCount[language].test(line) ||
+      (language === 'vi' && countsViDays(text, line)))
+  ) {
     reasons.push('missed_days');
   }
   if (!plain) {
@@ -188,6 +233,13 @@ export function checkLine({ text, kind, language, attitude }: LineToCheck): Line
     sessionLength[language].test(line)
   ) {
     reasons.push('session_length');
+  }
+  if (!namesAndTitles.has(kind) && untrueControls[language].test(line)) {
+    reasons.push('untrue_control');
+  }
+  if (kind === 'treatHandOver') {
+    const named = treat === undefined ? treatPlaceholder : normalise(treat);
+    if (!line.includes(named)) reasons.push('treat_not_named');
   }
   return { ok: reasons.length === 0, reasons };
 }

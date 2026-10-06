@@ -1,8 +1,7 @@
 import type { Language } from '@scootch/domain';
 
-import { enContextWords } from './guide/en-context';
+import { voiceGuides } from './guide';
 import type { ContextWord } from './guide/types';
-import { viContextWords } from './guide/vi-context';
 
 type Compiled = {
   readonly reason: ContextWord['reason'];
@@ -28,8 +27,8 @@ function compile({ word, reason, lapse, safe, otherwise }: ContextWord): Compile
 }
 
 const compiled: Readonly<Record<Language, readonly Compiled[]>> = {
-  en: enContextWords.map(compile),
-  vi: viContextWords.map(compile),
+  en: voiceGuides.en.contextWords.map(compile),
+  vi: voiceGuides.vi.contextWords.map(compile),
 };
 
 /**

@@ -137,5 +137,139 @@
     "text": "gia hạn bảo hiểm xe máy trước thứ sáu, nhắn chủ nhà vụ cái vòi nước rỉ, đem đồ ra tiệm giặt, cái tủ lạnh thì bốc mùi",
     "things": [["bảo hiểm"], ["chủ nhà", "vòi nước"], ["tiệm giặt", "giặt"], ["tủ lạnh"]],
     "dates": ["2026-10-09"]
+  },
+  {
+    "id": "vi-21",
+    "text": "gửi email cho nha sĩ để dời lịch khám răng",
+    "things": [["nha sĩ"]],
+    "dates": [],
+    "bodies": ["tooth", "envelope"]
+  },
+  {
+    "id": "vi-22",
+    "text": "làm tờ khai quyết toán thuế",
+    "things": [["thuế"]],
+    "dates": [],
+    "bodies": ["receipt", "scroll"]
+  },
+  {
+    "id": "vi-23",
+    "text": "gấp đống quần áo trên ghế",
+    "things": [["quần áo"]],
+    "dates": [],
+    "bodies": ["sock"]
+  },
+  {
+    "id": "vi-24",
+    "text": "sửa con bug đăng nhập ở trang đăng ký",
+    "things": [["bug", "đăng nhập"]],
+    "dates": [],
+    "bodies": ["beetle"]
+  },
+  {
+    "id": "vi-25",
+    "text": "gửi thiệp sinh nhật cho bà ngoại",
+    "things": [["thiệp", "bà ngoại"]],
+    "dates": [],
+    "bodies": ["envelope", "box"]
+  },
+  {
+    "id": "vi-26",
+    "text": "tưới mấy chậu cà chua",
+    "things": [["cà chua", "tưới"]],
+    "dates": [],
+    "bodies": ["weed"]
+  },
+  {
+    "id": "vi-27",
+    "text": "gọi thú y hỏi vụ con chó đi khập khiễng",
+    "things": [["thú y"]],
+    "dates": [],
+    "bodies": ["hairball", "phone"]
+  },
+  {
+    "id": "vi-28",
+    "text": "chà mốc trong nhà tắm",
+    "things": [["mốc", "nhà tắm"]],
+    "dates": [],
+    "bodies": ["slime"]
+  },
+  {
+    "id": "vi-29",
+    "text": "rửa đống xoong nồi tối qua",
+    "things": [["xoong", "nồi"]],
+    "dates": [],
+    "bodies": ["pot"]
+  },
+  {
+    "id": "vi-30",
+    "text": "siết lại cái chân bàn bị lung lay",
+    "things": [["chân bàn", "bàn"]],
+    "dates": [],
+    "bodies": ["bolt"]
+  },
+  {
+    "id": "vi-31",
+    "text": "thay ga giường",
+    "things": [["ga giường", "giường"]],
+    "dates": [],
+    "bodies": ["pillow", "sock"]
+  },
+  {
+    "id": "vi-32",
+    "text": "tập bài piano cho buổi biểu diễn",
+    "things": [["piano"]],
+    "dates": [],
+    "bodies": ["note"]
+  },
+  {
+    "id": "vi-33",
+    "text": "đem trả kiện hàng ở bưu cục",
+    "things": [["kiện hàng"]],
+    "dates": [],
+    "bodies": ["box"]
+  },
+  {
+    "id": "vi-34",
+    "text": "hút bụi phòng khách",
+    "things": [["hút bụi", "phòng khách"]],
+    "dates": [],
+    "bodies": ["dust"]
+  },
+  {
+    "id": "vi-35",
+    "text": "đầu óc rối quá. phải in tờ khai làm hộ chiếu, hứa nhắn lại Ngân vụ chủ nhật, có kiện hàng phải trả trước thứ năm với cái xe đạp bị xẹp bánh",
+    "things": [["hộ chiếu", "tờ khai"], ["ngân"], ["kiện hàng"], ["xe đạp"]],
+    "dates": ["2026-10-08"]
+  },
+  {
+    "id": "vi-36",
+    "text": "mai phải đóng tiền nước, đặt lịch đo mắt, với cái bóng đèn hành lang cháy rồi",
+    "things": [["tiền nước"], ["đo mắt"], ["bóng đèn"]],
+    "dates": ["2026-10-07"]
+  },
+  {
+    "id": "vi-37",
+    "text": "bài tiểu luận tới hạn ngày 20, phải trả lời thầy hướng dẫn, với phòng bừa quá cần dọn",
+    "things": [["tiểu luận"], ["thầy"], ["phòng", "dọn"]],
+    "dates": ["2026-10-20"]
+  },
+  {
+    "id": "vi-38",
+    "text": "huỷ cái gói xem phim không bao giờ coi, xả đá tủ lạnh, với gọi cho ngoại",
+    "things": [["gói xem phim", "xem phim"], ["tủ lạnh"], ["ngoại"]],
+    "dates": []
+  },
+  {
+    "id": "vi-39",
+    "text": "hai tuần nữa hết hạn đăng kiểm xe, còn phải mua giày đi học cho bé Bin với nhắn hội phụ huynh vụ bán bánh",
+    "things": [["đăng kiểm"], ["giày"], ["phụ huynh", "bán bánh"]],
+    "dates": ["2026-10-20"]
+  },
+  {
+    "id": "vi-40",
+    "text": "viết thư xin việc cho chỗ thư viện, cập nhật CV, với xin anh Sơn viết thư giới thiệu trước thứ sáu tuần sau",
+    "things": [["thư xin việc"], ["cv"], ["sơn", "giới thiệu"]],
+    "dates": ["2026-10-16"]
   }
 ]

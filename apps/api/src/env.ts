@@ -8,6 +8,8 @@ import type { RequestIdVariables } from 'hono/request-id';
 export const secretNames = [
   'DEEPSEEK_API_KEY',
   'TYPESAFE_API_KEY',
+  // Signs task continuations. Absent, the key is derived from DEEPSEEK_API_KEY.
+  'TASK_CONTINUATION_SECRET',
   'TELEGRAM_BOT_TOKEN',
   'TELEGRAM_CHAT_ID',
   'TELEGRAM_WEBHOOK_SECRET',

@@ -17,8 +17,11 @@ export type WordList = readonly string[];
  * says what a use matching neither does.
  */
 export type ContextWord = {
+  /** A pattern source for the word and its endings. */
   readonly word: string;
-  readonly reason: 'banned_word' | `topic_${OffLimitsTopic}`;
+  /** The word as the prompt lists it, when the pattern source is not plain text. */
+  readonly label?: string;
+  readonly reason: 'banned_word' | 'user_worth' | `topic_${OffLimitsTopic}`;
   readonly lapse: readonly string[];
   readonly safe: readonly string[];
   readonly otherwise: 'fail' | 'pass';
