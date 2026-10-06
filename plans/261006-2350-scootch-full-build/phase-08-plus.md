@@ -12,6 +12,7 @@ product-brief section 7 first. High effort for tasks 1 and 2.
   monthly, yearly, lifetime, expired, friend-pass guest). Every locked control
   reads it; nothing else decides.
 - Test: every state, including a lapsed trial and a refund.
+- Status: partly done — ccdb754; pure logic and tests in packages/domain, no screens, storage or store SDK yet
 
 ### 2. Purchases
 - Do: the three products, purchase, restore through the Apple ID with no
@@ -52,6 +53,7 @@ product-brief section 7 first. High effort for tasks 1 and 2.
   finish; they move the reminder hour and size the next ask; the weekly
   sentence; running jokes about past monsters through the task call.
 - Test: the statistics, as pure functions.
+- Status: partly done — ccdb754; pure logic and tests in packages/domain, no screens, storage or store SDK yet
 
 ## Exit
 
