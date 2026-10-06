@@ -476,9 +476,15 @@ importers:
       '@scootch/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
+      '@scootch/sound':
+        specifier: workspace:*
+        version: link:../../packages/sound
       '@scootch/tokens':
         specifier: workspace:*
         version: link:../../packages/tokens
+      '@scootch/voice':
+        specifier: workspace:*
+        version: link:../../packages/voice
       '@sentry/react-native':
         specifier: 'catalog:'
         version: 8.28.0(88aa4d6d7e3574fc0605cc44e2e0185e)
@@ -664,13 +670,13 @@ importers:
 
   packages/art:
     dependencies:
+      '@napi-rs/canvas':
+        specifier: 'catalog:'
+        version: 1.0.10
       '@scootch/domain':
         specifier: workspace:*
         version: link:../domain
     devDependencies:
-      '@napi-rs/canvas':
-        specifier: 'catalog:'
-        version: 1.0.10
       '@types/node':
         specifier: 'catalog:'
         version: 26.6.3

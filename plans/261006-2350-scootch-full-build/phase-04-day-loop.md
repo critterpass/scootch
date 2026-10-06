@@ -14,7 +14,7 @@ Session.
 - Do: days, tasks, drawer items, monsters, sessions, settings. The phone is
   the source of truth.
 - Test: a day rolls over at the user's local morning, not at midnight UTC.
-- Status: partly done — f29e5c7; pure logic and tests in packages/domain, no screens or storage yet
+- Status: partly done — f29e5c7; pure logic and tests in packages/domain, no screens or storage yet; storage, client, effects and store in the app — 71638e7, not yet run on a device
 
 ### 2. First launch
 - Do: hello, attitude, permissions asked in character before the system
