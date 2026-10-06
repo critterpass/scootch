@@ -42,13 +42,19 @@ export type DayEvent =
       readonly resolution: 'keep' | 'discard';
     }
   | { readonly type: 'done_for_today' }
+  /** Scootch says the next of the task's working lines. */
+  | { readonly type: 'working_line_turned' }
+  /** The screens are through with an ended session: what was handed over for it is cleared. */
+  | { readonly type: 'session_closed' }
+  /** Developer tools only: the running session's timer comes due this many seconds from now. */
+  | { readonly type: 'developer_session_ends_in'; readonly seconds: number }
   | { readonly type: 'settings_changed'; readonly changes: Partial<Omit<SettingsRow, 'id'>> }
   | { readonly type: 'connection_returned' }
   | { readonly type: 'app_foregrounded' }
   | { readonly type: 'app_backgrounded' };
 
 export interface ShownLine {
-  readonly slot: SessionLine | 'hatch';
+  readonly slot: SessionLine | 'hatch' | 'working';
   readonly text: string;
 }
 

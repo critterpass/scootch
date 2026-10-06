@@ -16,6 +16,7 @@ import type { EffectSwitches, ScreenSink } from '../effects/adapters';
 import { DEFAULT_USUAL_START, dayNotifications, usualStart } from './day-notifications';
 import type { DayContext, DayEvent, DayMemory, DayState, DayStoreDeps } from './day-types';
 import { applySession, resolveThought, restoreSession, setSession } from './session-flow';
+import { closeSession, shortenSession, turnWorkingLine } from './session-moments';
 import { askAnother, fetchPending, resolveTranscript, submitText } from './task-flow';
 
 export interface DayStore {
@@ -179,6 +180,12 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
       }
       case 'thought_resolved':
         return resolveThought(ctx, event.thought, event.resolution);
+      case 'working_line_turned':
+        return turnWorkingLine(ctx);
+      case 'session_closed':
+        return closeSession(ctx);
+      case 'developer_session_ends_in':
+        return shortenSession(ctx, event.seconds);
       case 'done_for_today': {
         const day = await repositories.days.get(memory.state.localDate);
         if (day && day.status === 'open') await repositories.days.put({ ...day, status: 'done' });

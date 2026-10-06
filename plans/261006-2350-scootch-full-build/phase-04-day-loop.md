@@ -60,13 +60,14 @@ Session.
   unremarked. Runs fully offline from the line pack.
 - Test: the session state machine, including background, kill and relaunch
   mid-session.
-- Status: partly done — f29e5c7; pure logic and tests in packages/domain, no screens or storage yet
+- Status: partly done — f29e5c7; pure logic and tests in packages/domain, no screens or storage yet; screens built and tested with fakes — cefa1ed, not yet run on a device
 
 ### 9. Finishing
 - Do: hold to finish, tap twice, say "done"; the same reward either way;
   "not finished" with carry on tomorrow, make it smaller, let it go; parked
   thoughts shown with keep or discard; done for today.
 - Test: every finish method reaches the same state.
+- Status: partly done; screens built and tested with fakes — cefa1ed, not yet run on a device
 
 ### 10. Morning and returning
 - Do: the morning line about yesterday's leftover on days two and three; a
