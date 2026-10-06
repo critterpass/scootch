@@ -99,21 +99,25 @@ describe("the week's record", () => {
 const AUDIO_BUDGET_MS = 60_000;
 
 describe("the record's audio", () => {
-  it('plays a week of one bar: a smaller band, and real sound', () => {
-    const track = weekTrack(view(1, 1).rows);
-    expect(track.bars.map((bar) => bar.instrument)).toEqual(['keys']);
-    expect(track.left.length).toBeGreaterThan(0);
-    expect(peak(track)).toBeGreaterThan(0.01);
-    expect(litInstruments(track, 0.1)).toEqual(['keys']);
+  it(
+    'plays a week of one bar: a smaller band, and real sound',
+    () => {
+      const track = weekTrack(view(1, 1).rows);
+      expect(track.bars.map((bar) => bar.instrument)).toEqual(['keys']);
+      expect(track.left.length).toBeGreaterThan(0);
+      expect(peak(track)).toBeGreaterThan(0.01);
+      expect(litInstruments(track, 0.1)).toEqual(['keys']);
 
-    const bar = barSound(view(1, 1).rows[0]!);
-    expect(bar.left.length).toBeGreaterThan(0);
-    expect(peak(bar)).toBeGreaterThan(0.01);
+      const bar = barSound(view(1, 1).rows[0]!);
+      expect(bar.left.length).toBeGreaterThan(0);
+      expect(peak(bar)).toBeGreaterThan(0.01);
 
-    const shared = weekClip(track);
-    expect(durationSeconds(shared)).toBeCloseTo(15, 3);
-    expect(peak(shared)).toBeGreaterThan(0.01);
-  }, AUDIO_BUDGET_MS);
+      const shared = weekClip(track);
+      expect(durationSeconds(shared)).toBeCloseTo(15, 3);
+      expect(peak(shared)).toBeGreaterThan(0.01);
+    },
+    AUDIO_BUDGET_MS,
+  );
 
   it('lights each row as its instrument joins, then the whole band', () => {
     const track = { sections: weekTrackSections() };
