@@ -1,0 +1,20 @@
+{
+  "light": {
+    "page": "#F6F3EE",
+    "surface": "#FFFFFF",
+    "ink": "#1C1A17",
+    "muted": "#6F6A62",
+    "tomato": "#F0562E",
+    "onTomato": "#1C1A17",
+    "risoBlob": "#F3E6D3"
+  },
+  "dark": {
+    "page": "#171513",
+    "surface": "#27231F",
+    "ink": "#F3EEE6",
+    "muted": "#A99F93",
+    "tomato": "#F0562E",
+    "onTomato": "#1C1A17",
+    "risoBlob": "#2E2925"
+  }
+}
