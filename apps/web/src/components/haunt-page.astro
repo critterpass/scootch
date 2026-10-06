@@ -1,0 +1,98 @@
+---
+import { t, type Language } from '@scootch/i18n';
+import { colors } from '@scootch/tokens';
+
+import { appStoreUrl, localPath, preLaunch, togetherFor } from '../copy';
+import { scootchSvg } from '../lib/drawings';
+import SiteLayout from '../layouts/site-layout.astro';
+import '../styles/together.css';
+
+import AppStoreBadge from './app-store-badge.astro';
+import NotFound from './not-found.astro';
+
+interface Props {
+  language: Language;
+}
+
+// A haunt: a monster a friend sent, with one of the preset dares. A haunt carries no words of the
+// sender's and nothing about a task, so this page has none to show. Always dark, whatever the
+// reader's scheme, so it feels like a little haunting.
+const { language } = Astro.props;
+const copy = togetherFor(language).haunt;
+const dares = {
+  two_minutes: t(language, 'haunt.dare.two_minutes'),
+  first_step: t(language, 'haunt.dare.first_step'),
+  before_lunch: t(language, 'haunt.dare.before_lunch'),
+  just_open_it: t(language, 'haunt.dare.just_open_it'),
+  race_you: t(language, 'haunt.dare.race_you'),
+  tiny_bit: t(language, 'haunt.dare.tiny_bit'),
+};
+const dark = colors.dark;
+const night = `:root:has([data-haunt-page]){color-scheme:dark;--page:${dark.page};--surface:${dark.surface};--ink:${dark.ink};--muted:${dark.muted};--tomato:${dark.tomato};--on-tomato:${dark.onTomato};--riso-blob:${dark.risoBlob}}`;
+---
+
+<SiteLayout language={language} path="/h" title={copy.title} description={copy.description} social={false}>
+  <style is:inline set:html={night} />
+  <section
+    class="wrap shared-page"
+    data-haunt-page
+    data-state="loading"
+    data-language={language}
+    data-lines={JSON.stringify(copy)}
+    data-dares={JSON.stringify(dares)}
+  >
+    <p class="lede" data-show="loading" aria-live="polite">{copy.loading}</p>
+
+    <div class="shared-grid" data-show="waiting" hidden>
+      <div class="maker-stage">
+        <div class="blob">
+          <span class="drawing" role="img" aria-label={copy.monsterLabel} data-monster></span>
+        </div>
+      </div>
+      <div>
+        <p class="eyebrow tomato-text">{copy.eyebrow}</p>
+        <h1 tabindex="-1" data-headline></h1>
+        <p class="dare" data-dare></p>
+        <div class="actions">
+          <button type="button" class="button button-quiet" data-shoo>{copy.shoo}</button>
+          {
+            preLaunch ? (
+              <AppStoreBadge language={language} />
+            ) : (
+              <a class="button button-tomato" href={appStoreUrl} data-catch>
+                {copy.catchIt}
+              </a>
+            )
+          }
+        </div>
+        <p class="small" role="status" data-shoo-failed hidden>{copy.shooFailed}</p>
+      </div>
+    </div>
+
+    <div class="wandered" data-show="shooed gone" hidden>
+      <span class="drawing" aria-hidden="true" set:html={scootchSvg('asleep')} />
+      <h1 tabindex="-1" data-gone-title></h1>
+      <p class="lede" data-gone-body></p>
+      <div class="actions">
+        <a class="button button-ink" href={localPath(language, '/')}>{copy.makeYourOwn}</a>
+      </div>
+      <p class="small" data-show="shooed" hidden>{copy.turnOff}</p>
+    </div>
+
+    <div data-show="missing" hidden>
+      <NotFound language={language} focusable />
+    </div>
+    <div data-show="offline" hidden>
+      <h1 tabindex="-1">{copy.offlineTitle}</h1>
+      <p class="lede">{copy.offlineBody}</p>
+    </div>
+  </section>
+</SiteLayout>
+
+<script>
+  import { startHauntPage } from '../scripts/haunt-page';
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-haunt-page]')) {
+    void startHauntPage(root);
+  }
+</script>

@@ -1,0 +1,89 @@
+---
+import type { Language } from '@scootch/i18n';
+
+import { localPath, pagesFor, togetherFor } from '../copy';
+import { scootchSvg } from '../lib/drawings';
+import SiteLayout from '../layouts/site-layout.astro';
+import '../styles/together.css';
+
+import NotFound from './not-found.astro';
+
+interface Props {
+  language: Language;
+}
+
+// A week's record shared from the app: its sleeve, a short clip to play, and one track for each
+// finished day, named after that day's monster. Only what the sharer chose to show.
+const { language } = Astro.props;
+const copy = togetherFor(language).record;
+const card = pagesFor(language).caughtCard;
+const lines = { ...copy, onlyShown: card.onlyShown, onlyShownBy: card.onlyShownBy };
+---
+
+<SiteLayout language={language} path="/r" title={copy.title} description={copy.description} social={false}>
+  <section
+    class="wrap shared-page"
+    data-record-page
+    data-state="loading"
+    data-language={language}
+    data-lines={JSON.stringify(lines)}
+  >
+    <p class="lede" data-show="loading" aria-live="polite">{copy.loading}</p>
+
+    <div class="shared-grid record" data-show="found" hidden>
+      <div class="record-side">
+        <div class="disc" role="img" aria-label={copy.discLabel} data-disc>
+          <span class="disc-label">
+            <span class="drawing" aria-hidden="true" set:html={scootchSvg('pleased')} />
+          </span>
+        </div>
+        <div class="player">
+          <button type="button" class="play" aria-label={copy.play} data-play>
+            <span aria-hidden="true" data-play-mark>▶</span>
+          </button>
+          <div>
+            <p class="player-title" data-player-title></p>
+            <p class="small" data-band></p>
+          </div>
+        </div>
+        <div class="bars" aria-hidden="true" data-bars></div>
+        <p class="small" data-caption>{copy.caption}</p>
+        <audio preload="none" data-clip></audio>
+      </div>
+      <div>
+        <p class="eyebrow" data-eyebrow></p>
+        <h1 tabindex="-1" data-title></h1>
+        <p class="lede" data-line></p>
+        <ol class="tracks" aria-label={copy.tracksLabel} data-tracks></ol>
+      </div>
+    </div>
+
+    <div data-show="missing" hidden>
+      <NotFound language={language} focusable />
+    </div>
+    <div data-show="offline" hidden>
+      <h1 tabindex="-1">{copy.offlineTitle}</h1>
+      <p class="lede">{copy.offlineBody}</p>
+    </div>
+  </section>
+
+  <section class="wrap panel ask" data-ask>
+    <span class="blob blob-small">
+      <span class="drawing" aria-hidden="true" set:html={scootchSvg('bargaining')} />
+    </span>
+    <div>
+      <h2>{card.askTitle}</h2>
+      <p class="lede">{card.askBody}</p>
+    </div>
+    <a class="button button-ink" href={localPath(language, '/')}>{card.makeYourOwn}</a>
+    <p class="small ask-note" data-only-shown></p>
+  </section>
+</SiteLayout>
+
+<script>
+  import { startRecordPage } from '../scripts/record-page';
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-record-page]')) {
+    void startRecordPage(root);
+  }
+</script>

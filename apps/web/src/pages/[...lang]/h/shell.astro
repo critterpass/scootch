@@ -1,0 +1,8 @@
+---
+import HauntPage from '../../../components/haunt-page.astro';
+import { languagePaths } from '../../../copy';
+
+export const getStaticPaths = languagePaths;
+---
+
+<HauntPage language={Astro.params.lang === 'vi' ? 'vi' : 'en'} />

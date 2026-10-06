@@ -1,0 +1,8 @@
+import type { APIRoute } from 'astro';
+
+import { serveSharedPage } from '../../lib/shared-shell';
+
+export const prerender = false;
+
+export const GET: APIRoute = ({ request, params }) =>
+  serveSharedPage(request, 'r', 'en', params['id'] ?? '');

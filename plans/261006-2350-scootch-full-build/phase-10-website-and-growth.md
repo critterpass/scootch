@@ -42,7 +42,7 @@ friends"). The home strip of example monsters uses a fixed, hand-checked set.
 ### 4. Pages for things shared from the app
 - Do: caught card, share story and record clip pages, with a player for the
   clip. Replaces the phase 05 placeholder.
-- Status: partly done — 78eff49; the caught card page with the tilting card and the share story page, with their read routes; the app does not post to them yet and the record clip page is not built, not deployed
+- Status: partly done — 6364d0e; the caught card page with the tilting card and the share story page, with their read routes, and the record page with its player, track list and not-found state; the app does not post to them yet, the API has no read route or clip for a shared record so every record link shows not found, the record's link preview uses the home image, not deployed
 
 ### 5. Into the app
 - Do: universal links and the smart app banner; "Catch it in the app" carries
@@ -58,12 +58,13 @@ friends"). The home strip of example monsters uses a fixed, hand-checked set.
 ### 6. Invite and haunt pages
 - Do: table invite and haunt landing pages, with expired states; shooing a
   haunt works on the web in one tap. No gift page at launch.
+- Status: partly done — 6364d0e; the table invite and haunt pages in both languages (open, closed, waiting, shooed, already gone, not found, could not load) with link previews; the API has no public read route for an invite or a haunt and no shoo from the web, so both show not found until it does; a wide screen has no QR code, the previews use the home image, not deployed
 
 ### 7. Home, Plus and plain pages
 - Do: the home page with the maker as hero; the Plus page with prices and the
   house rules; privacy, terms, support, helplines by country, "what Scootch is
   and isn't", press kit, not found.
-- Status: partly done — 78eff49; the home page, the Plus page and the plain pages (privacy, terms, support, helplines, what Scootch is and isn't, press kit, not found) in both languages; helpline numbers are unverified and the press kit has no downloads, not deployed
+- Status: partly done — 78eff49; the home page, the Plus page and the plain pages (privacy, terms, support, helplines, what Scootch is and isn't, press kit, not found) in both languages; every prebuilt page answers with and without a trailing slash — 6364d0e; helpline numbers are unverified and the press kit has no downloads, not deployed
 
 ### 8. Pre-launch
 - Do: the home page variant where "Catch it" becomes "Tell me when it's out"

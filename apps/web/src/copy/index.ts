@@ -5,6 +5,8 @@ import { pagesEn } from './pages-en';
 import { pagesVi } from './pages-vi';
 import { plainEn } from './plain-en';
 import { plainVi } from './plain-vi';
+import { togetherEn } from './together-en';
+import { togetherVi } from './together-vi';
 import { vi } from './vi';
 
 const copies: Readonly<Record<Language, SiteCopy>> = { en, vi };
@@ -12,6 +14,7 @@ const copies: Readonly<Record<Language, SiteCopy>> = { en, vi };
 export type { SiteCopy };
 export type PagesCopy = Loosen<typeof pagesEn>;
 export type PlainCopy = Loosen<typeof plainEn>;
+export type TogetherCopy = Loosen<typeof togetherEn>;
 
 const pages: Readonly<Record<Language, PagesCopy>> = { en: pagesEn, vi: pagesVi };
 const plain: Readonly<Record<Language, PlainCopy>> = { en: plainEn, vi: plainVi };
@@ -19,6 +22,13 @@ const plain: Readonly<Record<Language, PlainCopy>> = { en: plainEn, vi: plainVi 
 /** The words of the shared pages, Plus and the pages around launch. */
 export function pagesFor(language: Language): PagesCopy {
   return pages[language];
+}
+
+const together: Readonly<Record<Language, TogetherCopy>> = { en: togetherEn, vi: togetherVi };
+
+/** The words of the table invite, haunt and record pages. */
+export function togetherFor(language: Language): TogetherCopy {
+  return together[language];
 }
 
 /** The words of the plain pages: privacy, terms, support, helplines and the rest. */

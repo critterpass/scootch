@@ -10,7 +10,9 @@
   "main": "@astrojs/cloudflare/entrypoints/server",
   "compatibility_date": "2026-08-01",
   "compatibility_flags": ["nodejs_compat"],
-  "assets": { "directory": "./dist", "binding": "ASSETS" },
+  // Every prebuilt page answers with and without a trailing slash: `/privacy` is sent on to
+  // `/privacy/`, where the page is. Stated here so that it never rests on a default.
+  "assets": { "directory": "./dist", "binding": "ASSETS", "html_handling": "auto-trailing-slash" },
   // Local runs (no environment) talk to the dev API.
   "services": [{ "binding": "API", "service": "scootch-dev" }],
   "env": {
