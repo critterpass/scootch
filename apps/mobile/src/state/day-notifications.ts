@@ -5,15 +5,18 @@ import {
   notificationPlan,
   type Attitude,
   type ClockTime,
+  type Instant,
   type IsoDate,
   type NotificationVolume,
   type SessionRow,
   type SettingsRow,
   type TodayState,
 } from '@scootch/domain';
-import { offlineLine } from '@scootch/voice';
+import { offlineLine, offlinePacks } from '@scootch/voice';
 
 import type { PlannedText } from '../effects/effects-runner';
+
+import { showsComedy } from './shows-comedy';
 
 /** The start time assumed on a phone with no sessions to learn from. */
 export const DEFAULT_USUAL_START: ClockTime = '10:00';
@@ -42,6 +45,8 @@ export interface DayNotificationsInput {
   readonly timeZone: string;
   readonly lastOpenedDay: IsoDate | null;
   readonly usualStart: ClockTime;
+  /** The reminder the person asked for on today's serious task, if any. */
+  readonly reminderAt?: Instant | null;
 }
 
 /**
@@ -51,7 +56,14 @@ export interface DayNotificationsInput {
  */
 export function dayNotifications(input: DayNotificationsInput): PlannedText[] {
   const { today, settings } = input;
+  if (today.kind === 'serious') {
+    // The only thing a serious task ever sends: the reminder that was asked for, in plain words
+    // that do not name the task.
+    const at = input.reminderAt ?? null;
+    return at === null ? [] : [{ at, text: offlinePacks[settings.language].plain.reminder }];
+  }
   if (today.kind !== 'task_set' || today.task.status !== 'set') return [];
+  if (!showsComedy(today.task, 'notification')) return [];
   const lines = today.task.notifications;
   if (lines.length === 0) return [];
 

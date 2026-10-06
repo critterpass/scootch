@@ -34,6 +34,17 @@ export const noTaskSlots = [
   'waiting',
   'typing',
   'doneForToday',
+  /** No connection: said on the one screen in place of the usual ask. */
+  'offline',
+  /** The model is down or slow: Scootch admits it, and the pick is the person's. */
+  'modelDown',
+  'modelDownMore',
+  /** Under the timer of a session whose task has not been screened yet. */
+  'hatchesWhenBack',
+  /** Neither iCloud Keychain nor iCloud storage answers, so there is no spare copy. */
+  'backupOff',
+  /** A new phone that already holds the backup token: the one line offering the world back. */
+  'restoreOffer',
 ] as const;
 export type NoTaskSlot = (typeof noTaskSlots)[number];
 
@@ -46,6 +57,8 @@ export type PlainLines = {
   readonly tinyNextStep: string;
   readonly done: string;
   readonly notFinished: string;
+  /** The gentle reminder a person asked for. It never names the task. */
+  readonly reminder: string;
 };
 
 /**

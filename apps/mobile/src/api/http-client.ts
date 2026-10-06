@@ -21,6 +21,13 @@ export interface PostOptions {
   readonly timeoutMs?: number;
 }
 
+export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
+
+export interface RequestOptions extends PostOptions {
+  /** Extra request headers, sent beside the device's bearer token. */
+  readonly headers?: Readonly<Record<string, string>>;
+}
+
 export interface HttpClient {
   /** A POST as a registered device. `parse` checks the answer against its contract schema. */
   post<T>(
@@ -28,6 +35,17 @@ export interface HttpClient {
     body: unknown,
     parse: (json: unknown) => T,
     options?: PostOptions,
+  ): Promise<T>;
+  /**
+   * Any method as a registered device, with the same retry and registration rules as `post`.
+   * A `null` body sends none, as a GET or DELETE does.
+   */
+  request<T>(
+    method: HttpMethod,
+    path: string,
+    body: unknown,
+    parse: (json: unknown) => T,
+    options?: RequestOptions,
   ): Promise<T>;
 }
 
@@ -45,6 +63,7 @@ export function createHttpClient(options: HttpClientOptions): HttpClient {
   let token: Promise<string> | null = null;
 
   async function send(
+    method: HttpMethod,
     path: string,
     body: unknown,
     headers: Record<string, string>,
@@ -54,9 +73,9 @@ export function createHttpClient(options: HttpClientOptions): HttpClient {
     const timer = setTimeout(() => abort.abort(), timeoutMs);
     try {
       const response = await options.fetch(`${options.baseUrl}${path}`, {
-        method: 'POST',
+        method,
         headers: { 'Content-Type': 'application/json', ...headers },
-        body: JSON.stringify(body),
+        ...(body === null ? {} : { body: JSON.stringify(body) }),
         signal: abort.signal,
       });
       const json: unknown = await response.json().catch(() => null);
@@ -78,7 +97,13 @@ export function createHttpClient(options: HttpClientOptions): HttpClient {
       language: options.language(),
       ...(existing === null ? {} : { token: existing }),
     };
-    const answer = await send(DEVICES_PATH, request, {}, options.timeoutMs ?? DEFAULT_TIMEOUT_MS);
+    const answer = await send(
+      'POST',
+      DEVICES_PATH,
+      request,
+      {},
+      options.timeoutMs ?? DEFAULT_TIMEOUT_MS,
+    );
     const issued = (answer as { token?: unknown } | null)?.token;
     if (typeof issued !== 'string' || issued === '') {
       throw new ApiClientError('bad_response', false, null, 'Registration returned no token');
@@ -98,41 +123,51 @@ export function createHttpClient(options: HttpClientOptions): HttpClient {
     return token;
   }
 
-  return {
-    async post(path, body, parse, postOptions = {}) {
-      const timeoutMs = postOptions.timeoutMs ?? options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
-      const attempt = async () => {
-        const bearer = await deviceToken();
-        const json = await send(path, body, { Authorization: `Bearer ${bearer}` }, timeoutMs);
-        try {
-          return parse(json);
-        } catch {
-          throw new ApiClientError(
-            'bad_response',
-            false,
-            null,
-            'The answer did not match its contract',
-          );
-        }
-      };
-
+  async function request<T>(
+    method: HttpMethod,
+    path: string,
+    body: unknown,
+    parse: (json: unknown) => T,
+    requestOptions: RequestOptions = {},
+  ): Promise<T> {
+    const timeoutMs = requestOptions.timeoutMs ?? options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+    const attempt = async () => {
+      const bearer = await deviceToken();
+      const headers = { ...requestOptions.headers, Authorization: `Bearer ${bearer}` };
+      const json = await send(method, path, body, headers, timeoutMs);
       try {
-        return await attempt();
-      } catch (error) {
-        const failure = asApiError(error);
-        console.warn('api call failed', { path, code: failure.code, status: failure.status });
-        if (failure.code === 'unauthorized') {
-          // The server does not know this token (a new database, or a token restored from a
-          // backup): register it and ask once more.
-          const known = await options.tokens.read().catch(() => null);
-          token = null;
-          const registered = await register(known);
-          token = Promise.resolve(registered);
-        } else if (!failure.retryable) {
-          throw failure;
-        }
-        return attempt();
+        return parse(json);
+      } catch {
+        throw new ApiClientError(
+          'bad_response',
+          false,
+          null,
+          'The answer did not match its contract',
+        );
       }
-    },
+    };
+
+    try {
+      return await attempt();
+    } catch (error) {
+      const failure = asApiError(error);
+      console.warn('api call failed', { path, code: failure.code, status: failure.status });
+      if (failure.code === 'unauthorized') {
+        // The server does not know this token (a new database, or a token restored from a
+        // backup): register it and ask once more.
+        const known = await options.tokens.read().catch(() => null);
+        token = null;
+        const registered = await register(known);
+        token = Promise.resolve(registered);
+      } else if (!failure.retryable) {
+        throw failure;
+      }
+      return attempt();
+    }
+  }
+
+  return {
+    post: (path, body, parse, postOptions) => request('POST', path, body, parse, postOptions),
+    request,
   };
 }

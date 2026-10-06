@@ -3,20 +3,10 @@ import type { TaskCreateRequest, TaskLabels, TaskRow } from '@scootch/domain';
 import { careGate } from '../api/care-gate';
 import type { TaskCall, TaskRest } from '../api/task-client';
 
+import { enterCrisis } from './care-flow';
 import type { DayContext, Offer, Reveal } from './day-types';
 import { swapItemIn } from './pick-flow';
 import { TASK_TEXT_MAX, fallbackCopy, monsterFor, newTask, park } from './task-rows';
-
-/** Self-harm language: every task is hidden for the day. The text itself is written nowhere. */
-async function markCrisis(ctx: DayContext): Promise<void> {
-  const { days, transcripts } = ctx.deps.repositories;
-  const day = await days.get(ctx.memory.state.localDate);
-  if (day) await days.put({ ...day, status: 'crisis' });
-  const transcriptId = ctx.memory.offer?.transcriptId;
-  if (transcriptId) await transcripts.remove(transcriptId);
-  ctx.memory.offer = null;
-  ctx.set({ pick: { kind: 'none' } });
-}
 
 /** A ramble's words are kept while its one thing is being picked, once they are known to be safe to keep. */
 async function keepTranscript(ctx: DayContext, offer: Offer): Promise<void> {
@@ -95,7 +85,7 @@ async function applyCall(ctx: DayContext, call: TaskCall, existing: TaskRow | nu
 
   if (first.verdict === 'crisis' || first.verdict === 'reject') {
     if (existing) await repositories.forgetTask(existing.id);
-    if (first.verdict === 'crisis') return markCrisis(ctx);
+    if (first.verdict === 'crisis') return enterCrisis(ctx);
     ctx.memory.offer = null;
     return ctx.set({ notice: 'say_it_another_way', pick: { kind: 'none' } });
   }
@@ -163,19 +153,25 @@ export async function submitText(ctx: DayContext, offer: Offer): Promise<void> {
   if (ctx.memory.state.today.kind === 'crisis') return;
   const gate = careGate(offer.text);
   if (gate === 'crisis') {
-    await markCrisis(ctx);
+    await enterCrisis(ctx);
     return ctx.refresh();
   }
 
   ctx.memory.offer = offer;
-  ctx.set({ taskCall: gate === 'hold' ? 'held' : 'waiting', notice: null, line: null });
+  ctx.set({
+    taskCall: gate === 'hold' ? 'held' : 'waiting',
+    notice: null,
+    line: null,
+    modelDown: false,
+  });
   // The battery the person named is kept for the day, with or without a connection.
   if (offer.energy !== 'guess') {
     const { days } = ctx.deps.repositories;
     const day = await days.get(ctx.memory.state.localDate);
     if (day) await days.put({ ...day, energy: offer.energy });
   }
-  const call = (await isOnline(ctx))
+  const online = await isOnline(ctx);
+  const call = online
     ? await ctx.deps.tasks.createTask(requestFor(ctx, offer)).catch(() => null)
     : null;
 
@@ -185,8 +181,9 @@ export async function submitText(ctx: DayContext, offer: Offer): Promise<void> {
     const text = offer.text.trim().slice(0, TASK_TEXT_MAX);
     await ctx.deps.repositories.tasks.put(newTask(ctx, text, offer.source, 'unscreened'));
     await keepTranscript(ctx, offer);
-    // Nothing else was heard, so there is nothing else to offer.
-    ctx.set({ pick: { kind: 'offered', reveal: null, another: false } });
+    // Nothing else was heard, so there is nothing else to offer. With a connection up, it was
+    // the model that did not answer, and Scootch says so.
+    ctx.set({ pick: { kind: 'offered', reveal: null, another: false }, modelDown: online });
   }
   // Today is read back before the waiting ends, so the composer never shows again in between.
   await ctx.refresh();
@@ -235,7 +232,11 @@ export async function fetchPending(ctx: DayContext): Promise<void> {
   const { today, settings, localDate, monster } = ctx.memory.state;
   if (!('task' in today) || ctx.memory.restPending) return;
   const { task } = today;
-  const waiting = task.screen === 'unscreened' || (task.screen === 'pass' && monster === null);
+  const waiting =
+    task.screen === 'unscreened' ||
+    (task.screen === 'pass' && monster === null) ||
+    // "It's fine, be funny": the task is asked for again, this time with its comedy.
+    (task.screen === 'serious' && task.seriousOverridden);
   if (!waiting || !(await isOnline(ctx))) return;
 
   const call = await ctx.deps.tasks
@@ -251,8 +252,24 @@ export async function fetchPending(ctx: DayContext): Promise<void> {
     })
     .catch(() => null);
   if (call === null) return;
+  ctx.set({ modelDown: false });
   await applyCall(ctx, call, task);
   await ctx.refresh();
+}
+
+/**
+ * "It's fine, be funny": the serious task takes the ordinary path from here on, and is asked for
+ * again so that its monster and its own lines can come. A crisis day has no task, so there is
+ * nothing here that could override one; and a second screen that calls a crisis still wins.
+ */
+export async function beFunny(ctx: DayContext): Promise<void> {
+  const { today } = ctx.memory.state;
+  if (today.kind !== 'serious' || today.session !== null) return;
+  await ctx.deps.repositories.tasks.put({ ...today.task, seriousOverridden: true });
+  await ctx.deps.repositories.careReminder.clear();
+  ctx.set({ pick: { kind: 'none' }, line: null });
+  await ctx.refresh();
+  if (!ctx.memory.restPending) ctx.later(Promise.resolve(), () => fetchPending(ctx));
 }
 
 /**

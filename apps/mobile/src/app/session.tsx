@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 import { useEffect } from 'react';
 
 import { SessionScreen } from '../features/session/session-screen';
@@ -15,8 +15,10 @@ export default function SessionRoute() {
   const router = useRouter();
   const dispatch = useDispatch();
   // Until today has been rebuilt from storage there is no session to judge.
-  const { ready } = useToday();
-  const over = ready && model.view.kind === 'home';
+  const { ready, today } = useToday();
+  // A crisis day beats a session that was running: nothing of it is shown, and care takes over.
+  const crisis = ready && today.kind === 'crisis';
+  const over = ready && !crisis && model.view.kind === 'home';
 
   useEffect(() => {
     if (!over) return;
@@ -24,5 +26,6 @@ export default function SessionRoute() {
     router.replace('/');
   }, [over, dispatch, router]);
 
+  if (crisis) return <Redirect href="/care" />;
   return <SessionScreen model={model} actions={actions} />;
 }
