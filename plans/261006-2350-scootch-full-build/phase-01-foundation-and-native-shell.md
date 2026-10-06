@@ -54,8 +54,9 @@ Two lanes: A owns tasks 1 to 6 and 11, B owns tasks 7 to 10.
 
 ### 7. App shell
 - Owns: `apps/mobile` config and root layout.
-- Do: Expo app, router, tokens, the one-screen skeleton with a placeholder
-  critter, expo-sqlite, over-the-air updates, the `e2e-test` variant.
+- Do: Expo app on the founder's EAS project, router, tokens, the one-screen
+  skeleton with a placeholder critter, expo-sqlite, over-the-air updates on
+  two channels (dev and prd), the `e2e-test` variant. Two environments only.
 - Done when: it runs in the device pipeline.
 
 ### 8. Every target and capability

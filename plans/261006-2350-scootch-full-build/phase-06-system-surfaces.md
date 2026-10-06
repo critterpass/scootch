@@ -29,8 +29,11 @@ iOS-specific: these device runs use `platform=ios`.
 - Done when: captured on an iOS device run at all three attitudes.
 
 ### 4. Phone picked up
-- Do: the behaviour the phase 00 spike proved possible, and nothing more. Log
-  the difference from the board in `docs/undesigned-states.md`.
+- Do: the app cannot detect a pick-up while locked. So the Live Activity
+  always carries a fresh line from the session pack, and the "you picked me
+  up" show plays when Scootch is opened or its Live Activity is tapped during
+  a session. No notification is sent for a pick-up. Log the difference from
+  the board in `docs/undesigned-states.md`.
 
 ### 5. Widgets
 - Do: small, medium, large and extra large; no task, task set, running, done;

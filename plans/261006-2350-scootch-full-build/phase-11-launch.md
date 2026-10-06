@@ -20,9 +20,10 @@ Goal: the release build works for a stranger, and Apple accepts it.
 - Do: any native change held since batch one, in one build.
 
 ### 4. Production
-- Do: production Workers, D1, R2 and bot; flags set; cost cap set; the helpline
-  table rechecked.
-- Done when: `/status` is green on production and the digest arrives.
+- Do: prd Workers, D1, R2 and bot; flags set; cost cap set; the helpline
+  table rechecked. There is no staging, so check that every dev migration
+  applies cleanly to an empty prd database before the first deploy.
+- Done when: `/status` is green on prd and the digest arrives.
 
 ### 5. Store listing
 - Do: in English and Vietnamese: icon, six screenshots, the 20-second

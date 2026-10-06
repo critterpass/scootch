@@ -1,6 +1,6 @@
 # Scootch full build
 
-Status: not started · Created 6 Oct 2026 · Scope: everything in
+Status: phase 00 in progress · Created 6 Oct 2026 · Scope: everything in
 [product-brief.md](../../docs/product-brief.md) sections 3 to 9. The
 after-launch list (camera, gifts, iPhone Duo, monster wall, Unwrapped, Android
 release, tables with strangers) is section 10 there and is not planned here.
@@ -14,7 +14,7 @@ Phases are ordered by dependency and sized by task count. No time estimates.
 
 | # | Phase | Tasks | Needs | Status |
 |---|---|---|---|---|
-| 00 | [Spikes and founder gates](phase-00-spikes-and-founder-gates.md) | 9 | — | not started |
+| 00 | [Spikes and founder gates](phase-00-spikes-and-founder-gates.md) | 9 | — | in progress |
 | 01 | [Foundation and native shell](phase-01-foundation-and-native-shell.md) | 11 | 00 | not started |
 | 02 | [Characters and sound](phase-02-characters-and-sound.md) | 8 | 01 | not started |
 | 03 | [AI routes, API and ops bot](phase-03-ai-api-and-ops-bot.md) | 9 | 01 | not started |
@@ -51,11 +51,11 @@ A and C merge.
 | Gate | When | What must be true |
 |---|---|---|
 | Voice | End of 00 | The founder has read sample lines at all three attitudes and picked the model |
-| Native batch one | End of 01 | A TestFlight build with every launch capability declared; an over-the-air update reaches it |
+| Native batch one | End of 01 | A TestFlight build on the dev channel with every launch capability declared; an over-the-air update reaches it |
 | First minute | End of 04 | A fresh install goes from "Hello" to a caught monster with no seed, on a device run, and offline for the session |
 | Care | End of 07 | The serious and crisis eval set passes with no miss, and the walk shows no joke on a heavy task |
-| Money | End of 08 | Sandbox purchase, trial, restore and cancel walked end to end; the house rules checked screen by screen |
-| Release | End of 11 | The full fresh-user walk passes on the release build, with video |
+| Money | End of 08 | On dev: sandbox purchase, trial, restore and cancel walked end to end; the house rules checked screen by screen |
+| Release | End of 11 | The full fresh-user walk passes on the release candidate against dev, with video; then prd is deployed and smoke-checked before submission |
 
 Each phase also ends with design-beside-device sheets for every screen it
 touched, and its part of the fresh-user walk.
@@ -83,10 +83,12 @@ Ownership is by folder. Two lanes never own the same folder in the same round.
 Things only the founder can do. Phase 00 lists them with the exact steps.
 
 1. Put scootch.app on Cloudflare (it is registered).
-2. Create the EAS project (the GitHub repository exists).
+2. Done 7 Oct: the EAS project exists (id in tech-decisions section 1).
 3. Create the Apple app id and tick every capability in tech-decisions section 4.
 4. Create the RevenueCat project and the three products.
-5. Provide the AI provider key under a no-training agreement, and the Jev key.
+5. Done 7 Oct: the CritterPass Jev, DeepSeek and ElevenLabs keys are reused.
+   Still open: confirm DeepSeek's terms allow the privacy page's promise that
+   brain dumps are never used for training, or pick a provider that does.
 6. Create the Telegram bot and send its token and your chat id.
 7. Done 7 Oct: the full design archive is in `design/`.
 8. Approve the voice (the Voice gate).

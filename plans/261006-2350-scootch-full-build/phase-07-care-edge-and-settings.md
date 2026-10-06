@@ -10,7 +10,10 @@ section 6 first.
 High effort for tasks 1 and 2.
 
 ### 1. Serious mode
-- Do: the on-device screen runs before anything is sent, then the Jev screen.
+- Do: the on-device keyword gate runs before anything is sent (idioms removed
+  first; an explicit crisis phrase triggers crisis at once; any dark word
+  holds the joke), then the Jev screen decides. No joke about a task before
+  it has been screened.
   A serious task gets plain copy, no monster, no card, no share, no burst, an
   ink-grey disc and a plain finish. "It's fine, be funny" overrides it.
 - Test: every place that renders a monster, a joke, a card or a share checks
@@ -30,8 +33,10 @@ High effort for tasks 1 and 2.
 
 ### 3. Offline
 - Do: starting works with no connection: carry on from yesterday or type
-  something new; cached lines; the monster hatches when the connection
-  returns; the card, world piece and bar arrive later.
+  something new; cached lines that are never about the new task; the task is
+  screened and the monster hatches when the connection returns; the card,
+  world piece and bar arrive later. A task typed offline gets plain company
+  until it has been screened.
 - Test: a task created offline syncs once, not twice.
 
 ### 4. Model unavailable
@@ -49,8 +54,12 @@ High effort for tasks 1 and 2.
 - Test: delete removes local data and calls the server delete.
 
 ### 7. Backup and restore
-- Do: the one line that explains iCloud backup; restore on a new phone; what
-  Scootch says when iCloud is off.
+- Do: the token is written to a synchronisable Keychain item and to iCloud
+  key-value storage, and read from whichever answers; the one line that
+  explains the backup; restore on a new phone; what Scootch says when both
+  are off.
+- Test on two real phones: reinstall, a second phone on the same Apple ID,
+  iCloud Keychain off, iCloud off, and how long the token takes to arrive.
 - Done when: a device run restores a world onto a clean install.
 
 ### 8. Settings

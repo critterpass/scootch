@@ -8,7 +8,7 @@ set, and the founder's Telegram bot. Read tech-decisions sections 2 and 5.
 ### 1. API shell
 - Do: Hono on Workers, D1, R2, anonymous device tokens, rate limits, the error
   shape, a cost ledger per route, feature flags.
-- Done when: it deploys to staging from CI.
+- Done when: it deploys to dev from CI.
 
 ### 2. Model gateway
 - Owns: `apps/api/src/ai/`.
@@ -19,7 +19,14 @@ set, and the founder's Telegram bot. Read tech-decisions sections 2 and 5.
 
 ### 3. Input screen
 - Do: the `screen.input` Jev route: pass, serious, crisis or reject. Thresholds
-  in code. Low confidence resolves to the quieter answer.
+  in code, starting from the spike's provisional ones in tech-decisions. Low
+  confidence, a timeout or an error resolves to the quieter answer. Seed the
+  eval set from the appendix of
+  `plans/reports/spike-261007-0005-care-screen-report.md`, then add cases the
+  spike did not cover: indirect and method-only crisis notes reworded several
+  ways, goodbye-style notes, long rambles, mixed-language text, Vietnamese
+  without diacritics, and speech-to-text errors. The eval cases are written by
+  someone other than the person tuning the thresholds.
 - Eval: at least 60 cases in each language across heavy, crisis, abusive,
   injection and ordinary inputs. **No miss on crisis, in either language,**
   is the merge bar. Where Jev misses the bar in Vietnamese, Vietnamese runs on
@@ -44,6 +51,13 @@ set, and the founder's Telegram bot. Read tech-decisions sections 2 and 5.
 
 ### 6. Voice guide and offline lines
 - Owns: `packages/voice/`.
+- Do: a check in code after every generation, not only in evals: banned
+  words (the spike saw "Missed Call List" and "Cuộc Gọi Nhỡ" slip through),
+  line length, the "Name, Title" shape of a monster name, and topics Scootch
+  never jokes about (politics, religion, bodies). A line that fails is
+  regenerated once, then replaced by an offline line. Examples in the guide
+  are rotated, because models copy them (the spike's outputs reused "Molar"
+  and one Vietnamese motif).
 - Do: the approved voice guides, one per language, as the single prompt
   source; the offline line pack per attitude and language; the banned-word
   checker per language, used by every eval.
@@ -61,7 +75,7 @@ set, and the founder's Telegram bot. Read tech-decisions sections 2 and 5.
   spikes, model fallback, cost over the cap and failed deploys. No task text
   or transcripts, ever.
 - Test: a message from another chat id is ignored.
-- Done when: the founder receives a digest from staging.
+- Done when: the founder receives a digest from dev.
 
 ### 9. Eval results to the bot
 - Do: after a merge that touches `packages/voice`, post the eval summary and
@@ -71,4 +85,4 @@ set, and the founder's Telegram bot. Read tech-decisions sections 2 and 5.
 ## Exit
 
 - Every route has an eval set in CI.
-- The app can run a full day from recorded fixtures and from staging.
+- The app can run a full day from recorded fixtures and from dev.

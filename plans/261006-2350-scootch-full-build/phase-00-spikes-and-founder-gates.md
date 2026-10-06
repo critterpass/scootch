@@ -1,6 +1,10 @@
 # Phase 00: spikes and founder gates
 
-Status: not started · Tasks: 9 · Needs: nothing
+Status: in progress · Tasks: 9 · Needs: nothing
+
+Done: spikes 2 to 6 and the design review (task 8). Open: the voice bake-off
+needs a direct Anthropic key and the founder's read (task 1); screen renders
+(task 7); the founder gates (task 9).
 
 Goal: remove the unknowns that would change the plan, and get the accounts and
 designs in place. Every spike is one lane, ten to fifteen minutes, three to
@@ -10,6 +14,13 @@ no product code.
 ## Spikes
 
 ### 1. Voice bake-off
+- Status: half done 7 Oct 2026. Both voice guide drafts exist and two
+  DeepSeek models were compared. No Claude model has been tested: the only
+  key on this Mac is a proxy to DeepSeek. The founder reads the sample page,
+  Vietnamese first. If DeepSeek's voice is good enough, the gate closes on
+  it; if not, rerun `plans/reports/voice/voice-bake-off-script.mjs` with a
+  direct Anthropic key. The Voice gate is open.
+  Report: `plans/reports/spike-261007-0005-voice-bake-off-report.md`.
 - Do: write the voice guide draft in English and in Vietnamese (rules, ten
   good and ten banned lines per attitude, the banned-word list). Run five
   tasks through each candidate model at three attitudes, in both languages.
@@ -19,27 +30,34 @@ no product code.
 - Output: a page of sample lines the founder can read. Feeds the Voice gate.
 
 ### 2. Phone picked up
+- Status: done 7 Oct 2026, research only. Report: `plans/reports/spike-261007-0005-phone-picked-up-report.md`.
 - Do: find what can trigger the "phone picked up" show: unlock notification,
   app foregrounding, a Live Activity push. Test on a real phone if possible.
 - Verdict: fires when locked, only on unlock, or not at all; the nearest honest
   behaviour.
 
 ### 3. On-device care screen
+- Status: done 7 Oct 2026. Report: `plans/reports/spike-261007-0005-care-screen-report.md`.
 - Do: try a bundled small classifier and a keyword pass on twenty rambles
   (ten heavy, ten not) in each language, with no network. Compare with Jev on the same set.
 - Verdict: what runs on the phone, and the threshold where Jev takes over.
 
 ### 4. Baked poses
+- Status: done 7 Oct 2026, by reading CritterPass. Report: `plans/reports/spike-261007-0005-baked-poses-report.md`.
 - Do: render three Scootch poses and one monster with Skia, export to images,
   show them in a widget and a Live Activity.
 - Verdict: the export path and the image sizes.
 
 ### 5. Table on a Durable Object
+- Status: done 7 Oct 2026, locally (26 checks pass in `wrangler dev`); not run
+  on real Cloudflare or from a phone. Report:
+  `plans/reports/spike-261007-0005-table-durable-object-report.md`.
 - Do: four WebSocket clients, one shared timer, a nudge, one dropped and
   resumed connection.
 - Verdict: works or not, and the message shape.
 
 ### 6. iCloud token
+- Status: done 7 Oct 2026, research only; device test moved to phase 07 task 7. Report: `plans/reports/spike-261007-0005-anonymous-identity-report.md`.
 - Do: write a token to iCloud key-value storage, reinstall, read it back; read
   it from a second device on the same Apple ID if one is at hand.
 - Verdict: reliable or not, and the fallback when iCloud is off.

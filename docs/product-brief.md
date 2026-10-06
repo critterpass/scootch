@@ -79,6 +79,10 @@ website and the store listing.
   and quiet company. "It's fine, be funny" overrides it.
 - **Crisis.** Self-harm language hides every task for the day and shows
   localised helplines first. No override.
+- **No joke before the screen.** Scootch says nothing funny about a task until
+  that task has been screened. With no connection, the phone can only catch
+  explicit phrases, so offline Scootch keeps company in plain words and the
+  monster hatches once the task has been screened online.
 - **Privacy.** Brain dumps are never used to train models. Audio is deleted
   after transcription. Export and delete-everything are in the app.
 - **Sharing.** Every share has a hide-the-task option. Scootch never offers to
@@ -142,7 +146,7 @@ complex and isolated:
 
 | Design | Reality | Plan |
 |---|---|---|
-| "Phone picked up" Live Activity show | A Live Activity cannot detect a pick-up | Spike in phase 00; likely fires on unlock |
+| "Phone picked up" Live Activity show | Nothing can tell the app the phone was picked up while it is locked (researched, not device-tested) | The Live Activity always carries an in-character line, so a pick-up shows one. The "you picked me up" show plays when Scootch is opened or its Live Activity is tapped mid-session. An app-blocking shield is possible after launch with Apple's Family Controls entitlement |
 | Stuck help "when nothing has moved" | The app cannot see the user's work | A timed check-in plus the "I'm stuck" button |
 | Gift redemption | No native gifting | After launch |
 | "Someone always shows up around ten" at an empty table | Untrue with friends-only tables | Say the seats are saved, and offer the invite |

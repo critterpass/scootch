@@ -16,15 +16,41 @@ and record the change here.
 | Images and audio clips | R2 | Shared cards, link previews, record clips |
 | Website | Astro on Cloudflare | Same platform as the API |
 | Data on the phone | expo-sqlite, the source of truth | Local first; sessions never need the network |
-| Backup with no account | An anonymous token in iCloud key-value storage; snapshots stored under it | Restores on a new phone without sign-up |
+| Backup with no account | An anonymous token kept in both a synchronisable Keychain item and iCloud key-value storage; snapshots stored under it | Restores on a new phone without sign-up; either store can be switched off by the user, so the app reads whichever answers |
 | Accounts | Sign in with Apple, asked only at a table | Tables need identity; nothing else does |
 | Purchases | StoreKit 2 through RevenueCat | Entitlements, trials and offer codes without building a receipt server |
 | Languages | English and Vietnamese from the first screen | Strings in catalogues, a completeness check in CI, both languages in every sheet |
 | Repository | Public, github.com/critterpass/scootch | No secrets, session links or personal data in code, commits or pull requests |
 | Ops | A Telegram bot. No admin dashboard | See section 5 |
+| Environments | Two only: dev and prd. No staging | Speed. Dev is where lanes, device runs and the founder's test builds point; prd is the App Store build |
+| EAS project | `534fb786-e7e7-4058-a3c4-636196dc5078` | Created by the founder, 7 Oct 2026 |
 
 What is deliberately absent: Postgres, PowerSync, Centrifugo, Redis, Docker,
-Testcontainers, a back-office web app.
+Testcontainers, a back-office web app, a staging environment.
+
+### Two environments
+
+| | dev | prd |
+|---|---|---|
+| API, D1, R2, table objects | `scootch-dev` | `scootch` |
+| App | The development and `e2e-test` builds, and TestFlight builds on the dev channel | The App Store build on the prd channel |
+| Purchases | Apple sandbox | Real |
+| Website | A preview address | scootch.app |
+| Bot | Posts with a `[dev]` prefix | Posts plainly |
+| Deploys | Every merge to main | A tagged release, after the gates |
+
+With no staging, two things carry the safety it would have given: the gates
+run against dev before a release is tagged, and every server change is
+backward compatible with the App Store build already in people's hands.
+Feature flags keep unfinished work dark in prd.
+
+### Keys
+
+The founder's CritterPass keys are reused for Scootch: Jev (TypeSafe),
+DeepSeek and ElevenLabs. They live in Wrangler secrets and GitHub secrets for
+Scootch, never in the repository. Nothing in the launch scope uses ElevenLabs
+yet. Usage is tagged per project in the cost ledger so the two apps' spend can
+be told apart.
 
 ## 2. AI: who does what
 
@@ -37,6 +63,31 @@ Testcontainers, a back-office web app.
 | Scootch's lines, monster names, flavour text | A generation model | The humour is the product |
 | Monster drawing and the song | The phone, procedural | The model returns parameters; code draws and composes |
 | Learned timing and task size | The phone, plain statistics | No model |
+
+### The care screen: the phone gates, Jev judges
+
+From the 7 Oct spike (40 inputs, 20 per language, written by the spike
+itself, so the numbers are optimistic):
+
+| Check | English | Vietnamese | Missed crisis |
+|---|---|---|---|
+| Keywords with idioms removed | 19 of 20 | 19 of 20 | 1 per language (a method named with no explicit word) |
+| Jev `jev-1.13.0`, one choice question | 20 of 20 | 20 of 20 | 0 |
+
+Jev answered in about 260 ms at the median and under 560 ms at worst.
+
+- The phone's keyword pass is a gate, not a judge. An explicit crisis phrase
+  triggers crisis at once, offline. Any dark or serious word holds the joke
+  until Jev answers. Idioms ("this inbox is killing me", "chết mất") are
+  removed before matching.
+- Jev decides. Provisional thresholds, to be tuned on the real eval set:
+  crisis when p(crisis) is 0.10 or more; otherwise serious when p(serious) is
+  0.20 or more or p(pass) is under 0.90. A timeout or error counts as serious.
+- Offline, no task gets a joke or a monster until it has been screened.
+- Not yet tested: the reject label, long rambles, mixed-language text,
+  Vietnamese typed without diacritics, speech-to-text errors, the fallback
+  model, and whether Apple's on-device model will label self-harm text or
+  refuse it.
 
 ### Jev (TypeSafe)
 
@@ -66,8 +117,10 @@ checked in code. Jev is weak at numbers.
 
 ### The generation model (**open**)
 
-The voice decides whether the product works, so the model is chosen by a
-bake-off on the voice guide in phase 00, in both languages, not by habit.
+DeepSeek is available now through the founder's key, and the 7 Oct bake-off
+ran on it. The voice decides whether the product works, so the model is
+chosen by a bake-off on the voice guide in phase 00, in both languages, not
+by habit.
 Vietnamese lines are written in Vietnamese by the model from a Vietnamese
 voice guide. They are never translations of the English lines, because the
 humour and the monster names depend on wordplay. Candidates: Claude
@@ -160,9 +213,9 @@ Each is a spike in phase 00, sized at ten to fifteen minutes.
 
 | Risk | Question |
 |---|---|
-| Phone picked up | Can anything trigger the show while the phone is locked, or only on unlock |
-| Voice | Which model writes Scootch best at all three attitudes, and at what cost per task |
-| On-device screen | Does a bundled classifier catch the serious and crisis cases with no network |
+| Phone picked up | Answered 7 Oct by research: nothing can, while locked. See product-brief section 11 |
+| Voice | Half answered 7 Oct: of two DeepSeek models, the larger writes better in both languages but ignores length limits in Vietnamese. No Claude model tested yet; needs a direct key |
+| On-device screen | Answered 7 Oct: keywords alone miss indirect crisis notes; the phone gates and Jev judges. A bundled classifier is untested |
 | Baked poses | Do Skia-rendered poses export cleanly for widgets and the Live Activity |
-| Durable Object table | Four phones, one timer, nudges, a dropped connection |
-| iCloud token restore | Does the token survive a reinstall and reach a second phone |
+| Durable Object table | Answered 7 Oct locally: works, 26 checks pass. Not yet run on real Cloudflare or from a phone |
+| Token restore | Researched 7 Oct: Keychain sync plus key-value storage. Still to test on two real phones in native batch one |

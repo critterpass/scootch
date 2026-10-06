@@ -18,8 +18,20 @@ a strangers option, leave it out and log it in `docs/undesigned-states.md`.
 
 ### 2. The table
 - Owns: `apps/api/src/tables/`.
-- Do: one Durable Object per table: up to four seats, a shared timer,
-  presence, nudges, reconnection. Follows the phase 00 verdict.
+- Do: one Durable Object per table with hibernating WebSockets: up to four
+  seats, presence, nudges, reconnection. The timer is a stored end timestamp
+  plus one alarm, never a ticking loop. State lives in storage and the socket
+  attachment so it survives hibernation. Start from the source in the
+  appendix of `plans/reports/spike-261007-0005-table-durable-object-report.md`.
+- Do: a seat belongs to a person, not a connection. When the same person
+  connects again, send `replaced` to the old socket before closing it (a bare
+  server close never reached the client in the spike). A seat whose person
+  has been offline for ten minutes is freed; `leave` frees it at once. The
+  closing socket is excluded when working out who is present.
+- Decide before building: who may start a session, whether someone can join
+  mid-session, and whether nudges need a running session.
+- Re-test on real Cloudflare from a phone: the replaced-socket close,
+  half-open connections, and behaviour across a deploy.
 - Test: join, leave, a dropped and resumed connection, a fifth person refused,
   the timer surviving the host leaving.
 
