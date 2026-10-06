@@ -14,3 +14,5 @@ coverage/
 /apps/mobile/ios
 /apps/mobile/android
 .claude/agent-memory/
+# One image per designed screen: rendered by CI, fetched with tools/scripts/fetch-design-renders.sh.
+design/renders/
