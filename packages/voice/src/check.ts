@@ -1,5 +1,6 @@
 import type { Attitude, Language } from '@scootch/domain';
 
+import { contextWordReasons } from './context-words';
 import { monsterFirstName, voiceGuides } from './guide';
 import { offLimitsTopics, type OffLimitsTopic } from './guide/types';
 import { normalise, vietnameseShare, wordListPattern, wordsOf } from './text';
@@ -99,7 +100,8 @@ type Patterns = {
   readonly missedDays: RegExp;
   readonly topics: readonly (readonly [OffLimitsTopic, RegExp])[];
   readonly examples: ReadonlySet<string>;
-  readonly monsterNames: ReadonlySet<string>;
+  /** Example first names and the names a model defaults to, found anywhere in a name. */
+  readonly takenNames: RegExp;
 };
 
 function patternsFor(language: Language): Patterns {
@@ -111,7 +113,11 @@ function patternsFor(language: Language): Patterns {
     missedDays: wordListPattern(guide.missedDays),
     topics: offLimitsTopics.map((topic) => [topic, wordListPattern(guide.offLimits[topic])]),
     examples: new Set(examples.map(normalise)),
-    monsterNames: new Set(guide.monsterNames.map((name) => normalise(monsterFirstName(name)))),
+    takenNames: wordListPattern([
+      ...guide.monsterNames.map(monsterFirstName),
+      ...voiceGuides.en.nameAttractors,
+      ...guide.nameAttractors,
+    ]),
   };
 }
 
@@ -153,13 +159,16 @@ export function checkLine({ text, kind, language, attitude }: LineToCheck): Line
     reasons.push('too_long');
   }
   if (found.banned.test(line)) reasons.push('banned_word');
+  for (const reason of contextWordReasons(line, language)) {
+    if (!reasons.includes(reason) && !(plain && reason !== 'banned_word')) reasons.push(reason);
+  }
   if (found.userWorth.test(line)) reasons.push('user_worth');
   if (kind !== 'deadline' && (found.missedDays.test(line) || dayCount[language].test(line))) {
     reasons.push('missed_days');
   }
   if (!plain) {
     for (const [topic, pattern] of found.topics) {
-      if (pattern.test(line)) reasons.push(`topic_${topic}`);
+      if (pattern.test(line) && !reasons.includes(`topic_${topic}`)) reasons.push(`topic_${topic}`);
     }
   }
   if (languageIsWrong(line, language)) reasons.push('wrong_language');
@@ -169,7 +178,7 @@ export function checkLine({ text, kind, language, attitude }: LineToCheck): Line
   }
   if (kind === 'monsterName') {
     if (!nameShapeIsRight(text)) reasons.push('name_shape');
-    if (found.monsterNames.has(normalise(monsterFirstName(text)))) reasons.push('copied_example');
+    if (found.takenNames.test(line)) reasons.push('copied_example');
   } else if (found.examples.has(line)) {
     reasons.push('copied_example');
   }

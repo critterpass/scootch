@@ -1,10 +1,12 @@
+import { viContextWords } from './vi-context';
 import type { VoiceGuide } from './types';
 
 /** The Vietnamese word lists: what the prompt forbids and what the checker looks for. */
 export const viWords: Pick<
   VoiceGuide,
-  'bannedWords' | 'offLimits' | 'offLimitsNote' | 'userWorth' | 'missedDays'
+  'bannedWords' | 'contextWords' | 'offLimits' | 'offLimitsNote' | 'userWorth' | 'missedDays'
 > = {
+  contextWords: viContextWords,
   bannedWords: [
     'lười',
     'lười biếng',
@@ -29,8 +31,6 @@ export const viWords: Pick<
     'phải chi',
     'vô dụng',
     'ăn hại',
-    'hư',
-    'tệ',
     'có lỗi',
     'tội lỗi',
     'thất vọng',
@@ -79,7 +79,6 @@ export const viWords: Pick<
       'cương lĩnh',
     ],
     religion: [
-      'chúa',
       'phật',
       'thánh',
       'chùa',

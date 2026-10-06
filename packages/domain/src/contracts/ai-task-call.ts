@@ -30,6 +30,8 @@ export const taskCreateRequestSchema = z.object({
   overrideSerious: z.boolean(),
   /** One things already offered from this text and turned down with "Another". */
   declined: z.array(taskTextSchema).max(10).optional(),
+  /** True asks for stage one only; the answer is then `taskCreateStartResponseSchema`. */
+  staged: z.boolean().optional(),
 });
 export type TaskCreateRequest = z.infer<typeof taskCreateRequestSchema>;
 
@@ -164,3 +166,8 @@ export const taskCreateResponseSchema = z.discriminatedUnion('verdict', [
 export type TaskCreateResponse = z.infer<typeof taskCreateResponseSchema>;
 export type TaskCreatePass = z.infer<typeof passSchema>;
 export type TaskCreateSerious = z.infer<typeof seriousSchema>;
+
+/** The verdict shapes on their own, for the staged call, which shares all but the pass. */
+export const taskCreateSeriousSchema = seriousSchema;
+export const taskCreateCrisisSchema = crisisSchema;
+export const taskCreateRejectSchema = rejectSchema;

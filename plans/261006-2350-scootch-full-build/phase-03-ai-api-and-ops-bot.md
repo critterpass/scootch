@@ -45,9 +45,7 @@ set, and the founder's Telegram bot. Read tech-decisions sections 2 and 5.
 - Eval: 40 rambles in each language; checks for one clear thing, no invented
   deadlines, no line about the user's worth, no banned word, and that the
   output is in the user's language.
-- Status: partly done — 609faad; the route, its checks and the eval runner are in. The eval set
-  has 20 rambles per language of the 40 asked, and runs by hand against a running API
-  (`pnpm --filter @scootch/voice eval:task`)
+- Status: partly done — 8ae7b9c; two stages (`staged: true`, then `POST /v1/task-create/lines`), measured locally at concurrency 1 over 120 calls: stage one median 1.7 s and 95th percentile 2.8 s, stage two median 6.5 s (5 s wanted, missed), no 5xx, checks passed 98.3%. The eval set still has 20 rambles per language of the 40 asked and runs by hand (`pnpm --filter @scootch/voice eval:task`)
 
 ### 5. Small routes
 - Owns: `apps/api/src/routes/` (one file per route).
@@ -69,9 +67,7 @@ set, and the founder's Telegram bot. Read tech-decisions sections 2 and 5.
   source; the offline line pack per attitude and language; the banned-word
   checker per language, used by every eval.
 - Done when: a prompt change runs every eval in CI.
-- Status: partly done — 609faad; the guides, the checker and the offline pack are in and the
-  task call runs the checker on every generation. No eval runs in CI on a prompt change yet, and
-  the small routes do not exist to use the checker
+- Status: partly done — 8ae7b9c; the checker reads behind, again, late, hư, tệ and chúa in context, and a failed line is asked for again alone, then replaced by an offline line: lines asked for again in 24.2% of 120 calls (under 10% wanted, missed), 2 lines replaced by offline lines, no name opening with an example's word. No eval runs in CI on a prompt change yet, and the small routes do not exist to use the checker
 
 ### 7. Backup
 - Do: snapshot upload and restore keyed by the iCloud token; export and
