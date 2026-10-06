@@ -21,7 +21,7 @@ import { CUES } from '@scootch/sound';
 import { apiBaseUrl, keychainTokenStore } from '../api/api-config';
 import { createHttpClient } from '../api/http-client';
 import { createScootchApi } from '../api/scootch-api';
-import { createTaskClient } from '../api/task-client';
+import { createStagedTaskClient } from '../api/staged-task-client';
 import { openRepositories } from '../data/repositories';
 import { createEffectsRunner } from '../effects/effects-runner';
 import {
@@ -70,7 +70,7 @@ function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
     clock: systemClock,
     timeZone: () => getCalendars()[0]?.timeZone ?? 'UTC',
     nextId: randomUUID,
-    tasks: createTaskClient(createScootchApi(http)),
+    tasks: createStagedTaskClient(createScootchApi(http)),
     online: async () => {
       const network = await getNetworkStateAsync();
       return network.isInternetReachable ?? network.isConnected ?? false;
@@ -169,7 +169,7 @@ function useDayState(): DayState {
 export function useToday() {
   const state = useDayState();
   const { ready, localDate, today, morning, monster, monsterPending } = state;
-  const { taskCall, notice, heardDeadlines, settings } = state;
+  const { taskCall, notice, heardDeadlines, settings, pick, energyNeeded } = state;
   return useMemo(
     () => ({
       ready,
@@ -182,6 +182,8 @@ export function useToday() {
       notice,
       heardDeadlines,
       settings,
+      pick,
+      energyNeeded,
     }),
     [
       ready,
@@ -194,6 +196,8 @@ export function useToday() {
       notice,
       heardDeadlines,
       settings,
+      pick,
+      energyNeeded,
     ],
   );
 }

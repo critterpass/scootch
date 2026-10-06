@@ -1,0 +1,219 @@
+import { describe, expect, it } from '@jest/globals';
+
+import type { TaskLinesAnswer } from '../api/scootch-api';
+
+import { ASK_MINUTES, MONSTER_SIZE_STEPS, smallerAsk } from './smaller';
+import { recordedLines, recordedStart, stagedPhone, stagedServer } from './test/staged-phone';
+
+if (recordedStart.verdict !== 'pass') throw new Error('the recorded first stage is a pass');
+const start = recordedStart;
+
+describe('the staged task call', () => {
+  it('shows the one thing from stage one, and takes the pick, before stage two has answered', async () => {
+    let answer: (lines: TaskLinesAnswer) => void = () => undefined;
+    const server = stagedServer({
+      lines: () => new Promise<TaskLinesAnswer>((resolve) => (answer = resolve)),
+    });
+    const app = await stagedPhone(server);
+    const sent = app.say();
+
+    await app.until(
+      () => app.store.getState().taskCall === 'idle' && 'task' in app.store.getState().today,
+    );
+    const offered = app.store.getState();
+    expect(app.task().text).toBe(start.oneThing.text);
+    expect(offered.pick).toMatchObject({ kind: 'offered', another: true });
+    expect(offered.pick.kind === 'offered' && offered.pick.reveal?.phrases).toContain(
+      start.oneThing.text,
+    );
+    expect(offered.monster).toBeNull();
+    expect(offered.taskCall).toBe('idle');
+
+    // The pick does not wait for the monster's words: the hatch starts with them still on the way.
+    void app.store.dispatch({ type: 'one_thing_picked' });
+    await app.until(() => app.store.getState().pick.kind === 'hatching');
+    expect(app.store.getState().monster).toBeNull();
+    expect(server.lineCalls).toBe(1);
+
+    answer(recordedLines);
+    await sent;
+    expect(app.store.getState().monster).toMatchObject({ name: recordedLines.monster.name });
+    expect(app.task().lines).toEqual(recordedLines.lines);
+    expect(server.startCalls).toBe(1);
+    expect(server.lineCalls).toBe(1);
+  });
+
+  it('leaves a usable task with a plain monster name when stage two fails', async () => {
+    const app = await stagedPhone(stagedServer({ lines: () => Promise.reject(new Error('down')) }));
+    await app.say();
+
+    const { monster, monsterPending } = app.store.getState();
+    expect(monster?.name).toMatch(/\S, \S/);
+    expect(monster?.name).not.toBe(recordedLines.monster.name);
+    expect(monsterPending).toBe(false);
+    expect(app.task()).toMatchObject({ text: start.oneThing.text, screen: 'pass', lines: null });
+
+    await app.store.dispatch({ type: 'one_thing_picked' });
+    await app.store.dispatch({ type: 'monster_met' });
+    await app.store.dispatch({ type: 'session_set', minutes: 10 });
+    await app.store.dispatch({ type: 'session', event: { type: 'started' } });
+    expect(app.store.getState().today.kind).toBe('in_session');
+  });
+
+  it('takes a name that arrives without the line pack', async () => {
+    const app = await stagedPhone(
+      stagedServer({ lines: () => Promise.resolve({ monster: recordedLines.monster }) }),
+    );
+    await app.say();
+    expect(app.store.getState().monster?.name).toBe(recordedLines.monster.name);
+    expect(app.task().lines).toBeNull();
+  });
+
+  it('falls back with no connection: the typed text as the one thing, nothing else on offer', async () => {
+    const server = stagedServer({ online: false });
+    const app = await stagedPhone(server);
+    await app.say('email the dentist about tuesday', 'typed');
+
+    expect(server.startCalls).toBe(0);
+    expect(app.task()).toMatchObject({ text: 'email the dentist about tuesday', lines: null });
+    expect(app.store.getState()).toMatchObject({
+      monster: null,
+      pick: { kind: 'offered', reveal: null, another: false },
+    });
+    // No monster, so there is no hatch: the pick lands on the set task.
+    await app.store.dispatch({ type: 'one_thing_picked' });
+    expect(app.store.getState().pick).toEqual({ kind: 'none' });
+  });
+});
+
+describe('another, and the drawer', () => {
+  it('offers the next parked thing without a call, and parks the one turned down', async () => {
+    const server = stagedServer();
+    const app = await stagedPhone(server);
+    await app.say();
+    const first = app.task().text;
+    const parked = start.parked.map((one) => one.text);
+
+    await app.store.dispatch({ type: 'another_asked' });
+    expect(server.startCalls).toBe(1);
+    expect(parked).toContain(app.task().text);
+    const inDrawer = app.store.getState().drawer.items.map((item) => item.text);
+    expect(inDrawer).toContain(first);
+    expect(inDrawer).not.toContain(app.task().text);
+    expect(app.data.count('tasks')).toBe(1);
+    expect(app.data.count('monsters')).toBe(0);
+  });
+
+  it('opens only on the pull, whatever else happens to it', async () => {
+    const app = await stagedPhone(stagedServer());
+    const open = () => app.store.getState().drawer.open;
+    await app.say();
+    expect(open()).toBe(false);
+    await app.store.dispatch({ type: 'another_asked' });
+    await app.store.dispatch({ type: 'pick_for_me' });
+    for (const type of [
+      'things_parked',
+      'deadline_heard',
+      'item_returned',
+      'app_opened',
+    ] as const) {
+      await app.store.dispatch({ type: 'drawer', event: { type } });
+    }
+    expect(open()).toBe(false);
+
+    await app.store.dispatch({ type: 'drawer', event: { type: 'pulled' } });
+    expect(open()).toBe(true);
+
+    // Swapping in closes it, and the thing it replaced is parked in its place.
+    const before = app.task().text;
+    const [item] = app.store.getState().drawer.items;
+    if (!item) throw new Error('nothing was parked');
+    await app.store.dispatch({ type: 'drawer_item_swapped_in', itemId: item.id });
+    expect(open()).toBe(false);
+    expect(app.task()).toMatchObject({ text: item.text, source: 'drawer' });
+    expect(app.store.getState().drawer.items.map((one) => one.text)).toContain(before);
+  });
+
+  it('swaps a heard date in for today, or leaves it parked for its day', async () => {
+    const app = await stagedPhone(stagedServer());
+    await app.say();
+    const [deadline] = start.deadlines;
+    if (!deadline) throw new Error('the recorded call heard a date');
+    expect(app.store.getState().heardDeadlines).toEqual(start.deadlines);
+    const parkedDated = app.store
+      .getState()
+      .drawer.items.find((item) => item.text === deadline.text);
+    expect(parkedDated?.returnOn).not.toBeNull();
+
+    await app.store.dispatch({ type: 'deadline_answered', text: deadline.text, choice: 'today' });
+    expect(app.store.getState().heardDeadlines).toEqual([]);
+    expect(app.task()).toMatchObject({ text: deadline.text, dueDate: deadline.dueDate });
+  });
+});
+
+describe('the ask only gets smaller', () => {
+  it('never returns more minutes than it was given', () => {
+    for (let minutes = 1; minutes <= 60; minutes += 1) {
+      let ask = { minutes, shrinkCount: 0 };
+      for (let step = 0; step < ASK_MINUTES.length + 2; step += 1) {
+        const next = smallerAsk(ask);
+        expect(next.minutes).toBeLessThanOrEqual(ask.minutes);
+        expect(next.shrinkCount).toBeGreaterThanOrEqual(ask.shrinkCount);
+        ask = next;
+      }
+    }
+  });
+
+  it('counters an excuse with less each time, and sets no session longer than the offer', async () => {
+    const app = await stagedPhone(stagedServer());
+    await app.say();
+    await app.store.dispatch({ type: 'one_thing_picked' });
+    await app.store.dispatch({ type: 'monster_met' });
+
+    const asked: number[] = [];
+    const ask = () => {
+      const { pick } = app.store.getState();
+      if (pick.kind !== 'bargaining') throw new Error(`not bargaining: ${pick.kind}`);
+      asked.push(pick.ask.minutes);
+      return pick.ask.minutes;
+    };
+    await app.store.dispatch({ type: 'excuse_given', text: "I'm wiped" });
+    ask();
+    for (let tap = 0; tap < 4; tap += 1) {
+      await app.store.dispatch({ type: 'smaller_asked' });
+      ask();
+    }
+    await app.store.dispatch({ type: 'excuse_given', text: 'still no' });
+    const offer = ask();
+    expect(asked[0]).toBeLessThan(10);
+    expect(asked).toEqual([...asked].sort((a, b) => b - a));
+
+    // Even a longer length chosen now cannot raise it.
+    await app.store.dispatch({ type: 'session_set', minutes: 50 });
+    expect(app.store.getState().session).toMatchObject({ ask: { minutes: offer } });
+  });
+
+  it('makes the task and its monster smaller on "too big", and never bigger', async () => {
+    const app = await stagedPhone(stagedServer());
+    await app.say();
+    await app.store.dispatch({ type: 'one_thing_picked' });
+    const original = app.task().text;
+    const size = () => app.store.getState().monster?.spec.size ?? Number.NaN;
+    const sizes = [size()];
+    const texts = [original];
+
+    for (let tap = 0; tap < MONSTER_SIZE_STEPS.length + 2; tap += 1) {
+      await app.store.dispatch({ type: 'too_big' });
+      sizes.push(size());
+      texts.push(app.task().text);
+      expect(app.task().shrinkCount).toBe(tap + 1);
+    }
+    expect(texts[1]).toBe(recordedLines.lines.tinyNextStep);
+    // Once smaller, the words never go back to the bigger ask.
+    expect(texts.slice(1).every((text) => text === texts[1])).toBe(true);
+    expect(sizes[1]).toBeLessThan(sizes[0] ?? 0);
+    expect(sizes).toEqual([...sizes].sort((a, b) => b - a));
+    expect(sizes.at(-1)).toBeCloseTo((sizes[0] ?? 0) * (MONSTER_SIZE_STEPS.at(-1) ?? 1), 5);
+    expect(app.store.getState().pick).toEqual({ kind: 'hatching', shrunk: true });
+  });
+});
