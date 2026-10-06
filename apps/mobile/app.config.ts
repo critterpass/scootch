@@ -22,6 +22,12 @@ const EAS_PROJECT_ID = '534fb786-e7e7-4058-a3c4-636196dc5078';
 const APPLE_TEAM_ID = 'YFND2EEW8S';
 /** Universal links, App Clip invocations and shared web credentials. */
 const LINK_HOST = 'scootch.app';
+/**
+ * The oldest iOS the app, its extensions and the App Clip install on. Every target reads this one
+ * value (targets/<name>/expo-target.config.js take it from `ios.deploymentTarget`). The founder is
+ * deciding the minimum version; until then it stays at the Expo default.
+ */
+const IOS_DEPLOYMENT_TARGET = '16.4';
 
 const DEV: VariantConfig = {
   name: 'Scootch Dev',
@@ -54,17 +60,22 @@ function resolveVariant(): AppVariant {
 const appVariant = resolveVariant();
 const variant = VARIANTS[appVariant];
 
-/** What iOS shows when it asks for the microphone and for speech recognition, per language. */
+/**
+ * What iOS shows when it asks for the microphone, for speech recognition and to add a picture to
+ * Photos, per language.
+ */
 const PERMISSION_STRINGS = {
   en: {
     NSMicrophoneUsageDescription: 'Scootch uses the microphone so you can talk instead of type.',
     NSSpeechRecognitionUsageDescription:
       'Scootch turns what you say into text so you do not have to type.',
+    NSPhotoLibraryAddUsageDescription: 'Scootch saves a card to your photos when you tap Save.',
   },
   vi: {
     NSMicrophoneUsageDescription: 'Scootch dùng micro để bạn có thể nói thay vì gõ.',
     NSSpeechRecognitionUsageDescription:
       'Scootch chuyển lời bạn nói thành chữ để bạn không phải gõ.',
+    NSPhotoLibraryAddUsageDescription: 'Scootch lưu thẻ vào ảnh của bạn khi bạn chạm Lưu.',
   },
 };
 
@@ -93,6 +104,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   scheme: variant.scheme,
   version: '1.0.0',
   orientation: 'portrait',
+  // Placeholder art drawn by assets/render-app-icon.ts. iOS takes this file as it is (opaque).
+  icon: './assets/icon.png',
   userInterfaceStyle: 'automatic',
   // The native window behind every screen, shown before the first frame.
   backgroundColor: palettes.light.page,
@@ -107,6 +120,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ios: {
     bundleIdentifier: variant.bundleIdentifier,
     appleTeamId: APPLE_TEAM_ID,
+    deploymentTarget: IOS_DEPLOYMENT_TARGET,
     supportsTablet: false,
     usesAppleSignIn: true,
     associatedDomains: [
@@ -122,16 +136,31 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       CFBundleAllowMixedLocalizations: true,
       NSSupportsLiveActivities: true,
       NSSupportsLiveActivitiesFrequentUpdates: true,
+      // Lets a silent push wake the app (a table changing, a Live Activity token to renew).
+      UIBackgroundModes: ['remote-notification'],
     },
     entitlements: IOS_ENTITLEMENTS,
   },
   android: {
     package: variant.bundleIdentifier,
+    adaptiveIcon: {
+      foregroundImage: './assets/android-icon-foreground.png',
+      backgroundColor: palettes.light.page,
+    },
   },
   // Everything iOS-only below is written by iOS-only mods, so Android config and prebuild skip it.
   plugins: [
     'expo-router',
     'expo-sqlite',
+    [
+      'expo-splash-screen',
+      {
+        image: './assets/splash-icon.png',
+        imageWidth: 200,
+        backgroundColor: palettes.light.page,
+        dark: { backgroundColor: palettes.dark.page },
+      },
+    ],
     [
       'expo-build-properties',
       // Expo's modules compile against API 37; runtime behaviour still targets API 36.
@@ -147,11 +176,45 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         speechRecognitionPermission: PERMISSION_STRINGS.en.NSSpeechRecognitionUsageDescription,
       },
     ],
+    [
+      'expo-audio',
+      {
+        // Sound cues only: nothing records through this library and nothing plays with the app in
+        // the background, so it adds no background mode, service or Android record permission.
+        // The microphone string stays the one speech recognition shows.
+        microphonePermission: PERMISSION_STRINGS.en.NSMicrophoneUsageDescription,
+        recordAudioAndroid: false,
+        enableBackgroundPlayback: false,
+        enableBackgroundRecording: false,
+      },
+    ],
+    [
+      'expo-media-library',
+      {
+        // Saving a card only ever adds a picture; the app never reads the photo library, so
+        // there is no read string and no Android media-read permission.
+        photosPermission: false,
+        savePhotosPermission: PERMISSION_STRINGS.en.NSPhotoLibraryAddUsageDescription,
+        isAccessMediaLocationEnabled: false,
+        granularPermissions: [],
+      },
+    ],
+    // The languages the app is written in, for the per-app language setting on both platforms.
+    ['expo-localization', { supportedLocales: Object.keys(PERMISSION_STRINGS) }],
     // Every folder under targets/ with an expo-target.config.js becomes an Apple target.
     '@bacons/apple-targets',
-    // Linked with no config plugin: expo-haptics, react-native-purchases, react-native-keychain and
+    // Crash reporting. The DSN is read at run time (EXPO_PUBLIC_SENTRY_DSN; with none, nothing is
+    // sent). The organisation, project and token come from SENTRY_ORG, SENTRY_PROJECT and
+    // SENTRY_AUTH_TOKEN wherever symbols are uploaded. Upload during the native build is off so a
+    // build with no token cannot fail, and so the generated project does not depend on which
+    // variables happen to be set.
+    ['@sentry/react-native/expo', { disableAutoUpload: true }],
+    // Linked with no config plugin: expo-haptics, react-native-purchases, react-native-keychain,
     // @nauverse/expo-cloud-settings (its plugin would also claim CloudKit, which the app does not
-    // use; the key-value store entitlement is set above instead).
+    // use; the key-value store entitlement is set above instead), @shopify/react-native-skia,
+    // react-native-reanimated, react-native-worklets, react-native-gesture-handler, expo-font,
+    // expo-sharing, expo-file-system, expo-clipboard, expo-crypto, expo-application, expo-device,
+    // expo-glass-effect, @expo/ui and the local modules/scootch-live-activity.
   ],
   experiments: {
     typedRoutes: true,

@@ -6,13 +6,14 @@ Goal: Scootch, every monster and every sound exist as components other lanes
 drop in. Board: Characters; the card on App flows.
 
 ### 1. Scootch
-- Status: partly done — 79d90b5; stills for every mood, no animation, squeak or Skia backend yet
+- Status: partly done — 79d90b5; stills for every mood, no animation, squeak or Skia backend yet; Skia renderer and idle in the app — 93448c2, unverified on a device
 - Do: the critter in Skia with its moods (waiting, listening, typing,
   bargaining, pleased, asleep, serious) and the squeak on tap. Reduce Motion
   form for each.
 - Done when: every mood renders in the registry sheet beside its render.
 
 ### 2. Work modes
+- Status: partly done — e02ea2a; stills for thirty modes, no loops yet
 - Owns: `packages/art/src/work-modes/` (one file per mode).
 - Do: all 30 modes, each with prop, accessory and loop.
 - Done when: the 30 appear in a sheet; a missing mode falls back to a plain

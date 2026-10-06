@@ -1,0 +1,9 @@
+{
+  "name": "scootch-live-activity",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Starts, updates and ends the session Live Activity from JavaScript (ActivityKit).",
+  "main": "index.ts",
+  "types": "index.ts",
+  "license": "UNLICENSED"
+}

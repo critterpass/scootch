@@ -16,7 +16,8 @@ import {
 import { drawBrow, drawEye, drawMouth } from './face';
 import * as moods from './moods/index.generated';
 import { SCOOTCH } from './palette';
-import { WORK_MODE_ATTACHMENTS, type ScootchFrame } from './work-mode-attachment';
+import { WORK_MODE_ATTACHMENTS } from './work-mode-attachment';
+import type { ScootchFrame, WorkModeAttachment } from './work-mode-kit';
 
 /** Every mood of the contract, one file each in the moods folder. */
 export const SCOOTCH_MOODS: Record<ScootchMood, MoodPose> = moods;
@@ -25,6 +26,7 @@ const PEN_SEED = strHash('scootch');
 const EYE_RADIUS = 13.5;
 const SIDES = [-1, 1] as const;
 const NO_MOTION: ScootchMotion = {};
+const WORK_MODES: Partial<Record<string, WorkModeAttachment>> = WORK_MODE_ATTACHMENTS;
 
 /** Scootch's outline: an egg, wider at the bottom, that leans from the top. */
 function bodyPts(cx: number, cy: number, rx: number, ry: number, lean: number): Point[] {
@@ -65,8 +67,9 @@ function drawArm(pen: Pen, side: -1 | 1, shoulder: Point, hand: Point): void {
  * Describes Scootch as drawing commands, in the same 200 by 200 space as the monsters. Pure: the
  * same props and motion always give the same list.
  *
- * Without `motion` the drawing is the mood's rest frame, which is also its Reduce Motion form;
- * with `reducedMotion` set, `motion` is ignored. Attitude sets how big the acting is and never
+ * Without `motion` the drawing is the rest frame of the mood, or of the work mode when the mood is
+ * `working` and a mode is given, which is also its Reduce Motion form; with `reducedMotion` set,
+ * `motion` is ignored. A missing or unknown work mode draws the plain desk and laptop. Attitude sets how big the acting is and never
  * what Scootch looks like; the serious mood takes no attitude.
  */
 export function buildScootch(
@@ -78,10 +81,16 @@ export function buildScootch(
   const serious = props.mood === 'serious';
   const act = serious ? 1 : ACTING[props.attitude];
   const attachment =
-    props.mood === 'working' && props.workMode ? WORK_MODE_ATTACHMENTS[props.workMode] : undefined;
+    props.mood === 'working' && props.workMode ? WORK_MODES[props.workMode] : undefined;
+  const loop = moving.work;
 
   const e = { ...neutral(), ...SCOOTCH_MOODS[props.mood](act, beat) };
-  attachment?.pose?.(e, beat);
+  if (attachment) {
+    e.fx = null;
+    e.mouth = 'smile';
+    e.mw = 0.7;
+    attachment.pose(e, loop);
+  }
   scaleActing(e, act);
   applyMotion(e, moving);
 
@@ -113,7 +122,7 @@ export function buildScootch(
   };
 
   pen.fill(ell(100, GROUND_Y + 2, 50 * (1 - e.bounce * 0.45), 5, 14), SCOOTCH.ink, 0.2, 0.08);
-  attachment?.behind?.(pen, frame, beat);
+  attachment?.behind(pen, frame, loop);
 
   const cos = Math.cos(e.rot);
   const sin = Math.sin(e.rot);
@@ -168,14 +177,14 @@ export function buildScootch(
   }
   drawMouth(pen, e, faceX + e.mx * 14, faceY + ry * 0.44);
 
-  attachment?.accessory?.(pen, frame, beat);
-  if (attachment?.prop) attachment.prop(pen, frame, beat);
+  attachment?.accessory(pen, frame, loop);
+  if (attachment) attachment.prop(pen, frame, loop);
   else if (e.fx === 'laptop') drawLaptop(pen, frame);
   drawArm(pen, -1, [cx - rx * 0.86, cy + ry * 0.16], frame.leftHand);
   drawArm(pen, 1, [cx + rx * 0.86, cy + ry * 0.16], frame.rightHand);
-  attachment?.held?.(pen, frame, beat);
+  attachment?.held(pen, frame, loop);
   drawEffect(pen, e, frame, beat);
-  attachment?.effect?.(pen, frame, beat);
+  attachment?.effect(pen, frame, loop);
 
   pen.commands.push({ op: 'restore' });
   return pen.commands;
