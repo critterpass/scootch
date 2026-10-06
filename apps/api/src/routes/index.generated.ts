@@ -5,4 +5,6 @@ export * from './monster-make';
 export * from './screen-input';
 export * from './task-create';
 export * from './task-create-lines';
+export * from './task-create-name';
+export * from './task-create-pack';
 export * from './telegram-webhook';

@@ -19,7 +19,7 @@ import { z } from 'zod';
 import { decide, type DecideContext } from '../ai/decide';
 import { generate } from '../ai/deepseek';
 import { screenInputQuestion, screenVerdict } from '../ai/screen-input';
-import { bodyTypeQuestion, labelConfidenceAtLeast } from '../ai/task-create/labels';
+import { bodyFrom, bodyTypeQuestion } from '../ai/task-create/labels';
 import { ApiError, wireError } from '../errors';
 import { recordAiUsage } from '../ledger';
 import { readBody, type RouteContext, type RouteDefinition } from '../route';
@@ -221,8 +221,8 @@ async function writeMonster(
 /** The body the thing suggests, or one rolled from the seed when no model is sure. */
 async function bodyTypeFor(context: DecideContext, text: string): Promise<MonsterBodyType> {
   try {
-    const { choice, probabilities } = (await decide(context, { ...bodyTypeQuestion, text })).answer;
-    if (probabilities[choice] >= labelConfidenceAtLeast) return choice;
+    const body = bodyFrom((await decide(context, { ...bodyTypeQuestion, text })).answer);
+    if (body !== null) return body;
   } catch {
     console.warn('monster body not decided', { route: routeId });
   }

@@ -104,7 +104,25 @@ export const sessionLinePackSchema = z.object({
   caught: lineSchema,
   /** "Not finished" is a normal outcome; this line introduces the three choices. */
   notFinished: lineSchema,
+  /**
+   * Two more tiny next steps, each smaller than the one before, so "Smaller" has somewhere to
+   * go. Absent on packs written before these existed, as are the three lines below.
+   */
+  tinierNextSteps: z.array(lineSchema).max(2).optional(),
+  /**
+   * The ceremony line when the treat named before the session is handed over. It names the
+   * treat: the server fills it in when the pack is asked for with one, and otherwise leaves
+   * `{treat}` where the phone puts the treat's name.
+   */
+  treatHandOver: lineSchema.optional(),
+  /** Said when the thoughts parked during the session are shown. */
+  parkedThoughts: lineSchema.optional(),
+  /** Said when the hold to finish is let go too soon. Kind, never a telling-off. */
+  releasedEarly: lineSchema.optional(),
 });
+
+/** Where a `treatHandOver` line names the treat until a real treat is filled in. */
+export const treatPlaceholder = '{treat}';
 export type SessionLinePack = z.infer<typeof sessionLinePackSchema>;
 
 /** The plain-words pack for a serious task: company, no comedy. */

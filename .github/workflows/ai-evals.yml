@@ -1,0 +1,41 @@
+name: ai evals
+
+# The eval sets, run against the dev API. They call real models, so this is never a required
+# check: it runs by hand, and on main when the voice package or the API's AI code changes.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/voice/**'
+      - 'apps/api/src/ai/**'
+
+concurrency:
+  group: ai-evals
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  evals:
+    name: ${{ matrix.eval }} eval
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      # One at a time: the runners share the dev API and its model budget.
+      max-parallel: 1
+      matrix:
+        eval: [screen, labels, task]
+    env:
+      # The dev API's base URL, set as a repository variable. Empty uses the runners' default.
+      SCOOTCH_API_URL: ${{ vars.SCOOTCH_API_URL }}
+      EVAL_CONCURRENCY: 2
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with: { node-version: 24, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @scootch/voice eval:${{ matrix.eval }}
