@@ -1,0 +1,142 @@
+[
+  {
+    "id": "en-01",
+    "text": "right, brain dump. the car needs its MOT booked, I owe Priya a reply about the wedding, the recycling has been sat in the hall for ages and I want to cancel that gym membership",
+    "things": [["mot", "car"], ["priya", "wedding"], ["recycling"], ["gym", "membership"]],
+    "dates": []
+  },
+  {
+    "id": "en-02",
+    "text": "need to email the landlord about the broken boiler, it's getting cold. also return the shoes to the post office and the fridge smells weird",
+    "things": [["landlord", "boiler"], ["shoes", "post office"], ["fridge"]],
+    "dates": []
+  },
+  {
+    "id": "en-03",
+    "text": "electricity bill is due on the 15th, I have to book the dentist for a checkup, and water the plants before they give up",
+    "things": [["electricity", "bill"], ["dentist"], ["plants"]],
+    "dates": ["2026-10-15"]
+  },
+  {
+    "id": "en-04",
+    "text": "do the laundry",
+    "things": [["laundry"]],
+    "dates": []
+  },
+  {
+    "id": "en-05",
+    "text": "um I have to finish the slides for Thursday's team meeting, and send the invoice to the client, and I haven't hoovered in forever",
+    "things": [["slides"], ["invoice"], ["hoover", "hoovered", "hoovering", "vacuum"]],
+    "dates": ["2026-10-08"]
+  },
+  {
+    "id": "en-06",
+    "text": "call mum back",
+    "things": [["mum"]],
+    "dates": []
+  },
+  {
+    "id": "en-07",
+    "text": "so much stuff. the cat needs her vaccination booked at the vet, I need to buy a birthday present for Tom by tomorrow, sort out the pile of post on the table, and maybe look at the pension letter",
+    "things": [
+      ["vet", "cat", "vaccination"],
+      ["present", "tom", "birthday"],
+      ["post", "pile"],
+      ["pension"]
+    ],
+    "dates": ["2026-10-07"]
+  },
+  {
+    "id": "en-08",
+    "text": "tidy my desk, it's buried. and write the cover letter for that job at the library",
+    "things": [["desk"], ["cover letter", "library", "job"]],
+    "dates": []
+  },
+  {
+    "id": "en-09",
+    "text": "I keep meaning to fix the bike tyre and to text Jo back about the camping trip. and there's washing up from two days ago",
+    "things": [
+      ["bike", "tyre"],
+      ["jo", "camping"],
+      ["washing up", "dishes"]
+    ],
+    "dates": []
+  },
+  {
+    "id": "en-10",
+    "text": "the library books are due back tomorrow, need to ring the bank about the weird charge, and defrost the freezer at some point",
+    "things": [
+      ["library", "books"],
+      ["bank", "charge"],
+      ["freezer", "defrost"]
+    ],
+    "dates": ["2026-10-07"]
+  },
+  {
+    "id": "en-11",
+    "text": "book a haircut",
+    "things": [["haircut"]],
+    "dates": []
+  },
+  {
+    "id": "en-12",
+    "text": "ok today: submit the expenses form, reply to the school email about the trip, put a wash on, take the bins out, and order more printer ink",
+    "things": [["expenses"], ["school"], ["wash", "laundry"], ["bins"], ["ink", "printer"]],
+    "dates": ["2026-10-06"]
+  },
+  {
+    "id": "en-13",
+    "text": "I need to start the essay on the Romantic poets, it's due on 20 October and I haven't even opened the reading. also cancel the free trial before they charge me",
+    "things": [["essay"], ["reading"], ["free trial", "trial"]],
+    "dates": ["2026-10-20"]
+  },
+  {
+    "id": "en-14",
+    "text": "change the bedsheets and hoover the bedroom, mum's visiting on Saturday",
+    "things": [
+      ["bedsheets", "sheets"],
+      ["hoover", "bedroom"]
+    ],
+    "dates": ["2026-10-10"]
+  },
+  {
+    "id": "en-15",
+    "text": "pay the window cleaner, he's been twice now. and find my passport, and email HR about the holiday days",
+    "things": [["window cleaner"], ["passport"], ["hr", "holiday"]],
+    "dates": []
+  },
+  {
+    "id": "en-16",
+    "text": "write thank you cards for the wedding gifts, there are like forty. and return the suit by Friday. and call the venue about the deposit",
+    "things": [["thank you", "cards"], ["suit"], ["venue", "deposit"]],
+    "dates": ["2026-10-09"]
+  },
+  {
+    "id": "en-17",
+    "text": "update my CV",
+    "things": [["cv"]],
+    "dates": []
+  },
+  {
+    "id": "en-18",
+    "text": "the garden is a jungle, need to mow the lawn, and the shed door is hanging off, and I said I'd bake something for the school fair on the 10th",
+    "things": [["lawn", "mow", "garden"], ["shed"], ["bake", "fair"]],
+    "dates": ["2026-10-10"]
+  },
+  {
+    "id": "en-19",
+    "text": "uh, descale the kettle, renew the parking permit in 3 days or I get a fine, and sort the kids' school uniforms",
+    "things": [["kettle"], ["permit", "parking"], ["uniforms", "uniform"]],
+    "dates": ["2026-10-09"]
+  },
+  {
+    "id": "en-20",
+    "text": "need to back up my laptop, I've been saying it for a year. and unsubscribe from all those newsletters. and message the group chat about Sunday lunch",
+    "things": [
+      ["laptop", "back up"],
+      ["newsletters", "unsubscribe"],
+      ["group chat", "lunch"]
+    ],
+    "dates": ["2026-10-11"]
+  }
+]

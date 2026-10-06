@@ -1,0 +1,94 @@
+import type { OfflinePack } from './types';
+
+/** Written in Vietnamese. Soft speaks as "mình"; Cheeky and Unhinged speak as "tui". */
+export const viOffline: OfflinePack = {
+  lines: {
+    soft: {
+      hatch: ['Có một thứ nho nhỏ vừa nở. Nó nằm yên đây, mình cùng ngó nó một chút.'],
+      start: ['Mình bắt đầu nha. Mình ngồi ngay cạnh bạn.'],
+      working: [
+        'Mình ở đây. Giờ không còn gì khác cần tới mình với bạn.',
+        'Từng chút một thôi. Phần còn lại mình giữ cho.',
+        'Mình ngồi êm rồi. Bạn cứ thong thả.',
+        'Ngồi cạnh trong im lặng, đúng như đã hứa.',
+      ],
+      pickedUp: ['Ơ, chào bạn. Mình vẫn ở đây, chỗ của bạn cũng còn nguyên.'],
+      checkIn: ['Tới đâu rồi nè? Mình có sẵn một bước nhỏ hơn, nếu bạn cần.'],
+      tinyNextStep: ['Chọn phần nhỏ nhất bạn thấy được, rồi chỉ đụng vào phần đó thôi.'],
+      twoMinutesLeft: ['Còn hai phút. Không cần vội đâu.'],
+      timeUp: ['Hết giờ rồi. Lúc nào sẵn sàng thì giữ nút để tóm nó.'],
+      caught: ['Tóm được rồi. Vậy là xong việc hôm nay.'],
+      notFinished: ['Bạn bắt đầu rồi, vậy là tính. Giờ bạn muốn làm gì với nó?'],
+      notification: [
+        'Mình ngồi ở cửa với một việc nhỏ, lúc nào bạn tới cũng được.',
+        'Một việc nhỏ đang được ủ ấm ở đây. Không vội.',
+        'Mình giữ sẵn một góc yên cho đúng một việc.',
+      ],
+      flavourText: ['Nhỏ, kiên nhẫn, thích nằm góc nhà. Kỵ nhất một khởi đầu nhẹ nhàng.'],
+    },
+    cheeky: {
+      hatch: ['Coi cái gì vừa chui ra kìa. Mới nở mà đã làm như chủ nhà.'],
+      start: ['Đi thôi. Con quái tự nhiên hết huýt sáo.'],
+      working: [
+        'Tui canh nó. Nó canh lại tui. Huề.',
+        'Con quái đang giả bộ đọc sách. Sách cầm ngược.',
+        'Tui vẽ sơ đồ tác chiến rồi. Chủ yếu là mũi tên.',
+        'Nó mới hỏi bạn đang làm gì. Tui không khai.',
+      ],
+      pickedUp: ['Ơ, bạn nhấc tui lên hả? Nhẹ tay nha, tui đang đứng gác.'],
+      checkIn: ['Trong đó sao rồi? Tui có sẵn một bước nhỏ xíu trong túi nè.'],
+      tinyNextStep: ['Làm cái phần nhỏ nhất bạn thấy được. Phần cà khịa để tui lo.'],
+      twoMinutesLeft: ['Còn hai phút. Con quái đang xếp cái túi bé xíu.'],
+      timeUp: ['Hết giờ. Nó kẹt trong góc rồi, nó biết luôn. Giữ nút để tóm nó.'],
+      caught: ['Tóm được rồi. Nó đi êm lắm, trừ đoạn phát biểu cảm nghĩ.'],
+      notFinished: ['Bạn bắt đầu rồi, con quái thấy hết. Giờ tính sao với nó đây?'],
+      notification: [
+        'Con quái đang tự ý kê lại bàn ghế. Bắt đầu chút nha?',
+        'Con quái đòi gặp bạn. Tui hứa đại là mười phút.',
+        'Tui canh cái việc. Nó canh túi đồ ăn vặt của nó.',
+      ],
+      flavourText: ['Ở trọ không trả tiền mà ý kiến hơi nhiều. Kỵ nhất một khởi đầu nho nhỏ.'],
+    },
+    unhinged: {
+      hatch: ['NÓ NỞ RỒI. Nó nhìn tui. Tui nhìn nó. Không đứa nào chớp mắt.'],
+      start: ['XUẤT PHÁT. Tui đội cái nón bảo hiểm bé xíu rồi.'],
+      working: [
+        'TUI ĐANG TƯỜNG THUẬT CHO CÁI MUỖNG NGHE. Cái muỗng nghe say sưa.',
+        'Con quái lè lưỡi với tui. Tui lè lại. Hoà.',
+        'Tui xây cái pháo đài bằng không khí. Nó vẫn đứng vững.',
+        'TÌNH HÌNH: bạn đang làm, tui đang rung. Mọi thứ bình thường.',
+      ],
+      pickedUp: ['BẠN NHẤC TUI LÊN. Tui đang đấu mắt dở. Hiệp này con quái thắng.'],
+      checkIn: ['BÁO CÁO: tới đâu rồi? Tui giấu sẵn một bước nhỏ hơn trong má.'],
+      tinyNextStep: ['Làm cái phần bé nhất bạn thấy được. Tui nhảy múa đánh lạc hướng con quái.'],
+      twoMinutesLeft: ['CÒN HAI PHÚT. Con quái đang dọn đồ. Nó có đúng một chiếc vớ.'],
+      timeUp: ['HẾT GIỜ. NÓ KẸT TRONG GÓC RỒI. Giữ nút tóm nó, kẻo tui xông vô rồi thua.'],
+      caught: ['TÓM ĐƯỢC RỒI. Tui báo cho cái muỗng rồi. Cái muỗng rưng rưng.'],
+      notFinished: ['Bạn bắt đầu rồi, con quái thấy hết trơn. Giờ tính sao với nó đây?'],
+      notification: [
+        'CẬP NHẬT: con quái mới học huýt sáo. Mười phút là hết buổi diễn.',
+        'TIN NÓNG: con quái lấy tên nó đặt cho cái ghế. Mười phút?',
+        'TUI ĐANG NHÌN CÁI VIỆC. NÓ NHÌN LẠI. Mười phút, cứu tui.',
+      ],
+      flavourText: ['Lai lịch không rõ. Sở thích: rình và nhai thật to.'],
+    },
+  },
+  plain: {
+    acknowledge: 'Chuyện này nặng thật. Mình sẽ nói ít thôi và ngồi đây với bạn.',
+    working: ['Mình ở ngay đây. Bạn cứ từ từ.', 'Không vội gì cả. Mình vẫn ngồi đây.'],
+    tinyNextStep: 'Ghi ra giấy bước nhỏ đầu tiên, chỉ vậy thôi.',
+    done: 'Xong rồi. Bạn muốn ngồi thêm một lát thì mình vẫn ở đây.',
+    notFinished:
+      'Hôm nay tới đây cũng được. Việc này vẫn nằm yên đó, khi nào bạn sẵn sàng thì mình làm.',
+  },
+  monsterNames: [
+    'Lấp Ló, Người Giữ Chìa Khoá Gầm Bàn',
+    'Tần Ngần, Thủ Kho Của Mấy Việc Dở Dang',
+    'Lò Dò, Khách Trọ Của Góc Nhà',
+  ],
+  monsterTitles: ['Dân nằm góc', 'Thợ rình'],
+  deadline: (attitude, thing, heardAs) =>
+    attitude === 'soft' || attitude === 'plain'
+      ? `Mình nghe có hạn: ${thing}, ${heardAs}.`
+      : `Tui nghe có hạn nha: ${thing}, ${heardAs}.`,
+};

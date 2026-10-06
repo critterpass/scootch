@@ -328,6 +328,9 @@ importers:
       '@scootch/domain':
         specifier: workspace:*
         version: link:../../packages/domain
+      '@scootch/voice':
+        specifier: workspace:*
+        version: link:../../packages/voice
       hono:
         specifier: 'catalog:'
         version: 4.13.13
@@ -453,6 +456,9 @@ importers:
 
   packages/voice:
     dependencies:
+      '@scootch/domain':
+        specifier: workspace:*
+        version: link:../domain
       zod:
         specifier: 'catalog:'
         version: 4.6.5
