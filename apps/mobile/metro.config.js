@@ -4,4 +4,18 @@
 // eslint-disable-next-line @typescript-eslint/no-require-imports -- CommonJS, see above
 const { getSentryExpoConfig } = require('@sentry/react-native/metro');
 
-module.exports = getSentryExpoConfig(__dirname);
+const config = getSentryExpoConfig(__dirname);
+
+// The store app is bundled without the developer screens: the router never sees the `(dev)`
+// routes, so nothing they import (the screen registry, the developer tools) is in the bundle.
+// The developer app and the app device runs install keep them.
+if (process.env.APP_VARIANT === 'prd') {
+  const developerRoutes = /[\\/]src[\\/]app[\\/]\(dev\)[\\/].*/;
+  const blocked = config.resolver.blockList;
+  config.resolver.blockList = [
+    ...(Array.isArray(blocked) ? blocked : blocked ? [blocked] : []),
+    developerRoutes,
+  ];
+}
+
+module.exports = config;

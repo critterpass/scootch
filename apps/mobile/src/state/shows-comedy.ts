@@ -1,4 +1,4 @@
-import type { TaskRow } from '@scootch/domain';
+import type { TaskRow, TodayState } from '@scootch/domain';
 
 import { careGate } from '../api/care-gate';
 
@@ -32,4 +32,20 @@ export function showsComedy(task: CareFlags | null, what: Comedy): boolean {
     return asked && (what === 'joke' || what === 'burst' || what === 'notification');
   }
   return what === 'burst' && task.text !== undefined && careGate(task.text) === 'clear';
+}
+
+/** What the day says about selling: whether it is a crisis day, and whether anything heavy is around. */
+export interface SellingDay {
+  readonly today: Pick<TodayState, 'kind'>;
+  readonly heavyToday: boolean;
+}
+
+/**
+ * The one answer to "may anything be sold today?". "One more", the first offer and every line
+ * Scootch speaks about Plus ask here. Nothing is sold on a crisis day, beside a serious task, or
+ * on a day that held one: finished, set aside, or waiting in the drawer.
+ */
+export function showsSelling(day: SellingDay): boolean {
+  if (day.today.kind === 'crisis' || day.today.kind === 'serious') return false;
+  return !day.heavyToday;
 }

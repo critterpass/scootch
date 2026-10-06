@@ -7,12 +7,19 @@ import { spacing } from '@scootch/tokens';
 import { useT } from '../../i18n/i18n-provider';
 import { useAppearance } from '../../screens/registry/support/forced-variant';
 import { useScreenStyle } from '../../ui/use-screen-style';
+import { FirstOffer } from '../plus/first-offer';
 import { CommandCanvas } from '../reveal/ui/command-canvas';
 import { Dock, KeepFrame } from '../reveal/ui/keep-frame';
 import { SessionText } from '../session/ui/session-text';
 
-import { PIECE_NAMES, worldInks, worldRowCommands } from './world-commands';
-import { inLandingOrder, layoutWorld, ROW_HEIGHT, WORLD_WIDTH } from './world-layout';
+import { PIECE_NAMES, headlandCommands, worldInks, worldRowCommands } from './world-commands';
+import {
+  HEADLAND_HEIGHT,
+  inLandingOrder,
+  layoutWorld,
+  ROW_HEIGHT,
+  WORLD_WIDTH,
+} from './world-layout';
 
 export interface WorldModel {
   readonly pieces: readonly WorldPieceRow[];
@@ -26,6 +33,7 @@ export interface WorldActions {
 }
 
 const SPACE = { width: WORLD_WIDTH, height: ROW_HEIGHT };
+const HEADLAND = { width: WORLD_WIDTH, height: HEADLAND_HEIGHT };
 
 /**
  * The world: everything finished, as a place. Each piece stands where it landed and the ground
@@ -46,7 +54,8 @@ export function WorldScreen({ model, actions }: { model: WorldModel; actions: Wo
     [model.monsters],
   );
   const rows = useMemo(() => Array.from({ length: layout.rows }, (_, row) => row), [layout.rows]);
-  const count = model.pieces.length;
+  // The line counts what was finished; a landmark is not one of those things.
+  const count = layout.placed.length;
   return (
     <KeepFrame
       testID="world"
@@ -56,20 +65,23 @@ export function WorldScreen({ model, actions }: { model: WorldModel; actions: Wo
       closeTestID="world-close"
       scroll={false}
       footer={
-        <Dock
-          quiet={{
-            label: t('world.caught'),
-            hint: t('world.caught.hint'),
-            testID: 'world-open-zoo',
-            onPress: actions.openZoo,
-          }}
-          action={{
-            label: t('world.song'),
-            hint: t('world.song.hint'),
-            testID: 'world-open-record',
-            onPress: actions.openRecord,
-          }}
-        />
+        <>
+          <FirstOffer />
+          <Dock
+            quiet={{
+              label: t('world.caught'),
+              hint: t('world.caught.hint'),
+              testID: 'world-open-zoo',
+              onPress: actions.openZoo,
+            }}
+            action={{
+              label: t('world.song'),
+              hint: t('world.song.hint'),
+              testID: 'world-open-record',
+              onPress: actions.openRecord,
+            }}
+          />
+        </>
       }
     >
       <FlatList
@@ -85,6 +97,19 @@ export function WorldScreen({ model, actions }: { model: WorldModel; actions: Wo
             testID={`world-row-${row}`}
           />
         )}
+        {...(layout.landmarks.length > 0
+          ? {
+              ListHeaderComponent: (
+                <CommandCanvas
+                  commands={headlandCommands(layout, inks)}
+                  space={HEADLAND}
+                  width={width}
+                  label={t('plus.lifetime.landmark')}
+                  testID="world-headland"
+                />
+              ),
+            }
+          : {})}
         {...(count === 0
           ? {
               ListFooterComponent: (

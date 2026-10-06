@@ -1,3 +1,6 @@
+import { readdirSync, readFileSync } from 'node:fs';
+import path from 'node:path';
+
 import { describe, expect, it } from '@jest/globals';
 
 import { DAY_MS, type TaskCreateStartResponse } from '@scootch/domain';
@@ -9,7 +12,7 @@ import seriousFixture from '../../../../../packages/voice/fixtures/task.create.s
 import type { DayStore } from '../../state/day-store';
 import { MORNING, stagedPhone, stagedServer } from '../../state/test/staged-phone';
 
-import { RETURN_CHIPS, stageOf, type Stage } from './one-screen-stage';
+import { RETURN_CHIPS, chargeNoteShows, stageOf, type Stage } from './one-screen-stage';
 
 const stage = (store: DayStore, energyAsked = false): Stage =>
   stageOf({ ...store.getState(), energyAsked });
@@ -110,5 +113,22 @@ describe('back after a long while', () => {
       );
       expect(said).not.toMatch(/\b(ngày|tuần|tháng|bỏ lỡ|lười|chuỗi)\b/i);
     }
+  });
+});
+
+describe('the trial-ends-tomorrow note', () => {
+  it('sits on the waiting screen and on done for today, and never beside a task or a pick', () => {
+    expect(chargeNoteShows('composer')).toBe(true);
+    expect(chargeNoteShows('done')).toBe(true);
+    expect(chargeNoteShows('task_set')).toBe(false);
+    expect(chargeNoteShows('panel')).toBe(false);
+    expect(chargeNoteShows('quiet')).toBe(false);
+    // The session's screens are their own route and never draw it.
+    const session = readdirSync(path.resolve(__dirname, '../session'), { recursive: true })
+      .map(String)
+      .filter((file) => /\.tsx$/.test(file))
+      .map((file) => readFileSync(path.resolve(__dirname, '../session', file), 'utf8'));
+    expect(session.length).toBeGreaterThan(8);
+    expect(session.filter((source) => /ChargeNote|trialEndsTomorrow/.test(source))).toEqual([]);
   });
 });

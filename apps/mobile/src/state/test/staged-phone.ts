@@ -1,8 +1,12 @@
-import type { TaskCreateStartResponse } from '@scootch/domain';
+import type {
+  TaskCreateNameResponse,
+  TaskCreatePackResponse,
+  TaskCreateStartResponse,
+} from '@scootch/domain';
 
 import linesFixture from '../../../../../packages/voice/fixtures/task.create_lines.en.json';
 import startFixture from '../../../../../packages/voice/fixtures/task.create_start.en.json';
-import type { TaskLinesAnswer } from '../../api/scootch-api';
+import type { Judged, TaskLinesAnswer } from '../../api/scootch-api';
 import { createStagedTaskClient } from '../../api/staged-task-client';
 import { openRepositories } from '../../data/repositories';
 import { openTestDatabase, type TestDatabase } from '../../data/test/open-test-database';
@@ -19,11 +23,16 @@ export const ramble = startFixture.request.text;
 /** The server at the network boundary: what each stage answers, and how often it was asked. */
 export interface StagedServer {
   online: boolean;
-  start: TaskCreateStartResponse;
+  start: TaskCreateStartResponse & Judged;
   /** Stage two: answers when the test lets it, or fails. */
   lines: () => Promise<TaskLinesAnswer>;
+  /** Stage two, name first. A server without the route fails it, which is the default here. */
+  name: () => Promise<TaskCreateNameResponse>;
+  pack: (treat: string | null) => Promise<TaskCreatePackResponse>;
   startCalls: number;
   lineCalls: number;
+  nameCalls: number;
+  packCalls: number;
 }
 
 export function stagedServer(changes: Partial<StagedServer> = {}): StagedServer {
@@ -31,8 +40,12 @@ export function stagedServer(changes: Partial<StagedServer> = {}): StagedServer 
     online: true,
     start: recordedStart,
     lines: () => Promise.resolve(recordedLines),
+    name: () => Promise.reject(new Error('no name route')),
+    pack: () => Promise.reject(new Error('no pack route')),
     startCalls: 0,
     lineCalls: 0,
+    nameCalls: 0,
+    packCalls: 0,
     ...changes,
   };
 }
@@ -72,6 +85,14 @@ export async function stagedPhone(server: StagedServer, database?: TestDatabase,
       taskCreateLines: () => {
         server.lineCalls += 1;
         return server.lines();
+      },
+      taskCreateName: () => {
+        server.nameCalls += 1;
+        return server.name();
+      },
+      taskCreatePack: (_continuation, treat) => {
+        server.packCalls += 1;
+        return server.pack(treat ?? null);
       },
     }),
     online: () => Promise.resolve(server.online),

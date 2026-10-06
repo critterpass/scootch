@@ -13,6 +13,8 @@ import type {
 import { openRepositories, type Repositories } from '../data/repositories';
 import type { SurpriseDropRow } from '../data/repositories/surprise-drops';
 
+import { usePlusState } from './plus-context';
+
 /** Everything the person has caught and kept, read from the phone's own tables. */
 export interface Keepsakes {
   /** Every monster, caught or not, so a piece or a bar can find its own. */
@@ -79,7 +81,7 @@ export function useKeepsakes(version: unknown = null): KeepsakesHandle {
   return { keepsakes, chooseDrop };
 }
 
-/** Whether Plus is active. Nothing in this layer knows about purchases: every phone is free. */
+/** Whether Plus is active: what the store last said, through the domain's entitlement rules. */
 export function usePlus(): boolean {
-  return false;
+  return usePlusState().unlocked.plus;
 }

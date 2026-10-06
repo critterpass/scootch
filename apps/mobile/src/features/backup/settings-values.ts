@@ -5,6 +5,9 @@ export const LAST_BACKUP_KEY = 'lastBackupAt';
 /** Left as `1` when "delete everything" could not reach the server, until a retry gets through. */
 export const SERVER_DELETE_PENDING_KEY = 'serverDeletePending';
 
+/** Left as `1` while the last snapshot was too large to upload, until one goes up again. */
+export const BACKUP_TOO_LARGE_KEY = 'backupTooLarge';
+
 /**
  * Small values of this feature's own, kept in the settings key and value table beside the
  * settings fields. The settings repository skips keys it does not know, so these never show up

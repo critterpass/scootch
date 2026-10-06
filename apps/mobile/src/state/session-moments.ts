@@ -1,7 +1,7 @@
 import { isoFromInstant, type LiveSession } from '@scootch/domain';
 
 import type { DayContext } from './day-types';
-import { lineFor } from './lines';
+import { NO_AFTER_LINES, lineFor } from './lines';
 import { contextFor, currentTask } from './session-flow';
 
 const TIMED: readonly string[] = ['running', 'stuck', 'holding'];
@@ -31,7 +31,14 @@ export function turnWorkingLine(ctx: DayContext): void {
 export function closeSession(ctx: DayContext): void {
   const { session } = ctx.memory.state;
   if (session && !OVER.includes(session.phase)) return;
-  ctx.set({ session: null, line: null, burst: null, treat: null, parkedThoughts: [] });
+  ctx.set({
+    session: null,
+    line: null,
+    burst: null,
+    treat: null,
+    parkedThoughts: [],
+    afterLines: NO_AFTER_LINES,
+  });
 }
 
 /**

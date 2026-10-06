@@ -25,8 +25,8 @@ export type OfflineSlot = (typeof offlineSlots)[number];
 export type OfflineLines = Readonly<Record<OfflineSlot, readonly [string, ...string[]]>>;
 
 /**
- * What Scootch says while there is no task to talk about: the first launch, the waiting screen
- * and the quiet end of the day. One fixed line per slot.
+ * What Scootch says while there is no task to talk about: the first launch, the waiting screen,
+ * the quiet end of the day, and the moments around Plus. One fixed line per slot.
  */
 export const noTaskSlots = [
   'hello',
@@ -39,6 +39,15 @@ export const noTaskSlots = [
   'waiting',
   'typing',
   'doneForToday',
+  'plusSheet',
+  'plusOneMore',
+  'plusOffer',
+  'trialStarted',
+  'trialEndsTomorrow',
+  'trialLastDay',
+  'renewalOff',
+  'plusCancelled',
+  'lifetime',
   /** No connection: said on the one screen in place of the usual ask. */
   'offline',
   /** The model is down or slow: Scootch admits it, and the pick is the person's. */
@@ -79,4 +88,14 @@ export type OfflinePack = {
   readonly monsterTitles: readonly [string, ...string[]];
   /** Says a heard date out loud, in the user's own words for the thing and the day. */
   readonly deadline: (attitude: Attitude | 'plain', thing: string, heardAs: string) => string;
+  /**
+   * Announces the next renewal of Plus before it is charged. `day` is the store's renewal day in
+   * the user's words and `price` the store's own price text, or `null` when it is not known.
+   */
+  readonly renewal: (
+    attitude: Attitude,
+    plan: 'monthly' | 'yearly',
+    day: string,
+    price: string | null,
+  ) => string;
 };

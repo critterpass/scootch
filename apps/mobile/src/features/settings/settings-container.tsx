@@ -13,6 +13,8 @@ const PAGES = {
   'finish-with': '/finish-with',
   privacy: '/privacy',
   helplines: '/helplines',
+  // The manage page: what this phone has, and the quiet way to the sheet from there.
+  plus: '/plus/manage',
   'developer-tools': '/developer-tools',
 } as const satisfies Record<string, string>;
 

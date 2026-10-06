@@ -10,21 +10,26 @@ import type { ScootchProps } from '../../art/Scootch';
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { useDispatch, useDrawer, useSession, useToday } from '../../state/day-store-provider';
 import type { DayEvent } from '../../state/day-types';
+import { usePlus } from '../../state/keepsakes';
 import { lineFor, lineWithNoTask } from '../../state/lines';
+import { showsSelling } from '../../state/shows-comedy';
+import { useSurfaceRequest } from '../../state/surface-requests';
 import { useScreenReader } from '../../ui/use-screen-style';
 import { seriousShown } from '../care/serious-shown';
 import type { SpeechPort } from '../composer/speech';
 import { useComposer } from '../composer/use-composer';
-import { dayWords } from '../drawer/day-words';
 import { DrawerSheet } from '../drawer/drawer-sheet';
 import { QuietLink, Stack } from '../dump/dump-panels';
 import { HatchFigure } from '../monster/hatch-figure';
 import { wordsWhileUnscreened } from '../offline/waiting-words';
+import { OneMore } from '../plus/one-more';
+import { PLUS_SHEET_ONE_MORE } from '../plus/routes';
 
 import { composerMood } from './composer-mood';
+import { composerWays } from './composer-ways';
 import { NotNow } from './not-now';
 import { minuteOptions } from './one-screen-panels';
-import { RETURN_CHIPS, stageOf } from './one-screen-stage';
+import { stageOf } from './one-screen-stage';
 import { OneScreenView, type OneScreenShown } from './one-screen-view';
 import { stageShown } from './stage-shown';
 
@@ -60,6 +65,7 @@ export function OneScreen({ speech, warmUp, notificationsRefused }: OneScreenPro
   const router = useRouter();
   const t = useT();
   const screenReader = useScreenReader();
+  const plus = usePlus();
   const network = useNetworkState();
   const [chosenMinutes, setMinutes] = useState<number | null>(null);
   const [treat, setTreat] = useState('');
@@ -92,6 +98,13 @@ export function OneScreen({ speech, warmUp, notificationsRefused }: OneScreenPro
   };
 
   const stage = stageOf({ ...day, drawer, energyAsked: held !== null });
+  const sendComposer = composer.send;
+  // A control or a widget asked for the composer: it opens for typing, or starts listening.
+  useSurfaceRequest('composer', stage.kind === 'composer' && taskCall === 'idle', (request) =>
+    sendComposer(
+      request.listening ? { type: 'toggled', at: Date.now() } : { type: 'keyboard_tapped' },
+    ),
+  );
   const care = stage.kind === 'care';
   useEffect(() => {
     // A crisis day shows nothing of this screen: the care screens take over.
@@ -129,7 +142,16 @@ export function OneScreen({ speech, warmUp, notificationsRefused }: OneScreenPro
       shownLine && ['done', 'caught', 'notFinished'].includes(shownLine.slot)
         ? shownLine.text
         : lineWithNoTask('doneForToday', voice);
-    return <OneScreenView {...frame} mood="asleep" line={said} shown={{ kind: 'done' }} />;
+    // Nothing is sold near something heavy: on such a day the control is not drawn at all.
+    const under = !showsSelling(day) ? null : (
+      <OneMore
+        plus={plus}
+        left={today.kind === 'done_for_today' ? today.startsLeft : 0}
+        onLocked={() => router.push(PLUS_SHEET_ONE_MORE)}
+        onMore={() => send({ type: 'one_more_asked' })}
+      />
+    );
+    return <OneScreenView {...frame} mood="asleep" line={said} shown={{ kind: 'done', under }} />;
   }
 
   const connection = { offline, modelDown: day.modelDown };
@@ -237,21 +259,14 @@ export function OneScreen({ speech, warmUp, notificationsRefused }: OneScreenPro
   }
 
   const { state } = composer;
-  const quiet = state.phase !== 'idle' || taskCall !== 'idle';
+  // After a rejected text nothing is spoken: the composer's own plain words ask for something else.
+  const quiet = state.phase !== 'idle' || taskCall !== 'idle' || notice !== null;
   const slot = state.mode === 'typing' ? 'typing' : warmUp ? 'firstOneThing' : 'waiting';
   const sendChip = (text: string) => {
     composer.send({ type: 'keyboard_tapped' });
     composer.send({ type: 'text_changed', text });
     composer.send({ type: 'send_tapped' });
   };
-  const pickLabel = t('morning.chip.pick');
-  const chips = stage.returning
-    ? RETURN_CHIPS.filter((chip) => chip.id !== 'pick' || stage.canPickForMe).map((chip) =>
-        t(chip.label),
-      )
-    : stage.canPickForMe && !warmUp
-      ? [pickLabel]
-      : [];
   const shown: OneScreenShown = {
     kind: 'composer',
     composer: {
@@ -270,22 +285,15 @@ export function OneScreen({ speech, warmUp, notificationsRefused }: OneScreenPro
         }
       : null,
     notificationsOff: notificationsRefused,
-    ...(chips.length > 0
-      ? {
-          ways: {
-            chips,
-            hint: t('morning.chip.hint'),
-            onChip: (text: string) =>
-              text === pickLabel ? send({ type: 'pick_for_me' }) : sendChip(text),
-            note: stage.note
-              ? t('morning.note', {
-                  thing: stage.note.item.text,
-                  day: dayWords(stage.note.dueDate, localDate, language),
-                })
-              : null,
-          },
-        }
-      : {}),
+    ...composerWays({
+      stage,
+      warmUp,
+      t,
+      language,
+      today: localDate,
+      sendChip,
+      pickForMe: () => send({ type: 'pick_for_me' }),
+    }),
   };
   return (
     <OneScreenView

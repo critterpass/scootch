@@ -48,6 +48,7 @@ export const viCareAndSettings = {
   'settings.language.choose.hint': 'Scootch sẽ dùng ngôn ngữ này',
   'settings.helplines': 'Đường dây hỗ trợ',
   'settings.helplines.hint': 'Mở các đường dây hỗ trợ ở nước bạn',
+  'settings.plus.hint': 'Mở trang gói của bạn',
   'settings.developerTools': 'Công cụ lập trình',
   'settings.developerTools.hint': 'Mở các màn hình dành cho lập trình viên',
   'settings.supportTool': 'Scootch là công cụ hỗ trợ. Scootch không chẩn đoán hay điều trị ADHD.',
@@ -78,6 +79,8 @@ export const viCareAndSettings = {
   'privacy.export.hint':
     'Ghi một tệp gồm việc, quái vật, đĩa nhạc và cài đặt của bạn, rồi mở bảng chia sẻ',
   'privacy.export.failed': 'Chưa ghi được tệp. Không có gì được gửi đi đâu cả.',
+  'privacy.backup.tooLarge':
+    'Bản sao lưu quá lớn nên chưa giữ được bản dự phòng. Mọi thứ vẫn còn nguyên trên máy này.',
   'privacy.delete.hint': 'Hỏi lại một lần nữa trước khi xoá',
   'privacy.delete.title': 'Xoá tất cả?',
   'privacy.delete.titleEven': 'Xoá tất cả? Cả {name} luôn sao?',

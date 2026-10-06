@@ -12,11 +12,13 @@ strangers is after launch and is not built here. Where the Tables board shows
 a strangers option, leave it out and log it in `docs/undesigned-states.md`.
 
 ### 1. Accounts
+- Status: partly done — aa1a667; server built and tested, no app screens yet, not deployed
 - Do: Sign in with Apple, asked only when opening or joining a table; linked
   to the anonymous token so nothing is lost.
 - Test: signing in keeps the world, cards and drawer.
 
 ### 2. The table
+- Status: partly done — aa1a667; server built and tested, no app screens yet, not deployed
 - Owns: `apps/api/src/tables/`.
 - Do: one Durable Object per table with hibernating WebSockets: up to four
   seats, presence, nudges, reconnection. The timer is a stored end timestamp
@@ -36,12 +38,14 @@ a strangers option, leave it out and log it in `docs/undesigned-states.md`.
   the timer surviving the host leaving.
 
 ### 3. Labels
+- Status: partly done — aa1a667; server built and tested, no app screens yet, not deployed
 - Do: each seat's label is written by the AI as one or two words from the
   task; raw task text never leaves the phone for a table; the user can hide
   their label. A serious task shows no label.
 - Test: no table message contains task text.
 
 ### 4. Lobby and seating
+- Status: partly done — aa1a667; server built and tested, no app screens yet, not deployed
 - Do: join by invite link; friends' open tables; invite through Messages,
   WhatsApp, Mail or a copied link.
 - States: no friend's table open, invite expired, waiting alone. An empty
@@ -49,11 +53,13 @@ a strangers option, leave it out and log it in `docs/undesigned-states.md`.
   that someone will come.
 
 ### 5. At the table
+- Status: partly done — aa1a667; server built and tested, no app screens yet, not deployed
 - Do: four critters acting out their work modes; silent nudges; wrap-up where
   each marks done or not.
 - States: waiting alone, someone leaves, nudge received.
 
 ### 6. Seat controls
+- Status: partly done — aa1a667; server built and tested, no app screens yet, not deployed
 - Do: an invite link can be forwarded, so a seat may hold someone the user
   does not know. Long-press a seat for mute, report and leave; three nudges per person
   per session; reports reach the Telegram bot with Dismiss, Warn and Ban
@@ -61,10 +67,12 @@ a strangers option, leave it out and log it in `docs/undesigned-states.md`.
 - Test: a banned id cannot join; the reported person is never told.
 
 ### 7. Friend pass
+- Status: partly done — aa1a667; server built and tested, no app screens yet, not deployed
 - Do: a Plus host covers up to three free friends at their table; opening a
   table is the Plus control; the guest sees no price.
 
 ### 8. Haunt a friend
+- Status: partly done — aa1a667; server built and tested, no app screens yet, not deployed
 - Do: send a monster with a preset dare; friends only; one per friend per
   week; catch it (becomes today's one thing) or shoo it; the sender is never
   told; "can be haunted" switch; never for a serious task.

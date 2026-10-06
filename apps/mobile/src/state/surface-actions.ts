@@ -1,4 +1,4 @@
-import type { DayContext, SurfaceActionKind } from './day-types';
+import type { DayContext, SurfaceActionKind, SurfaceRequest } from './day-types';
 import { applySession, currentTask, setSession } from './session-flow';
 
 /** The session a control or the Action button starts. */
@@ -55,4 +55,22 @@ export function noticePickUp(ctx: DayContext): void {
   const { lines } = task;
   if (lines === null || !('pickedUp' in lines)) return;
   ctx.set({ line: { slot: 'working', text: lines.pickedUp } });
+}
+
+export type RequestOf<K extends SurfaceRequest['kind']> = Extract<
+  SurfaceRequest,
+  { readonly kind: K }
+>;
+
+/**
+ * Hands a screen each request of its own kind once. A request is the object the store set: the
+ * same one seen again (a second render, the screen coming back) is not handed over twice.
+ */
+export function createRequestTaker<K extends SurfaceRequest['kind']>(kind: K) {
+  let last: SurfaceRequest | null = null;
+  return (request: SurfaceRequest | null): RequestOf<K> | null => {
+    if (request === null || request.kind !== kind || request === last) return null;
+    last = request;
+    return request as RequestOf<K>;
+  };
 }

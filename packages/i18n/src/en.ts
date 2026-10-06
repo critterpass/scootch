@@ -1,11 +1,11 @@
 import { enCareAndSettings } from './en-care-and-settings';
+import { enPlus } from './en-plus';
 
 /**
  * English interface strings, and the source of the key set. Lines Scootch speaks never go here.
  */
 export const en = {
   'brand.name': 'Scootch',
-  'brand.plus': 'Plus',
 
   'talk.hold': 'Hold to talk',
   'talk.parkThought': 'Park a thought',
@@ -166,7 +166,6 @@ export const en = {
 
   'keep.close': 'Close',
   'keep.close.hint': 'Goes back',
-  'keep.plusOnly.hint': 'Part of Scootch Plus',
 
   'reveal.skip': 'Skip',
   'reveal.skip.hint': 'Moves on to the next thing',
@@ -318,4 +317,5 @@ export const en = {
   'morning.note': '{thing} is due {day}.',
 
   ...enCareAndSettings,
+  ...enPlus,
 } as const;

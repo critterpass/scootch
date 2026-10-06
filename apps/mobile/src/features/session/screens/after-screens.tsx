@@ -62,6 +62,8 @@ export function MomentScreen({ model, actions, inks, t }: ScreenProps) {
 /** The treat named before starting, handed over with ceremony. One tap claims it; one tap skips. */
 export function TreatScreen({ model, actions, inks, t }: ScreenProps) {
   const treat = model.view.kind === 'treat' ? model.view.treat : '';
+  // The task's own ceremony line when its pack has one; otherwise what was last said, as before.
+  const said = model.treatLine ?? model.line?.text ?? null;
   return (
     <SessionFrame
       inks={inks}
@@ -101,11 +103,11 @@ export function TreatScreen({ model, actions, inks, t }: ScreenProps) {
       <SessionText face="headline" color={inks.ink} testID="session-treat-name">
         {treat}
       </SessionText>
-      {model.line ? (
+      {said === null ? null : (
         <SessionText face="body" color={inks.muted} testID="session-treat-line">
-          {model.line.text}
+          {said}
         </SessionText>
-      ) : null}
+      )}
     </SessionFrame>
   );
 }

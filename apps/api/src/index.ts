@@ -3,6 +3,9 @@ import { runDailyJobs } from './bot/daily';
 import type { Bindings } from './env';
 import * as routes from './routes/index.generated';
 
+// The Durable Object class `wrangler.jsonc` binds as TABLE.
+export { TableObject } from './tables/table-object';
+
 const app = createApp(Object.values(routes));
 
 export default {

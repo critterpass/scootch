@@ -29,7 +29,7 @@ const LANGUAGE_LABELS = { en: 'English', vi: 'Tiếng Việt' } as const;
 
 /** `8:30` for `08:30`, as the design writes the quiet hours. */
 export function shortClock(time: ClockTime): string {
-  return time.replace(/^0(\d)/, '$1');
+  return time.replace(/^0(?=\d)/, '');
 }
 
 export interface SettingsPageProps {
@@ -41,7 +41,9 @@ export interface SettingsPageProps {
   readonly developerTools: boolean;
   readonly onChange: (changes: Partial<Omit<SettingsRow, 'id'>>) => void;
   readonly onLanguage: (language: Language | null) => void;
-  readonly onOpen: (page: 'finish-with' | 'privacy' | 'helplines' | 'developer-tools') => void;
+  readonly onOpen: (
+    page: 'finish-with' | 'privacy' | 'helplines' | 'plus' | 'developer-tools',
+  ) => void;
   readonly onClose: () => void;
 }
 
@@ -208,9 +210,9 @@ export function SettingsPage(props: SettingsPageProps) {
             ))
           : null}
         <Row
-          inert
           label={t('brand.plus')}
-          hint={t('oneScreen.notOpenYet')}
+          hint={t('settings.plus.hint')}
+          onPress={() => onOpen('plus')}
           testID="settings-plus"
         />
         <Row

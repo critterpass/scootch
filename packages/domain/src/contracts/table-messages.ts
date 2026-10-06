@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { workModeSchema } from './art';
 import { sessionMinutesSchema } from './common';
 
 /**
@@ -17,7 +18,16 @@ export const TABLE_LABEL_MAX_LENGTH = 24;
 export const TABLE_PING = 'ping';
 export const TABLE_PONG = 'pong';
 
-export const TABLE_CLOSE_CODES = { left: 1000, replaced: 4001, tableFull: 4409 } as const;
+export const TABLE_CLOSE_CODES = {
+  left: 1000,
+  replaced: 4001,
+  /** No seat for this person here: never admitted, removed, or the table has closed. */
+  notSeated: 4403,
+  tableFull: 4409,
+} as const;
+
+/** The longest display name shown on a seat. */
+export const TABLE_NAME_MAX_LENGTH = 20;
 
 export const tableUserIdSchema = z.string().min(1).max(64);
 export const tableLabelSchema = z.string().max(TABLE_LABEL_MAX_LENGTH);
@@ -41,6 +51,18 @@ export const tableLabelMessageSchema = z.object({
   label: tableLabelSchema,
 });
 
+/**
+ * What the sender is doing, as a work mode id and nothing else. The server turns the id into the
+ * one or two words the others see. `null` shows no label (a serious or unscreened task);
+ * `hidden` shows "busy" whatever the mode. A server may refuse `label` messages and accept only
+ * this one, so that no words typed on a phone can reach a table.
+ */
+export const tableWorkModeMessageSchema = z.strictObject({
+  type: z.literal('mode'),
+  workMode: workModeSchema.nullable(),
+  hidden: z.boolean(),
+});
+
 /** Give up the seat at once; the server closes with `TABLE_CLOSE_CODES.left`. */
 export const tableLeaveMessageSchema = z.object({ type: z.literal('leave') });
 
@@ -48,6 +70,7 @@ export const tableClientMessageSchema = z.discriminatedUnion('type', [
   tableStartMessageSchema,
   tableNudgeMessageSchema,
   tableLabelMessageSchema,
+  tableWorkModeMessageSchema,
   tableLeaveMessageSchema,
 ]);
 export type TableClientMessage = z.infer<typeof tableClientMessageSchema>;
@@ -58,6 +81,8 @@ export type TableClientMessage = z.infer<typeof tableClientMessageSchema>;
 export const tableSeatSchema = z.object({
   userId: tableUserIdSchema,
   label: tableLabelSchema,
+  /** The person's display name, when the server sends one. */
+  name: z.string().min(1).max(TABLE_NAME_MAX_LENGTH).optional(),
   online: z.boolean(),
   nudgesLeft: z.number().int().min(0).max(TABLE_MAX_NUDGES),
 });
@@ -110,6 +135,10 @@ export const tableErrorCodeSchema = z.enum([
   'not_seated',
   'bad_message',
   'unknown_type',
+  /** A `label` message, or any other attempt to send words for a label. */
+  'label_text_refused',
+  /** The table has closed, or this person's seat was taken away. */
+  'seat_removed',
 ]);
 export type TableErrorCode = z.infer<typeof tableErrorCodeSchema>;
 

@@ -13,8 +13,10 @@ import { ScootchSays } from '../../ui/scootch-says';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { ComposerView, type ComposerViewProps } from '../composer/composer-view';
 import { StepDots } from '../launch/launch-page';
+import { ChargeNote } from '../plus/charge-note';
 
 import { Corners } from './one-screen-corners';
+import { chargeNoteShows } from './one-screen-stage';
 import { Chips, TaskSetChoices, WorldRow, type TaskSetChoicesProps } from './one-screen-panels';
 
 const HEARD_SIZE = 22;
@@ -65,7 +67,11 @@ export type OneScreenShown =
       readonly body: ReactNode;
       readonly footer: ReactNode;
     }
-  | { readonly kind: 'done' }
+  | {
+      readonly kind: 'done';
+      /** Drawn under the world row: "One more". */
+      readonly under?: ReactNode;
+    }
   /** Nothing is asked and nothing is offered. */
   | { readonly kind: 'quiet' };
 
@@ -197,7 +203,12 @@ export function OneScreenView({
       </GlassSurface>
     );
   } else if (shown.kind === 'done') {
-    footer = onWorld ? <WorldRow onPress={onWorld} /> : null;
+    footer = onWorld ? (
+      <>
+        <WorldRow onPress={onWorld} />
+        {shown.under}
+      </>
+    ) : null;
   } else if (shown.kind === 'panel') {
     body = shown.body;
     footer = shown.footer;
@@ -243,6 +254,8 @@ export function OneScreenView({
             </>
           )}
           {body}
+          {/* Said beside nothing else: never during a task, a pick or a hatch. */}
+          {chargeNoteShows(shown.kind) ? <ChargeNote /> : null}
         </ScrollView>
         {footer === null ? null : <View style={styles.footer}>{footer}</View>}
       </KeyboardAvoidingView>

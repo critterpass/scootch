@@ -5,6 +5,7 @@ import { RecordScreen } from '../../record/record-screen';
 import { ARM_REST_DEG } from '../../record/record-audio';
 import { weekView } from '../../record/record-week';
 import { SharePanel } from '../../share/share-panel';
+import { lighthousePiece } from '../../world/landmarks';
 import { WorldScreen } from '../../world/world-screen';
 import { cardDataFor, zooCards } from '../../zoo/zoo-cards';
 import { ZooScreen } from '../../zoo/zoo-screen';
@@ -14,6 +15,7 @@ import type { RevealStep } from '../reveal-steps';
 
 import {
   asRows,
+  FIXTURE_MONDAY,
   fixtureBars,
   fixtureMonster,
   fixtureMonsters,
@@ -54,10 +56,14 @@ function capturedReveal(step: RevealStep, language: Language) {
   return <RevealScreen model={model} actions={NO_REVEAL_ACTIONS} />;
 }
 
-function capturedWorld(count: number) {
+function capturedWorld(count: number, lighthouse = false) {
+  const pieces = fixturePieces(count);
   return (
     <WorldScreen
-      model={{ pieces: fixturePieces(count), monsters: asRows(fixtureMonsters(count)) }}
+      model={{
+        pieces: lighthouse ? [...pieces, lighthousePiece(FIXTURE_MONDAY)] : pieces,
+        monsters: asRows(fixtureMonsters(count)),
+      }}
       actions={{ close: nothing, openZoo: nothing, openRecord: nothing }}
     />
   );
@@ -139,7 +145,7 @@ export function Captured({ capture, language }: { capture: KeepCapture; language
     case 'reveal':
       return capturedReveal(capture.step, language);
     case 'world':
-      return capturedWorld(capture.pieces);
+      return capturedWorld(capture.pieces, capture.lighthouse);
     case 'zoo':
       return capturedZoo(language, {
         count: capture.cards,
