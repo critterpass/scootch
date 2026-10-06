@@ -1,0 +1,202 @@
+# Maestro flows on GitHub-hosted runners: an Android emulator on Linux by default, an iOS simulator
+# on macOS when the behaviour is iOS-only. See e2e/README.md.
+#
+# No run needs a new native build for a JavaScript change: the job exports this commit's JavaScript
+# (Hermes bytecode, with the commit inlined as EXPO_PUBLIC_JS_COMMIT) and swaps it into the
+# `e2e-test` build named by `build_url`, which has over-the-air updates off. The first flow of every
+# run reads the commit back from the app.
+#
+# Results (JUnit, Maestro output, failure screenshots, captured screens) are one run artifact, and
+# one pull request comment when `pr` is set. Nothing is ever committed or pushed.
+name: device
+run-name: >-
+  ${{ format('device {0} · {1}{2} · {3} · {4}', inputs.mode, github.ref_name,
+  inputs.pr && format(' · #{0}', inputs.pr) || '', inputs.platform, inputs.flows) }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: android (the default device) or ios (iOS-only behaviour)
+        type: choice
+        options: [android, ios]
+        default: android
+      build_url:
+        description: The e2e-test build to install (.apk for Android, simulator .tar.gz for iOS)
+        type: string
+        required: true
+      flows:
+        description: A folder or file under e2e/
+        type: string
+        default: e2e/fresh
+      mode:
+        description: run (pass or fail) or capture (also keeps every takeScreenshot image)
+        type: choice
+        options: [run, capture]
+        default: run
+      pr:
+        description: Pull request number to comment on (optional)
+        type: string
+        default: ''
+
+# Dispatching the same flows on the same branch again replaces the older run.
+concurrency:
+  group: device-${{ github.ref_name }}-${{ inputs.platform }}-${{ inputs.mode }}-${{ inputs.flows }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  MAESTRO_VERSION: 2.0.10
+
+jobs:
+  android:
+    name: android
+    if: inputs.platform == 'android'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    outputs:
+      js_commit: ${{ steps.settings.outputs.js_commit }}
+      artifact_url: ${{ steps.artifact.outputs.artifact-url }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Check the inputs
+        id: settings
+        env:
+          PLATFORM: ${{ inputs.platform }}
+          BUILD_URL: ${{ inputs.build_url }}
+          FLOWS: ${{ inputs.flows }}
+          MODE: ${{ inputs.mode }}
+          PR: ${{ inputs.pr }}
+        run: tools/scripts/device-check-inputs.sh
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with: { node-version: 24, cache: pnpm }
+      - uses: actions/setup-java@v6
+        with: { distribution: temurin, java-version: 17 }
+      - run: pnpm install --frozen-lockfile
+      - name: Export this commit's JavaScript
+        env:
+          JS_COMMIT: ${{ steps.settings.outputs.js_commit }}
+        run: tools/scripts/device-export-bundle.sh android "$RUNNER_TEMP/bundle" "$JS_COMMIT"
+      - name: Swap it into the e2e-test APK
+        env:
+          BUILD_URL: ${{ inputs.build_url }}
+        run: |
+          curl -fsSL --retry 3 -o "$RUNNER_TEMP/e2e-test.apk" "$BUILD_URL"
+          tools/scripts/device-patch-android-apk.sh "$RUNNER_TEMP/e2e-test.apk" \
+            "$RUNNER_TEMP/bundle/index.android.bundle" "$RUNNER_TEMP/app.apk"
+      - name: Install Maestro
+        run: |
+          curl -fsSL https://get.maestro.mobile.dev | bash
+          "$HOME/.maestro/bin/maestro" --version
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Run the flows
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          FLOWS: ${{ inputs.flows }}
+          MODE: ${{ inputs.mode }}
+          JS_COMMIT: ${{ steps.settings.outputs.js_commit }}
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_7
+          cores: 4
+          disk-size: 6000M
+          ram-size: 4096M
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -no-snapshot -no-metrics
+          disable-animations: true
+          # The emulator connects to an adb server that is already running, instead of racing to start one.
+          pre-emulator-launch-script: adb start-server
+          script: tools/scripts/device-android.sh "$RUNNER_TEMP/app.apk" "$RUNNER_TEMP/out" "$FLOWS"
+      - uses: actions/upload-artifact@v7
+        id: artifact
+        if: always()
+        with:
+          name: device-android-${{ github.run_id }}
+          path: ${{ runner.temp }}/out
+          retention-days: 14
+
+  ios:
+    name: ios
+    if: inputs.platform == 'ios'
+    # GitHub gives every workflow of the account a handful of macOS runners: one job, no matrix.
+    runs-on: macos-26
+    timeout-minutes: 60
+    outputs:
+      js_commit: ${{ steps.settings.outputs.js_commit }}
+      artifact_url: ${{ steps.artifact.outputs.artifact-url }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Check the inputs
+        id: settings
+        env:
+          PLATFORM: ${{ inputs.platform }}
+          BUILD_URL: ${{ inputs.build_url }}
+          FLOWS: ${{ inputs.flows }}
+          MODE: ${{ inputs.mode }}
+          PR: ${{ inputs.pr }}
+        run: tools/scripts/device-check-inputs.sh
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with: { node-version: 24, cache: pnpm }
+      - uses: actions/setup-java@v6
+        with: { distribution: temurin, java-version: 17 }
+      - run: pnpm install --frozen-lockfile
+      - name: Export this commit's JavaScript
+        env:
+          JS_COMMIT: ${{ steps.settings.outputs.js_commit }}
+        run: tools/scripts/device-export-bundle.sh ios "$RUNNER_TEMP/bundle" "$JS_COMMIT"
+      - name: Install Maestro
+        run: |
+          curl -fsSL https://get.maestro.mobile.dev | bash
+          "$HOME/.maestro/bin/maestro" --version
+      - name: Run the flows
+        env:
+          BUILD_URL: ${{ inputs.build_url }}
+          FLOWS: ${{ inputs.flows }}
+          MODE: ${{ inputs.mode }}
+          JS_COMMIT: ${{ steps.settings.outputs.js_commit }}
+        run: tools/scripts/device-ios.sh "$BUILD_URL" "$RUNNER_TEMP/bundle" "$RUNNER_TEMP/out" "$FLOWS"
+      - uses: actions/upload-artifact@v7
+        id: artifact
+        if: always()
+        with:
+          name: device-ios-${{ github.run_id }}
+          path: ${{ runner.temp }}/out
+          retention-days: 14
+
+  comment:
+    name: comment on the pull request
+    needs: [android, ios]
+    if: always() && inputs.pr != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        # A run that stopped before its flows has no artifact; the comment says so.
+        continue-on-error: true
+        with:
+          name: device-${{ inputs.platform }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/out
+      - name: Comment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PLATFORM: ${{ inputs.platform }}
+          MODE: ${{ inputs.mode }}
+          PR: ${{ inputs.pr }}
+          JS_COMMIT: ${{ needs.android.outputs.js_commit || needs.ios.outputs.js_commit }}
+          JOB_STATUS: ${{ (needs.android.result == 'success' || needs.ios.result == 'success') && 'passed' || 'failed' }}
+          ARTIFACT_URL: ${{ needs.android.outputs.artifact_url || needs.ios.outputs.artifact_url }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: tools/scripts/device-pr-comment.sh "$PR" "$RUNNER_TEMP/out"
