@@ -9,13 +9,22 @@ export class ApiClientError extends Error {
   /** The server said the same request may succeed if sent again. */
   readonly retryable: boolean;
   readonly status: number | null;
+  /** The fixed word a rule's refusal carries (`detail.reason`), or `null`. Never a person's words. */
+  readonly reason: string | null;
 
-  constructor(code: ApiErrorCode, retryable: boolean, status: number | null, message: string) {
+  constructor(
+    code: ApiErrorCode,
+    retryable: boolean,
+    status: number | null,
+    message: string,
+    reason: string | null = null,
+  ) {
     super(message);
     this.name = 'ApiClientError';
     this.code = code;
     this.retryable = retryable;
     this.status = status;
+    this.reason = reason;
   }
 }
 
@@ -25,8 +34,9 @@ export function errorFromResponse(status: number, body: unknown): ApiClientError
   if (!wire.success) {
     return new ApiClientError('internal', false, status, `The server answered ${status}`);
   }
-  const { code, retryable, message } = wire.data.error;
-  return new ApiClientError(code, retryable, status, message);
+  const { code, retryable, message, detail } = wire.data.error;
+  const reason = typeof detail?.['reason'] === 'string' ? detail['reason'] : null;
+  return new ApiClientError(code, retryable, status, message, reason);
 }
 
 export function asApiError(error: unknown): ApiClientError {

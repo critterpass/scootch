@@ -1,5 +1,6 @@
 import { enCareAndSettings } from './en-care-and-settings';
 import { enPlus } from './en-plus';
+import { enTogether } from './en-together';
 
 /**
  * English interface strings, and the source of the key set. Lines Scootch speaks never go here.
@@ -318,4 +319,5 @@ export const en = {
 
   ...enCareAndSettings,
   ...enPlus,
+  ...enTogether,
 } as const;

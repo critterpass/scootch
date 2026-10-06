@@ -32,6 +32,7 @@ import {
   systemClock,
   systemTimers,
 } from '../effects/native-adapters';
+import { purchaseStateOf } from '../features/plus/entitlement';
 import { revenueCatPurchases } from '../features/plus/revenuecat-port';
 import {
   nativeSharedFiles,
@@ -50,6 +51,7 @@ import { PlusContext } from './plus-context';
 import { createPlusRuntime, readOfferFacts } from './plus-runtime';
 import { stepDown } from './session-flow';
 import { SessionRelaunch } from './session-relaunch';
+import { TogetherContext, createTogetherRuntime, nativeSocket } from './together-context';
 
 export { useDataTools } from './data-tools';
 
@@ -121,7 +123,18 @@ function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
     now: () => systemClock.now(),
     timeZone,
   });
-  return { store, motion, cues, data, surfaces, plus };
+  // Tables, friends and haunts: the same device token, and one connection to one table.
+  const together = createTogetherRuntime({
+    http,
+    baseUrl: apiBaseUrl(),
+    token: () => keychainTokenStore.read(),
+    open: nativeSocket,
+    timers: systemTimers,
+    runner,
+    purchase: () => purchaseStateOf(plus.store.getState().customer),
+    now: () => systemClock.now(),
+  });
+  return { store, motion, cues, data, surfaces, plus, together };
 }
 
 const DayStoreContext = createContext<DayStore | null>(null);
@@ -139,7 +152,7 @@ export function DayStoreProvider({ children }: { readonly children: ReactNode })
   const [app] = useState(() => createAppDayStore(db, () => languageNow.current));
 
   useEffect(() => {
-    const { store, motion, cues, data, plus } = app;
+    const { store, motion, cues, data, plus, together } = app;
     const send = (event: DayEvent) => void store.dispatch(event).catch(() => undefined);
     // What was last known about Plus is read before today is built, so the daily limit is right
     // with no connection; the store is asked afterwards and on every return to the app.
@@ -168,6 +181,8 @@ export function DayStoreProvider({ children }: { readonly children: ReactNode })
         send({ type: 'app_foregrounded' });
         void plus.refresh();
         void data.keepUp();
+        // A table line that dropped in the background is tried at once; the seat was held.
+        together.table.wake();
       }
       if (next === 'background') send({ type: 'app_backgrounded' });
     });
@@ -199,9 +214,11 @@ export function DayStoreProvider({ children }: { readonly children: ReactNode })
       <PlusContext.Provider value={app.plus}>
         <CueContext.Provider value={playCue}>
           <DataToolsContext.Provider value={app.data}>
-            <SessionRelaunch store={app.store} />
-            <SurfaceSyncHost store={app.store} sync={app.surfaces} />
-            {children}
+            <TogetherContext.Provider value={app.together}>
+              <SessionRelaunch store={app.store} />
+              <SurfaceSyncHost store={app.store} sync={app.surfaces} />
+              {children}
+            </TogetherContext.Provider>
           </DataToolsContext.Provider>
         </CueContext.Provider>
       </PlusContext.Provider>

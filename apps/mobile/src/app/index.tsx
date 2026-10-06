@@ -5,6 +5,7 @@ import { colors } from '@scootch/tokens';
 
 import { RestoreGate } from '../features/backup/restore-offer';
 import { nativeSpeech } from '../features/composer/speech';
+import { HauntArrival } from '../features/haunt/haunt-containers';
 import { FirstLaunch } from '../features/launch/first-launch';
 import { firstLaunchPending, type LaunchOutcome } from '../features/launch/launch-machine';
 import { OneScreen } from '../features/one-screen/one-screen';
@@ -32,10 +33,13 @@ export default function Home() {
     );
   }
   return (
-    <OneScreen
-      speech={speech}
-      warmUp={arrival !== null}
-      notificationsRefused={arrival?.notifications === 'refused'}
-    />
+    <>
+      <HauntArrival />
+      <OneScreen
+        speech={speech}
+        warmUp={arrival !== null}
+        notificationsRefused={arrival?.notifications === 'refused'}
+      />
+    </>
   );
 }

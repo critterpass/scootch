@@ -1,7 +1,9 @@
 import { Redirect, useRouter } from 'expo-router';
 import { useEffect } from 'react';
+import { View } from 'react-native';
 
 import { SessionScreen } from '../features/session/session-screen';
+import { TableStrip } from '../features/table/table-strip';
 import { useSessionScreen } from '../features/session/use-session-screen';
 import { useDispatch, useToday } from '../state/day-store-provider';
 
@@ -27,5 +29,11 @@ export default function SessionRoute() {
   }, [over, dispatch, router]);
 
   if (crisis) return <Redirect href="/care" />;
-  return <SessionScreen model={model} actions={actions} />;
+  // At a table, the session is the same session with the table's critters in a strip above it.
+  return (
+    <View style={{ flex: 1 }}>
+      <TableStrip />
+      <SessionScreen model={model} actions={actions} />
+    </View>
+  );
 }
