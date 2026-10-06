@@ -16,6 +16,10 @@ export const enTogether = {
   'account.name.unchecked': 'The name couldn’t be checked just now. Try once more.',
   'account.section': 'Account',
   'account.signedIn': 'Signed in for tables',
+  'account.signOut': 'Sign out',
+  'account.signOut.hint':
+    'Signs this phone out of tables and gives up your seat. Everything else stays on the phone.',
+  'account.signOut.failed': 'You’re still signed in. Try once more when you’re online.',
   'account.delete': 'Delete my account',
   'account.delete.hint': 'Asks first. Deletes the account along with everything else.',
 

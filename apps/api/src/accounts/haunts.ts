@@ -18,9 +18,6 @@ export const hauntDares = [
 ] as const;
 export type HauntDare = (typeof hauntDares)[number];
 
-/** A monster seed as a haunt carries it: hexadecimal or a UUID, never words. */
-export const hauntSeedPattern = /^[0-9a-f-]{8,64}$/;
-
 /** One haunt per friend in this long. */
 export const hauntEveryMs = 7 * 24 * 60 * 60 * 1000;
 

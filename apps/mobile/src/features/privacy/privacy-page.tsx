@@ -23,6 +23,8 @@ export interface PrivacyPageProps {
   readonly onKeepTranscripts: (keep: boolean) => void;
   readonly onExport: () => void;
   readonly onAskDelete: () => void;
+  /** Signs this phone out of the account; the row is drawn only with an account. */
+  readonly onSignOut?: () => void;
   readonly onClose: () => void;
 }
 
@@ -88,6 +90,14 @@ export function PrivacyPage(props: PrivacyPageProps) {
             {...(props.accountName === null ? {} : { value: props.accountName })}
             testID="privacy-account"
           />
+          {props.onSignOut === undefined ? null : (
+            <Row
+              label={t('account.signOut')}
+              hint={t('account.signOut.hint')}
+              onPress={props.onSignOut}
+              testID="privacy-sign-out"
+            />
+          )}
           <Row
             danger
             label={t('account.delete')}

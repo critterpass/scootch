@@ -1,8 +1,9 @@
 import { screenVerdictSchema } from '../../../../packages/domain/src/contracts/common';
+import { hauntSeedSchema } from '../../../../packages/domain/src/contracts/haunt';
 import { z } from 'zod';
 
 import { requireAccount } from '../accounts/accounts';
-import { hauntDares, hauntSeedPattern, sendHaunt } from '../accounts/haunts';
+import { hauntDares, sendHaunt } from '../accounts/haunts';
 import { accountIdPattern, refusal } from '../accounts/ids';
 import { readBody, type RouteDefinition } from '../route';
 import { monsterBodyTypeSchema } from '../tables/table-contract';
@@ -14,7 +15,7 @@ import { monsterBodyTypeSchema } from '../tables/table-contract';
 const sendHauntRequestSchema = z.strictObject({
   to: z.string().regex(accountIdPattern),
   bodyType: monsterBodyTypeSchema,
-  seed: z.string().regex(hauntSeedPattern),
+  seed: hauntSeedSchema,
   dare: z.enum(hauntDares),
   anonymous: z.boolean().default(false),
   screen: screenVerdictSchema,

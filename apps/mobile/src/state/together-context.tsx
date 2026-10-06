@@ -20,6 +20,12 @@ export interface TogetherRuntime {
   readonly table: TableStore;
   /** The purchase state the phone reports when it opens or joins a table. */
   readonly purchaseState: () => PurchaseState;
+  /**
+   * Signs this phone out of its account and lets go of any table. Nothing else on the phone is
+   * touched: the day, the world and the drawer never belonged to the account. When the server
+   * cannot be reached nothing changes, and the promise rejects.
+   */
+  readonly signOut: () => Promise<void>;
 }
 
 export interface TogetherRuntimeDeps {
@@ -61,7 +67,12 @@ export function createTogetherRuntime(deps: TogetherRuntimeDeps): TogetherRuntim
     nudgeHaptic: () => deps.runner.run([{ kind: 'haptic', pattern: 'nudge' }], NOTHING_TO_SAY),
     now: deps.now,
   });
-  return { api: createTogetherApi(deps.http), table, purchaseState: deps.purchase };
+  const api = createTogetherApi(deps.http);
+  const signOut = async () => {
+    await api.signOut();
+    table.leave();
+  };
+  return { api, table, purchaseState: deps.purchase, signOut };
 }
 
 const unavailable = () => Promise.reject(new Error('No connection to the together routes here'));
@@ -81,6 +92,7 @@ const NO_RUNTIME: TogetherRuntime = {
     dismissNotice: () => undefined,
   },
   purchaseState: () => 'free',
+  signOut: unavailable,
 };
 
 export const TogetherContext = createContext<TogetherRuntime>(NO_RUNTIME);

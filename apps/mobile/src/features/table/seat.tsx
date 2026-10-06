@@ -12,7 +12,7 @@ import { Words } from './words';
 export interface SeatProps {
   readonly seat: TableSeat;
   readonly yours: boolean;
-  /** The person's own work mode. Other seats arrive as words only, so they sit at work plainly. */
+  /** The work mode drawn: the person's own, or the id the table sent for another seat. */
   readonly workMode?: WorkMode | null;
   readonly chosen?: boolean;
   readonly size?: number;

@@ -10,6 +10,7 @@ import { useTableState, useTogether } from '../../state/together-context';
 
 import { seatControls } from './seat-controls';
 import { SeatSheet } from './seat-sheet';
+import { tableEndsAt } from './table-clock';
 import { TablePage } from './table-page';
 import { TABLE_LOBBY, labelModeFor, tableInviteLink, tableTimer } from './table-rules';
 
@@ -52,8 +53,11 @@ export function TableContainer() {
     if (timer.kind !== 'start' && timer.kind !== 'join_in') return;
     // The table is told when the line is up; the person's own session starts either way.
     if (timer.kind === 'start') table.start(timer.minutes);
+    // Joining in, the session ends when the table's does; the strip keeps it there afterwards.
+    const end = timer.kind === 'join_in' ? tableEndsAt(table.getState(), Date.now()) : null;
     void dispatch({ type: 'session_set', minutes: timer.minutes, treat: null })
       .then(() => dispatch({ type: 'session', event: { type: 'started' } }))
+      .then(() => (end === null ? undefined : dispatch({ type: 'table_clock', endsAt: end })))
       .then(() => router.replace('/session'))
       .catch(() => undefined);
   };

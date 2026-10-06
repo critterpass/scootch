@@ -116,6 +116,8 @@ export interface TogetherApi {
   me(): Promise<AccountView | null>;
   setDisplayName(displayName: string): Promise<AccountView>;
   setCanBeHaunted(canBeHaunted: boolean): Promise<AccountView>;
+  /** Ends the account session on this phone. The server gives up any seat it holds. */
+  signOut(): Promise<void>;
   openTable(purchase: PurchaseState): Promise<string>;
   tableInvite(tableId: string): Promise<{ code: string; expiresAt: string }>;
   joinTable(code: string, purchase: PurchaseState): Promise<string>;
@@ -157,6 +159,7 @@ export function createTogetherApi(http: HttpClient): TogetherApi {
       }),
     setCanBeHaunted: (canBeHaunted) =>
       http.request('PUT', '/v1/accounts/me', { canBeHaunted }, account),
+    signOut: () => http.post('/v1/accounts/sign-out', {}, done),
     openTable: (purchase) => http.post('/v1/tables', { purchase }, tableId),
     tableInvite: (id) => http.post(`/v1/tables/${id}/invites`, {}, invite),
     joinTable: (code, purchase) => http.post('/v1/tables/join', { code, purchase }, tableId),

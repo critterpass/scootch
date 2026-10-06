@@ -185,6 +185,7 @@ describe('the connection and the person’s own session', () => {
     expect(tableTimer(going, { taskSet: true, inSession: false }, 1_000)).toEqual({
       kind: 'join_in',
       minutes: 25,
+      left: 1,
     });
     expect(tableTimer(going, { taskSet: false, inSession: false }, 1_000)).toEqual({
       kind: 'need_task',

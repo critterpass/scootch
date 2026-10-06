@@ -1,4 +1,11 @@
-import { isoFromInstant, type LiveSession } from '@scootch/domain';
+import {
+  checkInAt,
+  isoFromInstant,
+  warningAt,
+  type Instant,
+  type LiveSession,
+  type SessionEffect,
+} from '@scootch/domain';
 
 import type { DayContext } from './day-types';
 import { NO_AFTER_LINES, lineFor } from './lines';
@@ -62,4 +69,41 @@ export async function shortenSession(ctx: DayContext, seconds: number): Promise<
     [{ kind: 'cancel_timer' }, { kind: 'start_timer', until: endsAt }],
     contextFor(ctx, task),
   );
+}
+
+/**
+ * At a table the session ends when the table's clock says: the end of the running session moves
+ * there, in the stored row, the timers and the Live Activity. Its start and its planned length
+ * stay the person's own. A warning or check-in whose moment the new end has already passed is
+ * marked as given, so nothing is said late.
+ */
+export async function followTableClock(ctx: DayContext, endsAt: Instant): Promise<void> {
+  const { session } = ctx.memory.state;
+  const task = currentTask(ctx);
+  const rowId = ctx.memory.sessionRowId;
+  if (!task || !session || !TIMED.includes(session.phase) || rowId === null) return;
+  const live = session as LiveSession;
+  const now = ctx.now();
+  if (live.endsAt === null || live.endsAt === endsAt || endsAt <= now) return;
+
+  const { sessions } = ctx.deps.repositories;
+  const row = await sessions.get(rowId);
+  if (row) await sessions.put({ ...row, endsAt: isoFromInstant(endsAt) });
+  const moved: LiveSession = { ...live, endsAt };
+  const warnAt = warningAt(moved);
+  const checkAt = checkInAt(moved);
+  const next: LiveSession = {
+    ...moved,
+    warned: live.warned || warnAt === null || warnAt <= now,
+    checkedIn: live.checkedIn || checkAt === null || checkAt <= now,
+  };
+  ctx.set({ session: next });
+  const effects: SessionEffect[] = [
+    { kind: 'cancel_timer' },
+    { kind: 'start_timer', until: endsAt },
+    { kind: 'start_live_activity', until: endsAt },
+  ];
+  if (!next.warned && warnAt !== null) effects.push({ kind: 'schedule_warning', at: warnAt });
+  if (!next.checkedIn && checkAt !== null) effects.push({ kind: 'schedule_check_in', at: checkAt });
+  ctx.deps.runner.run(effects, contextFor(ctx, task));
 }

@@ -16,6 +16,10 @@ export const viTogether = {
   'account.name.unchecked': 'Lúc này chưa kiểm tra được tên. Thử lại lần nữa nhé.',
   'account.section': 'Tài khoản',
   'account.signedIn': 'Đã đăng nhập để ngồi bàn',
+  'account.signOut': 'Đăng xuất',
+  'account.signOut.hint':
+    'Đăng xuất khỏi bàn trên máy này và trả lại chỗ ngồi. Mọi thứ khác vẫn ở trên máy.',
+  'account.signOut.failed': 'Bạn vẫn đang đăng nhập. Có mạng rồi thử lại nhé.',
   'account.delete': 'Xoá tài khoản của tôi',
   'account.delete.hint': 'Sẽ hỏi lại trước. Xoá tài khoản cùng mọi thứ khác.',
 

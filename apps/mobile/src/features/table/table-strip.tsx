@@ -1,16 +1,19 @@
+import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import type { TableSeat, WorkMode } from '@scootch/domain';
+import type { LiveSession, TableSeat, WorkMode } from '@scootch/domain';
 import { spacing } from '@scootch/tokens';
 
 import { Scootch } from '../../art/Scootch';
 import { useT } from '../../i18n/i18n-provider';
-import { useToday } from '../../state/day-store-provider';
+import { useDispatch, useSession, useToday } from '../../state/day-store-provider';
 import { useTableState } from '../../state/together-context';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
+import { sharedEnd } from './table-clock';
 import { labelModeFor } from './table-rules';
+import type { TableState } from './table-store';
 import { Words } from './words';
 
 export interface TableStripViewProps {
@@ -40,7 +43,7 @@ export function TableStripView({ seats, you, workMode, reconnecting }: TableStri
           <View key={seat.userId} style={{ opacity: seat.online ? 1 : 0.4 }}>
             <Scootch
               mood="working"
-              workMode={seat.userId === you ? workMode : null}
+              workMode={seat.userId === you ? workMode : seat.workMode}
               reducedMotion={reducedMotion}
               ownLoop={false}
               seed={seat.userId}
@@ -58,11 +61,36 @@ export function TableStripView({ seats, you, workMode, reconnecting }: TableStri
   );
 }
 
+const TIMED: readonly string[] = ['running', 'stuck', 'holding'];
+
+/**
+ * Keeps the person's running session on the table's clock: whenever the table says when its
+ * session ends, the session's own end moves there. With the line down nothing moves.
+ */
+function useTableClock(table: TableState): void {
+  const { session } = useSession();
+  const dispatch = useDispatch();
+  const { status, endsAt, minutes, clockAhead } = table;
+  // Only a session whose timer is counting has an end to move.
+  const timed = session !== null && TIMED.includes(session.phase) ? (session as LiveSession) : null;
+  const startedAt = timed?.startedAt ?? null;
+  const ownEnd = timed?.endsAt ?? null;
+  useEffect(() => {
+    const end = sharedEnd(
+      { status, endsAt, minutes, clockAhead },
+      { startedAt, endsAt: ownEnd },
+      Date.now(),
+    );
+    if (end !== null) void dispatch({ type: 'table_clock', endsAt: end }).catch(() => undefined);
+  }, [status, endsAt, minutes, clockAhead, startedAt, ownEnd, dispatch]);
+}
+
 /** Shown over the session only while the person has a seat at a table. */
 export function TableStrip() {
   const table = useTableState();
   const { today } = useToday();
   const insets = useSafeAreaInsets();
+  useTableClock(table);
   if (table.tableId === null || today.kind === 'crisis') return null;
   return (
     <View style={{ paddingTop: insets.top }}>

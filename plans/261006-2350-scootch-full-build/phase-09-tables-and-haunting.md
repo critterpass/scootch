@@ -12,13 +12,13 @@ strangers is after launch and is not built here. Where the Tables board shows
 a strangers option, leave it out and log it in `docs/undesigned-states.md`.
 
 ### 1. Accounts
-- Status: partly done — aa1a667; server built and tested, no app screens yet, not deployed; app screens built and tested with fakes — 832b891, not yet run on a device
+- Status: partly done — aa1a667; server built and tested, no app screens yet, not deployed; app screens built and tested with fakes — 832b891, not yet run on a device; sign-out added (a server route and a row in Privacy and data), tested on both sides, not yet run on a device
 - Do: Sign in with Apple, asked only when opening or joining a table; linked
   to the anonymous token so nothing is lost.
 - Test: signing in keeps the world, cards and drawer.
 
 ### 2. The table
-- Status: partly done — aa1a667; server built and tested, no app screens yet, not deployed; app screens built and tested with fakes — 832b891, not yet run on a device
+- Status: partly done — aa1a667; server built and tested, no app screens yet, not deployed; app screens built and tested with fakes — 832b891, not yet run on a device; the phone now follows the table's session clock (a late seat gets the time left, its own timer carries on with the line down), tested on both sides, not yet run on a device or on real Cloudflare
 - Owns: `apps/api/src/tables/`.
 - Do: one Durable Object per table with hibernating WebSockets: up to four
   seats, presence, nudges, reconnection. The timer is a stored end timestamp
@@ -38,7 +38,7 @@ a strangers option, leave it out and log it in `docs/undesigned-states.md`.
   the timer surviving the host leaving.
 
 ### 3. Labels
-- Status: partly done — aa1a667; server built and tested, no app screens yet, not deployed; app screens built and tested with fakes — 832b891, not yet run on a device
+- Status: partly done — aa1a667; server built and tested, no app screens yet, not deployed; app screens built and tested with fakes — 832b891, not yet run on a device; each seat also carries its work mode id, hidden with the label, tested
 - Do: each seat's label is written by the AI as one or two words from the
   task; raw task text never leaves the phone for a table; the user can hide
   their label. A serious task shows no label.
@@ -53,7 +53,7 @@ a strangers option, leave it out and log it in `docs/undesigned-states.md`.
   that someone will come.
 
 ### 5. At the table
-- Status: partly done — aa1a667; server built and tested, no app screens yet, not deployed; app screens built and tested with fakes — 832b891, not yet run on a device
+- Status: partly done — aa1a667; server built and tested, no app screens yet, not deployed; app screens built and tested with fakes — 832b891, not yet run on a device; other seats' critters are drawn in their work mode with the idle motion, not yet seen on a device
 - Do: four critters acting out their work modes; silent nudges; wrap-up where
   each marks done or not.
 - States: waiting alone, someone leaves, nudge received.
@@ -72,7 +72,7 @@ a strangers option, leave it out and log it in `docs/undesigned-states.md`.
   table is the Plus control; the guest sees no price.
 
 ### 8. Haunt a friend
-- Status: partly done — aa1a667; server built and tested, no app screens yet, not deployed; app screens built and tested with fakes — 832b891, not yet run on a device
+- Status: partly done — aa1a667; server built and tested, no app screens yet, not deployed; app screens built and tested with fakes — 832b891, not yet run on a device; the seed a haunt carries is now exactly the phone's (a lower-case UUID), one contract for server and app, tested; no entry on the hatch screen or in the drawer yet: the boards draw neither and both screens belong to other work
 - Do: send a monster with a preset dare; friends only; one per friend per
   week; catch it (becomes today's one thing) or shoo it; the sender is never
   told; "can be haunted" switch; never for a serious task.
