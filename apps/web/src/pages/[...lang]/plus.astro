@@ -1,0 +1,67 @@
+---
+import { languagePaths, pagesFor, preLaunch } from '../../copy';
+import SiteLayout from '../../layouts/site-layout.astro';
+
+export const getStaticPaths = languagePaths;
+const language = Astro.params.lang === 'vi' ? 'vi' : 'en';
+const copy = pagesFor(language).plus;
+---
+
+<SiteLayout language={language} path="/plus" title={copy.title} description={copy.description}>
+  <article class="wrap plain plain-wide plus">
+    <p class="eyebrow tomato-text">{copy.eyebrow}</p>
+    <h1>{copy.headline}</h1>
+    <p class="lede">{copy.sub}</p>
+
+    <ul class="plans plus-plans">
+      {
+        copy.plans.map((plan, index) => (
+          <li class={`plan${index === 1 ? ' plan-picked' : ''}`}>
+            <span class="plan-name">{plan.name}</span>
+            <strong>{plan.price}</strong>
+            <span class="plan-detail">{plan.detail}</span>
+            <span class="plan-note">{plan.note}</span>
+          </li>
+        ))
+      }
+    </ul>
+    <p class="small">{copy.priceNote}</p>
+
+    <div class="plain-pair">
+      <section class="panel price-free">
+        <h2>{copy.freeTitle}</h2>
+        <ul class="ticks">
+          {copy.free.map((line) => <li>{line}</li>)}
+        </ul>
+      </section>
+      <section class="panel">
+        <h2>{copy.addsTitle}</h2>
+        <dl class="plain-sections">
+          {
+            copy.adds.map((item) => (
+              <div>
+                <dt>{item.title}</dt>
+                <dd>{item.body}</dd>
+              </div>
+            ))
+          }
+        </dl>
+      </section>
+    </div>
+
+    <section class="panel">
+      <h2>{copy.rulesTitle}</h2>
+      <dl class="plain-sections rules">
+        {
+          copy.rules.map((rule) => (
+            <div>
+              <dt>{rule.title}</dt>
+              <dd>{rule.body}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </section>
+    <p class="plain-note">{preLaunch ? copy.buySoon : copy.buy}</p>
+  </article>
+</SiteLayout>

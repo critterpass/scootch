@@ -1,0 +1,8 @@
+---
+import StoryPage from '../../../components/story-page.astro';
+import { languagePaths } from '../../../copy';
+
+export const getStaticPaths = languagePaths;
+---
+
+<StoryPage language={Astro.params.lang === 'vi' ? 'vi' : 'en'} />

@@ -1,0 +1,38 @@
+---
+import type { Language } from '@scootch/i18n';
+
+import SiteLayout from '../layouts/site-layout.astro';
+
+interface Props {
+  language: Language;
+  path: `/${string}`;
+  page: {
+    title: string;
+    description: string;
+    headline: string;
+    intro: string;
+    sections: readonly { title: string; body: string }[];
+  };
+}
+
+// A plain page: a headline, one paragraph and a list of short sections. No critter, no joke.
+const { language, path, page } = Astro.props;
+---
+
+<SiteLayout language={language} path={path} title={page.title} description={page.description}>
+  <article class="wrap plain">
+    <h1>{page.headline}</h1>
+    {page.intro && <p class="lede">{page.intro}</p>}
+    <dl class="plain-sections">
+      {
+        page.sections.map((section) => (
+          <div>
+            <dt>{section.title}</dt>
+            <dd>{section.body}</dd>
+          </div>
+        ))
+      }
+    </dl>
+    <slot />
+  </article>
+</SiteLayout>

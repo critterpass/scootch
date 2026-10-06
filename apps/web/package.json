@@ -8,7 +8,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "typecheck": "astro check",
-    "test:site": "playwright test -c tests/playwright.config.ts"
+    "bundle:pre-launch": "PUBLIC_PRE_LAUNCH=1 astro build --outDir dist-pre-launch",
+    "test:site": "pnpm run bundle:pre-launch && playwright test -c tests/playwright.config.ts"
   },
   "dependencies": {
     "@astrojs/cloudflare": "catalog:",

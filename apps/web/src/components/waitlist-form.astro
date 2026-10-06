@@ -1,0 +1,62 @@
+---
+import type { Language } from '@scootch/i18n';
+
+import { pagesFor } from '../copy';
+
+interface Props {
+  language: Language;
+  platform?: 'ios' | 'android';
+  /** True when another script starts the form, to hand it the monster the email should carry. */
+  managed?: boolean;
+  intro?: string;
+  submit?: string;
+  note?: string;
+  /** The line after signing up; `{name}` is the monster, when there is one. */
+  done?: string;
+}
+
+const { language, platform = 'ios', managed = false } = Astro.props;
+const copy = pagesFor(language).preLaunch;
+const { intro, submit = copy.submit, note = copy.note, done = copy.done } = Astro.props;
+---
+
+<div
+  class="waitlist"
+  data-waitlist
+  data-managed={managed ? '' : undefined}
+  data-platform={platform}
+  data-language={language}
+  data-done={done}
+  data-done-plain={platform === 'android' ? done : copy.donePlain}
+  data-bad-email={copy.badEmail}
+  data-failed={copy.failed}
+>
+  <div data-waitlist-ask>
+    {intro && <p class="waitlist-intro">{intro}</p>}
+    <form class="maker-form" novalidate>
+      <label class="waitlist-field">
+        <span class="sr-only">{copy.emailLabel}</span>
+        <input
+          type="email"
+          name="email"
+          autocomplete="email"
+          inputmode="email"
+          maxlength="254"
+          placeholder={copy.emailPlaceholder}
+        />
+      </label>
+      <button type="submit" class="button button-ink">{submit}</button>
+    </form>
+    <p class="maker-error" role="alert" data-waitlist-error></p>
+    <p class="small">{note}</p>
+  </div>
+  <p class="waitlist-done" aria-live="polite" tabindex="-1" data-waitlist-done hidden></p>
+</div>
+
+<script>
+  import { startWaitlistForm } from '../scripts/waitlist-form';
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-waitlist]:not([data-managed])')) {
+    startWaitlistForm(root);
+  }
+</script>

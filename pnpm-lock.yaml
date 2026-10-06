@@ -421,6 +421,12 @@ importers:
 
   apps/api:
     dependencies:
+      '@resvg/resvg-wasm':
+        specifier: 2.6.2
+        version: 2.6.2
+      '@scootch/art':
+        specifier: workspace:*
+        version: link:../../packages/art
       '@scootch/domain':
         specifier: workspace:*
         version: link:../../packages/domain
@@ -3026,6 +3032,10 @@ packages:
     peerDependenciesMeta:
       '@types/react':
         optional: true
+
+  '@resvg/resvg-wasm@2.6.2':
+    resolution: {integrity: sha512-FqALmHI8D4o6lk/LRWDnhw95z5eO+eAa6ORjVg09YRR7BkcM6oPHU9uyC0gtQG5vpFLvgpeU4+zEAz2H8APHNw==}
+    engines: {node: '>= 10'}
 
   '@revenuecat/purchases-js-hybrid-mappings@19.5.0':
     resolution: {integrity: sha512-a71RIF17FLcwZXKtzgLBeRTHs8P5ITd+Ty6M4srP7mKKbywr6uAGvAK08HFZCDUkIM492blP1NGtgVJG5NEI0g==}
@@ -9917,6 +9927,8 @@ snapshots:
       react-native: 0.88.0-rc.1(@babel/core@7.29.7(supports-color@10.2.2))(@react-native/metro-config@0.88.0-rc.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.3.0)(supports-color@10.2.2)
     optionalDependencies:
       '@types/react': 19.3.0
+
+  '@resvg/resvg-wasm@2.6.2': {}
 
   '@revenuecat/purchases-js-hybrid-mappings@19.5.0':
     dependencies:
