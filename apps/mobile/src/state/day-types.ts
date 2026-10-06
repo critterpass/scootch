@@ -77,6 +77,8 @@ export type DayEvent =
   | { readonly type: 'working_line_turned' }
   /** The screens are through with an ended session: what was handed over for it is cleared. */
   | { readonly type: 'session_closed' }
+  /** At a table: the running session now ends when the table's clock does, on this phone's clock. */
+  | { readonly type: 'table_clock'; readonly endsAt: number }
   /** Developer tools only: the running session's timer comes due this many seconds from now. */
   | { readonly type: 'developer_session_ends_in'; readonly seconds: number }
   | { readonly type: 'settings_changed'; readonly changes: Partial<Omit<SettingsRow, 'id'>> }

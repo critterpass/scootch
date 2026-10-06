@@ -60,9 +60,11 @@ state is designed or removed.
 | Tables | Waiting alone says the seats are saved | The board promises "Someone always shows up around ten", which is untrue for friends-only tables (product brief, section 11) |
 | Tables | No line from Scootch at a table; plain captions for a full table, a seat that emptied and a wave | The line packs have no table slots, and a spoken line is never written into a screen |
 | Tables | A seat that emptied says "{name} left", not "finished and left" | The server says a seat emptied, not why |
-| Tables | Another person's critter works in the plain work mode | The server sends each seat's one or two words, not its work mode id |
+| Tables | Another person's critter acts out its work mode with the idle motion only; a hidden label or no work mode sits at plain work | The board dresses each critter for its task but draws no motion at a table, and four work loops at once would be busy |
 | Tables | The fourth nudge says "That's all three" | The limit is three per person per session in total, so the board's "three for Kofi" could be untrue |
 | Tables | "Start 10 min together" and "Join in" on the table | The board draws the table and the session, not how the shared timer is started or joined; the session itself is the normal one |
+| Tables | "Join in" names the minutes the table has left, and the session then ends with the table's | The board draws no one arriving mid-session; a full length of one's own would outlast the table |
+| Tables | With the line down the session runs on to the last end the table gave, under "Reconnecting" | The board draws no dropped line; the phone cannot know more than it was last told |
 | Tables | The table as a strip of critters above a running session | The board does not draw the session with the table beside it |
 | Tables | Reconnecting, and the table open on another device: one calm line | The board draws no dropped line |
 | Tables | The seat sheet also has "Block" | The board draws mute, report and leave; the brief adds block |
@@ -75,3 +77,4 @@ state is designed or removed.
 | Haunt | A caught haunt makes the dare's own words today's one thing | A haunt carries a monster and a dare id, and no task |
 | Haunt | The card waits on a day that already has its one thing, and is never shown near something heavy | The board draws the card only on an empty day |
 | Privacy and data | "Account" rows on a phone signed in for tables | The board draws privacy with no account |
+| Privacy and data | "Sign out" in the Account rows, and one plain line when it could not be done | No board draws signing out; it sits beside the account's other row and takes nothing from the phone but the account |

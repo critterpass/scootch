@@ -16,19 +16,18 @@ import { TableStripView } from './table-strip';
 
 const nothing = () => undefined;
 const YOU = 'aaaaaaaaaaaa';
-const seat = (userId: string, name: string, label: string, online = true): TableSeat => ({
-  userId,
-  name,
-  label,
-  online,
-  nudgesLeft: 3,
-});
-const ALONE = [seat(YOU, 'Priya', 'admin')];
+const seat = (
+  userId: string,
+  name: string,
+  label: string,
+  workMode: TableSeat['workMode'],
+): TableSeat => ({ userId, name, label, workMode, online: true, nudgesLeft: 3 });
+const ALONE = [seat(YOU, 'Priya', 'admin', 'paperwork')];
 const FULL = [
   ...ALONE,
-  seat('bbbbbbbbbbbb', 'Dana', 'writing'),
-  seat('cccccccccccc', 'Kofi', 'admin'),
-  seat('dddddddddddd', 'Mei', 'tidying'),
+  seat('bbbbbbbbbbbb', 'Dana', 'writing', 'writing'),
+  seat('cccccccccccc', 'Kofi', 'admin', 'paperwork'),
+  seat('dddddddddddd', 'Mei', 'tidying', 'decluttering'),
 ];
 const FRIENDS = [
   { accountId: 'bbbbbbbbbbbb', displayName: 'Dana', canBeHaunted: true },
@@ -53,7 +52,7 @@ function Table({
   sheet,
 }: TableShown) {
   const mine = hidden
-    ? seats.map((one) => (one.userId === YOU ? { ...one, label: 'busy' } : one))
+    ? seats.map((one) => (one.userId === YOU ? { ...one, label: 'busy', workMode: null } : one))
     : seats;
   return (
     <>

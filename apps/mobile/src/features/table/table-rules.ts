@@ -5,6 +5,8 @@ import type { SessionMinutes, TaskRow, WorkMode } from '@scootch/domain';
 import { refusalOf } from '../../api/together-api';
 import { showsComedy, showsSelling, type SellingDay } from '../../state/shows-comedy';
 
+import { tableMinutesLeft } from './table-clock';
+
 export const TABLE_LOBBY = '/table' as Href;
 export const TABLE_SEAT = '/table/seat' as Href;
 export const FRIENDS = '/friends' as Href;
@@ -93,10 +95,13 @@ export function joinOutcomeOf(error: unknown): JoinOutcome {
   }
 }
 
-/** What the table's timer offers one person. `start` and `join_in` both begin their own session. */
+/**
+ * What the table's timer offers one person. `start` and `join_in` both begin their own session;
+ * joining in, it ends with the table's, `left` whole minutes from now.
+ */
 export type TableTimer =
   | { readonly kind: 'start'; readonly minutes: SessionMinutes }
-  | { readonly kind: 'join_in'; readonly minutes: SessionMinutes }
+  | { readonly kind: 'join_in'; readonly minutes: SessionMinutes; readonly left: number }
   | { readonly kind: 'running' }
   | { readonly kind: 'need_task' };
 
@@ -115,6 +120,9 @@ export function tableTimer(
 ): TableTimer {
   if (mine.inSession) return { kind: 'running' };
   if (!mine.taskSet) return { kind: 'need_task' };
-  const going = table.endsAt !== null && table.endsAt - table.clockAhead > now;
-  return going ? { kind: 'join_in', minutes: table.minutes ?? 10 } : { kind: 'start', minutes: 10 };
+  // Joining in is for the time the table has left, not for a length of the person's own.
+  const left = tableMinutesLeft(table, now);
+  return left === null
+    ? { kind: 'start', minutes: 10 }
+    : { kind: 'join_in', minutes: table.minutes ?? 10, left };
 }

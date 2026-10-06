@@ -27,7 +27,7 @@ import { NO_AFTER_LINES } from './lines';
 import { applyPickEvent } from './pick-events';
 import { drawerEvent, setBargainedSession } from './pick-flow';
 import { applySession, resolveThought, restoreSession } from './session-flow';
-import { closeSession, shortenSession, turnWorkingLine } from './session-moments';
+import { closeSession, followTableClock, shortenSession, turnWorkingLine } from './session-moments';
 import { showsSelling } from './shows-comedy';
 import { applySurfaceAction, noticePickUp } from './surface-actions';
 import { askAnother, beFunny, fetchPending, resolveTranscript, submitText } from './task-flow';
@@ -255,6 +255,8 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
         return turnWorkingLine(ctx);
       case 'session_closed':
         return closeSession(ctx);
+      case 'table_clock':
+        return followTableClock(ctx, event.endsAt);
       case 'developer_session_ends_in':
         return shortenSession(ctx, event.seconds);
       case 'done_for_today': {

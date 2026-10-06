@@ -15,12 +15,19 @@
         {
           "userId": "abcdefghijkl",
           "label": "admin",
+          "workMode": "paperwork",
           "name": "Mai",
           "online": true,
           "nudgesLeft": 3
         },
         { "userId": "mnopqrstuvwx", "label": "", "name": "Bo", "online": false, "nudgesLeft": 1 },
-        { "userId": "yz234567abcd", "label": "đang bận", "online": true, "nudgesLeft": 0 }
+        {
+          "userId": "yz234567abcd",
+          "label": "đang bận",
+          "workMode": null,
+          "online": true,
+          "nudgesLeft": 0
+        }
       ],
       "endsAt": 1791342000000,
       "minutes": 25,

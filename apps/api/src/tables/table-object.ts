@@ -2,7 +2,7 @@ import { DurableObject } from 'cloudflare:workers';
 
 import type { Bindings } from '../env';
 
-import { seatLabel } from './labels';
+import { seatShown } from './labels';
 import {
   accountHeader,
   languageHeader,
@@ -273,7 +273,7 @@ export class TableObject extends DurableObject<Bindings> {
         hostId: table.hostId,
         seats: table.seats.map((seat) => ({
           userId: seat.accountId,
-          label: seatLabel(seat, language),
+          ...seatShown(seat, language),
           name: seat.name,
           online: online.get(seat.accountId) === true,
           nudgesLeft: TABLE_MAX_NUDGES - seat.nudgesSent,

@@ -1,11 +1,15 @@
+import { randomUUID } from 'node:crypto';
+
 import { describe, expect, it } from '@jest/globals';
 
-import type { TaskCreatePass, TaskCreateResponse } from '@scootch/domain';
+import { hauntSeedSchema, type TaskCreatePass, type TaskCreateResponse } from '@scootch/domain';
 import { t } from '@scootch/i18n';
 
 import passFixture from '../../../../../packages/voice/fixtures/task.create.en.json';
 import seriousFixture from '../../../../../packages/voice/fixtures/task.create.serious.en.json';
 import { HAUNT_DARES, createTogetherApi } from '../../api/together-api';
+import type { DayContext } from '../../state/day-types';
+import { monsterFor, newTask } from '../../state/task-rows';
 import { accountStep, chooseName, signIn } from '../account/account-flow';
 import { phone } from '../session/test/phone';
 import { fakeHttp, refused } from '../table/test/fake-table';
@@ -22,6 +26,8 @@ import {
 const pass = passFixture.response as TaskCreatePass;
 const serious = seriousFixture.response as TaskCreateResponse;
 const HAUNT = { id: 'abcdefghijklmnop' };
+const NO_LABELS = { bodyType: null } as Parameters<typeof monsterFor>[2];
+const COPY = { name: 'Molar', title: 'Keeper of Thursday', flavourText: 'Lives in the inbox.' };
 
 async function withTask(answer: TaskCreateResponse, text: string) {
   const app = await phone(answer);
@@ -81,6 +87,28 @@ describe('offering a haunt', () => {
       },
     ]);
     expect(JSON.stringify(web.sent)).not.toContain(task?.text ?? '?');
+  });
+
+  it('sends a seed the contract takes: the one the phone’s own id function gives a monster', () => {
+    // The app's own path: a task's id comes from the phone's id function, and the monster's seed
+    // is that id. On the phone the function is expo-crypto's `randomUUID`, which is native and
+    // does not run here; Node's gives the same lower-case form.
+    const ctx = {
+      deps: { nextId: randomUUID },
+      memory: { state: { localDate: '2026-10-07' } },
+      now: () => Date.parse('2026-10-07T09:00:00.000Z'),
+    } as unknown as DayContext;
+    for (let made = 0; made < 20; made += 1) {
+      const task = newTask(ctx, 'anything', 'typed', 'pass');
+      const monster = monsterFor(ctx, task, NO_LABELS, COPY);
+      const { seed } = hauntToSend(monster, 'mnopqrstuvwx', 'tiny_bit', false);
+      expect(seed).toBe(task.id);
+      expect(hauntSeedSchema.safeParse(seed).success).toBe(true);
+    }
+    // The ids of this file's test phone, a word, and the website maker's short seed are not it.
+    for (const seed of ['id-1791277200000-1', 'taxes', '815sxr', '']) {
+      expect(hauntSeedSchema.safeParse(seed).success).toBe(false);
+    }
   });
 
   it('reads the server’s refusals plainly', () => {

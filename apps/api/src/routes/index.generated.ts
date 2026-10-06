@@ -3,6 +3,7 @@ export * from './accounts-apple';
 export * from './accounts-apple-nonce';
 export * from './accounts-me';
 export * from './accounts-me-update';
+export * from './accounts-sign-out';
 export * from './backup';
 export * from './data-delete';
 export * from './devices';

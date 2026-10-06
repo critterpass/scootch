@@ -27,7 +27,7 @@ export interface TablePageProps {
   /** What the table's timer offers this person right now. */
   readonly timer:
     | { readonly kind: 'start'; readonly minutes: SessionMinutes }
-    | { readonly kind: 'join_in'; readonly minutes: SessionMinutes }
+    | { readonly kind: 'join_in'; readonly minutes: SessionMinutes; readonly left: number }
     | { readonly kind: 'running' }
     | { readonly kind: 'need_task' };
   readonly onChoose: (userId: string) => void;
@@ -128,7 +128,7 @@ export function TablePage(props: TablePageProps) {
             key={seat.userId}
             seat={seat}
             yours={seat.userId === table.you}
-            workMode={seat.userId === table.you ? props.workMode : null}
+            workMode={seat.userId === table.you ? props.workMode : seat.workMode}
             chosen={seat.userId === chosen && seat.userId !== table.you}
             size={size}
             {...(seat.userId === table.you
@@ -153,7 +153,7 @@ export function TablePage(props: TablePageProps) {
       {timer.kind === 'start' || timer.kind === 'join_in' ? (
         <CapsuleButton
           label={t(timer.kind === 'start' ? 'table.start' : 'table.joinIn', {
-            minutes: timer.minutes,
+            minutes: timer.kind === 'start' ? timer.minutes : timer.left,
           })}
           hint={t(timer.kind === 'start' ? 'table.start.hint' : 'table.joinIn.hint')}
           onPress={props.onTimer}

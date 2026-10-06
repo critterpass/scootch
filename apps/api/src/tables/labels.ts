@@ -54,6 +54,17 @@ export function seatLabel(
   return seat.workMode === null ? '' : workModeLabels[seat.workMode][language];
 }
 
+/**
+ * What one viewer is sent of a seat's work: its words, and the work mode id for drawing the
+ * critter. The id says no more than the words do, so a hidden label hides the id too.
+ */
+export function seatShown(
+  seat: { readonly workMode: WorkMode | null; readonly hidden: boolean },
+  language: Language,
+): { label: string; workMode: WorkMode | null } {
+  return { label: seatLabel(seat, language), workMode: seat.hidden ? null : seat.workMode };
+}
+
 /** Every string a label can ever be. */
 export const everyLabel: ReadonlySet<string> = new Set([
   '',

@@ -7,8 +7,12 @@ import { sessionMinutesSchema } from './common';
  * Messages between a phone and its table. Joining is the WebSocket connection
  * itself; the person's id comes from the verified session, never the client.
  *
- * No message carries task text. A label is one or two words written by the AI;
- * an empty label means the seat shows none (a hidden label or a serious task).
+ * No message carries task text. A label is one or two words from a fixed table, and a work mode
+ * is an id from the art package's list; an empty label means the seat shows none (a serious or
+ * unscreened task).
+ *
+ * The session clock is the table's: `endsAt` and `minutes` in every snapshot, with `serverNow`
+ * beside them so a phone can read the end on its own clock.
  */
 export const TABLE_MAX_SEATS = 4;
 export const TABLE_MAX_NUDGES = 3;
@@ -81,6 +85,11 @@ export type TableClientMessage = z.infer<typeof tableClientMessageSchema>;
 export const tableSeatSchema = z.object({
   userId: tableUserIdSchema,
   label: tableLabelSchema,
+  /**
+   * The art package's work mode id, so the seat's critter can be drawn at its kind of work.
+   * `null` whenever the label says nothing of the work: no mode, or a hidden label.
+   */
+  workMode: workModeSchema.nullable().default(null),
   /** The person's display name, when the server sends one. */
   name: z.string().min(1).max(TABLE_NAME_MAX_LENGTH).optional(),
   online: z.boolean(),

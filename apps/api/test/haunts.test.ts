@@ -1,6 +1,8 @@
 import { env } from 'cloudflare:workers';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import { wireErrorSchema } from '../src/contracts';
+
 import { as, befriend, count, ok, person, reasonOf, type Person } from './table-support';
 
 const day = 24 * 60 * 60 * 1000;
@@ -95,6 +97,23 @@ describe('haunting', () => {
       expect((await send(sender, recipient, extra)).status).toBe(400);
     }
     expect((await waiting(recipient)).haunts).toEqual([]);
+  });
+
+  it('takes a seed only in the shape the phone makes, and refuses another with the wire error', async () => {
+    const [sender, recipient] = await friends();
+
+    for (const seed of ['815sxr', '5F0C9A2E-77AA-4C1D-9D6E-0B1C2D3E4F50', 'deadbeef-cafe', '']) {
+      const refused = await send(sender, recipient, { seed });
+      expect(refused.status).toBe(400);
+      const body = wireErrorSchema.parse(await refused.json());
+      expect(body.error.code).toBe('bad_request');
+      expect(body.error.retryable).toBe(false);
+    }
+    expect((await waiting(recipient)).haunts).toEqual([]);
+
+    const seed = crypto.randomUUID();
+    await ok(send(sender, recipient, { seed }));
+    expect((await waiting(recipient)).haunts.map((each) => each.seed)).toEqual([seed]);
   });
 
   it('respects “can be haunted”', async () => {
