@@ -45,9 +45,9 @@ interface RowProps {
 }
 
 /**
- * The list of developer screens, reached from the "Developer tools" entry on the one screen. The
- * language switch and the finish method here stand in until the Settings screen has its own; the
- * control that ends a session soon exists only for device flows.
+ * The list of developer screens, reached from the more button on the one screen. The language
+ * switch and the finish method here stand in until the Settings screen has its own; the control
+ * that ends a session soon exists only for device flows.
  */
 export default function DeveloperTools() {
   const palette = colors[useColorScheme() === 'dark' ? 'dark' : 'light'];

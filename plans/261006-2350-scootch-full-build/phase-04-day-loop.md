@@ -22,11 +22,13 @@ Session.
 - States: microphone refused (typing only), notifications refused (said once);
   arriving with a monster from the website, which skips straight to "Catch
   Molar · 10 min" and asks the setup questions afterwards.
+- Status: partly done — 1f4dae3; built and tested with fakes, not yet run on a device
 
 ### 3. The composer
 - Do: hold to talk with on-device transcription, slide to cancel, typing, the
   waveform, Scootch reacting to each.
 - States: silent or empty ramble, text Scootch cannot understand.
+- Status: partly done — 1f4dae3; built and tested with fakes, not yet run on a device
 
 ### 4. Brain dump
 - Do: the task call; one phrase lights up and the rest falls away; "Another"
