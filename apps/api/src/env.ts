@@ -10,6 +10,7 @@ export const secretNames = [
   'TYPESAFE_API_KEY',
   'TELEGRAM_BOT_TOKEN',
   'TELEGRAM_CHAT_ID',
+  'TELEGRAM_WEBHOOK_SECRET',
   'REVENUECAT_API_V2_KEY',
 ] as const;
 export type SecretName = (typeof secretNames)[number];
