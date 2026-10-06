@@ -90,10 +90,15 @@ describe('the house rules', () => {
     expect([...routes.keys()].sort()).toEqual(
       [
         '/',
+        '/account',
         '/care',
         '/characters',
         '/developer-tools',
+        '/f/[code]',
         '/finish-with',
+        '/friends',
+        '/haunt/received',
+        '/haunt/send',
         '/helplines',
         '/plus',
         '/plus/last-day',
@@ -110,6 +115,9 @@ describe('the house rules', () => {
         '/session',
         '/settings',
         '/shelf',
+        '/t/[code]',
+        '/table',
+        '/table/seat',
         '/world',
         '/zoo',
       ].sort(),
@@ -135,6 +143,7 @@ describe('the house rules', () => {
         'features/plus/manage-container.tsx: openShelf: () => router.push(SHELF_ROUTE),',
         'features/plus/manage-container.tsx: seePlus: () => router.push(PLUS_SHEET),',
         'features/record/record-container.tsx: openPlus: () => router.push(PLUS_SHEET),',
+        'features/table/lobby-containers.tsx: onLocked={() => router.push(PLUS_SHEET)}',
         'features/zoo/zoo-container.tsx: openPlus: () => router.push(PLUS_SHEET),',
       ].sort(),
     );

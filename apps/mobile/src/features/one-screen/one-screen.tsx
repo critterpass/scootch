@@ -24,6 +24,7 @@ import { HatchFigure } from '../monster/hatch-figure';
 import { wordsWhileUnscreened } from '../offline/waiting-words';
 import { OneMore } from '../plus/one-more';
 import { PLUS_SHEET_ONE_MORE } from '../plus/routes';
+import { TogetherLinks } from '../table/together-links';
 
 import { composerMood } from './composer-mood';
 import { composerWays } from './composer-ways';
@@ -218,6 +219,7 @@ export function OneScreen({ speech, warmUp, notificationsRefused }: OneScreenPro
                 />
               ) : null}
               <NotNow onExcuse={(text) => send({ type: 'excuse_given', text })} />
+              <TogetherLinks day={day} task={stage.task} monster={day.monster} />
             </Stack>
           ),
         }}
