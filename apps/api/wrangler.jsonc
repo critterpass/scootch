@@ -39,6 +39,9 @@
           "simple": { "limit": 60, "period": 60 },
         },
       ],
+      // One Durable Object per table (`TableObject` in `src/tables/table-object.ts`).
+      "durable_objects": { "bindings": [{ "name": "TABLE", "class_name": "TableObject" }] },
+      "migrations": [{ "tag": "table-object", "new_sqlite_classes": ["TableObject"] }],
     },
     "prd": {
       "name": "scootch",
@@ -65,6 +68,9 @@
           "simple": { "limit": 60, "period": 60 },
         },
       ],
+      // One Durable Object per table (`TableObject` in `src/tables/table-object.ts`).
+      "durable_objects": { "bindings": [{ "name": "TABLE", "class_name": "TableObject" }] },
+      "migrations": [{ "tag": "table-object", "new_sqlite_classes": ["TableObject"] }],
     },
   },
 }

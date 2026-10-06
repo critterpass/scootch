@@ -1,12 +1,16 @@
 import { z } from 'zod';
 
+import { callbackUpdateSchema, handleCallback } from './callbacks';
 import { helpText, type BotCommand } from './command';
 import * as commandModules from './commands/index.generated';
 import { sendMessage, type BotContext } from './telegram';
 
 export const botCommands: readonly BotCommand[] = Object.values(commandModules);
 
-/** The only part of an update the bot reads: a text message and the chat it came from. */
+/**
+ * The only parts of an update the bot reads: a text message and the chat it came from, or a tap
+ * on one of its own buttons (`callbackUpdateSchema`) and the chat that button sits in.
+ */
 const updateSchema = z.object({
   message: z.object({ chat: z.object({ id: z.number() }), text: z.string() }),
 });
@@ -34,8 +38,8 @@ function parseCommand(text: string): { name: string; args: string[] } | undefine
 }
 
 /**
- * Handles one Telegram update. It is acted on only when Telegram sent it (the secret token set
- * with the webhook) and it comes from the founder's chat. Anything else is dropped without a
+ * Handles one Telegram update, a message or a button tap. It is acted on only when Telegram sent
+ * it (the secret token set with the webhook) and it comes from the founder's chat. Anything else is dropped without a
  * reply, so a stranger learns nothing, not even that a bot is here.
  *
  * Answers whether the update was accepted.
@@ -48,6 +52,13 @@ export async function handleUpdate(
   const { TELEGRAM_WEBHOOK_SECRET: secret, TELEGRAM_CHAT_ID: chatId } = context.env;
   if (!secret || !chatId || secretToken === undefined) return false;
   if (!(await sameSecret(secretToken, secret))) return false;
+  const tapped = callbackUpdateSchema.safeParse(update);
+  if (tapped.success) {
+    const query = tapped.data.callback_query;
+    if (String(query.message.chat.id) !== chatId) return false;
+    await handleCallback(context, query);
+    return true;
+  }
   const parsed = updateSchema.safeParse(update);
   if (!parsed.success || String(parsed.data.message.chat.id) !== chatId) return false;
 

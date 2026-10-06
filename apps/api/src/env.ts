@@ -1,6 +1,8 @@
 import type { Language } from './contracts';
 import type { RequestIdVariables } from 'hono/request-id';
 
+import type { TableObject } from './tables/table-object';
+
 /**
  * Secrets the Worker expects, by name. Values live in Wrangler secrets (deployed) or `.dev.vars`
  * (local, ignored by git); `.dev.vars.example` lists the same names.
@@ -28,6 +30,8 @@ export type Bindings = Secrets & {
   readonly FILES: R2Bucket;
   readonly IP_RATE_LIMIT: RateLimit;
   readonly DEVICE_RATE_LIMIT: RateLimit;
+  /** One Durable Object per table, addressed by the table's id. */
+  readonly TABLE: DurableObjectNamespace<TableObject>;
   readonly ENVIRONMENT: EnvironmentName;
   readonly COMMIT_SHA: string;
 };

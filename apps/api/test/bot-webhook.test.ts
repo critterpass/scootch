@@ -10,11 +10,13 @@ import { freshIp } from './support';
 
 const helpReply = [
   '[dev] Commands:',
+  '/ban <account id>: stop an account opening or joining tables, and free its seats',
   '/costs: model spend today and this month, by route and by model',
   '/flag, or /flag <name> on|off: list the feature flags, or flip one',
   '/funnel: devices registered today, in the last 7 days and in total, by language',
   '/help: this list',
   '/status: environment, commit, database, model secrets and one check call to each model',
+  '/unban <account id>: let a banned account open and join tables again',
   '/user <hash prefix or token>: when one device was created and last seen, its language and its model-call count',
 ].join('\n');
 
