@@ -115,6 +115,16 @@ jobs:
           # The emulator connects to an adb server that is already running, instead of racing to start one.
           pre-emulator-launch-script: adb start-server
           script: tools/scripts/device-android.sh "$RUNNER_TEMP/app.apk" "$RUNNER_TEMP/out" "$FLOWS"
+      # One sheet per registered screen state (e2e/sheets), added to the artifact under sheets/.
+      - name: Put the captured screens beside their designs
+        if: always() && inputs.mode == 'capture'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tools/scripts/fetch-design-renders.sh ||
+            echo "::warning::No design renders were downloaded: the sheets show the captures alone"
+          pnpm exec tsx tools/scripts/compare-sheets.ts \
+            --captures "$RUNNER_TEMP/out/screens" --out "$RUNNER_TEMP/out/sheets"
       - uses: actions/upload-artifact@v7
         id: artifact
         if: always()
@@ -164,6 +174,16 @@ jobs:
           MODE: ${{ inputs.mode }}
           JS_COMMIT: ${{ steps.settings.outputs.js_commit }}
         run: tools/scripts/device-ios.sh "$BUILD_URL" "$RUNNER_TEMP/bundle" "$RUNNER_TEMP/out" "$FLOWS"
+      # One sheet per registered screen state (e2e/sheets), added to the artifact under sheets/.
+      - name: Put the captured screens beside their designs
+        if: always() && inputs.mode == 'capture'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tools/scripts/fetch-design-renders.sh ||
+            echo "::warning::No design renders were downloaded: the sheets show the captures alone"
+          pnpm exec tsx tools/scripts/compare-sheets.ts \
+            --captures "$RUNNER_TEMP/out/screens" --out "$RUNNER_TEMP/out/sheets"
       - uses: actions/upload-artifact@v7
         id: artifact
         if: always()

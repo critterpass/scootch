@@ -454,6 +454,15 @@ importers:
       '@react-native/metro-config':
         specifier: 'catalog:'
         version: 0.88.0-rc.1(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2)
+      '@scootch/art':
+        specifier: workspace:*
+        version: link:../../packages/art
+      '@scootch/domain':
+        specifier: workspace:*
+        version: link:../../packages/domain
+      '@scootch/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
       '@scootch/tokens':
         specifier: workspace:*
         version: link:../../packages/tokens
@@ -590,9 +599,6 @@ importers:
       '@react-native/jest-preset':
         specifier: 'catalog:'
         version: 0.88.0-rc.1(@babel/core@7.29.7(supports-color@10.2.2))(react@19.3.0)(supports-color@10.2.2)
-      '@scootch/art':
-        specifier: workspace:*
-        version: link:../../packages/art
       '@types/react':
         specifier: 'catalog:'
         version: 19.3.0

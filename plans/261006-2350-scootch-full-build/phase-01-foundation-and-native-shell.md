@@ -39,6 +39,7 @@ Two lanes: A owns tasks 1 to 6 and 11, B owns tasks 7 to 10.
   design render beside its device capture. States per screen include long
   text, largest text size, keyboard open, empty and offline.
 - Done when: a sample screen appears in a sheet next to its render.
+- Status: partly done — a1c60ff; written, not yet run on a device
 
 ### 5. Generated registries
 - Owns: `tools/scripts/generate-index.ts`.
@@ -94,7 +95,7 @@ Two lanes: A owns tasks 1 to 6 and 11, B owns tasks 7 to 10.
   exists in one language only; every sheet captured in both languages. Fonts
   and layouts checked with Vietnamese diacritics and longer lines.
 - Done when: the sample screen appears in a sheet in both languages.
-- Status: partly done — 8e0292b; the catalogues and completeness check exist. Still to do with the screen registry: the language switch and every sheet in both languages.
+- Status: partly done — 8e0292b, a1c60ff; the catalogues and completeness check exist, the app picks its language from the phone with a stored choice, a temporary switch sits in the developer tools, and the registry captures every state in both languages. Still to do: the switch in the Settings screen, and a device run whose sheet shows the sample screen in both languages (fonts and layouts with Vietnamese have not been seen on a device).
 
 ## Exit
 
