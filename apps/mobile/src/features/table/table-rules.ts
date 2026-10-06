@@ -18,7 +18,6 @@ export const FRIENDS_ACCEPTED = '/friends?accepted=1' as Href;
 const INVITE_HOST = 'https://scootch.app';
 const CODE = /^[a-z2-7]{10}$/;
 
-export const tableInviteLink = (code: string) => `${INVITE_HOST}/t/${code}`;
 export const friendInviteLink = (code: string) => `${INVITE_HOST}/f/${code}`;
 
 /** The code inside a pasted invite link, or a code typed on its own; `null` when it is neither. */

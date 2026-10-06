@@ -5,11 +5,14 @@ import { View } from 'react-native';
 import { useLanguage } from '../../i18n/i18n-provider';
 import { useSession, useToday } from '../../state/day-store-provider';
 import { useKeepsakes } from '../../state/keepsakes';
+import { useTogether } from '../../state/together-context';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { nativePcmPlayer } from '../record/native-pcm-player';
 import { barSound, trackKey } from '../record/record-audio';
+import { keychainKeptShares } from '../share/native-kept-shares';
+import { tellPageOfCatch } from '../share/share-flow';
 import { SharePanel } from '../share/share-panel';
-import { shareOffered } from '../share/share-rules';
+import { shareOfferedOn } from '../share/share-rules';
 import { useShare } from '../share/use-share';
 import { cardDataFor, isCaught } from '../zoo/zoo-cards';
 
@@ -46,7 +49,8 @@ export function RevealContainer() {
   const { reducedMotion, captured } = useScreenStyle();
   // Today is read back from storage after every store event, so a change in it is a reason to look again.
   const { keepsakes, chooseDrop } = useKeepsakes(today);
-  const share = useShare(language);
+  const share = useShare(language, today);
+  const { pages } = useTogether();
   const player = useMemo(() => nativePcmPlayer(), []);
   const [state, setState] = useState<RevealState | null>(null);
   const [playing, setPlaying] = useState(false);
@@ -113,6 +117,17 @@ export function RevealContainer() {
     };
   }, [step, bar, musicOn, player]);
 
+  // A caught monster that has its own page on the website: the page is told, so it reads caught.
+  const caughtSeed = monster && isCaught(monster) ? monster.spec.seed : null;
+  const caughtMinutes = monster?.catchMinutes ?? null;
+  useEffect(() => {
+    if (caughtSeed === null || caughtMinutes === null) return;
+    void tellPageOfCatch(
+      { api: pages, kept: keychainKeptShares },
+      { seed: caughtSeed, catchMinutes: caughtMinutes },
+    ).catch(() => undefined);
+  }, [caughtSeed, caughtMinutes, pages]);
+
   if (share.panel) return <SharePanel {...share.panel} />;
   if (!state || !step || !rows) return <View style={{ flex: 1 }} />;
 
@@ -138,7 +153,7 @@ export function RevealContainer() {
           playing,
         }
       : null,
-    shareOffered: card !== null && shareOffered(task),
+    shareOffered: card !== null && shareOfferedOn(today, task),
   };
   const actions: RevealActions = {
     next: () => send({ type: 'next' }),

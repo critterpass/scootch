@@ -133,8 +133,15 @@ function capturedShare(language: Language) {
         language,
         hideTask: false,
         notice: null,
+        pageUp: false,
       }}
-      actions={{ close: nothing, setHideTask: nothing, share: nothing, save: nothing }}
+      actions={{
+        close: nothing,
+        setHideTask: nothing,
+        share: nothing,
+        unshare: nothing,
+        save: nothing,
+      }}
     />
   );
 }

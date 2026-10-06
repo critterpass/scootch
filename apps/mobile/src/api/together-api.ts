@@ -129,7 +129,8 @@ export interface TogetherApi {
   acceptFriend(code: string): Promise<void>;
   removeFriend(accountId: string): Promise<void>;
   waitingHaunts(): Promise<WaitingHaunt[]>;
-  sendHaunt(haunt: HauntToSend): Promise<void>;
+  /** Sends the haunt and answers with the id of its page on the website. */
+  sendHaunt(haunt: HauntToSend): Promise<{ pageId: string }>;
   catchHaunt(id: string): Promise<void>;
   shooHaunt(id: string): Promise<void>;
 }
@@ -173,7 +174,8 @@ export function createTogetherApi(http: HttpClient): TogetherApi {
     removeFriend: (accountId) => http.request('DELETE', `/v1/friends/${accountId}`, null, done),
     waitingHaunts: () =>
       http.request('GET', '/v1/haunts', null, (json) => list(object(json)['haunts'], haunt)),
-    sendHaunt: (sent) => http.post('/v1/haunts', sent, done),
+    sendHaunt: (sent) =>
+      http.post('/v1/haunts', sent, (json) => ({ pageId: text(object(json)['pageId']) })),
     catchHaunt: (id) => http.post(`/v1/haunts/${id}/catch`, {}, done),
     shooHaunt: (id) => http.post(`/v1/haunts/${id}/shoo`, {}, done),
   };

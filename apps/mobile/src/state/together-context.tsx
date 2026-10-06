@@ -3,6 +3,7 @@ import { createContext, useContext, useSyncExternalStore } from 'react';
 import type { PurchaseState } from '@scootch/domain';
 
 import type { HttpClient } from '../api/http-client';
+import { createShareApi, type ShareApi } from '../api/share-api';
 import { createTableConnection, type SocketFactory, type SocketLike } from '../api/table-socket';
 import { createTogetherApi, type TogetherApi } from '../api/together-api';
 import type { Timers } from '../effects/adapters';
@@ -17,6 +18,8 @@ import {
 /** Everything the "together" screens need: the routes they call and the one table connection. */
 export interface TogetherRuntime {
   readonly api: TogetherApi;
+  /** The website's pages of things shared from this phone. */
+  readonly pages: ShareApi;
   readonly table: TableStore;
   /** The purchase state the phone reports when it opens or joins a table. */
   readonly purchaseState: () => PurchaseState;
@@ -72,7 +75,7 @@ export function createTogetherRuntime(deps: TogetherRuntimeDeps): TogetherRuntim
     await api.signOut();
     table.leave();
   };
-  return { api, table, purchaseState: deps.purchase, signOut };
+  return { api, pages: createShareApi(deps.http), table, purchaseState: deps.purchase, signOut };
 }
 
 const unavailable = () => Promise.reject(new Error('No connection to the together routes here'));
@@ -80,6 +83,7 @@ const unavailable = () => Promise.reject(new Error('No connection to the togethe
 /** Outside the app's provider (a registry capture, a test) nobody is at a table. */
 const NO_RUNTIME: TogetherRuntime = {
   api: new Proxy({} as TogetherApi, { get: () => unavailable }),
+  pages: new Proxy({} as ShareApi, { get: () => unavailable }),
   table: {
     getState: () => NO_TABLE,
     subscribe: () => () => undefined,

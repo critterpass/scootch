@@ -12,6 +12,7 @@ import type { DayContext } from '../../state/day-types';
 import { monsterFor, newTask } from '../../state/task-rows';
 import { accountStep, chooseName, signIn } from '../account/account-flow';
 import { phone } from '../session/test/phone';
+import { sharedPageLink } from '../share/share-links';
 import { fakeHttp, refused } from '../table/test/fake-table';
 
 import {
@@ -68,10 +69,17 @@ describe('offering a haunt', () => {
   it('sends the monster’s body and seed, a dare id and a switch, and never the task', async () => {
     const { state, task } = await withTask(pass, passFixture.request.text);
     if (!state.monster) throw new Error('no monster');
-    const web = fakeHttp();
-    await createTogetherApi(web.http).sendHaunt(
+    const web = fakeHttp({ 'POST /v1/haunts': { sent: true, pageId: 'abcdefgh234567ab' } });
+    const answer = await createTogetherApi(web.http).sendHaunt(
       hauntToSend(state.monster, 'mnopqrstuvwx', 'just_open_it', true),
     );
+    // The page's id is kept, and the link made from it holds that id and nothing else: no name,
+    // no account and no query, so a haunt sent without a name tells nothing about its sender.
+    expect(answer).toEqual({ pageId: 'abcdefgh234567ab' });
+    const link = sharedPageLink('https://scootch.app', 'en', 'h', answer.pageId);
+    expect(link).toBe('https://scootch.app/h/abcdefgh234567ab');
+    expect(link).not.toContain('mnopqrstuvwx');
+    expect(new URL(link).search).toBe('');
     expect(web.sent).toEqual([
       {
         method: 'POST',

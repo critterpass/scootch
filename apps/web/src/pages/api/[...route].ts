@@ -30,5 +30,8 @@ export const ALL: APIRoute = ({ request, params }) => {
       { status: 404 },
     );
   }
-  return env.API.fetch(new Request(`https://api.scootch.internal/v1/${route}`, request));
+  // The one thing a page may say beside the route: which language it is written in.
+  const language = new URL(request.url).searchParams.get('lang');
+  const query = language === 'vi' || language === 'en' ? `?lang=${language}` : '';
+  return env.API.fetch(new Request(`https://api.scootch.internal/v1/${route}${query}`, request));
 };

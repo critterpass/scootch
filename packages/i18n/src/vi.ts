@@ -240,6 +240,11 @@ export const vi = {
   'share.saved': 'Đã lưu vào Ảnh',
   'share.refused': 'Scootch chưa được phép dùng Ảnh nên chưa lưu được gì.',
   'share.failed': 'Chưa gửi được. Thử lại nhé.',
+  'share.sending': 'Đang đưa trang lên…',
+  'share.shared': 'Trang đã lên, link đi kèm ảnh rồi.',
+  'share.unshare': 'Gỡ trang xuống',
+  'share.unshare.hint': 'Gỡ khỏi trang web. Sau đó link không còn hiện gì.',
+  'share.unshared': 'Đã gỡ trang. Giờ link không còn hiện gì.',
   'oneScreen.world.hint': 'Mở thế giới của bạn.',
 
   'dump.oneThing': 'Một việc hôm nay',

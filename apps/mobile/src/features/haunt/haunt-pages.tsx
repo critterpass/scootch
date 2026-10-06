@@ -36,6 +36,8 @@ export interface HauntSendPageProps {
   readonly onDare: (dare: HauntDare) => void;
   readonly onAnonymous: (anonymous: boolean) => void;
   readonly onSend: () => void;
+  /** Opens the share sheet with the link to the sent haunt's page. */
+  readonly onPassOn: () => void;
   readonly onClose: () => void;
 }
 
@@ -90,9 +92,18 @@ export function HauntSendPage(props: HauntSendPageProps) {
             />
           </Section>
           {props.sent ? (
-            <Words accessibilityLiveRegion="polite" testID="haunt-sent">
-              {t('haunt.sent')}
-            </Words>
+            <>
+              <Words accessibilityLiveRegion="polite" testID="haunt-sent">
+                {t('haunt.sent')}
+              </Words>
+              <CapsuleButton
+                tone="quiet"
+                label={t('haunt.link')}
+                hint={t('haunt.link.hint')}
+                onPress={props.onPassOn}
+                testID="haunt-pass-on"
+              />
+            </>
           ) : (
             <CapsuleButton
               label={t('haunt.send')}

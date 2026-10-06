@@ -1,12 +1,14 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { View } from 'react-native';
+import { Share, View } from 'react-native';
 
+import { siteBaseUrl } from '../../api/api-config';
 import { refusalOf, type Friend, type HauntDare, type WaitingHaunt } from '../../api/together-api';
-import { useT } from '../../i18n/i18n-provider';
+import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { useDispatch, useToday } from '../../state/day-store-provider';
 import { useTogether } from '../../state/together-context';
 import { useScreenStyle } from '../../ui/use-screen-style';
+import { sharedPageLink } from '../share/share-links';
 
 import { HauntReceivedPage, HauntSendPage } from './haunt-pages';
 import {
@@ -30,7 +32,11 @@ export function HauntSendContainer() {
   const [dare, setDare] = useState<HauntDare>('two_minutes');
   const [anonymous, setAnonymous] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [sent, setSent] = useState(false);
+  const t = useT();
+  const { language } = useLanguage();
+  /** The id of the sent haunt's page on the website; `null` until the server has it. */
+  const [pageId, setPageId] = useState<string | null>(null);
+  const sent = pageId !== null;
   const [problem, setProblem] = useState<SendProblem | null>(null);
   const task = 'task' in day.today ? day.today.task : null;
   const allowed = offersHaunt(day, task, day.monster);
@@ -58,7 +64,7 @@ export function HauntSendContainer() {
     setProblem(null);
     void api
       .sendHaunt(hauntToSend(day.monster, to, dare, anonymous))
-      .then(() => setSent(true))
+      .then((answer) => setPageId(answer.pageId))
       .catch((error: unknown) => setProblem(sendProblemOf(refusalOf(error))))
       .finally(() => setBusy(false));
   };
@@ -76,6 +82,15 @@ export function HauntSendContainer() {
       onDare={setDare}
       onAnonymous={setAnonymous}
       onSend={send}
+      onPassOn={() => {
+        if (pageId === null) return;
+        setProblem(null);
+        // The link is the page's id and nothing else, so a haunt sent without a name stays so.
+        const link = sharedPageLink(siteBaseUrl(), language, 'h', pageId);
+        Share.share({ message: t('haunt.link.message', { link }) }).catch(() =>
+          setProblem('failed'),
+        );
+      }}
       onClose={() => router.replace('/')}
     />
   );

@@ -57,7 +57,8 @@ export async function startInvitePage(root: HTMLElement): Promise<void> {
   const code = idFromAddress();
   keepLanguageSwitchHere('t', code);
 
-  const invite = await fetchShared<TableInvite>('table-invite', code);
+  // The seat labels are the server's words, so it is told which language this page is in.
+  const invite = await fetchShared<TableInvite>('table-invite', code, language);
   if (invite === 'missing' || invite === 'offline') {
     showState(root, invite);
     return;

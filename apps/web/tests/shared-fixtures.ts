@@ -108,6 +108,9 @@ export const notFound = {
   error: { code: 'not_found', message: 'No such shared monster', retryable: false },
 };
 
+const globToRegex = (glob: string): RegExp =>
+  new RegExp(`${glob.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replaceAll('*', '[^/]*')}$`);
+
 /** Answers one of the site's API doors at the network boundary. */
 export async function answerApi(
   page: Page,
@@ -115,5 +118,9 @@ export async function answerApi(
   json: unknown,
   status = 200,
 ): Promise<void> {
-  await page.route(`**/api/${route}`, (request) => request.fulfill({ status, json }));
+  // With or without the page's language beside the route.
+  await page.route(
+    (url) => globToRegex(`/api/${route}`).test(url.pathname),
+    (request) => request.fulfill({ status, json }),
+  );
 }

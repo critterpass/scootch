@@ -12,7 +12,7 @@ import {
 import { File, Paths } from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library/legacy';
 import * as Sharing from 'expo-sharing';
-import { Platform } from 'react-native';
+import { Platform, Share } from 'react-native';
 
 import { toSkiaNodes, type SkiaNode } from '../../art/skia-nodes';
 
@@ -95,7 +95,11 @@ export const nativeShareDevice: ShareDevice = {
     file.writeSync(bytes);
     return Promise.resolve(file.uri);
   },
-  openShareSheet: (uri, mimeType) => Sharing.shareAsync(uri, { mimeType }),
+  async openShareSheet(uri, mimeType, link) {
+    // The picture and its page's link go to the sheet together, which only iOS's own sheet does.
+    if (link !== undefined && Platform.OS === 'ios') await Share.share({ url: uri, message: link });
+    else await Sharing.shareAsync(uri, { mimeType });
+  },
   async saveToPhotos(uri) {
     const permission = await MediaLibrary.requestPermissionsAsync(true);
     if (!permission.granted) return 'refused';

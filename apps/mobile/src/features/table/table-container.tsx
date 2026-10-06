@@ -4,15 +4,17 @@ import { Share } from 'react-native';
 
 import type { TableSeat } from '@scootch/domain';
 
-import { useT } from '../../i18n/i18n-provider';
+import { siteBaseUrl } from '../../api/api-config';
+import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { useDispatch, useToday } from '../../state/day-store-provider';
 import { useTableState, useTogether } from '../../state/together-context';
+import { sharedPageLink } from '../share/share-links';
 
 import { seatControls } from './seat-controls';
 import { SeatSheet } from './seat-sheet';
 import { tableEndsAt } from './table-clock';
 import { TablePage } from './table-page';
-import { TABLE_LOBBY, labelModeFor, tableInviteLink, tableTimer } from './table-rules';
+import { TABLE_LOBBY, labelModeFor, tableTimer } from './table-rules';
 
 /**
  * The table on the real phone. The session it starts is the day store's own: this screen sets and
@@ -25,6 +27,7 @@ export function TableContainer() {
   const dispatch = useDispatch();
   const router = useRouter();
   const t = useT();
+  const { language } = useLanguage();
   const [chosen, setChosen] = useState<string | null>(null);
   const [sheet, setSheet] = useState<TableSeat | null>(null);
   const [muted, setMuted] = useState<readonly string[]>([]);
@@ -66,7 +69,11 @@ export function TableContainer() {
     void api
       .tableInvite(state.tableId)
       .then(({ code }) =>
-        Share.share({ message: t('table.invite.message', { link: tableInviteLink(code) }) }),
+        Share.share({
+          message: t('table.invite.message', {
+            link: sharedPageLink(siteBaseUrl(), language, 't', code),
+          }),
+        }),
       )
       .catch(() => setResult('failed'));
   };

@@ -168,6 +168,7 @@ export const TOGETHER_CAPTURES = {
       onDare={nothing}
       onAnonymous={nothing}
       onSend={nothing}
+      onPassOn={nothing}
       onClose={nothing}
     />
   ),
