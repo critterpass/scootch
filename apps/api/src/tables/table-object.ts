@@ -1,8 +1,9 @@
 import { DurableObject } from 'cloudflare:workers';
 
+import type { Language } from '../contracts';
 import type { Bindings } from '../env';
 
-import { seatShown } from './labels';
+import { seatShown, seatShownOutside } from './labels';
 import {
   accountHeader,
   languageHeader,
@@ -15,6 +16,7 @@ import {
   type Attachment,
   type TableErrorCode,
   type TableServerMessage,
+  type WorkMode,
 } from './table-contract';
 import { closeTableRows, isMuted, seatRowAdded, seatRowRemoved } from './table-rows';
 import {
@@ -74,6 +76,19 @@ export class TableObject extends DurableObject<Bindings> {
   async facts(): Promise<{ accountId: string; nudgesSent: number }[] | null> {
     const table = await this.load();
     return table?.seats.map(({ accountId, nudgesSent }) => ({ accountId, nudgesSent })) ?? null;
+  }
+
+  /**
+   * The seats as an invite link shows them: a name, and a label with its work mode unless hidden.
+   * No ids. One storage read; nothing is written, no alarm moves and no socket is touched.
+   */
+  async seatsOutside(
+    language: Language,
+  ): Promise<{ name: string; label: string | null; workMode: WorkMode | null }[] | null> {
+    const table = await this.load();
+    return (
+      table?.seats.map((seat) => ({ name: seat.name, ...seatShownOutside(seat, language) })) ?? null
+    );
   }
 
   override async fetch(request: Request): Promise<Response> {

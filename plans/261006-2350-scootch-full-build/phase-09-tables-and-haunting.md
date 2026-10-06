@@ -72,7 +72,7 @@ a strangers option, leave it out and log it in `docs/undesigned-states.md`.
   table is the Plus control; the guest sees no price.
 
 ### 8. Haunt a friend
-- Status: partly done — aa1a667; server built and tested, no app screens yet, not deployed; app screens built and tested with fakes — 832b891, not yet run on a device; the seed a haunt carries is now exactly the phone's (a lower-case UUID), one contract for server and app, tested; no entry on the hatch screen or in the drawer yet: the boards draw neither and both screens belong to other work
+- Status: partly done — aa1a667; server built and tested, no app screens yet, not deployed; app screens built and tested with fakes — 832b891, not yet run on a device; the seed a haunt carries is now exactly the phone's (a lower-case UUID), one contract for server and app, tested; no entry on the hatch screen or in the drawer yet: the boards draw neither and both screens belong to other work; sending now answers with the id of the haunt's page on the website and the page can be read and shooed by that link (server tested, not deployed); the app does not read the id or build the link yet, and whoever holds the link, the sender included, can see whether the monster is still waiting
 - Do: send a monster with a preset dare; friends only; one per friend per
   week; catch it (becomes today's one thing) or shoo it; the sender is never
   told; "can be haunted" switch; never for a serious task.

@@ -10,6 +10,8 @@ import { tablesOf } from './table-rows';
 
 /** A table's invite link works this long, or until the table closes. */
 const tableInviteLifeMs = 24 * 60 * 60 * 1000;
+/** A link that has run out is remembered this long, so its page can say so, then forgotten. */
+export const tableInviteRememberedMs = 7 * 24 * 60 * 60 * 1000;
 
 /**
  * `tables.requirePlus`: on, opening a table needs a purchase state that unlocks it. The state is
@@ -71,7 +73,9 @@ export async function createTableInvite(
   const code = newInviteCode();
   const expiresAt = isoAfter(now, tableInviteLifeMs);
   await db.batch([
-    db.prepare('DELETE FROM table_invites WHERE expires_at <= ?').bind(now.toISOString()),
+    db
+      .prepare('DELETE FROM table_invites WHERE expires_at <= ?')
+      .bind(isoAfter(now, -tableInviteRememberedMs)),
     db
       .prepare(
         'INSERT INTO table_invites (code_hash, table_id, created_by, expires_at) VALUES (?, ?, ?, ?)',

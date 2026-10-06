@@ -47,7 +47,7 @@ describe('haunting', () => {
     const [other] = [await person('Cy')];
     await befriend(other, recipient);
 
-    expect(await ok(send(sender, recipient))).toEqual({ sent: true });
+    expect(await ok(send(sender, recipient))).toMatchObject({ sent: true });
     await ok(send(other, recipient, { anonymous: true, dare: 'race_you' }));
 
     const { haunts } = await waiting(recipient);

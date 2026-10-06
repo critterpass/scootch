@@ -24,12 +24,14 @@ export async function seatRowRemoved(
     .run();
 }
 
-/** A closed table keeps its row and loses its seats and its invite links. */
+/**
+ * A closed table keeps its row and loses its seats. Its invite links stay until they are swept,
+ * so a link opened afterwards can say the table has closed; none of them seats anyone again.
+ */
 export async function closeTableRows(db: D1Database, tableId: string, now: Date): Promise<void> {
   await db.batch([
     db.prepare('UPDATE tables SET closed_at = ? WHERE id = ?').bind(now.toISOString(), tableId),
     db.prepare('DELETE FROM table_seats WHERE table_id = ?').bind(tableId),
-    db.prepare('DELETE FROM table_invites WHERE table_id = ?').bind(tableId),
   ]);
 }
 

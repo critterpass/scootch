@@ -65,6 +65,19 @@ export function seatShown(
   return { label: seatLabel(seat, language), workMode: seat.hidden ? null : seat.workMode };
 }
 
+/**
+ * What someone holding an invite link is shown of a seat's work before they sit down. A hidden
+ * label shows nothing at all, exactly like a seat with no work mode, so the two cannot be told
+ * apart from outside the table.
+ */
+export function seatShownOutside(
+  seat: { readonly workMode: WorkMode | null; readonly hidden: boolean },
+  language: Language,
+): { label: string | null; workMode: WorkMode | null } {
+  if (seat.hidden || seat.workMode === null) return { label: null, workMode: null };
+  return { label: workModeLabels[seat.workMode][language], workMode: seat.workMode };
+}
+
 /** Every string a label can ever be. */
 export const everyLabel: ReadonlySet<string> = new Set([
   '',
