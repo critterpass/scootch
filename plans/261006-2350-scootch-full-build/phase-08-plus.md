@@ -12,18 +12,20 @@ product-brief section 7 first. High effort for tasks 1 and 2.
   monthly, yearly, lifetime, expired, friend-pass guest). Every locked control
   reads it; nothing else decides.
 - Test: every state, including a lapsed trial and a refund.
-- Status: partly done — ccdb754; pure logic and tests in packages/domain, no screens, storage or store SDK yet
+- Status: partly done — fe80188; built and tested with a fake store, not yet run against real products or on a device
 
 ### 2. Purchases
 - Do: the three products, purchase, restore through the Apple ID with no
   account, and state changes picked up from the store.
 - Done when: sandbox purchase, restore and cancel are walked end to end.
+- Status: partly done — fe80188; built and tested with a fake store, not yet run against real products or on a device
 
 ### 3. The sheet
 - Do: one sheet; the line changes with attitude; the button changes with the
   plan (trial on yearly, plain subscribe on monthly, buy once on lifetime);
   Terms, Privacy and Restore always visible; "Not now" in plain sight.
 - Done when: sheets of nine combinations (three attitudes by three plans).
+- Status: partly done — fe80188; built and tested with a fake store, not yet run against real products or on a device
 
 ### 4. Locked controls
 - Do: "One more" under your world (two more a day on Plus, then a cap); card
@@ -31,10 +33,12 @@ product-brief section 7 first. High effort for tasks 1 and 2.
   extra-large widget and StandBy. Each in its free and Plus state.
 - Test: the house rules as a check. No paywall route is reachable from first
   launch, the one screen, a session or "Done for today".
+- Status: partly done — fe80188; built and tested with a fake store, not yet run against real products or on a device
 
 ### 5. The first offer
 - Do: after the third catch, one line in the world, one tap to dismiss, not
   repeated that week.
+- Status: partly done — fe80188; built and tested with a fake store, not yet run against real products or on a device
 
 ### 6. Trial and renewal
 - Do: trial started with both dates; the day-before reminder as a notification
@@ -42,11 +46,13 @@ product-brief section 7 first. High effort for tasks 1 and 2.
   renewal reminder three days before; renewal off confirmed. Cancelling and
   changing plan open Apple's sheet.
 - Test: reminders are scheduled from the store's dates, not the phone's clock.
+- Status: partly done — fe80188; built and tested with a fake store, not yet run against real products or on a device
 
 ### 7. Lifetime, manage and the shelf
 - Do: the lifetime moment (the 1 of 1 card and the lighthouse); the manage
   page; the shelf of inks, outfits and worlds, tried on live, each a single
   purchase.
+- Status: partly done — fe80188; built and tested with a fake store, not yet run against real products or on a device
 
 ### 8. The Scootch that learns you
 - Do: on-device statistics for when the user really starts and what size they

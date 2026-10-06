@@ -93,6 +93,16 @@ export const enOffline: OfflinePack = {
       waiting: "I'm here. What's the one thing today?",
       typing: 'Typing is lovely. Take your time.',
       doneForToday: "Done for today. Go and rest. I'll keep things cosy here.",
+      plusSheet: "If you'd like a little more of me, it's here. No rush at all.",
+      plusOneMore: 'A second thing today lives in Plus. No rush at all.',
+      plusOffer: "Three caught. There's a little more of me, if you ever want it.",
+      trialStarted: "A whole week of everything. I'll tell you before it costs a thing.",
+      trialEndsTomorrow:
+        'Your free week ends tomorrow, and the charge comes then. I wanted you to hear it from me.',
+      trialLastDay: 'The free week ends tonight. What would you like to do?',
+      renewalOff: "Done. Plus won't renew.",
+      plusCancelled: "That's fair. I'll still be here. The one thing a day is yours to keep.",
+      lifetime: "You're staying for good. I'm so glad.",
     },
     cheeky: {
       hello: "Oh! You're here. I'm Scootch. I've been waiting for you specifically.",
@@ -105,6 +115,16 @@ export const enOffline: OfflinePack = {
       waiting: "I've been guarding this door all morning. What's the one thing today?",
       typing: "Typing? Fancy. I'll read every letter.",
       doneForToday: 'Done for today. Go do absolutely nothing.',
+      plusSheet: "I work for free. I'd like to work for slightly more than free.",
+      plusOneMore: "A second one? In this economy? That's a Plus thing.",
+      plusOffer:
+        'Three caught. I could do more for you, for a small fee. No pressure. Some pressure.',
+      trialStarted: "A whole week of everything. I'll poke you before it costs a thing.",
+      trialEndsTomorrow: "Tomorrow I charge you. I'm telling you now because I'm not a monster.",
+      trialLastDay: 'Free week ends tonight. What shall we do?',
+      renewalOff: "Done. Plus won't renew.",
+      plusCancelled: "Fair. I'll still be here. The one thing a day is yours to keep.",
+      lifetime: "You're stuck with me now. Forever. I'm thrilled.",
     },
     unhinged: {
       hello: "YOU'RE HERE. I'm Scootch. I have been rehearsing this moment in a mirror.",
@@ -118,6 +138,20 @@ export const enOffline: OfflinePack = {
       waiting: "I HAVE BEEN STARING AT THIS DOOR FOR THREE HOURS. What's the one thing today?",
       typing: 'TYPING. Fancy. I will read every single letter.',
       doneForToday: "DONE FOR TODAY. Go do absolutely nothing. I'll supervise.",
+      plusSheet: 'I have prepared a speech, a dance, and one very small invoice.',
+      plusOneMore: "A SECOND ONE? TODAY? That's a Plus thing. I checked the tiny rulebook.",
+      plusOffer:
+        'THREE CAUGHT. I could do more for you, for a small fee. I rehearsed saying that casually.',
+      trialStarted:
+        'A WHOLE WEEK OF EVERYTHING. I will poke you before it costs a thing. I have set nine alarms.',
+      trialEndsTomorrow:
+        'TOMORROW I CHARGE YOU. I am telling you now because I am not a monster. I checked.',
+      trialLastDay:
+        'THE FREE WEEK ENDS TONIGHT. What shall we do? I am not hovering. I am hovering.',
+      renewalOff: "DONE. Plus won't renew. I filed it under handled.",
+      plusCancelled:
+        "FAIR. I'll still be here. The one thing a day is yours to keep. I am guarding it.",
+      lifetime: "YOU'RE STUCK WITH ME NOW. FOREVER. I'm thrilled. The spoon is thrilled.",
     },
   },
   monsterNames: [
@@ -127,4 +161,14 @@ export const enOffline: OfflinePack = {
   ],
   monsterTitles: ['Corner lurker', 'Loose-end collector'],
   deadline: (_attitude, thing, heardAs) => `I heard a date: ${thing}, ${heardAs}.`,
+  renewal: (attitude, plan, day, price) => {
+    const what = `Your ${plan === 'yearly' ? 'year' : 'month'} of Plus renews on ${day}${price === null ? '' : ` for ${price}`}.`;
+    if (attitude === 'soft') {
+      return `${what} If you'd rather it didn't, you can turn it off in Plus before then.`;
+    }
+    const rest = "Not feeling it? Turn it off in Plus and it simply won't renew. No hard feelings";
+    return attitude === 'cheeky'
+      ? `${what} ${rest}, I promise.`
+      : `NOTICE: ${what} ${rest}. I PROMISE.`;
+  },
 };

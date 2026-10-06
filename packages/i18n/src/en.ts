@@ -1,9 +1,10 @@
+import { enPlus } from './en-plus';
+
 /**
  * English interface strings, and the source of the key set. Lines Scootch speaks never go here.
  */
 export const en = {
   'brand.name': 'Scootch',
-  'brand.plus': 'Plus',
 
   'talk.hold': 'Hold to talk',
   'talk.parkThought': 'Park a thought',
@@ -164,7 +165,6 @@ export const en = {
 
   'keep.close': 'Close',
   'keep.close.hint': 'Goes back',
-  'keep.plusOnly.hint': 'Part of Scootch Plus',
 
   'reveal.skip': 'Skip',
   'reveal.skip.hint': 'Moves on to the next thing',
@@ -327,4 +327,5 @@ export const en = {
   'care.crisis.sit': 'Just sit with me',
   'care.crisis.sit.hint': 'Stays on this screen, with nothing to do',
   'care.crisis.here': 'I\u2019m right here. Take your time.',
+  ...enPlus,
 } as const;

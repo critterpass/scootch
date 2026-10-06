@@ -11,6 +11,7 @@ import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { developerToolsAllowed } from '../../screens/registry/support/developer-tools';
 import { useDispatch, useDrawer, useSession, useToday } from '../../state/day-store-provider';
 import type { DayEvent } from '../../state/day-types';
+import { usePlus } from '../../state/keepsakes';
 import { lineFor, lineWithNoTask } from '../../state/lines';
 import { useScreenReader } from '../../ui/use-screen-style';
 import type { ComposerState } from '../composer/composer-machine';
@@ -20,6 +21,8 @@ import { dayWords } from '../drawer/day-words';
 import { DrawerSheet } from '../drawer/drawer-sheet';
 import { QuietLink, Stack } from '../dump/dump-panels';
 import { HatchFigure } from '../monster/hatch-figure';
+import { OneMore } from '../plus/one-more';
+import { PLUS_SHEET_ONE_MORE } from '../plus/routes';
 
 import { NotNow } from './not-now';
 import { minuteOptions } from './one-screen-panels';
@@ -69,6 +72,7 @@ export function OneScreen({ speech, warmUp, notificationsRefused }: OneScreenPro
   const router = useRouter();
   const t = useT();
   const screenReader = useScreenReader();
+  const plus = usePlus();
   const network = useNetworkState();
   const [chosenMinutes, setMinutes] = useState<number | null>(null);
   const [treat, setTreat] = useState('');
@@ -137,7 +141,15 @@ export function OneScreen({ speech, warmUp, notificationsRefused }: OneScreenPro
       shownLine && (shownLine.slot === 'done' || shownLine.slot === 'caught')
         ? shownLine.text
         : lineWithNoTask('doneForToday', voice);
-    return <OneScreenView {...frame} mood="asleep" line={said} shown={{ kind: 'done' }} />;
+    const under = (
+      <OneMore
+        plus={plus}
+        left={today.kind === 'done_for_today' ? today.startsLeft : 0}
+        onLocked={() => router.push(PLUS_SHEET_ONE_MORE)}
+        onMore={() => send({ type: 'one_more_asked' })}
+      />
+    );
+    return <OneScreenView {...frame} mood="asleep" line={said} shown={{ kind: 'done', under }} />;
   }
 
   if (stage.kind === 'task_set') {

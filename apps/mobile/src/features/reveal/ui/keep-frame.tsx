@@ -85,7 +85,7 @@ export interface DockAction {
   readonly hint: string;
   readonly testID: string;
   readonly onPress?: () => void;
-  /** A Plus control in the free app: drawn with its lock, and it does nothing here. */
+  /** A Plus control in the free app: drawn with its lock. A tap, where it has one, opens the sheet. */
   readonly locked?: boolean;
 }
 
@@ -115,7 +115,7 @@ export function Dock({
       hint={item.hint}
       testID={item.testID}
       tone={item.locked ? 'quiet' : tone}
-      disabled={item.locked === true}
+      disabled={item.locked === true && !item.onPress}
       style={largeText ? null : styles.grow}
       {...(item.locked ? { icon: <Lock color={palette.muted} /> } : {})}
       {...(item.onPress ? { onPress: item.onPress } : {})}

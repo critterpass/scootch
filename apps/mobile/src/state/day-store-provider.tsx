@@ -32,11 +32,14 @@ import {
   systemClock,
   systemTimers,
 } from '../effects/native-adapters';
+import { revenueCatPurchases } from '../features/plus/revenuecat-port';
 import { useLanguage } from '../i18n/i18n-provider';
 
 import { createDayStore, effectSwitches, type DayStore } from './day-store';
 import type { DayEvent, DayState } from './day-types';
 import { lineFor } from './lines';
+import { PlusContext } from './plus-context';
+import { createPlusRuntime, readOfferFacts } from './plus-runtime';
 import { SessionRelaunch } from './session-relaunch';
 
 /** The day store on the real phone: its database, the API, and the native effects. */
@@ -65,10 +68,22 @@ function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
     switches: () => effectSwitches(store.getState(), motion.reduced),
     onClock: () => void store.dispatch({ type: 'session', event: { type: 'clock' } }),
   });
-  const store: DayStore = createDayStore({
-    repositories: openRepositories(db),
+  const timeZone = () => getCalendars()[0]?.timeZone ?? 'UTC';
+  const repositories = openRepositories(db);
+  // The store's public SDK key comes from the app's config; with none, nothing can be bought.
+  const plus = createPlusRuntime({
+    db,
+    port: revenueCatPurchases(process.env['EXPO_PUBLIC_REVENUECAT_IOS_KEY']),
     clock: systemClock,
-    timeZone: () => getCalendars()[0]?.timeZone ?? 'UTC',
+    notifications: nativeNotifications,
+    timeZone,
+    voice: () => ({ language: language(), attitude: store.getState().settings.attitude }),
+    offerFacts: () => readOfferFacts(repositories, store.getState()),
+  });
+  const store: DayStore = createDayStore({
+    repositories,
+    clock: systemClock,
+    timeZone,
     nextId: randomUUID,
     tasks: createStagedTaskClient(createScootchApi(http)),
     online: async () => {
@@ -77,10 +92,10 @@ function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
     },
     runner,
     phoneLanguage: language,
-    // Nothing in this layer knows about purchases: every phone has the free day.
-    plus: () => false,
+    // The daily limit follows what the store last said, through the domain's entitlement rules.
+    plus: () => plus.store.getState().unlocked.plus,
   });
-  return { store, motion, cues };
+  return { store, motion, cues, plus };
 }
 
 const DayStoreContext = createContext<DayStore | null>(null);
@@ -98,11 +113,19 @@ export function DayStoreProvider({ children }: { readonly children: ReactNode })
   const [app] = useState(() => createAppDayStore(db, () => languageNow.current));
 
   useEffect(() => {
-    const { store, motion, cues } = app;
+    const { store, motion, cues, plus } = app;
     const send = (event: DayEvent) => void store.dispatch(event).catch(() => undefined);
-    void store
-      .start()
+    // What was last known about Plus is read before today is built, so the daily limit is right
+    // with no connection; the store is asked afterwards and on every return to the app.
+    const entitlement = plus.store.subscribe(() => {
+      if (store.getState().ready) send({ type: 'entitlement_changed' });
+      void plus.syncReminders();
+    });
+    void plus.store
+      .load()
+      .then(() => store.start())
       .then(() => cues.warm())
+      .then(() => plus.refresh())
       .catch(() => undefined);
 
     void AccessibilityInfo.isReduceMotionEnabled()
@@ -114,13 +137,17 @@ export function DayStoreProvider({ children }: { readonly children: ReactNode })
       motion.reduced = reduced;
     });
     const appState = AppState.addEventListener('change', (next) => {
-      if (next === 'active') send({ type: 'app_foregrounded' });
+      if (next === 'active') {
+        send({ type: 'app_foregrounded' });
+        void plus.refresh();
+      }
       if (next === 'background') send({ type: 'app_backgrounded' });
     });
     const network = addNetworkStateListener((state) => {
       if (state.isInternetReachable ?? state.isConnected) send({ type: 'connection_returned' });
     });
     return () => {
+      entitlement();
       reduceMotion.remove();
       appState.remove();
       network.remove();
@@ -141,10 +168,12 @@ export function DayStoreProvider({ children }: { readonly children: ReactNode })
 
   return (
     <DayStoreContext.Provider value={app.store}>
-      <CueContext.Provider value={playCue}>
-        <SessionRelaunch store={app.store} />
-        {children}
-      </CueContext.Provider>
+      <PlusContext.Provider value={app.plus}>
+        <CueContext.Provider value={playCue}>
+          <SessionRelaunch store={app.store} />
+          {children}
+        </CueContext.Provider>
+      </PlusContext.Provider>
     </DayStoreContext.Provider>
   );
 }
@@ -169,7 +198,7 @@ function useDayState(): DayState {
 export function useToday() {
   const state = useDayState();
   const { ready, localDate, today, morning, monster, monsterPending } = state;
-  const { taskCall, notice, heardDeadlines, settings, pick, energyNeeded } = state;
+  const { taskCall, notice, heardDeadlines, settings, pick, energyNeeded, oneMore } = state;
   return useMemo(
     () => ({
       ready,
@@ -184,6 +213,7 @@ export function useToday() {
       settings,
       pick,
       energyNeeded,
+      oneMore,
     }),
     [
       ready,
@@ -198,6 +228,7 @@ export function useToday() {
       settings,
       pick,
       energyNeeded,
+      oneMore,
     ],
   );
 }

@@ -49,6 +49,7 @@ const NOT_READY: DayState = {
   morning: { kind: 'fresh_ask' },
   pick: { kind: 'none' },
   energyNeeded: false,
+  oneMore: false,
   session: null,
   monster: null,
   monsterPending: false,
@@ -132,6 +133,8 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
       today,
       // Asked once a day, before the first thing is picked.
       energyNeeded: (day?.energy ?? null) === null && tasks.length === 0,
+      // The ask stays open only while the day is finished and the daily limit has a start left.
+      oneMore: memory.state.oneMore && today.kind === 'done_for_today' && today.startsLeft > 0,
       monster,
       monsterPending:
         task !== null && (task.screen === 'unscreened' || (task.screen === 'pass' && !monster)),
@@ -226,6 +229,15 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
         if (day && day.status === 'open') await repositories.days.put({ ...day, status: 'done' });
         return refresh();
       }
+      case 'one_more_asked': {
+        const { today } = memory.state;
+        if (today.kind === 'done_for_today' && today.startsLeft > 0) {
+          set({ oneMore: true, line: null });
+        }
+        return;
+      }
+      case 'entitlement_changed':
+        return refresh();
       case 'settings_changed':
         await repositories.settings.write(event.changes);
         set({ settings: await repositories.settings.read(deps.phoneLanguage()) });

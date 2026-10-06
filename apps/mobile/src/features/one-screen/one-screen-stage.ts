@@ -66,7 +66,7 @@ export type Stage =
 
 export type StageInput = Pick<
   DayState,
-  'today' | 'pick' | 'morning' | 'monster' | 'heardDeadlines' | 'drawer'
+  'today' | 'pick' | 'morning' | 'monster' | 'heardDeadlines' | 'drawer' | 'oneMore'
 > & {
   /** The person's words are held back until the battery question is answered. */
   readonly energyAsked: boolean;
@@ -88,7 +88,18 @@ export function stageOf(input: StageInput): Stage {
   if (today.kind === 'in_session' || (today.kind === 'serious' && today.session !== null)) {
     return { kind: 'session' };
   }
-  if (today.kind === 'done_for_today') return { kind: 'done' };
+  if (today.kind === 'done_for_today') {
+    // "One more" was tapped and the daily limit has a start left: the plain ask comes back.
+    if (input.oneMore && today.startsLeft > 0) {
+      return {
+        kind: 'composer',
+        returning: false,
+        note: null,
+        canPickForMe: drawer.items.length > 0,
+      };
+    }
+    return { kind: 'done' };
+  }
 
   if (pick.kind === 'picked_for_me') {
     const item = drawer.items.find((one) => one.id === pick.itemId);
