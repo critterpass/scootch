@@ -20,7 +20,7 @@ export const PLUS_BOARD = 'Plus';
 /** Which keeping screen a capture shows, and with how much in it. */
 export type KeepCapture =
   | { readonly screen: 'reveal'; readonly step: RevealStep }
-  | { readonly screen: 'world'; readonly pieces: number }
+  | { readonly screen: 'world'; readonly pieces: number; readonly lighthouse?: boolean }
   | {
       readonly screen: 'zoo';
       readonly cards: number;

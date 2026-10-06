@@ -1,4 +1,5 @@
 import {
+  treatPlaceholder,
   type SeriousLinePack,
   type SessionLine,
   type SessionLinePack,
@@ -15,7 +16,7 @@ import {
   type OfflineSlot,
 } from '@scootch/voice';
 
-import { showsComedy } from './shows-comedy';
+import { showsComedy, showsSelling, type SellingDay } from './shows-comedy';
 
 export type LineSlot = SessionLine | 'hatch' | 'working';
 
@@ -40,8 +41,23 @@ function fromPlain(pack: PlainPack, slot: LineSlot, turn: number): string | null
   return null;
 }
 
+/**
+ * A task's tiny next steps, each smaller than the one before and none of them twice. A pack
+ * written before the smaller ones existed has the one step.
+ */
+export function nextSteps(lines: TaskRow['lines']): readonly string[] {
+  if (lines === null) return [];
+  const tinier = 'hatch' in lines ? (lines.tinierNextSteps ?? []) : [];
+  return [...new Set([lines.tinyNextStep, ...tinier])];
+}
+
 function fromSessionPack(pack: SessionLinePack, slot: LineSlot, turn: number): string | null {
   if (slot === 'working') return pack.working[turn % pack.working.length] ?? null;
+  if (slot === 'tinyNextStep') {
+    // `turn` counts the steps down already taken; past the smallest step it stays there.
+    const steps = nextSteps(pack);
+    return steps[Math.min(Math.max(0, turn), steps.length - 1)] ?? null;
+  }
   const line = (pack as Record<string, unknown>)[slot];
   return typeof line === 'string' ? line : null;
 }
@@ -73,7 +89,14 @@ export function lineFor(
     }
     return fromPlain(offlinePacks[settings.language].plain, slot, turn);
   }
-  return isOfflineSlot(slot) ? offlineLine(settings.language, settings.attitude, slot, turn) : null;
+  if (!isOfflineSlot(slot)) return null;
+  // The offline pack has one tiny next step: a count of steps down is not a turn through it.
+  return offlineLine(
+    settings.language,
+    settings.attitude,
+    slot,
+    slot === 'tinyNextStep' ? 0 : turn,
+  );
 }
 
 /**
@@ -85,4 +108,43 @@ export function lineWithNoTask(
   settings: Pick<SettingsRow, 'language' | 'attitude'>,
 ): string {
   return noTaskLine(settings.language, settings.attitude, slot);
+}
+
+/**
+ * A line Scootch speaks about Plus (the sheet, the first offer, a purchase's own moment). On a day
+ * with something heavy in it there is none: `null`, and the screen says nothing.
+ */
+export function plusLine(
+  slot: NoTaskSlot,
+  settings: Pick<SettingsRow, 'language' | 'attitude'>,
+  day: SellingDay,
+): string | null {
+  return showsSelling(day) ? noTaskLine(settings.language, settings.attitude, slot) : null;
+}
+
+/** What Scootch says on the screens after a finish, where the task's own pack has the words. */
+export interface AfterLines {
+  /** The ceremony line of the treat, naming it. */
+  readonly treat: string | null;
+  /** Said over the thoughts parked during the session. */
+  readonly parkedThoughts: string | null;
+}
+
+export const NO_AFTER_LINES: AfterLines = { treat: null, parkedThoughts: null };
+
+/**
+ * The treat and parked-thoughts lines of a task's own pack. Only an ordinary task whose pack has
+ * them says anything; every other task shows those screens as they were, without a line.
+ */
+export function afterLinesFor(task: TaskRow, treat: string | null): AfterLines {
+  const { lines } = task;
+  if (lines === null || !('hatch' in lines) || !showsComedy(task, 'joke')) return NO_AFTER_LINES;
+  const name = treat?.trim() ?? '';
+  return {
+    treat:
+      lines.treatHandOver === undefined || name === ''
+        ? null
+        : lines.treatHandOver.split(treatPlaceholder).join(name),
+    parkedThoughts: lines.parkedThoughts ?? null,
+  };
 }

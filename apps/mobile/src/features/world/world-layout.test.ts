@@ -9,7 +9,8 @@ import {
   fixtureTask,
 } from '../reveal/registry/keep-fixtures';
 
-import { PIECE_NAMES, worldInks, worldRowCommands } from './world-commands';
+import { landLighthouse, lighthousePiece, pieceKind } from './landmarks';
+import { PIECE_NAMES, headlandCommands, worldInks, worldRowCommands } from './world-commands';
 import { inLandingOrder, layoutWorld, WORLD_WIDTH, type PlacedPiece } from './world-layout';
 
 const overlap = (a: PlacedPiece, b: PlacedPiece) =>
@@ -86,5 +87,71 @@ describe('the world', () => {
     expect(pieces).toEqual([]);
     expect(layoutWorld(inLandingOrder(pieces), PIECE_NAMES).placed).toEqual([]);
     expect(await repositories.surpriseDrops.all()).toEqual([]);
+  });
+});
+
+describe('the lifetime lighthouse', () => {
+  const lighthouse = lighthousePiece('2026-01-07');
+  const inks = worldInks('light');
+  const rowsOf = (layout: ReturnType<typeof layoutWorld>) =>
+    Array.from({ length: layout.rows }, (_, row) => worldRowCommands(layout, row, new Map(), inks));
+
+  it('lays ordinary pieces out exactly as the world always has', () => {
+    // Read off the layout before landmarks existed: the same sixty pieces, to the last decimal.
+    const { placed, rows, height } = layoutWorld(inLandingOrder(fixturePieces(60)), PIECE_NAMES);
+    const sum = placed.reduce((total, piece) => total + piece.x + piece.y + piece.size, 0);
+    expect({ rows, height, sum: sum.toFixed(6) }).toEqual({
+      rows: 14,
+      height: 1092,
+      sum: '41856.229927',
+    });
+    expect(placed.map((piece) => piece.art[0]).join('')).toBe(
+      'hhhhfhssshhhhsfsssfhsshfhhhhsfhhsssshhhhfhhhfsssshhshsfhhshs',
+    );
+    expect(placed[0]).toMatchObject({
+      art: 'hill',
+      row: 0,
+      x: 145.13060127530863,
+      y: 10.260733889791563,
+      size: 56.587916949763894,
+    });
+  });
+
+  it('moves no piece and changes no drawing when it lands, whenever it lands', () => {
+    for (const count of [0, 1, 7, 60, 300]) {
+      const pieces = fixturePieces(count);
+      const before = layoutWorld(inLandingOrder(pieces), PIECE_NAMES);
+      for (const addedOn of ['2020-01-01', '2026-01-07', '2099-01-01']) {
+        const after = layoutWorld(
+          inLandingOrder([{ ...lighthouse, addedOn }, ...pieces]),
+          PIECE_NAMES,
+        );
+        expect(after.placed).toEqual(before.placed);
+        expect([after.rows, after.height]).toEqual([before.rows, before.height]);
+        expect(rowsOf(after)).toEqual(rowsOf(before));
+        expect(before.landmarks).toEqual([]);
+        expect(headlandCommands(before, inks)).toEqual([]);
+        // The same prominent spot every time: the middle of the headland, whatever else is there.
+        expect(after.landmarks).toEqual([
+          { id: lighthouse.id, art: 'lighthouse', x: 138, y: 12, size: 84 },
+        ]);
+        expect(headlandCommands(after, inks).length).toBeGreaterThan(1);
+      }
+    }
+  });
+
+  it('is a kind of its own, and never a drawing an ordinary piece can be dealt', () => {
+    expect(pieceKind(lighthouse)).toBe('landmark');
+    expect(fixturePieces(60).map(pieceKind)).toEqual(fixturePieces(60).map((piece) => piece.kind));
+    expect(PIECE_NAMES).not.toContain('lighthouse');
+    const dealt = layoutWorld(inLandingOrder(fixturePieces(300)), PIECE_NAMES).placed;
+    expect(dealt.map((piece) => piece.art)).not.toContain('lighthouse');
+  });
+
+  it('lands once, in the row the phone already stores, and stays through a relaunch', async () => {
+    const repositories = openRepositories((await openTestDatabase()).db);
+    expect(await landLighthouse(repositories.worldPieces, '2026-01-07')).toBe(true);
+    expect(await landLighthouse(repositories.worldPieces, '2026-03-01')).toBe(false);
+    expect(await repositories.worldPieces.all()).toEqual([lighthouse]);
   });
 });

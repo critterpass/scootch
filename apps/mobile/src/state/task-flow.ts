@@ -1,131 +1,15 @@
-import type { TaskCreateRequest, TaskLabels, TaskRow } from '@scootch/domain';
+import { MINUTE_MS, type TaskCreateRequest, type TaskRow } from '@scootch/domain';
 
 import { careGate } from '../api/care-gate';
-import type { TaskCall, TaskRest } from '../api/task-client';
 
 import { enterCrisis } from './care-flow';
-import type { DayContext, Offer, Reveal } from './day-types';
+import type { DayContext, Offer } from './day-types';
 import { swapItemIn } from './pick-flow';
-import { TASK_TEXT_MAX, fallbackCopy, monsterFor, newTask, park } from './task-rows';
+import { applyCall, keepTranscript, treatNamed } from './task-answers';
+import { TASK_TEXT_MAX, newTask } from './task-rows';
 
-/** A ramble's words are kept while its one thing is being picked, once they are known to be safe to keep. */
-async function keepTranscript(ctx: DayContext, offer: Offer): Promise<void> {
-  if (offer.source !== 'ramble' || offer.transcriptId !== null) return;
-  const transcriptId = ctx.deps.nextId();
-  await ctx.deps.repositories.transcripts.save(transcriptId, offer.text, ctx.now());
-  ctx.memory.offer = { ...offer, transcriptId };
-}
-
-type RestOutcome = { readonly rest: TaskRest | null } | 'failed';
-
-/**
- * Writes the second stage when it arrives. A task that was swapped out or let go in the meantime
- * gets nothing. When the rest never comes, an ordinary task whose labels are known still gets its
- * monster, with a plain name, and speaks the offline lines.
- */
-async function applyRest(
-  ctx: DayContext,
-  taskId: string,
-  labels: TaskLabels | null,
-  outcome: RestOutcome,
-): Promise<void> {
-  const { repositories } = ctx.deps;
-  ctx.memory.restPending = false;
-  const task = await repositories.tasks.get(taskId);
-  if (!task) return;
-  const rest = outcome === 'failed' ? null : outcome.rest;
-
-  if (rest?.verdict === 'serious' && task.screen === 'serious') {
-    await repositories.tasks.put({ ...task, lines: rest.lines });
-    return ctx.refresh();
-  }
-  if (task.screen !== 'pass') return;
-  const known = rest?.verdict === 'pass' ? rest.labels : labels;
-  if (known === null) return;
-
-  const pass = rest?.verdict === 'pass' ? rest : null;
-  const written: TaskRow = {
-    ...task,
-    lines: pass?.lines ?? task.lines,
-    notifications: pass ? [...pass.notifications] : task.notifications,
-    workMode: known.workMode,
-    fitsTenMinutes: known.fitsTenMinutes,
-    sharePrivate: known.sharePrivate,
-  };
-  await repositories.tasks.put(written);
-  await repositories.monsters.removeWhere('taskId', task.id);
-  const copy = pass?.monster ?? fallbackCopy(ctx, written, known);
-  await repositories.monsters.put(monsterFor(ctx, written, known, copy));
-  if (pass?.lines) ctx.set({ line: { slot: 'hatch', text: pass.lines.hatch } });
-  await ctx.refresh();
-}
-
-function revealFor(offer: Offer | null, call: TaskCall): Reveal | null {
-  const { first } = call;
-  if (first.verdict !== 'pass' || offer?.source !== 'ramble') return null;
-  const others = [...first.parked, ...first.deadlines].map((thing) => thing.text);
-  if (others.length === 0) return null;
-  // The one thing sits among the rest, as it did in the ramble, not at the top of a list.
-  const chosen = Math.min(others.length, Math.ceil(others.length / 2));
-  return {
-    phrases: [...others.slice(0, chosen), first.oneThing.text, ...others.slice(chosen)],
-    chosen,
-  };
-}
-
-/**
- * Writes what a task call answered first, and leaves the rest to arrive by itself. `existing` is
- * a task already on the phone that was waiting for its answer: its words stay exactly as the
- * person typed them, and nothing is offered again.
- */
-async function applyCall(ctx: DayContext, call: TaskCall, existing: TaskRow | null) {
-  const { repositories } = ctx.deps;
-  const { first } = call;
-  const offer = ctx.memory.offer;
-
-  if (first.verdict === 'crisis' || first.verdict === 'reject') {
-    if (existing) await repositories.forgetTask(existing.id);
-    if (first.verdict === 'crisis') return enterCrisis(ctx);
-    ctx.memory.offer = null;
-    return ctx.set({ notice: 'say_it_another_way', pick: { kind: 'none' } });
-  }
-
-  const screen = first.verdict;
-  const task: TaskRow = existing
-    ? { ...existing, screen, seriousOverridden: first.seriousOverridden }
-    : {
-        ...newTask(ctx, first.oneThing.text, offer?.source ?? 'typed', screen),
-        seriousOverridden: first.seriousOverridden,
-        dueDate: first.oneThing.dueDate,
-      };
-  await repositories.tasks.put(task);
-  if (!existing) {
-    const parked = await park(ctx, first.parked, screen);
-    // A heard date is stored at once, so closing the app cannot lose it; it is still said out
-    // loud before the person sees anything parked.
-    await park(ctx, first.deadlines, screen);
-    const day = await repositories.days.get(task.localDate);
-    if (day) await repositories.days.put({ ...day, energy: first.energy });
-    if (offer) {
-      await keepTranscript(ctx, offer);
-      const kept = ctx.memory.offer ?? offer;
-      ctx.memory.offer = { ...kept, candidates: parked.map((item) => item.id) };
-    }
-    ctx.set({
-      heardDeadlines: first.deadlines,
-      pick: { kind: 'offered', reveal: revealFor(offer, call), another: true },
-    });
-  }
-  // The first stage is on the screen while the rest is on its way.
-  ctx.memory.restPending = true;
-  ctx.later(
-    call.rest.then(
-      (rest): RestOutcome => ({ rest }),
-      (): RestOutcome => 'failed',
-    ),
-    (outcome) => applyRest(ctx, task.id, first.labels ?? null, outcome),
-  );
-}
+/** A task waiting for a trusted screen is asked about at most this often. */
+export const RESCREEN_EVERY_MS = MINUTE_MS;
 
 function requestFor(ctx: DayContext, offer: Offer): TaskCreateRequest {
   const { settings, localDate } = ctx.memory.state;
@@ -172,7 +56,7 @@ export async function submitText(ctx: DayContext, offer: Offer): Promise<void> {
   }
   const online = await isOnline(ctx);
   const call = online
-    ? await ctx.deps.tasks.createTask(requestFor(ctx, offer)).catch(() => null)
+    ? await ctx.deps.tasks.createTask(requestFor(ctx, offer), treatNamed(ctx)).catch(() => null)
     : null;
 
   if (call !== null) {
@@ -227,29 +111,50 @@ export async function resolveTranscript(ctx: DayContext): Promise<void> {
   ctx.memory.offer = null;
 }
 
-/** With a connection back, the task that was waiting is screened and gets its lines and monster. */
+/** Whether today's task still needs a screen the app can trust before anything funny is said. */
+function needsScreen(ctx: DayContext, task: TaskRow): boolean {
+  if (task.screen === 'unscreened') return true;
+  // A serious answer nobody trusted is asked about again only while the task is still just set.
+  return ctx.memory.untrustedTaskId === task.id && task.status === 'set';
+}
+
+/**
+ * With a connection back, or the app opened again, the task that was waiting is asked for: one
+ * with no screen, one screened only by the fallback, one with no monster, one told to be funny.
+ * A task waiting for its screen is asked about at most once a minute, until a trusted answer
+ * comes; then its comedy and its monster may.
+ */
 export async function fetchPending(ctx: DayContext): Promise<void> {
   const { today, settings, localDate, monster } = ctx.memory.state;
   if (!('task' in today) || ctx.memory.restPending) return;
   const { task } = today;
+  const screening = needsScreen(ctx, task);
   const waiting =
-    task.screen === 'unscreened' ||
+    screening ||
     (task.screen === 'pass' && monster === null) ||
     // "It's fine, be funny": the task is asked for again, this time with its comedy.
     (task.screen === 'serious' && task.seriousOverridden);
   if (!waiting || !(await isOnline(ctx))) return;
+  if (screening) {
+    const asked = ctx.memory.screenAskedAt;
+    if (asked !== null && ctx.now() - asked < RESCREEN_EVERY_MS) return;
+    ctx.memory.screenAskedAt = ctx.now();
+  }
 
   const call = await ctx.deps.tasks
-    .createTask({
-      language: settings.language,
-      attitude: settings.attitude,
-      energy: 'guess',
-      text: task.originalText,
-      source: task.source === 'ramble' || task.source === 'drawer' ? task.source : 'typed',
-      localDate,
-      timeZone: ctx.deps.timeZone(),
-      overrideSerious: task.seriousOverridden,
-    })
+    .createTask(
+      {
+        language: settings.language,
+        attitude: settings.attitude,
+        energy: 'guess',
+        text: task.originalText,
+        source: task.source === 'ramble' || task.source === 'drawer' ? task.source : 'typed',
+        localDate,
+        timeZone: ctx.deps.timeZone(),
+        overrideSerious: task.seriousOverridden,
+      },
+      treatNamed(ctx),
+    )
     .catch(() => null);
   if (call === null) return;
   ctx.set({ modelDown: false });

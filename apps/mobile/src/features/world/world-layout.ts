@@ -1,5 +1,6 @@
 import type { Id, MonsterRow, WorldPieceRow } from '@scootch/domain';
 
+import { landmarkName, pieceKind } from './landmarks';
 import { seedRoll } from './piece-kit';
 
 /** The world's drawing space is this wide; it grows downwards one row at a time. */
@@ -28,8 +29,23 @@ export interface PlacedPiece {
   readonly size: number;
 }
 
+/** A landmark on the headland above the first row: its drawing, and its square box there. */
+export interface PlacedLandmark {
+  readonly id: Id;
+  readonly art: string;
+  readonly x: number;
+  readonly y: number;
+  readonly size: number;
+}
+
+/** The headland is one band above the world, and a landmark stands tall in the middle of it. */
+export const HEADLAND_HEIGHT = 96;
+const LANDMARK_SIZE = 84;
+
 export interface WorldLayout {
   readonly placed: readonly PlacedPiece[];
+  /** Landmarks stand on the headland, in the order they landed. Most worlds have none. */
+  readonly landmarks: readonly PlacedLandmark[];
   /** How many rows the world has. An empty world still has its one row of ground. */
   readonly rows: number;
   readonly height: number;
@@ -56,6 +72,9 @@ const QUIET_ART: readonly string[] = ['shrub', 'hill'];
  * Where every piece stands. The n-th piece to land takes the n-th plot, and its seed decides its
  * size, its drawing and where in the plot it stands, so the same pieces always give the same
  * world and no two ever overlap. Nothing here reads a date: the world shows what is there.
+ *
+ * A landmark takes no plot and rolls nothing. It is placed by what it is, on the headland above
+ * the first row, so the pieces around it stand exactly where they would without it.
  */
 export function layoutWorld(
   ordered: readonly WorldPieceRow[],
@@ -63,7 +82,20 @@ export function layoutWorld(
 ): WorldLayout {
   const names = [...artNames].sort();
   const quiet = names.filter((name) => QUIET_ART.includes(name));
-  const placed = ordered.map((piece, index): PlacedPiece => {
+  const marks = ordered.filter((piece) => pieceKind(piece) === 'landmark');
+  const landmarks = marks.map((piece, index): PlacedLandmark => {
+    // One stands in the middle; more share the headland evenly, in landing order.
+    const centre = (WORLD_WIDTH * (index + 1)) / (marks.length + 1);
+    return {
+      id: piece.id,
+      art: landmarkName(piece),
+      x: centre - LANDMARK_SIZE / 2,
+      y: HEADLAND_HEIGHT - LANDMARK_SIZE,
+      size: LANDMARK_SIZE,
+    };
+  });
+  const ordinary = ordered.filter((piece) => pieceKind(piece) !== 'landmark');
+  const placed = ordinary.map((piece, index): PlacedPiece => {
     const roll = seedRoll(piece.seed);
     const inPair = index % PER_PAIR;
     const wide = inPair < WIDE.length;
@@ -84,5 +116,5 @@ export function layoutWorld(
     };
   });
   const rows = Math.max(1, (placed.at(-1)?.row ?? 0) + 1, placed.length > WIDE.length ? 2 : 1);
-  return { placed, rows, height: rows * ROW_HEIGHT };
+  return { placed, landmarks, rows, height: rows * ROW_HEIGHT };
 }

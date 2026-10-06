@@ -5,7 +5,13 @@ import type { SqlDatabase } from '../../data/table';
 
 import type { BackupApi } from './backup-api';
 import type { BackupTokens } from './backup-token';
-import { LAST_BACKUP_KEY, SERVER_DELETE_PENDING_KEY, settingsValues } from './settings-values';
+import {
+  BACKUP_TOO_LARGE_KEY,
+  LAST_BACKUP_KEY,
+  SERVER_DELETE_PENDING_KEY,
+  settingsValues,
+} from './settings-values';
+import { fitSnapshot } from './snapshot-size';
 import {
   buildSnapshot,
   isFreshDatabase,
@@ -36,6 +42,8 @@ export interface Backup {
   restore(snapshot: Snapshot): Promise<'restored' | 'refused'>;
   /** True when neither token store can be read: the world lives only on this phone. */
   bothStoresOff(): Promise<boolean>;
+  /** True while the last snapshot was too large for the server to keep, so none went up. */
+  tooLarge(): Promise<boolean>;
 }
 
 /** Between finishes a snapshot goes up at most this often. */
@@ -60,6 +68,9 @@ export function createBackup(deps: BackupDeps): Backup {
    * tries again. Two things are never uploaded. An empty phone, because that would replace the
    * snapshot it may be about to restore. And anything while "delete everything" is still waiting
    * to reach the server, because that would put back what the person asked to be removed.
+   *
+   * A snapshot over the server's cap first loses the detail of its oldest finished sessions. One
+   * that is still too large is not sent at all, and that is remembered so the person can be told.
    */
   async function upload(): Promise<void> {
     try {
@@ -67,9 +78,15 @@ export function createBackup(deps: BackupDeps): Backup {
       const token = await deps.tokens.ensure();
       if (token === null) return;
       const now = deps.clock.now();
-      await deps.api.put(token, await buildSnapshot(deps.repositories, now));
+      const snapshot = fitSnapshot(await buildSnapshot(deps.repositories, now));
+      if (snapshot === null) {
+        await values.set(BACKUP_TOO_LARGE_KEY, '1');
+        return;
+      }
+      await deps.api.put(token, snapshot);
       lastUpload = now;
       await values.set(LAST_BACKUP_KEY, isoFromInstant(now));
+      await values.remove(BACKUP_TOO_LARGE_KEY);
     } catch {
       // Offline, a server fault or a store that would not answer: try again next time.
     }
@@ -95,5 +112,6 @@ export function createBackup(deps: BackupDeps): Backup {
     },
     restore: (snapshot) => restoreSnapshot(deps.repositories, snapshot),
     bothStoresOff: () => deps.tokens.bothOff(),
+    tooLarge: async () => (await values.get(BACKUP_TOO_LARGE_KEY)) !== null,
   };
 }

@@ -11,6 +11,7 @@ import {
   type SessionEffect,
   type SessionEvent,
   type SessionRow,
+  type SessionState,
   type TaskRow,
 } from '@scootch/domain';
 
@@ -19,17 +20,28 @@ import type { SessionContext } from '../effects/adapters';
 import type { DayContext } from './day-types';
 import { persistFinishEarnings } from './finish-earnings';
 import { shrinkTask } from './smaller';
-import { lineFor, toneFor } from './lines';
+import { NO_AFTER_LINES, afterLinesFor, lineFor, toneFor } from './lines';
 
 const TEXT_MAX = 280;
 const TREAT_MAX = 80;
 
+/**
+ * How many tiny next steps down the stuck card is: the ones the task itself has already shrunk
+ * to, and one more for each "Smaller" tapped on the card.
+ */
+export function stepDown(task: Pick<TaskRow, 'shrinkCount'>, session: SessionState | null): number {
+  const tapped = session !== null && 'stepShrinks' in session ? session.stepShrinks : 0;
+  return task.shrinkCount + tapped;
+}
+
 export function contextFor(ctx: DayContext, task: TaskRow): SessionContext {
-  const { settings } = ctx.memory.state;
+  const { settings, session } = ctx.memory.state;
   return {
     title: task.text,
     liveLine: lineFor('working', task, settings, ctx.memory.workingTurn) ?? '',
-    lineFor: (slot) => lineFor(slot, task, settings),
+    // Each "Smaller" on the stuck card asks for the next step down.
+    lineFor: (slot) =>
+      lineFor(slot, task, settings, slot === 'tinyNextStep' ? stepDown(task, session) : 0),
   };
 }
 
@@ -127,6 +139,7 @@ export function setSession(ctx: DayContext, minutes: number, treat: string | nul
     burst: null,
     treat: null,
     line: null,
+    afterLines: NO_AFTER_LINES,
   });
 }
 
@@ -143,6 +156,12 @@ export async function applySession(ctx: DayContext, event: SessionEvent): Promis
   }
   await persist(ctx, step.state.phase === 'let_go' ? null : step.state, task, step.effects);
   ctx.deps.runner.run(step.effects, contextFor(ctx, task));
+  const handedOver = step.effects.some(
+    (effect) => effect.kind === 'hand_over_treat' || effect.kind === 'show_parked_thoughts',
+  );
+  // The finish's own screens take their lines from the task while it is still at hand.
+  if (handedOver)
+    ctx.set({ afterLines: afterLinesFor(task, session.phase === 'let_go' ? null : session.treat) });
   await ctx.refresh();
 }
 

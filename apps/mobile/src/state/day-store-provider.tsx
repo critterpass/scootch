@@ -44,10 +44,11 @@ import { useLanguage } from '../i18n/i18n-provider';
 
 import { DataToolsContext, createAppDataTools } from './data-tools';
 import { createDayStore, effectSwitches, type DayStore } from './day-store';
-import type { DayEvent, DayState } from './day-types';
+import type { DayEvent, DayState, SurfaceRequest } from './day-types';
 import { lineFor } from './lines';
 import { PlusContext } from './plus-context';
 import { createPlusRuntime, readOfferFacts } from './plus-runtime';
+import { stepDown } from './session-flow';
 import { SessionRelaunch } from './session-relaunch';
 
 export { useDataTools } from './data-tools';
@@ -229,7 +230,7 @@ export function useToday() {
   const state = useDayState();
   const { ready, localDate, today, morning, monster, monsterPending } = state;
   const { taskCall, notice, heardDeadlines, settings, pick, energyNeeded, oneMore } = state;
-  const { modelDown, reminderAt } = state;
+  const { modelDown, reminderAt, heavyToday } = state;
   return useMemo(
     () => ({
       ready,
@@ -247,6 +248,7 @@ export function useToday() {
       oneMore,
       modelDown,
       reminderAt,
+      heavyToday,
     }),
     [
       ready,
@@ -264,6 +266,7 @@ export function useToday() {
       oneMore,
       modelDown,
       reminderAt,
+      heavyToday,
     ],
   );
 }
@@ -273,7 +276,8 @@ export function useToday() {
  * thoughts. `tinyNextStep` is the task's own smallest step, for stuck help.
  */
 export function useSession() {
-  const { session, line, burst, treat, parkedThoughts, today, settings } = useDayState();
+  const state = useDayState();
+  const { session, line, burst, treat, parkedThoughts, today, settings, afterLines } = state;
   const task = 'task' in today ? today.task : null;
   return useMemo(
     () => ({
@@ -282,10 +286,17 @@ export function useSession() {
       burst,
       treat,
       parkedThoughts,
-      tinyNextStep: task ? lineFor('tinyNextStep', task, settings) : null,
+      afterLines,
+      // The step the stuck card is on: each "Smaller" moves it one further down.
+      tinyNextStep: task ? lineFor('tinyNextStep', task, settings, stepDown(task, session)) : null,
     }),
-    [session, line, burst, treat, parkedThoughts, task, settings],
+    [session, line, burst, treat, parkedThoughts, afterLines, task, settings],
   );
+}
+
+/** What a control or a widget last asked a screen to do; `null` when nothing is waiting. */
+export function useSurfaceRequestState(): SurfaceRequest | null {
+  return useDayState().surfaceRequest ?? null;
 }
 
 /** The drawer: whether it is showing, and what is parked in it. */

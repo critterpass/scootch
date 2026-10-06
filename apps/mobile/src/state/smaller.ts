@@ -1,6 +1,7 @@
 import { SMALLEST_ASK_MINUTES, type Ask, type MonsterRow, type TaskRow } from '@scootch/domain';
 
 import type { DayContext } from './day-types';
+import { nextSteps } from './lines';
 
 /** Every length a session can be asked for, longest first. A counter-offer steps down this list. */
 export const ASK_MINUTES = [50, 25, 10, 5, SMALLEST_ASK_MINUTES] as const;
@@ -30,10 +31,12 @@ export function cappedMinutes(ask: Ask | null, chosen: number): number {
   return ask === null ? chosen : Math.min(ask.minutes, chosen);
 }
 
-/** The words of a task one step smaller: its own tiny next step, once. Never its longer wording. */
+/**
+ * The words of a task one step smaller: the next of its own tiny next steps, each used once. With
+ * none left it keeps the words it has: never a step it already took, never its longer wording.
+ */
 export function smallerText(task: TaskRow): string {
-  const step = task.lines?.tinyNextStep;
-  return step === undefined || task.shrinkCount > 0 ? task.text : step;
+  return nextSteps(task.lines)[task.shrinkCount] ?? task.text;
 }
 
 /** A monster one size step down from where its task's shrinks put it. Its size never goes up. */

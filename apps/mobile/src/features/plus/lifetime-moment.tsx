@@ -16,7 +16,7 @@ import { PIECE_BOX } from '../world/piece-kit';
 import { worldInks } from '../world/world-commands';
 
 import { inForeverFinish } from './lifetime-card';
-import { lighthouse } from './lighthouse-piece';
+import { lighthouse } from '../world/landmarks/lighthouse';
 import type { MomentProps } from './moments';
 import { Panel } from './ui/parts';
 
@@ -74,9 +74,11 @@ export function LifetimeMoment(props: LifetimeMomentProps) {
           testID="plus-lifetime-card"
         />
       </View>
-      <SessionText face="headline" color={palette.ink} style={styles.centred}>
-        {props.said}
-      </SessionText>
+      {props.said === null ? null : (
+        <SessionText face="headline" color={palette.ink} style={styles.centred}>
+          {props.said}
+        </SessionText>
+      )}
       {props.landmark ? (
         <Panel testID="plus-lifetime-landmark">
           <View style={styles.step}>

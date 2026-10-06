@@ -4,7 +4,7 @@ import { Linking } from 'react-native';
 
 import { useLanguage } from '../../i18n/i18n-provider';
 import { useToday } from '../../state/day-store-provider';
-import { lineWithNoTask } from '../../state/lines';
+import { plusLine } from '../../state/lines';
 import { usePlusRuntime } from '../../state/plus-context';
 
 import { PlusSheet } from './plus-sheet';
@@ -20,7 +20,8 @@ export function PlusSheetContainer() {
   const router = useRouter();
   const { from } = useLocalSearchParams<{ from?: string }>();
   const { language } = useLanguage();
-  const { settings } = useToday();
+  const day = useToday();
+  const { settings } = day;
   const { port, store } = usePlusRuntime();
   const controller = useMemo(() => createSheetController({ port, store }), [port, store]);
   const state = useSyncExternalStore(controller.subscribe, controller.getState);
@@ -41,10 +42,11 @@ export function PlusSheetContainer() {
   return (
     <PlusSheet
       attitude={settings.attitude}
-      said={lineWithNoTask(sheetLineSlot(from === 'one-more' ? 'one_more' : 'asked'), {
-        language,
-        attitude: settings.attitude,
-      })}
+      said={plusLine(
+        sheetLineSlot(from === 'one-more' ? 'one_more' : 'asked'),
+        { language, attitude: settings.attitude },
+        day,
+      )}
       state={state}
       actions={{
         close,

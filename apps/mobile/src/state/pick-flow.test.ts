@@ -208,9 +208,14 @@ describe('the ask only gets smaller', () => {
       texts.push(app.task().text);
       expect(app.task().shrinkCount).toBe(tap + 1);
     }
-    expect(texts[1]).toBe(recordedLines.lines.tinyNextStep);
-    // Once smaller, the words never go back to the bigger ask.
-    expect(texts.slice(1).every((text) => text === texts[1])).toBe(true);
+    // Each tap takes the next of the task's own smaller steps, none of them twice; with none
+    // left the words stay as small as they got, and never go back to the bigger ask.
+    const { tinyNextStep, tinierNextSteps = [] } = recordedLines.lines;
+    const steps = [tinyNextStep, ...tinierNextSteps];
+    expect(steps).toHaveLength(3);
+    expect(texts.slice(1, 4)).toEqual(steps);
+    expect(texts.slice(4).every((text) => text === steps.at(-1))).toBe(true);
+    expect(texts.slice(1)).not.toContain(original);
     expect(sizes[1]).toBeLessThan(sizes[0] ?? 0);
     expect(sizes).toEqual([...sizes].sort((a, b) => b - a));
     expect(sizes.at(-1)).toBeCloseTo((sizes[0] ?? 0) * (MONSTER_SIZE_STEPS.at(-1) ?? 1), 5);

@@ -156,3 +156,13 @@ export function stageOf(input: StageInput): Stage {
         : { row: monster, sizeFactor: carried ? carriedSizeFactor(task) : 1 },
   };
 }
+
+/**
+ * Where the trial-ends-tomorrow note may sit: on the waiting screen and on done for today, where
+ * nothing else is going on. Never beside a task, a pick, a hatch or a bargain.
+ */
+export function chargeNoteShows(
+  shown: 'composer' | 'task_set' | 'done' | 'panel' | 'quiet',
+): boolean {
+  return shown === 'composer' || shown === 'done';
+}

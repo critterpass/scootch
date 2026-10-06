@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { useDataTools, useDispatch, useToday } from '../../state/day-store-provider';
@@ -23,6 +23,21 @@ export function PrivacyContainer() {
   const [notice, setNotice] = useState<'privacy.export.failed' | 'privacy.delete.failed' | null>(
     null,
   );
+
+  const [backupTooLarge, setBackupTooLarge] = useState(false);
+  const { backup } = tools;
+  useEffect(() => {
+    let current = true;
+    void backup
+      .tooLarge()
+      .then((tooLarge) => {
+        if (current) setBackupTooLarge(tooLarge);
+      })
+      .catch(() => undefined);
+    return () => {
+      current = false;
+    };
+  }, [backup]);
 
   // The question names the newest catch. On a crisis day nothing here is playful.
   const caught = (keepsakes?.monsters ?? [])
@@ -51,6 +66,7 @@ export function PrivacyContainer() {
       <PrivacyPage
         keepTranscripts={settings.keepTranscripts}
         notice={notice === null ? null : t(notice)}
+        backupTooLarge={backupTooLarge}
         onKeepTranscripts={(keepTranscripts) =>
           void dispatch({ type: 'settings_changed', changes: { keepTranscripts } }).catch(
             () => undefined,

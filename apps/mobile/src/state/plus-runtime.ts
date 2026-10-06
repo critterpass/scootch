@@ -11,6 +11,7 @@ import type { PurchasesPort } from '../features/plus/purchases-port';
 import type { DayState } from './day-types';
 import type { PlusRuntime } from './plus-context';
 import { createPlusStore } from './plus-store';
+import { showsSelling } from './shows-comedy';
 
 export interface PlusRuntimeDeps {
   readonly db: SqlDatabase;
@@ -26,7 +27,7 @@ export interface PlusRuntimeDeps {
 /** What the first offer needs, read from the phone's own tables and today's state. */
 export async function readOfferFacts(
   repositories: Pick<Repositories, 'monsters' | 'tasks'>,
-  day: Pick<DayState, 'today' | 'settings'>,
+  day: Pick<DayState, 'today' | 'settings' | 'heavyToday'>,
 ): Promise<OfferFacts & Pick<SettingsRow, 'attitude'>> {
   const [monsters, tasks] = await Promise.all([
     repositories.monsters.all(),
@@ -42,6 +43,7 @@ export async function readOfferFacts(
     firstLaunchDone: settings.firstLaunchDoneAt !== null,
     sessionRunning:
       today.kind === 'in_session' || (today.kind === 'serious' && today.session !== null),
+    selling: showsSelling(day),
     attitude: settings.attitude,
   };
 }

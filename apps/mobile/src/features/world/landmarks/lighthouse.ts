@@ -1,8 +1,9 @@
-import { fill, PIECE_GROUND, polygon, shadow, stroke, type PieceArt } from '../world/piece-kit';
+import { fill, PIECE_GROUND, polygon, shadow, stroke, type PieceArt } from '../piece-kit';
 
 /**
  * The lifetime landmark: a striped lighthouse with a lit lamp. It is drawn with the world's own
- * piece kit, in the same box and on the same ground line as every other piece.
+ * piece kit, in the same box and on the same ground line as every other piece. It lives outside
+ * the pieces folder on purpose: a drawing in there is dealt out to ordinary pieces by their seed.
  */
 export const lighthouse: PieceArt = (_roll, inks) => {
   const centre = 50;
@@ -65,10 +66,3 @@ export const lighthouse: PieceArt = (_roll, inks) => {
     ),
   ];
 };
-
-/**
- * Whether the world draws landmarks yet. The world's layout gives every stored piece a drawing by
- * its seed and has no place for a piece that is not a monster's home, so until it does the
- * lifetime moment shows the card and does not claim a lighthouse has landed.
- */
-export const WORLD_DRAWS_LANDMARKS = false;
