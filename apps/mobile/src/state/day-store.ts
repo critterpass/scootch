@@ -25,6 +25,7 @@ import { applyPickEvent } from './pick-events';
 import { drawerEvent, setBargainedSession } from './pick-flow';
 import { applySession, resolveThought, restoreSession } from './session-flow';
 import { closeSession, shortenSession, turnWorkingLine } from './session-moments';
+import { applySurfaceAction, noticePickUp } from './surface-actions';
 import { askAnother, fetchPending, resolveTranscript, submitText } from './task-flow';
 
 export interface DayStore {
@@ -150,7 +151,6 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
         settings,
         localDate,
         timeZone: deps.timeZone(),
-        lastOpenedDay: memory.lastOpenedDay,
         usualStart: usual,
       }),
     );
@@ -232,6 +232,12 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
         return refresh();
       case 'connection_returned':
         return fetchPending(ctx);
+      case 'surface_action':
+        return applySurfaceAction(ctx, event.action);
+      case 'surface_request_taken':
+        return set({ surfaceRequest: null });
+      case 'opened_mid_session':
+        return noticePickUp(ctx);
       case 'app_backgrounded':
         return applySession(ctx, { type: 'backgrounded' });
       case 'app_foregrounded': {

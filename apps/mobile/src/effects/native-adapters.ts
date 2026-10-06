@@ -7,6 +7,7 @@ import { CUES, encodeWav, type HapticTap } from '@scootch/sound';
 
 import * as LiveActivity from '../../modules/scootch-live-activity';
 
+import { nextLiveLineTurn } from './live-line-turns';
 import type {
   Clock,
   CuePlayer,
@@ -141,11 +142,16 @@ export const nativeLiveActivity: LiveActivityPort = {
     await LiveActivity.start(
       { taskTitle: title },
       { endDate: endsAt, line },
-      { staleDate: endsAt },
+      // Stale at the next line turn: the system then draws the activity again, and the widget
+      // extension shows the line the shared snapshot has for that moment.
+      { staleDate: nextLiveLineTurn(Date.now(), endsAt) },
     );
   },
   update: async ({ endsAt, line }) => {
-    for (const id of await liveIds()) await LiveActivity.update(id, { endDate: endsAt, line });
+    const staleDate = nextLiveLineTurn(Date.now(), endsAt);
+    for (const id of await liveIds()) {
+      await LiveActivity.update(id, { endDate: endsAt, line }, { staleDate });
+    }
   },
   end: endAll,
 };

@@ -32,6 +32,13 @@ import {
   systemClock,
   systemTimers,
 } from '../effects/native-adapters';
+import {
+  nativeSharedFiles,
+  nativeSharedStore,
+  skiaMonsterPainter,
+} from '../features/surfaces/native-surface-ports';
+import { createSurfaceSync } from '../features/surfaces/surface-sync';
+import { SurfaceSyncHost } from '../features/surfaces/surface-sync-host';
 import { useLanguage } from '../i18n/i18n-provider';
 
 import { createDayStore, effectSwitches, type DayStore } from './day-store';
@@ -65,10 +72,14 @@ function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
     switches: () => effectSwitches(store.getState(), motion.reduced),
     onClock: () => void store.dispatch({ type: 'session', event: { type: 'clock' } }),
   });
+  const repositories = openRepositories(db);
+  // Nothing in this layer knows about purchases: every phone has the free day.
+  const plus = () => false;
+  const timeZone = () => getCalendars()[0]?.timeZone ?? 'UTC';
   const store: DayStore = createDayStore({
-    repositories: openRepositories(db),
+    repositories,
     clock: systemClock,
-    timeZone: () => getCalendars()[0]?.timeZone ?? 'UTC',
+    timeZone,
     nextId: randomUUID,
     tasks: createStagedTaskClient(createScootchApi(http)),
     online: async () => {
@@ -77,10 +88,20 @@ function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
     },
     runner,
     phoneLanguage: language,
-    // Nothing in this layer knows about purchases: every phone has the free day.
-    plus: () => false,
+    plus,
   });
-  return { store, motion, cues };
+  // The widgets, the Live Activity and the control read today from the App Group.
+  const surfaces = createSurfaceSync({
+    store,
+    repositories,
+    shared: nativeSharedStore(),
+    files: nativeSharedFiles(),
+    painter: skiaMonsterPainter,
+    plus,
+    now: () => systemClock.now(),
+    timeZone,
+  });
+  return { store, motion, cues, surfaces };
 }
 
 const DayStoreContext = createContext<DayStore | null>(null);
@@ -143,6 +164,7 @@ export function DayStoreProvider({ children }: { readonly children: ReactNode })
     <DayStoreContext.Provider value={app.store}>
       <CueContext.Provider value={playCue}>
         <SessionRelaunch store={app.store} />
+        <SurfaceSyncHost store={app.store} sync={app.surfaces} />
         {children}
       </CueContext.Provider>
     </DayStoreContext.Provider>

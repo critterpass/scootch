@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "attitude": "cheeky",
+  "language": "en",
+  "weekBars": 3,
+  "worldThings": 8,
+  "plus": false,
+  "dayEndsAt": 1791342000000,
+  "state": "in_session",
+  "task": "Email the dentist",
+  "sessionStartedAt": 1791294000000,
+  "sessionEndsAt": 1791294600000,
+  "monsterName": "Molar",
+  "monsterImage": "surface-monster-00c0ffee.png",
+  "line": "Molar is sweating. Keep going.",
+  "sessionLines": [
+    { "at": 1791294060000, "text": "Molar has gone quiet." },
+    { "at": 1791294240000, "text": "Molar is packing a bag." },
+    { "at": 1791294420000, "text": "Molar is sweating. Keep going." }
+  ]
+}

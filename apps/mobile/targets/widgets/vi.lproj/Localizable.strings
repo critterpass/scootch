@@ -1,0 +1,27 @@
+/* Nhãn cố định của widget, Live Activity và nút điều khiển. Lời Scootch nói không nằm ở đây:
+   app gửi sang qua bản chụp dùng chung. Khoá là câu tiếng Anh. */
+"TODAY" = "HÔM NAY";
+"Nothing yet. What's the one thing?" = "Chưa có gì. Hôm nay làm một việc gì nào?";
+"Done for today" = "Hôm nay xong rồi";
+"Here when you want." = "Mình ở đây, lúc nào bạn cần.";
+"Park a thought" = "Gửi tạm một ý";
+"Park" = "Gửi tạm";
+"I'm stuck" = "Mình bí rồi";
+"10 min" = "10 phút";
+"Start 10 min" = "Bắt đầu 10 phút";
+"Brain dump" = "Trút hết ra";
+"Your world" = "Thế giới của bạn";
+"THIS WEEK'S SONG" = "BÀI HÁT TUẦN NÀY";
+"%lld things" = "%lld món";
+"1 thing" = "1 việc";
+"Scootch Plus" = "Scootch Plus";
+"Today" = "Hôm nay";
+"Today's one thing." = "Một việc của hôm nay.";
+"Your world, your week and today's one thing." = "Thế giới, tuần này và một việc của hôm nay.";
+"Scootch" = "Scootch";
+"Starts ten minutes on today's one thing." = "Bắt đầu mười phút cho việc của hôm nay.";
+"Opens Scootch ready to listen." = "Mở Scootch, sẵn sàng nghe bạn nói.";
+"Asks Scootch to hold a thought for after the session." = "Nhờ Scootch giữ hộ một ý, xong phiên rồi tính.";
+"Asks Scootch for a tiny next step." = "Nhờ Scootch gợi ý một bước thật nhỏ.";
+"Open Scootch" = "Mở Scootch";
+"Opens Scootch." = "Mở Scootch.";
