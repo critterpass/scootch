@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@scootch/domain": "workspace:*",
+    "@scootch/voice": "workspace:*",
     "hono": "catalog:",
     "zod": "catalog:"
   },

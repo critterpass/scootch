@@ -1,0 +1,90 @@
+import type { OfflinePack } from './types';
+
+export const enOffline: OfflinePack = {
+  lines: {
+    soft: {
+      hatch: ['Something small has hatched. It can wait right here while we look at it.'],
+      start: ["Here we go. I'm sitting right beside you."],
+      working: [
+        "I'm here. Nothing else needs us right now.",
+        "One small piece at a time. I'm holding the rest.",
+        "I've made myself comfortable. Take the time you need.",
+        'Quiet company, as promised.',
+      ],
+      pickedUp: ["Oh, hello. I'm still here, and so is your place."],
+      checkIn: ['How is it going? I have a smaller step ready if you want one.'],
+      tinyNextStep: ['Pick the smallest piece you can see and touch only that.'],
+      twoMinutesLeft: ['Two minutes to go. No need to hurry.'],
+      timeUp: ["Time. Hold to catch it whenever you're ready."],
+      caught: ['Caught. That was the whole job.'],
+      notFinished: ['You started, and that counts. What would you like to do with it now?'],
+      notification: [
+        "I'm by the door with one small thing, whenever you like.",
+        'One small thing is keeping warm here. No hurry.',
+        'I saved us a quiet spot for the one thing.',
+      ],
+      flavourText: ['Small, patient and fond of corners. Weak against a gentle start.'],
+    },
+    cheeky: {
+      hatch: ['Well, look what crawled out. It already thinks it owns the place.'],
+      start: ['Off we go. The monster has stopped whistling.'],
+      working: [
+        "I'm keeping an eye on it. It is keeping an eye on me.",
+        'The monster is pretending to read. The book is upside down.',
+        "I've drawn a plan. It is mostly arrows.",
+        "It just asked what you're doing. I said nothing.",
+      ],
+      pickedUp: ["Oh! You picked me up. Mind the paws, I'm on watch."],
+      checkIn: ["How's it going in there? I have a tinier step in my pocket."],
+      tinyNextStep: ["Do the smallest bit you can see. I'll deal with the heckling."],
+      twoMinutesLeft: ['Two minutes on the clock. The monster is packing a very small bag.'],
+      timeUp: ["Time. It's cornered and it knows it. Hold to catch it."],
+      caught: ['Caught. It went quietly, apart from the speech.'],
+      notFinished: ['You started, and the monster noticed. What do we do with it now?'],
+      notification: [
+        'Your monster has started rearranging the furniture. One small start?',
+        "The monster wants a word. I told it you'd bring ten minutes.",
+        "I'm guarding the one thing. It is guarding its snacks.",
+      ],
+      flavourText: ['Lives rent-free and has opinions. Weak against one small start.'],
+    },
+    unhinged: {
+      hatch: ['IT HATCHED. It looked at me. I looked at it. Nobody blinked.'],
+      start: ["WE'RE OFF. I have put on a tiny helmet."],
+      working: [
+        'I AM NARRATING THIS TO A SPOON. The spoon is riveted.',
+        'The monster made a face at me. I made one back. Stalemate.',
+        'I built a fort out of nothing. It is holding.',
+        'STATUS: you are working, I am vibrating. All normal.',
+      ],
+      pickedUp: ['YOU PICKED ME UP. I was mid-stare. The monster won that round.'],
+      checkIn: ['REPORT: how is it going? I have a smaller step hidden in my cheek.'],
+      tinyNextStep: ['Do the tiniest bit you can see. I will distract the monster with a dance.'],
+      twoMinutesLeft: ['TWO MINUTES. The monster is packing. It owns one sock.'],
+      timeUp: ['TIME. IT IS CORNERED. Hold to catch it before I try and lose.'],
+      caught: ['CAUGHT. I have told the spoon. The spoon wept.'],
+      notFinished: ['You started, and the monster saw everything. What do we do with it now?'],
+      notification: [
+        'UPDATE: your monster has learned to whistle. Ten minutes ends the concert.',
+        'BREAKING: the monster has named a chair after itself. One small start?',
+        'I AM STARING AT THE ONE THING. IT IS STARING BACK. Ten minutes.',
+      ],
+      flavourText: ['Origin unknown. Hobbies include lurking and loud chewing.'],
+    },
+  },
+  plain: {
+    acknowledge:
+      "That sounds like a lot. I'll keep this one simple and quiet, and I'll sit with you.",
+    working: ["I'm right here. Take your time.", 'No rush. I am staying put.'],
+    tinyNextStep: 'Write down the first small step, and only that.',
+    done: "That's done. I'm here if you want to sit a while.",
+    notFinished: "We can leave it here for today. It will keep until you're ready.",
+  },
+  monsterNames: [
+    'Lurk, Keeper of the Thing by the Door',
+    'Fidget, Tenant of the Back of the Shelf',
+    'Odd Bob, Collector of Loose Ends',
+  ],
+  monsterTitles: ['Corner lurker', 'Loose-end collector'],
+  deadline: (_attitude, thing, heardAs) => `I heard a date: ${thing}, ${heardAs}.`,
+};

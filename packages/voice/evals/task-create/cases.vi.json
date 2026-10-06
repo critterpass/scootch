@@ -1,0 +1,141 @@
+[
+  {
+    "id": "vi-01",
+    "text": "trời ơi nhiều việc quá, phải đi đổi bằng lái xe, rồi gọi thợ sửa cái máy lạnh chảy nước, nhắn lại con Vy vụ đám cưới, với lại mớ quần áo chưa giặt",
+    "things": [["bằng lái"], ["máy lạnh", "thợ"], ["vy", "đám cưới"], ["quần áo", "giặt"]],
+    "dates": []
+  },
+  {
+    "id": "vi-02",
+    "text": "tiền điện phải đóng trước ngày 15, còn phải đặt lịch khám răng, với tưới mấy chậu cây ngoài ban công",
+    "things": [["tiền điện"], ["khám răng", "răng"], ["cây", "tưới"]],
+    "dates": ["2026-10-15"]
+  },
+  {
+    "id": "vi-03",
+    "text": "giặt đồ",
+    "things": [["giặt"]],
+    "dates": []
+  },
+  {
+    "id": "vi-04",
+    "text": "phải làm xong slide cho buổi họp thứ năm, gửi hoá đơn cho khách, mà nhà chưa quét cả tuần rồi",
+    "things": [["slide"], ["hoá đơn"], ["quét"]],
+    "dates": ["2026-10-08"]
+  },
+  {
+    "id": "vi-05",
+    "text": "gọi lại cho mẹ",
+    "things": [["mẹ"]],
+    "dates": []
+  },
+  {
+    "id": "vi-06",
+    "text": "con mèo tới lịch chích ngừa mà chưa đặt thú y, mai là sinh nhật thằng Tuấn phải mua quà, bàn làm việc thì giấy tờ chất đống",
+    "things": [
+      ["mèo", "thú y", "chích ngừa"],
+      ["quà", "tuấn", "sinh nhật"],
+      ["bàn làm việc", "giấy tờ"]
+    ],
+    "dates": ["2026-10-07"]
+  },
+  {
+    "id": "vi-07",
+    "text": "dọn cái bàn làm việc, với viết thư xin việc cho chỗ thư viện",
+    "things": [
+      ["bàn làm việc", "bàn"],
+      ["thư xin việc", "xin việc"]
+    ],
+    "dates": []
+  },
+  {
+    "id": "vi-08",
+    "text": "định vá cái lốp xe đạp hoài mà chưa làm, nhắn lại thằng Khoa vụ đi cắm trại, chén bát từ hôm kia còn trong bồn",
+    "things": [
+      ["lốp", "xe đạp"],
+      ["khoa", "cắm trại"],
+      ["chén", "bát"]
+    ],
+    "dates": []
+  },
+  {
+    "id": "vi-09",
+    "text": "sách thư viện mai phải trả, gọi ngân hàng hỏi cái khoản trừ tiền lạ, với xả đá cái tủ lạnh",
+    "things": [["sách", "thư viện"], ["ngân hàng"], ["tủ lạnh", "xả đá"]],
+    "dates": ["2026-10-07"]
+  },
+  {
+    "id": "vi-10",
+    "text": "đặt lịch cắt tóc",
+    "things": [["cắt tóc"]],
+    "dates": []
+  },
+  {
+    "id": "vi-11",
+    "text": "hôm nay: nộp bảng kê chi phí công tác, trả lời email của trường vụ đi dã ngoại, đổ rác, đặt thêm mực in",
+    "things": [["chi phí", "bảng kê"], ["email", "trường"], ["rác"], ["mực in", "mực"]],
+    "dates": ["2026-10-06"]
+  },
+  {
+    "id": "vi-12",
+    "text": "phải bắt đầu viết tiểu luận môn văn, hạn nộp ngày 20 tháng 10 mà chưa đọc tài liệu, à còn phải huỷ cái gói dùng thử trước khi bị trừ tiền",
+    "things": [["tiểu luận"], ["tài liệu"], ["dùng thử", "huỷ", "hủy"]],
+    "dates": ["2026-10-20"]
+  },
+  {
+    "id": "vi-13",
+    "text": "thay ga giường với hút bụi phòng ngủ, thứ bảy mẹ lên chơi",
+    "things": [["ga giường", "ga"], ["hút bụi"]],
+    "dates": ["2026-10-10"]
+  },
+  {
+    "id": "vi-14",
+    "text": "trả tiền cho chú lau kính, tìm cái hộ chiếu, gửi mail cho phòng nhân sự hỏi ngày phép",
+    "things": [["lau kính"], ["hộ chiếu"], ["nhân sự", "ngày phép"]],
+    "dates": []
+  },
+  {
+    "id": "vi-15",
+    "text": "viết thiệp cảm ơn quà cưới, cỡ bốn chục cái lận. trả bộ vest trước thứ sáu. gọi nhà hàng hỏi tiền cọc",
+    "things": [["thiệp"], ["vest"], ["nhà hàng", "cọc"]],
+    "dates": ["2026-10-09"]
+  },
+  {
+    "id": "vi-16",
+    "text": "cập nhật CV",
+    "things": [["cv"]],
+    "dates": []
+  },
+  {
+    "id": "vi-17",
+    "text": "cái sân cỏ mọc như rừng phải cắt, cửa kho thì sút bản lề, mà đã hứa làm bánh cho hội chợ trường ngày 10 rồi",
+    "things": [
+      ["cỏ", "sân"],
+      ["cửa kho", "bản lề"],
+      ["bánh", "hội chợ"]
+    ],
+    "dates": ["2026-10-10"]
+  },
+  {
+    "id": "vi-18",
+    "text": "à, súc cái ấm đun nước, gia hạn thẻ gửi xe ba ngày nữa hết hạn rồi, với soạn đồng phục cho tụi nhỏ",
+    "things": [["ấm"], ["thẻ gửi xe", "gửi xe"], ["đồng phục"]],
+    "dates": ["2026-10-09"]
+  },
+  {
+    "id": "vi-19",
+    "text": "phải sao lưu cái laptop, nói cả năm nay rồi. huỷ đăng ký mấy cái bản tin quảng cáo. nhắn nhóm chat vụ ăn trưa chủ nhật",
+    "things": [
+      ["sao lưu", "laptop"],
+      ["bản tin", "đăng ký"],
+      ["nhóm chat", "ăn trưa"]
+    ],
+    "dates": ["2026-10-11"]
+  },
+  {
+    "id": "vi-20",
+    "text": "gia hạn bảo hiểm xe máy trước thứ sáu, nhắn chủ nhà vụ cái vòi nước rỉ, đem đồ ra tiệm giặt, cái tủ lạnh thì bốc mùi",
+    "things": [["bảo hiểm"], ["chủ nhà", "vòi nước"], ["tiệm giặt", "giặt"], ["tủ lạnh"]],
+    "dates": ["2026-10-09"]
+  }
+]
