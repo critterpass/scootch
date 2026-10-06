@@ -7,18 +7,24 @@ saveExact: true
 
 # One pinned version per shared dependency; workspace packages reference them as `catalog:`.
 catalog:
+  '@cloudflare/vitest-pool-workers': 0.22.0
+  '@cloudflare/workers-types': 5.20260926.1
   '@eslint/js': 10.0.1
   '@types/node': 26.6.3
   eslint: 10.11.0
   eslint-config-prettier: 10.1.8
   globals: 17.12.0
+  hono: 4.13.13
   prettier: 3.9.9
   tsx: 4.23.15
   typescript: 6.0.3
   typescript-eslint: 8.70.1
   vitest: 5.0.2
+  wrangler: 4.141.0
   zod: 4.6.5
 
 # pnpm refuses dependency install scripts unless they are listed here.
 allowBuilds:
   esbuild: true
+  sharp: false
+  workerd: true
