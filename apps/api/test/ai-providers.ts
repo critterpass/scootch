@@ -27,23 +27,44 @@ export function providers(replies: { jev: Reply; deepseek: Reply }): Providers {
   return { fetch: send, sent };
 }
 
-/** Jev answering the care question with `probabilities`, and the misuse question with "genuine". */
-export function jevAnswers(probabilities: {
-  pass: number;
-  serious: number;
-  crisis: number;
-}): Reply {
-  return ({ body }) => {
-    const questions = body['questions'] as { answer: { criteria: Record<string, string> } };
-    const given: Record<string, number> =
-      'crisis' in questions.answer.criteria ? probabilities : { genuine: 0.99, misuse: 0.01 };
-    const [choice] = Object.entries(given).sort((a, b) => b[1] - a[1])[0] ?? [];
+/** Which of the screen's three questions a request to a provider carries. */
+export function screenQuestionIn(body: Record<string, unknown>): 'care' | 'preparation' | 'misuse' {
+  // The option names, as either provider's request spells them.
+  const sent = JSON.stringify(body);
+  if (/\\?"crisis\\?":/.test(sent)) return 'care';
+  return /\\?"misuse\\?":/.test(sent) ? 'misuse' : 'preparation';
+}
+
+/** A provider answering each of the screen's questions in its own way. */
+export function perQuestion(replies: Record<ReturnType<typeof screenQuestionIn>, Reply>): Reply {
+  return (request) => replies[screenQuestionIn(request.body)](request);
+}
+
+/** Jev answering one choice question with `probabilities`. */
+export function jevChoice(probabilities: Record<string, number>): Reply {
+  return () => {
+    const [choice] = Object.entries(probabilities).sort((a, b) => b[1] - a[1])[0] ?? [];
     return Response.json({
       model: 'jev-1.13.0',
-      answers: { answer: { type: 'choice', choice, confidence: 0.98, probabilities: given } },
+      answers: { answer: { type: 'choice', choice, confidence: 0.98, probabilities } },
       usage: { input_tokens: 498, output_tokens: 40 },
     });
   };
+}
+
+/**
+ * Jev answering the care question with `probabilities`, the preparation question with `preparing`
+ * as p(yes), and the misuse question with "genuine".
+ */
+export function jevAnswers(
+  probabilities: { pass: number; serious: number; crisis: number },
+  preparing = 0.01,
+): Reply {
+  return perQuestion({
+    care: jevChoice(probabilities),
+    preparation: jevChoice({ no: 1 - preparing, yes: preparing }),
+    misuse: jevChoice({ genuine: 0.99, misuse: 0.01 }),
+  });
 }
 
 /** The fast tier answering through the forced tool call. */

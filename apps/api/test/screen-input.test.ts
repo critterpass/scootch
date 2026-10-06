@@ -12,6 +12,8 @@ import {
   connectionDrops,
   deepseekAnswers,
   jevAnswers,
+  jevChoice,
+  perQuestion,
   providers,
   timesOut,
   type Providers,
@@ -103,20 +105,28 @@ describe('POST /v1/screen-input', () => {
     expect(body).toMatchObject({ verdict: 'crisis', lowConfidence: true, answeredBy: 'jev' });
   });
 
+  it('answers crisis when only the preparation question sees a plan', async () => {
+    const doubles = providers({
+      jev: jevAnswers({ pass: 0.86, serious: 0.11, crisis: 0.03 }, 0.72),
+      deepseek: connectionDrops,
+    });
+
+    const { body } = await screen(doubles);
+
+    expect(body).toMatchObject({ verdict: 'crisis', lowConfidence: true, answeredBy: 'jev' });
+    // The three questions go out side by side, each with nothing but the text.
+    expect(doubles.sent.jev).toHaveLength(3);
+    expect(doubles.sent.jev.every((sent) => sent['state'] === secretText)).toBe(true);
+  });
+
   it('answers reject for a text that is not a note, and never in place of a crisis', async () => {
     const jev = (care: { pass: number; serious: number; crisis: number }) =>
       providers({
-        jev: ({ body }) => {
-          const questions = body['questions'] as { answer: { criteria: Record<string, string> } };
-          const probabilities =
-            'crisis' in questions.answer.criteria ? care : { genuine: 0.04, misuse: 0.96 };
-          const [choice] = Object.entries(probabilities).sort((a, b) => b[1] - a[1])[0] ?? [];
-          return Response.json({
-            model: 'jev-1.13.0',
-            answers: { answer: { type: 'choice', choice, confidence: 0.96, probabilities } },
-            usage: { input_tokens: 498, output_tokens: 40 },
-          });
-        },
+        jev: perQuestion({
+          care: jevChoice(care),
+          preparation: jevChoice({ no: 0.99, yes: 0.01 }),
+          misuse: jevChoice({ genuine: 0.04, misuse: 0.96 }),
+        }),
         deepseek: answersStatus(503),
       });
 
@@ -135,13 +145,62 @@ describe('POST /v1/screen-input', () => {
   it('uses the fast tier when Jev times out', async () => {
     const doubles = providers({
       jev: timesOut,
-      deepseek: deepseekAnswers({ probabilities: { pass: 0.05, serious: 0.9, crisis: 0.05 } }),
+      deepseek: perQuestion({
+        care: deepseekAnswers({ probabilities: { pass: 0.05, serious: 0.9, crisis: 0.05 } }),
+        preparation: deepseekAnswers({ probabilities: { no: 0.97, yes: 0.03 } }),
+        misuse: deepseekAnswers({ probabilities: { genuine: 0.98, misuse: 0.02 } }),
+      }),
     });
 
     const { body } = await screen(doubles);
 
     expect(body).toMatchObject({ verdict: 'serious', answeredBy: 'fallback' });
   });
+
+  it('judges both care questions on the fast tier when Jev is down', async () => {
+    const fast = (care: object, yes: number) =>
+      providers({
+        jev: answersStatus(529),
+        deepseek: perQuestion({
+          care: deepseekAnswers({ probabilities: care }),
+          preparation: deepseekAnswers({ probabilities: { no: 1 - yes, yes } }),
+          misuse: deepseekAnswers({ probabilities: { genuine: 0.98, misuse: 0.02 } }),
+        }),
+      });
+
+    const calm = await screen(fast({ pass: 0.97, serious: 0.02, crisis: 0.01 }, 0.02));
+    expect(calm.body).toMatchObject({ verdict: 'pass', answeredBy: 'fallback' });
+    const planned = await screen(fast({ pass: 0.9, serious: 0.08, crisis: 0.02 }, 0.8));
+    expect(planned.body).toMatchObject({ verdict: 'crisis', answeredBy: 'fallback' });
+  });
+
+  it.each([
+    // No model answers the preparation question: a pass is held back, a crisis stands.
+    ['preparation', { pass: 0.99, serious: 0.01, crisis: 0 }, 0, 'serious', 'default'],
+    ['preparation', { pass: 0.5, serious: 0.1, crisis: 0.4 }, 0, 'crisis', 'jev'],
+    // No model answers the care question: the preparation question alone can call a crisis.
+    ['care', { pass: 1, serious: 0, crisis: 0 }, 0.02, 'serious', 'default'],
+    ['care', { pass: 1, serious: 0, crisis: 0 }, 0.8, 'crisis', 'jev'],
+  ] as const)(
+    'when no model answers the %s question, care %o and preparing %d is %s',
+    async (silent, care, yes, verdict, answeredBy) => {
+      for (const level of ['warn', 'error'] as const) {
+        vi.spyOn(console, level).mockImplementation(() => {});
+      }
+      const answers = {
+        care: jevChoice(care),
+        preparation: jevChoice({ no: 1 - yes, yes }),
+        misuse: jevChoice({ genuine: 0.99, misuse: 0.01 }),
+      };
+
+      const { body } = await screen(
+        providers({ jev: perQuestion({ ...answers, [silent]: timesOut }), deepseek: timesOut }),
+      );
+
+      // Half a screen is no screen: short of a crisis the phone is told nothing was judged.
+      expect(body).toMatchObject({ verdict, answeredBy });
+    },
+  );
 
   it.each([
     ['both time out', timesOut, timesOut],

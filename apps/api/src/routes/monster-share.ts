@@ -1,8 +1,8 @@
 import { monsterBodyTypeSchema } from '@scootch/domain';
 import { z } from 'zod';
 
-import { decide, type DecideContext } from '../ai/decide';
-import { screenInputQuestion, screenVerdict } from '../ai/screen-input';
+import type { DecideContext } from '../ai/decide';
+import { screenText } from '../ai/screen-input';
 import { languageSchema } from '../contracts';
 import { hashDeviceToken, newDeviceToken } from '../device-auth';
 import { ApiError } from '../errors';
@@ -50,11 +50,12 @@ export const monsterShareRoute: RouteDefinition = {
     const typed = request.typed ?? null;
     const context: DecideContext = { env: c.env, route: routeId, deviceHash: null };
 
-    let verdict: ReturnType<typeof screenVerdict>;
+    let verdict: 'pass' | 'serious' | 'crisis';
     try {
       const text = [typed, request.name, request.flavourText].filter((line) => line).join('\n');
-      const decision = await decide(context, { ...screenInputQuestion, text });
-      verdict = screenVerdict(decision.answer.probabilities);
+      const screened = await screenText(context, text);
+      // A text that is not a note is not shared either.
+      verdict = screened.verdict === 'reject' ? 'serious' : screened.verdict;
     } catch (error) {
       console.error('shared monster not screened', {
         requestId: c.var.requestId,
