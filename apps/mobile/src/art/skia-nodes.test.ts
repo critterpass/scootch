@@ -35,6 +35,21 @@ const ONE_OF_EACH: { readonly [K in DrawCommand['op']]: Extract<DrawCommand, { o
   clip: { op: 'clip', path: SQUARE },
   fill: { op: 'fill', path: SQUARE, color: '#F0562E', alpha: 0.5, rule: 'evenodd' },
   stroke: { op: 'stroke', path: SQUARE, color: '#1C1A17', alpha: 0.9, width: 2.8 },
+  text: {
+    op: 'text',
+    text: 'Molar',
+    x: 10,
+    y: 20,
+    font: 'rounded',
+    size: 12,
+    weight: 700,
+    italic: false,
+    align: 'left',
+    letterSpacing: 0,
+    maxWidth: 100,
+    color: '#1C1A17',
+    alpha: 1,
+  },
 };
 
 const ONE_SEGMENT_OF_EACH: {

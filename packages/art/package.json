@@ -6,21 +6,23 @@
   "description": "Scootch, monsters and cards (Skia) and the pose baker",
   "sideEffects": false,
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./node": "./src/node.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "generate": "tsx ../../tools/scripts/generate-index.ts src/monsters src/scootch/moods src/work-modes",
-    "test": "tsx ../../tools/scripts/generate-index.ts --check src/monsters src/scootch/moods src/work-modes && vitest run --passWithNoTests",
+    "generate": "tsx ../../tools/scripts/generate-index.ts src/monsters src/scootch/moods src/work-modes src/card/finishes",
+    "test": "tsx ../../tools/scripts/generate-index.ts --check src/monsters src/scootch/moods src/work-modes src/card/finishes && vitest run --passWithNoTests",
     "zoo": "tsx scripts/render-zoo.ts",
     "scootch": "tsx scripts/render-scootch.ts",
-    "work-modes": "tsx scripts/render-work-modes.ts"
+    "work-modes": "tsx scripts/render-work-modes.ts",
+    "cards": "tsx scripts/render-cards.ts"
   },
   "dependencies": {
+    "@napi-rs/canvas": "catalog:",
     "@scootch/domain": "workspace:*"
   },
   "devDependencies": {
-    "@napi-rs/canvas": "catalog:",
     "@types/node": "catalog:"
   }
 }

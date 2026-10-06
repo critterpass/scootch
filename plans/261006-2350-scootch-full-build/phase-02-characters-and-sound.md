@@ -38,6 +38,7 @@ drop in. Board: Characters; the card on App flows.
   the finishes Standard, Kraft, Gold, Night and Riso; export to a PNG at 4:5
   and 9:16 for sharing and link previews.
 - Done when: an exported card matches the board at both sizes.
+- Status: partly done — 544f931; stills and exports, no reveal animation or Skia text yet
 
 ### 6. Pose baker
 - Owns: `packages/art/src/bake/`.

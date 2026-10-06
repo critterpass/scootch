@@ -28,6 +28,21 @@ export type SkiaNode =
       readonly color: string;
       readonly opacity: number;
       readonly width: number;
+    }
+  | {
+      /** One line, already wrapped and fitted by the art package. `y` is the baseline. */
+      readonly kind: 'text';
+      readonly text: string;
+      readonly x: number;
+      readonly y: number;
+      readonly font: 'rounded' | 'sans';
+      readonly size: number;
+      readonly weight: number;
+      readonly italic: boolean;
+      readonly align: 'left' | 'center' | 'right';
+      readonly letterSpacing: number;
+      readonly color: string;
+      readonly opacity: number;
     };
 
 type Group = Extract<SkiaNode, { kind: 'group' }> & { children: SkiaNode[] };
@@ -118,6 +133,21 @@ const MAPPERS: Mappers = {
       color: command.color,
       opacity: command.alpha,
       width: command.width,
+    }),
+  text: (command, tree) =>
+    tree.add({
+      kind: 'text',
+      text: command.text,
+      x: command.x,
+      y: command.y,
+      font: command.font,
+      size: command.size,
+      weight: command.weight,
+      italic: command.italic,
+      align: command.align,
+      letterSpacing: command.letterSpacing,
+      color: command.color,
+      opacity: command.alpha,
     }),
 };
 

@@ -1,4 +1,4 @@
-import type { DrawCommand, Path } from '../core/commands';
+import type { DrawCommand, FontRole, Path } from '../core/commands';
 
 /**
  * The part of a 2D canvas context the drawing needs. A browser canvas, an offscreen canvas and the
@@ -23,6 +23,28 @@ export interface Canvas2D {
   lineCap: string;
   lineJoin: string;
   globalAlpha: number;
+  fillText(text: string, x: number, y: number): void;
+  font: string;
+  textAlign: string;
+  textBaseline: string;
+  /** Not every canvas has it; where it is missing, spaced labels draw a little tighter. */
+  letterSpacing?: string;
+}
+
+/** The families each font role resolves to on a canvas, first available wins. */
+export const CANVAS_FONT_FAMILIES: Record<FontRole, string> = {
+  rounded: "'SF Pro Rounded', 'Nunito', 'Arial Rounded MT Bold', 'Helvetica Neue', sans-serif",
+  sans: "'SF Pro Text', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
+};
+
+/** The CSS font string of a piece of text, for drawing and for measuring it the same way. */
+export function canvasFont(style: {
+  readonly font: FontRole;
+  readonly size: number;
+  readonly weight: number;
+  readonly italic: boolean;
+}): string {
+  return `${style.italic ? 'italic ' : ''}${style.weight} ${style.size}px ${CANVAS_FONT_FAMILIES[style.font]}`;
 }
 
 function trace(ctx: Canvas2D, path: Path): void {
@@ -51,7 +73,7 @@ function trace(ctx: Canvas2D, path: Path): void {
 }
 
 /**
- * Replays drawing commands on a 2D canvas context, in the 200 by 200 drawing space. Scale and
+ * Replays drawing commands on a 2D canvas context, in the drawing space of the list. Scale and
  * place the context first; its state is left as it was found.
  */
 export function drawCommands(ctx: Canvas2D, commands: readonly DrawCommand[]): void {
@@ -86,6 +108,15 @@ export function drawCommands(ctx: Canvas2D, commands: readonly DrawCommand[]): v
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         ctx.stroke();
+        break;
+      case 'text':
+        ctx.globalAlpha = alpha * command.alpha;
+        ctx.fillStyle = command.color;
+        ctx.font = canvasFont(command);
+        ctx.textAlign = command.align;
+        ctx.textBaseline = 'alphabetic';
+        if ('letterSpacing' in ctx) ctx.letterSpacing = `${command.letterSpacing}px`;
+        ctx.fillText(command.text, command.x, command.y);
         break;
     }
   }
