@@ -12,3 +12,15 @@ export {
   screenInputResponseSchema,
   type ScreenInputResponse,
 } from '../../../packages/domain/src/contracts/ai-labels';
+export {
+  hauntPageIdPattern,
+  hauntPageSchema,
+  hauntPageShooResponseSchema,
+  sendHauntResponseSchema,
+  tableInvitePageSchema,
+  tableInviteResponseSchema,
+  type HauntPage,
+  type SendHauntResponse,
+  type TableInvitePage,
+  type TableInviteResponse,
+} from '../../../packages/domain/src/contracts/public-pages';

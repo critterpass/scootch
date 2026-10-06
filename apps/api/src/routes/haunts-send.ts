@@ -21,7 +21,10 @@ const sendHauntRequestSchema = z.strictObject({
   screen: screenVerdictSchema,
 });
 
-/** Sends a friend a monster with a dare. A task that is not a plain `pass` haunts nobody. */
+/**
+ * Sends a friend a monster with a dare, and answers with the id of its page on the website. A
+ * task that is not a plain `pass` haunts nobody.
+ */
 export const hauntsSendRoute: RouteDefinition = {
   method: 'POST',
   path: '/v1/haunts',
@@ -30,7 +33,6 @@ export const hauntsSendRoute: RouteDefinition = {
     const { screen, ...haunt } = await readBody(c, sendHauntRequestSchema);
     const account = await requireAccount(c);
     if (screen !== 'pass') throw refusal('not_for_this_task', 'This one stays with you');
-    await sendHaunt(c.env.DB, account, haunt, new Date());
-    return c.json({ sent: true });
+    return c.json(await sendHaunt(c.env.DB, account, haunt, new Date()));
   },
 };

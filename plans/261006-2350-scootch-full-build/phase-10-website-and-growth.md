@@ -58,7 +58,7 @@ friends"). The home strip of example monsters uses a fixed, hand-checked set.
 ### 6. Invite and haunt pages
 - Do: table invite and haunt landing pages, with expired states; shooing a
   haunt works on the web in one tap. No gift page at launch.
-- Status: partly done — 6364d0e; the table invite and haunt pages in both languages (open, closed, waiting, shooed, already gone, not found, could not load) with link previews; the API has no public read route for an invite or a haunt and no shoo from the web, so both show not found until it does; a wide screen has no QR code, the previews use the home image, not deployed
+- Status: partly done — 6364d0e; the table invite and haunt pages in both languages (open, closed, waiting, shooed, already gone, not found, could not load) with link previews; the API now has the public reads for an invite and a haunt and the shoo from the web (tested, and both pages seen answering against a local API in each state), not deployed; seat labels follow the browser's language, not the page's; a wide screen has no QR code, the previews use the home image, not deployed
 
 ### 7. Home, Plus and plain pages
 - Do: the home page with the maker as hero; the Plus page with prices and the

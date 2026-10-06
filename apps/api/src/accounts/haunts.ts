@@ -1,3 +1,4 @@
+import type { HauntPage, SendHauntResponse } from '../contracts';
 import { ApiError } from '../errors';
 
 import { accountById, type Account } from './accounts';
@@ -32,15 +33,17 @@ export type NewHaunt = {
 /**
  * Sends a friend a monster with a preset dare. Friends only, to someone who can be haunted, and
  * one per friend per seven days: the week is claimed in the same statement that stores the
- * haunt, and it counts from the sending whatever the friend did with it. The sender gets no id
- * and no later word: nothing the API offers them changes when the haunt is caught or shooed.
+ * haunt, and it counts from the sending whatever the friend did with it. The sender gets the id
+ * of the haunt's page on the website, to pass on as a link, and no later word: no route that
+ * takes their device changes when the haunt is caught or shooed, and the id opens none of them.
+ * The page itself says only whether the monster is still waiting, to anyone who holds the link.
  */
 export async function sendHaunt(
   db: D1Database,
   sender: Account,
   haunt: NewHaunt,
   now: Date,
-): Promise<void> {
+): Promise<SendHauntResponse> {
   if (haunt.to === sender.id) throw refusal('not_friends', 'You can only haunt a friend');
   const recipient = await accountById(db, haunt.to);
   const friends = recipient !== null && (await areFriends(db, sender.id, haunt.to));
@@ -69,8 +72,9 @@ export async function sendHaunt(
       now.toISOString(),
       new Date(now.getTime() - hauntEveryMs).toISOString(),
     )
-    .first();
+    .first<{ id: string }>();
   if (stored === null) throw refusal('haunted_recently', 'One haunt per friend each week');
+  return { sent: true, pageId: stored.id };
 }
 
 type HauntRow = {
@@ -137,4 +141,40 @@ export async function resolveHaunt(
           .first<HauntRow>();
   if (row === null) throw new ApiError('not_found', 'No such haunt is waiting');
   return hauntView(row);
+}
+
+/**
+ * A haunt as its page on the website shows it, by the id in the link. No account id. One that
+ * was caught or shooed is `gone`, without saying which, and names nobody.
+ */
+export async function readHauntPage(db: D1Database, hauntId: string): Promise<HauntPage | null> {
+  const row = await db
+    .prepare(`SELECT ${hauntColumns}, h.state FROM haunts h WHERE h.id = ?`)
+    .bind(hauntId)
+    .first<HauntRow & { state: string }>();
+  if (row === null) return null;
+  const waiting = row.state === 'waiting';
+  return {
+    id: row.id,
+    bodyType: row.body_type as HauntPage['bodyType'],
+    seed: row.seed,
+    dare: row.dare,
+    sentAt: row.created_at,
+    from: waiting && row.anonymous === 0 ? { displayName: row.sender_name } : null,
+    state: waiting ? 'waiting' : 'gone',
+  };
+}
+
+/**
+ * Shoos a waiting haunt for whoever holds its link, leaving the same row the app's shoo leaves.
+ * A haunt already caught or shooed is left as it is. False only when there is no such haunt.
+ */
+export async function shooHauntByLink(db: D1Database, hauntId: string): Promise<boolean> {
+  const [, found] = await db.batch([
+    db
+      .prepare(`UPDATE haunts SET state = 'shooed' WHERE id = ? AND state = 'waiting'`)
+      .bind(hauntId),
+    db.prepare('SELECT 1 FROM haunts WHERE id = ?').bind(hauntId),
+  ]);
+  return (found?.results.length ?? 0) > 0;
 }
