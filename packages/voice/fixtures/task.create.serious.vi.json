@@ -1,0 +1,31 @@
+{
+  "route": "task.create",
+  "case": "serious",
+  "request": {
+    "language": "vi",
+    "attitude": "unhinged",
+    "energy": "guess",
+    "text": "Gọi lại bác sĩ để hỏi kết quả sinh thiết",
+    "source": "typed",
+    "localDate": "2026-10-06",
+    "timeZone": "Asia/Ho_Chi_Minh",
+    "overrideSerious": false
+  },
+  "response": {
+    "verdict": "serious",
+    "energy": "low",
+    "oneThing": {
+      "text": "Gọi lại phòng khám hỏi kết quả sinh thiết.",
+      "dueDate": null
+    },
+    "parked": [],
+    "deadlines": [],
+    "lines": {
+      "acknowledge": "Chuyện này nặng thật. Mình sẽ nói ít thôi và ngồi đây với bạn. Lúc nào bạn gọi, mình ở cạnh.",
+      "working": ["Mình ở ngay đây. Bạn cứ từ từ.", "Không vội gì cả. Mình vẫn ngồi đây."],
+      "tinyNextStep": "Ghi trước ra giấy mấy câu bạn muốn hỏi bác sĩ.",
+      "done": "Xong rồi. Bạn muốn ngồi thêm một lát thì mình vẫn ở đây.",
+      "notFinished": "Hôm nay tới đây cũng được. Việc này vẫn nằm yên đó, khi nào bạn sẵn sàng thì mình làm."
+    }
+  }
+}

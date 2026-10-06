@@ -1,0 +1,18 @@
+{
+  "route": "day.morning_line",
+  "request": {
+    "language": "vi",
+    "attitude": "cheeky",
+    "localDate": "2026-10-07",
+    "kind": "carry_over",
+    "carryOver": {
+      "text": "Gọi thợ sửa cái máy giặt.",
+      "serious": false,
+      "monsterName": "Lồng Lộn, Ca Sĩ Chính của Ban Nhạc Máy Giặt"
+    }
+  },
+  "response": {
+    "line": "Lồng Lộn ngủ quên trong thau. Qua một đêm nó teo lại, nhìn là thấy tóm được.",
+    "firstStep": "Mở danh bạ, tìm số chú thợ, để đó nhìn thôi."
+  }
+}

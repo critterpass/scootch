@@ -1,0 +1,13 @@
+{
+  "route": "task.work_mode",
+  "request": {
+    "language": "en",
+    "text": "Call the plumber about the leak under the sink"
+  },
+  "response": {
+    "workMode": "calling",
+    "confidence": 0.97,
+    "lowConfidence": false,
+    "answeredBy": "jev"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "route": "screen.input",
+  "request": {
+    "language": "vi",
+    "text": "Gia hạn hộ chiếu trước chuyến đi Nhật, với gọi thợ sửa cái máy giặt",
+    "source": "ramble"
+  },
+  "response": {
+    "verdict": "pass",
+    "confidence": 0.99,
+    "lowConfidence": false,
+    "answeredBy": "jev"
+  }
+}

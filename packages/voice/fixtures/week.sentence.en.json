@@ -1,0 +1,29 @@
+{
+  "route": "week.sentence",
+  "request": {
+    "language": "en",
+    "attitude": "cheeky",
+    "week": "2026-W41",
+    "stats": {
+      "sessionsStarted": 6,
+      "sessionsFinished": 5,
+      "usualStartHour": 13,
+      "byLength": [
+        {
+          "minutes": 10,
+          "started": 4,
+          "finished": 4
+        },
+        {
+          "minutes": 25,
+          "started": 2,
+          "finished": 1
+        }
+      ],
+      "workModes": ["calling", "email", "dishes"]
+    }
+  },
+  "response": {
+    "sentence": "Your sessions like to start just after lunch, and the ten-minute ones nearly always end in a catch."
+  }
+}
