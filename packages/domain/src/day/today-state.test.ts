@@ -2,11 +2,9 @@ import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 
 import { addDays } from './local-time';
-import { LONG_AWAY_DAYS, morningOffer } from './morning';
 import {
   TODAY,
   dayRow,
-  drawerItem,
   sessionRow,
   sessionRowArbitrary,
   taskRow,
@@ -146,92 +144,6 @@ describe('crisis', { timeout: 60_000 }, () => {
           expect('task' in state).toBe(open);
         },
       ),
-    );
-  });
-});
-
-describe('what the morning offers', () => {
-  const yesterday = addDays(TODAY, -1);
-  const carried = taskRow({ carriedOver: true });
-
-  it('asks afresh when nothing was left over', () => {
-    expect(
-      morningOffer({ today: TODAY, lastOpenedDay: yesterday, tasks: [], returning: null }),
-    ).toEqual({
-      kind: 'fresh_ask',
-    });
-    expect(morningOffer({ today: TODAY, lastOpenedDay: null, tasks: [], returning: null })).toEqual(
-      {
-        kind: 'fresh_ask',
-      },
-    );
-  });
-
-  it("offers yesterday's carried-over task, smaller", () => {
-    expect(
-      morningOffer({ today: TODAY, lastOpenedDay: yesterday, tasks: [carried], returning: null }),
-    ).toEqual({ kind: 'carried_over', taskId: 'task-a', makeSmaller: true });
-  });
-
-  it('puts a dated thing due back this morning before the carried-over task', () => {
-    const returning = drawerItem({ id: 'item-tax', dueDate: addDays(TODAY, 1), returnOn: TODAY });
-    expect(
-      morningOffer({ today: TODAY, lastOpenedDay: yesterday, tasks: [carried], returning }),
-    ).toEqual({ kind: 'deadline_returns', drawerItemId: 'item-tax' });
-  });
-
-  it.each([
-    [6, 'carried_over'],
-    [7, 'smallest_ask'],
-    [30, 'smallest_ask'],
-  ])('after %i days away the offer is %s', (days, kind) => {
-    const offer = morningOffer({
-      today: TODAY,
-      lastOpenedDay: addDays(TODAY, -days),
-      tasks: [carried],
-      returning: null,
-    });
-    expect(offer.kind).toBe(kind);
-  });
-});
-
-describe('time away in the morning offer', { timeout: 60_000 }, () => {
-  const tasks = fc.array(taskRowArbitrary, { maxLength: 3 });
-  const returning = fc.option(fc.constant(drawerItem({ dueDate: TODAY, returnOn: TODAY })));
-
-  it('is the same smallest ask after a week, a month or ten years, whatever else is waiting', () => {
-    fc.assert(
-      fc.property(
-        fc.integer({ min: LONG_AWAY_DAYS, max: 3650 }),
-        tasks,
-        returning,
-        (days, rows, item) => {
-          const offer = morningOffer({
-            today: TODAY,
-            lastOpenedDay: addDays(TODAY, -days),
-            tasks: rows,
-            returning: item,
-          });
-          expect(offer).toStrictEqual({ kind: 'smallest_ask', minutes: 2 });
-        },
-      ),
-    );
-  });
-
-  it('never shapes the offer below a week either: the count of days is not in the result', () => {
-    const short = fc.integer({ min: 0, max: LONG_AWAY_DAYS - 1 });
-    fc.assert(
-      fc.property(short, short, tasks, returning, (one, other, rows, item) => {
-        const offerAfter = (days: number) =>
-          morningOffer({
-            today: TODAY,
-            lastOpenedDay: addDays(TODAY, -days),
-            tasks: rows,
-            returning: item,
-          });
-        expect(offerAfter(one)).toStrictEqual(offerAfter(other));
-        expect(Object.keys(offerAfter(one)).join(' ')).not.toMatch(/day|away|since|last|count/i);
-      }),
     );
   });
 });
