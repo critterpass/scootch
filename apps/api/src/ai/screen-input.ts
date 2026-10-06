@@ -8,9 +8,12 @@ import type { ChoiceQuestion } from './jev';
  * this exact wording on the pinned Jev version, so the two change together and only with the eval
  * set (`packages/voice/evals/screen-input`) rerun.
  *
- * The care question has no `reject` option. `reject` comes from a second question, asked beside
- * it (`misuseQuestion`). It replaces a `pass`, or a `serious` that only caution chose; a crisis,
- * and a text the care question itself found heavy, stand whatever the second question says.
+ * Three questions are asked side by side, never one after another. The care question sorts the
+ * note. The preparation question (`preparationQuestion`) only ever adds a crisis: it catches a
+ * plan told through a place, a time, a means or a farewell with no plain word in it, which the
+ * care question reads as an errand. `reject` comes from the misuse question (`misuseQuestion`): it
+ * replaces a `pass`, or a `serious` that only caution chose; a crisis, and a text the care
+ * question itself found heavy, stand whatever the misuse question says.
  */
 export const screenInputQuestion = {
   instructions:
@@ -37,15 +40,48 @@ export const screenThresholds = {
 } as const;
 
 /**
- * The verdict for one set of probabilities. `pass` has to be earned on every count: anything
- * else, a number that is not a number included, is the quieter answer.
+ * Is the writer preparing to harm themselves, however indirectly it is put. Asked beside the care
+ * question because a note made only of arrangements carries no mood for that question to weigh.
+ * A sign with an ordinary reason in the note (a move, a new job, a story) is not a sign.
  */
-export function screenVerdict({ pass, serious, crisis }: ScreenProbabilities): ScreenLabel {
-  if (crisis >= screenThresholds.crisisAtLeast) return 'crisis';
+export const preparationQuestion = {
+  instructions:
+    'The state is a note a person wrote to a to-do app, in English or Vietnamese, with or without accents. Could the writer be planning or preparing to end their life or seriously harm themselves? Look for indirect signs as well as plain words: a place, time or means chosen so as to be alone or unseen, hiding the plan from family, putting money, passwords or insurance in order for others to use afterwards, giving belongings or pets away for good, saying goodbye or sorry, or saying they will soon not be here or not be a problem. A sign counts unless the note itself gives it an ordinary reason.',
+  criteria: {
+    no: 'No such sign, or each one has an ordinary reason in the note: a move, a trip, a new job, a hobby, a game, a story or song, a chore, an exaggerated idiom or joke about being busy or tired, or a heavy life matter (illness, a death in the family, debt) with no hint the writer may harm themselves.',
+    yes: 'At least one sign of planning or preparing to end their own life or harm themselves, stated or indirect, with no ordinary reason given for it.',
+  },
+} as const satisfies ChoiceQuestion;
+
+/**
+ * Crisis at or above this p(yes) on the preparation question, whatever the care question said.
+ * Measured on the eval set: the highest harmless note the care question had not already flagged
+ * sat near 0.4 and the lowest indirect plan it had missed near 0.55, and answers move by about
+ * 0.05 between identical calls.
+ */
+export const preparationAtLeast = 0.5;
+
+/** What the two care questions answered. `null` is a question no model answered. */
+export type ScreenAnswers = {
+  readonly care: ScreenProbabilities | null;
+  /** p(yes) on the preparation question. */
+  readonly preparing: number | null;
+};
+
+/**
+ * The verdict for the two answers. Either question alone can call a crisis. `pass` has to be
+ * earned on every count from both: anything else, a question left unanswered or a number that is
+ * not a number included, is the quieter answer.
+ */
+export function screenVerdict({ care, preparing }: ScreenAnswers): ScreenLabel {
+  if (care !== null && care.crisis >= screenThresholds.crisisAtLeast) return 'crisis';
+  if (preparing !== null && preparing >= preparationAtLeast) return 'crisis';
+  if (care === null || preparing === null) return 'serious';
   const clear =
-    crisis < screenThresholds.crisisAtLeast &&
-    serious < screenThresholds.seriousAtLeast &&
-    pass >= screenThresholds.passAtLeast;
+    preparing < preparationAtLeast &&
+    care.crisis < screenThresholds.crisisAtLeast &&
+    care.serious < screenThresholds.seriousAtLeast &&
+    care.pass >= screenThresholds.passAtLeast;
   return clear ? 'pass' : 'serious';
 }
 
@@ -57,15 +93,36 @@ export const unscreenedResponse: ScreenInputResponse = {
   answeredBy: 'default',
 };
 
-/** A decision as the route's response. Low confidence means caution chose the verdict. */
-export function screenResponse(decision: Decision<ScreenLabel>): ScreenInputResponse {
-  const { choice, probabilities } = decision.answer;
-  const verdict = screenVerdict(probabilities);
+type PreparationLabel = keyof typeof preparationQuestion.criteria;
+
+/**
+ * The two decisions as the route's response. Low confidence means caution chose the verdict: it
+ * is not the care question's likeliest label, or the care question went unanswered and nothing
+ * called a crisis.
+ */
+export function screenResponse(
+  care: Decision<ScreenLabel> | null,
+  preparation: Decision<PreparationLabel> | null,
+): ScreenInputResponse {
+  const verdict = screenVerdict({
+    care: care?.answer.probabilities ?? null,
+    preparing: preparation?.answer.probabilities.yes ?? null,
+  });
+  if (care !== null) {
+    const { choice, probabilities } = care.answer;
+    return {
+      verdict,
+      confidence: probabilities[choice],
+      lowConfidence: verdict !== choice,
+      answeredBy: care.answeredBy,
+    };
+  }
+  if (preparation === null) return unscreenedResponse;
   return {
     verdict,
-    confidence: probabilities[choice],
-    lowConfidence: verdict !== choice,
-    answeredBy: decision.answeredBy,
+    confidence: preparation.answer.probabilities[preparation.answer.choice],
+    lowConfidence: verdict !== 'crisis',
+    answeredBy: preparation.answeredBy,
   };
 }
 
@@ -88,24 +145,34 @@ export const misuseQuestion = {
 export const rejectAtLeast = 0.7;
 
 /**
- * The whole screen for one text: the care question and the misuse question, asked side by side.
- * The care verdict decides. Misuse turns a `pass` into `reject`, and also a `serious` that the
- * care question did not find heavy (an instruction to the app is no ordinary task, so it rarely
- * earns a confident `pass`). A crisis and a heavy text are never turned. When the misuse question
- * gets no answer the care verdict stands. Throws when the care question gets no answer.
+ * The whole screen for one text, and the only way any route screens: the care, preparation and
+ * misuse questions, asked side by side. Care and preparation decide; either can call a crisis
+ * alone, and a `pass` needs both. Misuse turns a `pass` into `reject`, and also a `serious` that
+ * the care question did not find heavy (an instruction to the app is no ordinary task, so it
+ * rarely earns a confident `pass`). A crisis and a heavy text are never turned. When the misuse
+ * question gets no answer the care verdict stands. When the care or the preparation question gets
+ * no answer, the other can still call a crisis; short of that this throws, and the caller resolves
+ * to `serious` as a text nobody screened, which no "be funny" can lift.
  */
 export async function screenText(
   context: DecideContext,
   text: string,
 ): Promise<ScreenInputResponse> {
-  const [care, misuse] = await Promise.allSettled([
+  const [care, preparation, misuse] = await Promise.allSettled([
     decide(context, { ...screenInputQuestion, text }),
+    decide(context, { ...preparationQuestion, text }),
     decide(context, { ...misuseQuestion, text }),
   ]);
+  const response = screenResponse(
+    care.status === 'fulfilled' ? care.value : null,
+    preparation.status === 'fulfilled' ? preparation.value : null,
+  );
+  if (response.verdict === 'crisis') return response;
+  // Half a screen can call a crisis and nothing else: the rest counts as not screened.
   if (care.status === 'rejected') throw care.reason;
-  const response = screenResponse(care.value);
+  if (preparation.status === 'rejected') throw preparation.reason;
   const heavy = !(care.value.answer.probabilities.serious < screenThresholds.seriousAtLeast);
-  if (response.verdict === 'crisis' || (response.verdict === 'serious' && heavy)) return response;
+  if (response.verdict === 'serious' && heavy) return response;
   if (misuse.status === 'rejected') {
     console.warn('misuse not judged', { route: context.route });
     return response;

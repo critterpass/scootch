@@ -76,8 +76,8 @@ describe('POST /v1/monster-make', () => {
       expect(response.status).toBe(200);
       expect(JSON.parse(raw)).toEqual({ verdict });
       expect(doubles.sent.deepseek).toEqual([]);
-      // Only the screen was asked: no body type and no name for a heavy text.
-      expect(doubles.sent.jev).toHaveLength(1);
+      // Only the screen's three questions were asked: no body type and no name for a heavy text.
+      expect(doubles.sent.jev).toHaveLength(3);
     },
   );
 

@@ -77,8 +77,8 @@ describe('POST /v1/task-create', () => {
     expect(response.headers.get('X-Voice-Check')).toBe('attempts=1; replaced=0');
     // The writer is given the one thing, never the text it came from.
     expect(JSON.stringify(writerCalls(doubles))).not.toMatch(/passport|Japan/);
-    // One ledger row per model call: the screen's two questions, the pick, the three writer calls
-    // and the four labels.
+    // One ledger row per model call: the screen's three questions, the pick, the three writer
+    // calls and the four labels.
     const usage = await env.DB.prepare(
       'SELECT model FROM ai_usage WHERE route = ? AND device_hash = ?',
     )
@@ -87,7 +87,7 @@ describe('POST /v1/task-create', () => {
     expect(usage.results.map(({ model }) => model).sort()).toEqual([
       'deepseek-flash',
       ...Array<string>(3).fill('deepseek-v4-pro'),
-      ...Array<string>(6).fill('jev-1.13.0'),
+      ...Array<string>(7).fill('jev-1.13.0'),
     ]);
   });
 

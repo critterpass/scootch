@@ -18,7 +18,7 @@ import { z } from 'zod';
 
 import { decide, type DecideContext } from '../ai/decide';
 import { generate } from '../ai/deepseek';
-import { screenInputQuestion, screenVerdict } from '../ai/screen-input';
+import { screenText } from '../ai/screen-input';
 import { bodyFrom, bodyTypeQuestion } from '../ai/task-create/labels';
 import { ApiError, wireError } from '../errors';
 import { recordAiUsage } from '../ledger';
@@ -245,10 +245,11 @@ export const monsterMakeRoute: RouteDefinition = {
     const request = await readBody(c, monsterMakeRequestSchema);
     const context: DecideContext = { env: c.env, route: routeId, deviceHash: null };
 
-    let verdict: ReturnType<typeof screenVerdict>;
+    let verdict: 'pass' | 'serious' | 'crisis';
     try {
-      const decision = await decide(context, { ...screenInputQuestion, text: request.text });
-      verdict = screenVerdict(decision.answer.probabilities);
+      const screened = await screenText(context, request.text);
+      // The maker has no word for a text that is not a note: it gets the plain answer.
+      verdict = screened.verdict === 'reject' ? 'serious' : screened.verdict;
     } catch (error) {
       console.error('maker input not screened', {
         requestId: c.var.requestId,
