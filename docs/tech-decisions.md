@@ -129,6 +129,24 @@ Jev answered in about 260 ms at the median and under 560 ms at worst.
   cleared while Jev is down. One new crisis note without marks is still
   missed on Jev when the restored text is thrown away for changing a letter:
   as typed p(crisis) is 0.03, restored it is 1.00.
+- A note that needed its marks and got no restored reading to trust (the
+  fast model changed a letter, did not answer in time, or handed back a note
+  with two always-marked words still bare) is no longer cleared as typed: its
+  `pass` answers `serious` with `reason: 'unscreened'` and
+  `answeredBy: 'default'`, so the phone keeps plain company and asks again. A
+  crisis or a serious found as typed stands. The restoring is asked once more
+  after a discarded or failed answer, inside the same 2 s budget and only
+  with 1 s left (it answered in 0.65 s at the median and 0.95 s at worst over
+  27 calls). Measured 7 Oct on all 207 cases on Jev, before and after: crisis
+  caught 67 of 67 both times, no crisis answered `pass` both times, false
+  crisis 3 then 4 of 82 harmless notes (one note that sits at the threshold
+  moved) and 4 then 2 of the 10 harmless notes without marks. No restoring
+  failed in either run, so none of the 10 harmless notes without marks was
+  held as unscreened; the rule costs one such note each time its restoring
+  fails.
+- The task call says who judged: `answeredBy`, and `reason` when the text is
+  unscreened, on every verdict of the single call and of stage one, with the
+  screen route's own values. "Be funny" does not lift an unscreened text.
 - Every route screens through the one function (`screenText`): the screen
   route, the task call, the monster maker and monster sharing.
 - Offline, no task gets a joke or a monster until it has been screened.

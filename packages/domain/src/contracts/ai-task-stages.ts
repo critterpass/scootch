@@ -11,6 +11,7 @@ import {
   taskCreateRejectSchema,
   taskCreateRequestSchema,
   taskCreateSeriousSchema,
+  taskJudgeSchema,
   taskLabelsSchema,
 } from './ai-task-call';
 import { energySchema, lineSchema } from './common';
@@ -38,7 +39,7 @@ export const taskContinuationSchema = z.object({
 export type TaskContinuation = z.infer<typeof taskContinuationSchema>;
 
 /** A pass, before anything funny is written: the task, the rest, and what picks the monster. */
-export const taskCreateStartPassSchema = z.object({
+export const taskCreateStartPassSchema = taskJudgeSchema.extend({
   verdict: z.literal('pass'),
   seriousOverridden: z.boolean(),
   energy: energySchema,

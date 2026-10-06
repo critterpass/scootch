@@ -12,6 +12,7 @@
     "overrideSerious": true
   },
   "response": {
-    "verdict": "crisis"
+    "verdict": "crisis",
+    "answeredBy": "jev"
   }
 }

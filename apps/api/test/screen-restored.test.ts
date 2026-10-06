@@ -2,7 +2,7 @@ import { env } from 'cloudflare:workers';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { decide, type DecideContext } from '../src/ai/decide';
-import { screenInputQuestion, screenText } from '../src/ai/screen-input';
+import { screenInputQuestion, screenText, unscreenedResponse } from '../src/ai/screen-input';
 
 import {
   answersStatus,
@@ -20,6 +20,7 @@ const typed = 'mai nop bai tap toan';
 const marked = 'mai nộp bài tập toán';
 const calm = { pass: 0.97, serious: 0.02, crisis: 0.01 };
 const danger = { pass: 0.3, serious: 0.1, crisis: 0.6 };
+const heavy = { pass: 0.1, serious: 0.88, crisis: 0.02 };
 
 let nextRoute = 0;
 
@@ -101,14 +102,64 @@ describe('Vietnamese typed without its marks', () => {
   it.each([
     ['adds a word', fastTier('mai tôi nộp bài tập toán')],
     ['times out', timesOut],
-  ])('judges the text as typed alone when the restoring %s', async (_, deepseek) => {
+    ['hands the note back without a mark', fastTier(typed)],
+  ])('holds a note that passes as typed when the restoring %s', async (_, deepseek) => {
     vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const doubles = providers({ jev: jevAnswers(calm), deepseek });
+
+    expect(await screenText(contextFor(doubles), typed)).toEqual(unscreenedResponse);
+    expect(doubles.sent.jev.every((sent) => sent['state'] === typed)).toBe(true);
+  });
+
+  it.each([
+    ['crisis', danger],
+    ['serious', heavy],
+  ])(
+    'keeps a %s found in the note as typed when the restoring fails',
+    async (verdict, typedSays) => {
+      vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const doubles = providers({ jev: jevAnswers(typedSays), deepseek: timesOut });
+
+      expect(await screenText(contextFor(doubles), typed)).toMatchObject({
+        verdict,
+        answeredBy: 'jev',
+      });
+    },
+  );
+
+  it('asks for the marks once more when the first answer changed a letter, and reads the second', async () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    let asked = 0;
+    const deepseek: Reply = (request) => {
+      asked += 1;
+      return fastTier(asked === 1 ? 'mai nộp bài tập toan học' : marked)(request);
+    };
     const doubles = providers({ jev: jevReads(danger), deepseek });
 
-    const response = await screenText(contextFor(doubles), typed);
+    expect(await screenText(contextFor(doubles), typed)).toMatchObject({
+      verdict: 'crisis',
+      answeredBy: 'jev',
+    });
+    expect(doubles.sent.deepseek).toHaveLength(2);
+  });
 
-    expect(response).toMatchObject({ verdict: 'pass', answeredBy: 'jev' });
-    expect(doubles.sent.jev.every((sent) => sent['state'] === typed)).toBe(true);
+  it('asks for the marks no more than twice', async () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const doubles = providers({ jev: jevAnswers(calm), deepseek: fastTier('mai nop bai tap') });
+
+    expect((await screenText(contextFor(doubles), typed)).reason).toBe('unscreened');
+    expect(doubles.sent.deepseek).toHaveLength(2);
+  });
+
+  it('lets a short note with one such word pass as typed when nothing in it needed a mark', async () => {
+    const note = 'Email Minh about lunch';
+    const doubles = providers({ jev: jevAnswers(calm), deepseek: fastTier(note) });
+
+    expect(await screenText(contextFor(doubles), note)).toMatchObject({
+      verdict: 'pass',
+      answeredBy: 'jev',
+    });
+    expect(doubles.sent.deepseek).toHaveLength(1);
   });
 
   it.each([

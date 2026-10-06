@@ -1,6 +1,8 @@
 import type { ContextWord } from './types';
 
 const feeling = 'sợ|mệt|đói|vui|mừng|thèm|chán|nóng|lạnh|ngại|đau|mắc cười|buồn cười';
+const cloth =
+  'quần|áo|váy|đầm|vải|ga|rèm|khăn|giấy|sơ mi|chăn|mền|màn|đồng phục|vest|bàn ủi|bàn là';
 const idiom = 'cười|mê|mệt|đứng|trân|lặng|khiếp|dở|thật|chưa|máy|pin';
 
 /**
@@ -69,6 +71,21 @@ export const viTopicContextWords: readonly ContextWord[] = [
     reason: 'topic_bodies',
     lapse: [],
     safe: ['gầy (?:dựng|sòng|độ)'],
+    otherwise: 'fail',
+  },
+  {
+    // Wrinkles are the cloth's or the paper's; on a face, or with no owner named, they fail.
+    word: 'nếp nhăn',
+    reason: 'topic_bodies',
+    lapse: [
+      'nếp nhăn(?: [\\p{L}]+){0,3} (?:mặt|trán|mắt|da|bạn|mình|tui|mẹ|bà|ông)',
+      '(?:mặt|trán|mắt|da|bạn|mẹ|bà|ông|già|tuổi)(?: [\\p{L}]+){0,3} nếp nhăn',
+      '(?:xoá|xóa|chống|giảm|trị|ngừa|mờ) nếp nhăn',
+    ],
+    safe: [
+      `(?:${cloth})(?: [\\p{L}\\p{N}]+){0,6}? nếp nhăn`,
+      `nếp nhăn (?:trên|ở|của|trong) (?:cái |chiếc |tấm |tờ |bộ )?(?:${cloth})`,
+    ],
     otherwise: 'fail',
   },
   {

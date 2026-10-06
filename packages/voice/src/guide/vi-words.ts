@@ -93,7 +93,6 @@ export const viWords: Pick<
       'ăn kiêng',
       'xấu xí',
       'hói',
-      'nếp nhăn',
       'sexy',
       'khỏa thân',
       'khoả thân',

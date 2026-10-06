@@ -13,6 +13,7 @@
   },
   "response": {
     "verdict": "serious",
+    "answeredBy": "jev",
     "energy": "low",
     "oneThing": {
       "text": "Call the oncologist's office about the results.",

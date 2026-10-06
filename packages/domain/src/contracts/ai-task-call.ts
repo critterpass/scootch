@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { decisionMetaSchema, screenInputResponseSchema } from './ai-labels';
 import { monsterBodyTypeSchema, workModeSchema } from './art';
 import {
   attitudeSchema,
@@ -143,7 +144,18 @@ export type SeriousLinePack = z.infer<typeof seriousLinePackSchema>;
 export const dayNotificationSchema = z.object({ text: z.string().min(1).max(140) });
 export type DayNotification = z.infer<typeof dayNotificationSchema>;
 
-const passSchema = z.object({
+/**
+ * Who screened the text, with the screen route's own fields and values. Any judge but `jev`
+ * cleared nothing, so the phone may ask again; `reason: 'unscreened'` marks a `serious` that
+ * nobody trusted chose. Both are optional: an answer made before they existed has neither.
+ */
+export const taskJudgeSchema = z.object({
+  answeredBy: decisionMetaSchema.shape.answeredBy.optional(),
+  reason: screenInputResponseSchema.shape.reason,
+});
+export type TaskJudge = z.infer<typeof taskJudgeSchema>;
+
+const passSchema = taskJudgeSchema.extend({
   verdict: z.literal('pass'),
   /** True when the text was serious and `overrideSerious` let the comedy back in. */
   seriousOverridden: z.boolean(),
@@ -160,7 +172,7 @@ const passSchema = z.object({
 });
 
 /** No monster, no joke, no card, no share, no burst, and no notifications. */
-const seriousSchema = z.object({
+const seriousSchema = taskJudgeSchema.extend({
   verdict: z.literal('serious'),
   energy: energySchema,
   oneThing: oneThingSchema,
@@ -170,10 +182,10 @@ const seriousSchema = z.object({
 });
 
 /** Every task is hidden for the day and the phone shows its helplines first. */
-const crisisSchema = z.object({ verdict: z.literal('crisis') });
+const crisisSchema = taskJudgeSchema.extend({ verdict: z.literal('crisis') });
 
 /** Abuse or an injection attempt: nothing is written, and the user is asked to say it another way. */
-const rejectSchema = z.object({ verdict: z.literal('reject') });
+const rejectSchema = taskJudgeSchema.extend({ verdict: z.literal('reject') });
 
 export const taskCreateResponseSchema = z.discriminatedUnion('verdict', [
   passSchema,

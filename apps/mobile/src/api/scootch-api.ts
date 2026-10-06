@@ -43,7 +43,7 @@ export interface ScootchApi {
 
 /** Which judge screened the text, when the answer says so. Absent on a server that does not. */
 export interface Judged {
-  readonly answeredBy?: DecisionMeta['answeredBy'];
+  readonly answeredBy?: DecisionMeta['answeredBy'] | undefined;
 }
 
 /** Reads the judge beside a verdict without asking the contract for it: old answers have none. */
