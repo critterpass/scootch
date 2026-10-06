@@ -34,6 +34,8 @@ import { useLanguage } from '../i18n/i18n-provider';
 
 import { createDayStore, effectSwitches, type DayStore } from './day-store';
 import type { DayEvent, DayState } from './day-types';
+import { lineFor } from './lines';
+import { SessionRelaunch } from './session-relaunch';
 
 /** The day store on the real phone: its database, the API, and the native effects. */
 function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
@@ -122,7 +124,12 @@ export function DayStoreProvider({ children }: { readonly children: ReactNode })
     };
   }, [app]);
 
-  return <DayStoreContext.Provider value={app.store}>{children}</DayStoreContext.Provider>;
+  return (
+    <DayStoreContext.Provider value={app.store}>
+      <SessionRelaunch store={app.store} />
+      {children}
+    </DayStoreContext.Provider>
+  );
 }
 
 function useDayStore(): DayStore {
@@ -169,12 +176,23 @@ export function useToday() {
   );
 }
 
-/** The session, and what the effects runner last showed: a line, a burst, the treat, parked thoughts. */
+/**
+ * The session, and what the effects runner last showed: a line, a burst, the treat, parked
+ * thoughts. `tinyNextStep` is the task's own smallest step, for stuck help.
+ */
 export function useSession() {
-  const { session, line, burst, treat, parkedThoughts } = useDayState();
+  const { session, line, burst, treat, parkedThoughts, today, settings } = useDayState();
+  const task = 'task' in today ? today.task : null;
   return useMemo(
-    () => ({ session, line, burst, treat, parkedThoughts }),
-    [session, line, burst, treat, parkedThoughts],
+    () => ({
+      session,
+      line,
+      burst,
+      treat,
+      parkedThoughts,
+      tinyNextStep: task ? lineFor('tinyNextStep', task, settings) : null,
+    }),
+    [session, line, burst, treat, parkedThoughts, task, settings],
   );
 }
 
