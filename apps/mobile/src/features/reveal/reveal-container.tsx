@@ -147,6 +147,7 @@ export function RevealContainer() {
     monster,
     line: line?.slot === 'caught' ? line.text : null,
     piece,
+    world: { pieces: keepsakes?.pieces ?? [], monsters: keepsakes?.monsters ?? [] },
     bar: bar
       ? {
           position: bar.position,

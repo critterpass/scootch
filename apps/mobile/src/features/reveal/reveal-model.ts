@@ -19,6 +19,11 @@ export interface RevealModel {
   /** The caught line of the task's own pack, as the store last showed it. */
   readonly line: string | null;
   readonly piece: WorldPieceRow | null;
+  /** The world as it stands with the new piece in it, for the step that shows it landing. */
+  readonly world: {
+    readonly pieces: readonly WorldPieceRow[];
+    readonly monsters: readonly MonsterRow[];
+  };
   readonly bar: {
     /** 1 (Monday) to 7 (Sunday). */
     readonly position: number;

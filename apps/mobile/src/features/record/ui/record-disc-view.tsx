@@ -75,6 +75,14 @@ export function RecordDiscView(props: RecordDiscViewProps) {
 
   return (
     <View style={{ width: size, height: size }} accessible={false} importantForAccessibility="no">
+      <View
+        pointerEvents="none"
+        style={[
+          styles.shadow,
+          { top: size * 0.04, left: size * 0.04, width: size * 0.92, height: size * 0.92 },
+          { borderRadius: size * 0.46 },
+        ]}
+      />
       <Animated.View style={spinStyle}>
         <CommandCanvas commands={commands} space={SPACE} width={size} />
       </Animated.View>
@@ -94,6 +102,8 @@ export function RecordDiscView(props: RecordDiscViewProps) {
 }
 
 const styles = StyleSheet.create({
+  // The record's own shadow on the deck, under the vinyl: it does not turn with it.
+  shadow: { position: 'absolute', boxShadow: '0 24px 40px -14px rgba(28,26,23,0.55)' },
   arm: { position: 'absolute', top: 0, width: 24, alignItems: 'center' },
   pivot: { width: 22, height: 22, borderRadius: 11, backgroundColor: '#D9D2C6' },
   rod: { flex: 1, width: 5, borderRadius: 2.5, backgroundColor: '#CFC7BA' },

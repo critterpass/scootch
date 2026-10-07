@@ -1,5 +1,12 @@
 import { CARD_LABELS, type CardLanguage } from '@scootch/art';
-import { isUnlocked, type CardData, type MonsterRow, type TaskRow } from '@scootch/domain';
+import {
+  isoWeekOf,
+  isUnlocked,
+  type CardData,
+  type IsoDate,
+  type MonsterRow,
+  type TaskRow,
+} from '@scootch/domain';
 
 /** A monster with its card: every card field was frozen at the catch. */
 export type CaughtMonster = MonsterRow & {
@@ -53,6 +60,32 @@ export function zooCards(
   const caught = monsters.filter(isCaught).sort(newestFirst);
   if (sort === null || !binderOpen(plus)) return caught;
   return caught.sort((a, b) => COMPARE[sort](a, b) || newestFirst(a, b));
+}
+
+/** What the zoo's three-way control shows: everything, the rare ones, or this week's catches. */
+export const ZOO_FILTERS = ['all', 'rare', 'thisWeek'] as const;
+export type ZooFilter = (typeof ZOO_FILTERS)[number];
+
+/**
+ * The cards a filter leaves, in the order they came in. A filter only chooses what is on screen:
+ * every card is still the person's. "This week" is the week of `today`, Monday to Sunday.
+ */
+export function filterCards(
+  cards: readonly CaughtMonster[],
+  filter: ZooFilter,
+  today: IsoDate,
+): CaughtMonster[] {
+  if (filter === 'rare') return cards.filter((card) => card.rarity === 'rare');
+  if (filter === 'thisWeek') {
+    const { week } = isoWeekOf(today);
+    return cards.filter((card) => isoWeekOf(card.caughtOn).week === week);
+  }
+  return [...cards];
+}
+
+/** How many of the cards wear the rare foil, for the line under the title. */
+export function rareCount(cards: readonly CaughtMonster[]): number {
+  return cards.filter((card) => card.rarity === 'rare').length;
 }
 
 /** The card as the art package draws it. `task` is the task's row, when it is still stored. */

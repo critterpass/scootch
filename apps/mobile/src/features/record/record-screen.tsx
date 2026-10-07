@@ -4,15 +4,17 @@ import type { Language } from '@scootch/i18n';
 import type { RecordInstrument } from '@scootch/sound';
 import { spacing } from '@scootch/tokens';
 
-import { Monster } from '../../art/Monster';
+import { Scootch } from '../../art/Scootch';
 import { useT } from '../../i18n/i18n-provider';
+import { useCharacterMotion } from '../../ui/motion/use-feel';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { Dock, KeepFrame } from '../reveal/ui/keep-frame';
 import { weekdayName } from '../reveal/weekday-name';
 import { SessionText } from '../session/ui/session-text';
 
 import type { RecordPlayback } from './use-record-playback';
-import { weekShareOffered, type RecordRow, type WeekView } from './record-week';
+import { weekShareOffered, type WeekView } from './record-week';
+import { CreditRow } from './ui/credit-row';
 import { RecordDiscView } from './ui/record-disc-view';
 import { BarStrip, bandLine, instrumentName } from './ui/record-parts';
 import { PressSpring } from '../../ui/motion/press-spring';
@@ -39,37 +41,6 @@ export interface RecordActions {
   readonly openShelf?: () => void;
 }
 
-/** One line of the liner notes: an instrument, its day and the task that earned it. */
-function CreditRow({ row, lit, language }: { row: RecordRow; lit: boolean; language: Language }) {
-  const t = useT();
-  const { palette } = useScreenStyle();
-  const instrument = instrumentName(row.instrument, t);
-  const day = weekdayName(language, row.position, 'short');
-  const detail = row.taskText ? `${day} · ${row.taskText}` : day;
-  return (
-    <View
-      accessible
-      accessibilityLabel={`${instrument}, ${weekdayName(language, row.position, 'long')}${
-        row.taskText ? `, ${row.taskText}` : ''
-      }${lit ? `, ${t('record.playingNow')}` : ''}`}
-      testID={`record-row-${row.position}`}
-      style={[styles.row, lit ? { backgroundColor: `${palette.tomato}22` } : null]}
-    >
-      <View style={[styles.thumb, { backgroundColor: palette.surface }]}>
-        {row.monster ? <Monster spec={row.monster.spec} size={48} /> : null}
-      </View>
-      <View style={styles.grow}>
-        <SessionText face="action" color={palette.ink}>
-          {instrument}
-        </SessionText>
-        <SessionText face="caption" color={palette.muted}>
-          {detail}
-        </SessionText>
-      </View>
-    </View>
-  );
-}
-
 /**
  * The week's record: its bars so far, the liner notes crediting each instrument to its day and
  * task, and the play control. Listening and sharing are free; keeping a record is Plus, drawn as
@@ -78,12 +49,24 @@ function CreditRow({ row, lit, language }: { row: RecordRow; lit: boolean; langu
 export function RecordScreen({ model, actions }: { model: RecordModel; actions: RecordActions }) {
   const t = useT();
   const { palette } = useScreenStyle();
+  const character = useCharacterMotion();
   const { width } = useWindowDimensions();
   const { week, playback, language } = model;
   const instruments: RecordInstrument[] = week.rows.map((row) => row.instrument);
   const fallbackName = t('record.week', { number: week.weekNumber });
   const cover = week.rows.flatMap((row) => (row.monster ? [row.monster.spec] : []));
   const waiting = week.waitingFor;
+  // While the band builds, one instrument is lit: the one joining. The line under the name says so.
+  const joining =
+    playback.playing && playback.lit.length === 1
+      ? week.rows.find((row) => row.instrument === playback.lit[0])
+      : undefined;
+  const bandNow = joining
+    ? t('record.nowJoins', {
+        weekday: weekdayName(language, joining.position, 'short'),
+        instrument: instrumentName(joining.instrument, t),
+      })
+    : bandLine(instruments, t);
   return (
     <KeepFrame
       testID="record"
@@ -168,57 +151,103 @@ export function RecordScreen({ model, actions }: { model: RecordModel; actions: 
             <View style={[styles.triangle, { borderLeftColor: palette.page }]} />
           )}
         </PressSpring>
-        <View style={styles.grow}>
-          <SessionText face="action" color={palette.ink} testID="record-name">
+        <View style={styles.meta}>
+          <SessionText
+            face="action"
+            color={palette.ink}
+            numberOfLines={1}
+            style={styles.name}
+            testID="record-name"
+          >
             {week.name ?? fallbackName}
           </SessionText>
-          <SessionText face="caption" color={palette.muted} testID="record-band">
-            {week.barCount === 0 ? t('record.empty') : bandLine(instruments, t)}
+          <SessionText
+            face="caption"
+            color={palette.muted}
+            style={styles.band}
+            accessibilityLiveRegion="polite"
+            testID="record-band"
+          >
+            {week.barCount === 0 ? t('record.empty') : bandNow}
           </SessionText>
         </View>
       </View>
       <BarStrip barCount={week.barCount} progress={playback.progress} />
       {week.linerNote ? (
         <View style={[styles.note, { backgroundColor: palette.surface }]}>
-          <SessionText face="body" color={palette.ink} testID="record-liner-note">
+          <Scootch mood="pleased" size={46} {...character} />
+          <SessionText
+            face="caption"
+            color={palette.ink}
+            style={styles.noteWords}
+            testID="record-liner-note"
+          >
             {week.linerNote}
           </SessionText>
         </View>
       ) : null}
-      {week.rows.map((row) => (
-        <CreditRow
-          key={row.position}
-          row={row}
-          lit={playback.lit.includes(row.instrument)}
-          language={language}
-        />
-      ))}
-      {waiting ? (
-        <View style={[styles.row, styles.waiting]} accessible testID="record-waiting">
-          <View style={[styles.thumb, { backgroundColor: palette.surface }]} />
-          <View style={styles.grow}>
-            <SessionText face="action" color={palette.muted}>
-              {t('record.waiting', {
-                weekday: weekdayName(language, waiting.position, 'short'),
-              })}
-            </SessionText>
-            <SessionText face="caption" color={palette.muted}>
-              {t('record.waiting.hint', {
-                instrument: instrumentName(waiting.instrument, t).toLowerCase(),
-              })}
-            </SessionText>
-          </View>
-        </View>
-      ) : null}
+      <View style={styles.credits}>
+        {week.rows.map((row) => {
+          const lit = playback.lit.includes(row.instrument);
+          const instrument = instrumentName(row.instrument, t);
+          const day = weekdayName(language, row.position, 'short');
+          return (
+            <CreditRow
+              key={row.position}
+              testID={`record-row-${row.position}`}
+              title={instrument}
+              detail={row.taskText ? `${day} · ${row.taskText}` : day}
+              label={`${instrument}, ${weekdayName(language, row.position, 'long')}${
+                row.taskText ? `, ${row.taskText}` : ''
+              }${lit ? `, ${t('record.playingNow')}` : ''}`}
+              lit={lit}
+              // A day with no monster asked for care: its row names no task and draws nobody.
+              {...(row.monster ? { work: row.workMode } : {})}
+            />
+          );
+        })}
+        {waiting ? (
+          <CreditRow
+            waiting
+            testID="record-waiting"
+            title={t('record.waiting', {
+              weekday: weekdayName(language, waiting.position, 'short'),
+            })}
+            detail={t('record.waiting.hint', {
+              instrument: instrumentName(waiting.instrument, t).toLowerCase(),
+            })}
+            label={`${t('record.waiting', {
+              weekday: weekdayName(language, waiting.position, 'long'),
+            })}, ${t('record.waiting.hint', {
+              instrument: instrumentName(waiting.instrument, t).toLowerCase(),
+            })}`}
+          />
+        ) : null}
+        {week.rows.length > 0 ? (
+          <SessionText face="caption" color={palette.muted} style={styles.produced}>
+            {t('record.produced')}
+          </SessionText>
+        ) : null}
+      </View>
     </KeepFrame>
   );
 }
 
 const styles = StyleSheet.create({
-  centre: { alignItems: 'center' },
-  grow: { flex: 1 },
-  playRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  play: { width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center' },
+  centre: { alignItems: 'center', paddingTop: spacing.sm },
+  // The play control and the words beside it: 14 apart, the name on one line.
+  meta: { flex: 1, minWidth: 0, gap: 3 },
+  name: { fontSize: 18, lineHeight: 18 * 1.2 },
+  band: { fontSize: 13, fontWeight: '500' },
+  playRow: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  play: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2), 0 6px 16px -4px rgba(28,26,23,0.35)',
+  },
   triangle: {
     width: 0,
     height: 0,
@@ -231,21 +260,19 @@ const styles = StyleSheet.create({
   },
   pause: { flexDirection: 'row', gap: 5 },
   pauseBar: { width: 5, height: 18, borderRadius: 2 },
-  note: { borderRadius: 24, padding: spacing.md },
-  row: {
+  // Scootch's note: a 22 point corner, 14 by 16 inside, 20 in from the screen's sides.
+  note: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.md,
-    borderRadius: 16,
-    padding: 4,
+    gap: 12,
+    borderRadius: 22,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    marginHorizontal: -4,
+    boxShadow: '0 0 0 0.5px rgba(28,26,23,0.06)',
   },
-  waiting: { opacity: 0.6 },
-  thumb: {
-    width: 52,
-    height: 52,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
+  noteWords: { flex: 1, fontSize: 15, lineHeight: 15 * 1.32, fontWeight: '600' },
+  // The rows sit 16 in from the screen's sides and 4 apart.
+  credits: { gap: 4, marginHorizontal: -8 },
+  produced: { fontSize: 12, lineHeight: 12 * 1.4, paddingHorizontal: 12, paddingTop: 10 },
 });
