@@ -1,5 +1,4 @@
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { DrawerItemRow, Id, IsoDate } from '@scootch/domain';
 import { fonts, radius, spacing } from '@scootch/tokens';
@@ -8,6 +7,7 @@ import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
 import { dayWords } from './day-words';
+import { SafeFrame } from '../../ui/safe-frame';
 
 const TITLE_SIZE = 24;
 const ROW_SIZE = 17;
@@ -40,7 +40,7 @@ export function DrawerSheet({ open, items, today, canSwap, onSwapIn, onClose }: 
       onRequestClose={onClose}
     >
       <View style={[styles.shade, { backgroundColor: `${palette.ink}40` }]}>
-        <SafeAreaView
+        <SafeFrame
           edges={['bottom']}
           testID="drawer"
           accessibilityViewIsModal
@@ -141,7 +141,7 @@ export function DrawerSheet({ open, items, today, canSwap, onSwapIn, onClose }: 
               {t('drawer.close')}
             </Text>
           </Pressable>
-        </SafeAreaView>
+        </SafeFrame>
       </View>
     </Modal>
   );

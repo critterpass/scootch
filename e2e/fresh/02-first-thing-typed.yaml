@@ -21,6 +21,15 @@ appId: app.scootch.dev
 - tapOn:
     id: 'composer-input'
 - inputText: 'reply to one message'
+# The first time the keyboard is used, iOS may stop to explain sliding a finger across the letters,
+# and what was typed before it came up is lost: dismiss it, then type the words again whole.
+- runFlow:
+    when:
+      visible: 'Continue'
+    commands:
+      - tapOn: 'Continue'
+- eraseText: 40
+- inputText: 'reply to one message'
 - takeScreenshot: fresh-02-typing
 - tapOn:
     id: 'composer-send'
@@ -62,4 +71,6 @@ appId: app.scootch.dev
     id: 'task-set-treat'
 - assertNotVisible:
     id: 'composer-input'
+# A plain task never gets the serious voice.
+- assertNotVisible: 'That sounds like a lot.*'
 - takeScreenshot: fresh-02-task-set

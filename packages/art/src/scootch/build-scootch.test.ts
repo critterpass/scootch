@@ -8,6 +8,30 @@ const moods = scootchMoodSchema.options;
 const attitudes = attitudeSchema.options;
 
 describe('buildScootch', () => {
+  it('can draw the confetti behind Scootch instead of over him', () => {
+    const props = {
+      mood: 'celebrating',
+      attitude: 'cheeky',
+      workMode: null,
+      reducedMotion: false,
+    } as const;
+    // A piece of confetti is the one stroke 3.2 wide.
+    const pieces = (commands: ReturnType<typeof buildScootch>): number[] =>
+      commands.flatMap((command, index) =>
+        command.op === 'stroke' && command.width === 3.2 ? [index] : [],
+      );
+    const over = buildScootch(props);
+    const behind = buildScootch(props, undefined, { confettiBehind: true });
+
+    expect(pieces(over).length).toBeGreaterThan(0);
+    expect(pieces(behind)).toHaveLength(pieces(over).length);
+    expect(Math.max(...pieces(behind))).toBeLessThan(Math.min(...pieces(over)));
+    // Nothing else about the drawing changes: the count and kinds of commands are the same.
+    expect(behind.map((command) => command.op).sort()).toEqual(
+      over.map((command) => command.op).sort(),
+    );
+  });
+
   it('draws every mood of the contract at every attitude, moving and still', () => {
     expect(Object.keys(SCOOTCH_MOODS).sort()).toEqual([...moods].sort());
     for (const mood of moods) {

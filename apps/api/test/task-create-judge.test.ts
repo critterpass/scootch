@@ -68,6 +68,33 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
+describe("the app's own first-run suggestions", () => {
+  const heavy = { pass: 0.1, serious: 0.88, crisis: 0.02 };
+
+  it.each(['open the scary email', 'mở cái email đáng sợ'])(
+    'are ordinary whatever the judge says, and say that nobody judged them (%#)',
+    async (text) => {
+      const { response } = await createTask(
+        { jev: jevDecides(heavy), deepseek: judges.trusted.deepseek },
+        { ...passFixture.request, text, staged: true },
+      );
+      const answer = taskCreateStartResponseSchema.parse(await response.json());
+
+      expect(answer).toMatchObject({ verdict: 'pass', answeredBy: 'builtin' });
+      expect(answer).not.toHaveProperty('reason');
+    },
+  );
+
+  it('still judges the same words with something added', async () => {
+    const { response } = await createTask(
+      { jev: jevDecides(heavy), deepseek: writerAnswers([plainAnswer]) },
+      { ...passFixture.request, text: 'open the scary email from the court', staged: true },
+    );
+
+    expect(await response.json()).toMatchObject({ verdict: 'serious', answeredBy: 'jev' });
+  });
+});
+
 describe.each([
   ['the single call', false],
   ['stage one', true],

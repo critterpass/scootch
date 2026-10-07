@@ -14,9 +14,10 @@ export const decisionMetaSchema = z.object({
   lowConfidence: z.boolean(),
   /**
    * `jev` is the decision model, `fallback` the small generation model, and
-   * `default` means neither answered in time and the quiet default was used.
+   * `default` means neither answered in time and the quiet default was used. `builtin` is a
+   * text the app wrote itself (a first-run suggestion): no model judged it and none needed to.
    */
-  answeredBy: z.enum(['jev', 'fallback', 'default']),
+  answeredBy: z.enum(['jev', 'fallback', 'default', 'builtin']),
 });
 export type DecisionMeta = z.infer<typeof decisionMetaSchema>;
 

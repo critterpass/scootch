@@ -1,24 +1,33 @@
 import { View, type ViewProps } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+type Edge = 'top' | 'bottom' | 'left' | 'right';
+const EDGES: readonly Edge[] = ['top', 'bottom', 'left', 'right'];
+
+export interface SafeFrameProps extends ViewProps {
+  /** The edges that keep clear of the notch and the home bar. All four when left out. */
+  readonly edges?: readonly Edge[];
+}
+
 /**
  * A full-screen frame that keeps clear of the notch and the home bar. The insets are read from the
  * provider, which has them from the first frame, and applied as padding in the same layout pass as
  * everything inside. The native `SafeAreaView` applies them a moment after the first draw, which
  * moves a control after it has been drawn and leaves its hit area where it was.
  */
-export function SafeFrame({ style, ...rest }: ViewProps) {
+export function SafeFrame({ style, edges = EDGES, ...rest }: SafeFrameProps) {
   const insets = useSafeAreaInsets();
+  const applied = (edge: Edge) => (edges.includes(edge) ? insets[edge] : 0);
   return (
     <View
       {...rest}
       style={[
         style,
         {
-          paddingTop: insets.top,
-          paddingBottom: insets.bottom,
-          paddingLeft: insets.left,
-          paddingRight: insets.right,
+          paddingTop: applied('top'),
+          paddingBottom: applied('bottom'),
+          paddingLeft: applied('left'),
+          paddingRight: applied('right'),
         },
       ]}
     />

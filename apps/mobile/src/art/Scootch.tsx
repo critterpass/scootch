@@ -22,6 +22,9 @@ import { useMotionTicks } from './use-motion-ticks';
 /** The contract's Scootch props, as the drawing takes them. */
 type ScootchDrawing = Parameters<typeof buildScootch>[0];
 
+/** In the app the confetti falls behind Scootch and never across his face. */
+const DRAWN_IN_APP = { confettiBehind: true } as const;
+
 export interface ScootchProps {
   readonly mood: ScootchDrawing['mood'];
   /** Cheeky unless told otherwise, as at first launch. */
@@ -94,7 +97,12 @@ export function Scootch({
     const props: ScootchDrawing = { mood, attitude, workMode, reducedMotion: still };
     const input: ScootchMotionInput = { mood, workMode, reducedMotion: still, care, ownLoop };
     const plan = scootchMotionPlan(input);
-    return { props, plan, set: scootchFrameSet(input, plan), rest: buildScootch(props) };
+    return {
+      props,
+      plan,
+      set: scootchFrameSet(input, plan),
+      rest: buildScootch(props, undefined, DRAWN_IN_APP),
+    };
   }, [mood, attitude, workMode, still, care, ownLoop]);
   const { plan, set, rest } = drawing;
   const frameCount = set.motions.length;
@@ -103,7 +111,8 @@ export function Scootch({
   useEffect(() => {
     if (frameCount <= 1) return;
     const jobs = set.motions.map(
-      (motion, i) => () => (i === 0 ? drawing.rest : buildScootch(drawing.props, motion)),
+      (motion, i) => () =>
+        i === 0 ? drawing.rest : buildScootch(drawing.props, motion, DRAWN_IN_APP),
     );
     return runInSlices(jobs, FRAMES_PER_SLICE, (frames) =>
       setBuilt({ of: drawing, layers: uniqueLayers(frames) }),

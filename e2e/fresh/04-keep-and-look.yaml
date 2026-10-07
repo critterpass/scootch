@@ -25,10 +25,14 @@ appId: app.scootch.dev
     timeout: 15000
 - assertVisible: 'Bin bags'
 - takeScreenshot: fresh-04-parked-thoughts
+# Settling the last thought closes the list by itself: with nothing left to settle there is no
+# "Done" to press, and home comes straight after.
 - tapOn:
     id: 'session-thought-0-tomorrow'
-- tapOn:
-    id: 'session-thoughts-done'
+- extendedWaitUntil:
+    notVisible:
+      id: 'session-parked-thoughts'
+    timeout: 15000
 - extendedWaitUntil:
     visible:
       id: 'one-sentence'

@@ -1,13 +1,13 @@
 import { Link, type Href } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, useColorScheme, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { Language } from '@scootch/i18n';
 import { colors, fonts, fontSizes, radius, spacing, type Palette } from '@scootch/tokens';
 
 import { shortSession } from '../../features/session/dev/short-session';
 import { useLanguage } from '../../i18n/i18n-provider';
+import { SafeFrame } from '../../ui/safe-frame';
 
 const SCREENS: readonly { id: string; label: string; href: Href }[] = [
   { id: 'dev-open-registry', label: 'Screen registry', href: '/registry' },
@@ -53,7 +53,7 @@ export default function DeveloperTools() {
   const [shortSessions, setShortSessions] = useState(shortSession.isArmed);
 
   return (
-    <SafeAreaView style={[styles.screen, { backgroundColor: palette.page }]}>
+    <SafeFrame style={[styles.screen, { backgroundColor: palette.page }]}>
       <ScrollView testID="developer-tools-list" contentContainerStyle={styles.content}>
         <Text accessibilityRole="header" style={[styles.title, { color: palette.ink }]}>
           Developer tools
@@ -97,7 +97,7 @@ export default function DeveloperTools() {
           <Row id="dev-close" label="Back to the one screen" palette={palette} />
         </Link>
       </ScrollView>
-    </SafeAreaView>
+    </SafeFrame>
   );
 }
 

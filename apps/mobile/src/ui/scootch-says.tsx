@@ -5,11 +5,14 @@ import { fonts, fontSizes, spacing } from '@scootch/tokens';
 import { Scootch, type ScootchProps } from '../art/Scootch';
 import { useT } from '../i18n/i18n-provider';
 
+import { useKeyboardOpen } from './use-keyboard-open';
 import { useScreenStyle } from './use-screen-style';
 
 /** The canvas Scootch stands in, as the design draws him; smaller at the large text sizes. */
 const SCOOTCH_SIZE = 260;
 const SCOOTCH_SIZE_LARGE_TEXT = 120;
+/** With the keyboard up there is room for a sentence of two or three lines above the field. */
+const SCOOTCH_SIZE_KEYBOARD = 140;
 const SUB_SIZE = 17;
 
 export interface ScootchSaysProps {
@@ -34,8 +37,10 @@ export function ScootchSays({ mood, attitude, line, more = null, onPress }: Scoo
   const { palette, allowFontScaling, size, largeText, captured } = useScreenStyle();
   const t = useT();
   const { width } = useWindowDimensions();
+  const keyboardOpen = useKeyboardOpen();
   const figure = Math.min(
-    largeText ? SCOOTCH_SIZE_LARGE_TEXT : SCOOTCH_SIZE,
+    largeText ? SCOOTCH_SIZE_LARGE_TEXT : keyboardOpen ? SCOOTCH_SIZE_KEYBOARD : SCOOTCH_SIZE,
+    keyboardOpen ? SCOOTCH_SIZE_KEYBOARD : SCOOTCH_SIZE,
     width - spacing.lg * 2,
   );
   const said = [line, more].filter((part) => part !== null).join(' ');

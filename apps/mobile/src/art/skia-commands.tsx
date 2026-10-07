@@ -9,13 +9,39 @@ import { toSkiaNodes, type SkiaNode } from './skia-nodes';
 
 type TextNode = Extract<SkiaNode, { kind: 'text' }>;
 
-/** The system faces: the rounded display face where the platform has one, else the plain one. */
-const FAMILIES = {
-  rounded: Platform.select({ ios: 'ui-rounded', default: 'sans-serif' }),
-  sans: Platform.select({ ios: 'Helvetica Neue', default: 'sans-serif' }),
-};
-
 const WEIGHTS = ['100', '200', '300', '400', '500', '600', '700', '800', '900'] as const;
+
+/**
+ * The faces to try, in order, for a role. `ui-rounded` is a CSS keyword that React Native's own
+ * text understands and Skia's font manager does not: asked for it, Skia draws nothing at all. So
+ * the rounded role names real iOS families: SF Pro Rounded when the system lets a name reach it,
+ * the bold Arial Rounded that every iOS has (it has no lighter or italic cut), then the plain face.
+ */
+function familiesFor(node: TextNode): readonly string[] {
+  if (Platform.OS !== 'ios') return ['sans-serif'];
+  if (node.font === 'sans') return ['Helvetica Neue'];
+  const bold = node.weight >= 600 && !node.italic;
+  return bold
+    ? ['SF Pro Rounded', 'Arial Rounded MT Bold', 'Helvetica Neue']
+    : ['SF Pro Rounded', 'Helvetica Neue'];
+}
+
+function fontFor(node: TextNode) {
+  const make = (fontFamily: string) =>
+    matchFont({
+      fontFamily,
+      fontSize: node.size,
+      fontStyle: node.italic ? 'italic' : 'normal',
+      fontWeight: WEIGHTS[Math.min(8, Math.max(0, Math.round(node.weight / 100) - 1))] ?? '400',
+    });
+  const families = familiesFor(node);
+  // A family the system does not know gives a font with no glyphs; the next one is used instead.
+  for (const family of families) {
+    const font = make(family);
+    if (font.getGlyphIDs('Hg').every((id) => id !== 0)) return font;
+  }
+  return make(families[families.length - 1] ?? 'Helvetica Neue');
+}
 
 /**
  * One fitted line. The art package gives the anchor (left edge, centre or right edge) and the
@@ -23,16 +49,7 @@ const WEIGHTS = ['100', '200', '300', '400', '500', '600', '700', '800', '900'] 
  * not applied here: Skia's simple text node has no setting for it.
  */
 function TextLine({ node }: { readonly node: TextNode }) {
-  const font = useMemo(
-    () =>
-      matchFont({
-        fontFamily: FAMILIES[node.font],
-        fontSize: node.size,
-        fontStyle: node.italic ? 'italic' : 'normal',
-        fontWeight: WEIGHTS[Math.min(8, Math.max(0, Math.round(node.weight / 100) - 1))] ?? '400',
-      }),
-    [node.font, node.size, node.italic, node.weight],
-  );
+  const font = useMemo(() => fontFor(node), [node]);
   const width = node.align === 'left' ? 0 : font.measureText(node.text).width;
   const x = node.align === 'center' ? node.x - width / 2 : node.x - width;
   return (
