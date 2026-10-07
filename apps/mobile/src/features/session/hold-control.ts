@@ -1,6 +1,7 @@
 import type { SessionEvent } from '@scootch/domain';
 
-import type { FinishControl } from './session-view';
+/** What the control is: one that is held until it fills, or one that is tapped twice. */
+export type HoldKind = 'hold' | 'double_tap';
 
 /** A full hold takes this long; a ring let go of drains back in this long. */
 export const HOLD_FILL_MS = 1700;
@@ -14,7 +15,7 @@ export type HoldCaption = 'idle' | 'holding' | 'nearly' | 'confirm';
 
 /** The finish control between frames: how full the ring is and what the caption says. */
 export interface HoldControl {
-  readonly control: FinishControl;
+  readonly control: HoldKind;
   /** 0 to 1, linear in time. Drawing eases it. */
   readonly progress: number;
   readonly holding: boolean;
@@ -51,7 +52,7 @@ export function startsOverAfterAnswer(facts: {
   return facts.onScreen && !facts.taken;
 }
 
-export function holdControl(control: FinishControl): HoldControl {
+export function holdControl(control: HoldKind): HoldControl {
   return { control, progress: 0, holding: false, armedAt: null, caption: 'idle', finished: false };
 }
 

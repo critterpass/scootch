@@ -50,6 +50,7 @@ export const NO_ACTIONS: SessionActions = {
   closePark: () => undefined,
   park: () => undefined,
   send: () => undefined,
+  startNow: () => undefined,
   finishEarly: () => undefined,
   keepGoing: () => undefined,
   passBurst: () => undefined,
@@ -61,6 +62,11 @@ export const NO_ACTIONS: SessionActions = {
   resolveThought: () => undefined,
   developerEnd: () => undefined,
 };
+
+/** A second monster, as one caught earlier in the month looks on the sticker page. */
+export function mateMonster(seed: string): MonsterRow {
+  return { ...MONSTER, id: `registry-mate-${seed}`, spec: specFromSeed('tooth', seed) };
+}
 
 /** A line from the offline pack, as the store would show it with no connection. */
 export function packLine(
@@ -113,7 +119,8 @@ export function fixtureModel(
     reducedMotion: true,
     parkOpen: false,
     parkedNote: null,
-    holdStartsAt: 0,
+    catch: null,
+    haptics: false,
     developerEnd: false,
     timeOf: (thought) => {
       const at = new Date(thought.parkedAt);

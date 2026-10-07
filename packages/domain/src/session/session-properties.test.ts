@@ -92,7 +92,7 @@ describe('session invariants', { timeout: 60_000 }, () => {
     );
   });
 
-  it('reaches the same finished state with the same reward by hold, double tap or voice', () => {
+  it('reaches the same finished state with the same reward by hold, double tap, voice or catch', () => {
     fc.assert(
       fc.property(anyTone, anyLength, anyMoves, (tone, length, moves) => {
         const last = finishable(walk(setFor(tone, length), [started, ...moves]));
@@ -106,7 +106,7 @@ describe('session invariants', { timeout: 60_000 }, () => {
           finishBy('hold_started', 'hold_completed'),
           finishBy('double_tapped'),
           finishBy('said_done'),
-          ...(tone === 'quiet' ? [finishBy('finish_tapped')] : []),
+          ...(tone === 'quiet' ? [finishBy('finish_tapped')] : [finishBy('caught')]),
         ];
         const reward = (effects: readonly SessionEffect[]) =>
           effects.filter((effect) => effect.kind !== 'record_session_end');
@@ -127,7 +127,8 @@ describe('session invariants', { timeout: 60_000 }, () => {
           'hold',
           'double_tap',
           'voice',
-          ...(tone === 'quiet' ? ['tap'] : []),
+          // A catch is stored as the hold whose place it took.
+          ...(tone === 'quiet' ? ['tap'] : ['hold']),
         ]);
       }),
     );

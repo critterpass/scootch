@@ -24,6 +24,11 @@ browser as designed.
 | Camera | Four modes, before and after | After launch |
 | iPhone Duo | Foldable layouts | After launch |
 
+The Catch Concepts board (eight ways to catch a task's monster, which took
+the place of hold to finish) is in the Claude Design project and has not been
+exported here yet. Until it is, the session's catch states in the screen
+registry say so in place of a design reference.
+
 Every board has been read against the plan as text. Nobody has yet compared
 the rendered screens.
 

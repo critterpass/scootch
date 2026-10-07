@@ -7,6 +7,7 @@ const WORKING = {
   stuck: false,
   twoMinutesLeft: false,
   timeUp: false,
+  trap: false,
 } as const;
 
 /**

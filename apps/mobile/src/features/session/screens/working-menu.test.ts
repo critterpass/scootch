@@ -14,6 +14,7 @@ const WORKING = {
   stuck: false,
   twoMinutesLeft: false,
   timeUp: false,
+  trap: false,
 } as const;
 
 function menuOf(changes: Parameters<typeof fixtureModel>[2], actions: SessionActions = NO_ACTIONS) {

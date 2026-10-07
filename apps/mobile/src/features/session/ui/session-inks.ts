@@ -2,6 +2,8 @@ import { colors, type ColorScheme, type Palette } from '@scootch/tokens';
 
 /** The session's own inks on top of the palette: the timer's track and the quiet disc. */
 export interface SessionInks extends Palette {
+  /** The dark appearance: a shadow or a dimmed page has to be drawn differently on it. */
+  readonly dark: boolean;
   /** The thin ring the disc shrinks inside, and the unfilled part of the hold ring. */
   readonly track: string;
   /** The disc of a serious task: ink-grey, never tomato. */
@@ -23,6 +25,7 @@ export function sessionInks(scheme: ColorScheme): SessionInks {
   const palette = colors[scheme];
   return {
     ...palette,
+    dark: scheme === 'dark',
     track: scheme === 'dark' ? '#3A342E' : '#E7E1D7',
     quietDisc: scheme === 'dark' ? '#5B544C' : '#B9B2A8',
     ringLine: scheme === 'dark' ? 'rgba(243,238,230,0.16)' : 'rgba(28,26,23,0.12)',

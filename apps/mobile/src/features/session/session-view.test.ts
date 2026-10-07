@@ -13,6 +13,7 @@ import {
   timeLeftFraction,
   type SessionViewInput,
   catchPlays,
+  catchable,
   finishedByHand,
 } from './session-view';
 
@@ -73,9 +74,13 @@ describe('which session screen is on', () => {
     expect(sessionView(input({ session, passed })).kind).toBe('working');
     expect(sessionView(input({ session, passed: { ...passed, finishingEarly: true } }))).toEqual({
       kind: 'finish',
-      control: 'hold',
+      control: 'double_tap',
       timeUp: false,
     });
+    // With a monster that can be caught by hand, the finish is the catch.
+    expect(
+      sessionView(input({ session, passed: { ...passed, finishingEarly: true }, catchable: true })),
+    ).toEqual({ kind: 'finish', control: 'catch', timeUp: false });
     const timeUp = sessionReducer(session, { type: 'clock' }, START + 10 * MINUTE_MS).state;
     expect(sessionView(input({ session: timeUp, passed, finishWith: 'double_tap' }))).toEqual({
       kind: 'finish',
@@ -86,7 +91,14 @@ describe('which session screen is on', () => {
 
   it('gives someone who says "done" a control that needs no holding', () => {
     expect(finishControl('voice')).toBe('double_tap');
-    expect(finishControl('hold')).toBe('hold');
+    expect(finishControl('double_tap')).toBe('double_tap');
+    expect(finishControl('hold')).toBe('catch');
+    // Nothing to catch by hand: no monster, a screen reader, or motion that may not play.
+    expect(finishControl('hold', false)).toBe('double_tap');
+    expect(catchable({ monster: true, screenReader: false, reducedMotion: false })).toBe(true);
+    expect(catchable({ monster: false, screenReader: false, reducedMotion: false })).toBe(false);
+    expect(catchable({ monster: true, screenReader: true, reducedMotion: false })).toBe(false);
+    expect(catchable({ monster: true, screenReader: false, reducedMotion: true })).toBe(false);
   });
 
   it('walks the treat, then the parked thoughts, then home, each passed with one tap', () => {
@@ -197,7 +209,14 @@ describe('the catch, between a finish made by hand and the reveal', () => {
   const base = input({ session: done.state, burst: 'confetti', reveal: 'pending' });
 
   it('keeps the finish screen up until the moment has played or is tapped away', () => {
-    expect(sessionView({ ...base, caught: true })).toEqual({ kind: 'caught', control: 'hold' });
+    expect(sessionView({ ...base, caught: true, catchable: true })).toEqual({
+      kind: 'caught',
+      control: 'catch',
+    });
+    expect(sessionView({ ...base, caught: true })).toEqual({
+      kind: 'caught',
+      control: 'double_tap',
+    });
     expect(sessionView({ ...base, caught: true, finishWith: 'voice' })).toEqual({
       kind: 'caught',
       control: 'double_tap',
@@ -229,10 +248,43 @@ describe('the catch, between a finish made by hand and the reveal', () => {
     expect(sessionView({ ...base, caught: true, reveal: 'seen' })).toEqual({ kind: 'home' });
   });
 
-  it('counts a completed hold and a second tap as finishes by hand, and nothing else', () => {
+  it('counts a catch, a completed hold and a second tap as finishes by hand, and nothing else', () => {
+    expect(finishedByHand({ type: 'caught' })).toBe(true);
     expect(finishedByHand({ type: 'hold_completed' })).toBe(true);
     expect(finishedByHand({ type: 'double_tapped' })).toBe(true);
     expect(finishedByHand({ type: 'said_done' })).toBe(false);
     expect(finishedByHand({ type: 'hold_started' })).toBe(false);
+  });
+});
+
+describe('a session that ends in a catch', () => {
+  const passed = { ...NOTHING_PASSED, burst: true };
+
+  it('shows the work as the trap setting itself, and a serious task never does', () => {
+    const view = sessionView(input({ session: started('full'), passed, catchable: true }));
+    expect(view).toMatchObject({ kind: 'working', trap: true });
+    const tapped = input({
+      session: started('full'),
+      passed,
+      catchable: true,
+      finishWith: 'voice',
+    });
+    expect(sessionView(tapped)).toMatchObject({ kind: 'working', trap: false });
+    expect(
+      sessionView(input({ session: started('quiet'), passed, catchable: true })),
+    ).toMatchObject({ kind: 'working', trap: false });
+  });
+
+  it('explains catching before the very first start, and only where there is a catch', () => {
+    const set = sessionSet({ taskId: 'task', tone: 'full', minutes: 10 });
+    expect(sessionView(input({ session: set, coach: true, catchable: true }))).toEqual({
+      kind: 'coach',
+    });
+    expect(sessionView(input({ session: set, catchable: true }))).toEqual({ kind: 'starting' });
+    expect(sessionView(input({ session: set, coach: true }))).toEqual({ kind: 'starting' });
+    const quiet = sessionSet({ taskId: 'task', tone: 'quiet', minutes: 10 });
+    expect(sessionView(input({ session: quiet, coach: true, catchable: true }))).toEqual({
+      kind: 'starting',
+    });
   });
 });
