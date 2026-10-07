@@ -94,6 +94,8 @@ export const SceneMonster = memo(function SceneMonster({
   );
 });
 
+const SHADOW = { light: 'rgba(28,26,23,0.13)', dark: 'rgba(0,0,0,0.55)' } as const;
+
 /** The line a scene stands on. */
 export function Floor({ y, inks }: { readonly y: number; readonly inks: SessionInks }) {
   return <View style={[styles.floor, { top: y, backgroundColor: inks.hairline }]} />;
@@ -102,19 +104,29 @@ export function Floor({ y, inks }: { readonly y: number; readonly inks: SessionI
 /** A soft shadow on the floor, moved and shrunk by its sprite. */
 export function Shadow({
   sprite,
+  inks,
   left,
   top,
   width,
   height,
 }: {
   readonly sprite: Sprite;
+  readonly inks: SessionInks;
   readonly left: number;
   readonly top: number;
   readonly width: number;
   readonly height: number;
 }) {
   return (
-    <Animated.View style={[styles.at, styles.shadow, { left, top, width, height }, sprite.style]} />
+    <Animated.View
+      style={[
+        styles.at,
+        styles.shadow,
+        // On the dark page a shadow is darker still; ink at a few percent would not show at all.
+        { left, top, width, height, backgroundColor: inks.dark ? SHADOW.dark : SHADOW.light },
+        sprite.style,
+      ]}
+    />
   );
 }
 
@@ -226,7 +238,7 @@ const styles = StyleSheet.create({
     height: STAGE.height + 60,
   },
   floor: { position: 'absolute', left: 24, right: 24, height: 2, borderRadius: 1 },
-  shadow: { borderRadius: 999, backgroundColor: 'rgba(28,26,23,0.13)' },
+  shadow: { borderRadius: 999 },
   stamp: {
     zIndex: 8,
     paddingHorizontal: 13,

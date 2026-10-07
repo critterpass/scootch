@@ -150,7 +150,7 @@ export function EnvelopeScene(props: SceneProps) {
   return (
     <Board>
       <Animated.View style={[styles.envelope, envelope.style]}>
-        <View style={[styles.back, { borderColor: inks.ink }]}>
+        <View style={styles.back}>
           {ADDRESS.map((width, index) => (
             <View
               key={index}
@@ -243,6 +243,8 @@ const styles = StyleSheet.create({
     bottom: 0,
     borderRadius: 6,
     borderWidth: 2,
+    // Paper is paper on either page: its edge is drawn in the ink that is written on it.
+    borderColor: '#1C1A17',
     backgroundColor: '#E9E0D1',
     boxShadow: '0 20px 30px -18px rgba(28,26,23,0.4)',
   },

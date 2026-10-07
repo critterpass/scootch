@@ -257,7 +257,7 @@ export function LassoScene(props: SceneProps) {
   return (
     <Board>
       <Floor y={FLOOR} inks={inks} />
-      <Shadow sprite={shadow} left={0} top={FLOOR - 8} width={110} height={16} />
+      <Shadow sprite={shadow} inks={inks} left={0} top={FLOOR - 8} width={110} height={16} />
       <SceneMonster monster={monster} mood={rig.mood} sprite={mon} spin={tumble} still={still} />
       <Animated.View style={[styles.pips, pips.style]}>
         {Array.from({ length: PIPS }, (_, index) => (

@@ -74,8 +74,7 @@ export const enCatch = {
   'session.catch.lasso.cinched.sub': 'Hauling him into the binder…',
   'session.catch.lasso.won': 'Lassoed.',
 
-  'session.catch.sticker.setting.sub':
-    'Cutting him out. The line closes a little more every minute.',
+  'session.catch.sticker.setting.sub': 'The cut line closes a little more every minute.',
   'session.catch.sticker.ready': 'Peel him off.',
   'session.catch.sticker.ready.sub': 'Drag him into the empty spot in your book.',
   'session.catch.sticker.peeled': 'Rrrrip.',

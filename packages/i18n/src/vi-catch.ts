@@ -72,7 +72,7 @@ export const viCatch = {
   'session.catch.lasso.cinched.sub': 'Đang lôi nó vào sổ…',
   'session.catch.lasso.won': 'Trói gọn.',
 
-  'session.catch.sticker.setting.sub': 'Đang cắt nó ra. Mỗi phút đường cắt khép thêm một chút.',
+  'session.catch.sticker.setting.sub': 'Mỗi phút đường cắt khép thêm một chút.',
   'session.catch.sticker.ready': 'Bóc nó ra.',
   'session.catch.sticker.ready.sub': 'Kéo nó vào ô trống trong sổ của bạn.',
   'session.catch.sticker.peeled': 'Xoẹt.',

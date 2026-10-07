@@ -13,6 +13,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useCue } from '../../../state/day-store-provider';
 import { CORNER } from '../../../ui/corner-bar';
+import { GlassGroup } from '../../../ui/glass-surface';
 import type { ScreenProps } from '../screens/screen-props';
 import { WorkingFooter } from '../screens/working-footer';
 import { workingMenu } from '../screens/working-menu';
@@ -190,10 +191,7 @@ export function CatchScreen(props: ScreenProps) {
         onResponderTerminate={(event) => touch.current?.up(...toBoard(event))}
       />
 
-      <View
-        pointerEvents="box-none"
-        style={[styles.row, { top: rowTop, paddingHorizontal: CORNER.side }]}
-      >
+      <GlassGroup style={[styles.row, { top: rowTop, paddingHorizontal: CORNER.side }]}>
         <CatchTopRow
           {...props}
           stage={stage}
@@ -203,7 +201,7 @@ export function CatchScreen(props: ScreenProps) {
           onMenu={() => setMenuOpen((open) => !open)}
           onDidIt={() => setAnswer('yes')}
         />
-      </View>
+      </GlassGroup>
 
       {stage === 'coach' || (footerUp && at === 'bottom') ? null : (
         <View
@@ -219,6 +217,10 @@ export function CatchScreen(props: ScreenProps) {
               color={inks.ink}
               accessibilityLiveRegion="polite"
               testID="session-catch-headline"
+              // A long task shrinks a little, then ends in an ellipsis, before it reaches the drawing.
+              numberOfLines={2}
+              adjustsFontSizeToFit
+              minimumFontScale={0.75}
               style={styles.centred}
             >
               {headline}
@@ -229,6 +231,7 @@ export function CatchScreen(props: ScreenProps) {
               face="caption"
               color={inks.muted}
               testID="session-catch-line"
+              numberOfLines={3}
               style={styles.centred}
             >
               {sub}

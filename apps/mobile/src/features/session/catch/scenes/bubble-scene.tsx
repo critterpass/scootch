@@ -1,3 +1,4 @@
+import { Canvas, Circle, RadialGradient, vec } from '@shopify/react-native-skia';
 import { useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
@@ -21,6 +22,17 @@ import { put } from '../sprite';
 const FLOOR = 560;
 /** The bubble and the monster in it are one group, this big, moved by its middle. */
 const GROUP = 300;
+const BUBBLE = 280;
+/** A soap film: clear in the middle, then blue, a blush of tomato, and a bright rim. */
+const SHEEN = {
+  colors: [
+    'rgba(142,187,218,0)',
+    'rgba(142,187,218,0.22)',
+    'rgba(240,86,46,0.16)',
+    'rgba(255,255,255,0.75)',
+  ],
+  stops: [0.58, 0.78, 0.9, 1],
+};
 /** A flick has to travel at least this far up. */
 const FLICK = 70;
 
@@ -152,7 +164,7 @@ export function BubbleScene(props: SceneProps) {
   return (
     <Board>
       <Floor y={FLOOR} inks={inks} />
-      <Shadow sprite={shadow} left={96} top={FLOOR - 9} width={200} height={18} />
+      <Shadow sprite={shadow} inks={inks} left={96} top={FLOOR - 9} width={200} height={18} />
       <Animated.View style={[styles.group, group.style]}>
         <SceneMonster
           monster={monster}
@@ -162,7 +174,17 @@ export function BubbleScene(props: SceneProps) {
           left={30}
           top={3}
         />
-        <Animated.View style={[styles.bubble, bubble.style]}>
+        <Animated.View style={[styles.bubble, { borderColor: inks.ringLine }, bubble.style]}>
+          <Canvas pointerEvents="none" style={styles.sheen}>
+            <Circle cx={BUBBLE / 2} cy={BUBBLE / 2} r={BUBBLE / 2}>
+              <RadialGradient
+                c={vec(BUBBLE / 2, BUBBLE / 2)}
+                r={BUBBLE / 2}
+                colors={SHEEN.colors}
+                positions={SHEEN.stops}
+              />
+            </Circle>
+          </Canvas>
           <View style={styles.glint} />
           <View style={styles.glintSmall} />
         </Animated.View>
@@ -183,14 +205,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 10,
     top: 10,
-    width: 280,
-    height: 280,
-    borderRadius: 140,
+    width: BUBBLE,
+    height: BUBBLE,
+    borderRadius: BUBBLE / 2,
     borderWidth: 1.5,
-    borderColor: 'rgba(28,26,23,0.22)',
-    backgroundColor: 'rgba(142,187,218,0.14)',
-    boxShadow: 'inset 0 0 30px rgba(240,86,46,0.14)',
+    overflow: 'hidden',
   },
+  sheen: { position: 'absolute', left: 0, top: 0, width: BUBBLE, height: BUBBLE },
   glint: {
     position: 'absolute',
     left: 70,
