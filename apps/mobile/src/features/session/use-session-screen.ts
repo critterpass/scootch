@@ -59,10 +59,11 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
   const [leaveAsked, setLeaveAsked] = useState(false);
   const [parkedNote, setParkedNote] = useState<string | null>(null);
 
-  const send = useCallback(
-    (event: SessionEvent) => void dispatch({ type: 'session', event }).catch(() => undefined),
+  const sendFinish = useCallback(
+    (event: SessionEvent) => dispatch({ type: 'session', event }).catch(() => undefined),
     [dispatch],
   );
+  const send = useCallback((event: SessionEvent) => void sendFinish(event), [sendFinish]);
   const pass = useCallback(
     (changes: Partial<Passed>) => setPassed((before) => ({ ...before, ...changes })),
     [],
@@ -187,6 +188,7 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
         setParkedNote(text);
       },
       send,
+      sendFinish,
       finishEarly: () => pass({ finishingEarly: true }),
       keepGoing: () => pass({ finishingEarly: false }),
       passBurst: () => pass({ burst: true }),
@@ -201,7 +203,7 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
           seconds: SHORT_SESSION_SECONDS,
         }).catch(() => undefined),
     }),
-    [dispatch, pass, send],
+    [dispatch, pass, send, sendFinish],
   );
 
   return { model, actions };

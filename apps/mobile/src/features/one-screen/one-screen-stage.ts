@@ -110,6 +110,10 @@ export function stageOf(input: StageInput): Stage {
     return { kind: 'done', waiting: input.waitingForTomorrow };
   }
 
+  // The day's first words are waiting on the battery question: it is asked wherever the ask is,
+  // the one after "One more" included, so held words can always be answered for.
+  if (asking && input.energyAsked) return { kind: 'energy' };
+
   // Scootch's pick is shown wherever it was asked for, the ask after "One more" included.
   if (pick.kind === 'picked_for_me' && (asking || today.kind === 'task_set')) {
     const item = drawer.items.find((one) => one.id === pick.itemId);
@@ -125,7 +129,6 @@ export function stageOf(input: StageInput): Stage {
   }
 
   if (today.kind === 'nothing_yet') {
-    if (input.energyAsked) return { kind: 'energy' };
     const returning = morning.kind === 'smallest_ask';
     return {
       kind: 'composer',
@@ -172,6 +175,11 @@ export function stageOf(input: StageInput): Stage {
         ? null
         : { row: monster, sizeFactor: carried ? carriedSizeFactor(task) : 1 },
   };
+}
+
+/** True on the one stage that keeps the person's words waiting: the battery question. */
+export function holdsWords(stage: Pick<Stage, 'kind'>): boolean {
+  return stage.kind === 'energy';
 }
 
 /**

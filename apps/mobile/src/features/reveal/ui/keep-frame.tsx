@@ -3,8 +3,9 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { spacing } from '@scootch/tokens';
 
-import { CapsuleButton } from '../../../ui/buttons';
+import { CapsuleButton, GlassDock } from '../../../ui/buttons';
 import { CloseButton, CornerBar } from '../../../ui/corner-bar';
+import { NativeBar, useRouteBar } from '../../../ui/native-bar';
 import { useScreenStyle } from '../../../ui/use-screen-style';
 import { SessionText } from '../../session/ui/session-text';
 import { SafeFrame } from '../../../ui/safe-frame';
@@ -22,7 +23,9 @@ export interface KeepFrameProps {
   readonly children: ReactNode;
 }
 
-/** A cross, drawn from two bars. */
+/** The system's bar keeps the top clear, so the frame only keeps the other edges. */
+const UNDER_BAR = ['bottom', 'left', 'right'] as const;
+
 /**
  * The frame of every keeping screen: a title, a round close control, a middle and a dock. The
  * close control is always in the trailing corner, exactly where every other screen has its own.
@@ -30,19 +33,21 @@ export interface KeepFrameProps {
 export function KeepFrame(props: KeepFrameProps) {
   const { palette } = useScreenStyle();
   const { title, subtitle, close, footer, scroll = true, children } = props;
-  const closeButton = (
-    <CloseButton
-      label={close.label}
-      hint={close.hint}
-      onPress={close.onPress}
-      testID={props.closeTestID}
-    />
-  );
+  const closeProps = { ...close, testID: props.closeTestID };
+  // Under the system's bar the title and the close control are the bar's; the line under the title
+  // stays with the screen, as its first line.
+  const barred = useRouteBar() === 'frame';
   return (
-    <SafeFrame testID={props.testID} style={[styles.fill, { backgroundColor: palette.page }]}>
-      <CornerBar trailing={closeButton}>
-        {title === undefined ? null : (
-          <>
+    <SafeFrame
+      testID={props.testID}
+      style={[styles.fill, { backgroundColor: palette.page }]}
+      {...(barred ? { edges: UNDER_BAR } : {})}
+    >
+      {barred ? (
+        <NativeBar close={closeProps} {...(title === undefined ? {} : { title })} />
+      ) : (
+        <CornerBar trailing={<CloseButton {...closeProps} />}>
+          {title === undefined ? null : (
             <View style={styles.titles}>
               <SessionText face="headline" color={palette.ink} accessibilityRole="header">
                 {title}
@@ -53,9 +58,16 @@ export function KeepFrame(props: KeepFrameProps) {
                 </SessionText>
               ) : null}
             </View>
-          </>
-        )}
-      </CornerBar>
+          )}
+        </CornerBar>
+      )}
+      {barred && subtitle ? (
+        <View style={styles.under}>
+          <SessionText face="caption" color={palette.muted} testID={`${props.testID}-count`}>
+            {subtitle}
+          </SessionText>
+        </View>
+      ) : null}
       {scroll ? (
         <ScrollView contentContainerStyle={styles.middle}>{children}</ScrollView>
       ) : (
@@ -108,10 +120,10 @@ export function Dock({
     />
   );
   return (
-    <View style={largeText ? styles.stack : styles.row}>
+    <GlassDock style={largeText ? styles.stack : styles.row}>
       {quiet ? button(quiet, 'quiet') : null}
       {action ? button(action, 'ink') : null}
-    </View>
+    </GlassDock>
   );
 }
 
@@ -130,6 +142,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     gap: spacing.md,
   },
+  under: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xs },
   footer: { paddingHorizontal: spacing.lg, paddingBottom: spacing.md, paddingTop: spacing.sm },
   row: { flexDirection: 'row', gap: spacing.sm },
   stack: { gap: spacing.sm },

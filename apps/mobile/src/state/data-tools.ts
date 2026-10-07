@@ -3,12 +3,19 @@ import { createContext, useContext } from 'react';
 import type { HttpClient } from '../api/http-client';
 import type { Repositories } from '../data/repositories';
 import type { SqlDatabase } from '../data/table';
-import { systemClock } from '../effects/native-adapters';
+import { createShareApi } from '../api/share-api';
+import { nativeNotifications, systemClock } from '../effects/native-adapters';
 import { createBackup, type Backup } from '../features/backup/backup';
 import { createBackupApi } from '../features/backup/backup-api';
 import { nativeBackupTokens } from '../features/backup/native-token-stores';
-import { deleteEverything, retryServerDelete } from '../features/privacy/data/delete-everything';
+import {
+  deleteEverything,
+  retryServerDelete,
+  type Leftovers,
+} from '../features/privacy/data/delete-everything';
 import { exportMyData } from '../features/privacy/data/export-data';
+import { syncChargeReminders } from '../features/plus/charge-reminders';
+import { keychainKeptShares } from '../features/share/native-kept-shares';
 import { nativeShareDevice } from '../features/share/native-share-device';
 
 /** The person's data beyond today: the backup, the export and deleting everything. */
@@ -40,11 +47,18 @@ export function createAppDataTools(deps: {
   const tokens = nativeBackupTokens();
   const server = createBackupApi(deps.http);
   const backup = createBackup({ tokens, api: server, repositories, db, clock: systemClock });
+  // What "delete everything" clears beyond the database: shared pages and charge reminders.
+  const pages = createShareApi(deps.http);
+  const leftovers: Leftovers = {
+    kept: keychainKeptShares,
+    unshare: (share) => pages.unshareCard(share.id, share.unshareToken),
+    cancelChargeReminders: () => syncChargeReminders(nativeNotifications, [], systemClock.now()),
+  };
   return {
     backup,
     exportMyData: () =>
       exportMyData({ repositories, clock: systemClock, device: nativeShareDevice }),
-    deleteEverything: () => deleteEverything({ db, tokens, server }),
+    deleteEverything: () => deleteEverything({ db, tokens, server, leftovers }),
     // A delete the server never heard about is finished first, so nothing is uploaded before it.
     keepUp: () =>
       retryServerDelete({ db, tokens, server })

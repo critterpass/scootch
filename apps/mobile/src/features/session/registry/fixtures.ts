@@ -57,6 +57,7 @@ export const NO_ACTIONS: SessionActions = {
   passMoment: () => undefined,
   passTreat: () => undefined,
   passThoughts: () => undefined,
+  sendFinish: () => Promise.resolve(),
   resolveThought: () => undefined,
   developerEnd: () => undefined,
 };

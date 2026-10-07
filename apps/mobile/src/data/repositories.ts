@@ -1,6 +1,7 @@
 import type { Id } from '@scootch/domain';
 
 import { careReminders } from './care-reminder';
+import { dayNotesStore } from './day-notes';
 import { rambleTranscripts } from './ramble-transcripts';
 import { daysRepository } from './repositories/days';
 import { drawerItemsRepository } from './repositories/drawer-items';
@@ -14,6 +15,7 @@ import { tasksRepository } from './repositories/tasks';
 import { weekRecordsRepository } from './repositories/week-records';
 import { worldPiecesRepository } from './repositories/world-pieces';
 import type { SqlDatabase } from './table';
+import { unsortedWordsStore } from './unsorted-words';
 
 /** Every local table, opened on one database. The phone is the source of truth. */
 export function openRepositories(db: SqlDatabase) {
@@ -50,6 +52,8 @@ export function openRepositories(db: SqlDatabase) {
     settings: settingsRepository(db),
     transcripts: rambleTranscripts(db),
     careReminder: careReminders(db),
+    unsortedWords: unsortedWordsStore(db),
+    dayNotes: dayNotesStore(db),
     forgetTask,
     transaction: (task: () => Promise<void>) => db.withTransactionAsync(task),
   };

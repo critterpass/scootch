@@ -70,6 +70,12 @@ export type DayEvent =
       readonly resolution: 'keep' | 'discard';
     }
   | { readonly type: 'done_for_today' }
+  /** A task that was started and left goes to the drawer whole; its start stays used. */
+  | { readonly type: 'started_task_parked' }
+  /** "Fix the words" on the offered one thing: the words go back to the composer. */
+  | { readonly type: 'one_thing_returned' }
+  /** "Changed my mind", after "That's it for today": the day and its one thing are back. */
+  | { readonly type: 'rest_undone' }
   /** "One more", on a finished day with a start still open: the ask comes back. */
   | { readonly type: 'one_more_asked' }
   /** The store reported a change to Plus: today is worked out again. */
@@ -185,6 +191,8 @@ export interface DayState {
   readonly reminderAt: Instant | null;
   /** The task carried on to tomorrow, while today rests; `null` when none is. */
   readonly waitingForTomorrow: TaskRow | null;
+  /** "That's it for today" was tapped today and can still be taken back. */
+  readonly restUndo: boolean;
   /** Dates heard in the last ramble, each with the line that says it out loud. */
   readonly heardDeadlines: readonly HeardDeadline[];
   readonly line: ShownLine | null;
@@ -231,6 +239,8 @@ export interface Offer {
   readonly transcriptId: Id | null;
   /** Drawer items parked from this text and not yet offered: "Another" takes the next of them. */
   readonly candidates: readonly Id[];
+  /** The thing "Another" turned down, put back as it was when no answer comes for the next. */
+  readonly turnedDown?: { readonly task: TaskRow; readonly monster: MonsterRow | null };
 }
 
 /** The store's working memory between events. */
