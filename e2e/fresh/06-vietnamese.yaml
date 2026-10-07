@@ -1,0 +1,84 @@
+appId: app.scootch.dev
+---
+# The fresh-user walk, step six: the same install in Vietnamese. It carries on from the step
+# before it, on the one screen; nothing is cleared and nothing is seeded. Settings switches the
+# language, then the one screen, Settings and the caught card are looked at in Vietnamese, whose
+# strings are longer than the English ones.
+- extendedWaitUntil:
+    visible:
+      id: 'more-button'
+    timeout: 90000
+- tapOn:
+    id: 'more-button'
+- extendedWaitUntil:
+    visible:
+      id: 'settings'
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: 'settings-language'
+    direction: DOWN
+- tapOn:
+    id: 'settings-language'
+- extendedWaitUntil:
+    visible:
+      id: 'settings-language-vi'
+    timeout: 15000
+- tapOn:
+    id: 'settings-language-vi'
+- scrollUntilVisible:
+    element:
+      id: 'settings-attitude-soft'
+    direction: UP
+- takeScreenshot: fresh-06-settings-vietnamese
+- scrollUntilVisible:
+    element:
+      id: 'settings-privacy'
+    direction: DOWN
+- takeScreenshot: fresh-06-settings-more-vietnamese
+- scrollUntilVisible:
+    element:
+      id: 'settings-close'
+    direction: UP
+- tapOn:
+    id: 'settings-close'
+- extendedWaitUntil:
+    visible:
+      id: 'one-sentence'
+    timeout: 15000
+- takeScreenshot: fresh-06-one-screen-vietnamese
+# The caught card, with Vietnamese labels.
+- tapOn:
+    id: 'world-button'
+- extendedWaitUntil:
+    visible:
+      id: 'world'
+    timeout: 15000
+- takeScreenshot: fresh-06-world-vietnamese
+- tapOn:
+    id: 'world-open-zoo'
+- extendedWaitUntil:
+    visible:
+      id: 'zoo-tile-0'
+    timeout: 15000
+- tapOn:
+    id: 'zoo-tile-0'
+- extendedWaitUntil:
+    visible:
+      id: 'zoo-card-face'
+    timeout: 15000
+- takeScreenshot: fresh-06-caught-card-vietnamese
+- tapOn:
+    id: 'zoo-card-close'
+- tapOn:
+    id: 'zoo-close'
+- extendedWaitUntil:
+    visible:
+      id: 'world-close'
+    timeout: 15000
+- tapOn:
+    id: 'world-close'
+- extendedWaitUntil:
+    visible:
+      id: 'one-sentence'
+    timeout: 15000

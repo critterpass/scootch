@@ -86,10 +86,15 @@ appId: app.scootch.dev
 # Time is up a few seconds after the developer control is pressed.
 - tapOn:
     id: 'session-developer-end'
+# The disc shrinks with the time left: a second after the end is pulled in, it is nearly gone.
+- takeScreenshot: fresh-03-session-disc-late
 - extendedWaitUntil:
     visible:
       id: 'session-finish-tap'
     timeout: 30000
+- assertNotVisible: 'That sounds like a lot.*'
+# This install finishes with two taps, so the sentence must not ask for holding.
+- assertNotVisible: '.*[Pp]ress and hold.*'
 - takeScreenshot: fresh-03-time-up
 # Tap, then tap again to confirm. The second tap must come within four seconds of the first, and a
 # separate tap command on this screen returns later than that (the countdown never lets the

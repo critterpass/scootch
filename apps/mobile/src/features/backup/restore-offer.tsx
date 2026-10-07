@@ -1,6 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { Attitude } from '@scootch/domain';
 import { spacing } from '@scootch/tokens';
@@ -13,6 +12,7 @@ import { ScootchSays } from '../../ui/scootch-says';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
 import type { Snapshot } from './snapshot';
+import { SafeFrame } from '../../ui/safe-frame';
 
 /** How long a new phone waits to hear whether there is a world to bring back. */
 const LOOK_FOR_MS = 4000;
@@ -37,7 +37,7 @@ export function RestoreOfferView({
   const { palette } = useScreenStyle();
   const t = useT();
   return (
-    <SafeAreaView style={[styles.screen, { backgroundColor: palette.page }]} testID="restore-offer">
+    <SafeFrame style={[styles.screen, { backgroundColor: palette.page }]} testID="restore-offer">
       <View style={styles.said}>
         <ScootchSays mood="pleased" attitude={attitude} line={line} />
       </View>
@@ -58,7 +58,7 @@ export function RestoreOfferView({
           testID="restore-no"
         />
       </View>
-    </SafeAreaView>
+    </SafeFrame>
   );
 }
 

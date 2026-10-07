@@ -1,11 +1,11 @@
 import type { ReactNode } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, ReduceMotion } from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { spacing } from '@scootch/tokens';
 
 import type { SessionInks } from './session-inks';
+import { SafeFrame } from '../../../ui/safe-frame';
 
 export interface SessionFrameProps {
   readonly inks: SessionInks;
@@ -34,7 +34,7 @@ export function SessionFrame({
   children,
 }: SessionFrameProps) {
   return (
-    <SafeAreaView style={[styles.fill, { backgroundColor: inks.page }]}>
+    <SafeFrame style={[styles.fill, { backgroundColor: inks.page }]}>
       <Animated.View
         testID={testID}
         entering={FadeIn.duration(240).reduceMotion(ReduceMotion.Never)}
@@ -50,7 +50,7 @@ export function SessionFrame({
         {footer ? <View style={styles.footer}>{footer}</View> : null}
       </Animated.View>
       {over}
-    </SafeAreaView>
+    </SafeFrame>
   );
 }
 

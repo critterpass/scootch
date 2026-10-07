@@ -1,10 +1,10 @@
 import { Link } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Text, useColorScheme, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { colors, fonts, fontSizes, radius, spacing } from '@scootch/tokens';
 
 import { captures } from '../../../screens/registry/support/all-states';
+import { SafeFrame } from '../../../ui/safe-frame';
 
 /**
  * Every registered screen state in every variant it must be captured in. A row's button opens
@@ -18,7 +18,7 @@ export default function RegistryBrowser() {
   const palette = colors[useColorScheme() === 'dark' ? 'dark' : 'light'];
 
   return (
-    <SafeAreaView style={[styles.screen, { backgroundColor: palette.page }]}>
+    <SafeFrame style={[styles.screen, { backgroundColor: palette.page }]}>
       <ScrollView testID="registry-list" contentContainerStyle={styles.content}>
         <View style={styles.header}>
           <Text accessibilityRole="header" style={[styles.title, { color: palette.ink }]}>
@@ -53,7 +53,7 @@ export default function RegistryBrowser() {
           </View>
         ))}
       </ScrollView>
-    </SafeAreaView>
+    </SafeFrame>
   );
 }
 

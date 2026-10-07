@@ -1,12 +1,12 @@
 import type { ReactNode } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { spacing } from '@scootch/tokens';
 
 import { CapsuleButton, RoundButton } from '../../../ui/buttons';
 import { useScreenStyle } from '../../../ui/use-screen-style';
 import { SessionText } from '../../session/ui/session-text';
+import { SafeFrame } from '../../../ui/safe-frame';
 
 export interface KeepFrameProps {
   readonly testID: string;
@@ -50,7 +50,7 @@ export function KeepFrame(props: KeepFrameProps) {
     </RoundButton>
   );
   return (
-    <SafeAreaView testID={props.testID} style={[styles.fill, { backgroundColor: palette.page }]}>
+    <SafeFrame testID={props.testID} style={[styles.fill, { backgroundColor: palette.page }]}>
       <View style={styles.head}>
         {title === undefined ? (
           closeButton
@@ -76,7 +76,7 @@ export function KeepFrame(props: KeepFrameProps) {
         <View style={styles.fill}>{children}</View>
       )}
       {footer ? <View style={styles.footer}>{footer}</View> : null}
-    </SafeAreaView>
+    </SafeFrame>
   );
 }
 

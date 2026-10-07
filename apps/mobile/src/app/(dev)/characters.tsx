@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, useColorScheme, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { MONSTER_BODIES, SCOOTCH_MOODS, specFromSeed } from '@scootch/art';
 import { colors, fonts, spacing, type Palette } from '@scootch/tokens';
 
 import { Monster } from '../../art/Monster';
 import { Scootch, type ScootchProps } from '../../art/Scootch';
+import { SafeFrame } from '../../ui/safe-frame';
 
 type Mood = ScootchProps['mood'];
 type Attitude = NonNullable<ScootchProps['attitude']>;
@@ -43,7 +43,7 @@ export default function CharacterGallery() {
   const monsters = useMemo(() => BODIES.map((body) => specFromSeed(body, body)), []);
 
   return (
-    <SafeAreaView style={[styles.screen, { backgroundColor: palette.page }]}>
+    <SafeFrame style={[styles.screen, { backgroundColor: palette.page }]}>
       <ScrollView testID="character-gallery" contentContainerStyle={styles.content}>
         {MOODS.map((mood) => (
           <View key={mood} style={styles.row}>
@@ -72,7 +72,7 @@ export default function CharacterGallery() {
           ))}
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </SafeFrame>
   );
 }
 

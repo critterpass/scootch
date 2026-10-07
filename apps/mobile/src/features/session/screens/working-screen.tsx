@@ -21,6 +21,8 @@ import { TimeDisc } from '../ui/time-disc';
 import type { ScreenProps } from './screen-props';
 
 const DISC_MAX = 280;
+const DISC_SHARE = 0.24;
+const SCOOTCH_SHARE = 0.15;
 
 function Footer({ model, actions, inks, t }: ScreenProps) {
   const { view } = model;
@@ -127,10 +129,15 @@ function Footer({ model, actions, inks, t }: ScreenProps) {
  */
 export function WorkingScreen(props: ScreenProps) {
   const { model, actions, inks, t } = props;
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   if (model.view.kind !== 'working') return null;
   const { quiet, stuck, timeUp } = model.view;
-  const discSize = Math.min(DISC_MAX, width - spacing.lg * 2) * (stuck || model.parkOpen ? 0.7 : 1);
+  // The disc and Scootch share the screen with the task and Scootch's line, which may run to
+  // three lines: both give way on a short screen so the line is never pushed under the buttons.
+  const discSize =
+    Math.min(DISC_MAX, width - spacing.lg * 2, height * DISC_SHARE) *
+    (stuck || model.parkOpen ? 0.7 : 1);
+  const scootchSize = stuck || model.parkOpen ? 96 : Math.min(140, height * SCOOTCH_SHARE);
   const name = model.monster?.name;
   const spoken = timeUp
     ? t('session.timeUpSpoken')
@@ -199,7 +206,7 @@ export function WorkingScreen(props: ScreenProps) {
           attitude={model.attitude}
           workMode={model.workMode}
           reducedMotion={model.reducedMotion}
-          size={stuck || model.parkOpen ? 96 : 140}
+          size={scootchSize}
           testID="session-scootch"
         />
         <SessionText face="minutes" color={inks.ink} testID="session-minutes" accessible={false}>

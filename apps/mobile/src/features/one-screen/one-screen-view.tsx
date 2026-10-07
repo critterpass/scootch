@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { Attitude } from '@scootch/domain';
 import { fonts, spacing } from '@scootch/tokens';
@@ -18,6 +17,7 @@ import { ChargeNote } from '../plus/charge-note';
 import { Corners } from './one-screen-corners';
 import { chargeNoteShows } from './one-screen-stage';
 import { Chips, TaskSetChoices, WorldRow, type TaskSetChoicesProps } from './one-screen-panels';
+import { SafeFrame } from '../../ui/safe-frame';
 
 const HEARD_SIZE = 22;
 const NOTE_SIZE = 15;
@@ -217,7 +217,7 @@ export function OneScreenView({
   const testName = shown.kind === 'panel' ? shown.name : shown.kind;
 
   return (
-    <SafeAreaView
+    <SafeFrame
       testID={`one-screen-${testName}`}
       style={[styles.page, { backgroundColor: palette.page }]}
     >
@@ -260,7 +260,7 @@ export function OneScreenView({
         {footer === null ? null : <View style={styles.footer}>{footer}</View>}
       </KeyboardAvoidingView>
       {overlay}
-    </SafeAreaView>
+    </SafeFrame>
   );
 }
 
