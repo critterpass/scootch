@@ -38,7 +38,7 @@ export interface SignedIn {
 /** What is still missing before a seat can be taken. */
 export type AccountStep = 'sign_in' | 'name' | 'ready';
 
-export function accountStep(account: AccountView | null): AccountStep {
+export function accountStep(account: Pick<AccountView, 'displayName'> | null): AccountStep {
   if (account === null) return 'sign_in';
   return account.displayName === null ? 'name' : 'ready';
 }

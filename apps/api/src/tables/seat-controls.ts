@@ -163,3 +163,29 @@ export async function reportSeat(
   }
   if (report.alsoLeave) await table.remove(reporter.id);
 }
+
+export type Quieted = { accountId: string; displayName: string | null };
+
+/**
+ * The people the caller has muted, and the people the caller has blocked, so either can be
+ * undone. Only the caller's own choices: who has muted or blocked them is never given out.
+ */
+export async function quietedBy(
+  db: D1Database,
+  accountId: string,
+): Promise<{ muted: Quieted[]; blocked: Quieted[] }> {
+  const list = async (table: 'mutes' | 'blocks', mine: string, theirs: string) => {
+    const { results } = await db
+      .prepare(
+        `SELECT a.id, a.display_name FROM ${table} q JOIN accounts a ON a.id = q.${theirs}
+         WHERE q.${mine} = ? ORDER BY a.display_name, a.id`,
+      )
+      .bind(accountId)
+      .all<{ id: string; display_name: string | null }>();
+    return results.map((row) => ({ accountId: row.id, displayName: row.display_name }));
+  };
+  return {
+    muted: await list('mutes', 'muter', 'muted'),
+    blocked: await list('blocks', 'blocker', 'blocked'),
+  };
+}

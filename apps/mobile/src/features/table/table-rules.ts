@@ -21,6 +21,17 @@ export const ACCOUNT = '/account' as Href;
 export const accountThen = (next: string) => `/account?next=${encodeURIComponent(next)}` as Href;
 export const FRIENDS_ACCEPTED = '/friends?accepted=1' as Href;
 export const TABLE_SETTINGS = '/table-settings' as Href;
+export const TABLE_QUIETED = '/table-quieted' as Href;
+/** The name step alone, for someone who already has an account, then back to `next`. */
+export const renameThen = (next: string) =>
+  `/account?rename=1&next=${encodeURIComponent(next)}` as Href;
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+/** Whole days until `expiresAt`, rounded up and never less than one: "Expires in 2 days". */
+export function daysUntil(expiresAt: string, now: number): number {
+  const left = Date.parse(expiresAt) - now;
+  return Number.isFinite(left) ? Math.max(1, Math.ceil(left / DAY_MS)) : 1;
+}
 
 /**
  * A length carried in an address ("Start at a table" on the way to a seat): whole minutes a

@@ -16,6 +16,7 @@ import { MORNING, phone } from '../session/test/phone';
 
 import { seatControls } from './seat-controls';
 import {
+  daysUntil,
   labelModeFor,
   lobbyPath,
   seatPath,
@@ -291,7 +292,11 @@ describe('who comes and goes at the table', () => {
     const { net, together } = await seated();
     expect(together.table.getState().notice).toBeNull();
     net.last().say({ ...STATE, seats: [...seats, KOFI] });
-    expect(together.table.getState().notice).toEqual({ kind: 'sat', name: 'Kofi' });
+    expect(together.table.getState().notice).toEqual({
+      kind: 'sat',
+      userId: KOFI.userId,
+      name: 'Kofi',
+    });
   });
 
   it('says a seat emptied because its person finished, when the table says so', async () => {
@@ -371,6 +376,55 @@ describe('a start carried to a table', () => {
     const mine = { taskSet: true, inSession: false, wanted: 15 };
     expect(tableTimer(idle, mine, 1_000)).toEqual({ kind: 'start', minutes: 15 });
     expect(tableTimer(going, mine, 1_000)).toEqual({ kind: 'join_in', minutes: 25, left: 1 });
+  });
+});
+
+describe('what Settings › Tables asks the server', () => {
+  it('reads who can sit, changes it, and deletes the table account with no words of anyone’s', async () => {
+    const me = { accountId: YOU, displayName: 'Mai', canBeHaunted: true, warned: false };
+    const web = fakeHttp({
+      'GET /v1/accounts/me': { ...me, whoCanSit: 'nobody' },
+      'PUT /v1/accounts/me': { ...me, whoCanSit: 'friends' },
+      'POST /v1/accounts/delete': { deleted: true },
+    });
+    const api = createTogetherApi(web.http);
+    expect((await api.me())?.whoCanSit).toBe('nobody');
+    expect((await api.setWhoCanSit('friends')).whoCanSit).toBe('friends');
+    expect(web.sent.at(-1)?.body).toEqual({ whoCanSit: 'friends' });
+    await api.deleteTableAccount();
+    expect(web.sent.at(-1)).toEqual({ method: 'POST', path: '/v1/accounts/delete', body: {} });
+  });
+
+  it('lists the muted, the blocked and the links still waiting, and cancels a link by its id', async () => {
+    const id = 'a'.repeat(64);
+    const web = fakeHttp({
+      'GET /v1/seats/quieted': {
+        muted: [{ accountId: OTHER, displayName: 'Bo' }],
+        blocked: [{ accountId: 'yz234567abcd', displayName: null }],
+      },
+      'GET /v1/friends/invites': { invites: [{ id, expiresAt: '2026-10-09T12:00:00.000Z' }] },
+    });
+    const api = createTogetherApi(web.http);
+    expect(await api.quieted()).toEqual({
+      muted: [{ accountId: OTHER, displayName: 'Bo' }],
+      blocked: [{ accountId: 'yz234567abcd', displayName: null }],
+    });
+    const [invite] = await api.pendingInvites();
+    expect(invite).toEqual({ id, expiresAt: '2026-10-09T12:00:00.000Z' });
+    await api.cancelInvite(id);
+    expect(web.sent.at(-1)).toMatchObject({ method: 'DELETE', path: `/v1/friends/invites/${id}` });
+    // Whole days, rounded up, and never "0 days".
+    const now = Date.parse('2026-10-07T13:00:00.000Z');
+    expect(daysUntil('2026-10-09T12:00:00.000Z', now)).toBe(2);
+    expect(daysUntil('2026-10-07T13:30:00.000Z', now)).toBe(1);
+    expect(daysUntil('not a date', now)).toBe(1);
+  });
+
+  it('deletes the account, then lets go of the table', async () => {
+    const { together, web } = await seated();
+    await together.deleteAccount();
+    expect(web.sent.at(-1)).toMatchObject({ method: 'POST', path: '/v1/accounts/delete' });
+    expect(together.table.getState().tableId).toBeNull();
   });
 });
 

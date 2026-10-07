@@ -67,6 +67,8 @@ export interface RowProps {
   /** A row that only states something has no chevron and is not a button. */
   readonly kind?: 'link' | 'choice' | 'fact';
   readonly first?: boolean;
+  /** Drawn before the words: a small picture of who or what the row is about. */
+  readonly leading?: ReactNode;
   readonly testID?: string;
 }
 
@@ -82,6 +84,7 @@ export function Row({
   selected,
   kind = 'link',
   first = false,
+  leading,
   testID,
 }: RowProps) {
   const { palette, allowFontScaling, size, largeText } = useScreenStyle();
@@ -141,6 +144,7 @@ export function Row({
         testID={testID}
         style={rowStyle}
       >
+        {leading}
         {words}
         {end}
       </View>
@@ -163,6 +167,7 @@ export function Row({
       restOpacity={inert ? 0.5 : 1}
       style={rowStyle}
     >
+      {leading}
       {words}
       {end}
     </PressSpring>

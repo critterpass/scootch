@@ -164,3 +164,36 @@ export async function listFriends(db: D1Database, accountId: string): Promise<Fr
     canBeHaunted: row.can_be_haunted === 1,
   }));
 }
+
+/** A friend link nobody has opened yet. Its id is the stored hash: it cannot be turned into the link. */
+export type PendingFriendInvite = { id: string; expiresAt: string };
+
+/** The caller's friend links that still work and have not been used, soonest to run out first. */
+export async function pendingFriendInvites(
+  db: D1Database,
+  accountId: string,
+  now: Date,
+): Promise<PendingFriendInvite[]> {
+  const { results } = await db
+    .prepare(
+      `SELECT code_hash, expires_at FROM friend_invites
+       WHERE account_id = ? AND used_at IS NULL AND expires_at > ? ORDER BY expires_at`,
+    )
+    .bind(accountId, now.toISOString())
+    .all<{ code_hash: string; expires_at: string }>();
+  return results.map((row) => ({ id: row.code_hash, expiresAt: row.expires_at }));
+}
+
+/** Cancels one of the caller's own unused friend links: it stops working at once. */
+export async function cancelFriendInvite(
+  db: D1Database,
+  accountId: string,
+  id: string,
+): Promise<void> {
+  await db
+    .prepare(
+      'DELETE FROM friend_invites WHERE code_hash = ? AND account_id = ? AND used_at IS NULL',
+    )
+    .bind(id, accountId)
+    .run();
+}

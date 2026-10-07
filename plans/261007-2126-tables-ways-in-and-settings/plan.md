@@ -35,9 +35,9 @@ Parent: `plans/261006-2350-scootch-full-build/phase-09-tables-and-haunting.md`
 | 04 | Done at a table | Built, less one row | Sat together, next thing, leave quietly. No "Keep the seat for" |
 | 04 | Tables are quiet | Built, less two rows | No "was here an hour ago", no "Tell me when someone sits" |
 | 05 Managing | Settings · Tables row | Built | Name or "Off"; "Invite a friend" now works |
-| 05 | Tables | Built in part | Account, show label, allow nudges, friends, sign out |
-| 05 | Friends | Built in part | "At a table now" added; rows as before |
-| 05 | Delete table account | Not built | Needs a server route |
+| 05 | Tables | Built, less two controls | Name, who can sit (friends or nobody), show label, allow nudges, friends, muted and blocked, sign out, delete. No "Anyone", no "Seat me with" |
+| 05 | Friends | Built, less history | Critters, "At a table now", swipe to remove, waiting links with Cancel |
+| 05 | Delete table account | Built | Only the social side goes |
 
 Every gap is logged in `docs/undesigned-states.md`.
 
@@ -45,11 +45,13 @@ Every gap is logged in `docs/undesigned-states.md`.
 
 Each is a contract change, so each is its own lane.
 
-1. **Delete the table account alone** (name, friends, Apple link; tasks, world
-   and Plus untouched). Today only "delete everything" exists.
-2. **Friends page history and pending links**: when two people last sat
-   together, links sent and not yet opened, cancelling one.
-3. **Muted and blocked list**: a route that lists them, to unmute or unblock.
+1. Done: deleting the table account alone (`POST /v1/accounts/delete`), the
+   muted and blocked list (`GET /v1/seats/quieted`), waiting friend links and
+   cancelling one (`GET` and `DELETE /v1/friends/invites`), and who can sit
+   (`whoCanSit` on the account: friends or nobody).
+2. **Friends page history**: when two people last sat together.
+3. **A name on a waiting link** ("Link sent to Sam"): a link is made for
+   whoever opens it.
 4. **A friend's table with its word**: `GET /v1/friends/tables` with each
    friend's label, for "admin · 2 open seats" on the pill.
 5. **Saved seats by name** ("Saved seat for Dana") and a seat held for the

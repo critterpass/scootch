@@ -45,6 +45,7 @@ export function TableStripView({ seats, you, workMode, reconnecting }: TableStri
           <View key={seat.userId} style={{ opacity: seat.online ? 1 : 0.4 }}>
             <Scootch
               mood="working"
+              tone={seat.userId === you ? 'tomato' : 'paper'}
               workMode={seat.userId === you ? workMode : seat.workMode}
               {...character}
               ownLoop={false}

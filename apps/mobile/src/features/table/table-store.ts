@@ -14,7 +14,7 @@ export type TableNotice =
   /** A fourth nudge was tapped: it is explained here and never sent. */
   | { readonly kind: 'nudge_limit'; readonly to: string }
   /** Someone took a seat. At a friends' table everyone is a friend, or came by a friend's link. */
-  | { readonly kind: 'sat'; readonly name: string | null }
+  | { readonly kind: 'sat'; readonly userId: string; readonly name: string | null }
   /** A seat emptied; `done` when they had said they were finished. */
   | { readonly kind: 'left'; readonly name: string | null; readonly done: boolean };
 
@@ -134,7 +134,7 @@ export function createTableStore(deps: TableStoreDeps): TableStore {
         ...(gone
           ? { notice: { kind: 'left', name: gone.name ?? null, done: finished } }
           : came
-            ? { notice: { kind: 'sat', name: came.name ?? null } }
+            ? { notice: { kind: 'sat', userId: came.userId, name: came.name ?? null } }
             : {}),
       });
     } else if (message.type === 'nudged') {
