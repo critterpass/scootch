@@ -17,7 +17,10 @@ export interface CuePlayer {
 }
 
 export interface HapticsPlayer {
-  play(taps: readonly HapticTap[]): void;
+  /** Plays the taps at their own times, under the name of the pattern they belong to. */
+  play(taps: readonly HapticTap[], name?: string): void;
+  /** Takes back every tap of that pattern not yet played. */
+  stop(name: string): void;
 }
 
 export interface LocalNotification {

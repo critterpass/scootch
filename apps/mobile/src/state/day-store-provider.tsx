@@ -210,7 +210,7 @@ export function DayStoreProvider({ children }: { readonly children: ReactNode })
       if (switches.effects) app.cues.play(name);
       const taps = CUES[name]?.haptics ?? [];
       const felt = switches.reducedMotion ? taps.slice(0, 1) : taps;
-      if (switches.haptics && felt.length > 0) nativeHaptics.play(felt);
+      if (switches.haptics && felt.length > 0) nativeHaptics.play(felt, name);
     },
     [app],
   );

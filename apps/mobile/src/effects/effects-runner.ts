@@ -90,7 +90,7 @@ export function createEffectsRunner(options: EffectsRunnerOptions): EffectsRunne
     const switches = options.switches();
     const taps = CUES[cue]?.haptics ?? [];
     const felt = switches.reducedMotion ? taps.slice(0, 1) : taps;
-    if (switches.haptics && felt.length > 0) options.haptics.play(felt);
+    if (switches.haptics && felt.length > 0) options.haptics.play(felt, cue);
   }
 
   function perform(effect: SessionEffect, context: SessionContext, feltApart: ReadonlySet<string>) {
@@ -111,6 +111,8 @@ export function createEffectsRunner(options: EffectsRunnerOptions): EffectsRunne
         if (!feltApart.has(effect.cue)) feel(effect.cue);
         return;
       case 'stop_cue':
+        // The sound and the taps stop together: nothing goes on in the hand after letting go.
+        options.haptics.stop(effect.cue);
         return options.cues.stop(effect.cue);
       case 'haptic':
         return feel(effect.pattern);

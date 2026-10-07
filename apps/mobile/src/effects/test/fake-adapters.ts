@@ -57,6 +57,7 @@ export function fakeDevice() {
     cues: [] as string[],
     stopped: [] as string[],
     haptics: [] as (readonly HapticTap[])[],
+    hapticsStopped: [] as string[],
     live: [] as string[],
     lines: [] as string[],
     bursts: [] as string[],
@@ -69,7 +70,10 @@ export function fakeDevice() {
     play: (cue) => void calls.cues.push(cue),
     stop: (cue) => void calls.stopped.push(cue),
   };
-  const haptics: HapticsPlayer = { play: (taps) => void calls.haptics.push(taps) };
+  const haptics: HapticsPlayer = {
+    play: (taps) => void calls.haptics.push(taps),
+    stop: (name) => void calls.hapticsStopped.push(name),
+  };
   const notifications: NotificationScheduler = {
     scheduledIds: () => Promise.resolve([...scheduled.keys()]),
     schedule: (notification) => {
