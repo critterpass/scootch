@@ -21,6 +21,7 @@ import {
   showsHauntCard,
   type SendProblem,
 } from './haunt-rules';
+import { goHome } from '../navigation/go-home';
 
 /** "Haunt a friend" on the real phone, for today's monster. */
 export function HauntSendContainer() {
@@ -55,7 +56,7 @@ export function HauntSendContainer() {
   }, [api]);
   useEffect(() => {
     // Opened by hand for a task that haunts nobody: there is nothing to show.
-    if (day.ready && !allowed && !sent) router.replace('/');
+    if (day.ready && !allowed && !sent) goHome(router);
   }, [day.ready, allowed, sent, router]);
 
   const send = () => {
@@ -91,7 +92,7 @@ export function HauntSendContainer() {
           setProblem('failed'),
         );
       }}
-      onClose={() => router.replace('/')}
+      onClose={() => goHome(router)}
     />
   );
 }
@@ -136,7 +137,7 @@ export function HauntReceivedContainer() {
   const { palette } = useScreenStyle();
   const [haunt, setHaunt] = useState<WaitingHaunt | null | undefined>(undefined);
   const [busy, setBusy] = useState(false);
-  const home = () => router.replace('/');
+  const home = () => goHome(router);
 
   useEffect(() => {
     let current = true;
@@ -152,7 +153,7 @@ export function HauntReceivedContainer() {
   }, [api]);
   const hidden = haunt === null || (day.ready && !showsHauntCard(day) && !busy);
   useEffect(() => {
-    if (hidden) router.replace('/');
+    if (hidden) goHome(router);
   }, [hidden, router]);
 
   if (!haunt || hidden) return <View style={{ flex: 1, backgroundColor: palette.page }} />;
