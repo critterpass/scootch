@@ -20,7 +20,7 @@ import { useFeel } from '../../ui/motion/use-feel';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
 import { drawerStyles as styles } from './drawer-sheet-styles';
-import { removesOnRelease, ROW } from './drawer-row-motion';
+import { removesOnRelease, ROW } from '../../ui/motion/swipe-motion';
 
 const ALWAYS = ReduceMotion.Never;
 const ROW_SIZE = 16;

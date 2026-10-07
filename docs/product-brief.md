@@ -38,7 +38,7 @@ website and the store listing.
 | Deadline heard | A real date in the ramble is said out loud and brought back on its own day |
 | Energy | Low, medium or fine; the one thing is picked to fit it |
 | It hatches | The task becomes a named monster; "too big" shrinks the task and the monster, and is the one way to a smaller ask. A set task can be put down into the drawer from beside Start |
-| Start | Two taps to a 10, 25 or 50 minute session, with a burst of sound and haptics, and a named treat for afterwards |
+| Start | A wheel sets the length, 5 to 60 minutes (10 unless turned), and Start begins it with a burst of sound and haptics. The named treat for afterwards is not asked for at present (founder, 7 Oct) |
 | Work beside | Scootch works next to you in a mode that matches the task; park a thought, ask for a tiny next step |
 | Finish | Hold to finish (or tap twice, or say "done"); "not finished" is a normal outcome with three choices |
 | Keep it | A collectible card, a permanent piece in your world, one bar of the week's song |

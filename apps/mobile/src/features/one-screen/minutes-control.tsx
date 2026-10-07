@@ -1,27 +1,31 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Animated, {
-  ReduceMotion,
+  interpolate,
+  useAnimatedReaction,
+  useAnimatedRef,
+  useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
-  withTiming,
+  type SharedValue,
 } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 
 import { fonts } from '@scootch/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
-import { SPRING_CURVE } from '../../ui/motion/motion-tokens';
-import { PressSpring } from '../../ui/motion/press-spring';
 import { useAppearance } from '../../screens/registry/support/forced-variant';
+import { PressSpring, touchHaptic } from '../../ui/motion/press-spring';
+import { useFeel } from '../../ui/motion/use-feel';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
-import { segmentOffset } from './one-screen-frame';
-
-const HEIGHT = 36;
-const PADDING = 2;
-const LABEL_SIZE = 14;
-const SLIDE_MS = 320;
-/** The track, as the board fills it, and the chosen pill in each scheme. */
+/** The room each length has on the wheel, and the wheel's own height. */
+const STEP = 64;
+const HEIGHT = 64;
+const LENS = { width: 78, height: 54 } as const;
+const NUMBER_SIZE = 21;
+const UNIT_SIZE = 11;
+/** The track and the lens in each scheme, as the segmented control before it drew them. */
 const TRACK = { light: 'rgba(118, 112, 104, 0.13)', dark: 'rgba(118, 112, 104, 0.26)' } as const;
 const PILL = { light: '#FFFFFF', dark: '#5E5852' } as const;
 
@@ -32,121 +36,203 @@ export interface MinutesControlProps {
 }
 
 /**
- * How long to go for: the board's segmented control, 36 points high, with the chosen length on a
- * white pill that slides between segments. The pill moves by transform on the UI thread. At the
- * large text sizes the lengths stack, each one its own row.
+ * How long to go for: a wheel of lengths that is turned with a thumb. The lengths ride under a
+ * lens in the middle; the one in the lens is the length, and it grows and darkens as it arrives
+ * while the others fall away to either side. The wheel is the system's own scrolling, so it
+ * coasts and settles as everything on the phone does, snapping to a length; each length that
+ * passes the lens is one tick under the thumb, and coming to rest is a soft tap. A tap on any
+ * length turns the wheel to it. All of it moves on the UI thread.
  */
 export function MinutesControl({ minutes, options, onMinutes }: MinutesControlProps) {
-  const { palette, allowFontScaling, size, largeText, reducedMotion } = useScreenStyle();
+  const { palette, allowFontScaling, size } = useScreenStyle();
+  const { mayMove, haptics } = useFeel();
   const appearance = useAppearance();
   const t = useT();
-  // -1 when the length in force is not one of those on offer: then no segment is chosen.
-  const chosenIndex = options.indexOf(minutes);
-  const count = options.length;
-
-  // The track is measured once, in React: the pill's width is plain layout, and only its place
-  // is animated.
   const [width, setWidth] = useState(0);
-  const place = useSharedValue(chosenIndex);
-  useEffect(() => {
-    place.value = reducedMotion
-      ? chosenIndex
-      : withTiming(chosenIndex, {
-          duration: SLIDE_MS,
-          easing: SPRING_CURVE,
-          reduceMotion: ReduceMotion.Never,
-        });
-  }, [chosenIndex, place, reducedMotion]);
-  const pill = useAnimatedStyle(() => ({
-    transform: [{ translateX: segmentOffset(place.value, width, count, PADDING) }],
-  }));
-  const pillWidth = width > 0 && count > 0 ? (width - PADDING * 2) / count : 0;
+  const count = options.length;
+  const index = Math.max(0, options.indexOf(minutes));
 
+  const wheel = useAnimatedRef<Animated.ScrollView>();
+  /** How far the wheel is turned, in points. */
+  const turned = useSharedValue(index * STEP);
+  const latest = useRef({ options, minutes, onMinutes, haptics });
+  latest.current = { options, minutes, onMinutes, haptics };
+
+  // The length under the lens changed: it is the length now, and it is felt.
+  const arrive = useCallback((at: number) => {
+    const now = latest.current;
+    const next = now.options[at];
+    if (next === undefined || next === now.minutes) return;
+    if (now.haptics) touchHaptic('choice');
+    now.onMinutes(next);
+  }, []);
+  const rest = useCallback(() => {
+    if (latest.current.haptics) touchHaptic('primary');
+  }, []);
+  const follow = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      turned.value = event.contentOffset.x;
+    },
+    onMomentumEnd: () => {
+      scheduleOnRN(rest);
+    },
+  });
+  useAnimatedReaction(
+    () => Math.min(count - 1, Math.max(0, Math.round(turned.value / STEP))),
+    (at, before) => {
+      if (before !== null && at !== before) scheduleOnRN(arrive, at);
+    },
+    [count],
+  );
+  // A length set from somewhere else turns the wheel to it.
+  useEffect(() => {
+    if (Math.round(turned.value / STEP) !== index) {
+      wheel.current?.scrollTo({ x: index * STEP, animated: mayMove });
+    }
+  }, [index, mayMove, turned, wheel]);
+
+  const side = Math.max(0, (width - STEP) / 2);
   return (
     <View
       accessibilityRole="radiogroup"
       onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
-      style={[styles.track, largeText && styles.stacked, { backgroundColor: TRACK[appearance] }]}
+      testID="task-set-minutes"
+      style={[styles.track, { backgroundColor: TRACK[appearance] }]}
     >
-      {largeText || pillWidth === 0 || chosenIndex < 0 ? null : (
-        <Animated.View
-          pointerEvents="none"
-          style={[styles.pill, { width: pillWidth, backgroundColor: PILL[appearance] }, pill]}
-        />
-      )}
-      {options.map((option) => {
-        const chosen = option === minutes;
-        return (
-          <PressSpring
-            key={option}
-            accessibilityRole="radio"
-            accessibilityState={{ selected: chosen, checked: chosen }}
-            accessibilityLabel={t('taskSet.minutes', { minutes: option })}
-            accessibilityHint={t('taskSet.minutes.hint')}
-            onPress={() => onMinutes(option)}
-            feedback="choice"
-            hitSlop={{ top: 6, bottom: 6 }}
-            testID={`task-set-minutes-${option}`}
-            style={[
-              styles.segment,
-              largeText && styles.segmentStacked,
-              largeText && chosen && { backgroundColor: PILL[appearance] },
-            ]}
+      <View pointerEvents="none" style={styles.lensPlace}>
+        <View style={[styles.lens, { backgroundColor: PILL[appearance] }]}>
+          <Text
+            allowFontScaling={allowFontScaling}
+            style={[styles.unit, { color: palette.muted, fontSize: size(UNIT_SIZE) }]}
           >
-            <Text
+            {t('taskSet.minutes.unit')}
+          </Text>
+        </View>
+      </View>
+      {width === 0 ? null : (
+        <Animated.ScrollView
+          ref={wheel}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          snapToInterval={STEP}
+          decelerationRate="fast"
+          contentOffset={{ x: index * STEP, y: 0 }}
+          contentContainerStyle={{ paddingHorizontal: side }}
+          scrollEventThrottle={16}
+          onScroll={follow}
+        >
+          {options.map((option, at) => (
+            <Length
+              key={option}
+              at={at}
+              turned={turned}
+              still={!mayMove}
+              label={String(option)}
+              spoken={t('taskSet.minutes', { minutes: option })}
+              hint={t('taskSet.minutes.hint')}
+              chosen={option === minutes}
+              color={palette.ink}
+              fontSize={size(NUMBER_SIZE)}
               allowFontScaling={allowFontScaling}
-              style={[
-                styles.label,
-                { color: palette.ink, fontSize: size(LABEL_SIZE) },
-                chosen && styles.chosen,
-              ]}
-            >
-              {t('taskSet.minutes', { minutes: option })}
-            </Text>
-          </PressSpring>
-        );
-      })}
+              testID={`task-set-minutes-${option}`}
+              onPress={() => wheel.current?.scrollTo({ x: at * STEP, animated: true })}
+            />
+          ))}
+        </Animated.ScrollView>
+      )}
     </View>
+  );
+}
+
+interface LengthProps {
+  readonly at: number;
+  readonly turned: SharedValue<number>;
+  readonly still: boolean;
+  readonly label: string;
+  readonly spoken: string;
+  readonly hint: string;
+  readonly chosen: boolean;
+  readonly color: string;
+  readonly fontSize: number;
+  readonly allowFontScaling: boolean;
+  readonly testID: string;
+  readonly onPress: () => void;
+}
+
+/** One length on the wheel: full size and full ink under the lens, smaller and fainter away from it. */
+function Length(props: LengthProps) {
+  const { at, turned, still } = props;
+  const riding = useAnimatedStyle(() => {
+    const away = Math.abs(turned.value - at * STEP) / STEP;
+    return {
+      opacity: interpolate(away, [0, 1, 2.6], [1, 0.5, 0.18], 'clamp'),
+      transform: [
+        { scale: still ? 1 : interpolate(away, [0, 1, 2.6], [1.22, 0.9, 0.76], 'clamp') },
+        { translateY: still ? -7 : interpolate(away, [0, 1], [-7, -2], 'clamp') },
+      ],
+    };
+  }, [at, still]);
+  return (
+    <PressSpring
+      accessibilityRole="radio"
+      accessibilityState={{ selected: props.chosen, checked: props.chosen }}
+      accessibilityLabel={props.spoken}
+      accessibilityHint={props.hint}
+      onPress={props.onPress}
+      testID={props.testID}
+      style={styles.length}
+    >
+      <Animated.View style={riding}>
+        <Text
+          allowFontScaling={props.allowFontScaling}
+          style={[styles.number, { color: props.color, fontSize: props.fontSize }]}
+        >
+          {props.label}
+        </Text>
+      </Animated.View>
+    </PressSpring>
   );
 }
 
 const styles = StyleSheet.create({
   track: {
-    flexDirection: 'row',
-    minHeight: HEIGHT,
+    height: HEIGHT,
     borderRadius: HEIGHT / 2,
-    padding: PADDING,
+    overflow: 'hidden',
+    justifyContent: 'center',
   },
-  stacked: {
-    flexDirection: 'column',
-    alignItems: 'stretch',
-  },
-  pill: {
+  lensPlace: {
     position: 'absolute',
-    top: PADDING,
-    bottom: PADDING,
-    left: PADDING,
-    borderRadius: HEIGHT / 2 - PADDING,
-    boxShadow: '0 2px 6px rgba(0, 0, 0, 0.08), 0 0 0 0.5px rgba(0, 0, 0, 0.04)',
-  },
-  segment: {
-    flexGrow: 1,
-    flexBasis: 0,
-    minHeight: HEIGHT - PADDING * 2,
-    borderRadius: HEIGHT / 2 - PADDING,
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  segmentStacked: {
-    flexGrow: 0,
-    flexBasis: 'auto',
-    minHeight: 44,
+  lens: {
+    width: LENS.width,
+    height: LENS.height,
+    borderRadius: LENS.height / 2,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    paddingBottom: 6,
+    boxShadow: '0 3px 10px rgba(0, 0, 0, 0.10), 0 0 0 0.5px rgba(0, 0, 0, 0.05)',
   },
-  label: {
+  unit: {
     fontFamily: fonts.body,
-    fontWeight: '500',
-  },
-  chosen: {
     fontWeight: '600',
+    letterSpacing: 0.4,
+  },
+  length: {
+    width: STEP,
+    height: HEIGHT,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  number: {
+    fontFamily: fonts.heading,
+    fontWeight: '700',
+    fontVariant: ['tabular-nums'],
   },
 });

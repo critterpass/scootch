@@ -155,3 +155,35 @@ describe('asking Scootch to choose, in words', () => {
     expect(app.task().originalText).toBe('pick up the parcel');
   });
 });
+
+describe('the task waiting for tomorrow, swiped away in the drawer', () => {
+  it('is let go with its monster, comes back on no morning, and its start stays used', async () => {
+    const app = await stagedPhone(stagedServer());
+    await app.say('ring the bank', 'typed');
+    await app.store.dispatch({ type: 'one_thing_picked' });
+    await app.store.dispatch({ type: 'monster_met' });
+    await app.store.dispatch({ type: 'session_set', minutes: 10 });
+    await app.store.dispatch({ type: 'session', event: { type: 'started' } });
+    app.time.advanceTo(MORNING + 10 * 60_000);
+    await app.store.dispatch({ type: 'session', event: { type: 'not_finished' } });
+    await app.store.dispatch({ type: 'session', event: { type: 'chose_carry_on' } });
+    await app.store.dispatch({ type: 'session_closed' });
+    const waiting = app.store.getState().waitingForTomorrow;
+    if (!waiting) throw new Error('the task waits for tomorrow');
+
+    // Asked for with another id, nothing happens.
+    await app.store.dispatch({ type: 'waiting_task_removed', taskId: 'someone-else' });
+    expect(app.store.getState().waitingForTomorrow).not.toBeNull();
+
+    await app.store.dispatch({ type: 'waiting_task_removed', taskId: waiting.id });
+    expect(app.store.getState().waitingForTomorrow).toBeNull();
+    expect(app.data.count('tasks') + app.data.count('monsters')).toBe(0);
+    expect(app.store.getState().today).toEqual({
+      kind: 'done_for_today',
+      startsLeft: FREE_STARTS_PER_DAY - 1,
+    });
+
+    const next = await stagedPhone(stagedServer(), app.data, MORNING + DAY_MS);
+    expect(next.store.getState().today.kind).toBe('nothing_yet');
+  });
+});

@@ -2,6 +2,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { Scootch } from '../../../art/Scootch';
 import { PressSpring } from '../../../ui/motion/press-spring';
+import { SwipeAway } from '../../../ui/swipe-away';
 import { RoundButton } from '../ui/controls';
 import { InkDock, PaperCard, Stage, Words } from '../ui/drawn-parts';
 import { SessionFrame } from '../ui/session-frame';
@@ -12,7 +13,8 @@ import type { ScreenProps } from './screen-props';
 /**
  * The thoughts parked during the session, shown only now, as the board draws them: Scootch pleased
  * with himself, his line, and one card for each thought with "Tomorrow" and "Let go" beside it.
- * The ones left untouched wait in the drawer. One tap moves on, and never drops one.
+ * A card swiped away to the left is let go, as "Let go" does. The ones left untouched wait in
+ * the drawer. One tap moves on, and never drops one.
  */
 export function ParkedThoughtsScreen({ model, actions, inks, t }: ScreenProps) {
   const thoughts = model.view.kind === 'thoughts' ? model.view.thoughts : [];
@@ -61,50 +63,55 @@ export function ParkedThoughtsScreen({ model, actions, inks, t }: ScreenProps) {
       </Words>
       <View style={styles.cards}>
         {thoughts.map((thought, index) => (
-          <PaperCard
-            key={`${thought.parkedAt}-${index}`}
-            inks={inks}
+          <SwipeAway
+            key={`${thought.parkedAt}-${thought.text}`}
             radius={22}
-            testID={`session-thought-${index}`}
-            style={styles.card}
+            onGone={() => actions.resolveThought(thought, 'discard')}
           >
-            <View style={styles.words}>
-              <SessionText face="thought" color={inks.ink}>
-                {thought.text}
-              </SessionText>
-              <SessionText face="note" color={inks.muted}>
-                {t('session.thoughts.parkedAt', { time: model.timeOf(thought) })}
-              </SessionText>
-            </View>
-            <PressSpring
-              accessibilityRole="button"
-              accessibilityLabel={t('session.thoughts.tomorrow')}
-              accessibilityHint={t('session.thoughts.tomorrow.hint')}
-              testID={`session-thought-${index}-tomorrow`}
-              feedback="choice"
-              hitSlop={6}
-              onPress={() => actions.resolveThought(thought, 'keep')}
-              style={[styles.chip, { backgroundColor: `${inks.ink}0F` }]}
+            <PaperCard
+              inks={inks}
+              radius={22}
+              testID={`session-thought-${index}`}
+              style={styles.card}
             >
-              <SessionText face="chip" color={inks.ink}>
-                {t('session.thoughts.tomorrow')}
-              </SessionText>
-            </PressSpring>
-            <PressSpring
-              accessibilityRole="button"
-              accessibilityLabel={t('session.thoughts.letGo')}
-              accessibilityHint={t('session.thoughts.letGo.hint')}
-              testID={`session-thought-${index}-let-go`}
-              feedback="choice"
-              hitSlop={6}
-              onPress={() => actions.resolveThought(thought, 'discard')}
-              style={styles.chip}
-            >
-              <SessionText face="chip" color={inks.muted}>
-                {t('session.thoughts.letGo')}
-              </SessionText>
-            </PressSpring>
-          </PaperCard>
+              <View style={styles.words}>
+                <SessionText face="thought" color={inks.ink}>
+                  {thought.text}
+                </SessionText>
+                <SessionText face="note" color={inks.muted}>
+                  {t('session.thoughts.parkedAt', { time: model.timeOf(thought) })}
+                </SessionText>
+              </View>
+              <PressSpring
+                accessibilityRole="button"
+                accessibilityLabel={t('session.thoughts.tomorrow')}
+                accessibilityHint={t('session.thoughts.tomorrow.hint')}
+                testID={`session-thought-${index}-tomorrow`}
+                feedback="choice"
+                hitSlop={6}
+                onPress={() => actions.resolveThought(thought, 'keep')}
+                style={[styles.chip, { backgroundColor: `${inks.ink}0F` }]}
+              >
+                <SessionText face="chip" color={inks.ink}>
+                  {t('session.thoughts.tomorrow')}
+                </SessionText>
+              </PressSpring>
+              <PressSpring
+                accessibilityRole="button"
+                accessibilityLabel={t('session.thoughts.letGo')}
+                accessibilityHint={t('session.thoughts.letGo.hint')}
+                testID={`session-thought-${index}-let-go`}
+                feedback="choice"
+                hitSlop={6}
+                onPress={() => actions.resolveThought(thought, 'discard')}
+                style={styles.chip}
+              >
+                <SessionText face="chip" color={inks.muted}>
+                  {t('session.thoughts.letGo')}
+                </SessionText>
+              </PressSpring>
+            </PaperCard>
+          </SwipeAway>
         ))}
       </View>
     </SessionFrame>
