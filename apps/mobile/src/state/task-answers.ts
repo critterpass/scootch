@@ -4,6 +4,7 @@ import type { TaskCall, TaskCallOptions, TaskName, TaskRest } from '../api/task-
 
 import { enterCrisis, stopWithoutAWord } from './care-flow';
 import type { DayContext, Offer, Reveal } from './day-types';
+import { catchLateMonster } from './late-catch';
 import { sortKeptWords } from './late-words';
 import { fallbackCopy, monsterFor, newTask, park } from './task-rows';
 
@@ -44,7 +45,9 @@ async function applyName(
   if (!task || task.screen !== 'pass') return;
   if ((await monsters.where('taskId', task.id)).length > 0) return;
   await monsters.put(monsterFor(ctx, task, labels, name.monster));
-  ctx.set({ line: { slot: 'hatch', text: name.hatch } });
+  // A task finished meanwhile has nothing left to hatch on the screen: its monster is caught.
+  if (task.status === 'finished') await catchLateMonster(ctx, task);
+  else ctx.set({ line: { slot: 'hatch', text: name.hatch } });
   await ctx.refresh();
 }
 
@@ -92,7 +95,8 @@ async function applyRest(
     await repositories.monsters.put(monsterFor(ctx, written, known, copy));
   }
   // The hatch line the name brought stays; otherwise the pack's own is said now.
-  if (pass?.lines && !named) ctx.set({ line: { slot: 'hatch', text: pass.lines.hatch } });
+  if (written.status === 'finished') await catchLateMonster(ctx, written);
+  else if (pass?.lines && !named) ctx.set({ line: { slot: 'hatch', text: pass.lines.hatch } });
   await ctx.refresh();
 }
 

@@ -7,6 +7,7 @@ import { enterCrisis } from './care-flow';
 import type { DayContext, Offer } from './day-types';
 import { swapItemIn } from './pick-flow';
 import { applyCall, keepTranscript, treatNamed } from './task-answers';
+import { askForFinished } from './late-catch';
 import { setWithoutAnswer, sortOrphanWords, wordsToAsk } from './late-words';
 
 /** A task waiting for a trusted screen is asked about at most this often. */
@@ -206,6 +207,8 @@ function needsScreen(ctx: DayContext, task: TaskRow): boolean {
 export async function fetchPending(ctx: DayContext): Promise<void> {
   const { today, settings, localDate, monster } = ctx.memory.state;
   await sortOrphanWords(ctx);
+  if (ctx.memory.restPending || ctx.memory.askingPending) return;
+  if (await askForFinished(ctx)) return;
   if (!('task' in today) || ctx.memory.restPending || ctx.memory.askingPending) return;
   const { task } = today;
   const screening = needsScreen(ctx, task);
