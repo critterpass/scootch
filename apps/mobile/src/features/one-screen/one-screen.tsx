@@ -3,7 +3,7 @@ import { useIsFocused, useRouter, type Href } from 'expo-router';
 import { useEffect, useRef, useState, type ReactElement } from 'react';
 import { Linking } from 'react-native';
 
-import { hasStartLeft, startsAllowed, type Attitude, type Energy } from '@scootch/domain';
+import { hasStartLeft, startsAllowed, type Attitude } from '@scootch/domain';
 
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import {
@@ -34,10 +34,11 @@ import { PLUS_SHEET_ONE_MORE } from '../plus/routes';
 import { composerMood } from './composer-mood';
 import { composerWays } from './composer-ways';
 import { doneLine } from './done-line';
-import { stageOf } from './one-screen-stage';
+import { holdsWords, stageOf } from './one-screen-stage';
 import { OneScreenView, type OneScreenShown } from './one-screen-view';
 import { stageShown } from './stage-shown';
 import { taskSetShown } from './task-set-shown';
+import { useHeldWords } from './use-held-words';
 import { useReturnedText } from './use-returned-text';
 
 export interface OneScreenProps {
@@ -47,8 +48,6 @@ export interface OneScreenProps {
   /** The system's notification prompt was just refused: it is said once, here. */
   readonly notificationsRefused: boolean;
 }
-
-type Held = { text: string; source: 'ramble' | 'typed'; sent: () => void };
 
 /** The routes other parts of the app provide, reached by name. */
 const [WORLD, CARE, SETTINGS] = ['/world', '/care', '/settings'] as [Href, Href, Href];
@@ -91,37 +90,27 @@ function useOneScreenDrawn({
   const [chosenMinutes, setMinutes] = useState<number | null>(null);
   const [treat, setTreat] = useState('');
   const [revealedFor, setRevealedFor] = useState<string | null>(null);
-  const [held, setHeld] = useState<Held | null>(null);
-  const energyNeeded = useRef(day.energyNeeded);
-  energyNeeded.current = day.energyNeeded;
+  // The first words of the day wait for the battery question; after that they go straight on.
+  const heldWords = useHeldWords({ energyNeeded: day.energyNeeded, dispatch });
 
   const send = (event: DayEvent) => void dispatch(event).catch(() => undefined);
   const attitude: Attitude = settings.attitude;
   const voice = { language, attitude };
-  const composer = useComposer({
-    speech,
-    language,
-    // The first words of the day wait for the battery question; after that they go straight on.
-    onSend: (text, source) =>
-      energyNeeded.current
-        ? new Promise<void>((sent) => setHeld({ text, source, sent }))
-        : dispatch({ type: 'text_submitted', text, source, energy: 'guess' }),
-  });
+  const composer = useComposer({ speech, language, onSend: heldWords.onSend });
   // The composer is heard and felt: listen, send, cancel, the tick of a switch, the cancel arming.
   const feel = useFeel();
   const { nudging } = useComposerFeedback(composer.state, playCue, () => {
     if (feel.haptics) touchHaptic('choice');
   });
-  const answerEnergy = (energy: Energy | 'guess') => {
-    if (!held) return;
-    setHeld(null);
-    void dispatch({ type: 'text_submitted', text: held.text, source: held.source, energy })
-      .catch(() => undefined)
-      .then(held.sent);
-  };
-
-  const stage = stageOf({ ...day, drawer, energyAsked: held !== null });
+  const stage = stageOf({ ...day, drawer, energyAsked: heldWords.asked });
   const sendComposer = composer.send;
+  // The question is not on the screen (something was taken from the drawer meanwhile): the held
+  // words go back into the field instead of waiting for an answer nobody can give.
+  const { asked, giveBack } = heldWords;
+  const questionShows = holdsWords(stage);
+  useEffect(() => {
+    if (asked && !questionShows) giveBack(sendComposer);
+  }, [asked, questionShows, giveBack, sendComposer]);
   // A control or a widget asked for the composer: it opens for typing, or starts listening.
   useSurfaceRequest('composer', stage.kind === 'composer' && taskCall === 'idle', (request) =>
     sendComposer(
@@ -236,7 +225,7 @@ function useOneScreenDrawn({
       hatchExtra: <HatchHauntLink />,
       cue: playCue,
       actions: {
-        answerEnergy,
+        answerEnergy: heldWords.answer,
         another: () => send({ type: 'another_asked' }),
         accept: () => send({ type: 'one_thing_picked' }),
         peek: () => send({ type: 'drawer', event: { type: 'pulled' } }),

@@ -12,7 +12,7 @@ import seriousFixture from '../../../../../packages/voice/fixtures/task.create.s
 import type { DayStore } from '../../state/day-store';
 import { MORNING, stagedPhone, stagedServer } from '../../state/test/staged-phone';
 
-import { RETURN_CHIPS, chargeNoteShows, stageOf, type Stage } from './one-screen-stage';
+import { RETURN_CHIPS, chargeNoteShows, holdsWords, stageOf, type Stage } from './one-screen-stage';
 
 const stage = (store: DayStore, energyAsked = false): Stage =>
   stageOf({ ...store.getState(), energyAsked });
@@ -31,6 +31,27 @@ describe('the one screen, from the day', () => {
     expect(stage(app.store)).toMatchObject({ kind: 'hatch', shrunk: false, canShrink: true });
     await app.store.dispatch({ type: 'monster_met' });
     expect(stage(app.store)).toMatchObject({ kind: 'task_set', quiet: false, carried: false });
+  });
+
+  it('asks the battery question after "One more" on a day that rested with nothing done', async () => {
+    const app = await stagedPhone(stagedServer());
+    await app.store.dispatch({ type: 'done_for_today' });
+    expect(stage(app.store).kind).toBe('done');
+    await app.store.dispatch({ type: 'one_more_asked' });
+    expect(stage(app.store).kind).toBe('composer');
+
+    // The first words of this day are still held for the question, so it has to be reachable.
+    expect(app.store.getState().energyNeeded).toBe(true);
+    expect(stage(app.store, true).kind).toBe('energy');
+  });
+
+  it('never shows the battery question beside a task: held words are let go of instead', async () => {
+    const app = await stagedPhone(stagedServer());
+    await app.say();
+    const shown = stage(app.store, true);
+    expect(shown.kind).toBe('one_thing');
+    expect(holdsWords(shown)).toBe(false);
+    expect(holdsWords({ kind: 'energy' })).toBe(true);
   });
 
   it('gives a serious task plain words: no reveal, no hatch and no monster at any step', async () => {
