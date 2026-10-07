@@ -1,7 +1,14 @@
 import { Canvas, Circle, Group, Path, Skia } from '@shopify/react-native-skia';
 import { useMemo } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
-import { useDerivedValue, type SharedValue } from 'react-native-reanimated';
+import { Pressable, StyleSheet } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useDerivedValue,
+  useSharedValue,
+  type SharedValue,
+} from 'react-native-reanimated';
+
+import { useMayMove } from '../../../ui/motion/use-feel';
 
 import type { SessionInks } from './session-inks';
 import { SessionText } from './session-text';
@@ -12,6 +19,14 @@ const RING_GAP = 12;
 const RING_WIDTH = 5;
 const SIZE = BUTTON + RING_GAP * 2;
 const CENTRE = SIZE / 2;
+/** The design's hold: it sinks to 0.96 and a little further as it fills, and trembles harder. */
+const HELD_SCALE = 0.96;
+const FILL_SCALE = 0.02;
+const SHAKE_POINTS = 1.6;
+/** The tremble's speed: one radian every 22 ms of holding, and a full hold is 1.7 s. */
+const SHAKE_TURNS = 1700 / 22;
+/** Past this much of the fill the label sits on tomato and turns white. */
+const LABEL_TURNS_AT = 0.55;
 
 export interface HoldButtonProps {
   /** 0 to 1, linear in time. */
@@ -45,9 +60,32 @@ export function HoldButton({
     path.addCircle(CENTRE, CENTRE, CENTRE - RING_WIDTH / 2);
     return path;
   }, []);
+  const mayMove = useMayMove();
+  // 1 while a finger is on the button. The press itself never waits for React.
+  const held = useSharedValue(0);
   const fill = useDerivedValue(() => {
     const p = progress.value;
     return (BUTTON / 2) * p * p * (3 - 2 * p);
+  });
+  // The fill is linear in time while held, so the tremble can be read from it: no clock of its own.
+  const pressed = useAnimatedStyle(() => {
+    const p = progress.value;
+    const eased = p * p * (3 - 2 * p);
+    if (!mayMove || held.value === 0) return { transform: [{ translateX: 0 }, { scale: 1 }] };
+    return {
+      transform: [
+        { translateX: Math.sin(p * SHAKE_TURNS) * eased * SHAKE_POINTS },
+        { scale: HELD_SCALE - eased * FILL_SCALE },
+      ],
+    };
+  }, [mayMove]);
+  const onTomato = useAnimatedStyle(() => {
+    const p = progress.value;
+    return { opacity: p * p * (3 - 2 * p) > LABEL_TURNS_AT ? 1 : 0 };
+  });
+  const onSurface = useAnimatedStyle(() => {
+    const p = progress.value;
+    return { opacity: p * p * (3 - 2 * p) > LABEL_TURNS_AT ? 0 : 1 };
   });
 
   return (
@@ -58,31 +96,44 @@ export function HoldButton({
       accessibilityActions={[{ name: 'activate' }]}
       onAccessibilityAction={onActivate}
       testID="session-hold"
-      onPressIn={onPressIn}
-      onPressOut={onPressOut}
-      style={({ pressed }) => [styles.button, { transform: [{ scale: pressed ? 0.96 : 1 }] }]}
+      onPressIn={() => {
+        held.value = 1;
+        onPressIn();
+      }}
+      onPressOut={() => {
+        held.value = 0;
+        onPressOut();
+      }}
+      style={styles.button}
     >
-      <Canvas style={styles.canvas}>
-        <Path path={ring} style="stroke" strokeWidth={RING_WIDTH} color={inks.track} />
-        <Group origin={{ x: CENTRE, y: CENTRE }} transform={[{ rotate: -Math.PI / 2 }]}>
-          <Path
-            path={ring}
-            style="stroke"
-            strokeWidth={RING_WIDTH}
-            strokeCap="round"
-            color={inks.tomato}
-            start={0}
-            end={progress}
-          />
-        </Group>
-        <Circle cx={CENTRE} cy={CENTRE} r={BUTTON / 2} color={inks.surface} />
-        <Circle cx={CENTRE} cy={CENTRE} r={fill} color={inks.tomato} />
-      </Canvas>
-      <View pointerEvents="none" style={styles.label}>
-        <SessionText face="action" color={inks.ink}>
-          {label}
-        </SessionText>
-      </View>
+      <Animated.View style={pressed}>
+        <Canvas style={styles.canvas}>
+          <Path path={ring} style="stroke" strokeWidth={RING_WIDTH} color={inks.track} />
+          <Group origin={{ x: CENTRE, y: CENTRE }} transform={[{ rotate: -Math.PI / 2 }]}>
+            <Path
+              path={ring}
+              style="stroke"
+              strokeWidth={RING_WIDTH}
+              strokeCap="round"
+              color={inks.tomato}
+              start={0}
+              end={progress}
+            />
+          </Group>
+          <Circle cx={CENTRE} cy={CENTRE} r={BUTTON / 2} color={inks.surface} />
+          <Circle cx={CENTRE} cy={CENTRE} r={fill} color={inks.tomato} />
+        </Canvas>
+        <Animated.View pointerEvents="none" style={[styles.label, onSurface]}>
+          <SessionText face="action" color={inks.ink}>
+            {label}
+          </SessionText>
+        </Animated.View>
+        <Animated.View pointerEvents="none" style={[styles.label, onTomato]}>
+          <SessionText face="action" color={inks.onTomato}>
+            {label}
+          </SessionText>
+        </Animated.View>
+      </Animated.View>
     </Pressable>
   );
 }
