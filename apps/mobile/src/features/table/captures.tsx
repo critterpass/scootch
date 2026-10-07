@@ -1,13 +1,18 @@
 import type { TableSeat } from '@scootch/domain';
 
-import { NamePage, SignInPage } from '../account/account-page';
+import { useT } from '../../i18n/i18n-provider';
+import { NamePage, SignInCancelledPage, SignInPage } from '../account/account-page';
 import { FriendsPage } from '../friends/friends-page';
 import { HauntReceivedPage, HauntSendPage } from '../haunt/haunt-pages';
 import { PrivacyPage } from '../privacy/privacy-page';
 
+import { InvitePage } from './invite-page';
 import { JoinPage, LobbyPage, type JoinProblem } from './lobby-page';
 import { SeatSheet } from './seat-sheet';
-import { TablePage, type TablePageProps } from './table-page';
+import { TableMenuSheet } from './table-menu-sheet';
+import { TablePage, tableSummary, type TablePageProps } from './table-page';
+import { DEFAULT_TABLE_PREFS } from './table-prefs';
+import { TablesSettingsPage } from './tables-settings-page';
 import type { TableNotice } from './table-store';
 import { TableStripView } from './table-strip';
 
@@ -33,6 +38,14 @@ const FRIENDS = [
   { accountId: 'bbbbbbbbbbbb', displayName: 'Dana', canBeHaunted: true },
   { accountId: 'cccccccccccc', displayName: 'Kofi', canBeHaunted: true },
 ];
+/** A friend's open table, as the server lists it. */
+const KOFIS_TABLE = {
+  tableId: 'abcdefghijklmnop',
+  openSeats: 2,
+  friends: [{ accountId: 'cccccccccccc', displayName: 'Kofi' }],
+};
+/** Someone with a start waiting: the way on starts it alone. */
+const ALONE_INSTEAD = { startsAlone: true, onPress: nothing };
 
 interface TableShown {
   readonly seats?: readonly TableSeat[];
@@ -40,7 +53,8 @@ interface TableShown {
   readonly status?: TablePageProps['table']['status'];
   readonly nudgesLeft?: number;
   readonly hidden?: boolean;
-  readonly sheet?: 'seat' | 'report';
+  readonly sheet?: 'seat' | 'report' | 'menu';
+  readonly done?: boolean;
 }
 
 function Table({
@@ -50,7 +64,9 @@ function Table({
   nudgesLeft = 3,
   hidden = false,
   sheet,
+  done = false,
 }: TableShown) {
+  const t = useT();
   const mine = hidden
     ? seats.map((one) => (one.userId === YOU ? { ...one, label: 'busy', workMode: null } : one))
     : seats;
@@ -61,25 +77,39 @@ function Table({
           status: status ?? 'online',
           you: YOU,
           seats: mine,
+          capacity: 4,
           nudgesLeft,
           hidden,
           notice: notice ?? null,
         }}
         workMode="paperwork"
         chosen={seats[2]?.userId ?? null}
-        timer={{ kind: 'start', minutes: 10 }}
+        timer={done ? { kind: 'need_task' } : { kind: 'start', minutes: 10 }}
+        done={done ? { minutes: 25 } : null}
+        onMenu={nothing}
+        onNext={nothing}
         onChoose={nothing}
         onSeatSheet={nothing}
         onNudge={nothing}
         onInvite={nothing}
         onTimer={nothing}
-        onShowLabel={nothing}
         onDismiss={nothing}
         onLeave={nothing}
         onClose={nothing}
       />
+      <TableMenuSheet
+        open={sheet === 'menu'}
+        summary={tableSummary({ you: YOU, seats: mine }, t)}
+        hidden={hidden}
+        nudgesMuted={false}
+        onInvite={nothing}
+        onHidden={nothing}
+        onMuteNudges={nothing}
+        onLeave={nothing}
+        onClose={nothing}
+      />
       <SeatSheet
-        seat={sheet === undefined ? null : (seats[1] ?? null)}
+        seat={sheet === 'seat' || sheet === 'report' ? (seats[1] ?? null) : null}
         muted={false}
         reporting={sheet === 'report'}
         result={null}
@@ -93,13 +123,16 @@ function Table({
   );
 }
 
-function Lobby({ plus }: { readonly plus: boolean }) {
+function Lobby({ plus, quiet = false }: { readonly plus: boolean; readonly quiet?: boolean }) {
   return (
     <LobbyPage
       plus={plus}
       seated={false}
+      tables={quiet ? [] : [KOFIS_TABLE]}
       busy={false}
       notice={null}
+      onSit={nothing}
+      onAlone={quiet ? nothing : undefined}
       onOpen={nothing}
       onLocked={nothing}
       onJoin={nothing}
@@ -118,6 +151,7 @@ function Friends({ empty }: { readonly empty: boolean }) {
   return (
     <FriendsPage
       friends={empty ? [] : FRIENDS}
+      atTable={['cccccccccccc']}
       canBeHaunted
       notice={null}
       onCanBeHaunted={nothing}
@@ -132,10 +166,51 @@ function Friends({ empty }: { readonly empty: boolean }) {
 export const TOGETHER_CAPTURES = {
   'lobby-free': () => <Lobby plus={false} />,
   'lobby-plus': () => <Lobby plus />,
+  'lobby-quiet': () => <Lobby plus={false} quiet />,
+  'invite-landing': () => (
+    <InvitePage
+      hostName="Kofi"
+      hostLabel="admin"
+      taskText={null}
+      busy={false}
+      onSit={nothing}
+      onNotNow={nothing}
+      onClose={nothing}
+    />
+  ),
+  'table-menu': () => <Table seats={FULL.slice(0, 2)} sheet="menu" />,
+  'friend-sat': () => <Table seats={FULL.slice(0, 3)} notice={{ kind: 'sat', name: 'Kofi' }} />,
+  'done-at-table': () => <Table done />,
+  'tables-settings': () => (
+    <TablesSettingsPage
+      account={{ name: 'Priya', friends: 3 }}
+      prefs={DEFAULT_TABLE_PREFS}
+      notice={null}
+      onPref={nothing}
+      onSignIn={nothing}
+      onFriends={nothing}
+      onSignOut={nothing}
+      onClose={nothing}
+    />
+  ),
+  'tables-settings-signed-out': () => (
+    <TablesSettingsPage
+      account={null}
+      prefs={DEFAULT_TABLE_PREFS}
+      notice={null}
+      onPref={nothing}
+      onSignIn={nothing}
+      onFriends={nothing}
+      onSignOut={nothing}
+      onClose={nothing}
+    />
+  ),
   'waiting-alone': () => <Table seats={ALONE} />,
   'full-table': () => <Table />,
   'nudge-received': () => <Table notice={{ kind: 'nudged', from: 'cccccccccccc' }} />,
-  'someone-left': () => <Table seats={FULL.slice(0, 3)} notice={{ kind: 'left', name: 'Mei' }} />,
+  'someone-left': () => (
+    <Table seats={FULL.slice(0, 3)} notice={{ kind: 'left', name: 'Mei', done: true }} />
+  ),
   'nudge-limit': () => (
     <Table nudgesLeft={0} notice={{ kind: 'nudge_limit', to: 'cccccccccccc' }} />
   ),
@@ -148,8 +223,34 @@ export const TOGETHER_CAPTURES = {
   'join-full': () => <Join problem="full" />,
   'join-banned': () => <Join problem="banned" />,
   'join-unreachable': () => <Join problem="unreachable" />,
-  'sign-in': () => <SignInPage busy={false} failed={false} onSignIn={nothing} onClose={nothing} />,
-  name: () => <NamePage busy={false} problem={null} onSave={nothing} onClose={nothing} />,
+  'sign-in': () => (
+    <SignInPage
+      busy={false}
+      failed={false}
+      onSignIn={nothing}
+      wayOn={ALONE_INSTEAD}
+      onClose={nothing}
+    />
+  ),
+  'sign-in-cancelled': () => (
+    <SignInCancelledPage
+      taskText={null}
+      onAgain={nothing}
+      wayOn={ALONE_INSTEAD}
+      onClose={nothing}
+    />
+  ),
+  name: () => (
+    <NamePage
+      busy={false}
+      problem={null}
+      suggested="Priya"
+      showLabel
+      onShowLabel={nothing}
+      onSave={nothing}
+      onClose={nothing}
+    />
+  ),
   'name-refused': () => (
     <NamePage busy={false} problem="refused" onSave={nothing} onClose={nothing} />
   ),

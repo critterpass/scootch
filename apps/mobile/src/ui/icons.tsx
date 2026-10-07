@@ -101,6 +101,17 @@ export function TogetherIcon({ color }: IconProps) {
   );
 }
 
+/** A table seen from the side, a top and two legs: sitting with someone. */
+export function TableIcon({ color }: IconProps) {
+  return (
+    <View style={styles.table}>
+      <View style={[styles.tableTop, { backgroundColor: color }]} />
+      <View style={[styles.tableLeg, styles.tableLegLeft, { backgroundColor: color }]} />
+      <View style={[styles.tableLeg, styles.tableLegRight, { backgroundColor: color }]} />
+    </View>
+  );
+}
+
 /** A small ghost: a haunt. */
 export function GhostIcon({ color, eyes }: IconProps & { readonly eyes: string }) {
   return (
@@ -190,6 +201,11 @@ const styles = StyleSheet.create({
   person: { alignItems: 'center', gap: 1 },
   personHead: { width: 6, height: 6, borderRadius: 3 },
   personBody: { width: 9, height: 7, borderTopLeftRadius: 5, borderTopRightRadius: 5 },
+  table: { width: 20, height: 14 },
+  tableTop: { position: 'absolute', left: 0, right: 0, top: 0, height: 4, borderRadius: 2 },
+  tableLeg: { position: 'absolute', top: 3, width: 2.2, height: 11, borderRadius: 1 },
+  tableLegLeft: { left: 3 },
+  tableLegRight: { right: 3 },
   ghost: {
     width: 14,
     height: 16,

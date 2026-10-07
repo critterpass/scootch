@@ -11,6 +11,8 @@ import { Words } from '../table/words';
 
 export interface FriendsPageProps {
   readonly friends: readonly Friend[];
+  /** The friends who are at a table now, by account. */
+  readonly atTable?: readonly string[];
   /** The person's own switch; `null` until their account has been read. */
   readonly canBeHaunted: boolean | null;
   readonly notice: 'failed' | 'accepted' | null;
@@ -37,8 +39,16 @@ export function FriendsPage(props: FriendsPageProps) {
       ) : (
         friends.map((friend) => (
           <Section key={friend.accountId} label={friend.displayName ?? t('friends.noName')}>
+            {props.atTable?.includes(friend.accountId) ? (
+              <Row
+                first
+                kind="fact"
+                label={t('friends.atTable')}
+                testID={`friend-at-table-${friend.accountId}`}
+              />
+            ) : null}
             <Row
-              first
+              first={props.atTable?.includes(friend.accountId) !== true}
               label={t('friends.remove')}
               hint={t('friends.remove.hint')}
               onPress={() => props.onRemove(friend.accountId)}

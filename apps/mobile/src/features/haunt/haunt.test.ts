@@ -10,7 +10,14 @@ import seriousFixture from '../../../../../packages/voice/fixtures/task.create.s
 import { HAUNT_DARES, createTogetherApi } from '../../api/together-api';
 import type { DayContext } from '../../state/day-types';
 import { monsterFor, newTask } from '../../state/task-rows';
-import { accountStep, chooseName, signIn } from '../account/account-flow';
+import {
+  accountStep,
+  chooseName,
+  returnPath,
+  signIn,
+  startCarriedBy,
+  suggestedName,
+} from '../account/account-flow';
 import { phone } from '../session/test/phone';
 import { sharedPageLink } from '../share/share-links';
 import { fakeHttp, refused } from '../table/test/fake-table';
@@ -203,12 +210,17 @@ describe('the account a table asks for', () => {
     });
     const asked: string[] = [];
     const apple = {
-      signIn: (nonce: string) => (asked.push(nonce), Promise.resolve('apple-token')),
+      signIn: (nonce: string) => (
+        asked.push(nonce),
+        Promise.resolve({ identityToken: 'apple-token', givenName: 'Mai Anh' })
+      ),
     };
-    const account = await signIn(createTogetherApi(web.http), apple);
+    const signedIn = await signIn(createTogetherApi(web.http), apple);
     expect(asked).toEqual(['n'.repeat(32)]);
+    // Apple's name is offered to the person and is not sent: only the token and the nonce are.
     expect(web.sent.at(-1)?.body).toEqual({ identityToken: 'apple-token', nonce: 'n'.repeat(32) });
-    expect(accountStep(account)).toBe('name');
+    expect(signedIn?.suggestedName).toBe('Mai');
+    expect(accountStep(signedIn?.account ?? null)).toBe('name');
     expect(accountStep(null)).toBe('sign_in');
     expect(accountStep({ ...ACCOUNT, displayName: 'Mai' })).toBe('ready');
   });
@@ -218,6 +230,33 @@ describe('the account a table asks for', () => {
     const apple = { signIn: () => Promise.resolve(null) };
     expect(await signIn(createTogetherApi(web.http), apple)).toBeNull();
     expect(web.sent).toHaveLength(1);
+  });
+
+  it('offers a first name a seat can show, or nothing', () => {
+    expect(suggestedName('  Hana   Ito ')).toBe('Hana');
+    expect(suggestedName(null)).toBe('');
+    expect(suggestedName('X')).toBe('');
+    expect(suggestedName('A'.repeat(21))).toBe('');
+  });
+
+  it('goes on only to a place that asks for an account, carrying a start to the lobby', () => {
+    for (const path of [
+      '/table',
+      '/table?minutes=25',
+      '/table-settings',
+      '/friends',
+      '/t/abcdefghij?sit=1',
+      '/f/abcdefghij',
+    ]) {
+      expect(returnPath(path)).toBe(path);
+    }
+    for (const path of ['/plus', '/table?minutes=25&x=1', 'https://scootch.app/table', undefined]) {
+      expect(returnPath(path)).toBeNull();
+    }
+    expect(startCarriedBy('/table?minutes=25')).toBe(25);
+    expect(startCarriedBy('/table?minutes=0')).toBeNull();
+    expect(startCarriedBy('/table')).toBeNull();
+    expect(startCarriedBy('/friends')).toBeNull();
   });
 
   it('keeps a name the server accepts and passes its refusal on plainly', async () => {

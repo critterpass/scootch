@@ -1,5 +1,6 @@
 import {
   TABLE_MAX_NUDGES,
+  TABLE_MAX_SEATS,
   type SessionMinutes,
   type TableSeat,
   type TableServerMessage,
@@ -12,13 +13,18 @@ export type TableNotice =
   | { readonly kind: 'nudged'; readonly from: string }
   /** A fourth nudge was tapped: it is explained here and never sent. */
   | { readonly kind: 'nudge_limit'; readonly to: string }
-  | { readonly kind: 'left'; readonly name: string | null };
+  /** Someone took a seat. At a friends' table everyone is a friend, or came by a friend's link. */
+  | { readonly kind: 'sat'; readonly name: string | null }
+  /** A seat emptied; `done` when they had said they were finished. */
+  | { readonly kind: 'left'; readonly name: string | null; readonly done: boolean };
 
 export interface TableState {
   readonly tableId: string | null;
   readonly status: ConnectionStatus | 'idle';
   readonly you: string | null;
   readonly seats: readonly TableSeat[];
+  /** How many the table seats, fixed when it opened. */
+  readonly capacity: number;
   /** When the table's session ends, on the server's clock; `null` with none running. */
   readonly endsAt: number | null;
   readonly minutes: SessionMinutes | null;
@@ -26,6 +32,8 @@ export interface TableState {
   readonly clockAhead: number;
   readonly nudgesLeft: number;
   readonly hidden: boolean;
+  /** Nudges are not shown or felt at this table, by the person's own choice here. */
+  readonly nudgesMuted: boolean;
   readonly notice: TableNotice | null;
 }
 
@@ -34,11 +42,13 @@ export const NO_TABLE: TableState = {
   status: 'idle',
   you: null,
   seats: [],
+  capacity: TABLE_MAX_SEATS,
   endsAt: null,
   minutes: null,
   clockAhead: 0,
   nudgesLeft: TABLE_MAX_NUDGES,
   hidden: false,
+  nudgesMuted: false,
   notice: null,
 };
 
@@ -66,6 +76,12 @@ export interface TableStore {
   /** False when it was refused here (the limit) or could not be sent. */
   readonly nudge: (to: string) => boolean;
   readonly start: (minutes: SessionMinutes) => boolean;
+  /** The person's thing is done and they are staying a while. False when it could not be sent. */
+  readonly done: () => boolean;
+  /** Nudges on or off at this table only; the next table starts with them on. */
+  readonly muteNudges: (muted: boolean) => void;
+  /** The person's standing choice, for every table: off, no nudge is shown or felt. */
+  readonly allowNudges: (allowed: boolean) => void;
   readonly leave: () => void;
   readonly wake: () => void;
   readonly dismissNotice: () => void;
@@ -80,6 +96,7 @@ export function createTableStore(deps: TableStoreDeps): TableStore {
   let state = NO_TABLE;
   let connection: TableConnection | null = null;
   let mode: SeatMode = { workMode: null, hidden: false };
+  let nudgesAllowed = true;
   const listeners = new Set<() => void>();
   const set = (changes: Partial<TableState>) => {
     state = { ...state, ...changes };
@@ -92,17 +109,37 @@ export function createTableStore(deps: TableStoreDeps): TableStore {
         (seat) =>
           seat.userId !== message.you && !message.seats.some((one) => one.userId === seat.userId),
       );
+      // The first snapshot is the table as it was found: nobody in it has just arrived.
+      const came =
+        state.you === null
+          ? undefined
+          : message.seats.find(
+              (seat) =>
+                seat.userId !== message.you &&
+                !state.seats.some((one) => one.userId === seat.userId),
+            );
       const mine = message.seats.find((seat) => seat.userId === message.you);
+      const finished =
+        gone !== undefined &&
+        (gone.done === true ||
+          message.left?.some((one) => one.userId === gone.userId && one.done) === true);
       set({
         you: message.you,
         seats: message.seats,
+        capacity: message.capacity ?? state.capacity,
         endsAt: message.endsAt,
         minutes: message.minutes,
         clockAhead: message.serverNow - deps.now(),
         nudgesLeft: mine?.nudgesLeft ?? state.nudgesLeft,
-        ...(gone ? { notice: { kind: 'left', name: gone.name ?? null } } : {}),
+        ...(gone
+          ? { notice: { kind: 'left', name: gone.name ?? null, done: finished } }
+          : came
+            ? { notice: { kind: 'sat', name: came.name ?? null } }
+            : {}),
       });
     } else if (message.type === 'nudged') {
+      // Muted, the wave is dropped here: the sender is told nothing either way.
+      if (!nudgesAllowed || state.nudgesMuted) return;
       deps.nudgeHaptic();
       set({ notice: { kind: 'nudged', from: message.from } });
     } else if (message.type === 'nudge_sent') {
@@ -151,6 +188,11 @@ export function createTableStore(deps: TableStoreDeps): TableStore {
       return true;
     },
     start: (minutes) => connection?.send({ type: 'start', minutes }) ?? false,
+    done: () => connection?.send({ type: 'done' }) ?? false,
+    muteNudges: (muted) => set({ nudgesMuted: muted }),
+    allowNudges(allowed) {
+      nudgesAllowed = allowed;
+    },
     leave() {
       connection?.leave();
       connection = null;

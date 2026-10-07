@@ -28,6 +28,8 @@ export type OneScreenShown =
         readonly onWaiting?: () => void;
         /** Said under it when the day's free starts are used and the capsule is locked. */
         readonly startsNote: string | null;
+        /** Under the header: a friend who is at a table now, or the person's own seat. */
+        readonly company?: ReactNode;
       };
       /** Small ways in under the ask: the chips of a return. */
       readonly ways?: {
@@ -50,7 +52,11 @@ export type OneScreenShown =
       readonly startLabel?: string;
       /** The round button left of Start: the task is put down. Unset, no button is drawn. */
       readonly onDiscard?: () => void;
-      /** Quiet controls under the choices: sitting with someone. */
+      /** A glyph before the one action's label: the table, when the start is at one. */
+      readonly startIcon?: 'table';
+      /** Under the length, in line with it: alone or at a table. */
+      readonly company?: ReactNode;
+      /** Quiet controls under the choices: haunting a friend. */
       readonly extra?: ReactNode;
       /** Drawn in place of Scootch alone, when the task's monster stands beside him. */
       readonly figure?: ReactNode;

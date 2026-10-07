@@ -17,19 +17,22 @@ export function Section({
   label,
   children,
 }: {
-  readonly label: string;
+  /** The small heading over the group. Left out, the group stands with no heading. */
+  readonly label?: string;
   readonly children: ReactNode;
 }) {
   const { palette, allowFontScaling, size } = useScreenStyle();
   return (
     <View style={styles.section}>
-      <Text
-        accessibilityRole="header"
-        allowFontScaling={allowFontScaling}
-        style={[styles.sectionLabel, { color: palette.muted, fontSize: size(SECTION_SIZE) }]}
-      >
-        {label.toLocaleUpperCase()}
-      </Text>
+      {label === undefined ? null : (
+        <Text
+          accessibilityRole="header"
+          allowFontScaling={allowFontScaling}
+          style={[styles.sectionLabel, { color: palette.muted, fontSize: size(SECTION_SIZE) }]}
+        >
+          {label.toLocaleUpperCase()}
+        </Text>
+      )}
       <View style={[styles.group, { backgroundColor: palette.surface }]}>{children}</View>
     </View>
   );

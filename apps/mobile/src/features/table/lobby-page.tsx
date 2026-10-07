@@ -3,39 +3,49 @@ import { StyleSheet, TextInput } from 'react-native';
 
 import { fonts, radius, spacing } from '@scootch/tokens';
 
+import type { FriendsTable } from '../../api/together-api';
 import { useT } from '../../i18n/i18n-provider';
 import { CapsuleButton } from '../../ui/buttons';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { Lock } from '../plus/ui/parts';
 import { Page } from '../settings/page';
-import { Row, Section } from '../settings/rows';
+import { Note, Row, Section } from '../settings/rows';
 
-import { openTableStep, type JoinOutcome } from './table-rules';
+import { seatsToOpen, type JoinOutcome } from './table-rules';
+import { tableFriend } from './use-friends-tables';
 import { Words } from './words';
 
 export interface LobbyPageProps {
   readonly plus: boolean;
   /** The person already has a seat somewhere: the lobby offers the way back to it. */
   readonly seated: boolean;
+  /** The open tables a friend is at. Nobody else's table is ever listed. */
+  readonly tables: readonly FriendsTable[];
   readonly busy: boolean;
-  readonly notice: 'open_failed' | 'not_a_link' | null;
+  readonly notice: 'open_failed' | 'sit_failed' | 'not_a_link' | null;
+  /** Sits down at a friend's table. */
+  readonly onSit: (tableId: string) => void;
   readonly onOpen: () => void;
   /** The locked control was tapped: the sheet opens, and only then. */
   readonly onLocked: () => void;
   readonly onJoin: (pasted: string) => void;
   readonly onBack: () => void;
   readonly onFriends: () => void;
+  /** Set when the person came here to start: the way on without a table. */
+  readonly onAlone?: (() => void) | undefined;
   readonly onClose: () => void;
 }
 
 /**
- * "Sit with someone": open a table (the quiet locked control without Plus), or join one by its
- * link. Friends only: there is no list of tables and nobody to be seated with.
+ * "Sit with someone": a friend's table to sit down at, a table of one's own to open, or a link.
+ * Friends only: no stranger's table is listed and nobody is seated with one. With no friend
+ * sitting it says so plainly and offers what is left; it never promises that someone will come.
  */
 export function LobbyPage(props: LobbyPageProps) {
   const t = useT();
   const { palette, allowFontScaling, size } = useScreenStyle();
   const [pasted, setPasted] = useState('');
+  const { tables, plus } = props;
   return (
     <Page title={t('table.sit')} onClose={props.onClose} testID="table-lobby">
       <Words kind="quiet">{t('table.lobby.sub')}</Words>
@@ -47,21 +57,75 @@ export function LobbyPage(props: LobbyPageProps) {
           testID="table-back"
         />
       ) : (
-        <CapsuleButton
-          label={t('table.open')}
-          hint={props.plus ? t('table.open.hint') : t('keep.plusOnly.hint')}
-          tone={props.plus ? 'ink' : 'quiet'}
-          {...(props.plus ? {} : { icon: <Lock color={palette.muted} /> })}
-          disabled={props.busy}
-          onPress={openTableStep(props.plus) === 'open' ? props.onOpen : props.onLocked}
-          testID={props.plus ? 'table-open' : 'table-open-locked'}
-        />
+        <>
+          {tables.length === 0 ? (
+            <Words kind="quiet" testID="table-lobby-quiet">
+              {t('table.lobby.quiet')}
+            </Words>
+          ) : (
+            <Section label={t('table.lobby.friends')}>
+              {tables.map((table, index) => {
+                const { name, others } = tableFriend(table);
+                const who = name ?? t('friends.noName');
+                return (
+                  <Row
+                    key={table.tableId}
+                    first={index === 0}
+                    label={
+                      others > 0
+                        ? t('table.lobby.hereWith', { name: who, count: others })
+                        : t('table.lobby.here', { name: who })
+                    }
+                    sub={t('table.openSeats', { count: table.openSeats })}
+                    value={t('table.sitDown')}
+                    hint={t('table.sitDown.hint')}
+                    {...(props.busy ? {} : { onPress: () => props.onSit(table.tableId) })}
+                    testID={`table-sit-${table.tableId}`}
+                  />
+                );
+              })}
+            </Section>
+          )}
+          {props.notice === 'sit_failed' ? (
+            <Words kind="quiet" accessibilityLiveRegion="polite" testID="table-sit-failed">
+              {t('table.sitDown.failed')}
+            </Words>
+          ) : null}
+          <CapsuleButton
+            label={t('table.open')}
+            hint={t('table.open.hint')}
+            tone={tables.length === 0 ? 'ink' : 'quiet'}
+            disabled={props.busy}
+            onPress={props.onOpen}
+            testID="table-open"
+          />
+          <Note text={t('table.open.seats', { count: seatsToOpen(plus) })} testID="table-seats" />
+          {plus ? null : (
+            <CapsuleButton
+              tone="quiet"
+              label={t('table.open.four')}
+              hint={t('keep.plusOnly.hint')}
+              icon={<Lock color={palette.muted} />}
+              onPress={props.onLocked}
+              testID="table-four-locked"
+            />
+          )}
+        </>
       )}
       {props.notice === 'open_failed' ? (
         <Words kind="quiet" accessibilityLiveRegion="polite" testID="table-open-failed">
           {t('table.open.failed')}
         </Words>
       ) : null}
+      {props.onAlone === undefined ? null : (
+        <CapsuleButton
+          tone="quiet"
+          label={t('table.alone')}
+          hint={t('table.alone.hint')}
+          onPress={props.onAlone}
+          testID="table-alone"
+        />
+      )}
       <Words kind="quiet">{t('table.join.section')}</Words>
       <TextInput
         value={pasted}

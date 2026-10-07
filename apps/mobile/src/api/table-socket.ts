@@ -11,13 +11,15 @@ import {
 import type { Timers } from '../effects/adapters';
 
 /**
- * Everything a phone can say to its table: a length, an account id, a work mode id and a switch.
+ * Everything a phone can say to its table: a length, an account id, a work mode id, a switch and
+ * that its thing is done.
  * No member has a field for words, so task text cannot be put on the socket.
  */
 export type TableSend =
   | { readonly type: 'start'; readonly minutes: SessionMinutes }
   | { readonly type: 'nudge'; readonly to: string }
   | { readonly type: 'mode'; readonly workMode: WorkMode | null; readonly hidden: boolean }
+  | { readonly type: 'done' }
   | { readonly type: 'leave' };
 
 /** The seat as a connection announces it: a work mode id (or none) and the hide switch. */

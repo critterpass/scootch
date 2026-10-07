@@ -72,3 +72,21 @@ appId: app.scootch.dev
 # A plain task never gets the serious voice.
 - assertNotVisible: 'That sounds like a lot.*'
 - takeScreenshot: one-screen-task-set--en-light-default
+# Company is a choice on the set task, under the length. "At a table" turns the one action into
+# "Start at a table" and says what a table is shown; "Alone" puts the plain Start back, which the
+# next step taps. No table is opened and no account is asked for here.
+- scrollUntilVisible:
+    element:
+      id: 'task-set-company-table'
+    direction: DOWN
+- tapOn:
+    id: 'task-set-company-table'
+- assertVisible:
+    id: 'task-set-company-note'
+- assertVisible: 'Start at a table'
+- takeScreenshot: one-screen-task-set-at-table--en-light-default
+- tapOn:
+    id: 'task-set-company-alone'
+- assertNotVisible:
+    id: 'task-set-company-note'
+- assertNotVisible: 'Start at a table'

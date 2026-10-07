@@ -26,6 +26,7 @@ export const ROUTE_MOTION: Readonly<Record<string, RouteMotion>> = {
   friends: 'push',
   'table/index': 'push',
   'table/seat': 'push',
+  'table-settings': 'push',
   't/[code]': 'push',
   'f/[code]': 'push',
   'plus/manage': 'push',
@@ -58,6 +59,7 @@ const SWIPED_BACK_ANYWHERE: ReadonlySet<string> = new Set([
   'helplines',
   'account',
   'friends',
+  'table-settings',
   'plus/manage',
 ]);
 
@@ -154,6 +156,7 @@ const ROUTE_BAR: Readonly<Record<string, RouteBar>> = {
   friends: 'page',
   'table/index': 'page',
   'table/seat': 'page',
+  'table-settings': 'page',
   't/[code]': 'page',
   'f/[code]': 'page',
   world: 'frame',
@@ -171,6 +174,7 @@ const LARGE_TITLE: ReadonlySet<string> = new Set([
   'helplines',
   'friends',
   'table/index',
+  'table-settings',
 ]);
 
 /**

@@ -42,6 +42,30 @@ appId: app.scootch.dev
 - assertVisible:
     id: 'settings-attitude-note'
 - takeScreenshot: fresh-05-attitude-soft
+# Tables live behind one row. A fresh phone has never signed in: the row reads "Off", and its page
+# says so and offers the sign-in, with the two switches a seat follows already there.
+- scrollUntilVisible:
+    element:
+      id: 'settings-tables'
+    direction: DOWN
+- assertVisible: 'Off'
+- tapOn:
+    id: 'settings-tables'
+- extendedWaitUntil:
+    visible:
+      id: 'table-settings-off'
+    timeout: 15000
+- assertVisible:
+    id: 'table-settings-sign-in'
+- assertVisible:
+    id: 'table-settings-show-label'
+- takeScreenshot: table-settings-signed-out--en-light-default
+- tapOn:
+    id: 'table-settings-close'
+- extendedWaitUntil:
+    visible:
+      id: 'settings'
+    timeout: 15000
 - scrollUntilVisible:
     element:
       id: 'settings-privacy'
