@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import type { Energy } from '@scootch/domain';
-import { fonts, fontSizes, radius, spacing } from '@scootch/tokens';
+import { fonts, radius, spacing } from '@scootch/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
 import { CapsuleButton, type CapsuleButtonProps } from '../../ui/buttons';
@@ -11,7 +11,11 @@ import { useScreenStyle } from '../../ui/use-screen-style';
 import { PressSpring } from '../../ui/motion/press-spring';
 
 const LABEL_SIZE = 13;
+/** The one thing as a headline: 34 on a line of 1.07, as the board sets it. */
+const HEADING_SIZE = 34;
+const HEADING_LINE = 1.07;
 const SUB_SIZE = 17;
+const SUB_LINE = 1.42;
 const SMALL_SIZE = 15;
 
 export interface HeadedProps {
@@ -39,15 +43,30 @@ export function Headed({ label, heading, said = null, testID }: HeadedProps) {
         <Text
           accessibilityRole="header"
           allowFontScaling={allowFontScaling}
-          style={[styles.heading, { color: palette.ink, fontSize: size(fontSizes.sentence) }]}
+          style={[
+            styles.heading,
+            {
+              color: palette.ink,
+              fontSize: size(HEADING_SIZE),
+              lineHeight: size(HEADING_SIZE) * HEADING_LINE,
+            },
+          ]}
         >
           {heading}
         </Text>
       )}
       {said === null ? null : (
         <Text
+          testID={testID ? `${testID}-said` : undefined}
           allowFontScaling={allowFontScaling}
-          style={[styles.sub, { color: palette.muted, fontSize: size(SUB_SIZE) }]}
+          style={[
+            styles.sub,
+            {
+              color: palette.muted,
+              fontSize: size(SUB_SIZE),
+              lineHeight: size(SUB_SIZE) * SUB_LINE,
+            },
+          ]}
         >
           {said}
         </Text>
@@ -204,9 +223,9 @@ export function Stack({ children }: { readonly children: ReactNode }) {
 }
 
 const styles = StyleSheet.create({
-  headed: { gap: spacing.sm },
-  label: { fontFamily: fonts.body, fontWeight: '600', letterSpacing: 0.3 },
-  heading: { fontFamily: fonts.heading, fontWeight: '700', letterSpacing: -0.4 },
+  headed: { gap: 12 },
+  label: { fontFamily: fonts.body, fontWeight: '600', letterSpacing: 0.26 },
+  heading: { fontFamily: fonts.heading, fontWeight: '700', letterSpacing: -0.68 },
   sub: { fontFamily: fonts.body },
   dock: { borderRadius: 34, padding: 7, overflow: 'hidden' },
   dockRow: { flexDirection: 'row', gap: spacing.xs },

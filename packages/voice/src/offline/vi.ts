@@ -124,6 +124,9 @@ export const viOffline: OfflinePack = {
       offline: 'Đang mất mạng rồi. Mình vẫn ngồi cạnh bạn được nha.',
       modelDown: 'Đầu mình đang chạy hơi chậm. Hôm nay bạn chọn nha, lát mình theo kịp.',
       modelDownMore: 'Việc bạn gõ bây giờ vẫn tính, mình tỉnh lại là con quái của bạn nở liền.',
+      oneInDrawer: 'Việc còn lại nằm trong ngăn kéo rồi. Mình đang ngồi lên ngăn kéo, nhẹ thôi.',
+      restInDrawer:
+        '{count} việc còn lại nằm trong ngăn kéo rồi. Mình đang ngồi lên ngăn kéo, nhẹ thôi.',
       hatchesWhenBack: 'Có mạng lại là con quái của bạn sẽ nở.',
       backupOff:
         'iCloud đang tắt nên mình chưa giữ được bản dự phòng. Thế giới của bạn chỉ nằm trên máy này thôi.',
@@ -155,6 +158,8 @@ export const viOffline: OfflinePack = {
       offline: 'Mất sóng rồi. Mấy câu đùa của tui cần wifi, nhưng tui vẫn ngồi cạnh bạn được.',
       modelDown: 'Não tui đang quay vòng vòng. Hôm nay bạn chọn đi, lát tui duyên dáng bù.',
       modelDownMore: 'Việc bạn gõ bây giờ vẫn tính, tui tỉnh lại là con quái của bạn nở liền.',
+      oneInDrawer: 'Việc kia nằm trong ngăn kéo rồi. Tui đang ngồi đè lên ngăn kéo.',
+      restInDrawer: '{count} việc kia nằm trong ngăn kéo rồi. Tui đang ngồi đè lên ngăn kéo.',
       hatchesWhenBack: 'Có mạng lại là con quái của bạn nở liền.',
       backupOff:
         'iCloud đang tắt nên tui chưa cất được bản dự phòng. Thế giới của bạn chỉ nằm trên máy này thôi.',
@@ -190,6 +195,8 @@ export const viOffline: OfflinePack = {
       offline: 'MẤT SÓNG RỒI. Mấy câu đùa của tui cần wifi. Tui vẫn ngồi cạnh bạn, ngồi rất kịch.',
       modelDown: 'NÃO TUI ĐANG QUAY VÒNG VÒNG. Hôm nay bạn chọn đi, lát tui duyên dáng bù.',
       modelDownMore: 'Việc bạn gõ bây giờ VẪN TÍNH, tui tỉnh lại là con quái của bạn nở liền.',
+      oneInDrawer: 'VIỆC KIA NẰM TRONG NGĂN KÉO RỒI. Tui đang NGỒI ĐÈ lên ngăn kéo.',
+      restInDrawer: '{count} VIỆC KIA NẰM TRONG NGĂN KÉO RỒI. Tui đang NGỒI ĐÈ lên ngăn kéo.',
       hatchesWhenBack: 'CÓ MẠNG LẠI LÀ CON QUÁI CỦA BẠN NỞ LIỀN. Tui đang canh quả trứng.',
       backupOff:
         'ICLOUD ĐANG TẮT. Tui chưa cất được bản dự phòng. Thế giới của bạn chỉ nằm trên máy này thôi.',

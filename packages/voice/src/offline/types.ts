@@ -53,6 +53,10 @@ export const noTaskSlots = [
   /** The model is down or slow: Scootch admits it, and the pick is the person's. */
   'modelDown',
   'modelDownMore',
+  /** Under the one thing: the single other thing heard, parked out of sight. */
+  'oneInDrawer',
+  /** Under the one thing: how many other things were parked. `{count}` is the number. */
+  'restInDrawer',
   /** Under the timer of a session whose task has not been screened yet. */
   'hatchesWhenBack',
   /** Neither iCloud Keychain nor iCloud storage answers, so there is no spare copy. */

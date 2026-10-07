@@ -246,6 +246,7 @@ export const vi = {
   'dump.oneThing': 'Một việc hôm nay',
   'dump.justThis': 'Hôm nay chỉ việc này thôi',
   'dump.heard': 'Những gì bạn vừa nói',
+  'dump.skip.hint': 'Xem luôn việc hôm nay của bạn.',
   'dump.another': 'Việc khác',
   'dump.another.hint': 'Đưa ra một việc khác trong những gì bạn nói.',
   'dump.accept': 'Chốt việc này',

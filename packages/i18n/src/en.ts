@@ -249,6 +249,7 @@ export const en = {
   'dump.oneThing': "Today's one thing",
   'dump.justThis': 'Just this, today',
   'dump.heard': 'What you said',
+  'dump.skip.hint': 'Skips to your one thing.',
   'dump.another': 'Another',
   'dump.another.hint': 'Offers a different thing from what you said.',
   'dump.accept': "That's the one",
