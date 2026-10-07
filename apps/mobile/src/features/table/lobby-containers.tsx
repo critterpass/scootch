@@ -9,7 +9,8 @@ import { useTableState, useTogether } from '../../state/together-context';
 import { PLUS_SHEET } from '../plus/routes';
 
 import { InvitePage } from './invite-page';
-import { JoinPage, LobbyPage, type JoinProblem } from './lobby-page';
+import { JoinPage, type JoinProblem } from './join-page';
+import { LobbyPage } from './lobby-page';
 import { startAlone } from './start-alone';
 import {
   accountThen,

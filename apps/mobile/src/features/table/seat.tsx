@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { WORK_MODE_IDS, type TableSeat, type WorkMode } from '@scootch/domain';
 import { fonts, radius, spacing } from '@scootch/tokens';
 
-import { Scootch } from '../../art/Scootch';
+import { Scootch, type ScootchProps } from '../../art/Scootch';
 import { useT } from '../../i18n/i18n-provider';
 import { useCharacterMotion } from '../../ui/motion/use-feel';
 import { useScreenStyle } from '../../ui/use-screen-style';
@@ -18,6 +18,8 @@ export interface SeatProps {
   readonly workMode?: WorkMode | null;
   readonly chosen?: boolean;
   readonly size?: number;
+  /** What the critter is doing just now, in place of its work: a wave sent, a wave received. */
+  readonly mood?: ScootchProps['mood'];
   readonly onPress?: () => void;
   readonly onLongPress?: () => void;
 }
@@ -37,6 +39,7 @@ export function Seat({
   workMode,
   chosen,
   size = 96,
+  mood,
   onPress,
   onLongPress,
 }: SeatProps) {
@@ -70,7 +73,7 @@ export function Seat({
     >
       <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
         <Scootch
-          mood={seat.done === true ? 'celebrating' : 'working'}
+          mood={mood ?? (seat.done === true ? 'celebrating' : 'working')}
           // The person's own critter is tomato; everyone else's is the pale one, as the board draws.
           tone={yours ? 'tomato' : 'paper'}
           workMode={workMode ?? null}
@@ -80,7 +83,9 @@ export function Seat({
           size={size}
         />
       </View>
-      <Words centred>{name}</Words>
+      <Words kind="strong" centred>
+        {name}
+      </Words>
       {seat.done === true || seat.label !== '' ? (
         <Words kind="quiet" centred>
           {seat.done === true ? t('table.seat.done') : seat.label}

@@ -198,11 +198,13 @@ export const enTogether = {
 
   'friends.title': 'Friends',
   'friends.empty': 'Nobody here yet. A friend is someone who opened your link.',
-  'friends.invite': 'Send a friend link',
   'friends.invite.hint': 'Opens the share sheet with a link that makes one friend',
   'friends.invite.message': 'Be my friend on Scootch: {link}',
   'friends.noName': 'A friend',
   'friends.atTable': 'At a table now',
+  'friends.row.hint': 'Shows Remove and Block. Swipe left to remove.',
+  'friends.note':
+    'Friends see your table when you’re sitting, and your label. Never your task list.',
   'friends.remove': 'Remove',
   'friends.remove.hint': 'Ends the friendship. They aren’t told.',
   'friends.block': 'Block',

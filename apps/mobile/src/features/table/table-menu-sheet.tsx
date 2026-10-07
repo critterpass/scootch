@@ -43,6 +43,7 @@ export function TableMenuSheet(props: TableMenuSheetProps) {
         testID="table-menu"
         style={[styles.sheet, { backgroundColor: palette.page }]}
       >
+        <View style={[styles.grabber, { backgroundColor: `${palette.ink}33` }]} />
         <View style={styles.head}>
           <Words kind="title" centred>
             {t('table.title')}
@@ -100,8 +101,10 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: radius.lg + 8,
     borderTopRightRadius: radius.lg + 8,
     padding: spacing.lg,
+    paddingTop: spacing.sm,
     paddingBottom: spacing.xxl,
     gap: spacing.md,
   },
+  grabber: { alignSelf: 'center', width: 36, height: 5, borderRadius: 3 },
   head: { gap: 2 },
 });

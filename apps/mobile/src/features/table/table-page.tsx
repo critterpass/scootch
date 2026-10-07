@@ -13,6 +13,7 @@ import { QuietLink } from '../dump/dump-panels';
 
 import { ActionDock } from './action-dock';
 import { OpenSeat, Seat } from './seat';
+import { TableBanner } from './table-banner';
 import type { TableTimer } from './table-rules';
 import type { TableNotice, TableState } from './table-store';
 import { Words } from './words';
@@ -57,37 +58,30 @@ export function tableSummary(table: Pick<TableState, 'you' | 'seats'>, t: Transl
   return others === 0 ? t('table.summary.alone') : t('table.summary', { count: others });
 }
 
-/** Someone sat down, a nudge arrived, a seat emptied, or the fourth nudge explaining itself. */
-function Notice(props: TablePageProps & { readonly notice: TableNotice }) {
+/** What happened, where it is said as the screen's sentence: a seat emptied, or the fourth nudge. */
+function Said(props: TablePageProps & { readonly notice: TableNotice }) {
   const { notice, table } = props;
   const t = useT();
   const someone = t('friends.noName');
-  const said =
-    notice.kind === 'nudged'
-      ? t('table.nudged', { name: nameOf(table.seats, notice.from, someone) })
-      : notice.kind === 'nudge_limit'
-        ? t('table.nudgeLimit')
-        : notice.kind === 'sat'
-          ? notice.name === null
-            ? t('table.satNoName')
-            : t('table.sat', { name: notice.name })
-          : notice.name === null
-            ? t(notice.done ? 'table.leftDoneNoName' : 'table.leftNoName')
-            : t(notice.done ? 'table.leftDone' : 'table.left', { name: notice.name });
-  const sub =
-    notice.kind === 'nudged'
-      ? t('table.nudged.sub')
-      : notice.kind === 'nudge_limit'
-        ? t('table.nudgeLimit.sub', { name: nameOf(table.seats, notice.to, someone) })
-        : null;
+  if (notice.kind !== 'left' && notice.kind !== 'nudge_limit') return null;
   return (
     <View
       accessibilityLiveRegion="polite"
       testID={`table-notice-${notice.kind}`}
       style={styles.said}
     >
-      <Words kind="headline">{said}</Words>
-      {sub === null ? null : <Words kind="quiet">{sub}</Words>}
+      <Words kind="headline">
+        {notice.kind === 'nudge_limit'
+          ? t('table.nudgeLimit')
+          : notice.name === null
+            ? t(notice.done ? 'table.leftDoneNoName' : 'table.leftNoName')
+            : t(notice.done ? 'table.leftDone' : 'table.left', { name: notice.name })}
+      </Words>
+      {notice.kind === 'nudge_limit' ? (
+        <Words kind="quiet">
+          {t('table.nudgeLimit.sub', { name: nameOf(table.seats, notice.to, someone) })}
+        </Words>
+      ) : null}
       <View style={styles.chips}>
         <QuietLink
           label={t('table.ok')}
@@ -98,6 +92,43 @@ function Notice(props: TablePageProps & { readonly notice: TableNotice }) {
       </View>
     </View>
   );
+}
+
+/**
+ * What is said over the seat card: someone sat down, someone waved, or the line to the table is
+ * not what it was. An arrival and a wave go away on a tap; the state of the line stays.
+ */
+function Banner(props: TablePageProps & { readonly status: string | null }) {
+  const { table, status } = props;
+  const t = useT();
+  const someone = t('friends.noName');
+  const { notice } = table;
+  if (notice?.kind === 'nudged') {
+    return (
+      <TableBanner
+        seed={notice.from}
+        title={t('table.nudged', { name: nameOf(table.seats, notice.from, someone) })}
+        sub={t('table.nudged.sub')}
+        hint={t('table.ok.hint')}
+        onPress={props.onDismiss}
+        testID="table-notice-nudged"
+      />
+    );
+  }
+  if (notice?.kind === 'sat') {
+    const sat = table.seats.find((seat) => seat.userId === notice.userId);
+    return (
+      <TableBanner
+        seed={notice.userId}
+        title={notice.name === null ? t('table.satNoName') : t('table.sat', { name: notice.name })}
+        sub={sat === undefined || sat.label === '' ? null : sat.label}
+        hint={t('table.ok.hint')}
+        onPress={props.onDismiss}
+        testID="table-notice-sat"
+      />
+    );
+  }
+  return status === null ? null : <TableBanner title={status} testID="table-status" />;
 }
 
 /**
@@ -186,10 +217,11 @@ export function TablePage(props: TablePageProps) {
 
   return (
     <Page barTitle={t('table.title')} onClose={props.onClose} testID="table" footer={dock}>
+      <Banner {...props} status={status} />
       <View style={styles.head}>
         <View style={styles.summary}>
           <Words kind="quiet" testID="table-summary">
-            {status ?? tableSummary(table, t)}
+            {tableSummary(table, t)}
           </Words>
         </View>
         <RoundButton
@@ -210,6 +242,14 @@ export function TablePage(props: TablePageProps) {
             workMode={seat.userId === table.you ? props.workMode : seat.workMode}
             chosen={seat.userId === chosen && seat.userId !== table.you}
             size={size}
+            // A wave: whoever sent it is waving, and the person it reached is pleased.
+            {...(nudged === null
+              ? {}
+              : seat.userId === nudged
+                ? { mood: 'nudge' as const }
+                : seat.userId === table.you
+                  ? { mood: 'celebrating' as const }
+                  : {})}
             {...(seat.userId === table.you
               ? {}
               : {
@@ -222,7 +262,7 @@ export function TablePage(props: TablePageProps) {
           <OpenSeat key={`open-${index}`} size={size} />
         ))}
       </View>
-      {table.notice === null ? (
+      {table.notice?.kind !== 'left' && table.notice?.kind !== 'nudge_limit' ? (
         <View style={styles.said}>
           <Words kind="headline" testID="table-caption">
             {alone ? t('table.seatsSaved', { count: open }) : t('table.together')}
@@ -234,7 +274,7 @@ export function TablePage(props: TablePageProps) {
           )}
         </View>
       ) : (
-        <Notice {...props} notice={table.notice} />
+        <Said {...props} notice={table.notice} />
       )}
       {done === null ? null : (
         <>

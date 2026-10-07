@@ -9,14 +9,14 @@ import { useScreenStyle } from '../../ui/use-screen-style';
 export interface WordsProps extends Pick<TextProps, 'testID' | 'accessibilityLiveRegion'> {
   /**
    * `headline` is the screen's one big sentence, as the boards set it; `title` is a heading;
-   * `body` is ink; `quiet` is the muted small print.
+   * `strong` is a name; `body` is ink; `quiet` is the muted small print.
    */
-  readonly kind?: 'headline' | 'title' | 'body' | 'quiet';
+  readonly kind?: 'headline' | 'title' | 'strong' | 'body' | 'quiet';
   readonly centred?: boolean;
   readonly children: ReactNode;
 }
 
-const SIZES = { headline: 27, title: 24, body: 17, quiet: 15 } as const;
+const SIZES = { headline: 27, title: 24, strong: 17, body: 17, quiet: 15 } as const;
 /** The headline's line, and the least a Vietnamese one gets: its marks stack. */
 const HEADLINE_LINE = 1.14;
 const HEADLINE_LINE_VI = 1.2;
@@ -43,6 +43,7 @@ export function Words({ kind = 'body', centred = false, children, ...rest }: Wor
           lineHeight: size(SIZES.headline) * (language === 'vi' ? HEADLINE_LINE_VI : HEADLINE_LINE),
         },
         kind === 'quiet' && { lineHeight: size(SIZES.quiet) * 1.4 },
+        kind === 'strong' && styles.strong,
       ]}
     >
       {children}
@@ -53,4 +54,5 @@ export function Words({ kind = 'body', centred = false, children, ...rest }: Wor
 const styles = StyleSheet.create({
   title: { fontFamily: fonts.heading, fontWeight: '700', letterSpacing: -0.4 },
   body: { fontFamily: fonts.body },
+  strong: { fontWeight: '600' },
 });

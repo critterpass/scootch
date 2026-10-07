@@ -195,11 +195,13 @@ export const viTogether = {
 
   'friends.title': 'Bạn bè',
   'friends.empty': 'Chưa có ai ở đây. Bạn bè là người đã mở link của bạn.',
-  'friends.invite': 'Gửi link kết bạn',
   'friends.invite.hint': 'Mở bảng chia sẻ với link kết bạn với một người',
   'friends.invite.message': 'Kết bạn với mình trên Scootch nhé: {link}',
   'friends.noName': 'Một người bạn',
   'friends.atTable': 'Đang ngồi ở một bàn',
+  'friends.row.hint': 'Hiện Bỏ kết bạn và Chặn. Vuốt sang trái để bỏ kết bạn.',
+  'friends.note':
+    'Bạn bè thấy bàn của bạn khi bạn đang ngồi, và thấy nhãn của bạn. Không bao giờ thấy danh sách việc.',
   'friends.remove': 'Bỏ kết bạn',
   'friends.remove.hint': 'Kết thúc tình bạn này. Họ không được báo.',
   'friends.block': 'Chặn',

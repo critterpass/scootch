@@ -6,7 +6,7 @@ import { fonts, radius, spacing } from '@scootch/tokens';
 import type { FriendsTable } from '../../api/together-api';
 import { Scootch } from '../../art/Scootch';
 import { useT } from '../../i18n/i18n-provider';
-import { CapsuleButton, onInkOf } from '../../ui/buttons';
+import { onInkOf } from '../../ui/buttons';
 import { TableIcon } from '../../ui/icons';
 import { useCharacterMotion } from '../../ui/motion/use-feel';
 import { useScreenStyle } from '../../ui/use-screen-style';
@@ -14,7 +14,7 @@ import { Page } from '../settings/page';
 import { Row, Section } from '../settings/rows';
 
 import { ActionDock } from './action-dock';
-import { seatsToOpen, type JoinOutcome } from './table-rules';
+import { seatsToOpen } from './table-rules';
 import { tableFriend } from './use-friends-tables';
 import { Words } from './words';
 
@@ -115,7 +115,24 @@ export function LobbyPage(props: LobbyPageProps) {
           importantForAccessibility="no-hide-descendants"
         >
           <View style={[styles.ring, { borderColor: `${palette.tomato}33` }]} />
-          <Scootch mood={quiet ? 'asleep' : 'thinking'} {...character} size={200} />
+          <Scootch mood={quiet ? 'asleep' : 'thinking'} {...character} size={quiet ? 200 : 150} />
+          {/* The friends who are sitting, at work around him: at most one in each corner. */}
+          {tables
+            .flatMap((table) => table.friends)
+            .slice(0, AROUND.length)
+            .map((friend, index) => (
+              <View key={friend.accountId} style={[styles.around, AROUND[index]]}>
+                <Scootch
+                  mood="working"
+                  workMode={null}
+                  tone="paper"
+                  {...character}
+                  ownLoop={false}
+                  seed={friend.accountId}
+                  size={72}
+                />
+              </View>
+            ))}
         </View>
       )}
       <View style={styles.said}>
@@ -219,53 +236,14 @@ export function LobbyPage(props: LobbyPageProps) {
   );
 }
 
-export type JoinProblem = Exclude<JoinOutcome, 'name_required' | 'not_signed_in' | 'plus_required'>;
-
-const PROBLEMS = {
-  link_ended: ['table.join.ended', 'table.join.ended.sub'],
-  full: ['table.join.full', 'table.join.full.sub'],
-  banned: ['table.join.banned', 'table.join.banned.sub'],
-  unreachable: ['table.join.unreachable', 'table.join.unreachable.sub'],
-} as const;
-
-export interface JoinPageProps {
-  /** `null` while the seat is being asked for. */
-  readonly problem: JoinProblem | null;
-  readonly onAgain: () => void;
-  readonly onClose: () => void;
-}
-
-/** Asking for the seat an invite link points to, and the plain reasons it may not be given. */
-export function JoinPage({ problem, onAgain, onClose }: JoinPageProps) {
-  const t = useT();
-  if (problem === null) {
-    return (
-      <Page onClose={onClose} testID="table-joining">
-        <Words kind="quiet">{t('table.join.seating')}</Words>
-      </Page>
-    );
-  }
-  const [title, sub] = PROBLEMS[problem];
-  return (
-    <Page onClose={onClose} testID={`table-join-${problem}`}>
-      <View style={styles.said}>
-        <Words kind="headline">{t(title)}</Words>
-        <Words kind="quiet">{t(sub)}</Words>
-      </View>
-      {problem === 'unreachable' ? (
-        <CapsuleButton
-          tone="quiet"
-          label={t('table.join.again')}
-          hint={t('table.join.again.hint')}
-          onPress={onAgain}
-          testID="table-join-again"
-        />
-      ) : null}
-    </Page>
-  );
-}
-
 const RING = 260;
+/** Where a sitting friend's critter stands on the ring, as the board places them. */
+const AROUND = [
+  { top: 28, left: 0 },
+  { top: 44, right: 0 },
+  { bottom: 0, left: 16 },
+  { bottom: -8, right: 8 },
+] as const;
 
 const styles = StyleSheet.create({
   figure: { height: RING, alignItems: 'center', justifyContent: 'center' },
@@ -276,6 +254,7 @@ const styles = StyleSheet.create({
     borderRadius: RING / 2,
     borderWidth: 8,
   },
+  around: { position: 'absolute' },
   said: { paddingHorizontal: 12, gap: 10 },
   field: {
     minHeight: 54,

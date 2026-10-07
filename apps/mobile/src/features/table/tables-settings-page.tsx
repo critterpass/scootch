@@ -3,6 +3,7 @@ import { CapsuleButton } from '../../ui/buttons';
 import { Page } from '../settings/page';
 import { Note, Row, Section, SwitchRow } from '../settings/rows';
 
+import { CritterAvatar } from './critter-avatar';
 import type { TablePrefs } from './table-prefs';
 import { Words } from './words';
 
@@ -48,6 +49,7 @@ export function TablesSettingsPage(props: TablesSettingsPageProps) {
           <Row
             first
             kind="fact"
+            leading={<CritterAvatar seed="you" size={56} tone="tomato" />}
             label={account.name ?? t('friends.noName')}
             sub={t('settings.tables.signedIn')}
             testID="table-settings-account"

@@ -5,7 +5,7 @@ import { Share } from 'react-native';
 import { refusalOf, type AccountView, type Friend } from '../../api/together-api';
 import { useT } from '../../i18n/i18n-provider';
 import { useTogether } from '../../state/together-context';
-import { JoinPage } from '../table/lobby-page';
+import { JoinPage } from '../table/join-page';
 import {
   FRIENDS_ACCEPTED,
   accountThen,

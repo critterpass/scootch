@@ -291,7 +291,11 @@ describe('who comes and goes at the table', () => {
     const { net, together } = await seated();
     expect(together.table.getState().notice).toBeNull();
     net.last().say({ ...STATE, seats: [...seats, KOFI] });
-    expect(together.table.getState().notice).toEqual({ kind: 'sat', name: 'Kofi' });
+    expect(together.table.getState().notice).toEqual({
+      kind: 'sat',
+      userId: KOFI.userId,
+      name: 'Kofi',
+    });
   });
 
   it('says a seat emptied because its person finished, when the table says so', async () => {

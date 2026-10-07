@@ -8,12 +8,13 @@ import { HauntReceivedPage, HauntSendPage } from '../haunt/haunt-pages';
 import { PrivacyPage } from '../privacy/privacy-page';
 
 import { InvitePage } from './invite-page';
-import { JoinPage, LobbyPage, type JoinProblem } from './lobby-page';
+import { JoinPage, type JoinProblem } from './join-page';
+import { LobbyPage } from './lobby-page';
 import { SeatSheet } from './seat-sheet';
 import { TableMenuSheet } from './table-menu-sheet';
 import { TablePage, tableSummary, type TablePageProps } from './table-page';
 import { DEFAULT_TABLE_PREFS } from './table-prefs';
-import { TablesSettingsPage } from './tables-settings-page';
+import { TablesSettingsPage, type TablesSettingsPageProps } from './tables-settings-page';
 import type { TableNotice } from './table-store';
 import { TableStripView } from './table-strip';
 
@@ -164,6 +165,19 @@ function Friends({ empty }: { readonly empty: boolean }) {
   );
 }
 
+const TablesSettings = (props: Pick<TablesSettingsPageProps, 'account'>) => (
+  <TablesSettingsPage
+    {...props}
+    prefs={DEFAULT_TABLE_PREFS}
+    notice={null}
+    onPref={nothing}
+    onSignIn={nothing}
+    onFriends={nothing}
+    onSignOut={nothing}
+    onClose={nothing}
+  />
+);
+
 export const TOGETHER_CAPTURES = {
   'lobby-free': () => <Lobby plus={false} />,
   'lobby-plus': () => <Lobby plus />,
@@ -180,32 +194,15 @@ export const TOGETHER_CAPTURES = {
     />
   ),
   'table-menu': () => <Table seats={FULL.slice(0, 2)} sheet="menu" />,
-  'friend-sat': () => <Table seats={FULL.slice(0, 3)} notice={{ kind: 'sat', name: 'Kofi' }} />,
+  'friend-sat': () => (
+    <Table
+      seats={FULL.slice(0, 3)}
+      notice={{ kind: 'sat', userId: 'cccccccccccc', name: 'Kofi' }}
+    />
+  ),
   'done-at-table': () => <Table done />,
-  'tables-settings': () => (
-    <TablesSettingsPage
-      account={{ name: 'Priya', friends: 3 }}
-      prefs={DEFAULT_TABLE_PREFS}
-      notice={null}
-      onPref={nothing}
-      onSignIn={nothing}
-      onFriends={nothing}
-      onSignOut={nothing}
-      onClose={nothing}
-    />
-  ),
-  'tables-settings-signed-out': () => (
-    <TablesSettingsPage
-      account={null}
-      prefs={DEFAULT_TABLE_PREFS}
-      notice={null}
-      onPref={nothing}
-      onSignIn={nothing}
-      onFriends={nothing}
-      onSignOut={nothing}
-      onClose={nothing}
-    />
-  ),
+  'tables-settings': () => <TablesSettings account={{ name: 'Priya', friends: 3 }} />,
+  'tables-settings-signed-out': () => <TablesSettings account={null} />,
   'waiting-alone': () => <Table seats={ALONE} />,
   'full-table': () => <Table />,
   'nudge-received': () => <Table notice={{ kind: 'nudged', from: 'cccccccccccc' }} />,
