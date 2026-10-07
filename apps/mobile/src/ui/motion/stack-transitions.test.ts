@@ -34,7 +34,7 @@ describe('how each route arrives and leaves', () => {
       'world',
       'zoo',
       'record',
-      'shelf',
+      'studio',
       'settings',
       'finish-with',
       'privacy',
@@ -140,7 +140,7 @@ describe("which screens wear the system's bar", () => {
   });
 
   it("gives the world, the zoo and the record a bar in the page's colour", () => {
-    for (const route of ['world', 'zoo', 'record', 'shelf', 'plus/manage']) {
+    for (const route of ['world', 'zoo', 'record', 'studio', 'plus/manage']) {
       expect(stackBar(route, true, inks)).toMatchObject({
         headerShown: true,
         headerTransparent: false,

@@ -1,11 +1,52 @@
-import { Canvas, Glyphs, Group, matchFont, Path, Text } from '@shopify/react-native-skia';
+import {
+  Canvas,
+  ColorMatrix,
+  FractalNoise,
+  Glyphs,
+  Group,
+  LinearGradient,
+  matchFont,
+  Path,
+  RadialGradient,
+  Text,
+} from '@shopify/react-native-skia';
 import { memo, useMemo, type ReactElement, type ReactNode } from 'react';
 import { Platform, Pressable, View } from 'react-native';
 import type { SharedValue } from 'react-native-reanimated';
 
 import { VIEW_SIZE, type DrawCommand } from '@scootch/art';
 
-import { toSkiaNodes, type SkiaNode } from './skia-nodes';
+import { GRAIN_GREY, toSkiaNodes, type SkiaNode, type SkiaPaint } from './skia-nodes';
+
+/** What fills a `paint` node's path: a gradient, or noise with its colour taken out. */
+function paintFill(paint: SkiaPaint): ReactNode {
+  if (paint.kind === 'linear') {
+    return (
+      <LinearGradient
+        start={paint.start}
+        end={paint.end}
+        colors={[...paint.colors]}
+        positions={[...paint.positions]}
+      />
+    );
+  }
+  if (paint.kind === 'radial') {
+    return (
+      <RadialGradient
+        c={paint.centre}
+        r={paint.radius}
+        colors={[...paint.colors]}
+        positions={[...paint.positions]}
+      />
+    );
+  }
+  return (
+    <>
+      <FractalNoise freqX={paint.frequency} freqY={paint.frequency} octaves={3} />
+      <ColorMatrix matrix={[...GRAIN_GREY]} />
+    </>
+  );
+}
 
 type TextNode = Extract<SkiaNode, { kind: 'text' }>;
 
@@ -115,6 +156,12 @@ function element(node: SkiaNode, key: number): ReactElement {
           opacity={node.opacity}
           fillType={node.fillType}
         />
+      );
+    case 'paint':
+      return (
+        <Path key={key} path={node.path} opacity={node.opacity} blendMode={node.blend}>
+          {paintFill(node.paint)}
+        </Path>
       );
     case 'stroke':
       return (

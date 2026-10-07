@@ -7,8 +7,10 @@ export type PlusMemoryKey =
   | 'offerDismissedAt'
   | 'worldVisitedAt'
   | 'keptWeeks'
+  /** The ink the shelf kept before there was a look. Read once, never written. */
   | 'ink'
-  | 'lifetimeMarkedOn'
+  | 'look'
+  | 'member'
   /** The free reads of Paper and Screen already had, and whether words may be sent to be read. */
   | 'cameraTries'
   | 'cameraConsent'

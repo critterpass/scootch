@@ -111,6 +111,6 @@ export function monsterFor(
     daysLurked: null,
     catchMinutes: null,
     dread: null,
-    finish: 'standard',
+    finish: 'paper',
   };
 }

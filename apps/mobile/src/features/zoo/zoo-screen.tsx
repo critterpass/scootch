@@ -4,7 +4,7 @@ import { FlatList, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useFrameCallback, useSharedValue } from 'react-native-reanimated';
 
 import { CARD_LABELS } from '@scootch/art';
-import type { CardData, CardFinish, IsoDate } from '@scootch/domain';
+import type { CardData, IsoDate } from '@scootch/domain';
 import type { Language } from '@scootch/i18n';
 
 import { useT } from '../../i18n/i18n-provider';
@@ -50,8 +50,6 @@ export interface ZooActions {
   readonly shareMonster?: (monster: CaughtMonster) => void;
   /** A locked control was tapped: the Plus sheet opens. Unset, a locked control does nothing. */
   readonly openPlus?: () => void;
-  /** Prints the open card in another finish. Unset, the finishes are not offered. */
-  readonly setFinish?: (finish: CardFinish) => void;
 }
 
 const COLUMNS = 3;
@@ -113,13 +111,8 @@ export function ZooScreen({ model, actions }: { model: ZooModel; actions: ZooAct
   if (model.open) {
     return (
       <MonsterDetail
-        model={{ ...model.open, language: model.language, plus: model.plus }}
-        actions={{
-          close: actions.closeCard,
-          share: actions.shareCard,
-          ...(actions.openPlus ? { openPlus: actions.openPlus } : {}),
-          ...(actions.setFinish ? { setFinish: actions.setFinish } : {}),
-        }}
+        model={{ ...model.open, language: model.language }}
+        actions={{ close: actions.closeCard, share: actions.shareCard }}
       />
     );
   }

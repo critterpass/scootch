@@ -17,7 +17,7 @@ export const ROUTE_MOTION: Readonly<Record<string, RouteMotion>> = {
   world: 'push',
   zoo: 'push',
   record: 'push',
-  shelf: 'push',
+  studio: 'push',
   camera: 'push',
   'camera-after': 'push',
   settings: 'push',
@@ -41,8 +41,7 @@ export const ROUTE_MOTION: Readonly<Record<string, RouteMotion>> = {
   session: 'fade',
   reveal: 'fade',
   'plus/last-day': 'fade',
-  'plus/lifetime': 'fade',
-  'plus/trial-started': 'fade',
+  'plus/welcome': 'fade',
   'plus/renewal-off': 'fade',
   care: 'none',
 };
@@ -167,7 +166,7 @@ const ROUTE_BAR: Readonly<Record<string, RouteBar>> = {
   world: 'frame',
   zoo: 'frame',
   record: 'frame',
-  shelf: 'frame',
+  studio: 'frame',
   'plus/manage': 'frame',
   'plus/records': 'frame',
 };

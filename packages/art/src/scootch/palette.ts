@@ -37,6 +37,9 @@ export interface ScootchInks {
   readonly desk: string;
 }
 
+/** The four colours of Scootch's own body, which an ink can change. */
+export type ScootchBody = Pick<ScootchInks, 'body' | 'shade' | 'highlight' | 'blush'>;
+
 const TOMATO: ScootchInks = {
   body: SCOOTCH.body,
   shade: SCOOTCH.shade,

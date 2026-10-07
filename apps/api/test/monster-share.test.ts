@@ -195,7 +195,7 @@ describe('GET /v1/shared-card/:id', () => {
         catchMinutes: 9,
         dread: 4,
         flavourText: 'Lives in the inbox. Pays no rent.',
-        finish: 'standard',
+        finish: 'paper',
         caughtOn: '2026-10-06',
       },
       sharerName: null,

@@ -96,7 +96,7 @@ export function monsterRow(changes: Partial<MonsterRow> = {}): MonsterRow {
     daysLurked: null,
     catchMinutes: null,
     dread: null,
-    finish: 'standard',
+    finish: 'paper',
     ...changes,
   };
 }

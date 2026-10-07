@@ -59,7 +59,17 @@ export interface KeepsakesHandle {
 export function useKeepsakes(version: unknown = null): KeepsakesHandle {
   const db = useSQLiteContext();
   const repositories = useMemo(() => openRepositories(db), [db]);
-  const [keepsakes, setKeepsakes] = useState<Keepsakes | null>(null);
+  const [stored, setKeepsakes] = useState<Keepsakes | null>(null);
+  // A finish is worn, not kept per card: every card shows in the one the person wears now.
+  const { finish } = usePlusState().look;
+  const keepsakes = useMemo(
+    () =>
+      stored && {
+        ...stored,
+        monsters: stored.monsters.map((monster) => ({ ...monster, finish })),
+      },
+    [stored, finish],
+  );
 
   useEffect(() => {
     let current = true;

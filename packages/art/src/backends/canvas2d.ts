@@ -1,4 +1,10 @@
-import type { DrawCommand, FontRole, Path } from '../core/commands';
+import type { BlendMode, DrawCommand, FontRole, GradientStop, Paint, Path } from '../core/commands';
+import { rgba } from '../core/rgba';
+
+/** A gradient as a canvas hands it out. */
+export interface CanvasGradient2D {
+  addColorStop(offset: number, color: string): void;
+}
 
 /**
  * The part of a 2D canvas context the drawing needs. A browser canvas, an offscreen canvas and the
@@ -17,6 +23,16 @@ export interface Canvas2D {
   clip(): void;
   fill(rule?: 'nonzero' | 'evenodd'): void;
   stroke(): void;
+  createLinearGradient(x0: number, y0: number, x1: number, y1: number): CanvasGradient2D;
+  createRadialGradient(
+    x0: number,
+    y0: number,
+    r0: number,
+    x1: number,
+    y1: number,
+    r1: number,
+  ): CanvasGradient2D;
+  globalCompositeOperation: string;
   fillStyle: unknown;
   strokeStyle: unknown;
   lineWidth: number;
@@ -72,6 +88,31 @@ function trace(ctx: Canvas2D, path: Path): void {
   }
 }
 
+const COMPOSITE: Record<BlendMode, string> = {
+  normal: 'source-over',
+  multiply: 'multiply',
+  screen: 'screen',
+  overlay: 'overlay',
+  'soft-light': 'soft-light',
+};
+
+function withStops(gradient: CanvasGradient2D, stops: readonly GradientStop[]): CanvasGradient2D {
+  for (const [offset, color, alpha] of stops) gradient.addColorStop(offset, rgba(color, alpha));
+  return gradient;
+}
+
+/** The canvas's own gradient for a paint; `null` for grain, which a 2D canvas cannot make. */
+function gradientOf(ctx: Canvas2D, paint: Paint): CanvasGradient2D | null {
+  if (paint.kind === 'linear') {
+    return withStops(ctx.createLinearGradient(...paint.from, ...paint.to), paint.stops);
+  }
+  if (paint.kind === 'radial') {
+    const [x, y] = paint.centre;
+    return withStops(ctx.createRadialGradient(x, y, 0, x, y, paint.radius), paint.stops);
+  }
+  return null;
+}
+
 /**
  * Replays drawing commands on a 2D canvas context, in the drawing space of the list. Scale and
  * place the context first; its state is left as it was found.
@@ -100,6 +141,18 @@ export function drawCommands(ctx: Canvas2D, commands: readonly DrawCommand[]): v
         ctx.fillStyle = command.color;
         ctx.fill(command.rule);
         break;
+      case 'paint': {
+        // A 2D canvas has no noise of its own: the grain is left off and the stock prints smooth.
+        const gradient = gradientOf(ctx, command.paint);
+        if (gradient === null) break;
+        trace(ctx, command.path);
+        ctx.globalAlpha = alpha * command.alpha;
+        ctx.globalCompositeOperation = COMPOSITE[command.blend];
+        ctx.fillStyle = gradient;
+        ctx.fill();
+        ctx.globalCompositeOperation = COMPOSITE.normal;
+        break;
+      }
       case 'stroke':
         trace(ctx, command.path);
         ctx.globalAlpha = alpha * command.alpha;

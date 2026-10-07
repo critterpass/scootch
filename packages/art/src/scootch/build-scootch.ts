@@ -17,7 +17,14 @@ import {
 } from './expression';
 import { drawBrow, drawEye, drawMouth } from './face';
 import * as moods from './moods/index.generated';
-import { retone, SCOOTCH, scootchInks, type ScootchGround, type ScootchTone } from './palette';
+import {
+  retone,
+  SCOOTCH,
+  scootchInks,
+  type ScootchBody,
+  type ScootchGround,
+  type ScootchTone,
+} from './palette';
 import { WORK_MODE_ATTACHMENTS } from './work-mode-attachment';
 import type { ScootchFrame, WorkModeAttachment } from './work-mode-kit';
 import { beret } from './work-props';
@@ -86,6 +93,8 @@ export interface ScootchBuildOptions {
   readonly tone?: ScootchTone;
   /** What he stands on: on a dark ground the marks around a tomato Scootch turn light. */
   readonly ground?: ScootchGround;
+  /** The ink he is printed in, when it is not tomato. The paper Scootch stays paper. */
+  readonly body?: ScootchBody;
 }
 
 /**
@@ -157,7 +166,8 @@ export function buildScootch(
   pen.fill(ell(100, GROUND_Y + 2, 50 * (1 - e.bounce * 0.45), 5, 14), SCOOTCH.ink, 0.2, 0.08);
   attachment?.behind(pen, frame, loop);
 
-  const inks = scootchInks(options.tone, options.ground);
+  const toned = scootchInks(options.tone, options.ground);
+  const inks = options.body && options.tone !== 'paper' ? { ...toned, ...options.body } : toned;
   // The effects are drawn in the tone already, and are left alone when the rest is retoned.
   const kept: [number, number][] = [];
   const inTone = (draw: () => void): void => {

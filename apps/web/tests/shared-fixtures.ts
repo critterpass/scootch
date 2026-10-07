@@ -50,7 +50,7 @@ export const sharedCard = {
     catchMinutes: 9,
     dread: 4,
     flavourText: 'Lives in the inbox. Pays no rent. Weak against “Hi Dr. Patel,”.',
-    finish: 'standard',
+    finish: 'paper',
     caughtOn: '2026-10-06',
   },
 };

@@ -114,7 +114,7 @@ export const viOffline: OfflinePack = {
       plusOneMore:
         'Việc hôm nay xong hết rồi, mai lại có một lượt mới. Muốn thêm hôm nay thì có trong Plus nha. Bạn cứ thong thả.',
       plusOffer: 'Bắt được ba bé rồi. Mình còn giúp được thêm chút nữa, khi nào bạn muốn nha.',
-      trialStarted: 'Bảy ngày mở hết mọi thứ. Trước khi tốn đồng nào mình sẽ báo bạn.',
+      plusWelcome: 'Plus bật rồi nè. Mình vui lắm vì có bạn ở đây.',
       trialEndsTomorrow:
         'Mai là hết tuần dùng thử và bắt đầu tính tiền. Mình muốn tự báo bạn trước.',
       trialLastDay: 'Tối nay hết tuần dùng thử rồi. Bạn muốn sao nè?',
@@ -156,7 +156,7 @@ export const viOffline: OfflinePack = {
         'Việc thứ mười một hả? Thời buổi này? Hôm nay đủ lượt rồi, mai có lượt mới. Thêm nữa là đồ của Plus nha.',
       plusOffer:
         'Bắt được ba con rồi. Tui làm thêm được nhiều thứ lắm, có tí phí thôi. Không ép. Ép chút xíu.',
-      trialStarted: 'Bảy ngày xài hết mọi thứ. Trước khi tốn đồng nào tui sẽ chọc bạn một cái.',
+      plusWelcome: 'Plus bật rồi. Tui ăn mừng bằng cách tự mua cho mình một cái nón bé xíu.',
       trialEndsTomorrow: 'Mai tui tính tiền bạn đó. Tui nói trước vì tui đâu phải quái vật.',
       trialLastDay: 'Tối nay hết tuần miễn phí rồi. Tính sao đây ta?',
       renewalOff: 'Xong. Plus sẽ không gia hạn nữa.',
@@ -196,8 +196,8 @@ export const viOffline: OfflinePack = {
         'VIỆC THỨ MƯỜI MỘT? HÔM NAY? Đủ lượt rồi, mai có lượt mới. Thêm nữa là đồ của Plus. Tui tra sổ luật tí hon rồi.',
       plusOffer:
         'BẮT ĐƯỢC BA CON. Tui làm thêm được nhiều thứ lắm, có tí phí thôi. Tui tập nói câu này cho tự nhiên đó.',
-      trialStarted:
-        'BẢY NGÀY XÀI HẾT MỌI THỨ. Trước khi tốn đồng nào tui sẽ chọc bạn. Tui đặt chín cái báo thức rồi.',
+      plusWelcome:
+        'PLUS BẬT RỒI. Tui tự mua một cái nón bé xíu. Cái nón đó cũng có một cái nón bé hơn.',
       trialEndsTomorrow:
         'MAI TUI TÍNH TIỀN BẠN. Tui nói trước vì tui đâu phải quái vật. Tui kiểm tra rồi.',
       trialLastDay:

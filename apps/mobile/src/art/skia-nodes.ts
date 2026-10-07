@@ -1,4 +1,46 @@
-import type { DrawCommand, Matrix, Path, PathSegment } from '@scootch/art';
+import {
+  rgba,
+  type BlendMode,
+  type DrawCommand,
+  type GradientStop,
+  type Matrix,
+  type Path,
+  type PathSegment,
+} from '@scootch/art';
+
+/** What a `paint` node fills its path with, with its colours already written out for Skia. */
+export type SkiaPaint =
+  | {
+      readonly kind: 'linear';
+      readonly start: { readonly x: number; readonly y: number };
+      readonly end: { readonly x: number; readonly y: number };
+      readonly colors: readonly string[];
+      readonly positions: readonly number[];
+    }
+  | {
+      readonly kind: 'radial';
+      readonly centre: { readonly x: number; readonly y: number };
+      readonly radius: number;
+      readonly colors: readonly string[];
+      readonly positions: readonly number[];
+    }
+  /** Noise at this many waves a unit, on both axes. */
+  | { readonly kind: 'grain'; readonly frequency: number };
+
+/** The colour matrix that takes the colour out of noise and leaves its light and dark. */
+export const GRAIN_GREY: readonly number[] = [
+  0.2126, 0.7152, 0.0722, 0, 0, 0.2126, 0.7152, 0.0722, 0, 0, 0.2126, 0.7152, 0.0722, 0, 0, 0, 0, 0,
+  1, 0,
+];
+
+/** Skia's names for the model's blend modes. */
+export const SKIA_BLENDS = {
+  normal: 'srcOver',
+  multiply: 'multiply',
+  screen: 'screen',
+  overlay: 'overlay',
+  'soft-light': 'softLight',
+} as const satisfies Record<BlendMode, string>;
 
 /**
  * What the Skia canvas draws, as plain data: the art package's flat command list turned into the
@@ -20,6 +62,14 @@ export type SkiaNode =
       readonly color: string;
       readonly opacity: number;
       readonly fillType: 'winding' | 'evenOdd';
+    }
+  | {
+      /** A gradient or grain over a path, laid on in a blend mode. */
+      readonly kind: 'paint';
+      readonly path: string;
+      readonly paint: SkiaPaint;
+      readonly opacity: number;
+      readonly blend: (typeof SKIA_BLENDS)[BlendMode];
     }
   | {
       /** Round caps and round joins, always. */
@@ -111,6 +161,32 @@ type Mappers = {
   readonly [K in DrawCommand['op']]: (command: Extract<DrawCommand, { op: K }>, tree: Tree) => void;
 };
 
+const stopColors = (stops: readonly GradientStop[]): string[] =>
+  stops.map(([, color, alpha]) => rgba(color, alpha));
+const stopPositions = (stops: readonly GradientStop[]): number[] => stops.map(([offset]) => offset);
+
+function skiaPaint(paint: Extract<DrawCommand, { op: 'paint' }>['paint']): SkiaPaint {
+  if (paint.kind === 'linear') {
+    return {
+      kind: 'linear',
+      start: { x: paint.from[0], y: paint.from[1] },
+      end: { x: paint.to[0], y: paint.to[1] },
+      colors: stopColors(paint.stops),
+      positions: stopPositions(paint.stops),
+    };
+  }
+  if (paint.kind === 'radial') {
+    return {
+      kind: 'radial',
+      centre: { x: paint.centre[0], y: paint.centre[1] },
+      radius: paint.radius,
+      colors: stopColors(paint.stops),
+      positions: stopPositions(paint.stops),
+    };
+  }
+  return { kind: 'grain', frequency: 1 / paint.size };
+}
+
 /** One mapper per command kind; a new kind in the model does not compile until it is here. */
 const MAPPERS: Mappers = {
   save: (_command, tree) => tree.save(),
@@ -125,6 +201,14 @@ const MAPPERS: Mappers = {
       color: command.color,
       opacity: command.alpha,
       fillType: command.rule === 'evenodd' ? 'evenOdd' : 'winding',
+    }),
+  paint: (command, tree) =>
+    tree.add({
+      kind: 'paint',
+      path: svgPath(command.path),
+      paint: skiaPaint(command.paint),
+      opacity: command.alpha,
+      blend: SKIA_BLENDS[command.blend],
     }),
   stroke: (command, tree) =>
     tree.add({

@@ -11,7 +11,7 @@ import {
   CARD_WIDTH,
   type CardOptions,
 } from './card/build-card';
-import { buildStory, type StoryFormat, type StoryOptions } from './card/build-story';
+import { buildStory, type ShareComposition, type StoryOptions } from './card/build-story';
 import type { DrawCommand } from './core/commands';
 import type { MeasureText } from './core/text';
 
@@ -57,20 +57,19 @@ export function renderCardPng(data: CardData, options: CardOptions, width: numbe
   });
 }
 
-/** The share story of a catch as a PNG `width` pixels wide, at 4:5 or 9:16. */
-export function renderStoryPng(
-  data: CardData,
-  format: StoryFormat,
-  options: StoryOptions,
-  width: number,
-): Buffer {
-  const story = buildStory(data, format, { measure: measureWithCanvas, ...options });
-  const scale = width / story.width;
-  return renderPng(story.commands, {
+/** Any shared picture as a PNG `width` pixels wide. */
+export function renderSharePng(picture: ShareComposition, width: number): Buffer {
+  const scale = width / picture.width;
+  return renderPng(picture.commands, {
     width,
-    height: Math.round(story.height * scale),
+    height: Math.round(picture.height * scale),
     scale,
     x: 0,
     y: 0,
   });
+}
+
+/** The share story of a catch as a PNG `width` pixels wide. */
+export function renderStoryPng(data: CardData, options: StoryOptions, width: number): Buffer {
+  return renderSharePng(buildStory(data, { measure: measureWithCanvas, ...options }), width);
 }

@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'react';
 import { AccessibilityInfo, useWindowDimensions } from 'react-native';
 
-import { colors, type Palette } from '@scootch/tokens';
+import type { Palette } from '@scootch/tokens';
 
 import {
-  useAppearance,
   useForcedVariant,
   useTextSizing,
   type TextSizing,
 } from '../screens/registry/support/forced-variant';
 
 import { useMayMove } from './motion/use-feel';
+import { usePalette } from './use-palette';
 
 /** From this text scale up, rows of controls stack into full-width ones instead of squeezing. */
 const STACKING_TEXT_SCALE = 1.6;
@@ -30,7 +30,7 @@ export interface ScreenStyle extends TextSizing {
 
 /** What every screen needs to draw itself: its inks, its text sizing and the motion setting. */
 export function useScreenStyle(): ScreenStyle {
-  const palette = colors[useAppearance()];
+  const palette = usePalette();
   const sizing = useTextSizing();
   const forced = useForcedVariant();
   const { fontScale } = useWindowDimensions();
