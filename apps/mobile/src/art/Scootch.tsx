@@ -16,7 +16,9 @@ import {
   type ScootchTone,
 } from '@scootch/art';
 
+import { inkOf } from '../features/studio/catalogue';
 import { useAppearance, useForcedVariant } from '../screens/registry/support/forced-variant';
+import { usePlusState } from '../state/plus-context';
 
 import {
   scootchFrameAt,
@@ -116,6 +118,8 @@ export function Scootch({
 }: ScootchProps) {
   const appearance = useAppearance();
   const ground = groundGiven ?? appearance;
+  // Scootch is printed in the ink the person wears; Tangerine is Scootch as drawn.
+  const { ink } = usePlusState().look;
   const systemReducedMotion = useReducedMotion();
   // A registry capture is always the still, whatever the screen passes.
   const captured = useForcedVariant() !== undefined;
@@ -141,7 +145,13 @@ export function Scootch({
       care,
       ownLoop,
     };
-    const drawn = { ...DRAWN_IN_APP, tone, ground };
+    const { accent, deep, highlight, blush } = inkOf(ink).colours;
+    const drawn = {
+      ...DRAWN_IN_APP,
+      tone,
+      ground,
+      ...(ink === 'tangerine' ? {} : { body: { body: accent, shade: deep, highlight, blush } }),
+    };
     return {
       props,
       input,
@@ -149,7 +159,7 @@ export function Scootch({
       plan: scootchMotionPlan(input),
       rest: buildScootch(props, undefined, drawn),
     };
-  }, [shownMood, shownWork, attitude, hat, still, care, ownLoop, tone, ground]);
+  }, [shownMood, shownWork, attitude, hat, still, care, ownLoop, tone, ground, ink]);
   const { plan, rest } = drawing;
 
   const [moved, setMoved] = useState<{ of: typeof drawing; commands: DrawCommand[] } | null>(null);

@@ -7,7 +7,9 @@ export type PlusMemoryKey =
   | 'offerDismissedAt'
   | 'worldVisitedAt'
   | 'keptWeeks'
+  /** The ink the shelf kept before there was a look. Read once, never written. */
   | 'ink'
+  | 'look'
   | 'lifetimeMarkedOn';
 
 export interface PlusMemory {

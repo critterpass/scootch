@@ -11,6 +11,8 @@ import {
   type PurchasesPort,
 } from '../features/plus/purchases-port';
 
+import { PLAIN_LOOK } from '../features/studio/look';
+
 import type { PlusState, PlusStore } from './plus-store';
 
 /** Everything a Plus screen needs: the store's port, what the phone knows, and its memory. */
@@ -30,6 +32,7 @@ const FREE_STATE: PlusState = {
   customer: FREE_CUSTOMER,
   unlocked: unlockedFor(FREE_CUSTOMER),
   prices: {},
+  look: PLAIN_LOOK,
 };
 
 /** Outside the app's provider (a registry capture, a test) every phone is the free one. */
@@ -42,6 +45,7 @@ const NO_RUNTIME: PlusRuntime = {
     refresh: () => Promise.resolve(false),
     accept: () => Promise.resolve(),
     rememberPrices: () => Promise.resolve(),
+    wear: () => Promise.resolve(),
   },
   memory: { read: () => Promise.resolve(null), write: () => Promise.resolve() },
   timeZone: () => 'UTC',

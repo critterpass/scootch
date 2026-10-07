@@ -1,3 +1,5 @@
+import type { TrailId } from '../../studio/catalogue';
+
 /** How long the marks are in the air, at the longest: the last throw's wait and its longest flight. */
 export const BURST_MS = 1850;
 /** How long the start burst holds the screen before it goes quiet. */
@@ -16,6 +18,8 @@ export interface BurstMark {
   readonly height: number;
   readonly rotation: number;
   readonly spin: number;
+  /** What the mark is made of: cut paper, a fleck of gold, a soap bubble or a blot of ink. */
+  readonly made: 'paper' | 'gold' | 'bubble' | 'blot';
 }
 
 /** One throw of a burst: where it opens, as shares of the screen, with its marks and rings. */
@@ -128,8 +132,59 @@ function marksOf(shape: Throw, next: () => number, colors: readonly string[]): B
       height: bar ? 4.4 : dot,
       rotation: next() * 6,
       spin: (next() - 0.5) * 10,
+      made: 'paper',
     };
   });
+}
+
+/**
+ * The same throw in another trail. Where a mark flies does not change, so a trail is a dressing
+ * and never a different burst: only what it is made of, how big it is and how it falls.
+ */
+function dressed(mark: BurstMark, trail: TrailId): BurstMark {
+  const step = mark.id % 7;
+  switch (trail) {
+    case 'confetti':
+      return mark;
+    case 'stardust': {
+      // Gold flecks that hang in the air a beat too long.
+      const size = 4 + step;
+      return {
+        ...mark,
+        made: 'gold',
+        color: '#FFC94A',
+        width: size,
+        height: size,
+        gravity: 60,
+        life: mark.life * 1.35,
+      };
+    }
+    case 'bubbles': {
+      // Soap bubbles rise.
+      const size = 12 + step * 3;
+      return {
+        ...mark,
+        made: 'bubble',
+        color: 'rgba(190,225,255,0.3)',
+        width: size,
+        height: size,
+        gravity: -150,
+      };
+    }
+    case 'splat': {
+      // A blot lands where it was thrown and stays there until it fades.
+      const size = 6 + step * 3;
+      return {
+        ...mark,
+        made: 'blot',
+        color: '#1C1A17',
+        width: size,
+        height: size * (mark.id % 2 ? 1 : 0.86),
+        gravity: 0,
+        spin: 0,
+      };
+    }
+  }
 }
 
 function ringsOf(shape: Throw, colors: readonly string[]): BurstRing[] {
@@ -145,19 +200,22 @@ function ringsOf(shape: Throw, colors: readonly string[]): BurstRing[] {
 
 /**
  * A burst as its throws, each from its own point. `markColors` cycle through the marks and
- * `ringColors` through each throw's rings.
+ * `ringColors` through each throw's rings. The trail dresses a catch and a finish; the start of
+ * a session is always paper.
  */
 export function burstSources(
   kind: keyof typeof SHAPES,
   markColors: readonly string[],
   ringColors: readonly string[],
+  trail: TrailId = 'confetti',
 ): BurstSource[] {
+  const worn = kind === 'start' ? 'confetti' : trail;
   const next = sequence(kind === 'start' ? 11 : kind === 'catch' ? 37 : 23);
   return SHAPES[kind].map((shape, id) => ({
     id,
     at: shape.at,
     fromControl: shape.fromControl === true,
-    marks: marksOf(shape, next, markColors),
+    marks: marksOf(shape, next, markColors).map((mark) => dressed(mark, worn)),
     rings: ringsOf(shape, ringColors),
   }));
 }
