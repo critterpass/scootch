@@ -44,7 +44,8 @@ Each rule here exists because the opposite cost real time on CritterPass. The
 |---|---|
 | Every capability and target is declared in the first native build | A missing capability failed signing and burned a build number |
 | A change that alters the native fingerprint never lands on main between batches | A fingerprint change stranded the installed build for a day |
-| Native work is batched; a JavaScript-only change never triggers a paid build | EAS builds cost money |
+| Native builds run on GitHub's runners (`native-build.yml`); an EAS cloud build is the fallback and needs the founder's approval | EAS builds cost money; macOS minutes on a public repository do not |
+| Native work is batched; a JavaScript-only change never triggers a build | A build takes a macOS runner that device runs and CI share |
 | Before saying an update is on a phone, confirm which build that phone runs and that its runtime matches | Updates published for the wrong runtime |
 
 ## 5. Proving it works

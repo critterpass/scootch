@@ -12,18 +12,24 @@ Actions only (`.github/workflows/device.yml`), never on a developer's machine.
 ## Dispatching a run
 
 ```sh
+# iOS: installs the newest e2e-test build made for this branch's native code (see Builds)
 gh workflow run device.yml --ref <branch> \
-  -f platform=android \
-  -f build_url=<URL of an e2e-test build> \
+  -f platform=ios \
   -f flows=e2e/fresh \
   -f mode=run \
   -f pr=<pull request number>
+
+# Android: the build is always named
+gh workflow run device.yml --ref <branch> \
+  -f platform=android \
+  -f build_url=<URL of an e2e-test .apk> \
+  -f flows=e2e/fresh
 ```
 
 | Input | Meaning |
 | --- | --- |
 | `platform` | `android` (default, a Linux runner with an emulator) or `ios` (a macOS runner with a simulator). |
-| `build_url` | The `e2e-test` build to install: the `.apk` for Android, the simulator `.tar.gz` for iOS. Required. The workflow never starts a build. |
+| `build_url` | The `e2e-test` build to install. iOS: leave it empty to take the newest build whose native fingerprint is this commit's, or give a simulator `.tar.gz` to install that one instead. Android: the `.apk`, required. The workflow never starts a build. |
 | `flows` | A folder (every `.yaml` in it, in name order) or one file, under `e2e/`. Default `e2e/fresh`. |
 | `mode` | `run` reports pass or fail. `capture` also keeps every `takeScreenshot` image under `screens/` in the artifact. |
 | `pr` | Optional. The pull request that gets one comment with the pass or fail table and a link to the artifact. |
@@ -31,10 +37,59 @@ gh workflow run device.yml --ref <branch> \
 Dispatch, note the run id and stop: do not wait for the run inside a working session. Dispatching
 the same flows on the same branch again cancels the older run.
 
+## Builds
+
+Native builds run on GitHub's macOS runners (`.github/workflows/native-build.yml`, which runs
+`eas build --local` on macOS 26 with Xcode 26.6): no EAS build minutes. An EAS cloud build is the
+fallback when a runner cannot make the build, and still needs the founder's approval. A
+JavaScript-only change never needs a build of either kind.
+
+```sh
+# The simulator app that device runs install
+gh workflow run native-build.yml -f ref=<branch> -f profile=e2e-test
+
+# The signed dev app, sent to TestFlight
+gh workflow run native-build.yml -f ref=<branch> -f profile=dev -f submit=true
+```
+
+One build per ref and profile runs at a time; a second dispatch waits. Before building, the job
+checks that the Expo prebuilt frameworks link with each other (`check-expo-prebuilds.ts`).
+
+- **`e2e-test`** is published as a GitHub release named
+  `native-e2e-test-ios-<fingerprint, 12 characters>-<run id>`, with the simulator `.tar.gz`
+  attached and a manifest (profile, native fingerprint, commit, file name) as the release body. An
+  iOS device run with no `build_url` computes its commit's native fingerprint
+  (`expo-updates fingerprint:generate` as the `e2e-test` variant, no account needed) and installs
+  the newest release whose manifest carries exactly that fingerprint
+  (`tools/scripts/resolve-device-build.ts`). With no such release the run stops at once and says
+  so; it never starts a build.
+- **`dev`** is signed with the distribution certificate and provisioning profiles kept on EAS, and
+  goes from the runner straight to TestFlight (`eas submit`). This repository is public, so the
+  signed `.ipa` is never a run artifact or a release asset, and a `dev` build with `submit=false`
+  stops before building. Capability syncing is off (`EXPO_NO_CAPABILITY_SYNC=1`): EAS cannot sync
+  an App Clip's capabilities, so the App IDs are kept by hand.
+
+The fingerprint covers native packages, config plugins and the native fields of `app.config.ts`.
+It does not cover the Swift sources under `apps/mobile/targets/`: after changing those, make a new
+`e2e-test` build before the device run (the newest build for a fingerprint is the one installed).
+
+The job stops in its first step, naming what is missing, unless the repository has:
+
+| Name | Kind | Needed by | What it is |
+| --- | --- | --- | --- |
+| `EXPO_TOKEN` | secret | every build | An Expo access token for the account that owns the project; `eas build` does nothing without a login, even for the simulator. |
+| `EXPO_ASC_API_KEY_P8` | secret | `dev` | The contents of an App Store Connect API key file (`AuthKey_<id>.p8`). |
+| `EXPO_ASC_KEY_ID` | secret | `dev` | That key's id. |
+| `EXPO_ASC_ISSUER_ID` | secret | `dev` | The issuer id shown above the keys in App Store Connect. |
+| `ASC_APP_ID` | variable | `dev` | The dev app's numeric Apple ID in App Store Connect (App Information). |
+
+Device runs need none of them.
+
 ## What a run does
 
-1. Exports this commit's JavaScript as Hermes bytecode for the `e2e-test` variant, with the commit
-   inlined as `EXPO_PUBLIC_JS_COMMIT` (`tools/scripts/device-export-bundle.sh`).
+1. On iOS, finds the `e2e-test` build (see Builds). Exports this commit's JavaScript as Hermes
+   bytecode for the `e2e-test` variant, with the commit inlined as `EXPO_PUBLIC_JS_COMMIT`
+   (`tools/scripts/device-export-bundle.sh`).
 2. Downloads the `e2e-test` build and swaps that bundle in. Android: replaces
    `assets/index.android.bundle`, zipaligns and signs with a throwaway key
    (`device-patch-android-apk.sh`). iOS: replaces `main.jsbundle` and its assets and re-signs ad hoc
@@ -49,8 +104,8 @@ the same flows on the same branch again cancels the older run.
    screen and device log after each failed flow), `screens/` (capture mode) and `summary.md`.
 
 So a JavaScript change never needs a new native build. A change to native code, or a new bundled
-image on Android (images live in the APK's compiled resources), does: wait for the next native
-batch and its `e2e-test` build.
+image on Android (images live in the APK's compiled resources), does: it lands in a native batch
+branch, which gets its own `e2e-test` build from `native-build.yml`.
 
 **Screenshots are run artifacts only.** They are never committed, never pushed to any branch and
 never fetched into the repository: a sister repository filled a disk that way.

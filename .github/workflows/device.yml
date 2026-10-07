@@ -2,8 +2,9 @@
 # on macOS when the behaviour is iOS-only. See e2e/README.md.
 #
 # No run needs a new native build for a JavaScript change: the job exports this commit's JavaScript
-# (Hermes bytecode, with the commit inlined as EXPO_PUBLIC_JS_COMMIT) and swaps it into the
-# `e2e-test` build named by `build_url`, which has over-the-air updates off. The first flow of every
+# (Hermes bytecode, with the commit inlined as EXPO_PUBLIC_JS_COMMIT) and swaps it into an
+# `e2e-test` build, which has over-the-air updates off: the one named by `build_url`, or on iOS the
+# newest one native-build.yml made for this commit's native fingerprint. The first flow of every
 # run reads the commit back from the app.
 #
 # Results (JUnit, Maestro output, failure screenshots, captured screens) are one run artifact, and
@@ -22,9 +23,11 @@ on:
         options: [android, ios]
         default: android
       build_url:
-        description: The e2e-test build to install (.apk for Android, simulator .tar.gz for iOS)
+        description: >-
+          The e2e-test build to install. iOS: leave empty to take the newest build made for this
+          commit's native code (native-build.yml), or give a simulator .tar.gz. Android: the .apk
         type: string
-        required: true
+        default: ''
       flows:
         description: A folder or file under e2e/
         type: string
@@ -159,6 +162,14 @@ jobs:
       - uses: actions/setup-java@v6
         with: { distribution: temurin, java-version: 17 }
       - run: pnpm install --frozen-lockfile
+      # `build_url` when given; otherwise the newest e2e-test build whose native fingerprint is
+      # this commit's. With none the run stops here: it never starts a build.
+      - name: Find the e2e-test build
+        id: build
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          OVERRIDE: ${{ inputs.build_url }}
+        run: pnpm exec tsx tools/scripts/resolve-device-build.ts --override "$OVERRIDE"
       - name: Export this commit's JavaScript
         env:
           JS_COMMIT: ${{ steps.settings.outputs.js_commit }}
@@ -169,7 +180,7 @@ jobs:
           "$HOME/.maestro/bin/maestro" --version
       - name: Run the flows
         env:
-          BUILD_URL: ${{ inputs.build_url }}
+          BUILD_URL: ${{ steps.build.outputs.url }}
           FLOWS: ${{ inputs.flows }}
           MODE: ${{ inputs.mode }}
           JS_COMMIT: ${{ steps.settings.outputs.js_commit }}
