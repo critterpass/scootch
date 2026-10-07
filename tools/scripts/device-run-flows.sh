@@ -63,6 +63,7 @@ capture_failure() {
     xcrun simctl spawn "$device" log show --last 10m --style compact \
       --predicate 'process BEGINSWITH "Scootch" OR subsystem == "com.facebook.react.log"' \
       >"$out_dir/failures/$slug.log.txt" 2>/dev/null || true
+    "$(dirname "$0")/device-ios-evidence.sh" crashes "$device" "${APP_ID:-app.scootch.dev}" "$out_dir/evidence/$slug"
   fi
 }
 

@@ -31,6 +31,9 @@ done < <(find "$work/app" -maxdepth 3 -name '*.app' -type d | sort)
 [ -n "$app" ] || { echo "::error::No .app in the archive at build_url (iOS needs the simulator .tar.gz)"; exit 1; }
 [ -f "$bundle_dir/main.jsbundle" ] || { echo "::error::No main.jsbundle in $bundle_dir"; exit 1; }
 
+evidence="$here/device-ios-evidence.sh"
+"$evidence" signing "$app" "$out_dir/evidence" as-built || true
+
 cp "$bundle_dir/main.jsbundle" "$app/main.jsbundle"
 if [ -d "$bundle_dir/assets" ]; then cp -R "$bundle_dir/assets" "$app/"; fi
 if [ -f "$app/Expo.plist" ]; then
@@ -40,6 +43,7 @@ fi
 # Simulator entitlements live in the binary, so an ad-hoc signature keeps them.
 codesign --force --sign - --timestamp=none "$app"
 codesign --verify --deep "$app"
+"$evidence" signing "$app" "$out_dir/evidence" after-resign || true
 
 runtime=$(xcrun simctl list runtimes -j |
   jq -r '[.runtimes[] | select(.isAvailable and .platform == "iOS")] | sort_by(.version | split(".") | map(tonumber)) | last | .identifier')
@@ -51,5 +55,7 @@ xcrun simctl status_bar "$udid" override --time 9:41 --batteryState charged --ba
   --cellularMode active --cellularBars 4 --wifiMode active --wifiBars 3 --dataNetwork wifi
 echo "Installing $(basename "$app") ($id)"
 xcrun simctl install "$udid" "$app"
+# One direct launch first: its console shows a crash or a refusal that Maestro never reports.
+"$evidence" launch "$udid" "$id" "$out_dir/evidence" || true
 
 "$here/device-run-flows.sh" ios "$udid" "$out_dir" "$flows"
