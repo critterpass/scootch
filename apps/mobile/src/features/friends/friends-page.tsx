@@ -42,7 +42,7 @@ export function FriendsPage(props: FriendsPageProps) {
   const [open, setOpen] = useState<string | null>(null);
   return (
     <Page
-      title={t('friends.title')}
+      barTitle={t('friends.title')}
       onClose={props.onClose}
       testID="friends"
       footer={

@@ -200,7 +200,7 @@ export function OneScreenView({
         )}
         <TaskSetChoices {...choices} />
         {company}
-        {extra === null ? null : <View style={styles.inset}>{extra}</View>}
+        {extra}
       </>
     );
     footer = (
