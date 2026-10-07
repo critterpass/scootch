@@ -105,6 +105,11 @@ describe('which session screen is on', () => {
     });
     // With no treat named, the caught line has a moment of its own instead.
     expect(sessionView({ ...base, treat: null })).toEqual({ kind: 'moment', quiet: false });
+    // Settling the last thought empties the list, and an empty list is not shown: home comes by
+    // itself, so nobody is left looking at a "Done" with nothing above it.
+    expect(sessionView({ ...base, passed: afterTreat, parkedThoughts: [] })).toEqual({
+      kind: 'home',
+    });
   });
 
   it('hands a finish to the reveal first, then the treat, and never a serious one', () => {
