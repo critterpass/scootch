@@ -98,4 +98,4 @@ finish one thing, then say a second from home without leaving it.
 - `one-screen.tsx` returns early per stage and keeps the composer's hook state
   across them; home must not remount the composer between idle and recording.
 - The surface snapshot (widgets) reads `oneMore`: check what it shows after.
-- Status: not started
+- Status: in review — pull request #96
