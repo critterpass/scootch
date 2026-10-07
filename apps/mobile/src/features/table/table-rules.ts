@@ -38,9 +38,9 @@ export function daysUntil(expiresAt: string, now: number): number {
  * session may run for, or `null` when the address carries none.
  */
 export function startMinutesFrom(param: string | undefined): number | null {
-  if (param === undefined || !/^\d{1,2}$/.test(param)) return null;
+  if (param === undefined || !/^\d{1,3}$/.test(param)) return null;
   const minutes = Number(param);
-  return minutes >= 1 && minutes <= 60 ? minutes : null;
+  return minutes >= 1 && minutes <= 180 ? minutes : null;
 }
 
 const carrying = (path: string, minutes: number | null) =>

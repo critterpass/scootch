@@ -134,9 +134,9 @@ describe("which screens wear the system's bar", () => {
     }
   });
 
-  it('collapses a large title on the pages the boards draw with one', () => {
-    expect(stackBar('privacy', true, inks).headerLargeTitle).toBe(true);
-    expect(stackBar('settings', true, inks).headerLargeTitle).toBe(false);
+  it('never asks the system for a large title: a page draws and collapses its own', () => {
+    expect(stackBar('privacy', true, inks)).not.toHaveProperty('headerLargeTitle');
+    expect(stackBar('settings', true, inks)).not.toHaveProperty('headerLargeTitle');
   });
 
   it("gives the world, the zoo and the record a bar in the page's colour", () => {

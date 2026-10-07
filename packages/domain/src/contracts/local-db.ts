@@ -156,7 +156,8 @@ export const sessionRowSchema = z.object({
   id: idSchema,
   taskId: idSchema,
   localDate: isoDateSchema,
-  plannedMinutes: z.number().int().min(1).max(50),
+  /** As long as the wheel goes: three hours. */
+  plannedMinutes: z.number().int().min(1).max(180),
   /** The treat the user named before starting. */
   treat: z.string().max(80).nullable(),
   startedAt: isoDateTimeSchema,

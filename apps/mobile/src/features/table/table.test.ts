@@ -353,8 +353,9 @@ describe('a start carried to a table', () => {
   it('reads a whole number of minutes from an address, and nothing else', () => {
     expect(startMinutesFrom('25')).toBe(25);
     expect(startMinutesFrom('5')).toBe(5);
+    expect(startMinutesFrom('180')).toBe(180);
     expect(startMinutesFrom(undefined)).toBeNull();
-    for (const bad of ['0', '61', '100', '2.5', '-5', 'ten', '']) {
+    for (const bad of ['0', '181', '1000', '2.5', '-5', 'ten', '']) {
       expect(startMinutesFrom(bad)).toBeNull();
     }
     expect(lobbyPath(25)).toBe('/table?minutes=25');

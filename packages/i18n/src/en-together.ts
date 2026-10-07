@@ -257,7 +257,9 @@ export const enTogether = {
   'haunt.link': 'Pass the link on',
   'haunt.link.hint': 'Opens the share sheet with a link to this haunt',
   'haunt.link.message': 'A monster is waiting for you on Scootch. Catch it or shoo it: {link}',
-  'haunt.noFriends': 'Haunting is for friends. Add one first.',
+  'haunt.noFriends':
+    'A haunt goes to a friend. Send someone your link; once they open it, this monster can visit them.',
+  'haunt.noFriends.title': 'Nobody to haunt yet',
   'haunt.problem.recent': 'One haunt per friend each week.',
   'haunt.problem.off': 'This friend isn’t taking haunts.',
   'haunt.problem.notForThis': 'This one stays with you.',

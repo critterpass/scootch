@@ -252,7 +252,9 @@ export const viTogether = {
   'haunt.link': 'Gửi link đi',
   'haunt.link.hint': 'Mở bảng chia sẻ với link tới con quái này',
   'haunt.link.message': 'Có một con quái đang chờ bạn trên Scootch. Bắt nó hoặc xua nó đi: {link}',
-  'haunt.noFriends': 'Chỉ ám được bạn bè. Kết bạn trước đã nhé.',
+  'haunt.noFriends':
+    'Chỉ ám được bạn bè. Gửi link của bạn cho ai đó; khi họ mở link, con quái này có thể ghé thăm họ.',
+  'haunt.noFriends.title': 'Chưa có ai để ám',
   'haunt.problem.recent': 'Mỗi tuần chỉ ám mỗi người bạn một lần.',
   'haunt.problem.off': 'Người bạn này đang không nhận ám.',
   'haunt.problem.notForThis': 'Việc này cứ để riêng cho bạn.',

@@ -141,7 +141,7 @@ export function stackMotion(routeName: string, mayMove: boolean): StackMotionOpt
  * Which routes wear the system's navigation bar, and how.
  *
  * - `page`: a page of rows under a bar in the page's colour. The list is under the bar, never
- *   behind it, and a page with a large title collapses it into the bar as it scrolls.
+ *   behind it. A page's large title is drawn by the page, which hands it to the bar as it scrolls.
  * - `frame`: a keeping screen (the world, the zoo, the record) under a bar in the page's colour:
  *   its middle is a picture or scrolls by itself, so nothing runs under the bar.
  * - `none`: a full-bleed moment, or a sheet. Its corner controls are drawn by the screen, in the
@@ -170,15 +170,6 @@ const ROUTE_BAR: Readonly<Record<string, RouteBar>> = {
   'plus/records': 'frame',
 };
 
-/** Pages whose title is the large one that collapses, as the boards draw them. */
-const LARGE_TITLE: ReadonlySet<string> = new Set([
-  'finish-with',
-  'privacy',
-  'helplines',
-  'table-settings',
-  'table-quieted',
-]);
-
 /**
  * The bar a route wears. Only a pushed screen can wear one: a moment that cannot be swiped away and
  * a sheet never do, whatever the table says. Without the system's bar (`systemBar` false: not iOS)
@@ -201,14 +192,12 @@ export interface StackBarOptions {
   readonly headerShown: boolean;
   readonly title?: string;
   readonly headerTransparent?: boolean;
-  readonly headerLargeTitle?: boolean;
   readonly headerBackVisible?: boolean;
   readonly headerShadowVisible?: boolean;
   readonly headerTintColor?: string;
   readonly headerUserInterfaceStyle?: 'light' | 'dark';
   readonly headerStyle?: { readonly backgroundColor: string };
   readonly headerTitleStyle?: BarTitleStyle;
-  readonly headerLargeTitleStyle?: BarTitleStyle;
 }
 
 interface BarTitleStyle {
@@ -247,10 +236,7 @@ export function stackBar(routeName: string, systemBar: boolean, inks: BarInks): 
     headerTransparent: false,
     headerStyle: { backgroundColor: inks.page },
   } as const;
-  if (bar === 'frame') return solid;
-  return {
-    ...solid,
-    headerLargeTitle: LARGE_TITLE.has(routeName),
-    headerLargeTitleStyle: titleStyle,
-  };
+  // A page's large title is the page's own: it scrolls, shrinks and fades with the list, and the
+  // bar takes it up small once it has gone. The system's large title is never asked for.
+  return solid;
 }

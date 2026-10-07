@@ -2,7 +2,7 @@ import { refusalOf, type AccountView, type TogetherApi } from '../../api/togethe
 import { startMinutesFrom } from '../table/table-rules';
 
 const RETURNS =
-  /^\/(?:table(?:\?minutes=\d{1,2})?|table-settings|friends|[tf]\/[a-z2-7]{10}(?:\?sit=1)?)$/;
+  /^\/(?:table(?:\?minutes=\d{1,3})?|table-settings|friends|[tf]\/[a-z2-7]{10}(?:\?sit=1)?)$/;
 
 /** The path to go on to once there is an account: only a place that asks for one, else `null`. */
 export function returnPath(next: string | undefined): string | null {
@@ -11,7 +11,7 @@ export function returnPath(next: string | undefined): string | null {
 
 /** The start a person was on the way to when an account was asked for, in minutes; else `null`. */
 export function startCarriedBy(next: string | undefined): number | null {
-  const carried = /^\/table\?minutes=(\d{1,2})$/.exec(returnPath(next) ?? '');
+  const carried = /^\/table\?minutes=(\d{1,3})$/.exec(returnPath(next) ?? '');
   return startMinutesFrom(carried?.[1]);
 }
 
