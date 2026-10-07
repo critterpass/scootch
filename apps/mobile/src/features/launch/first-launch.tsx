@@ -3,7 +3,6 @@ import { useCallback, useState } from 'react';
 
 import type { Attitude } from '@scootch/domain';
 
-import { trace } from '../../trace-temp';
 import { useLanguage } from '../../i18n/i18n-provider';
 import { useCue, useDispatch } from '../../state/day-store-provider';
 import { lineWithNoTask } from '../../state/lines';
@@ -37,7 +36,6 @@ export function FirstLaunch({ speech, onDone }: FirstLaunchProps) {
   const dispatch = useDispatch();
   const playCue = useCue();
   const [state, setState] = useState(LAUNCH_START);
-  trace(`render FirstLaunch ${state.step}`);
   const voice = { language, attitude: state.attitude };
 
   const finish = useCallback(
@@ -53,9 +51,7 @@ export function FirstLaunch({ speech, onDone }: FirstLaunchProps) {
   );
 
   const send = (event: LaunchEvent) => {
-    trace(`send ${event.type} from ${state.step}`);
     const next = launchReducer(state, event);
-    trace(`next ${next.step}`);
     setState(next);
     if (next.step === state.step) return;
     if (next.step === 'finished') {

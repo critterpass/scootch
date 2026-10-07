@@ -4,7 +4,6 @@ import type { Attitude } from '@scootch/domain';
 import { fonts, fontSizes, radius, spacing } from '@scootch/tokens';
 
 import { Scootch, type ScootchProps } from '../../art/Scootch';
-import { trace } from '../../trace-temp';
 import { useT } from '../../i18n/i18n-provider';
 import { CapsuleButton } from '../../ui/buttons';
 import { Tick } from '../../ui/icons';
@@ -35,7 +34,6 @@ export interface AttitudeViewProps {
 export function AttitudeView({ line, selected, onChoose, onConfirm }: AttitudeViewProps) {
   const { palette, allowFontScaling, size, largeText } = useScreenStyle();
   const t = useT();
-  trace('render AttitudeView');
 
   return (
     <LaunchPage

@@ -7,7 +7,6 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { DATABASE_NAME, prepareDatabase } from '../db/database';
 import { I18nProvider } from '../i18n/i18n-provider';
 import { JsCommitMarker } from '../js-commit-marker';
-import { TraceOverlay } from '../trace-temp';
 import { DayStoreProvider } from '../state/day-store-provider';
 
 // Crash reporting starts only when a DSN is set; with none, nothing is initialised or sent.
@@ -32,7 +31,6 @@ export default function RootLayout() {
           </DayStoreProvider>
         </I18nProvider>
         <JsCommitMarker />
-        <TraceOverlay />
       </SQLiteProvider>
     </GestureHandlerRootView>
   );
