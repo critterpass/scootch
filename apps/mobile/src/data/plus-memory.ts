@@ -11,7 +11,9 @@ export type PlusMemoryKey =
   | 'lifetimeMarkedOn'
   /** The free reads of Paper and Screen already had, and whether words may be sent to be read. */
   | 'cameraTries'
-  | 'cameraConsent';
+  | 'cameraConsent'
+  /** The photo a session began with, kept on the phone until its second photo or a day passes. */
+  | 'cameraBefore';
 
 export interface PlusMemory {
   /** The stored value, or `null` when nothing was stored or it cannot be read. */

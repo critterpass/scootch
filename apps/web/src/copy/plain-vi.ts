@@ -22,7 +22,7 @@ export const plainVi = {
       ['Việc bạn gõ', 'Tới khi bạn xóa'],
       [
         'Ảnh chụp bằng máy ảnh',
-        'Không bao giờ rời khỏi điện thoại. Đọc ngay trên máy và xóa khi đóng máy ảnh',
+        'Không bao giờ rời khỏi điện thoại. Đọc ngay trên máy và xóa khi đóng máy ảnh; tấm ảnh mở đầu một phiên được giữ cho tấm ảnh sau, nhiều nhất một ngày',
       ],
       [
         'Phần chữ đọc từ ảnh Giấy tờ hoặc Màn hình',

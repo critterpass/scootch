@@ -19,6 +19,7 @@ export const ROUTE_MOTION: Readonly<Record<string, RouteMotion>> = {
   record: 'push',
   shelf: 'push',
   camera: 'push',
+  'camera-after': 'push',
   settings: 'push',
   'finish-with': 'push',
   privacy: 'push',

@@ -1,6 +1,5 @@
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as Clipboard from 'expo-clipboard';
-import { File } from 'expo-file-system';
 import { useNetworkState } from 'expo-network';
 import { useRouter, type Href } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -31,22 +30,14 @@ import { showsSelling } from '../../state/shows-comedy';
 import { purchaseStateOf } from '../plus/entitlement';
 import { PLUS_SHEET } from '../plus/routes';
 
+import type { BeforePhoto } from './before-photo';
 import { loadCameraMemory } from './camera-memory';
 import { gaveStep, nextRoomZone, readPhoto, type CameraPorts } from './camera-read';
 import { CameraScreen, type CameraShown } from './camera-screen';
 import { ConsentSheet } from './consent-sheet';
+import { discardPhoto, keepBeforePhoto } from './photo-files';
 
 const HELPLINES = '/helplines' as Href;
-
-/** A photo is the camera's for as long as it is on the screen, and gone after. */
-function discard(uri: string | null): void {
-  if (uri === null) return;
-  try {
-    new File(uri).delete();
-  } catch {
-    // Already gone, or never written: either way nothing is kept.
-  }
-}
 
 /**
  * The camera on the real phone: one photo, read on the phone, and one place to start. The photo
@@ -107,7 +98,7 @@ export function CameraContainer() {
   }, [memory]);
 
   // Closing the camera, however it closes, leaves no photo behind.
-  useEffect(() => () => discard(held.current), []);
+  useEffect(() => () => discardPhoto(held.current), []);
 
   // A phone that cannot read a photo has no camera button; reached some other way, it goes back.
   useEffect(() => {
@@ -121,7 +112,7 @@ export function CameraContainer() {
 
   const look = () => {
     reads.current += 1;
-    discard(photo);
+    discardPhoto(photo);
     setPhoto(null);
     setAsking(false);
     setMoreShown(false);
@@ -177,6 +168,22 @@ export function CameraContainer() {
     setMode(next);
   };
 
+  // A desk or a room is photographed again when its session is caught: the first photo is kept
+  // on the phone until then, with how many things were found in it.
+  const keepForAfter = async () => {
+    if (photo === null || shown.kind !== 'read') return;
+    const { read: found } = shown;
+    if (found.kind !== 'desk' && found.kind !== 'room') return;
+    const uri = await keepBeforePhoto(photo);
+    const things =
+      found.kind === 'desk'
+        ? found.others.length + 1
+        : found.zones.reduce((sum, zone) => sum + zone.things.length, 0);
+    const before: BeforePhoto | null =
+      uri === null ? null : { uri, mode: found.kind, things, takenAt: Date.now() };
+    await memory.write('cameraBefore', before).catch(() => undefined);
+  };
+
   const granted = permission?.granted === true;
   const visible: CameraShown =
     permission !== null && !granted
@@ -206,8 +213,11 @@ export function CameraContainer() {
         onShutter={() => void shutter()}
         onRetake={look}
         onStep={(task) => {
-          void dispatch({ type: 'camera_step_chosen', text: task }).catch(() => undefined);
-          router.back();
+          // The photo is copied before the camera closes and deletes its own.
+          void keepForAfter().then(() => {
+            void dispatch({ type: 'camera_step_chosen', text: task }).catch(() => undefined);
+            router.back();
+          });
         }}
         onBigger={() => {
           if (shown.kind !== 'read' || shown.read.kind !== 'room') return;

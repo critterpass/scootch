@@ -136,6 +136,8 @@ export const viOffline: OfflinePack = {
         'Khó nói thành lời hả? Cho mình xem một tấm ảnh nha. Mình tìm một chỗ nhỏ để bắt đầu.',
       cameraDesk: 'Bắt đầu với món trong vòng tròn nha. Chỉ món đó thôi.',
       cameraRoom: 'Chỉ cái góc đang sáng thôi nha. Phần còn lại cứ để đó.',
+      cameraAfterAsk: 'Chụp thêm một tấm nữa nha, nếu bạn muốn. Vẫn chỗ lúc nãy.',
+      cameraAfter: 'Nhìn kìa. Vẫn chỗ đó, mà nhẹ hơn một chút rồi.',
     },
     cheeky: {
       hello: 'Ơ! Bạn tới rồi. Tui là Scootch. Tui ngồi đợi đúng mình bạn đó.',
@@ -173,6 +175,8 @@ export const viOffline: OfflinePack = {
       cameraOpen: 'Tả không nổi đống này hả? Cho tui xem đi. Tui tò mò lắm.',
       cameraDesk: 'Bắt đầu với món trong vòng tròn. Chỉ món đó. Mấy món kia cứ ngồi xem.',
       cameraRoom: 'Chỉ cái góc đang sáng thôi. Mấy góc kia cứ việc bàn tán.',
+      cameraAfterAsk: 'Thêm một tấm nữa. Vẫn chỗ cũ. Tui tò mò lắm rồi.',
+      cameraAfter: 'Vẫn chỗ đó mà khác hẳn. Tui đem đi đóng khung đây.',
     },
     unhinged: {
       hello: 'BẠN TỚI RỒI. Tui là Scootch. Tui tập cảnh này trước gương cả buổi.',
@@ -214,6 +218,8 @@ export const viOffline: OfflinePack = {
       cameraOpen: 'TẢ KHÔNG NỔI HẢ? Cho tui xem đi. Tui tò mò kinh khủng.',
       cameraDesk: 'MÓN TRONG VÒNG TRÒN. Chỉ món đó. Mấy món kia ngồi xem mà học.',
       cameraRoom: 'CÁI GÓC ĐANG SÁNG. Ngoài nó ra không có gì hết. Mấy góc kia chỉ là tin đồn.',
+      cameraAfterAsk: 'THÊM MỘT TẤM NỮA. Vẫn chỗ cũ. Tui cần bằng chứng.',
+      cameraAfter: 'NHÌN ĐI. Trước. Sau. Tui gọi báo chí liền đây.',
     },
   },
   monsterNames: [

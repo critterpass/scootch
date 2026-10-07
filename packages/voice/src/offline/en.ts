@@ -133,6 +133,8 @@ export const enOffline: OfflinePack = {
       cameraOpen: "Words not coming? Show me a photo. I'll find one small place to start.",
       cameraDesk: 'Start with the one in the ring. Only that one.',
       cameraRoom: 'Only the lit corner. The rest of the room can wait.',
+      cameraAfterAsk: 'One more photo, if you like. Same spot as before.',
+      cameraAfter: 'Look at that. Same place, a little lighter.',
     },
     cheeky: {
       hello: "Oh! You're here. I'm Scootch. I've been waiting for you specifically.",
@@ -170,6 +172,8 @@ export const enOffline: OfflinePack = {
       cameraOpen: "Can't explain the mess? Show me. I'm very nosy.",
       cameraDesk: 'Start with the one in the ring. Just that. The rest can watch.',
       cameraRoom: 'Just the lit corner. The other corners can gossip.',
+      cameraAfterAsk: 'One more photo. Same spot. I want to see what you did.',
+      cameraAfter: "Same spot, different mood. I'm framing this.",
     },
     unhinged: {
       hello: "YOU'RE HERE. I'm Scootch. I have been rehearsing this moment in a mirror.",
@@ -211,6 +215,8 @@ export const enOffline: OfflinePack = {
       cameraOpen: "CAN'T EXPLAIN THE MESS? Show me. I am extremely nosy.",
       cameraDesk: 'THE ONE IN THE RING. Only that. Everything else can watch and learn.',
       cameraRoom: 'THE LIT CORNER. Nothing else exists. The other corners are a rumour.',
+      cameraAfterAsk: 'ONE MORE PHOTO. Same spot. I need evidence.',
+      cameraAfter: 'LOOK AT IT. Before. After. I am calling the newspapers.',
     },
   },
   monsterNames: [
