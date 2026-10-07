@@ -38,16 +38,38 @@ appId: app.scootch.dev
       id: 'one-sentence'
     timeout: 15000
 - takeScreenshot: one-screen-done-for-today--en-light-default
-# "Your world" on the finished day's home is pressed itself, the way the founder's phone does it,
-# and the record inside the world after it.
+# "Your world" on the finished day's home is pressed itself, the way the founder's phone does it:
+# the row shows the world small, the world opens with today's monster on the island, and the
+# record is opened from inside the world after it.
 - tapOn:
     id: 'world-row'
+    waitToSettleTimeoutMs: 0
 - extendedWaitUntil:
     visible:
-      id: 'world'
+      id: 'world-monster-0'
+    timeout: 15000
+- takeScreenshot: fresh-04-world-from-the-row
+# The monster that was just caught lives on the island: pressing it opens its card, and closing
+# the card comes back to the world. Scootch on the island never goes still, so the press does not
+# wait for the screen to settle.
+- tapOn:
+    id: 'world-monster-0'
+    waitToSettleTimeoutMs: 0
+- extendedWaitUntil:
+    visible:
+      id: 'zoo-card-face'
+    timeout: 15000
+- takeScreenshot: fresh-04-world-monster-card
+- tapOn:
+    id: 'zoo-card-close'
+    waitToSettleTimeoutMs: 0
+- extendedWaitUntil:
+    visible:
+      id: 'world-island'
     timeout: 15000
 - tapOn:
     id: 'world-open-record'
+    waitToSettleTimeoutMs: 0
 - extendedWaitUntil:
     visible:
       id: 'record'
@@ -68,7 +90,9 @@ appId: app.scootch.dev
       id: 'world'
     timeout: 15000
 - assertVisible:
-    id: 'world-row-0'
+    id: 'world-island'
+- assertVisible:
+    id: 'world-sentence'
 - assertNotVisible:
     id: 'world-empty'
 - takeScreenshot: fresh-04-world
