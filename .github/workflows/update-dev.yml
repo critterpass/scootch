@@ -1,0 +1,83 @@
+# Publishes one ref's JavaScript as an over-the-air update on the `dev` channel, for the dev build
+# installed from TestFlight. An update only reaches a build with the same native fingerprint, so
+# the job compares the ref's fingerprint with the commit the installed build was made from and
+# stops when they differ: that change needs a new native build, not an update.
+#   gh workflow run update-dev.yml -f ref=main -f built_from=<commit of the installed build> -f message="..."
+name: update dev
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Branch, tag or commit whose JavaScript is published
+        required: true
+        default: main
+      built_from:
+        description: Commit the installed dev build was made from
+        required: true
+      message:
+        description: Update message
+        required: false
+        default: Dev update
+
+run-name: update dev from ${{ inputs.ref }}
+
+# Two publishes never overlap; a second one waits for the first.
+concurrency:
+  group: update-dev
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  EAS_CLI: eas-cli@24.8.0
+  APP_VARIANT: dev
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check the secret
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: '[ -n "$EXPO_TOKEN" ] || { echo "::error::The EXPO_TOKEN secret is missing"; exit 1; }'
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.built_from }}
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with: { node-version: 24, cache: pnpm }
+      - name: Fingerprint of the installed build
+        run: |
+          pnpm install --frozen-lockfile
+          cd apps/mobile
+          hash=$(pnpm exec expo-updates fingerprint:generate --platform ios | sed -n '/{/,$p' | jq -r .hash)
+          [ -n "$hash" ] && [ "$hash" != null ] || { echo "::error::No fingerprint for the installed build"; exit 1; }
+          echo "INSTALLED=$hash" >> "$GITHUB_ENV"
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref }}
+          clean: false
+      - name: Fingerprint of the ref
+        run: |
+          pnpm install --frozen-lockfile
+          cd apps/mobile
+          hash=$(pnpm exec expo-updates fingerprint:generate --platform ios | sed -n '/{/,$p' | jq -r .hash)
+          echo "installed build: $INSTALLED"
+          echo "this ref:        $hash"
+          if [ "$hash" != "$INSTALLED" ]; then
+            echo "::error::The native fingerprint changed since the installed build. This needs a new native build (native-build.yml), not an update."
+            exit 1
+          fi
+      - name: Publish
+        working-directory: apps/mobile
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          MESSAGE: ${{ inputs.message }}
+        run: |
+          # The same public values the dev build profile carries, so the update behaves as the build does.
+          eval "$(jq -r '.build.dev.env | to_entries[] | select(.key | startswith("EXPO_PUBLIC_")) | "export \(.key)=\(.value | @sh)"' eas.json)"
+          export EXPO_PUBLIC_JS_COMMIT="$(git rev-parse --short=12 HEAD)"
+          npx --yes "$EAS_CLI" update --channel dev --platform ios --message "$MESSAGE" --non-interactive
