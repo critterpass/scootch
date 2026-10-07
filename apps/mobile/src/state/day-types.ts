@@ -44,6 +44,8 @@ export type DayEvent =
   | { readonly type: 'drawer_item_swapped_in'; readonly itemId: Id }
   /** A parked thing swiped away or ticked off in the drawer: it leaves with no trace. */
   | { readonly type: 'drawer_item_removed'; readonly itemId: Id }
+  /** The task waiting for tomorrow, swiped away in the drawer: it is let go with no trace. */
+  | { readonly type: 'waiting_task_removed'; readonly taskId: Id }
   /** A parked thing reworded in the drawer. */
   | { readonly type: 'drawer_item_edited'; readonly itemId: Id; readonly text: string }
   /** "Pick for me", and "Pick again": Scootch offers one thing from the drawer. */

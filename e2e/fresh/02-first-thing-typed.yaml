@@ -67,8 +67,6 @@ appId: app.scootch.dev
     timeout: 60000
 - assertVisible:
     id: 'task-set-minutes-10'
-- assertVisible:
-    id: 'task-set-treat'
 - assertNotVisible:
     id: 'composer-input'
 # A plain task never gets the serious voice.

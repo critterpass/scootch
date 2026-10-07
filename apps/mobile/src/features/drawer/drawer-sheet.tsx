@@ -7,6 +7,7 @@ import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { CloseIcon } from '../../ui/icons';
 import { PressSpring } from '../../ui/motion/press-spring';
 import { Sheet, SheetScroll } from '../../ui/sheet/sheet';
+import { SwipeAway } from '../../ui/swipe-away';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
 import { dayWords } from './day-words';
@@ -29,13 +30,13 @@ export interface DrawerSheetProps {
   /** False once today's thing has been started: nothing can be swapped for it then. */
   readonly canSwap: boolean;
   /** The task carried on to tomorrow: it is not parked, and is listed first so it can be found. */
-  readonly waiting?: string | null;
+  readonly waiting?: { readonly id: Id; readonly text: string } | null;
   /** The drawer was opened from that task's words on home: it is marked out. */
   readonly waitingMarked?: boolean;
   /** Said in place of "Swap in" when today's starts are all used; `null` otherwise. */
   readonly capNote?: string | null;
   readonly onSwapIn: (itemId: Id) => void;
-  /** A row was swiped away or ticked off, and was not put back. */
+  /** A row, or the waiting task, was swiped away or ticked off, and was not put back. */
   readonly onRemove: (itemId: Id) => void;
   readonly onEdit: (itemId: Id, text: string) => void;
   readonly onClose: () => void;
@@ -108,6 +109,8 @@ export function DrawerSheet({
   );
 
   const listed = items.filter((item) => item.id !== left?.id);
+  // The task waiting for tomorrow can be swiped away like any row, and put back the same way.
+  const waits = waiting !== null && waiting.id !== left?.id ? waiting : null;
   const dated = listed.filter((item) => item.dueDate !== null).length;
   const shown = all ? listed : listed.slice(0, PEEK_ROWS);
   const hidden = listed.length - shown.length;
@@ -143,7 +146,7 @@ export function DrawerSheet({
               style={[styles.body, type('500', COUNT_SIZE, palette.muted)]}
             >
               {listed.length === 0
-                ? t(waiting === null ? 'drawer.empty' : 'drawer.waiting')
+                ? t(waits === null ? 'drawer.empty' : 'drawer.waiting')
                 : t('drawer.count', { parked: listed.length, dated })}
             </Text>
           </View>
@@ -170,42 +173,52 @@ export function DrawerSheet({
           {capNote}
         </Text>
       )}
-      {waiting === null ? null : (
-        <View
-          testID="drawer-waiting"
-          accessible
-          accessibilityLabel={`${waiting}, ${t('drawer.waiting')}`}
-          style={[
-            styles.card,
-            styles.row,
-            styles.waiting,
-            {
-              backgroundColor: waitingMarked ? `${palette.tomato}1F` : palette.surface,
-              borderColor: waitingMarked ? palette.tomato : 'transparent',
-            },
-          ]}
+      {waits === null ? null : (
+        <SwipeAway
+          key={waits.id}
+          radius={22}
+          style={styles.waitingPlace}
+          onGone={() => rowLeft(waits.id, 'removed')}
         >
-          <View style={[styles.marker, { backgroundColor: palette.ink }]}>
-            <View style={[styles.waitingDot, { backgroundColor: palette.page }]} />
+          <View
+            testID="drawer-waiting"
+            accessible
+            accessibilityLabel={`${waits.text}, ${t('drawer.waiting')}`}
+            accessibilityHint={t('drawer.waiting.hint')}
+            accessibilityActions={[{ name: 'delete', label: t('drawer.remove') }]}
+            onAccessibilityAction={() => rowLeft(waits.id, 'removed')}
+            style={[
+              styles.card,
+              styles.row,
+              styles.waiting,
+              {
+                backgroundColor: waitingMarked ? `${palette.tomato}1F` : palette.surface,
+                borderColor: waitingMarked ? palette.tomato : 'transparent',
+              },
+            ]}
+          >
+            <View style={[styles.marker, { backgroundColor: palette.ink }]}>
+              <View style={[styles.waitingDot, { backgroundColor: palette.page }]} />
+            </View>
+            <View style={styles.words}>
+              <Text
+                allowFontScaling={allowFontScaling}
+                style={[styles.body, type('500', 16, palette.ink)]}
+              >
+                {waits.text}
+              </Text>
+              <Text
+                allowFontScaling={allowFontScaling}
+                style={[
+                  styles.body,
+                  type('400', 12.5, waitingMarked ? palette.tomato : palette.muted),
+                ]}
+              >
+                {t('drawer.waiting')}
+              </Text>
+            </View>
           </View>
-          <View style={styles.words}>
-            <Text
-              allowFontScaling={allowFontScaling}
-              style={[styles.body, type('500', 16, palette.ink)]}
-            >
-              {waiting}
-            </Text>
-            <Text
-              allowFontScaling={allowFontScaling}
-              style={[
-                styles.body,
-                type('400', 12.5, waitingMarked ? palette.tomato : palette.muted),
-              ]}
-            >
-              {t('drawer.waiting')}
-            </Text>
-          </View>
-        </View>
+        </SwipeAway>
       )}
       {listed.length === 0 ? null : (
         <SheetScroll style={styles.list} contentContainerStyle={styles.listContent}>

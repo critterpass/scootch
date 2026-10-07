@@ -5,7 +5,7 @@ import type { EffectSwitches, ScreenSink } from '../effects/adapters';
 
 import { NOTHING_SAID, askReminder, crisisInWords, setSeriousAside } from './care-flow';
 import { DEFAULT_USUAL_START, usualStart } from './day-notifications';
-import { editDrawerItem, removeDrawerItem } from './drawer-flow';
+import { editDrawerItem, removeDrawerItem, removeWaitingTask } from './drawer-flow';
 import { readToday } from './day-refresh';
 import { openDay } from './day-rollover';
 import {
@@ -244,6 +244,8 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
         return drawerEvent(ctx, event.event);
       case 'drawer_item_removed':
         return removeDrawerItem(ctx, event.itemId);
+      case 'waiting_task_removed':
+        return removeWaitingTask(ctx, event.taskId);
       case 'drawer_item_edited':
         return editDrawerItem(ctx, event.itemId, event.text);
       case 'thought_resolved':

@@ -165,7 +165,7 @@ function useOneScreenDrawn({
         items={drawer.items}
         today={localDate}
         canSwap={task === null ? hasStartLeft(today) : task.status === 'set'}
-        waiting={day.waitingForTomorrow?.text ?? null}
+        waiting={day.waitingForTomorrow}
         waitingMarked={waitingMarked}
         capNote={
           task === null && !hasStartLeft(today) && today.kind === 'done_for_today'
@@ -173,7 +173,13 @@ function useOneScreenDrawn({
             : null
         }
         onSwapIn={(itemId) => send({ type: 'drawer_item_swapped_in', itemId })}
-        onRemove={(itemId) => send({ type: 'drawer_item_removed', itemId })}
+        onRemove={(itemId) =>
+          send(
+            itemId === day.waitingForTomorrow?.id
+              ? { type: 'waiting_task_removed', taskId: itemId }
+              : { type: 'drawer_item_removed', itemId },
+          )
+        }
         onEdit={(itemId, text) => send({ type: 'drawer_item_edited', itemId, text })}
         onClose={() => {
           markWaiting(false);

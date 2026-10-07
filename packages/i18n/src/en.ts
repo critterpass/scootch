@@ -21,6 +21,7 @@ export const en = {
 
   'session.pill': '{name} · {minutes} min',
   'session.pillPlain': '{minutes} min',
+  'session.pill.hint': 'Shows its whole name for a moment.',
   'session.minutesLeft': {
     one: '{count} min',
     other: '{count} min',
@@ -170,6 +171,7 @@ export const en = {
   'taskSet.treat.hint': 'Name something nice for afterwards. You can leave it empty.',
   'taskSet.minutes': '{minutes} min',
   'taskSet.minutes.hint': 'Sets how long the session runs.',
+  'taskSet.minutes.unit': 'min',
   'taskSet.start.hint': 'Starts a {minutes} minute session.',
 
   'keep.close': 'Close',
@@ -219,6 +221,7 @@ export const en = {
   'drawer.pull': 'Pull to open the drawer',
   'drawer.pull.ready': 'Let go to open',
   'drawer.waiting': 'Back tomorrow morning',
+  'drawer.waiting.hint': 'Swipe left to let it go.',
 
   'energy.ask': "Before I pick: how's the battery?",
   'energy.low': 'Low',

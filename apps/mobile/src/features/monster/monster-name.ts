@@ -11,3 +11,11 @@ export function nameAndTitle(monster: Pick<MonsterRow, 'name' | 'title'>): strin
   if (title === '' || name.includes(',')) return name;
   return `${name}, ${title}`;
 }
+
+/**
+ * The name a monster goes by where there is little room: "Molar" of "Molar, Keeper of Thursday".
+ * A name with no title in it is already short.
+ */
+export function shortName(name: string): string {
+  return name.split(',')[0]?.trim() || name.trim();
+}

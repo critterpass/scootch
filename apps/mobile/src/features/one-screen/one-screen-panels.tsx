@@ -10,16 +10,15 @@ import { useScreenStyle } from '../../ui/use-screen-style';
 import { WorldGlance } from '../world/world-thumbnail';
 
 import { MinutesControl } from './minutes-control';
-import { TreatRow } from './treat-row';
 
-/** The session lengths on offer, in minutes. */
-export const SESSION_MINUTES = [10, 25, 50] as const;
+/** The session lengths on the wheel, in minutes. */
+export const SESSION_MINUTES = [5, 10, 15, 20, 25, 30, 40, 50, 60] as const;
 export type SessionMinutes = number;
-/** The lengths offered when the ask is the smallest there is: it leads, and the longest goes. */
+/** The lengths offered when the ask is the smallest there is: it leads the wheel. */
 export function minuteOptions(smallest: number | null): readonly number[] {
   return smallest === null || smallest >= SESSION_MINUTES[0]
     ? SESSION_MINUTES
-    : [smallest, ...SESSION_MINUTES.slice(0, -1)];
+    : [smallest, ...SESSION_MINUTES];
 }
 
 const ROW_SIZE = 17;
@@ -34,17 +33,17 @@ export interface TaskSetChoicesProps {
   readonly options?: readonly number[];
 }
 
-/** The two choices before a start: the treat for afterwards, and how long to go for. */
+/**
+ * The choice before a start: how long to go for. The treat for afterwards is not asked for here;
+ * a session set from elsewhere can still carry one.
+ */
 export function TaskSetChoices({
-  treat,
   minutes,
-  onTreat,
   onMinutes,
   options = SESSION_MINUTES,
 }: TaskSetChoicesProps) {
   return (
     <View style={styles.choices}>
-      <TreatRow treat={treat} onTreat={onTreat} />
       <MinutesControl minutes={minutes} options={options} onMinutes={onMinutes} />
     </View>
   );

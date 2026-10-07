@@ -43,3 +43,20 @@ export async function editDrawerItem(ctx: DayContext, itemId: Id, words: string)
   }
   await ctx.refresh();
 }
+
+/**
+ * The task carried on to tomorrow is let go from the drawer: it leaves with its monster and comes
+ * back on no morning. A start it used today stays used, though nothing else of it is kept.
+ */
+export async function removeWaitingTask(ctx: DayContext, taskId: Id): Promise<void> {
+  const { waitingForTomorrow, localDate } = ctx.memory.state;
+  if (waitingForTomorrow?.id !== taskId) return;
+  const { sessions, forgetTask, dayNotes } = ctx.deps.repositories;
+  const ran = (await sessions.where('taskId', taskId)).some((one) => one.localDate === localDate);
+  await forgetTask(taskId);
+  if (ran) {
+    const notes = await dayNotes.read(localDate);
+    await dayNotes.write({ ...notes, startsLetGo: notes.startsLetGo + 1 });
+  }
+  await ctx.refresh();
+}
