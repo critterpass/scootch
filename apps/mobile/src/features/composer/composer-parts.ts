@@ -2,6 +2,22 @@ import type { SharedValue } from 'react-native-reanimated';
 
 import type { ComposerEvent, ComposerState } from './composer-machine';
 
+/**
+ * The day has no start left, so the dock takes no words. `locked`: the capsule is the quiet locked
+ * control, and a tap on it is handed to `onUnlock`. `spent`: nothing is offered and nothing answers.
+ */
+export interface ComposerGate {
+  readonly kind: 'locked' | 'spent';
+  readonly onUnlock: () => void;
+}
+
+/** The capsule's words and the switch's, while the dock is gated. */
+export function gateWords(gate: ComposerGate) {
+  return gate.kind === 'locked'
+    ? ({ label: 'composer.locked', hint: 'composer.locked.hint' } as const)
+    : ({ label: 'composer.spent', hint: 'composer.spent.hint' } as const);
+}
+
 /** What both shapes of the dock (the row, and the stack for large text) are drawn from. */
 export interface ComposerParts {
   readonly state: ComposerState;
@@ -11,6 +27,8 @@ export interface ComposerParts {
   readonly busy: boolean;
   readonly screenReader: boolean;
   readonly drag: SharedValue<number>;
+  /** Set while the day has no start left; `null` on an ordinary dock. */
+  readonly gate: ComposerGate | null;
   readonly onEvent: (event: ComposerEvent) => void;
 }
 

@@ -213,16 +213,7 @@ export const vi = {
   'energy.guess': 'Đoán theo cách mình viết',
   'energy.hint': 'Scootch sẽ chọn cho vừa sức.',
 
-  'bargain.notNow.hint': 'Nói cho Scootch biết lý do, nó sẽ xin ít hơn.',
-  'bargain.reason': 'Sao chưa làm được?',
-  'bargain.reason.hint': 'Vài chữ là đủ.',
-  'bargain.say': 'Nói vậy đó',
-  'bargain.wiped': 'Mình đuối rồi',
-  'bargain.youSaid': 'Bạn nói “{excuse}”',
   'bargain.smaller': 'Nhỏ hơn',
-  'bargain.smaller.hint': 'Xin ít hơn nữa.',
-  'bargain.deal': 'Chốt · {minutes} phút',
-  'bargain.deal.hint': 'Bắt đầu một phiên {minutes} phút.',
 
   'hatch.label': 'Việc của bạn vừa nở',
   'hatch.shrunk': 'Giờ nhỏ bỏ túi',
@@ -235,11 +226,8 @@ export const vi = {
 
   'morning.fromYesterday': 'Chào buổi sáng · từ hôm qua',
   'morning.firstStep': 'Bước đầu tiên hôm nay',
-  'morning.somethingElse': 'Việc khác',
-  'morning.somethingElse.hint': 'Cất việc này vào ngăn kéo và hỏi bạn muốn làm gì.',
   'morning.start': 'Bắt đầu · {minutes} phút',
   'morning.chip.tiny': 'việc gì đó tí xíu',
-  'morning.chip.pick': 'chọn giúp mình',
   'morning.chip.sit': 'ngồi với mình thôi',
   'morning.chip.hint': 'Gửi lời này làm điều bạn muốn làm.',
   'morning.note': '{thing} tới hạn {day}.',

@@ -1,0 +1,35 @@
+appId: app.scootch.dev
+---
+# The fresh-user walk, between steps four and five: the second thing is set and the person puts it
+# down without doing it. It carries on from the step before it; nothing is cleared and nothing is
+# seeded. The round button left of Start sends the thing's words to the drawer and home is back,
+# with nothing set, and it is still home after the app is closed and opened again.
+- extendedWaitUntil:
+    visible:
+      id: 'task-discard'
+    timeout: 30000
+- takeScreenshot: one-screen-task-set-with-discard--en-light-default
+# The screen never goes quiet, so the press does not wait for it to settle.
+- tapOn:
+    id: 'task-discard'
+    waitToSettleTimeoutMs: 0
+- extendedWaitUntil:
+    visible:
+      id: 'world-row'
+    timeout: 30000
+- assertNotVisible:
+    id: 'one-action'
+- assertVisible:
+    id: 'composer'
+- takeScreenshot: fresh-04c-home-after-putting-down
+- stopApp
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: 'world-row'
+    timeout: 90000
+- assertNotVisible:
+    id: 'one-action'
+- assertVisible:
+    id: 'composer'
+- takeScreenshot: fresh-04c-still-home-after-relaunch

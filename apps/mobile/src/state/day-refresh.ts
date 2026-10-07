@@ -9,7 +9,6 @@ import {
 
 import { dayNotifications } from './day-notifications';
 import type { DayContext } from './day-types';
-import { restCanBeUndone } from './rest-flow';
 
 /**
  * Reads today back from storage, publishes it and brings the notifications in line. Storage is
@@ -63,14 +62,11 @@ export async function readToday(
   set({
     heavyToday,
     today,
-    restUndo: today.kind === 'done_for_today' && (await restCanBeUndone(ctx)),
     reminderAt,
     waitingForTomorrow:
       tomorrow.find((one) => one.carriedOver && one.status !== 'finished') ?? null,
     // Asked once a day, before the first thing is picked.
     energyNeeded: (day?.energy ?? null) === null && tasks.length === 0,
-    // The ask stays open only while the day is finished and the daily limit has a start left.
-    oneMore: memory.state.oneMore && today.kind === 'done_for_today' && today.startsLeft > 0,
     monster,
     monsterPending:
       task !== null && (task.screen === 'unscreened' || (task.screen === 'pass' && !monster)),

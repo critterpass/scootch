@@ -7,6 +7,7 @@ import { noTaskLine } from '@scootch/voice';
 import { useLanguage, useT } from '../../../i18n/i18n-provider';
 import { PlusContext, type PlusRuntime } from '../../../state/plus-context';
 import { useScreenStyle } from '../../../ui/use-screen-style';
+import { initialComposer } from '../../composer/composer-machine';
 import { OneScreenView } from '../../one-screen/one-screen-view';
 import { fixtureMonster, fixtureTask } from '../../reveal/registry/keep-fixtures';
 import { ShelfScreen } from '../../shelf/shelf-screen';
@@ -20,7 +21,6 @@ import { lifetimeCard } from '../lifetime-card';
 import { ManageScreen } from '../manage-screen';
 import { LifetimeMoment } from '../lifetime-moment';
 import { LastDay, RenewalOff, TrialStarted } from '../moments';
-import { OneMore } from '../one-more';
 import { PlusSheet } from '../plus-sheet';
 import { unavailablePurchases, type CustomerState } from '../purchases-port';
 import { RecordShelf } from '../record-shelf';
@@ -99,27 +99,6 @@ export function Captured({ capture }: { readonly capture: PlusCapture }) {
         />
       );
     }
-    case 'one-more':
-      return (
-        <OneScreenView
-          mood="asleep"
-          attitude="cheeky"
-          line={said('doneForToday')}
-          offline={false}
-          onWorld={nothing}
-          shown={{
-            kind: 'done',
-            under: (
-              <OneMore
-                plus={capture.plus}
-                left={capture.left}
-                onLocked={nothing}
-                onMore={nothing}
-              />
-            ),
-          }}
-        />
-      );
     case 'charge-note':
       // The day before the trial's charge: the plain note under the waiting ask.
       return (
@@ -130,7 +109,21 @@ export function Captured({ capture }: { readonly capture: PlusCapture }) {
             line={said('doneForToday')}
             offline={false}
             onWorld={nothing}
-            shown={{ kind: 'done' }}
+            shown={{
+              kind: 'composer',
+              warmUp: null,
+              notificationsOff: false,
+              home: { waiting: null, startsNote: null },
+              composer: {
+                state: initialComposer('ready'),
+                level: 0,
+                onEvent: nothing,
+                thinking: false,
+                notUnderstood: false,
+                screenReader: false,
+                onOpenSettings: nothing,
+              },
+            }}
           />
         </PlusContext.Provider>
       );

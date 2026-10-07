@@ -26,8 +26,6 @@ const NO_ACTIONS: StageActions = {
   pickAgain: nothing,
   takePick: nothing,
   dropPick: nothing,
-  smaller: nothing,
-  deal: nothing,
   tooBig: nothing,
   catchIt: nothing,
   revealDone: nothing,
@@ -40,14 +38,12 @@ const SAID = {
     parked: ['Call mum back', 'Bathroom', 'Start running', 'Reply to Sam'],
     dated: 'Council tax',
     heardAs: 'due on Friday',
-    excuse: "I'm wiped",
   },
   vi: {
     task: 'Gửi email cho nha sĩ về lịch thứ Năm',
     parked: ['Gọi lại cho mẹ', 'Dọn nhà tắm', 'Bắt đầu chạy bộ', 'Trả lời Lan'],
     dated: 'Đóng tiền điện',
     heardAs: 'hạn thứ Sáu',
-    excuse: 'Mình đuối rồi',
   },
 } as const satisfies Record<Language, unknown>;
 
@@ -246,12 +242,6 @@ export const DumpPickForMe = captured((data) => {
   const item = data.drawer.at(-1);
   return item ? { kind: 'picked_for_me', item, canPickAgain: true } : { kind: 'energy' };
 });
-export const OneScreenBargaining = captured((data) => ({
-  kind: 'bargain',
-  task: data.task,
-  excuse: data.said.excuse,
-  ask: { minutes: 5, shrinkCount: 1 },
-}));
 export const MonsterHatched = captured((data) => ({
   kind: 'hatch',
   task: data.task,

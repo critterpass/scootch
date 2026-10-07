@@ -1,10 +1,10 @@
-import type {
-  Ask,
-  DrawerItemRow,
-  HeardDeadline,
-  MonsterRow,
-  QuietNote,
-  TaskRow,
+import {
+  hasStartLeft,
+  type DrawerItemRow,
+  type HeardDeadline,
+  type MonsterRow,
+  type QuietNote,
+  type TaskRow,
 } from '@scootch/domain';
 import type { StringKey } from '@scootch/i18n';
 
@@ -12,10 +12,9 @@ import type { DayState, Reveal } from '../../state/day-types';
 import { showsComedy } from '../../state/shows-comedy';
 import { MAX_SHRINKS, sizeStep } from '../../state/smaller';
 
-/** The three small ways in on a return: the person's own words, as chips. Nothing here counts anything. */
+/** The small ways in on a return: the person's own words, as chips. Nothing here counts anything. */
 export const RETURN_CHIPS = [
   { id: 'tiny', label: 'morning.chip.tiny' },
-  { id: 'pick', label: 'morning.chip.pick' },
   { id: 'sit', label: 'morning.chip.sit' },
 ] as const satisfies readonly { readonly id: string; readonly label: StringKey }[];
 export type ReturnChip = (typeof RETURN_CHIPS)[number]['id'];
@@ -25,17 +24,24 @@ export type Stage =
   /** A crisis day: nothing of this screen is shown and the care screens take over. */
   | { readonly kind: 'care' }
   | { readonly kind: 'session' }
-  /** The day is resting. `waiting` is the task carried on to tomorrow, when there is one. */
-  | { readonly kind: 'done'; readonly waiting: TaskRow | null }
   /** The battery question, asked while the person's words wait to be sent. */
   | { readonly kind: 'energy' }
+  /**
+   * Home: Scootch, the world and the composer, on a fresh morning and on a finished day alike.
+   * Nothing is set, and the next thing is simply said or typed.
+   */
   | {
-      readonly kind: 'composer';
+      readonly kind: 'home';
+      /** Something was finished or put down today: Scootch rests until he is spoken to. */
+      readonly rested: boolean;
+      /** False once every start of the day has been used: the composer takes no more words. */
+      readonly startLeft: boolean;
       /** Back after a long while: the smallest ask and its chips, with no word about the gap. */
       readonly returning: boolean;
       /** A dated thing that is close, mentioned quietly beside the ask. */
       readonly note: { readonly item: DrawerItemRow; readonly dueDate: string } | null;
-      readonly canPickForMe: boolean;
+      /** The task carried on to tomorrow, when there is one. */
+      readonly waiting: TaskRow | null;
     }
   | {
       readonly kind: 'picked_for_me';
@@ -60,7 +66,6 @@ export type Stage =
       readonly shrunk: boolean;
       readonly canShrink: boolean;
     }
-  | { readonly kind: 'bargain'; readonly task: TaskRow; readonly excuse: string; readonly ask: Ask }
   | {
       readonly kind: 'task_set';
       readonly task: TaskRow;
@@ -73,14 +78,7 @@ export type Stage =
 
 export type StageInput = Pick<
   DayState,
-  | 'today'
-  | 'pick'
-  | 'morning'
-  | 'monster'
-  | 'heardDeadlines'
-  | 'drawer'
-  | 'oneMore'
-  | 'waitingForTomorrow'
+  'today' | 'pick' | 'morning' | 'monster' | 'heardDeadlines' | 'drawer' | 'waitingForTomorrow'
 > & {
   /** The person's words are held back until the battery question is answered. */
   readonly energyAsked: boolean;
@@ -102,39 +100,29 @@ export function stageOf(input: StageInput): Stage {
   if (today.kind === 'in_session' || (today.kind === 'serious' && today.session !== null)) {
     return { kind: 'session' };
   }
-  const asking =
-    today.kind === 'nothing_yet' ||
-    // "One more" was tapped and the daily limit has a start left: the plain ask comes back.
-    (today.kind === 'done_for_today' && input.oneMore && today.startsLeft > 0);
-  if (today.kind === 'done_for_today' && !asking) {
-    return { kind: 'done', waiting: input.waitingForTomorrow };
-  }
+  // With nothing set the screen is home, whether or not anything was done today.
+  const home = today.kind === 'nothing_yet' || today.kind === 'done_for_today';
 
   // The day's first words are waiting on the battery question: it is asked wherever the ask is,
-  // the one after "One more" included, so held words can always be answered for.
-  if (asking && input.energyAsked) return { kind: 'energy' };
+  // so held words can always be answered for.
+  if (home && input.energyAsked) return { kind: 'energy' };
 
-  // Scootch's pick is shown wherever it was asked for, the ask after "One more" included.
-  if (pick.kind === 'picked_for_me' && (asking || today.kind === 'task_set')) {
+  // Scootch's pick is shown wherever it was asked for.
+  if (pick.kind === 'picked_for_me' && (home || today.kind === 'task_set')) {
     const item = drawer.items.find((one) => one.id === pick.itemId);
     if (item) return { kind: 'picked_for_me', item, canPickAgain: drawer.items.length > 1 };
   }
-  if (today.kind === 'done_for_today') {
+  if (today.kind === 'nothing_yet' || today.kind === 'done_for_today') {
+    // The smallest ask is a morning's: once something was done today it is not asked again.
+    const smallest =
+      today.kind === 'nothing_yet' && morning.kind === 'smallest_ask' ? morning : null;
     return {
-      kind: 'composer',
-      returning: false,
-      note: null,
-      canPickForMe: drawer.items.length > 0,
-    };
-  }
-
-  if (today.kind === 'nothing_yet') {
-    const returning = morning.kind === 'smallest_ask';
-    return {
-      kind: 'composer',
-      returning,
-      note: returning ? noteOf(morning.note, drawer.items) : null,
-      canPickForMe: drawer.items.length > 0,
+      kind: 'home',
+      rested: today.kind === 'done_for_today',
+      startLeft: hasStartLeft(today),
+      returning: smallest !== null,
+      note: smallest ? noteOf(smallest.note, drawer.items) : null,
+      waiting: input.waitingForTomorrow,
     };
   }
 
@@ -151,9 +139,6 @@ export function stageOf(input: StageInput): Stage {
       deadline: input.heardDeadlines[0] ?? null,
       another: pick.another,
     };
-  }
-  if (pick.kind === 'bargaining' && !quiet) {
-    return { kind: 'bargain', task, excuse: pick.excuse, ask: pick.ask };
   }
   if (pick.kind === 'hatching' && showsComedy(task, 'monster')) {
     return {
@@ -183,11 +168,27 @@ export function holdsWords(stage: Pick<Stage, 'kind'>): boolean {
 }
 
 /**
- * Where the trial-ends-tomorrow note may sit: on the waiting screen and on done for today, where
- * nothing else is going on. Never beside a task, a pick, a hatch or a bargain.
+ * What the composer on home may do about a new thing. `open`: a start is left. `locked`: none is
+ * left and Plus has more, so the talk capsule is the quiet locked control that leads to the sheet.
+ * `spent`: none is left and nothing is offered: on Plus, and on any day with something heavy in
+ * it, where nothing is ever sold.
  */
-export function chargeNoteShows(
-  shown: 'composer' | 'task_set' | 'done' | 'panel' | 'quiet',
-): boolean {
-  return shown === 'composer' || shown === 'done';
+export type HomeStarts = 'open' | 'locked' | 'spent';
+
+export function homeStarts(input: {
+  readonly startLeft: boolean;
+  readonly plus: boolean;
+  /** `showsSelling` for the day: false beside anything heavy. */
+  readonly selling: boolean;
+}): HomeStarts {
+  if (input.startLeft) return 'open';
+  return input.plus || !input.selling ? 'spent' : 'locked';
+}
+
+/**
+ * Where the trial-ends-tomorrow note may sit: on home, where nothing else is going on. Never
+ * beside a task, a pick or a hatch.
+ */
+export function chargeNoteShows(shown: 'composer' | 'task_set' | 'panel' | 'quiet'): boolean {
+  return shown === 'composer';
 }

@@ -3,7 +3,6 @@ import {
   hasStartLeft,
   sameThing,
   swapIn,
-  type Ask,
   type DrawerEvent,
   type Id,
   type TaskRow,
@@ -11,13 +10,13 @@ import {
 
 import type { DayContext } from './day-types';
 import { setSession } from './session-flow';
-import { cappedMinutes, shrinkTask, smallerAsk } from './smaller';
+import { shrinkTask } from './smaller';
 import { newTask, park } from './task-rows';
 
-/** The length a session is asked for before anything has been bargained. */
+/** The length a session is asked for when none was chosen. */
 const USUAL_MINUTES = 10;
 
-/** Today's one thing while it can still be swapped, shrunk or bargained over: set, not started. */
+/** Today's one thing while it can still be swapped, shrunk or set aside: set, not started. */
 function setTask(ctx: DayContext): TaskRow | null {
   const { today } = ctx.memory.state;
   return 'task' in today && today.task.status === 'set' ? today.task : null;
@@ -106,34 +105,14 @@ export function pickForMe(ctx: DayContext): void {
   if (smallest) ctx.set({ pick: { kind: 'picked_for_me', itemId: smallest.id } });
 }
 
-/** An excuse is an opening offer: Scootch counters with the next ask down. */
-export function counterOffer(ctx: DayContext, excuse: string): void {
-  const task = setTask(ctx);
-  if (!task) return;
-  const { pick } = ctx.memory.state;
-  const from: Ask =
-    pick.kind === 'bargaining' ? pick.ask : { minutes: USUAL_MINUTES, shrinkCount: 0 };
-  ctx.set({
-    pick: { kind: 'bargaining', excuse: excuse.trim().slice(0, 80), ask: smallerAsk(from) },
-  });
-}
-
-/** "Smaller", on a counter-offer: one more step down, and never back up. */
-export function askSmaller(ctx: DayContext): void {
-  const { pick } = ctx.memory.state;
-  if (pick.kind === 'bargaining') ctx.set({ pick: { ...pick, ask: smallerAsk(pick.ask) } });
-}
-
-/** A session is set at no more than the ask on the table. */
-export function setBargainedSession(
+/** A session is set at the length the person chose, or the usual one. */
+export function setChosenSession(
   ctx: DayContext,
   minutes: number | null,
   treat: string | null,
 ): void {
-  const { pick } = ctx.memory.state;
-  const ask = pick.kind === 'bargaining' ? pick.ask : null;
   ctx.set({ pick: { kind: 'none' } });
-  setSession(ctx, cappedMinutes(ask, minutes ?? ask?.minutes ?? USUAL_MINUTES), treat);
+  setSession(ctx, minutes ?? USUAL_MINUTES, treat);
 }
 
 /** "Too big", at the hatch: the task and its monster get smaller together. */
@@ -147,7 +126,7 @@ export async function tooBig(ctx: DayContext): Promise<void> {
   await ctx.refresh();
 }
 
-/** "Something else", on a morning with yesterday's task: it waits in the drawer, with no trace here. */
+/** The discard button on a set task: it waits in the drawer, with no trace here. */
 export async function setTaskAside(ctx: DayContext): Promise<void> {
   const task = setTask(ctx);
   if (!task) return;

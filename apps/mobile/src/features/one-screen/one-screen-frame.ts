@@ -37,7 +37,6 @@ export const FRAMES = {
   choosing: frame(230, 260, 24, 10),
   oneThing: frame(250, 260, 24, 10),
   picked: frame(260, 270, 24, 10),
-  bargain: frame(280, 280, 22, 10),
   hatch: frame(190, 250, 16, 10),
 } as const satisfies Record<string, FigureFrame>;
 
@@ -75,11 +74,13 @@ export function dockGap(safeBottom: number): number {
 }
 
 export interface FrameAsk {
-  readonly kind: 'composer' | 'task_set' | 'panel' | 'done' | 'quiet';
+  readonly kind: 'composer' | 'task_set' | 'panel' | 'quiet';
   /** A panel's name. */
   readonly name?: string;
   /** The first ask after first launch, with its example chips. */
   readonly warmUp?: boolean;
+  /** Home, with the world card above the dock. */
+  readonly home?: boolean;
   readonly recording?: boolean;
   /** The choosing reveal is playing: Scootch is thinking. */
   readonly choosing?: boolean;
@@ -88,16 +89,17 @@ export interface FrameAsk {
 /** The board's frame for a state of the one screen. */
 export function frameFor(ask: FrameAsk): FigureFrame {
   if (ask.kind === 'task_set') return FRAMES.taskSet;
-  if (ask.kind === 'done') return FRAMES.done;
   if (ask.kind === 'panel') {
     if (ask.name === 'energy') return FRAMES.energy;
     if (ask.name === 'picked') return FRAMES.picked;
-    if (ask.name === 'bargain') return FRAMES.bargain;
     if (ask.name === 'hatch') return FRAMES.hatch;
     return ask.choosing ? FRAMES.choosing : FRAMES.oneThing;
   }
   if (ask.recording) return FRAMES.listening;
-  return ask.warmUp ? FRAMES.firstOneThing : FRAMES.waiting;
+  if (ask.warmUp) return FRAMES.firstOneThing;
+  // Home keeps one size whether Scootch is resting, waiting or thinking: the world card and the
+  // dock share the screen with him, and nothing jumps as he is spoken to.
+  return ask.home ? FRAMES.done : FRAMES.waiting;
 }
 
 /** The frame for what the one screen is showing; `thinking` is Scootch while the reveal plays. */
@@ -109,6 +111,7 @@ export function frameOfShown(shown: OneScreenShown, thinking: boolean): FigureFr
   return frameFor({
     kind: 'composer',
     warmUp: shown.warmUp !== null,
+    home: shown.home !== undefined,
     recording: phase === 'listening' || phase === 'finishing',
   });
 }

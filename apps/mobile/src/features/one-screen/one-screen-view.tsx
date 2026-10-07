@@ -7,8 +7,7 @@ import { fonts } from '@scootch/tokens';
 
 import type { ScootchProps } from '../../art/Scootch';
 import { useT } from '../../i18n/i18n-provider';
-import { CapsuleButton } from '../../ui/buttons';
-import { GlassSurface } from '../../ui/glass-surface';
+import { FadeAway } from '../../ui/motion/fade-away';
 import { RiseIn } from '../../ui/motion/rise-in';
 import { useKeyboardOpen } from '../../ui/use-keyboard-open';
 import { useScreenStyle } from '../../ui/use-screen-style';
@@ -25,6 +24,7 @@ import { chargeNoteShows } from './one-screen-stage';
 import { Chips, TaskSetChoices, WorldRow } from './one-screen-panels';
 import type { OneScreenShown } from './one-screen-shown';
 import { StageScroll } from './stage-scroll';
+import { TaskSetDock } from './task-set-dock';
 
 export type { OneScreenShown } from './one-screen-shown';
 import { SafeFrame } from '../../ui/safe-frame';
@@ -87,14 +87,40 @@ export function OneScreenView({
   let body: ReactNode = null;
   let footer: ReactNode = null;
   if (shown.kind === 'composer') {
-    const { composer, warmUp } = shown;
+    const { composer, warmUp, home } = shown;
     const { state } = composer;
     const recording = state.phase === 'listening' || state.phase === 'finishing';
     const heard = recording && state.transcript !== '';
-    const anything = heard || ((warmUp ?? shown.ways) && !recording) || shown.notificationsOff;
+    // Home's own parts keep the screen only while the composer is at rest: a hold, the keyboard,
+    // words in the field or a wait for Scootch each take it over.
+    const typing = state.mode === 'typing' && (keyboardOpen || state.text.trim() !== '');
+    const atRest =
+      state.phase === 'idle' && !typing && !composer.thinking && !composer.notUnderstood;
+    const waiting = home && atRest ? home.waiting : null;
+    const startsNote = home && atRest ? home.startsNote : null;
+    const anything =
+      heard ||
+      ((warmUp ?? shown.ways) && !recording) ||
+      shown.notificationsOff ||
+      waiting !== null ||
+      startsNote !== null;
     body = !anything ? null : (
       <>
         {heard ? <HeardWords transcript={state.transcript} /> : null}
+        {waiting === null ? null : (
+          <>
+            {note(t('done.waiting'), 'done-waiting-label')}
+            <Text
+              testID="done-waiting"
+              accessibilityLabel={`${t('done.waiting')}: ${waiting}`}
+              allowFontScaling={allowFontScaling}
+              style={[styles.heard, { color: palette.ink, fontSize: size(HEARD_SIZE) }]}
+            >
+              {waiting}
+            </Text>
+          </>
+        )}
+        {startsNote === null ? null : note(startsNote, 'starts-note')}
         {warmUp && !recording ? (
           <Chips
             chips={warmUp.chips}
@@ -120,6 +146,11 @@ export function OneScreenView({
     footer = (
       <>
         {warmUp ? <StepDots step={4} /> : null}
+        {home && onWorld ? (
+          <FadeAway shown={atRest}>
+            <WorldRow onPress={onWorld} />
+          </FadeAway>
+        ) : null}
         <View onLayout={(event) => setComposerHeight(event.nativeEvent.layout.height)}>
           <ComposerView {...composer} />
         </View>
@@ -131,6 +162,7 @@ export function OneScreenView({
       onStart,
       label = null,
       startLabel,
+      onDiscard,
       extra = null,
       figure: _,
       ...choices
@@ -157,38 +189,13 @@ export function OneScreenView({
       </>
     );
     footer = (
-      <GlassSurface style={styles.dock}>
-        <CapsuleButton
-          label={startLabel ?? t('session.start')}
-          hint={t('taskSet.start.hint', { minutes: choices.minutes })}
-          disabled={onStart === null}
-          onPress={onStart ?? (() => undefined)}
-          testID="one-action"
-        />
-      </GlassSurface>
+      <TaskSetDock
+        startLabel={startLabel}
+        minutes={choices.minutes}
+        onStart={onStart}
+        onDiscard={onDiscard}
+      />
     );
-  } else if (shown.kind === 'done') {
-    const waiting = shown.waiting ?? null;
-    body =
-      waiting === null ? null : (
-        <>
-          {note(t('done.waiting'), 'done-waiting-label')}
-          <Text
-            testID="done-waiting"
-            accessibilityLabel={`${t('done.waiting')}: ${waiting}`}
-            allowFontScaling={allowFontScaling}
-            style={[styles.heard, { color: palette.ink, fontSize: size(HEARD_SIZE) }]}
-          >
-            {waiting}
-          </Text>
-        </>
-      );
-    footer = onWorld ? (
-      <>
-        <WorldRow onPress={onWorld} />
-        {shown.under}
-      </>
-    ) : null;
   } else if (shown.kind === 'panel') {
     body = shown.body;
     footer = shown.footer;
@@ -253,15 +260,7 @@ export function OneScreenView({
             ) : null}
           </StageScroll>
           {footer === null ? null : (
-            <RiseIn
-              key={testName}
-              index={2}
-              style={[
-                styles.footer,
-                shown.kind === 'done' && styles.footerDone,
-                { marginBottom: dockBottom },
-              ]}
-            >
+            <RiseIn key={testName} index={2} style={[styles.footer, { marginBottom: dockBottom }]}>
               {footer}
             </RiseIn>
           )}
@@ -298,19 +297,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: GUTTER.dock,
     gap: 18,
   },
-  footerDone: {
-    gap: 10,
-  },
   heard: {
     fontFamily: fonts.body,
     fontWeight: '500',
   },
   note: {
     fontFamily: fonts.body,
-  },
-  dock: {
-    borderRadius: 34,
-    padding: 7,
-    overflow: 'hidden',
   },
 });

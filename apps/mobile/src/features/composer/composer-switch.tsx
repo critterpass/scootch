@@ -16,6 +16,8 @@ export interface ComposerSwitchProps {
   /** A recording is on: the capsule sweeps over the button, which fades under it. */
   readonly listening: boolean;
   readonly disabled: boolean;
+  /** Drawn faint: the day has no start left, and typing is off with talking. */
+  readonly off?: boolean;
   readonly label: string;
   readonly hint: string;
   readonly onPress: () => void;
@@ -29,13 +31,14 @@ export function ComposerSwitch({
   typing,
   listening,
   disabled,
+  off = false,
   label,
   hint,
   onPress,
 }: ComposerSwitchProps) {
   const { palette, reducedMotion } = useScreenStyle();
   const [pressed, setPressed] = useState(false);
-  const fade = useFollow(listening ? 0 : 1, reducedMotion ? CROSSFADE_MS : 300);
+  const fade = useFollow(listening ? 0 : off ? 0.4 : 1, reducedMotion ? CROSSFADE_MS : 300);
   const sink = useFollow(pressed && !reducedMotion ? 1 : 0, 200);
   const mix = useFollow(typing ? 1 : 0, reducedMotion ? CROSSFADE_MS : 250);
   const pose = useFollow(typing ? 1 : 0, reducedMotion ? 0 : 450, SPRING_CURVE);
@@ -59,6 +62,7 @@ export function ComposerSwitch({
         accessibilityRole="button"
         accessibilityLabel={label}
         accessibilityHint={hint}
+        accessibilityState={{ disabled }}
         disabled={disabled}
         onPressIn={() => setPressed(true)}
         onPressOut={() => setPressed(false)}

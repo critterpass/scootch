@@ -215,16 +215,7 @@ export const en = {
   'energy.guess': 'Guess from how I wrote',
   'energy.hint': 'Scootch picks to match.',
 
-  'bargain.notNow.hint': 'Tell Scootch why, and it asks for less.',
-  'bargain.reason': 'Why not now?',
-  'bargain.reason.hint': 'A few words are enough.',
-  'bargain.say': 'Say it',
-  'bargain.wiped': "I'm wiped",
-  'bargain.youSaid': 'You said “{excuse}”',
   'bargain.smaller': 'Smaller',
-  'bargain.smaller.hint': 'Asks for even less.',
-  'bargain.deal': 'Deal · {minutes} min',
-  'bargain.deal.hint': 'Starts a {minutes} minute session.',
 
   'hatch.label': 'Your task hatched',
   'hatch.shrunk': 'Now pocket-sized',
@@ -237,11 +228,8 @@ export const en = {
 
   'morning.fromYesterday': 'Good morning · from yesterday',
   'morning.firstStep': "Today's first step",
-  'morning.somethingElse': 'Something else',
-  'morning.somethingElse.hint': 'Puts this one in the drawer and asks what you would rather do.',
   'morning.start': 'Start · {minutes} min',
   'morning.chip.tiny': 'something tiny',
-  'morning.chip.pick': 'pick for me',
   'morning.chip.sit': 'just sit with me',
   'morning.chip.hint': 'Sends this as what you want to do.',
   'morning.note': '{thing} is due {day}.',

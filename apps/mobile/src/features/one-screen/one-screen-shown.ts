@@ -16,7 +16,18 @@ export type OneScreenShown =
       } | null;
       /** Said once, straight after the system's prompt was refused, and never again. */
       readonly notificationsOff: boolean;
-      /** Small ways in under the ask: the three chips of a return, or "pick for me". */
+      /**
+       * Home's own parts around the composer: the world card above the dock, and what waits for
+       * tomorrow. Both step aside while the person is talking or typing. Unset on the warm-up
+       * ask, which is still first launch.
+       */
+      readonly home?: {
+        /** The task carried on to tomorrow, said plainly while nothing else is going on. */
+        readonly waiting: string | null;
+        /** Said under it when the day's free starts are used and the capsule is locked. */
+        readonly startsNote: string | null;
+      };
+      /** Small ways in under the ask: the chips of a return. */
       readonly ways?: {
         readonly chips: readonly string[];
         readonly onChip: (text: string) => void;
@@ -35,7 +46,9 @@ export type OneScreenShown =
       readonly label?: string | null;
       /** The label of the one action, when it is not the plain "Start". */
       readonly startLabel?: string;
-      /** Quiet controls under the choices: "Not now", "Something else". */
+      /** The round button left of Start: the task is put down. Unset, no button is drawn. */
+      readonly onDiscard?: () => void;
+      /** Quiet controls under the choices: sitting with someone. */
       readonly extra?: ReactNode;
       /** Drawn in place of Scootch alone, when the task's monster stands beside him. */
       readonly figure?: ReactNode;
@@ -49,13 +62,6 @@ export type OneScreenShown =
       readonly figure?: ReactNode;
       readonly body: ReactNode;
       readonly footer: ReactNode;
-    }
-  | {
-      readonly kind: 'done';
-      /** The task carried on to tomorrow, said plainly while the day rests. */
-      readonly waiting?: string | null;
-      /** Drawn under the world row: "One more". */
-      readonly under?: ReactNode;
     }
   /** Nothing is asked and nothing is offered. */
   | { readonly kind: 'quiet' };

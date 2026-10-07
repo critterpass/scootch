@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Animated, {
   Easing,
@@ -49,6 +49,12 @@ export interface ComposerCapsuleProps {
   readonly hidden?: boolean;
   /** The hold was too short to be a recording: the capsule shakes its head. */
   readonly tooShort?: boolean;
+  /** The capsule's words and glyph at rest, when it is not the hold to talk. */
+  readonly label?: string;
+  /** `null` draws no glyph at all. */
+  readonly icon?: ReactNode;
+  /** Drawn faint: it answers to nothing. */
+  readonly faded?: boolean;
 }
 
 /**
@@ -67,6 +73,9 @@ export function ComposerCapsule({
   drag,
   hidden = false,
   tooShort = false,
+  label,
+  icon,
+  faded = false,
 }: ComposerCapsuleProps) {
   const { palette, allowFontScaling, size, reducedMotion } = useScreenStyle();
   const t = useT();
@@ -83,7 +92,7 @@ export function ComposerCapsule({
   const armedLayer = useFollow(isArmed, reducedMotion ? CROSSFADE_MS : 250);
   const armedLabel = useFollow(isArmed, 200);
   const width = useSharedValue(0);
-  const present = useFollow(hidden ? 0 : 1, reducedMotion ? CROSSFADE_MS : 300);
+  const present = useFollow(hidden ? 0 : faded ? 0.45 : 1, reducedMotion ? CROSSFADE_MS : 300);
   const stands = useFollow(hidden ? 0 : 1, reducedMotion ? 0 : 450, SPRING_CURVE);
   const shake = useSharedValue(0);
   useEffect(() => {
@@ -163,14 +172,14 @@ export function ComposerCapsule({
         <Animated.View style={[styles.body, bodyStyle]}>
           <Animated.View style={[styles.fill, insideStyle]}>
             <Animated.View style={[styles.layer, { paddingHorizontal: slot / 2 }, labelStyle]}>
-              <WaveIcon color={palette.page} />
+              {icon === undefined ? <WaveIcon color={palette.page} /> : icon}
               <Text
                 allowFontScaling={allowFontScaling}
                 numberOfLines={1}
                 adjustsFontSizeToFit
                 style={[styles.label, { color: palette.page, fontSize: size(LABEL_SIZE) }]}
               >
-                {t('talk.hold')}
+                {label ?? t('talk.hold')}
               </Text>
             </Animated.View>
             <Animated.View style={[styles.fill, liveStyle]}>

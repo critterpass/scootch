@@ -1,5 +1,4 @@
 import type {
-  Ask,
   DrawerEvent,
   DrawerItemRow,
   Energy,
@@ -47,20 +46,14 @@ export type DayEvent =
   | { readonly type: 'drawer_item_swapped_in'; readonly itemId: Id }
   /** "Pick for me", and "Pick again": Scootch offers one thing from the drawer. */
   | { readonly type: 'pick_for_me' }
-  /** "Back", on Scootch's pick or on a counter-offer: it is dropped and nothing else changes. */
+  /** "Back", on Scootch's pick: it is dropped and nothing else changes. */
   | { readonly type: 'pick_dropped' }
-  /** "Not now", with the person's reason: Scootch counters with a smaller ask. */
-  | { readonly type: 'excuse_given'; readonly text: string }
-  /** "Smaller", on the counter-offer. */
-  | { readonly type: 'smaller_asked' }
-  /** "Deal": the session is set at the bargained length. Starting it is a session event. */
-  | { readonly type: 'deal_struck'; readonly treat?: string | null }
   /** "Too big": the task and its monster both get smaller. */
   | { readonly type: 'too_big' }
   /** "Catch him": the hatch is over and the task is set. */
   | { readonly type: 'monster_met' }
-  /** "Something else", on a morning with yesterday's task: it goes to the drawer. */
-  | { readonly type: 'carried_task_set_aside' }
+  /** The discard button beside Start, on a task not yet started: its words go to the drawer. */
+  | { readonly type: 'task_set_aside' }
   | { readonly type: 'session_set'; readonly minutes: number; readonly treat?: string | null }
   | { readonly type: 'session'; readonly event: SessionEvent }
   | { readonly type: 'drawer'; readonly event: DrawerEvent }
@@ -69,15 +62,10 @@ export type DayEvent =
       readonly thought: ParkedThought;
       readonly resolution: 'keep' | 'discard';
     }
-  | { readonly type: 'done_for_today' }
   /** A task that was started and left goes to the drawer whole; its start stays used. */
   | { readonly type: 'started_task_parked' }
   /** "Fix the words" on the offered one thing: the words go back to the composer. */
   | { readonly type: 'one_thing_returned' }
-  /** "Changed my mind", after "That's it for today": the day and its one thing are back. */
-  | { readonly type: 'rest_undone' }
-  /** "One more", on a finished day with a start still open: the ask comes back. */
-  | { readonly type: 'one_more_asked' }
   /** The store reported a change to Plus: today is worked out again. */
   | { readonly type: 'entitlement_changed' }
   /** "It's fine, be funny" on a serious task. It never does anything on a crisis day. */
@@ -133,9 +121,7 @@ export type PickStep =
   /** "Today's one thing". `reveal` is `null` for a single typed task, which has nothing to fall away. */
   | { readonly kind: 'offered'; readonly reveal: Reveal | null; readonly another: boolean }
   | { readonly kind: 'picked_for_me'; readonly itemId: Id }
-  | { readonly kind: 'hatching'; readonly shrunk: boolean }
-  /** The counter-offer to an excuse. `ask` only ever gets smaller. */
-  | { readonly kind: 'bargaining'; readonly excuse: string; readonly ask: Ask };
+  | { readonly kind: 'hatching'; readonly shrunk: boolean };
 
 const PICK_EVENTS = [
   'one_thing_picked',
@@ -143,12 +129,9 @@ const PICK_EVENTS = [
   'drawer_item_swapped_in',
   'pick_for_me',
   'pick_dropped',
-  'excuse_given',
-  'smaller_asked',
-  'deal_struck',
   'too_big',
   'monster_met',
-  'carried_task_set_aside',
+  'task_set_aside',
 ] as const;
 /** The events between a sent ramble and a set task. */
 export type PickEvent = Extract<DayEvent, { readonly type: (typeof PICK_EVENTS)[number] }>;
@@ -172,8 +155,6 @@ export interface DayState {
   readonly pick: PickStep;
   /** The battery has not been asked about today: it is asked before the first pick. */
   readonly energyNeeded: boolean;
-  /** Another thing was asked for on a finished day, and a start is still open for it. */
-  readonly oneMore: boolean;
   readonly session: SessionState | null;
   readonly monster: MonsterRow | null;
   /** The task has no monster yet because the server has not answered for it. */
@@ -191,8 +172,6 @@ export interface DayState {
   readonly reminderAt: Instant | null;
   /** The task carried on to tomorrow, while today rests; `null` when none is. */
   readonly waitingForTomorrow: TaskRow | null;
-  /** "That's it for today" was tapped today and can still be taken back. */
-  readonly restUndo: boolean;
   /** Dates heard in the last ramble, each with the line that says it out loud. */
   readonly heardDeadlines: readonly HeardDeadline[];
   readonly line: ShownLine | null;

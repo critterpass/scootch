@@ -78,7 +78,7 @@ describe('"Today\'s one thing", when the words came out wrong', () => {
       pick: { kind: 'none' },
       heardDeadlines: [],
     });
-    expect(stageOf({ ...state, energyAsked: false }).kind).toBe('composer');
+    expect(stageOf({ ...state, energyAsked: false }).kind).toBe('home');
     expect(app.data.count('tasks') + app.data.count('monsters')).toBe(0);
     expect(app.data.count('ramble_transcripts')).toBe(0);
   });
