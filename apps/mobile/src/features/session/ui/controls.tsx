@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 
 import { radius, spacing } from '@scootch/tokens';
 
@@ -53,18 +53,6 @@ export function Capsule({
         {label}
       </SessionText>
     </PressSpring>
-  );
-}
-
-/** A label that is not a control: the monster's name and the session's length. */
-export function Tag({ label, inks }: { readonly label: string; readonly inks: SessionInks }) {
-  return (
-    <View style={[styles.capsule, styles.tag, lift(inks)]}>
-      <View style={[styles.dot, { backgroundColor: inks.tomato }]} />
-      <SessionText face="caption" color={inks.ink} numberOfLines={1} style={styles.tagLabel}>
-        {label}
-      </SessionText>
-    </View>
   );
 }
 
@@ -138,19 +126,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: spacing.sm,
-  },
-  tag: {
-    flexShrink: 1,
-    paddingHorizontal: spacing.md,
-  },
-  tagLabel: {
-    flexShrink: 1,
-    fontWeight: '600',
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
   },
   filled: {
     minHeight: 56,

@@ -17,13 +17,32 @@ const body: TextStyle = { fontFamily: fonts.body };
 const FACES = {
   headline: { base: fontSizes.sentence, cap: 1.5, style: heading },
   minutes: { base: 44, cap: 1.5, style: heading },
+  // The time under the ring: 700 40/1, tight, in figures that do not jiggle as they change.
+  time: {
+    base: 40,
+    cap: 1.5,
+    style: { ...heading, letterSpacing: -0.8, fontVariant: ['tabular-nums'] },
+  },
+  // The time of a serious task, a size down.
+  quietTime: { base: 34, cap: 1.5, style: heading },
+  // A pill's label and a toast's title: 600 15.
+  pill: { base: 15, cap: 1.6, style: { ...body, fontWeight: '600' } },
+  // A menu row and a dock's quiet button: 17, regular and medium.
+  // The task under the time: 400 17/1.3.
+  task: { base: 17, cap: 2.2, style: body },
+  row: { base: 17, cap: 1.8, style: body },
+  dock: { base: 17, cap: 1.6, style: { ...body, fontWeight: '500' } },
+  dockStrong: { base: 17, cap: 1.6, style: { ...body, fontWeight: '600', letterSpacing: -0.17 } },
+  // The tiny next step: the rounded face at 24, tight.
+  step: { base: 24, cap: 1.5, style: { ...heading, letterSpacing: -0.36 } },
+  note: { base: 13, cap: 2, style: body },
   action: { base: fontSizes.action, cap: 1.6, style: heading },
   body: { base: fontSizes.body, cap: 2.2, style: body },
   caption: { base: 15, cap: 2.2, style: body },
   eyebrow: {
     base: 13,
     cap: 2,
-    style: { ...body, fontWeight: '600', letterSpacing: 0.3, textTransform: 'uppercase' },
+    style: { ...body, fontWeight: '600', letterSpacing: 0.26, textTransform: 'uppercase' },
   },
 } as const satisfies Record<string, Face>;
 

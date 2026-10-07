@@ -3,7 +3,7 @@ import type { Pen } from '../core/pen';
 import { hash } from '../core/rng';
 import type { Expression } from './expression';
 import { star } from './face';
-import { SCOOTCH } from './palette';
+import { SCOOTCH, scootchInks, type ScootchInks } from './palette';
 
 /** Where the effects hang: the body centre, the line above the curl and the line under the feet. */
 export interface EffectFrame {
@@ -16,14 +16,14 @@ export interface EffectFrame {
 const frac = (v: number): number => ((v % 1) + 1) % 1;
 
 /** The plain desk and laptop of the working mood. */
-export function drawLaptop(pen: Pen, g: EffectFrame): void {
+export function drawLaptop(pen: Pen, g: EffectFrame, inks: ScootchInks = scootchInks()): void {
   pen.line(
     [
       [g.cx - 74, g.by],
       [g.cx + 74, g.by],
     ],
     2.6,
-    SCOOTCH.ink,
+    inks.desk,
   );
   pen.fill(
     [
@@ -49,14 +49,15 @@ export function drawEffect(
   g: EffectFrame,
   beat: number,
   t: number | undefined,
+  inks: ScootchInks = scootchInks(),
 ): void {
-  const ink = SCOOTCH.ink;
+  const ink = inks.fx;
   const seconds = t ?? 0;
   switch (e.fx) {
     case 'cloud': {
       const x = g.cx + 4;
       const y = g.top - 2;
-      pen.fill(ell(x, y, 26, 11, 14, 0.16, 1), SCOOTCH.cloud);
+      pen.fill(ell(x, y, 26, 11, 14, 0.16, 1), inks.cloud);
       for (let i = 0; i < e.fxCount; i++) {
         const fall = y + 15 + ((seconds * 18 + i * 7) % 16);
         pen.line(
@@ -94,7 +95,7 @@ export function drawEffect(
       ] as const;
       puffs.forEach(([dx, dy, r], i) => {
         const alpha = 0.4 + 0.6 * ((Math.cos(beat * Math.PI * 2 - i * 0.6) + 1) / 2);
-        pen.fill(ell(g.cx + dx, g.top + dy + 22, r, r, 10), SCOOTCH.cloud, 0.38, alpha);
+        pen.fill(ell(g.cx + dx, g.top + dy + 22, r, r, 10), inks.cloud, 0.38, alpha);
       });
       break;
     }
@@ -129,7 +130,7 @@ export function drawEffect(
       ] as const;
       places.slice(0, e.fxCount).forEach(([dx, dy, phase], i) => {
         const size = 3 + Math.abs(Math.sin(beat * Math.PI * 2 + phase + 0.9)) * 5;
-        pen.fill(star(g.cx + dx, g.top + dy, size), i % 2 ? SCOOTCH.body : ink, 0.1);
+        pen.fill(star(g.cx + dx, g.top + dy, size), i % 2 ? inks.body : ink, 0.1);
       });
       break;
     }

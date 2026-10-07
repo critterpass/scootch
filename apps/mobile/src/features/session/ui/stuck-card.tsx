@@ -1,10 +1,10 @@
-import { StyleSheet, View } from 'react-native';
-
-import { radius, spacing } from '@scootch/tokens';
+import { StyleSheet } from 'react-native';
 
 import type { Translate } from '../../../i18n/i18n-provider';
+import { GlassSurface } from '../../../ui/glass-surface';
+import { RiseIn } from '../../../ui/motion/rise-in';
 
-import { FilledButton, TextButton } from './controls';
+import { DockButton, DockRow } from './dock';
 import type { SessionInks } from './session-inks';
 import { SessionText } from './session-text';
 
@@ -19,66 +19,65 @@ export interface StuckCardProps {
   readonly onOkay: () => void;
 }
 
-/** Stuck help: one tiny next step, with "Smaller" and "Okay". Asked for or offered, it is the same card. */
+/**
+ * Stuck help: one tiny next step on a glass card, with "Smaller" and "Okay". Asked for or offered,
+ * it is the same card, and it rises in from the foot of the screen.
+ */
 export function StuckCard({ lead, step, inks, t, onSmaller, onOkay }: StuckCardProps) {
   return (
-    <View testID="session-stuck-card" style={[styles.card, { backgroundColor: inks.surface }]}>
-      <SessionText face="eyebrow" color={inks.muted}>
-        {t('session.step.title')}
-      </SessionText>
-      {lead ? (
-        <SessionText face="body" color={inks.muted}>
-          {lead}
+    <RiseIn testID="session-stuck-card">
+      <GlassSurface style={styles.card}>
+        <SessionText face="eyebrow" color={inks.muted}>
+          {t('session.step.title')}
         </SessionText>
-      ) : null}
-      {step ? (
-        <SessionText
-          face="action"
-          color={inks.ink}
-          accessibilityLiveRegion="polite"
-          testID="session-tiny-step"
-        >
-          {step}
-        </SessionText>
-      ) : null}
-      <View style={styles.row}>
-        <TextButton
-          strong
-          label={t('monster.smaller')}
-          hint={t('session.step.smaller.hint')}
-          testID="session-step-smaller"
-          inks={inks}
-          onPress={onSmaller}
-          style={styles.half}
-        />
-        <FilledButton
-          label={t('session.step.okay')}
-          hint={t('session.step.okay.hint')}
-          testID="session-step-okay"
-          inks={inks}
-          onPress={onOkay}
-          style={styles.half}
-        />
-      </View>
-    </View>
+        {lead ? (
+          <SessionText face="body" color={inks.muted}>
+            {lead}
+          </SessionText>
+        ) : null}
+        {step ? (
+          <SessionText
+            face="step"
+            color={inks.ink}
+            accessibilityLiveRegion="polite"
+            testID="session-tiny-step"
+          >
+            {step}
+          </SessionText>
+        ) : null}
+        <DockRow style={styles.row}>
+          <DockButton
+            tone="plain"
+            label={t('monster.smaller')}
+            hint={t('session.step.smaller.hint')}
+            testID="session-step-smaller"
+            inks={inks}
+            onPress={onSmaller}
+          />
+          <DockButton
+            tone="ink"
+            label={t('session.step.okay')}
+            hint={t('session.step.okay.hint')}
+            testID="session-step-okay"
+            inks={inks}
+            onPress={onOkay}
+          />
+        </DockRow>
+      </GlassSurface>
+    </RiseIn>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: radius.lg,
-    padding: spacing.lg,
-    gap: spacing.sm,
+    borderRadius: 36,
+    paddingTop: 22,
+    paddingHorizontal: 20,
+    paddingBottom: 14,
+    gap: 10,
+    overflow: 'hidden',
   },
   row: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    gap: spacing.sm,
-    marginTop: spacing.sm,
-  },
-  half: {
-    flexGrow: 1,
-    flexBasis: 120,
+    marginTop: 8,
   },
 });

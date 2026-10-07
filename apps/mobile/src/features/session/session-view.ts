@@ -172,9 +172,24 @@ export function timeLeftFraction(
   return Math.min(1, Math.max(0, (session.endsAt - now) / length));
 }
 
-/** The disc's diameter as a share of its full size: its area, not its width, follows the time. */
-export function discScale(fraction: number): number {
-  return Math.sqrt(Math.min(1, Math.max(0, fraction)));
+const clamp01 = (value: number): number => Math.min(1, Math.max(0, value));
+
+/**
+ * The disc's diameter as a share of the ring it sits in, as the board draws it: a straight line in
+ * the time left (232 of 330 with seven minutes of ten left, 92 with two), so the last minutes are
+ * still a disc and not a dot. When time is up it is gone.
+ */
+export function discShare(fraction: number): number {
+  const left = clamp01(fraction);
+  return left === 0 ? 0 : (36 + 280 * left) / 330;
+}
+
+/**
+ * Scootch's size on the disc as a share of the ring, as the board draws it: 200 of 330 with seven
+ * minutes of ten left, 180 with two. He gives way a little as the disc shrinks and no more.
+ */
+export function scootchShare(fraction: number): number {
+  return (172 + 40 * clamp01(fraction)) / 330;
 }
 
 /** The line shown under the timer: any line but the ones the stuck card and the finish carry. */

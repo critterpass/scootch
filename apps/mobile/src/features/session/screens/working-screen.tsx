@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -6,151 +7,62 @@ import {
   View,
 } from 'react-native';
 
-import { radius, spacing } from '@scootch/tokens';
-
 import { Scootch } from '../../../art/Scootch';
-import { DEVELOPER_END } from '../dev/short-session';
-import { companyLine } from '../session-view';
-import { Capsule, FilledButton, RoundButton, Tag, TextButton } from '../ui/controls';
-import { LeaveAsk } from '../ui/leave-ask';
-import { ParkComposer } from '../ui/park-composer';
+import { RoundButton as GlassRound } from '../../../ui/buttons';
+import { MoreIcon } from '../../../ui/icons';
+import { companyLine, scootchShare } from '../session-view';
+import { RoundButton } from '../ui/controls';
+import { GlassPill, PillDot } from '../ui/glass-pill';
 import { ParkedToast } from '../ui/parked-toast';
 import { SessionFrame } from '../ui/session-frame';
+import { SessionMenu } from '../ui/session-menu';
 import { SessionText } from '../ui/session-text';
-import { StuckCard } from '../ui/stuck-card';
-import { TimeDisc } from '../ui/time-disc';
+import { RING_SIZE, SMALL_RING_SIZE, TimeDisc } from '../ui/time-disc';
 
 import type { ScreenProps } from './screen-props';
+import { WorkingFooter } from './working-footer';
+import { workingMenu } from './working-menu';
 
-const DISC_MAX = 280;
-const DISC_SHARE = 0.24;
-const SCOOTCH_SHARE = 0.15;
-
-function Footer({ model, actions, inks, t }: ScreenProps) {
-  const { view } = model;
-  if (view.kind !== 'working') return null;
-  if (model.leaveAsked) {
-    return <LeaveAsk inks={inks} t={t} onStay={actions.stay} onNotFinished={actions.leaveNow} />;
-  }
-  if (model.parkOpen) {
-    return <ParkComposer inks={inks} t={t} onPark={actions.park} onCancel={actions.closePark} />;
-  }
-  if (view.stuck) {
-    return (
-      <StuckCard
-        lead={model.line?.slot === 'checkIn' ? model.line.text : null}
-        step={model.tinyNextStep}
-        inks={inks}
-        t={t}
-        onSmaller={() => actions.send({ type: 'step_smaller' })}
-        onOkay={() => actions.send({ type: 'step_accepted' })}
-      />
-    );
-  }
-  if (view.quiet) {
-    // A serious task: a plain tap finishes, and stopping sits beside it. Nothing else is offered.
-    return (
-      <View style={[styles.bar, { backgroundColor: inks.surface }]}>
-        {view.timeUp ? (
-          <TextButton
-            strong
-            label={t('session.notFinished')}
-            hint={t('session.notFinished.hint')}
-            testID="session-not-finished"
-            inks={inks}
-            onPress={() => actions.send({ type: 'not_finished' })}
-            style={styles.half}
-          />
-        ) : (
-          <TextButton
-            strong
-            label={t('session.quiet.stop')}
-            hint={t('session.quiet.stop.hint')}
-            testID="session-quiet-stop"
-            inks={inks}
-            onPress={actions.leave}
-            style={styles.half}
-          />
-        )}
-        <FilledButton
-          label={t('session.quiet.done')}
-          hint={t('session.quiet.done.hint')}
-          testID="session-quiet-done"
-          inks={inks}
-          onPress={() => actions.send({ type: 'finish_tapped' })}
-          style={styles.half}
-        />
-      </View>
-    );
-  }
-  return (
-    <>
-      <Capsule
-        label={t('talk.parkThought')}
-        hint={t('session.park.hint')}
-        testID="session-park"
-        inks={inks}
-        onPress={actions.openPark}
-        style={styles.park}
-        lead={
-          <SessionText face="action" color={inks.ink}>
-            +
-          </SessionText>
-        }
-      />
-      <View style={styles.quietRow}>
-        <TextButton
-          label={t('session.stuck')}
-          hint={t('session.stuck.hint')}
-          testID="session-stuck"
-          inks={inks}
-          onPress={() => actions.send({ type: 'stuck_tapped' })}
-        />
-        <TextButton
-          label={t('session.finishEarly')}
-          hint={t('session.finishEarly.hint')}
-          testID="session-finish-early"
-          inks={inks}
-          onPress={actions.finishEarly}
-        />
-        {model.developerEnd ? (
-          <TextButton
-            label={DEVELOPER_END.label}
-            hint={DEVELOPER_END.hint}
-            testID="session-developer-end"
-            inks={inks}
-            onPress={actions.developerEnd}
-          />
-        ) : null}
-      </View>
-    </>
-  );
-}
+/** The board's phone is 393 points wide and the ring 330: this much stays clear at the sides. */
+const RING_MARGIN = 63;
+/** The most of the screen's height the ring may take, so the time and the task stay on it. */
+const RING_SHARE = 0.39;
+/** The ring while the park field and the keyboard are up. */
+const RING_BESIDE_KEYBOARD = 190;
 
 /**
- * The session at work: time as a shrinking disc, the minutes, the task, and Scootch working beside
- * it. Parking a thought, stuck help and the two-minute warning all happen here, and a serious
- * task's whole session does, in ink-grey and plain words.
+ * The session at work, as the board draws it: the monster's pill and one corner control, a ring
+ * with the tomato disc shrinking inside it and a paper Scootch sitting on the disc, the time and
+ * the task under it, and one glass pill at the foot. Stuck help, the park field and the
+ * two-minute warning all happen here, and a serious task's whole session does, in ink-grey.
  */
 export function WorkingScreen(props: ScreenProps) {
   const { model, actions, inks, t } = props;
   const { width, height } = useWindowDimensions();
+  const [menuOpen, setMenuOpen] = useState(false);
   if (model.view.kind !== 'working') return null;
   const { quiet, stuck, timeUp, twoMinutesLeft } = model.view;
-  // The disc and Scootch share the screen with the task and Scootch's line, which may run to
-  // three lines: both give way on a short screen so the line is never pushed under the buttons.
-  const discSize =
-    Math.min(DISC_MAX, width - spacing.lg * 2, height * DISC_SHARE) *
-    (stuck || model.parkOpen ? 0.7 : 1);
-  const scootchSize = stuck || model.parkOpen ? 96 : Math.min(140, height * SCOOTCH_SHARE);
+
+  // The board's ring is 330 across, and 280 for a serious task and beside the stuck card.
+  const drawnRing = quiet || stuck ? SMALL_RING_SIZE : RING_SIZE;
+  const ring = Math.min(
+    model.parkOpen ? RING_BESIDE_KEYBOARD : drawnRing,
+    width - RING_MARGIN,
+    height * RING_SHARE,
+  );
+  // Scootch keeps his size against the ring he was drawn in, whatever the phone.
+  const scootchSize = Math.round(
+    stuck ? (180 / SMALL_RING_SIZE) * ring : scootchShare(model.fraction) * ring,
+  );
   const name = model.monster?.name;
   const spoken = timeUp
     ? t('session.timeUpSpoken')
     : t('session.minutesLeftSpoken', { count: model.minutesLeft });
   const line = companyLine(model.line);
   // He acts the moment: stuck with you, a small wave for a parked thought, shocked at the clock.
+  // A serious task has him asleep on the disc: there, and asking nothing.
   const mood = quiet
-    ? 'serious'
+    ? 'asleep'
     : stuck
       ? 'stuck'
       : model.parkedNote
@@ -158,6 +70,11 @@ export function WorkingScreen(props: ScreenProps) {
         : twoMinutesLeft
           ? 'shocked'
           : 'working';
+  // Under the time sits the task. For the last two minutes Scootch's warning takes its place, and
+  // a serious task shows the plain words it is kept company with instead of the task.
+  const warning = twoMinutesLeft && !quiet ? line : null;
+  // A serious task has no menu: its two ways on are the dock, and its corner simply closes.
+  const menu = quiet ? null : workingMenu(props);
 
   return (
     <KeyboardAvoidingView
@@ -166,25 +83,40 @@ export function WorkingScreen(props: ScreenProps) {
     >
       <SessionFrame
         inks={inks}
+        page={quiet ? inks.quietPage : inks.page}
+        align="drawn"
+        footerInset={quiet || stuck || model.parkOpen || model.leaveAsked ? 14 : 0}
         testID={quiet ? 'session-quiet' : 'session-running'}
-        footer={<Footer {...props} />}
+        footer={<WorkingFooter {...props} />}
         over={
-          model.parkedNote ? (
-            <ParkedToast
-              thought={model.parkedNote}
-              title={t('session.park.parked')}
-              detail={t('session.park.seeItAfter', { thought: model.parkedNote })}
-              inks={inks}
-            />
-          ) : null
+          <>
+            {model.parkedNote ? (
+              <ParkedToast
+                thought={model.parkedNote}
+                title={t('session.park.parked')}
+                detail={t('session.park.seeItAfter', { thought: model.parkedNote })}
+                inks={inks}
+              />
+            ) : null}
+            {menu && menuOpen ? (
+              <SessionMenu
+                items={menu}
+                inks={inks}
+                closeLabel={t('session.menu.close')}
+                onClose={() => setMenuOpen(false)}
+              />
+            ) : null}
+          </>
         }
         top={
           <>
             {quiet ? (
               <View />
             ) : (
-              <Tag
+              <GlassPill
                 inks={inks}
+                testID="session-pill"
+                lead={<PillDot inks={inks} />}
                 label={
                   name
                     ? t('session.pill', { name, minutes: model.plannedMinutes })
@@ -192,53 +124,78 @@ export function WorkingScreen(props: ScreenProps) {
                 }
               />
             )}
-            <RoundButton
-              label={t('session.leave')}
-              hint={t('session.leave.hint')}
-              testID="session-leave"
-              inks={inks}
-              onPress={actions.leave}
-            />
+            {menu ? (
+              <GlassRound
+                label={t('session.menu')}
+                hint={t('session.menu.hint')}
+                testID="session-menu"
+                onPress={() => setMenuOpen((open) => !open)}
+              >
+                <MoreIcon color={inks.ink} />
+              </GlassRound>
+            ) : (
+              <RoundButton
+                label={t('session.leave')}
+                hint={t('session.leave.hint')}
+                testID="session-leave"
+                inks={inks}
+                onPress={actions.leave}
+              />
+            )}
           </>
         }
       >
-        <TimeDisc
-          fraction={model.fraction}
-          quiet={quiet}
-          size={discSize}
-          inks={inks}
-          reducedMotion={model.reducedMotion}
-          spokenLabel={spoken}
-          hint={t('session.discHint')}
-        />
-        <Scootch
-          mood={mood}
-          attitude={model.attitude}
-          workMode={model.workMode}
-          reducedMotion={model.reducedMotion}
-          squashOnChange
-          size={scootchSize}
-          testID="session-scootch"
-        />
-        <SessionText face="minutes" color={inks.ink} testID="session-minutes" accessible={false}>
-          {t('session.minutesLeft', { count: model.minutesLeft })}
-        </SessionText>
-        {quiet ? null : (
-          <SessionText face="body" color={inks.muted} testID="session-task" style={styles.centred}>
-            {model.taskText}
-          </SessionText>
-        )}
-        {line ? (
-          <SessionText
-            face="body"
-            color={quiet ? inks.muted : inks.ink}
-            accessibilityLiveRegion="polite"
-            testID="session-line"
-            style={styles.centred}
+        <View style={quiet ? styles.quietRing : stuck ? styles.stuckRing : styles.ring}>
+          <TimeDisc
+            fraction={model.fraction}
+            quiet={quiet}
+            size={ring}
+            inks={inks}
+            reducedMotion={model.reducedMotion}
+            spokenLabel={spoken}
+            hint={t('session.discHint')}
           >
-            {line}
-          </SessionText>
-        ) : null}
+            <Scootch
+              mood={mood}
+              tone="paper"
+              attitude={model.attitude}
+              workMode={model.workMode}
+              reducedMotion={model.reducedMotion}
+              care={quiet ? 'serious' : 'none'}
+              squashOnChange
+              size={scootchSize}
+              testID="session-scootch"
+            />
+          </TimeDisc>
+        </View>
+        {stuck ? null : (
+          <View style={quiet ? styles.quietWords : styles.words}>
+            <SessionText
+              face={quiet ? 'quietTime' : 'time'}
+              color={inks.ink}
+              testID="session-minutes"
+              accessible={false}
+            >
+              {t('session.minutesLeft', { count: model.minutesLeft })}
+            </SessionText>
+            {quiet || warning ? null : (
+              <SessionText face="task" color={inks.muted} testID="session-task" style={styles.text}>
+                {model.taskText}
+              </SessionText>
+            )}
+            {line ? (
+              <SessionText
+                face="task"
+                color={inks.muted}
+                accessibilityLiveRegion="polite"
+                testID="session-line"
+                style={styles.text}
+              >
+                {line}
+              </SessionText>
+            ) : null}
+          </View>
+        )}
       </SessionFrame>
     </KeyboardAvoidingView>
   );
@@ -248,31 +205,33 @@ const styles = StyleSheet.create({
   fill: {
     flex: 1,
   },
-  bar: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+  // The board's gaps under its 52-point top row, less the four points the corner row lacks.
+  ring: {
+    marginTop: 34,
+  },
+  stuckRing: {
+    marginTop: 18,
+  },
+  quietRing: {
+    marginTop: 44,
+  },
+  words: {
+    alignSelf: 'stretch',
     alignItems: 'center',
-    borderRadius: radius.lg,
-    padding: spacing.sm,
-    gap: spacing.sm,
+    paddingHorizontal: 28,
+    marginTop: 28,
+    gap: 6,
+    paddingBottom: 8,
   },
-  half: {
-    flexGrow: 1,
-    flexBasis: 120,
+  quietWords: {
+    alignSelf: 'stretch',
+    alignItems: 'center',
+    paddingHorizontal: 28,
+    marginTop: 24,
+    gap: 6,
+    paddingBottom: 8,
   },
-  park: {
-    alignSelf: 'center',
-  },
-  quietRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: spacing.sm,
-  },
-  strong: {
-    fontWeight: '600',
-  },
-  centred: {
+  text: {
     textAlign: 'center',
   },
 });
