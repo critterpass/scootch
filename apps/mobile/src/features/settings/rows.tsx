@@ -1,10 +1,11 @@
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, Switch, Text, View } from 'react-native';
+import { StyleSheet, Switch, Text, View } from 'react-native';
 
 import { fonts, radius, spacing } from '@scootch/tokens';
 
 import { Chevron, Tick } from '../../ui/icons';
 import { useScreenStyle } from '../../ui/use-screen-style';
+import { PressSpring } from '../../ui/motion/press-spring';
 
 const ROW_SIZE = 17;
 const SUB_SIZE = 14;
@@ -143,7 +144,7 @@ export function Row({
     );
   }
   return (
-    <Pressable
+    <PressSpring
       accessibilityRole={kind === 'choice' ? 'radio' : 'button'}
       accessibilityLabel={[label, sub].filter(Boolean).join('. ')}
       accessibilityHint={hint}
@@ -155,11 +156,13 @@ export function Row({
       disabled={inert}
       onPress={onPress}
       testID={testID}
-      style={({ pressed }) => [rowStyle, { opacity: inert ? 0.5 : pressed ? 0.7 : 1 }]}
+      feedback={kind === 'choice' ? 'choice' : 'none'}
+      restOpacity={inert ? 0.5 : 1}
+      style={rowStyle}
     >
       {words}
       {end}
-    </Pressable>
+    </PressSpring>
   );
 }
 
@@ -185,12 +188,13 @@ export function SwitchRow({
 }: SwitchRowProps) {
   const { palette, allowFontScaling, size } = useScreenStyle();
   return (
-    <Pressable
+    <PressSpring
       accessibilityRole="switch"
       accessibilityLabel={[label, sub].filter(Boolean).join('. ')}
       accessibilityHint={hint}
       accessibilityState={{ checked: value }}
       onPress={() => onChange(!value)}
+      feedback="choice"
       testID={testID}
       style={[
         styles.row,
@@ -220,7 +224,7 @@ export function SwitchRow({
       >
         <Switch value={value} trackColor={{ true: palette.tomato }} />
       </View>
-    </Pressable>
+    </PressSpring>
   );
 }
 

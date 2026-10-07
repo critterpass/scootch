@@ -1,10 +1,12 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 
+import { useMusicWhenSilent } from '../../effects/sound-mode';
 import { useLanguage } from '../../i18n/i18n-provider';
 import { developerToolsAllowed } from '../../screens/registry/support/developer-tools';
 import { useDataTools, useDispatch, useToday } from '../../state/day-store-provider';
 import { lineWithNoTask } from '../../state/lines';
+import { goBack } from '../../ui/motion/go-back';
 
 import { FinishWithPage } from './finish-with-page';
 import { SettingsPage } from './settings-page';
@@ -26,6 +28,7 @@ export function SettingsContainer() {
   const dispatch = useDispatch();
   const router = useRouter();
   const [backupOff, setBackupOff] = useState(false);
+  const [musicWhenSilent, setMusicWhenSilent] = useMusicWhenSilent();
 
   useEffect(() => {
     let current = true;
@@ -49,6 +52,8 @@ export function SettingsContainer() {
         backupOff ? lineWithNoTask('backupOff', { language, attitude: settings.attitude }) : null
       }
       developerTools={developerToolsAllowed()}
+      musicWhenSilent={musicWhenSilent}
+      onMusicWhenSilent={setMusicWhenSilent}
       onChange={(changes) =>
         void dispatch({ type: 'settings_changed', changes }).catch(() => undefined)
       }
@@ -59,7 +64,7 @@ export function SettingsContainer() {
           .catch(() => undefined)
       }
       onOpen={(page) => router.push(PAGES[page])}
-      onClose={() => router.replace('/')}
+      onClose={() => goBack(router, '/')}
     />
   );
 }
@@ -75,7 +80,7 @@ export function FinishWithContainer() {
       onChoose={(finishWith) =>
         void dispatch({ type: 'settings_changed', changes: { finishWith } }).catch(() => undefined)
       }
-      onClose={() => router.replace('/settings')}
+      onClose={() => goBack(router, '/settings')}
     />
   );
 }

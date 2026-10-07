@@ -17,7 +17,8 @@ case "$PLATFORM" in
 esac
 [[ "$FLOWS" =~ ^e2e(/|$) && "$FLOWS" != *..* ]] || fail "flows must be a folder or file under e2e/"
 [ -e "$FLOWS" ] || fail "No such flow folder or file: $FLOWS"
-[[ "$MODE" == run || "$MODE" == capture ]] || fail "mode must be run or capture"
+[[ "$MODE" == run || "$MODE" == capture || "$MODE" == video ]] ||
+  fail "mode must be run, capture or video"
 [[ -z "$PR" || "$PR" =~ ^[0-9]+$ ]] || fail "pr must be a pull request number"
 
 echo "js_commit=$(git rev-parse --short=12 HEAD)" >>"$GITHUB_OUTPUT"

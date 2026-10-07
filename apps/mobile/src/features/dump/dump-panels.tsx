@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import type { Energy } from '@scootch/domain';
 import { fonts, fontSizes, radius, spacing } from '@scootch/tokens';
@@ -8,6 +8,7 @@ import { useT } from '../../i18n/i18n-provider';
 import { CapsuleButton, type CapsuleButtonProps } from '../../ui/buttons';
 import { GlassSurface } from '../../ui/glass-surface';
 import { useScreenStyle } from '../../ui/use-screen-style';
+import { PressSpring } from '../../ui/motion/press-spring';
 
 const LABEL_SIZE = 13;
 const SUB_SIZE = 17;
@@ -179,7 +180,7 @@ export function QuietLink({
 }: Pick<CapsuleButtonProps, 'label' | 'hint' | 'onPress' | 'testID'>) {
   const { palette, allowFontScaling, size } = useScreenStyle();
   return (
-    <Pressable
+    <PressSpring
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityHint={hint}
@@ -194,7 +195,7 @@ export function QuietLink({
       >
         {label}
       </Text>
-    </Pressable>
+    </PressSpring>
   );
 }
 

@@ -24,6 +24,9 @@ export const viCareAndSettings = {
   'settings.feel': 'Cảm giác',
   'settings.music': 'Nhạc',
   'settings.music.hint': 'Bật hoặc tắt nhạc trong đĩa của bạn',
+  'settings.musicWhenSilent': 'Phát nhạc khi tắt chuông',
+  'settings.musicWhenSilent.sub': 'Hiệu ứng âm thanh luôn theo nút gạt chuông',
+  'settings.musicWhenSilent.hint': 'Đĩa nhạc và nhịp của ngày vẫn phát khi điện thoại tắt chuông',
   'settings.effects': 'Hiệu ứng âm thanh',
   'settings.effects.hint': 'Bật hoặc tắt hiệu ứng âm thanh',
   'settings.haptics': 'Rung phản hồi',
@@ -134,4 +137,11 @@ export const viCareAndSettings = {
   'backup.restore.yes.hint': 'Đưa thế giới, thẻ và ngăn kéo của bạn về máy này',
   'backup.restore.no': 'Bắt đầu mới',
   'backup.restore.no.hint': 'Để thế giới cũ ở yên đó và bắt đầu một cái mới',
+  'plain.unscreened.acknowledge':
+    'Mình sẽ giữ việc này thật đơn giản. Bạn sẵn sàng thì mình bắt đầu.',
+  'plain.unscreened.working.first': 'Mình ở ngay đây.',
+  'plain.unscreened.working.second': 'Không vội. Mình vẫn ở đây.',
+  'plain.unscreened.tinyNextStep': 'Bắt đầu bằng bước nhỏ đầu tiên, chỉ bước đó thôi.',
+  'plain.unscreened.done': 'Xong rồi.',
+  'plain.unscreened.notFinished': 'Hôm nay mình dừng ở đây cũng được.',
 } as const;

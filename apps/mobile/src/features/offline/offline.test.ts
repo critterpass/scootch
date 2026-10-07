@@ -1,5 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
+import { t } from '@scootch/i18n';
 import { offlinePacks } from '@scootch/voice';
 
 import { lineFor } from '../../state/lines';
@@ -50,8 +51,16 @@ describe('a task typed with no connection', () => {
       offlinePacks.en.noTask.cheeky.offline,
     );
     expect(lineFor('working', task, cheeky)).toBe(offlinePacks.en.noTask.cheeky.hatchesWhenBack);
-    // Nothing from the playful pack is said about a task nobody has screened.
-    expect(lineFor('caught', task, cheeky)).toBe(offlinePacks.en.plain.done);
+    // Nothing from the playful pack is said about a task nobody has screened, and nothing from
+    // the care pack either: its words claim nothing about the task.
+    expect(lineFor('caught', task, cheeky)).toBe(t('en', 'plain.unscreened.done'));
+    expect(lineFor('acknowledge', task, cheeky)).toBe(t('en', 'plain.unscreened.acknowledge'));
+    expect(lineFor('acknowledge', task, { language: 'vi', attitude: 'unhinged' })).toBe(
+      t('vi', 'plain.unscreened.acknowledge'),
+    );
+    for (const slot of ['acknowledge', 'start', 'done', 'notFinished', 'tinyNextStep'] as const) {
+      expect(Object.values(offlinePacks.en.plain)).not.toContain(lineFor(slot, task, cheeky));
+    }
     expect(phone.store.getState().modelDown).toBe(false);
   });
 
@@ -64,6 +73,18 @@ describe('a task typed with no connection', () => {
       wordsWhileUnscreened(task, 'offered', { offline: true, modelDown: false }, cheeky),
     ).toBeNull();
     expect(lineFor('working', task, cheeky)).toBe(offlinePacks.en.plain.working[0]);
+  });
+
+  it('keeps the care pack for text that was judged serious, by the gate or by the screen', async () => {
+    const phone = await stagedPhone(stagedServer({ online: false }));
+    await phone.say('Call the hospice about the funeral', 'typed');
+    const held = phone.task();
+    expect(held.screen).toBe('unscreened');
+    expect(lineFor('acknowledge', held, cheeky)).toBe(offlinePacks.en.plain.acknowledge);
+
+    // A task the screen called serious whose own lines have not arrived speaks the care pack too.
+    const serious = { ...held, text: 'Email the dentist', screen: 'serious' as const, lines: null };
+    expect(lineFor('acknowledge', serious, cheeky)).toBe(offlinePacks.en.plain.acknowledge);
   });
 });
 

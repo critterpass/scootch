@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import type { Attitude, ClockTime, SettingsRow } from '@scootch/domain';
 import type { Language } from '@scootch/i18n';
@@ -12,6 +12,7 @@ import { useScreenStyle } from '../../ui/use-screen-style';
 import { QuietHoursRows } from './quiet-hours';
 import { Page } from './page';
 import { Note, Row, Section, SwitchRow } from './rows';
+import { PressSpring } from '../../ui/motion/press-spring';
 
 const ATTITUDES = ['soft', 'cheeky', 'unhinged'] as const satisfies readonly Attitude[];
 const CARD_MOODS: Record<Attitude, ScootchProps['mood']> = {
@@ -40,6 +41,9 @@ export interface SettingsPageProps {
   readonly backupLine: string | null;
   readonly developerTools: boolean;
   readonly onChange: (changes: Partial<Omit<SettingsRow, 'id'>>) => void;
+  /** Music with the ringer switch off: the choice and its change. Off until the person says so. */
+  readonly musicWhenSilent?: boolean;
+  readonly onMusicWhenSilent?: (on: boolean) => void;
   readonly onLanguage: (language: Language | null) => void;
   readonly onOpen: (
     page: 'finish-with' | 'privacy' | 'helplines' | 'plus' | 'developer-tools',
@@ -75,13 +79,14 @@ export function SettingsPage(props: SettingsPageProps) {
           {ATTITUDES.map((attitude) => {
             const chosen = attitude === settings.attitude;
             return (
-              <Pressable
+              <PressSpring
                 key={attitude}
                 accessibilityRole="radio"
                 accessibilityState={{ selected: chosen, checked: chosen }}
                 accessibilityLabel={t(`settings.attitude.${attitude}`)}
                 accessibilityHint={t(`settings.attitude.${attitude}.note`)}
                 onPress={() => onChange({ attitude })}
+                feedback="choice"
                 testID={`settings-attitude-${attitude}`}
                 style={[styles.card, { borderColor: chosen ? palette.tomato : 'transparent' }]}
               >
@@ -102,7 +107,7 @@ export function SettingsPage(props: SettingsPageProps) {
                 >
                   {t(`settings.attitude.${attitude}`)}
                 </Text>
-              </Pressable>
+              </PressSpring>
             );
           })}
         </View>
@@ -121,6 +126,16 @@ export function SettingsPage(props: SettingsPageProps) {
           onChange={(music) => onChange({ music })}
           testID="settings-music"
         />
+        {settings.music && props.onMusicWhenSilent ? (
+          <SwitchRow
+            label={t('settings.musicWhenSilent')}
+            sub={t('settings.musicWhenSilent.sub')}
+            hint={t('settings.musicWhenSilent.hint')}
+            value={props.musicWhenSilent === true}
+            onChange={props.onMusicWhenSilent}
+            testID="settings-music-when-silent"
+          />
+        ) : null}
         <SwitchRow
           label={t('settings.effects')}
           hint={t('settings.effects.hint')}

@@ -1,10 +1,11 @@
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
+import { StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { fonts, spacing } from '@scootch/tokens';
 
 import { GlassSurface } from './glass-surface';
 import { useScreenStyle } from './use-screen-style';
+import { PressSpring } from './motion/press-spring';
 
 /** The height of every capsule and round control in the dock, as the design draws them. */
 export const CONTROL_HEIGHT = 54;
@@ -37,7 +38,7 @@ export function CapsuleButton({
   const { palette, allowFontScaling, size } = useScreenStyle();
   const ink = tone === 'ink';
   return (
-    <Pressable
+    <PressSpring
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityHint={hint}
@@ -45,14 +46,9 @@ export function CapsuleButton({
       disabled={disabled}
       onPress={onPress}
       testID={testID}
-      style={({ pressed }) => [
-        styles.capsule,
-        {
-          backgroundColor: ink ? palette.ink : `${palette.ink}0F`,
-          opacity: disabled ? 0.45 : pressed ? 0.85 : 1,
-        },
-        style,
-      ]}
+      feedback={ink ? 'primary' : 'choice'}
+      restOpacity={disabled ? 0.45 : 1}
+      style={[styles.capsule, { backgroundColor: ink ? palette.ink : `${palette.ink}0F` }, style]}
     >
       {icon}
       <Text
@@ -64,7 +60,7 @@ export function CapsuleButton({
       >
         {label}
       </Text>
-    </Pressable>
+    </PressSpring>
   );
 }
 
@@ -88,7 +84,7 @@ export function RoundButton({
   children,
 }: RoundButtonProps) {
   return (
-    <Pressable
+    <PressSpring
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityHint={hint}
@@ -97,12 +93,11 @@ export function RoundButton({
       onPress={onPress}
       testID={testID}
       hitSlop={spacing.sm}
-      style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
     >
       <GlassSurface style={styles.round}>
         <View style={styles.roundInner}>{children}</View>
       </GlassSurface>
-    </Pressable>
+    </PressSpring>
   );
 }
 

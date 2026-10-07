@@ -4,6 +4,7 @@ import { fonts, radius, spacing } from '@scootch/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
 import { Chevron } from '../../ui/icons';
+import { PressSpring } from '../../ui/motion/press-spring';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { WorldGlance } from '../world/world-thumbnail';
 
@@ -79,13 +80,14 @@ export function TaskSetChoices({
         {options.map((option) => {
           const chosen = option === minutes;
           return (
-            <Pressable
+            <PressSpring
               key={option}
               accessibilityRole="radio"
               accessibilityState={{ selected: chosen, checked: chosen }}
               accessibilityLabel={t('taskSet.minutes', { minutes: option })}
               accessibilityHint={t('taskSet.minutes.hint')}
               onPress={() => onMinutes(option)}
+              feedback="choice"
               testID={`task-set-minutes-${option}`}
               style={[styles.minute, chosen && { backgroundColor: palette.surface }]}
             >
@@ -99,7 +101,7 @@ export function TaskSetChoices({
               >
                 {t('taskSet.minutes', { minutes: option })}
               </Text>
-            </Pressable>
+            </PressSpring>
           );
         })}
       </View>
@@ -184,13 +186,14 @@ export function Chips({ chips, disabled, onChip, hint, testPrefix = 'warm-up-chi
   return (
     <View style={styles.chips}>
       {chips.map((chip, index) => (
-        <Pressable
+        <PressSpring
           key={chip}
           accessibilityRole="button"
           accessibilityLabel={chip}
           accessibilityHint={hint ?? t('launch.chip.hint')}
           disabled={disabled}
           onPress={() => onChip(chip)}
+          feedback="choice"
           testID={`${testPrefix}-${index}`}
           style={[
             styles.chip,
@@ -203,7 +206,7 @@ export function Chips({ chips, disabled, onChip, hint, testPrefix = 'warm-up-chi
           >
             {chip}
           </Text>
-        </Pressable>
+        </PressSpring>
       ))}
     </View>
   );

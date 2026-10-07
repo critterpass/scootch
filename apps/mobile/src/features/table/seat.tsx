@@ -1,13 +1,15 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { WORK_MODE_IDS, type TableSeat, type WorkMode } from '@scootch/domain';
 import { radius, spacing } from '@scootch/tokens';
 
 import { Scootch } from '../../art/Scootch';
 import { useT } from '../../i18n/i18n-provider';
+import { useCharacterMotion } from '../../ui/motion/use-feel';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
 import { Words } from './words';
+import { PressSpring } from '../../ui/motion/press-spring';
 
 export interface SeatProps {
   readonly seat: TableSeat;
@@ -39,7 +41,8 @@ export function Seat({
   onLongPress,
 }: SeatProps) {
   const t = useT();
-  const { palette, reducedMotion } = useScreenStyle();
+  const { palette } = useScreenStyle();
+  const character = useCharacterMotion();
   const name = yours ? t('table.you') : (seat.name ?? t('friends.noName'));
   const spoken = [
     name,
@@ -50,7 +53,7 @@ export function Seat({
     .filter((part) => part !== '')
     .join(', ');
   return (
-    <Pressable
+    <PressSpring
       accessible
       accessibilityRole="button"
       accessibilityLabel={spoken}
@@ -69,7 +72,7 @@ export function Seat({
         <Scootch
           mood="working"
           workMode={workMode ?? null}
-          reducedMotion={reducedMotion}
+          {...character}
           ownLoop={false}
           seed={seat.userId}
           size={size}
@@ -81,7 +84,7 @@ export function Seat({
           {seat.label}
         </Words>
       )}
-    </Pressable>
+    </PressSpring>
   );
 }
 

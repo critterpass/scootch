@@ -3,7 +3,8 @@
 #
 #   tools/scripts/device-run-flows.sh <ios|android> <udid|serial> <out dir> <folder or file under e2e/>
 #
-# Env: JS_COMMIT (the commit the bundle was exported from), MODE (run|capture).
+# Env: JS_COMMIT (the commit the bundle was exported from), MODE (run|capture|video).
+# `video` is `capture` plus a screen recording of each flow (iOS simulator only), for motion.
 #
 # The first flow is always e2e/_run/js-commit.yaml, which proves the app runs this commit's
 # JavaScript; when it fails the other flows are not run, because they would prove nothing.
@@ -12,7 +13,8 @@
 #   junit/<flow>.xml     one report per flow
 #   maestro/<flow>/      Maestro's own output and logs
 #   failures/<flow>.*    the screen and the device log after a failed flow
-#   screens/*.png        every `takeScreenshot` image (capture mode only)
+#   screens/*.png        every `takeScreenshot` image (capture and video modes)
+#   video/<flow>.mp4     the screen during the flow (video mode, iOS)
 #   summary.md           the pass or fail table, also added to the job summary
 set -uo pipefail
 
@@ -42,7 +44,17 @@ fi
 
 mkdir -p "$out_dir/junit" "$out_dir/maestro" "$out_dir/failures"
 out_dir=$(cd "$out_dir" && pwd)
-[ "${MODE:-run}" = capture ] && mkdir -p "$out_dir/screens"
+mode=${MODE:-run}
+keeps_screens=false
+if [ "$mode" = capture ] || [ "$mode" = video ]; then
+  keeps_screens=true
+  mkdir -p "$out_dir/screens"
+fi
+records=false
+if [ "$mode" = video ] && [ "$platform" = ios ]; then
+  records=true
+  mkdir -p "$out_dir/video"
+fi
 
 row() {
   echo "$1" >>"$out_dir/summary.md"
@@ -80,6 +92,15 @@ for flow in $proof $list; do
   mkdir -p "$dir"
   [ "$platform" = android ] && adb -s "$device" logcat -c
   echo "::group::$flow"
+  recorder=""
+  if [ "$records" = true ]; then
+    # A background job of a script ignores the interrupt that ends a recording, so the recorder
+    # is started through a launcher that listens for it again.
+    python3 -c 'import os, signal, sys; signal.signal(signal.SIGINT, signal.SIG_DFL); os.execvp(sys.argv[1], sys.argv[1:])' \
+      xcrun simctl io "$device" recordVideo --codec h264 --force "$out_dir/video/$slug.mp4" \
+      >/dev/null 2>&1 &
+    recorder=$!
+  fi
   started=$(date +%s)
   (cd "$dir" && MAESTRO_DRIVER_STARTUP_TIMEOUT=360000 "$maestro" --device "$device" test \
     "$repo_root/$flow" --format junit --output "$out_dir/junit/$slug.xml" \
@@ -87,6 +108,17 @@ for flow in $proof $list; do
     -e "JS_COMMIT=${JS_COMMIT:-}")
   status=$?
   seconds=$(($(date +%s) - started))
+  # An interrupt lets the recorder finish its file.
+  if [ -n "$recorder" ]; then
+    kill -INT "$recorder" 2>/dev/null || true
+    # A recorder that does not finish within ten seconds is ended, so a run never waits on it.
+    for _ in 1 2 3 4 5 6 7 8 9 10; do
+      kill -0 "$recorder" 2>/dev/null || break
+      sleep 1
+    done
+    kill -KILL "$recorder" 2>/dev/null || true
+    wait "$recorder" 2>/dev/null || true
+  fi
   echo "::endgroup::"
   if [ "$status" -eq 0 ]; then
     echo "PASS $flow (${seconds}s)"
@@ -100,7 +132,7 @@ for flow in $proof $list; do
     [ "$flow" = "$proof" ] && proven=false
   fi
   # Maestro's own failure images (named `screenshot-❌-…`) stay in its output folder.
-  if [ "${MODE:-run}" = capture ]; then
+  if [ "$keeps_screens" = true ]; then
     find "$dir" -name '*.png' -not -name 'screenshot-*' -exec cp {} "$out_dir/screens/" \;
   fi
 done

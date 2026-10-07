@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { CARD_FINISHES } from '@scootch/art';
 import type { CardFinish } from '@scootch/domain';
@@ -9,6 +9,7 @@ import { useScreenStyle } from '../../ui/use-screen-style';
 import { SessionText } from '../session/ui/session-text';
 
 import { Lock } from './ui/parts';
+import { PressSpring } from '../../ui/motion/press-spring';
 
 /** The finishes in the order the board draws them. The first is free. */
 export const FINISH_ORDER: readonly CardFinish[] = ['standard', 'kraft', 'gold', 'night', 'riso'];
@@ -38,13 +39,14 @@ export function FinishPicker({ worn, plus, onChoose, onLocked }: FinishPickerPro
         const open = finishOpen(finish, plus, worn);
         const chosen = finish === worn;
         return (
-          <Pressable
+          <PressSpring
             key={finish}
             accessibilityRole="radio"
             accessibilityState={{ selected: chosen, checked: chosen }}
             accessibilityLabel={t(`finish.${finish}`)}
             accessibilityHint={open ? t('finish.hint') : t('keep.plusOnly.hint')}
             onPress={() => (open ? onChoose(finish) : onLocked())}
+            feedback="choice"
             testID={`finish-${finish}`}
             style={styles.item}
           >
@@ -66,7 +68,7 @@ export function FinishPicker({ worn, plus, onChoose, onLocked }: FinishPickerPro
             <SessionText face="caption" color={palette.muted}>
               {t(`finish.${finish}`)}
             </SessionText>
-          </Pressable>
+          </PressSpring>
         );
       })}
     </View>

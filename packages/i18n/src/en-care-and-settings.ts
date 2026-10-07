@@ -25,6 +25,10 @@ export const enCareAndSettings = {
   'settings.feel': 'Feel',
   'settings.music': 'Music',
   'settings.music.hint': 'Turns the music of your record on or off',
+  'settings.musicWhenSilent': 'Music on silent',
+  'settings.musicWhenSilent.sub': 'Effects always follow the ringer switch',
+  'settings.musicWhenSilent.hint':
+    "Plays your record and the day's bar even with the ringer switch off",
   'settings.effects': 'Effects',
   'settings.effects.hint': 'Turns sound effects on or off',
   'settings.haptics': 'Haptics',
@@ -135,4 +139,12 @@ export const enCareAndSettings = {
   'backup.restore.yes.hint': 'Puts your world, cards and drawer on this phone',
   'backup.restore.no': 'Start fresh',
   'backup.restore.no.hint': 'Leaves the old world where it is and starts a new one',
+  // Scootch's plain words for a task nobody trusted has screened yet. They claim nothing about
+  // the task: no joke, and no word that it is heavy.
+  'plain.unscreened.acknowledge': "I'll keep this one simple. Ready when you are.",
+  'plain.unscreened.working.first': "I'm right here.",
+  'plain.unscreened.working.second': "No rush. I'm staying put.",
+  'plain.unscreened.tinyNextStep': 'Start with the first small step, and only that.',
+  'plain.unscreened.done': "That's done.",
+  'plain.unscreened.notFinished': 'We can leave it here for today.',
 } as const;

@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import type { Attitude } from '@scootch/domain';
 import { radius, spacing } from '@scootch/tokens';
@@ -10,12 +10,14 @@ import { Scootch } from '../../art/Scootch';
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { usePlusRuntime, usePlusState } from '../../state/plus-context';
 import { CapsuleButton } from '../../ui/buttons';
+import { useCharacterMotion } from '../../ui/motion/use-feel';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { SessionText } from '../session/ui/session-text';
 
 import { purchaseStateOf } from './entitlement';
 import { offerShows } from './offer-rules';
 import { PLUS_SHEET } from './routes';
+import { PressSpring } from '../../ui/motion/press-spring';
 
 const instant = (value: unknown): number | null => (typeof value === 'number' ? value : null);
 
@@ -30,18 +32,14 @@ export interface OfferCardProps {
 /** The offer as it is drawn: one line, "Tell me", and one tap to wave it away. */
 export function OfferCard({ attitude, said, onTell, onDismiss }: OfferCardProps) {
   const t = useT();
-  const { palette, largeText, captured } = useScreenStyle();
+  const { palette, largeText } = useScreenStyle();
+  const character = useCharacterMotion();
   return (
     <View
       testID="first-offer"
       style={[styles.card, largeText ? styles.stacked : null, { backgroundColor: palette.surface }]}
     >
-      <Scootch
-        mood="pleased"
-        attitude={attitude}
-        size={56}
-        {...(captured ? { reducedMotion: true } : {})}
-      />
+      <Scootch mood="pleased" attitude={attitude} size={56} {...character} />
       <SessionText face="body" color={palette.ink} style={styles.grow} testID="first-offer-line">
         {said}
       </SessionText>
@@ -51,7 +49,7 @@ export function OfferCard({ attitude, said, onTell, onDismiss }: OfferCardProps)
         onPress={onTell}
         testID="first-offer-tell"
       />
-      <Pressable
+      <PressSpring
         accessibilityRole="button"
         accessibilityLabel={t('plus.offer.dismiss')}
         accessibilityHint={t('plus.offer.dismiss.hint')}
@@ -63,7 +61,7 @@ export function OfferCard({ attitude, said, onTell, onDismiss }: OfferCardProps)
         <SessionText face="action" color={palette.muted}>
           ×
         </SessionText>
-      </Pressable>
+      </PressSpring>
     </View>
   );
 }

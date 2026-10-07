@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { AccessibilityInfo, useWindowDimensions } from 'react-native';
-import { useReducedMotion } from 'react-native-reanimated';
 
 import { colors, type Palette } from '@scootch/tokens';
 
@@ -11,6 +10,8 @@ import {
   type TextSizing,
 } from '../screens/registry/support/forced-variant';
 
+import { useMayMove } from './motion/use-feel';
+
 /** From this text scale up, rows of controls stack into full-width ones instead of squeezing. */
 const STACKING_TEXT_SCALE = 1.6;
 
@@ -20,6 +21,10 @@ export interface ScreenStyle extends TextSizing {
   readonly largeText: boolean;
   /** True under a registry capture, which must look the same every time. */
   readonly captured: boolean;
+  /**
+   * True where nothing may move: the system's Reduce Motion, the app's Motion switch set to calm,
+   * a capture, a serious task or a crisis day. The answer is `useFeel`'s, never worked out again.
+   */
   readonly reducedMotion: boolean;
 }
 
@@ -29,7 +34,7 @@ export function useScreenStyle(): ScreenStyle {
   const sizing = useTextSizing();
   const forced = useForcedVariant();
   const { fontScale } = useWindowDimensions();
-  const systemReducedMotion = useReducedMotion();
+  const mayMove = useMayMove();
   const largeText =
     forced === undefined ? fontScale >= STACKING_TEXT_SCALE : forced.textSize === 'largest';
   return {
@@ -37,7 +42,7 @@ export function useScreenStyle(): ScreenStyle {
     palette,
     largeText,
     captured: forced !== undefined,
-    reducedMotion: systemReducedMotion || forced !== undefined,
+    reducedMotion: !mayMove,
   };
 }
 

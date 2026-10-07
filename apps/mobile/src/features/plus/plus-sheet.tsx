@@ -1,4 +1,4 @@
-import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import type { Attitude } from '@scootch/domain';
 import { radius, spacing } from '@scootch/tokens';
@@ -6,6 +6,7 @@ import { radius, spacing } from '@scootch/tokens';
 import { Scootch } from '../../art/Scootch';
 import { useT } from '../../i18n/i18n-provider';
 import { CapsuleButton } from '../../ui/buttons';
+import { useCharacterMotion } from '../../ui/motion/use-feel';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { KeepFrame } from '../reveal/ui/keep-frame';
 import { SessionText } from '../session/ui/session-text';
@@ -14,6 +15,7 @@ import { PLANS, type PlanId } from './products';
 import { offerOf, type SheetState } from './sheet-controller';
 import { actionLabel, planNote, smallPrint } from './sheet-model';
 import { PlusMark } from './ui/parts';
+import { PressSpring } from '../../ui/motion/press-spring';
 
 export interface PlusSheetActions {
   readonly close: () => void;
@@ -47,9 +49,10 @@ const NOTICES = {
 export function PlusSheet({ attitude, said, state, actions }: PlusSheetProps) {
   const t = useT();
   const { palette, largeText, captured } = useScreenStyle();
+  const character = useCharacterMotion();
   const offer = offerOf(state);
   const link = (label: string, hint: string, testID: string, onPress: () => void) => (
-    <Pressable
+    <PressSpring
       accessibilityRole="link"
       accessibilityLabel={label}
       accessibilityHint={hint}
@@ -61,7 +64,7 @@ export function PlusSheet({ attitude, said, state, actions }: PlusSheetProps) {
       <SessionText face="caption" color={palette.ink} style={styles.underlined}>
         {label}
       </SessionText>
-    </Pressable>
+    </PressSpring>
   );
   return (
     <KeepFrame
@@ -71,12 +74,7 @@ export function PlusSheet({ attitude, said, state, actions }: PlusSheetProps) {
     >
       <PlusMark name={t('brand.name')} plus={t('brand.plus')} />
       <View style={styles.centre}>
-        <Scootch
-          mood="waiting"
-          attitude={attitude}
-          size={largeText ? 96 : 150}
-          {...(captured ? { reducedMotion: true } : {})}
-        />
+        <Scootch mood="waiting" attitude={attitude} size={largeText ? 96 : 150} {...character} />
       </View>
       {said === null ? null : (
         <SessionText
@@ -113,7 +111,7 @@ export function PlusSheet({ attitude, said, state, actions }: PlusSheetProps) {
             if (!one) return null;
             const chosen = plan === state.plan;
             return (
-              <Pressable
+              <PressSpring
                 key={plan}
                 accessibilityRole="radio"
                 accessibilityState={{ selected: chosen, checked: chosen, disabled: state.busy }}
@@ -121,6 +119,7 @@ export function PlusSheet({ attitude, said, state, actions }: PlusSheetProps) {
                 accessibilityHint={t('plus.plan.hint')}
                 disabled={state.busy}
                 onPress={() => actions.choose(plan)}
+                feedback="choice"
                 testID={`plus-plan-${plan}`}
                 style={[
                   styles.plan,
@@ -140,7 +139,7 @@ export function PlusSheet({ attitude, said, state, actions }: PlusSheetProps) {
                 <SessionText face="caption" color={palette.muted}>
                   {planNote(one, t)}
                 </SessionText>
-              </Pressable>
+              </PressSpring>
             );
           })}
         </View>

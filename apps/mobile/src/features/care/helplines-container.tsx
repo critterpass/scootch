@@ -2,6 +2,7 @@ import { useLocales } from 'expo-localization';
 import { useRouter } from 'expo-router';
 
 import { systemClock } from '../../effects/native-adapters';
+import { goBack } from '../../ui/motion/go-back';
 
 import { openLink } from './crisis-screen';
 import { HELPLINE_DIRECTORY, dialLink, textLink } from './helplines';
@@ -20,7 +21,7 @@ export function HelplinesContainer() {
       onCall={(line) => openLink(dialLink(line))}
       onTextLine={(line) => openLink(textLink(line) ?? dialLink(line))}
       onDirectory={() => openLink(HELPLINE_DIRECTORY)}
-      onClose={() => router.replace('/settings')}
+      onClose={() => goBack(router, '/settings')}
     />
   );
 }

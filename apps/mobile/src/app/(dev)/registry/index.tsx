@@ -1,19 +1,12 @@
 import { Link, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  useColorScheme,
-  View,
-} from 'react-native';
+import { ScrollView, StyleSheet, Text, TextInput, useColorScheme, View } from 'react-native';
 
 import { colors, fonts, fontSizes, radius, spacing } from '@scootch/tokens';
 
 import { captures } from '../../../screens/registry/support/all-states';
 import { SafeFrame } from '../../../ui/safe-frame';
+import { PressSpring } from '../../../ui/motion/press-spring';
 
 /**
  * Every registered screen state in every variant it must be captured in. A row's button opens
@@ -72,14 +65,14 @@ export default function RegistryBrowser() {
               href={{ pathname: '/registry/[capture]', params: { capture: capture.name } }}
               asChild
             >
-              <Pressable
+              <PressSpring
                 accessibilityRole="button"
                 accessibilityLabel={`Open ${capture.name}`}
                 testID={`registry-row-${capture.name}`}
                 style={[styles.open, { backgroundColor: palette.tomato }]}
               >
                 <Text style={[styles.openLabel, { color: palette.onTomato }]}>Open</Text>
-              </Pressable>
+              </PressSpring>
             </Link>
           </View>
         ))}

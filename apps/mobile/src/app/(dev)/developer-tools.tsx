@@ -1,6 +1,6 @@
 import { Link, type Href } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, useColorScheme, View } from 'react-native';
 
 import type { Language } from '@scootch/i18n';
 import { colors, fonts, fontSizes, radius, spacing, type Palette } from '@scootch/tokens';
@@ -8,6 +8,7 @@ import { colors, fonts, fontSizes, radius, spacing, type Palette } from '@scootc
 import { shortSession } from '../../features/session/dev/short-session';
 import { useLanguage } from '../../i18n/i18n-provider';
 import { SafeFrame } from '../../ui/safe-frame';
+import { PressSpring } from '../../ui/motion/press-spring';
 
 const SCREENS: readonly { id: string; label: string; href: Href }[] = [
   { id: 'dev-open-registry', label: 'Screen registry', href: '/registry' },
@@ -22,7 +23,7 @@ const LANGUAGE_CHOICES: readonly { id: string; label: string; language: Language
 
 function Row({ id, label, selected, palette, onPress }: RowProps) {
   return (
-    <Pressable
+    <PressSpring
       accessibilityRole="button"
       accessibilityState={selected === undefined ? {} : { selected }}
       testID={id}
@@ -31,7 +32,7 @@ function Row({ id, label, selected, palette, onPress }: RowProps) {
     >
       <Text style={[styles.rowLabel, { color: palette.ink }]}>{label}</Text>
       {selected ? <Text style={[styles.rowLabel, { color: palette.tomato }]}>✓</Text> : null}
-    </Pressable>
+    </PressSpring>
   );
 }
 

@@ -7,6 +7,7 @@ import {
   type SettingsRow,
   type TaskRow,
 } from '@scootch/domain';
+import { t } from '@scootch/i18n';
 import {
   noTaskLine,
   offlineLine,
@@ -30,6 +31,25 @@ export function toneFor(task: Pick<TaskRow, 'screen' | 'seriousOverridden' | 'te
 
 /** The plain-words lines, as a serious task stores them and as the offline pack holds them. */
 type PlainPack = Omit<SeriousLinePack, 'working'> & { readonly working: readonly string[] };
+
+/**
+ * The plain words for a task nobody trusted has screened yet: typed with no connection, or sent
+ * when no trusted model answered in time. Nothing is known about it, so nothing is claimed: no
+ * joke, and no word that it is heavy. The care pack's "That sounds like a lot" belongs only to
+ * text that was judged serious, by the screen or by the phone's own gate.
+ */
+function neutralPack(language: SettingsRow['language']): PlainPack {
+  return {
+    acknowledge: t(language, 'plain.unscreened.acknowledge'),
+    working: [
+      t(language, 'plain.unscreened.working.first'),
+      t(language, 'plain.unscreened.working.second'),
+    ],
+    tinyNextStep: t(language, 'plain.unscreened.tinyNextStep'),
+    done: t(language, 'plain.unscreened.done'),
+    notFinished: t(language, 'plain.unscreened.notFinished'),
+  };
+}
 
 function fromPlain(pack: PlainPack, slot: LineSlot, turn: number): string | null {
   if (slot === 'acknowledge' || slot === 'start') return pack.acknowledge;
@@ -84,10 +104,13 @@ export function lineFor(
   if (!showsComedy(task, 'joke')) {
     // An ordinary task typed with no connection: under the timer Scootch says when its monster
     // will come. A task the phone's gate held gets plain company and no word about monsters.
-    if (task.screen === 'unscreened' && showsComedy(task, 'burst') && slot === 'working') {
+    const unjudged = task.screen === 'unscreened' && showsComedy(task, 'burst');
+    if (unjudged && slot === 'working') {
       return noTaskLine(settings.language, settings.attitude, 'hatchesWhenBack');
     }
-    return fromPlain(offlinePacks[settings.language].plain, slot, turn);
+    // Only text that was judged serious, by the screen or by the phone's gate, gets the care pack.
+    const pack = unjudged ? neutralPack(settings.language) : offlinePacks[settings.language].plain;
+    return fromPlain(pack, slot, turn);
   }
   if (!isOfflineSlot(slot)) return null;
   // The offline pack has one tiny next step: a count of steps down is not a turn through it.

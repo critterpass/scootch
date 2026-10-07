@@ -1,11 +1,12 @@
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { radius, spacing } from '@scootch/tokens';
 
 import { Chevron } from '../../../ui/icons';
 import { useScreenStyle } from '../../../ui/use-screen-style';
 import { SessionText } from '../../session/ui/session-text';
+import { PressSpring } from '../../../ui/motion/press-spring';
 
 /** A small padlock beside a control that belongs to Plus. */
 export function Lock({ color }: { readonly color: string }) {
@@ -46,16 +47,13 @@ export interface ChoiceRowProps {
 export function ChoiceRow({ title, note, hint, testID, onPress, ending, aside }: ChoiceRowProps) {
   const { palette } = useScreenStyle();
   return (
-    <Pressable
+    <PressSpring
       accessibilityRole="button"
       accessibilityLabel={note ? `${title}. ${note}` : title}
       accessibilityHint={hint}
       onPress={onPress}
       testID={testID}
-      style={({ pressed }) => [
-        styles.row,
-        { backgroundColor: palette.surface, opacity: pressed ? 0.85 : 1 },
-      ]}
+      style={[styles.row, { backgroundColor: palette.surface }]}
     >
       <View style={styles.rowWords}>
         <SessionText face="action" color={ending ? palette.tomato : palette.ink}>
@@ -73,7 +71,7 @@ export function ChoiceRow({ title, note, hint, testID, onPress, ending, aside }:
         </SessionText>
       ) : null}
       <Chevron color={palette.muted} direction="right" />
-    </Pressable>
+    </PressSpring>
   );
 }
 

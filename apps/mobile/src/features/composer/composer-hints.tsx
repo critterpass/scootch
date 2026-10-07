@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { fonts, spacing } from '@scootch/tokens';
 
@@ -8,6 +8,7 @@ import { Chevron } from '../../ui/icons';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
 import type { ComposerState } from './composer-machine';
+import { PressSpring } from '../../ui/motion/press-spring';
 
 const HINT_SIZE = 14;
 const STATUS_SIZE = 15;
@@ -76,7 +77,7 @@ export function ComposerHints({
             {status}
           </Text>
           {state.voice === 'refused' ? (
-            <Pressable
+            <PressSpring
               accessibilityRole="button"
               accessibilityLabel={t('composer.openSettings')}
               accessibilityHint={t('composer.openSettings.hint')}
@@ -91,7 +92,7 @@ export function ComposerHints({
               >
                 {t('composer.openSettings')}
               </Text>
-            </Pressable>
+            </PressSpring>
           ) : null}
         </View>
       )}
@@ -110,7 +111,7 @@ export function ComposerHints({
               {hint.text}
             </Text>
             {thinking && onCancelThinking ? (
-              <Pressable
+              <PressSpring
                 accessibilityRole="button"
                 accessibilityLabel={t('composer.cancelThinking')}
                 accessibilityHint={t('composer.cancelThinking.hint')}
@@ -125,7 +126,7 @@ export function ComposerHints({
                 >
                   {t('composer.cancelThinking')}
                 </Text>
-              </Pressable>
+              </PressSpring>
             ) : null}
           </View>
         </GlassSurface>

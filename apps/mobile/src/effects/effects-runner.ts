@@ -84,7 +84,16 @@ export function createEffectsRunner(options: EffectsRunnerOptions): EffectsRunne
     due.clear();
   }
 
-  function perform(effect: SessionEffect, context: SessionContext) {
+  // A cue is felt as well as heard, whichever switch is off. With motion reduced, a pattern is
+  // felt as its first tap only.
+  function feel(cue: string) {
+    const switches = options.switches();
+    const taps = CUES[cue]?.haptics ?? [];
+    const felt = switches.reducedMotion ? taps.slice(0, 1) : taps;
+    if (switches.haptics && felt.length > 0) options.haptics.play(felt);
+  }
+
+  function perform(effect: SessionEffect, context: SessionContext, feltApart: ReadonlySet<string>) {
     const switches = options.switches();
     switch (effect.kind) {
       case 'start_timer':
@@ -98,16 +107,13 @@ export function createEffectsRunner(options: EffectsRunnerOptions): EffectsRunne
         return cancelTimers();
       case 'play_cue':
         if (switches.effects) options.cues.play(effect.cue);
+        // A cue asked for without its haptic (a shrink, a parked thought) is still felt.
+        if (!feltApart.has(effect.cue)) feel(effect.cue);
         return;
       case 'stop_cue':
         return options.cues.stop(effect.cue);
-      case 'haptic': {
-        const taps = CUES[effect.pattern]?.haptics ?? [];
-        // With motion reduced, a pattern is felt as its first tap only.
-        const felt = switches.reducedMotion ? taps.slice(0, 1) : taps;
-        if (switches.haptics && felt.length > 0) options.haptics.play(felt);
-        return;
-      }
+      case 'haptic':
+        return feel(effect.pattern);
       case 'show_line': {
         const text = context.lineFor(effect.line);
         if (text === null) return;
@@ -149,7 +155,10 @@ export function createEffectsRunner(options: EffectsRunnerOptions): EffectsRunne
 
   return {
     run(effects, context) {
-      for (const effect of effects) perform(effect, context);
+      const feltApart = new Set(
+        effects.flatMap((effect) => (effect.kind === 'haptic' ? [effect.pattern] : [])),
+      );
+      for (const effect of effects) perform(effect, context, feltApart);
     },
     resync() {
       for (const [name, at] of [...due]) arm(name, at);

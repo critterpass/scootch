@@ -1,10 +1,11 @@
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Suspense } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { captures } from '../../../screens/registry/support/all-states';
 import { ForcedVariant } from '../../../screens/registry/support/forced-variant';
+import { PressSpring } from '../../../ui/motion/press-spring';
 
 /** The way back is at least this tall, so it can be pressed on a phone with a thin status bar. */
 const CLOSE_HEIGHT = 24;
@@ -33,7 +34,7 @@ export default function RegistryState() {
           </View>
         </Suspense>
       </ForcedVariant>
-      <Pressable
+      <PressSpring
         accessibilityRole="button"
         accessibilityLabel="Back to the screen registry"
         testID="registry-state-close"

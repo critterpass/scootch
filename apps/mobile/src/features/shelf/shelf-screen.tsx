@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { radius, spacing } from '@scootch/tokens';
 
@@ -8,6 +8,7 @@ import { Dock, KeepFrame } from '../reveal/ui/keep-frame';
 import { SessionText } from '../session/ui/session-text';
 
 import { SHELF, SHELF_KINDS, type ShelfItem, type ShelfKind } from './catalogue';
+import { PressSpring } from '../../ui/motion/press-spring';
 
 export interface ShelfModel {
   readonly kind: ShelfKind;
@@ -94,20 +95,21 @@ export function ShelfScreen({ model, actions }: { model: ShelfModel; actions: Sh
     >
       <View accessibilityRole="tablist" style={styles.tabs}>
         {kinds.map((kind) => (
-          <Pressable
+          <PressSpring
             key={kind}
             accessibilityRole="tab"
             accessibilityState={{ selected: kind === model.kind }}
             accessibilityLabel={t(`shelf.tab.${kind}`)}
             accessibilityHint={t('shelf.tab.hint')}
             onPress={() => actions.showKind(kind)}
+            feedback="choice"
             testID={`shelf-tab-${kind}`}
             style={[styles.tab, kind === model.kind ? { backgroundColor: palette.surface } : null]}
           >
             <SessionText face="caption" color={palette.ink}>
               {t(`shelf.tab.${kind}`)}
             </SessionText>
-          </Pressable>
+          </PressSpring>
         ))}
       </View>
       <View
@@ -143,17 +145,18 @@ export function ShelfScreen({ model, actions }: { model: ShelfModel; actions: Sh
       ) : null}
       <View accessibilityRole="radiogroup" style={styles.swatches}>
         {items.map((item) => (
-          <Pressable
+          <PressSpring
             key={item.id}
             accessibilityRole="radio"
             accessibilityState={{ selected: item.id === focus.id, checked: item.id === focus.id }}
             accessibilityLabel={t(item.name)}
             accessibilityHint={t('shelf.item.hint')}
             onPress={() => actions.focus(item)}
+            feedback="choice"
             testID={`shelf-item-${item.id}`}
           >
             <Swatch item={item} chosen={item.id === focus.id} />
-          </Pressable>
+          </PressSpring>
         ))}
       </View>
     </KeepFrame>

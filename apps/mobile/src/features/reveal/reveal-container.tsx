@@ -88,7 +88,10 @@ export function RevealContainer() {
     () => () => {
       if (taskId) markRevealSeen(taskId);
       player.stop();
-      router.replace(taskId ? '/session' : '/');
+      // The session takes the reveal's place for what follows it; with none, the one screen
+      // underneath is uncovered.
+      if (taskId) router.replace('/session');
+      else router.dismissTo('/');
     },
     [taskId, player, router],
   );
@@ -138,8 +141,8 @@ export function RevealContainer() {
     step,
     language,
     attitude: settings.attitude,
-    reducedMotion: reducedMotion || settings.motion === 'calm',
-    tilting: !captured && !reducedMotion && settings.motion !== 'calm',
+    reducedMotion,
+    tilting: !captured && !reducedMotion,
     card,
     monster,
     line: line?.slot === 'caught' ? line.text : null,

@@ -1,4 +1,4 @@
-import { FlatList, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { FlatList, StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import { CARD_LABELS } from '@scootch/art';
 import type { CardData, CardFinish } from '@scootch/domain';
@@ -14,6 +14,7 @@ import { Dock, KeepFrame } from '../reveal/ui/keep-frame';
 import { SessionText } from '../session/ui/session-text';
 
 import { binderOpen, BINDER_SORTS, type BinderSort, type CaughtMonster } from './zoo-cards';
+import { PressSpring } from '../../ui/motion/press-spring';
 
 export interface ZooModel {
   /** Every caught monster, in the order to show them. */
@@ -145,7 +146,7 @@ export function ZooScreen({ model, actions }: { model: ZooModel; actions: ZooAct
           </SessionText>
         }
         renderItem={({ item: monster, index }) => (
-          <Pressable
+          <PressSpring
             accessibilityRole="button"
             accessibilityLabel={`${monster.name}, ${labels.rarity[monster.rarity]}`}
             accessibilityHint={t('zoo.card.hint')}
@@ -174,7 +175,7 @@ export function ZooScreen({ model, actions }: { model: ZooModel; actions: ZooAct
                 monster.catchMinutes % 60,
               )}`}
             </SessionText>
-          </Pressable>
+          </PressSpring>
         )}
       />
     </KeepFrame>

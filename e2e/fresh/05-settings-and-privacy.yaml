@@ -1,9 +1,12 @@
 appId: app.scootch.dev
 ---
-# The fresh-user walk, step five: Settings and privacy. It carries on from the step before it, on
-# the one screen; nothing is cleared and nothing is seeded. The more button opens Settings, the
+# The fresh-user walk, step five: Settings and privacy. It runs on the install the steps before it
+# left; nothing is cleared and nothing is seeded. The more button opens Settings, the
 # attitude is changed, and "Delete everything" is started and then turned down with "Keep
 # everything", so nothing is deleted.
+# The app is opened again, without clearing anything, so this step starts on the one screen
+# wherever the step before it stopped.
+- launchApp
 - extendedWaitUntil:
     visible:
       id: 'more-button'
@@ -11,14 +14,24 @@ appId: app.scootch.dev
 - tapOn:
     id: 'more-button'
     waitToSettleTimeoutMs: 0
+# Settings slides in: wait for it before judging the press. Only a press that was really lost
+# (the button still there, Settings still not) is made again; never a blind second tap.
+- extendedWaitUntil:
+    visible:
+      id: 'settings'
+    timeout: 6000
+    optional: true
 - runFlow:
     when:
       notVisible:
         id: 'settings'
+      visible:
+        id: 'more-button'
     commands:
       - tapOn:
           id: 'more-button'
           waitToSettleTimeoutMs: 0
+          optional: true
 - extendedWaitUntil:
     visible:
       id: 'settings'

@@ -1,17 +1,16 @@
 import * as Haptics from 'expo-haptics';
 import { useNetworkState } from 'expo-network';
-import { Redirect, useRouter, type Href } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { useIsFocused, useRouter, type Href } from 'expo-router';
+import { useEffect, useRef, useState, type ReactElement } from 'react';
 import { Linking } from 'react-native';
 
 import { hasStartLeft, startsAllowed, type Attitude, type Energy } from '@scootch/domain';
 
-import type { ScootchProps } from '../../art/Scootch';
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { useDispatch, useDrawer, useSession, useToday } from '../../state/day-store-provider';
 import type { DayEvent } from '../../state/day-types';
 import { usePlus } from '../../state/keepsakes';
-import { lineFor, lineWithNoTask } from '../../state/lines';
+import { lineWithNoTask } from '../../state/lines';
 import { showsSelling } from '../../state/shows-comedy';
 import { useSurfaceRequest } from '../../state/surface-requests';
 import { useScreenReader } from '../../ui/use-screen-style';
@@ -19,21 +18,18 @@ import { seriousShown } from '../care/serious-shown';
 import type { SpeechPort } from '../composer/speech';
 import { useComposer } from '../composer/use-composer';
 import { DrawerSheet } from '../drawer/drawer-sheet';
-import { QuietLink, Stack } from '../dump/dump-panels';
 import { HatchHauntLink } from '../haunt/hatch-haunt-link';
-import { HatchFigure } from '../monster/hatch-figure';
 import { wordsWhileUnscreened } from '../offline/waiting-words';
 import { OneMore } from '../plus/one-more';
 import { PLUS_SHEET_ONE_MORE } from '../plus/routes';
-import { TogetherLinks } from '../table/together-links';
 
 import { composerMood } from './composer-mood';
 import { composerWays } from './composer-ways';
-import { NotNow } from './not-now';
-import { minuteOptions } from './one-screen-panels';
+import { doneLine } from './done-line';
 import { stageOf } from './one-screen-stage';
 import { OneScreenView, type OneScreenShown } from './one-screen-view';
 import { stageShown } from './stage-shown';
+import { taskSetShown } from './task-set-shown';
 import { useReturnedText } from './use-returned-text';
 
 export interface OneScreenProps {
@@ -44,11 +40,13 @@ export interface OneScreenProps {
   readonly notificationsRefused: boolean;
 }
 
-type Mood = ScootchProps['mood'];
 type Held = { text: string; source: 'ramble' | 'typed'; sent: () => void };
 
 /** The routes other parts of the app provide, reached by name. */
 const [WORLD, CARE, SETTINGS] = ['/world', '/care', '/settings'] as [Href, Href, Href];
+const SESSION = '/session' as Href;
+/** What the drawing hook answers while a session covers the one screen. */
+const COVERED = 'covered';
 
 /**
  * The one screen, driven by the day store: the composer, the one thing that comes back, its
@@ -56,9 +54,22 @@ const [WORLD, CARE, SETTINGS] = ['/world', '/care', '/settings'] as [Href, Href,
  * worked out from the store; every word Scootch says comes from the task's lines or the offline
  * pack.
  */
-export function OneScreen({ speech, warmUp, notificationsRefused }: OneScreenProps) {
+export function OneScreen(props: OneScreenProps) {
+  const drawn = useOneScreenDrawn(props);
+  // The session fades in over the one screen. Until it covers it, the one screen stays exactly as
+  // it was when Start was tapped, so there is never an empty frame between the two.
+  const last = useRef<ReactElement | null>(null);
+  if (drawn !== COVERED) last.current = drawn;
+  return last.current;
+}
+
+function useOneScreenDrawn({
+  speech,
+  warmUp,
+  notificationsRefused,
+}: OneScreenProps): ReactElement | null | typeof COVERED {
   const day = useToday();
-  const { today, settings, taskCall, notice, morning, localDate } = day;
+  const { today, settings, taskCall, notice, localDate } = day;
   const { line: shownLine } = useSession();
   const drawer = useDrawer();
   const { language } = useLanguage();
@@ -112,6 +123,13 @@ export function OneScreen({ speech, warmUp, notificationsRefused }: OneScreenPro
     // A crisis day shows nothing of this screen: the care screens take over.
     if (care) router.replace(CARE);
   }, [care, router]);
+  // The session's own screens are on their route for as long as one is running. It is pushed over
+  // this screen, and only by the one screen the person is looking at.
+  const focused = useIsFocused();
+  const inSession = stage.kind === 'session';
+  useEffect(() => {
+    if (inSession && focused) router.push(SESSION);
+  }, [inSession, focused, router]);
 
   const offline = (network.isInternetReachable ?? network.isConnected) === false;
   const task = 'task' in today ? today.task : null;
@@ -141,15 +159,9 @@ export function OneScreen({ speech, warmUp, notificationsRefused }: OneScreenPro
   };
 
   if (care) return null;
-  // The session's own screens are shown on their route for as long as one is running.
-  if (stage.kind === 'session') return <Redirect href="/session" />;
+  if (stage.kind === 'session') return COVERED;
 
   if (stage.kind === 'done') {
-    const said =
-      // A finish says its own line; a serious task set aside says its plain one for leaving it.
-      shownLine && ['done', 'caught', 'notFinished'].includes(shownLine.slot)
-        ? shownLine.text
-        : lineWithNoTask('doneForToday', voice);
     // A start still open today is offered on any day. Only the locked control, which leads to
     // Plus, is held back on a heavy day.
     const left = today.kind === 'done_for_today' ? today.startsLeft : 0;
@@ -166,7 +178,7 @@ export function OneScreen({ speech, warmUp, notificationsRefused }: OneScreenPro
       <OneScreenView
         {...frame}
         mood="asleep"
-        line={said}
+        line={doneLine(shownLine, voice)}
         shown={{ kind: 'done', under, waiting: stage.waiting?.text ?? null }}
       />
     );
@@ -187,67 +199,18 @@ export function OneScreen({ speech, warmUp, notificationsRefused }: OneScreenPro
   }
 
   if (stage.kind === 'task_set') {
-    const { carried, monster } = stage;
-    const own = lineFor('hatch', stage.task, voice);
-    const said = own ?? wordsWhileUnscreened(stage.task, 'set', connection, voice);
-    const smallest = morning.kind === 'smallest_ask' ? morning.minutes : null;
-    const minutes = chosenMinutes ?? smallest ?? 10;
-    const start = async () => {
-      await dispatch({ type: 'session_set', minutes, treat: treat.trim() || null });
-      await dispatch({ type: 'session', event: { type: 'started' } });
-    };
-    const mood: Mood = said === null ? 'serious' : monster ? 'pleased' : 'waiting';
-    return (
-      <OneScreenView
-        {...frame}
-        mood={mood}
-        line={said}
-        shown={{
-          kind: 'task_set',
-          label: carried ? t('morning.fromYesterday') : null,
-          taskText: own === null || carried ? stage.task.text : null,
-          treat,
-          minutes,
-          options: minuteOptions(smallest),
-          onTreat: setTreat,
-          onMinutes: setMinutes,
-          onStart: () => void start().catch(() => undefined),
-          ...(carried ? { startLabel: t('morning.start', { minutes }) } : {}),
-          ...(carried && monster
-            ? {
-                figure: (
-                  <HatchFigure
-                    mood={mood}
-                    attitude={attitude}
-                    monster={monster.row}
-                    sizeFactor={monster.sizeFactor}
-                  />
-                ),
-              }
-            : {}),
-          extra: (
-            <Stack>
-              {carried ? (
-                <QuietLink
-                  label={t('morning.somethingElse')}
-                  hint={t('morning.somethingElse.hint')}
-                  onPress={() => send({ type: 'carried_task_set_aside' })}
-                  testID="something-else"
-                />
-              ) : null}
-              <NotNow onExcuse={(text) => send({ type: 'excuse_given', text })} />
-              <QuietLink
-                label={t('taskSet.rest')}
-                hint={t('taskSet.rest.hint')}
-                onPress={() => send({ type: 'done_for_today' })}
-                testID="rest-today"
-              />
-              <TogetherLinks day={day} task={stage.task} monster={day.monster} />
-            </Stack>
-          ),
-        }}
-      />
-    );
+    const drawn = taskSetShown(stage, {
+      day,
+      t,
+      voice,
+      connection,
+      chosenMinutes,
+      treat,
+      onTreat: setTreat,
+      onMinutes: setMinutes,
+      dispatch,
+    });
+    return <OneScreenView {...frame} {...drawn} />;
   }
 
   if (stage.kind !== 'composer') {

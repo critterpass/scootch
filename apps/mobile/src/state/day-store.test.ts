@@ -7,6 +7,7 @@ import {
   type TaskCreatePass,
   type TaskCreateResponse,
 } from '@scootch/domain';
+import { t } from '@scootch/i18n';
 import { offlinePacks } from '@scootch/voice';
 
 import crisisFixture from '../../../../packages/voice/fixtures/task.create.crisis.en.json';
@@ -139,10 +140,12 @@ describe('the day store', () => {
       expect(offlinePacks.en.lines.soft.notification).toContain(one.text);
     }
 
-    // The session still runs, and what Scootch says is the offline pack's plain words.
+    // The session still runs, and Scootch's words claim nothing about a task nobody has screened:
+    // the care pack's line is kept for text that was judged serious.
     await app.store.dispatch({ type: 'session_set', minutes: 10 });
     await app.session({ type: 'started' });
-    expect(app.store.getState().line?.text).toBe(plain.acknowledge);
+    expect(app.store.getState().line?.text).toBe(t('en', 'plain.unscreened.acknowledge'));
+    expect(app.store.getState().line?.text).not.toBe(plain.acknowledge);
     expect(app.store.getState().today.kind).toBe('in_session');
 
     // The connection returns: the task is screened, keeps its words and gets its monster.

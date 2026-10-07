@@ -1,10 +1,19 @@
+import { useEffect } from 'react';
 import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import Animated, {
+  ReduceMotion,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { fonts, fontSizes, spacing } from '@scootch/tokens';
 
 import { Scootch, type ScootchProps } from '../art/Scootch';
 import { useT } from '../i18n/i18n-provider';
 
+import { SPRING_CURVE } from './motion/motion-tokens';
+import { useCharacterMotion, useMayMove } from './motion/use-feel';
 import { useKeyboardOpen } from './use-keyboard-open';
 import { useScreenStyle } from './use-screen-style';
 
@@ -14,6 +23,9 @@ const SCOOTCH_SIZE_LARGE_TEXT = 120;
 /** With the keyboard up there is room for a sentence of two or three lines above the field. */
 const SCOOTCH_SIZE_KEYBOARD = 140;
 const SUB_SIZE = 17;
+/** The keyboard's own rise, which his change of size keeps time with. */
+const KEYBOARD_MS = 420;
+const NEVER = ReduceMotion.Never;
 
 export interface ScootchSaysProps {
   readonly mood: ScootchProps['mood'];
@@ -43,22 +55,33 @@ export function ScootchSays({
   figureSize = SCOOTCH_SIZE,
   onPress,
 }: ScootchSaysProps) {
-  const { palette, allowFontScaling, size, largeText, captured } = useScreenStyle();
+  const { palette, allowFontScaling, size, largeText } = useScreenStyle();
+  const character = useCharacterMotion();
   const t = useT();
   const { width } = useWindowDimensions();
   const keyboardOpen = useKeyboardOpen();
-  const figure = Math.min(
-    largeText ? SCOOTCH_SIZE_LARGE_TEXT : keyboardOpen ? SCOOTCH_SIZE_KEYBOARD : figureSize,
-    keyboardOpen ? SCOOTCH_SIZE_KEYBOARD : figureSize,
-    width - spacing.lg * 2,
-  );
+  // He is drawn once, at his full size; with the keyboard up he is scaled down, so the change of
+  // size is a transform on the UI thread and his drawing is never rebuilt for it.
+  const full = Math.min(largeText ? SCOOTCH_SIZE_LARGE_TEXT : figureSize, width - spacing.lg * 2);
+  const figure = keyboardOpen ? Math.min(full, SCOOTCH_SIZE_KEYBOARD) : full;
+  const mayMove = useMayMove();
+  const shown = useSharedValue(figure);
+  useEffect(() => {
+    shown.value = mayMove
+      ? withTiming(figure, { duration: KEYBOARD_MS, easing: SPRING_CURVE, reduceMotion: NEVER })
+      : figure;
+  }, [figure, mayMove, shown]);
+  const sized = useAnimatedStyle(() => ({
+    height: shown.value,
+    transform: [{ scale: shown.value / full }],
+  }));
   const said = [line, more].filter((part) => part !== null).join(' ');
 
   const body = (
     <>
-      <View style={styles.figure}>
-        <Scootch mood={mood} attitude={attitude} size={figure} {...(captured && STILL)} />
-      </View>
+      <Animated.View style={[styles.figure, sized]}>
+        <Scootch mood={mood} attitude={attitude} size={full} squashOnChange {...character} />
+      </Animated.View>
       {line === null ? null : (
         <Text
           allowFontScaling={allowFontScaling}
@@ -108,14 +131,13 @@ export function ScootchSays({
   );
 }
 
-const STILL = { reducedMotion: true } as const;
-
 const styles = StyleSheet.create({
   group: {
     gap: spacing.md,
   },
   figure: {
     alignItems: 'center',
+    transformOrigin: 'top',
   },
   line: {
     fontFamily: fonts.heading,
