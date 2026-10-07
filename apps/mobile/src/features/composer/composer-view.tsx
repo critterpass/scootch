@@ -1,13 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import Animated, {
-  interpolate,
-  interpolateColor,
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-  withTiming,
-} from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 
 import { fonts, spacing } from '@scootch/tokens';
 
@@ -15,19 +8,20 @@ import { useT } from '../../i18n/i18n-provider';
 import { CapsuleButton, CONTROL_HEIGHT } from '../../ui/buttons';
 import { GlassSurface } from '../../ui/glass-surface';
 import { KeyboardIcon, WaveIcon } from '../../ui/icons';
+import { CROSSFADE_MS, SPRING_CURVE } from '../../ui/motion/motion-tokens';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
+import { ComposerCapsule } from './composer-capsule';
 import { ComposerField, ComposerSend } from './composer-field';
+import { DOCK_HELD_SCALE, DOCK_PADDING } from './composer-fold';
 import { ComposerHints, type ComposerHintsProps } from './composer-hints';
+import { useFollow } from './use-follow';
 import { CANCEL_SLIDE, type ComposerEvent } from './composer-machine';
 import { recordingTime, Waveform } from './waveform';
 
 const LABEL_SIZE = 17;
-const DOCK_PADDING = 7;
 /** The capsule's colour once the cancel is armed. */
 const ARMED = '#5A5550';
-const SPRING = { damping: 18, stiffness: 220 } as const;
-const CROSSFADE_MS = 200;
 
 export interface ComposerViewProps extends ComposerHintsProps {
   /** The voice's level, from 0 to 1. */
@@ -36,9 +30,11 @@ export interface ComposerViewProps extends ComposerHintsProps {
 }
 
 /**
- * The composer: a glass dock holding the capsule. Held, the capsule turns tomato and shows the
- * waveform and the time; the keyboard button turns it into a text field. At the large text sizes
- * the dock's controls stack full width. Under Reduce Motion nothing morphs: the states crossfade.
+ * The composer: a glass dock holding the capsule. Held, the capsule takes the dock's whole width,
+ * turns tomato and shows the waveform and the time; the keyboard button turns it into a text
+ * field. The dock's layout never changes while it is held: the capsule's edge moves by transform.
+ * At the large text sizes the controls stack full width. Where nothing may move, the states
+ * crossfade.
  */
 export function ComposerView({ level, onEvent, ...hints }: ComposerViewProps) {
   const { state, screenReader } = hints;
@@ -49,37 +45,32 @@ export function ComposerView({ level, onEvent, ...hints }: ComposerViewProps) {
   const busy = state.phase === 'sending' || state.phase === 'finishing' || hints.thinking;
   const canTalk = state.voice === 'ready' || state.voice === 'unasked';
 
-  const held = useSharedValue(0);
-  useEffect(() => {
-    const target = listening ? 1 : 0;
-    held.value = reducedMotion
-      ? withTiming(target, { duration: CROSSFADE_MS })
-      : withSpring(target, SPRING);
-  }, [held, listening, reducedMotion]);
-
   const { armed } = state;
-  const capsuleStyle = useAnimatedStyle(() => ({
-    backgroundColor: armed
-      ? ARMED
-      : interpolateColor(held.value, [0, 1], [palette.ink, palette.tomato]),
+  const slot = CONTROL_HEIGHT + DOCK_PADDING;
+  const held = listening ? 1 : 0;
+  const drag = useSharedValue(0);
+  // The round button stays laid out where it is and only fades as the capsule sweeps over it.
+  const leftFade = useFollow(held, reducedMotion ? CROSSFADE_MS : 300);
+  const leftStyle = useAnimatedStyle(() => ({ opacity: 1 - leftFade.value }));
+  // The held dock swells a touch, as a thing does under a thumb.
+  const swell = useFollow(held, reducedMotion ? 0 : 500, SPRING_CURVE);
+  const dockStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: 1 + (DOCK_HELD_SCALE - 1) * swell.value }],
   }));
-  // The left button folds away as the capsule takes the whole dock. With motion reduced it only
-  // fades, and its width changes at once.
-  const leftStyle = useAnimatedStyle(() => {
-    const folded = reducedMotion ? (listening ? 1 : 0) : held.value;
-    return {
-      width: interpolate(folded, [0, 1], [CONTROL_HEIGHT, 0]),
-      marginRight: interpolate(folded, [0, 1], [DOCK_PADDING, 0]),
-      opacity: 1 - held.value,
-    };
-  });
 
   const labelStyle = [styles.label, { color: palette.page, fontSize: size(LABEL_SIZE) }] as const;
 
-  const capsule = (
-    <Animated.View style={[styles.capsule, capsuleStyle]}>
-      {state.phase === 'listening' && state.armed ? (
-        <Text allowFontScaling={allowFontScaling} style={labelStyle}>
+  // In the row, the capsule is drawn over the whole dock and moves by transform alone. Stacked for
+  // large text it is already as wide as the dock, and only its colour and its words change.
+  const capsule = largeText ? (
+    <View
+      style={[
+        styles.capsule,
+        { backgroundColor: !listening ? palette.ink : armed ? ARMED : palette.tomato },
+      ]}
+    >
+      {listening && armed ? (
+        <Text allowFontScaling={allowFontScaling} style={[labelStyle, styles.onArmed]}>
           {t('composer.releaseToCancel')}
         </Text>
       ) : listening && state.startedAt !== null ? (
@@ -99,7 +90,16 @@ export function ComposerView({ level, onEvent, ...hints }: ComposerViewProps) {
           </Text>
         </>
       )}
-    </Animated.View>
+    </View>
+  ) : (
+    <ComposerCapsule
+      listening={listening}
+      armed={armed}
+      startedAt={state.startedAt}
+      level={level}
+      slot={slot}
+      drag={drag}
+    />
   );
 
   const talk = screenReader ? (
@@ -133,10 +133,12 @@ export function ComposerView({ level, onEvent, ...hints }: ComposerViewProps) {
       onResponderTerminationRequest={() => false}
       onResponderGrant={(event) => {
         startX.current = event.nativeEvent.pageX;
+        drag.value = 0;
         onEvent({ type: 'hold_started', at: Date.now() });
       }}
       onResponderMove={(event) => {
         const dx = event.nativeEvent.pageX - startX.current;
+        drag.value = dx;
         if (dx < CANCEL_SLIDE !== state.armed) onEvent({ type: 'slid', dx });
       }}
       onResponderRelease={() => onEvent({ type: 'released', at: Date.now() })}
@@ -170,43 +172,49 @@ export function ComposerView({ level, onEvent, ...hints }: ComposerViewProps) {
           style={styles.full}
         />
       ) : null}
-      <GlassSurface style={[styles.dock, largeText && styles.dockStacked]} testID="composer">
-        {largeText ? (
-          <>
-            {typing ? field : talk}
-            {typing ? sendButton : null}
-            {showSwitch && !listening ? (
-              <CapsuleButton
-                tone="quiet"
-                label={switchLabel}
-                hint={switchHint}
-                onPress={onSwitch}
-                testID="composer-switch"
-              />
-            ) : null}
-          </>
-        ) : (
-          <>
-            {showSwitch ? (
-              <Animated.View style={[styles.left, leftStyle]}>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={switchLabel}
-                  accessibilityHint={switchHint}
-                  disabled={listening || busy}
+      <Animated.View style={[styles.full, dockStyle]}>
+        <GlassSurface style={[styles.dock, largeText && styles.dockStacked]} testID="composer">
+          {largeText ? (
+            <>
+              {typing ? field : talk}
+              {typing ? sendButton : null}
+              {showSwitch && !listening ? (
+                <CapsuleButton
+                  tone="quiet"
+                  label={switchLabel}
+                  hint={switchHint}
                   onPress={onSwitch}
                   testID="composer-switch"
-                  style={[styles.round, { backgroundColor: `${palette.ink}0F` }]}
-                >
-                  {typing ? <WaveIcon color={palette.ink} /> : <KeyboardIcon color={palette.ink} />}
-                </Pressable>
-              </Animated.View>
-            ) : null}
-            {typing ? field : talk}
-            {typing ? sendButton : null}
-          </>
-        )}
-      </GlassSurface>
+                />
+              ) : null}
+            </>
+          ) : (
+            <>
+              {showSwitch ? (
+                <Animated.View style={[styles.left, leftStyle]}>
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={switchLabel}
+                    accessibilityHint={switchHint}
+                    disabled={listening || busy}
+                    onPress={onSwitch}
+                    testID="composer-switch"
+                    style={[styles.round, { backgroundColor: `${palette.ink}0F` }]}
+                  >
+                    {typing ? (
+                      <WaveIcon color={palette.ink} />
+                    ) : (
+                      <KeyboardIcon color={palette.ink} />
+                    )}
+                  </Pressable>
+                </Animated.View>
+              ) : null}
+              {typing ? field : talk}
+              {typing ? sendButton : null}
+            </>
+          )}
+        </GlassSurface>
+      </Animated.View>
     </View>
   );
 }
@@ -233,7 +241,10 @@ const styles = StyleSheet.create({
     gap: DOCK_PADDING,
   },
   left: {
-    overflow: 'hidden',
+    marginRight: DOCK_PADDING,
+  },
+  onArmed: {
+    color: '#FFFFFF',
   },
   round: {
     width: CONTROL_HEIGHT,

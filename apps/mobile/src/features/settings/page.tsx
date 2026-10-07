@@ -1,11 +1,12 @@
 import type { ReactNode } from 'react';
-import { ScrollView, StyleSheet, Text } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { fonts, spacing } from '@scootch/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
 import { SafeFrame } from '../../ui/safe-frame';
 import { CloseButton, CornerBar } from '../../ui/corner-bar';
+import { NativeBar, useRouteBar } from '../../ui/native-bar';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
 const TITLE_SIZE = 34;
@@ -24,18 +25,31 @@ export interface PageProps {
 export function Page({ title, barTitle, onClose, testID, children }: PageProps) {
   const { palette, allowFontScaling, size } = useScreenStyle();
   const t = useT();
+  const close = {
+    label: t('settings.close'),
+    hint: t('settings.close.hint'),
+    onPress: onClose,
+    testID: `${testID}-close`,
+  };
+  // Under the system's bar the title and the close control are the bar's, and the list runs
+  // beneath it: the system keeps it clear of the bar and of the home indicator.
+  if (useRouteBar() === 'page') {
+    return (
+      <View style={[styles.page, { backgroundColor: palette.page }]} testID={testID}>
+        <NativeBar title={title ?? barTitle ?? ''} close={close} />
+        <ScrollView
+          contentInsetAdjustmentBehavior="automatic"
+          contentContainerStyle={styles.content}
+          testID={`${testID}-list`}
+        >
+          {children}
+        </ScrollView>
+      </View>
+    );
+  }
   return (
     <SafeFrame style={[styles.page, { backgroundColor: palette.page }]} testID={testID}>
-      <CornerBar
-        trailing={
-          <CloseButton
-            label={t('settings.close')}
-            hint={t('settings.close.hint')}
-            onPress={onClose}
-            testID={`${testID}-close`}
-          />
-        }
-      >
+      <CornerBar trailing={<CloseButton {...close} />}>
         {barTitle === undefined ? null : (
           <Text
             accessibilityRole="header"

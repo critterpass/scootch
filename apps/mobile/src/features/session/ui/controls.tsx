@@ -3,6 +3,7 @@ import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { radius, spacing } from '@scootch/tokens';
 
+import { GlassPill, GlassTag } from '../../../ui/buttons';
 import { CloseButton } from '../../../ui/corner-bar';
 
 import type { SessionInks } from './session-inks';
@@ -19,17 +20,7 @@ export interface ControlProps {
   readonly style?: StyleProp<ViewStyle>;
 }
 
-const lift = (inks: SessionInks) =>
-  ({
-    backgroundColor: inks.surface,
-    shadowColor: '#1C1A17',
-    shadowOpacity: 0.1,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 3,
-  }) as const;
-
-/** The soft raised capsule: "Park a thought", the session's name. */
+/** The glass capsule that floats over the session: "Park a thought". */
 export function Capsule({
   label,
   hint,
@@ -40,31 +31,24 @@ export function Capsule({
   lead,
 }: ControlProps & { readonly lead?: ReactNode }) {
   return (
-    <PressSpring
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      accessibilityHint={hint}
-      testID={testID}
-      onPress={onPress}
-      style={[styles.capsule, lift(inks), style]}
-    >
+    <GlassPill label={label} hint={hint} testID={testID} onPress={onPress} style={style}>
       {lead}
       <SessionText face="action" color={inks.ink}>
         {label}
       </SessionText>
-    </PressSpring>
+    </GlassPill>
   );
 }
 
-/** A label that is not a control: the monster's name and the session's length. */
+/** A glass label that is not a control: the monster's name and the session's length. */
 export function Tag({ label, inks }: { readonly label: string; readonly inks: SessionInks }) {
   return (
-    <View style={[styles.capsule, styles.tag, lift(inks)]}>
+    <GlassTag style={styles.tag}>
       <View style={[styles.dot, { backgroundColor: inks.tomato }]} />
       <SessionText face="caption" color={inks.ink} numberOfLines={1} style={styles.tagLabel}>
         {label}
       </SessionText>
-    </View>
+    </GlassTag>
   );
 }
 
@@ -129,16 +113,6 @@ export function TextButton({
 }
 
 const styles = StyleSheet.create({
-  capsule: {
-    minHeight: 48,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.sm,
-  },
   tag: {
     flexShrink: 1,
     paddingHorizontal: spacing.md,

@@ -31,6 +31,11 @@ export interface PressSpringProps extends Omit<PressableProps, 'style'> {
   readonly feedback?: TouchFeedback;
   /** The opacity at rest, for a control that is drawn faint (a disabled one). */
   readonly restOpacity?: number;
+  /**
+   * `glass` for a control on the system's interactive glass, which answers the finger by itself:
+   * the press then stays still here, and only the tap is felt. Left out, the spring answers.
+   */
+  readonly answeredBy?: 'spring' | 'glass';
 }
 
 /** The tap a control answers with, when the person has haptics on. */
@@ -52,6 +57,7 @@ export function PressSpring({
   style,
   feedback = 'none',
   restOpacity = 1,
+  answeredBy = 'spring',
   onPressIn,
   onPressOut,
   onPress,
@@ -71,6 +77,7 @@ export function PressSpring({
       up.value < 1
         ? interpolate(up.value, [0, PRESS.overshootAt, 1], [sunk, PRESS.overshootScale, 1])
         : 1 - (1 - PRESS.downScale) * down.value;
+    if (answeredBy === 'glass') return { opacity: restOpacity, transform: [{ scale: 1 }] };
     if (!mayMove) {
       return {
         opacity: restOpacity * (1 - (1 - PRESS.calmOpacity) * down.value),
@@ -78,7 +85,7 @@ export function PressSpring({
       };
     }
     return { opacity: restOpacity, transform: [{ scale }] };
-  }, [mayMove, restOpacity]);
+  }, [mayMove, restOpacity, answeredBy]);
 
   const pressIn = (event: GestureResponderEvent) => {
     up.value = 1;
