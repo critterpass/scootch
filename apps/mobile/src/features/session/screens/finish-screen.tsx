@@ -1,17 +1,13 @@
 import { useEffect, useRef, useState, type ComponentRef } from 'react';
 import { AccessibilityInfo, Pressable, StyleSheet, View } from 'react-native';
 
-import type { StringKey } from '@scootch/i18n';
 import { spacing } from '@scootch/tokens';
 
-import { useCue } from '../../../state/day-store-provider';
-import type { HoldCaption } from '../hold-control';
 import { useHoldControl } from '../use-hold-control';
 import { BurstMarks } from '../ui/burst-marks';
 import { Characters } from '../ui/characters';
 import { Stage, Words } from '../ui/drawn-parts';
 import { FilledButton, RoundButton, TextButton } from '../ui/controls';
-import { HoldButton } from '../ui/hold-button';
 import { SessionFrame } from '../ui/session-frame';
 import { SessionText } from '../ui/session-text';
 
@@ -20,29 +16,11 @@ import type { ScreenProps } from './screen-props';
 /** How long the catch plays before a tap anywhere may pass it. */
 const PASS_AFTER_MS = 400;
 
-const CAPTIONS = {
-  idle: 'session.finish.holdIdle',
-  holding: 'session.finish.holdGoing',
-  nearly: 'session.finish.holdNearly',
-  confirm: 'session.finish.tapConfirm',
-} as const satisfies Record<HoldCaption, StringKey>;
-
-function useScreenReader(): boolean {
-  const [on, setOn] = useState(false);
-  useEffect(() => {
-    void AccessibilityInfo.isScreenReaderEnabled()
-      .then(setOn)
-      .catch(() => undefined);
-    const listener = AccessibilityInfo.addEventListener('screenReaderChanged', setOn);
-    return () => listener.remove();
-  }, []);
-  return on;
-}
-
 /**
- * Time is up, or the person is done early: Scootch's line and the finish control. Holding fills
- * the ring and letting go drains it with a kind word; the tap-twice control asks for a second tap.
- * "Not finished" sits beside finishing once time is up.
+ * Time is up, or the person is done early, and the finish is two taps: Scootch's line and the
+ * control, which asks for a second tap. It is the finish of everyone who chose it or chose to say
+ * "done", and of anyone whose monster cannot be caught by hand. "Not finished" sits beside
+ * finishing once time is up.
  *
  * The same screen then plays the catch: the burst goes up from the control, its label reads
  * "Done", Scootch celebrates and the monster is caught. It passes by itself; a tap anywhere passes
@@ -50,7 +28,6 @@ function useScreenReader(): boolean {
  */
 export function FinishScreen({ model, actions, inks, t }: ScreenProps) {
   const { view } = model;
-  const control = view.kind === 'finish' || view.kind === 'caught' ? view.control : 'hold';
   const timeUp = view.kind === 'finish' && view.timeUp;
   const caught = view.kind === 'caught';
   // The catch plays on the screen the finish was made on: "Not finished" keeps its room under the
@@ -77,19 +54,7 @@ export function FinishScreen({ model, actions, inks, t }: ScreenProps) {
     );
     return undefined;
   }, [caught]);
-  const hold = useHoldControl(
-    control,
-    actions.sendFinish,
-    model.holdStartsAt,
-    view.kind === 'caught',
-  );
-  const screenReader = useScreenReader();
-  // Letting go too soon is answered with a small falling "aww", as the design's hold does.
-  const playCue = useCue();
-  const letGoEarly = hold.caption === 'nearly';
-  useEffect(() => {
-    if (letGoEarly && view.kind === 'finish' && model.holdStartsAt === 0) playCue('aww');
-  }, [letGoEarly, playCue, view.kind, model.holdStartsAt]);
+  const hold = useHoldControl('double_tap', actions.sendFinish, 0, view.kind === 'caught');
   const tap = () => {
     hold.input({ type: 'tapped', at: Date.now() });
     if (hold.caption !== 'confirm') {
@@ -100,9 +65,9 @@ export function FinishScreen({ model, actions, inks, t }: ScreenProps) {
   return (
     <SessionFrame
       inks={inks}
-      testID={control === 'hold' ? 'session-finish-hold' : 'session-finish-tap'}
+      testID="session-finish-tap"
       align="drawn"
-      footerInset={control === 'hold' ? 0 : 24}
+      footerInset={24}
       top={
         // Nothing to go back to once time is up, or once the thing is caught.
         timeUp || view.kind === 'caught' ? null : (
@@ -141,57 +106,22 @@ export function FinishScreen({ model, actions, inks, t }: ScreenProps) {
       }
       footer={
         <View style={styles.footer}>
-          {control === 'hold' ? (
-            <>
-              <View ref={controlRef} collapsable={false} style={styles.control}>
-                <HoldButton
-                  progress={hold.progress}
-                  label={t(caught ? 'session.finish.done' : 'session.finish.hold')}
-                  spokenLabel={t('session.finish.holdIdle')}
-                  hint={t('session.finish.hold.hint')}
-                  inks={inks}
-                  onPressIn={() => hold.input({ type: 'pressed' })}
-                  onPressOut={() => hold.input({ type: 'released' })}
-                  onActivate={tap}
-                />
-              </View>
-              <SessionText
-                face="caption"
-                color={hold.caption === 'holding' ? inks.ink : inks.muted}
-                accessibilityLiveRegion="polite"
-                testID="session-hold-caption"
-                style={styles.centred}
-              >
-                {
-                  // The caught line is above, in Scootch's words: the caption keeps its room.
-                  caught
-                    ? ' '
-                    : t(
-                        CAPTIONS[
-                          hold.caption === 'confirm' && !screenReader ? 'idle' : hold.caption
-                        ],
-                      )
-                }
-              </SessionText>
-            </>
-          ) : (
-            <View ref={controlRef} collapsable={false}>
-              <FilledButton
-                tone="tomato"
-                label={t(
-                  caught
-                    ? 'session.finish.done'
-                    : hold.caption === 'confirm'
-                      ? 'session.finish.tapConfirm'
-                      : 'session.finish.tap',
-                )}
-                hint={t('session.finish.tap.hint')}
-                testID="session-finish-tap-button"
-                inks={inks}
-                onPress={tap}
-              />
-            </View>
-          )}
+          <View ref={controlRef} collapsable={false}>
+            <FilledButton
+              tone="tomato"
+              label={t(
+                caught
+                  ? 'session.finish.done'
+                  : hold.caption === 'confirm'
+                    ? 'session.finish.tapConfirm'
+                    : 'session.finish.tap',
+              )}
+              hint={t('session.finish.tap.hint')}
+              testID="session-finish-tap-button"
+              inks={inks}
+              onPress={tap}
+            />
+          </View>
           {timeUp || keepsRow ? (
             // Set apart from the finish control, so reaching for one does not land on the other.
             <View
@@ -214,18 +144,8 @@ export function FinishScreen({ model, actions, inks, t }: ScreenProps) {
     >
       <Stage height={250} top={16}>
         <Characters
-          // He listens for the end while it is held, and bargains when it is let go too soon. The
-          // monster knows what a hold means.
-          mood={
-            caught
-              ? 'celebrating'
-              : hold.caption === 'holding'
-                ? 'listening'
-                : hold.caption === 'nearly'
-                  ? 'bargaining'
-                  : 'waiting'
-          }
-          monsterMood={caught ? 'caught' : control === 'hold' ? 'nervous' : 'idle'}
+          mood={caught ? 'celebrating' : 'waiting'}
+          monsterMood={caught ? 'caught' : 'idle'}
           attitude={model.attitude}
           monster={model.monster}
           reducedMotion={model.reducedMotion}
@@ -253,9 +173,6 @@ const styles = StyleSheet.create({
     alignItems: 'stretch',
     gap: 22,
     paddingBottom: 10,
-  },
-  control: {
-    alignSelf: 'center',
   },
   unseen: {
     opacity: 0,

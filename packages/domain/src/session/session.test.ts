@@ -201,6 +201,14 @@ describe('finishing', () => {
     // The plain tap belongs to the quiet path only.
     expect(at(started(), 'finish_tapped', minutes(1)).state).toMatchObject({ phase: 'running' });
   });
+
+  it('finishes on a catch as a hold does, and a serious task has nothing to catch', () => {
+    const caught = at(started(), 'caught', minutes(1));
+    expect(caught.state).toMatchObject({ phase: 'finished' });
+    const held = at(started(), 'hold_started', minutes(1)).state as LiveSession;
+    expect(caught.effects).toEqual(at(held, 'hold_completed', minutes(1)).effects);
+    expect(at(started('quiet'), 'caught', minutes(1)).state).toMatchObject({ phase: 'running' });
+  });
 });
 
 describe('not finished', () => {

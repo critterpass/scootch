@@ -80,6 +80,8 @@ export type SessionEvent =
   | { readonly type: 'hold_released' }
   | { readonly type: 'hold_completed' }
   | { readonly type: 'double_tapped' }
+  /** The task's monster was caught by hand. It took the hold's place and is stored as one. */
+  | { readonly type: 'caught' }
   | { readonly type: 'said_done' }
   /** The plain finish button of a serious task. */
   | { readonly type: 'finish_tapped' }
