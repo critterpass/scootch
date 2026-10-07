@@ -3,10 +3,10 @@ import type { Pen } from '../core/pen';
 import type { Expression } from './expression';
 import { SCOOTCH } from './palette';
 
-/** A four-pointed star around a centre. */
-export function star(cx: number, cy: number, size: number): Point[] {
+/** A four-pointed star around a centre, turned by `turn` radians. */
+export function star(cx: number, cy: number, size: number, turn = 0): Point[] {
   return Array.from({ length: 8 }, (_, i): Point => {
-    const a = (i / 8) * Math.PI * 2 - Math.PI / 2;
+    const a = (i / 8) * Math.PI * 2 - Math.PI / 2 + turn;
     const q = i % 2 ? size * 0.3 : size;
     return [cx + Math.cos(a) * q, cy + Math.sin(a) * q];
   });
@@ -76,7 +76,7 @@ export function drawEye(
   pen.fill(white, SCOOTCH.white, 0.2);
   pen.clipped(closedPath(white), () => {
     if (e.eye === 'sparkle') {
-      pen.fill(star(x, y, r * 0.72), ink, 0.1);
+      pen.fill(star(x, y, r * 0.72 * e.sparkSize, e.sparkTurn), ink, 0.1);
     } else {
       const pr = r * e.pup;
       const px = x + e.lx * (ew - pr * 0.75) * 0.75;
@@ -245,7 +245,7 @@ export function drawMouth(pen: Pen, e: Expression, x: number, y: number): void {
       );
       break;
     case 'wail':
-      pen.fill(ell(x, y + 3, w * 0.7, w * 0.58, 12, 0.22), SCOOTCH.mouth, 0.2);
+      pen.fill(ell(x, y + 3, w * 0.7, w * 0.58, 12, 0.22, e.wail), SCOOTCH.mouth, 0.2);
       break;
   }
 }

@@ -7,7 +7,7 @@ import { PAL, filled, mug, steam } from '../scootch/work-props';
 /**
  * A real break: leaning on a pillow, eyes shut, a cup cooling nearby. `breath` is the slow rise
  * and fall, -1 to 1; `steam` is where the steam is, 0 to 1. The drifting letters follow the
- * mood's own beat.
+ * clock of the pose.
  */
 export const rest = defineWorkMode(
   { breath: 0, steam: 0.2 },

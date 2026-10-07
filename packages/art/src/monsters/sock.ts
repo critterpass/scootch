@@ -7,6 +7,7 @@ export const sock: MonsterBody = {
   height: 96,
   legs: 'none',
   tops: false,
+  hop: true,
   faceWidth: 0.5,
   outline({ cx, y0, y1, w, h }) {
     const x0 = cx - w * 0.42;

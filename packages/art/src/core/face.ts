@@ -15,6 +15,8 @@ export interface EyeLook {
   readonly gaze: number;
   /** Pupil radius as a share of the eye. */
   readonly pupil: number;
+  /** Up and down gaze, -1 to 1. Level when absent. */
+  readonly gazeY?: number;
 }
 
 /** One round eye with a pupil, two glints and a heavy lid in the body's ink. */
@@ -34,9 +36,10 @@ export function drawEye(
   pen.clipped(closedPath(white), () => {
     const pr = r * look.pupil;
     const px = x + look.gaze * (ew - pr * 0.75) * 0.75;
-    pen.fill(ell(px, y, pr * 0.92, pr, 14), INK, 0.15);
-    pen.blot(px - pr * 0.34, y - pr * 0.4, pr * 0.32, WHITE, 0.06);
-    pen.blot(px + pr * 0.32, y + pr * 0.34, pr * 0.15, WHITE, 0.06);
+    const py = y + (look.gazeY ?? 0) * (eh - pr * 0.75) * 0.75;
+    pen.fill(ell(px, py, pr * 0.92, pr, 14), INK, 0.15);
+    pen.blot(px - pr * 0.34, py - pr * 0.4, pr * 0.32, WHITE, 0.06);
+    pen.blot(px + pr * 0.32, py + pr * 0.34, pr * 0.15, WHITE, 0.06);
     if (look.open < 1) {
       const lid = y - eh + 2 * eh * (1 - look.open);
       const inner = lid + look.tilt * eh * 0.55;
@@ -63,6 +66,46 @@ export function drawEye(
       );
     }
   });
+}
+
+/** An eye shut in sleep: one short curve, dipping in the middle. */
+export function drawShutEye(pen: Pen, x: number, y: number, r: number, color: string): void {
+  pen.line(
+    [
+      [x - r * 0.7, y],
+      [x, y + r * 0.4],
+      [x + r * 0.7, y],
+    ],
+    2.6,
+    color,
+  );
+}
+
+/** The two mouths a mood puts in place of the monster's own: a sleeper's smile, a nervous wobble. */
+export function drawMoodMouth(
+  pen: Pen,
+  mood: 'caught' | 'nervous',
+  x: number,
+  y: number,
+  mw: number,
+  ink: InkPair,
+): void {
+  const color = ink.light ? INK : WHITE;
+  const pts: Point[] =
+    mood === 'caught'
+      ? [
+          [x - mw * 0.5, y],
+          [x, y + 4],
+          [x + mw * 0.5, y],
+        ]
+      : [
+          [x - mw, y],
+          [x - mw * 0.5, y - 3],
+          [x, y],
+          [x + mw * 0.5, y - 3],
+          [x + mw, y],
+        ];
+  pen.line(pts, 2.6, color);
 }
 
 /** The mouth, centred on `x` with its top near `y`. `mw` is half its width. */

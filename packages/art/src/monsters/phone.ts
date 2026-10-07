@@ -14,6 +14,8 @@ export const phone: MonsterBody = {
   deco(pen, g, ink) {
     pen.fill(rr(g.cx - g.w / 2 + 6, g.y0 + 10, g.w - 12, g.h - 28, 6), ink.shade);
     pen.blot(g.cx, g.y1 - 9, 3.2, WHITE, 0.12, 0.5);
+    // A caught phone has stopped ringing.
+    if (g.caught) return;
     for (const s of [-1, 1]) {
       for (let k = 0; k < 2; k++) {
         const radius = 10 + k * 7;

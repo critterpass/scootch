@@ -7,6 +7,7 @@ export const note: MonsterBody = {
   height: 98,
   legs: 'none',
   tops: false,
+  hop: true,
   faceWidth: 0.62,
   outline: (g) => ell(g.cx - 8, g.y1 - 22, 30, 22, 20, 0, 0, -0.3),
   face: (g) => [g.cx - 8, g.y1 - 22],

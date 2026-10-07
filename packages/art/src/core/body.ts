@@ -16,6 +16,8 @@ export interface BodyFrame {
   readonly seed: number;
   /** Seconds into the idle loop. A still drawing is taken at zero. */
   readonly t: number;
+  /** True once the monster is caught: asleep, with nothing about it ringing or rattling. */
+  readonly caught: boolean;
 }
 
 /** One body type: its outline, where its face goes and what it carries. */
@@ -30,6 +32,8 @@ export interface MonsterBody {
   readonly faceWidth: number;
   /** Floats above the ground. */
   readonly hover?: true;
+  /** Has no legs and gets about by hopping. */
+  readonly hop?: true;
   /** Eyes nearly shut. */
   readonly sleepy?: true;
   /** A fixed eye count this body hatches with. */
