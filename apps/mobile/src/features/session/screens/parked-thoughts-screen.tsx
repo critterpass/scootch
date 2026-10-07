@@ -24,7 +24,7 @@ export function ParkedThoughtsScreen({ model, actions, inks, t }: ScreenProps) {
       testID="session-parked-thoughts"
       align="drawn"
       footerInset={14}
-      top={
+      corner={
         <RoundButton
           label={t('session.skip')}
           hint={t('session.skip.hint')}

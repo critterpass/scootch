@@ -1,9 +1,11 @@
 import { useRouter } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 
 import type { Id } from '@scootch/domain';
 
+import { openRepositories } from '../../data/repositories';
 import { useLanguage } from '../../i18n/i18n-provider';
 import { useToday } from '../../state/day-store-provider';
 import { useScreenStyle } from '../../ui/use-screen-style';
@@ -15,9 +17,6 @@ import { useOpenedCard } from '../zoo/use-opened-card';
 import { useLighthouse } from './use-lighthouse';
 import { WorldScreen } from './world-screen';
 import { arrivedToday } from './world-words';
-
-/** Pieces that have already landed in front of the person since the app was opened. */
-const landedBefore = new Set<Id>();
 
 /** Scootch sleeps with everyone else from ten at night until six. */
 const isNight = (hour: number) => hour >= 22 || hour < 6;
@@ -34,15 +33,28 @@ export function WorldContainer() {
   const { keepsakes, plus, shown } = opened;
   const [landing, setLanding] = useState<Id | null>(null);
 
-  // A piece that landed today pops in the first time the world is opened after it.
+  // A piece that landed today pops in the first time the world is opened after it, and never
+  // again: that it has been seen is kept with the day, so opening the app again does not replay it.
+  const db = useSQLiteContext();
   useEffect(() => {
-    if (!keepsakes) return;
+    if (!keepsakes) return undefined;
     const names = new Map(keepsakes.monsters.map((monster) => [monster.id, monster]));
     const arrival = arrivedToday(keepsakes.pieces, names, localDate);
-    if (!arrival || landedBefore.has(arrival.id)) return;
-    landedBefore.add(arrival.id);
-    setLanding(arrival.id);
-  }, [keepsakes, localDate]);
+    if (!arrival) return undefined;
+    let current = true;
+    const { dayNotes } = openRepositories(db);
+    void dayNotes
+      .read(localDate)
+      .then(async (notes) => {
+        if (notes.worldLanded.includes(arrival.id)) return;
+        await dayNotes.write({ ...notes, worldLanded: [...notes.worldLanded, arrival.id] });
+        if (current) setLanding(arrival.id);
+      })
+      .catch(() => undefined);
+    return () => {
+      current = false;
+    };
+  }, [keepsakes, localDate, db]);
 
   const plusDoor = {
     openPlus: () => router.push(PLUS_SHEET),

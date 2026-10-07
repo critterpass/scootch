@@ -17,6 +17,8 @@ export interface DayNotes {
     /** What the task was before it was moved; absent in a note written before this was kept. */
     readonly status?: 'set' | 'started';
   } | null;
+  /** World pieces whose landing has been shown in the world today: each is shown once. */
+  readonly worldLanded: readonly Id[];
 }
 
 export interface DayNotesStore {
@@ -31,7 +33,7 @@ const KEY = 'dayNotes';
 export function dayNotesStore(db: SqlDatabase): DayNotesStore {
   return {
     read: async (localDate) => {
-      const empty: DayNotes = { localDate, startsLetGo: 0, rested: null };
+      const empty: DayNotes = { localDate, startsLetGo: 0, rested: null, worldLanded: [] };
       const rows = await db.getAllAsync<{ value: string }>(
         'SELECT value FROM settings WHERE key = ?',
         [KEY],
@@ -43,6 +45,7 @@ export function dayNotesStore(db: SqlDatabase): DayNotesStore {
           localDate,
           startsLetGo: Number.isInteger(stored.startsLetGo) ? (stored.startsLetGo ?? 0) : 0,
           rested: stored.rested ?? null,
+          worldLanded: Array.isArray(stored.worldLanded) ? stored.worldLanded : [],
         };
       } catch {
         return empty;

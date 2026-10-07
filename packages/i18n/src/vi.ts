@@ -196,6 +196,8 @@ export const vi = {
   'drawer.title': 'Ngăn kéo',
   'drawer.count': '{parked} việc đang cất · {dated} việc có hạn',
   'drawer.empty': 'Chưa cất việc nào.',
+  'drawer.empty.body':
+    'Khi bạn nói nhiều hơn một việc, những việc còn lại chờ ở đây. Kéo màn hình xuống bất cứ lúc nào để xem.',
   'drawer.noDate': 'không có hạn',
   'drawer.dated': 'hạn {due} · quay lại {back}',
   'drawer.swapIn': 'Đổi vào',

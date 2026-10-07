@@ -5,8 +5,6 @@ import Animated, {
   ReduceMotion,
   useAnimatedStyle,
   useSharedValue,
-  withDelay,
-  withSpring,
   withTiming,
 } from 'react-native-reanimated';
 
@@ -14,6 +12,8 @@ import type { Attitude, Id, IsoDate, MonsterRow, WorldPieceRow } from '@scootch/
 import { spacing } from '@scootch/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
+import { FadeAway } from '../../ui/motion/fade-away';
+import { PopIn } from '../../ui/motion/pop-in';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { FirstOffer } from '../plus/first-offer';
 import { Dock, KeepFrame } from '../reveal/ui/keep-frame';
@@ -50,6 +50,8 @@ export interface WorldActions {
 /** How long Scootch stays pleased with himself after a tap. */
 const REACTION_MS = 1400;
 const ISLAND_MAX = 420;
+/** How long the note about a new piece stays before it steps aside. */
+const LANDED_NOTE_MS = 3200;
 const ALWAYS = ReduceMotion.Never;
 
 /**
@@ -88,9 +90,16 @@ export function WorldScreen({ model, actions }: { model: WorldModel; actions: Wo
     }
   };
 
-  // The world arrives: it rises into place once, and a new piece's eyebrow pops in after it.
+  // The world arrives: it rises into place once. A new piece is named once, a moment after, and
+  // the note then steps aside: it is news, not a label.
   const risen = useSharedValue(still ? 1 : 0);
-  const popped = useSharedValue(still ? 1 : 0);
+  const [noted, setNoted] = useState(true);
+  useEffect(() => {
+    if (!model.landing) return undefined;
+    setNoted(true);
+    const timer = setTimeout(() => setNoted(false), LANDED_NOTE_MS);
+    return () => clearTimeout(timer);
+  }, [model.landing]);
   useEffect(() => {
     if (still) return;
     risen.value = withTiming(1, {
@@ -98,18 +107,10 @@ export function WorldScreen({ model, actions }: { model: WorldModel; actions: Wo
       easing: Easing.out(Easing.cubic),
       reduceMotion: ALWAYS,
     });
-    popped.value = withDelay(
-      380,
-      withSpring(1, { damping: 10, stiffness: 180, reduceMotion: ALWAYS }),
-    );
-  }, [still, risen, popped]);
+  }, [still, risen]);
   const riseStyle = useAnimatedStyle(() => ({
     opacity: risen.value,
     transform: [{ translateY: (1 - risen.value) * 18 }],
-  }));
-  const popStyle = useAnimatedStyle(() => ({
-    opacity: Math.min(1, popped.value * 2),
-    transform: [{ scale: 0.6 + popped.value * 0.4 }],
   }));
 
   const size = Math.min(width - spacing.md * 2, ISLAND_MAX);
@@ -165,11 +166,13 @@ export function WorldScreen({ model, actions }: { model: WorldModel; actions: Wo
             {...(model.attitude ? { attitude: model.attitude } : {})}
           />
           {model.landing ? (
-            <Animated.View style={[styles.words, popStyle]}>
-              <SessionText face="eyebrow" color={palette.tomato} testID="world-landed">
-                {t('reveal.piece.eyebrow')}
-              </SessionText>
-            </Animated.View>
+            <FadeAway shown={noted} style={styles.words}>
+              <PopIn delayMs={still ? 0 : 380}>
+                <SessionText face="eyebrow" color={palette.tomato} testID="world-landed">
+                  {t('reveal.piece.eyebrow')}
+                </SessionText>
+              </PopIn>
+            </FadeAway>
           ) : null}
           <SessionText
             face="body"

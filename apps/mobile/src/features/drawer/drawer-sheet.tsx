@@ -10,6 +10,7 @@ import { Sheet, SheetScroll } from '../../ui/sheet/sheet';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
 import { dayWords } from './day-words';
+import { DrawerEmpty } from './drawer-empty';
 import { DrawerRow, type RowLeft } from './drawer-row';
 import { drawerStyles as styles } from './drawer-sheet-styles';
 
@@ -162,9 +163,7 @@ export function DrawerSheet({
               allowFontScaling={allowFontScaling}
               style={[styles.body, type('500', COUNT_SIZE, palette.muted)]}
             >
-              {listed.length === 0
-                ? t('drawer.empty')
-                : t('drawer.count', { parked: listed.length, dated })}
+              {listed.length === 0 ? '' : t('drawer.count', { parked: listed.length, dated })}
             </Text>
           </View>
           <PressSpring
@@ -190,6 +189,7 @@ export function DrawerSheet({
           {capNote}
         </Text>
       )}
+      {listed.length === 0 && left === null ? <DrawerEmpty /> : null}
       {listed.length === 0 ? null : (
         <SheetScroll style={styles.list} contentContainerStyle={styles.listContent}>
           <View style={[styles.card, { backgroundColor: palette.surface }]}>

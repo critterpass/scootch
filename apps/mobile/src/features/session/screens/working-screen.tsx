@@ -140,54 +140,52 @@ export function WorkingScreen(props: ScreenProps) {
           </>
         }
         top={
-          <>
-            {quiet ? (
-              <View />
-            ) : (
-              <GlassPill
-                label={name ?? t('session.pillPlain', { minutes: model.plannedMinutes })}
-                hint={t('session.pill.hint')}
-                testID="session-pill"
-                onPress={() => setNamed((shown) => !shown)}
-                style={styles.pill}
+          quiet ? undefined : (
+            <GlassPill
+              label={name ?? t('session.pillPlain', { minutes: model.plannedMinutes })}
+              hint={t('session.pill.hint')}
+              testID="session-pill"
+              onPress={() => setNamed((shown) => !shown)}
+              style={styles.pill}
+            >
+              <PillDot inks={inks} />
+              <SessionText
+                face="pill"
+                color={inks.ink}
+                numberOfLines={named ? 2 : 1}
+                style={styles.fit}
               >
-                <PillDot inks={inks} />
-                <SessionText
-                  face="pill"
-                  color={inks.ink}
-                  numberOfLines={named ? 2 : 1}
-                  style={styles.fit}
-                >
-                  {named && name
-                    ? name
-                    : name
-                      ? t('session.pill', {
-                          name: shortName(name),
-                          minutes: model.plannedMinutes,
-                        })
-                      : t('session.pillPlain', { minutes: model.plannedMinutes })}
-                </SessionText>
-              </GlassPill>
-            )}
-            {menu ? (
-              <GlassRound
-                label={t('session.menu')}
-                hint={t('session.menu.hint')}
-                testID="session-menu"
-                onPress={() => setMenuOpen((open) => !open)}
-              >
-                <MoreIcon color={inks.ink} />
-              </GlassRound>
-            ) : (
-              <RoundButton
-                label={t('session.leave')}
-                hint={t('session.leave.hint')}
-                testID="session-leave"
-                inks={inks}
-                onPress={actions.leave}
-              />
-            )}
-          </>
+                {named && name
+                  ? name
+                  : name
+                    ? t('session.pill', {
+                        name: shortName(name),
+                        minutes: model.plannedMinutes,
+                      })
+                    : t('session.pillPlain', { minutes: model.plannedMinutes })}
+              </SessionText>
+            </GlassPill>
+          )
+        }
+        corner={
+          menu ? (
+            <GlassRound
+              label={t('session.menu')}
+              hint={t('session.menu.hint')}
+              testID="session-menu"
+              onPress={() => setMenuOpen((open) => !open)}
+            >
+              <MoreIcon color={inks.ink} />
+            </GlassRound>
+          ) : (
+            <RoundButton
+              label={t('session.leave')}
+              hint={t('session.leave.hint')}
+              testID="session-leave"
+              inks={inks}
+              onPress={actions.leave}
+            />
+          )
         }
       >
         <View style={quiet ? styles.quietRing : stuck ? styles.stuckRing : styles.ring}>
