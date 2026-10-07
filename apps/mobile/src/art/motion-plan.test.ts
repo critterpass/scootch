@@ -1,15 +1,15 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { buildScootch, WORK_LOOPS } from '@scootch/art';
+import { buildScootch } from '@scootch/art';
 import { scootchMoodSchema, WORK_MODE_IDS } from '@scootch/domain';
 
 import {
   animatedValues,
-  MAX_FRAMES,
-  scootchFrameSet,
+  FULL_HZ,
+  scootchFrameAt,
   scootchMotionPlan,
-  scootchTick,
-  uniqueLayers,
+  SMALL_HZ,
+  tickHz,
   type ScootchMotionInput,
 } from './motion-plan';
 
@@ -25,15 +25,15 @@ const every: ScootchMotionInput[] = [
   ...moods.map((mood) => ({ ...base, mood })),
   ...WORK_MODE_IDS.map((workMode) => ({ ...base, mood: 'working' as const, workMode })),
 ];
+const at = (seconds: number, sinceChange = seconds) => ({ seconds, sinceChange, seed: 'scootch' });
+const REST = { motion: {}, boil: 0, bob: 0, key: '' };
 
 describe('what moves', () => {
   it('moves nothing under Reduce Motion, whatever the mood or the work mode', () => {
     for (const input of every) {
       const plan = scootchMotionPlan({ ...input, reducedMotion: true });
       expect(animatedValues(plan)).toEqual([]);
-      const set = scootchFrameSet(input, plan);
-      expect(set.motions).toEqual([{}]);
-      expect(scootchTick(set, plan, input, 123.4, 'scootch')).toEqual({ frame: 0, bob: 0 });
+      expect(scootchFrameAt(input, plan, at(123.4))).toEqual(REST);
     }
   });
 
@@ -41,7 +41,7 @@ describe('what moves', () => {
     for (const input of every) {
       const plan = scootchMotionPlan({ ...input, care: 'crisis' });
       expect(animatedValues(plan)).toEqual([]);
-      expect(scootchFrameSet(input, plan).motions).toEqual([{}]);
+      expect(scootchFrameAt(input, plan, at(42))).toEqual(REST);
     }
   });
 
@@ -49,87 +49,90 @@ describe('what moves', () => {
     for (const input of every) {
       const plan = scootchMotionPlan({ ...input, care: 'serious' });
       expect(animatedValues(plan)).toEqual(['breath']);
-      const set = scootchFrameSet(input, plan);
-      expect(set.motions).toEqual([{}]);
-      // The breath runs; the frame never leaves the still.
-      const ticks = [0.4, 3.9, 77].map((t) => scootchTick(set, plan, input, t, 'scootch'));
-      expect(ticks.map((tick) => tick.frame)).toEqual([0, 0, 0]);
-      expect(ticks.some((tick) => tick.bob !== 0)).toBe(true);
+      // The breath runs; the drawing never leaves the still, not even to boil.
+      const frames = [0.4, 3.9, 77].map((t) => scootchFrameAt(input, plan, at(t)));
+      for (const frame of frames) expect({ ...frame, bob: 0 }).toEqual(REST);
+      expect(frames.some((frame) => frame.bob !== 0)).toBe(true);
+      expect(tickHz(plan, 200)).toBe(SMALL_HZ);
     }
     expect(animatedValues(scootchMotionPlan({ ...base, mood: 'serious' }))).toEqual(['breath']);
   });
 
-  it('keeps a table seat to its idle: no loop of its own', () => {
+  it('keeps a table seat to its idle: no motion of its own', () => {
     const seat = { ...base, mood: 'working' as const, workMode: 'cooking' as const };
     const plan = scootchMotionPlan({ ...seat, ownLoop: false });
-    expect(animatedValues(plan)).toEqual(['breath', 'blink', 'glance']);
-    expect(scootchFrameSet({ ...seat, ownLoop: false }, plan).loopFrames).toBe(1);
+    expect(animatedValues(plan)).toEqual(['breath', 'blink', 'glance', 'boil']);
+    const { motion } = scootchFrameAt(seat, plan, at(5.2));
+    expect(motion.work).toBeUndefined();
+    expect(motion.time).toBeUndefined();
+    expect(motion.beat).toBeUndefined();
   });
 });
 
-describe('the frames a moving Scootch keeps', () => {
-  it('starts every set on the still and never keeps more than the budget', () => {
+describe('what a moving Scootch shows at one moment', () => {
+  it('shows everything at once: breath, blink, boil and its own motion, in every mood and mode', () => {
+    for (const input of every) {
+      if (input.mood === 'serious') continue;
+      const plan = scootchMotionPlan(input);
+      const working = input.workMode !== null;
+      expect(animatedValues(plan)).toEqual(
+        working
+          ? ['breath', 'blink', 'boil', 'loop']
+          : ['breath', 'blink', 'glance', 'boil', 'loop'],
+      );
+      expect(tickHz(plan, 200)).toBe(FULL_HZ);
+      expect(tickHz(plan, 56)).toBe(SMALL_HZ);
+      const frame = scootchFrameAt(input, plan, at(7.3, 1.1));
+      expect(frame.motion.time).toBe(1.1);
+      expect(frame.motion.blink).toBeDefined();
+      expect(frame.boil).toBe(2);
+      expect(frame.bob).not.toBe(0);
+      expect(working ? frame.motion.work : frame.motion.beat).toBeDefined();
+    }
+  });
+
+  it('starts every mood on its still, and blinks while a work mode runs', () => {
     for (const input of every) {
       const plan = scootchMotionPlan(input);
-      const set = scootchFrameSet(input, plan);
-      expect(set.motions[0]).toEqual({});
-      expect(set.motions.length).toBe(set.loopFrames * set.eyeStates);
-      expect(set.motions.length).toBeLessThanOrEqual(MAX_FRAMES);
-      expect(scootchTick(set, plan, input, 0, 'scootch')).toEqual({ frame: 0, bob: 0 });
+      const props = { ...input, attitude: 'cheeky' } as const;
+      const first = scootchFrameAt(input, plan, at(0));
+      expect(buildScootch(props, first.motion, { boil: first.boil })).toEqual(buildScootch(props));
     }
-  });
-
-  it('runs a work mode through its loop in order, once per loop, without a blink set', () => {
-    const input = { ...base, mood: 'working' as const, workMode: 'cooking' as const };
+    const input = { ...base, mood: 'working' as const, workMode: 'email' as const };
     const plan = scootchMotionPlan(input);
-    const set = scootchFrameSet(input, plan);
-    expect(plan).toEqual({ breath: true, blink: false, glance: false, loop: 'work' });
-    expect(set.loopSeconds).toBe(WORK_LOOPS.cooking.seconds);
-    const frames: number[] = [];
-    for (let t = 0; t < set.loopSeconds * 2; t += 1 / 12) {
-      const { frame } = scootchTick(set, plan, input, t, 'scootch');
-      expect(frame).toBeLessThan(set.motions.length);
-      if (frames.at(-1) !== frame) frames.push(frame);
+    let blinked = false;
+    for (let t = 0; t < 30 && !blinked; t += 1 / FULL_HZ) {
+      blinked = (scootchFrameAt(input, plan, at(t)).motion.blink ?? 0) > 0.5;
     }
-    const once = Array.from({ length: set.loopFrames }, (_, i) => i);
-    expect(frames).toEqual([...once, ...once]);
+    expect(blinked).toBe(true);
   });
 
-  it('shows the shut frame during a blink and a glance frame during a glance', () => {
-    const input = { ...base, mood: 'bargaining' as const };
-    const plan = scootchMotionPlan(input);
-    const set = scootchFrameSet(input, plan);
-    expect(set.motions).toHaveLength(4);
-    const seen = new Set<number>();
-    for (let t = 0; t < 240; t += 1 / 12)
-      seen.add(scootchTick(set, plan, input, t, 'scootch').frame);
-    expect([...seen].sort()).toEqual([0, 1, 2, 3]);
-    // Each frame is a different drawing: open, shut, looking left, looking right.
-    const props = {
-      mood: input.mood,
-      attitude: 'cheeky',
-      workMode: null,
-      reducedMotion: false,
-    } as const;
-    const drawings = set.motions.map((motion) => buildScootch(props, motion));
-    expect(uniqueLayers(drawings).layers).toHaveLength(4);
-  });
-
-  it('folds frames that draw the same into one layer', () => {
-    const input = { ...base, mood: 'asleep' as const };
-    const plan = scootchMotionPlan(input);
-    const set = scootchFrameSet(input, plan);
-    const props = {
-      mood: input.mood,
-      attitude: 'cheeky',
-      workMode: null,
-      reducedMotion: false,
-    } as const;
-    const { layers, layerOf } = uniqueLayers(set.motions.map((m) => buildScootch(props, m)));
-    // Eyes already shut: the blink set is the loop itself.
-    expect(layers).toHaveLength(set.loopFrames);
-    expect(layerOf.slice(set.loopFrames, set.loopFrames * 2)).toEqual(
-      layerOf.slice(0, set.loopFrames),
+  it('gives the same key to the same drawing and another to the next', () => {
+    const seat = { ...base, ownLoop: false };
+    const plan = scootchMotionPlan(seat);
+    // Between two boil frames an idling seat with open eyes and no glance does not change.
+    const keys = new Set<string>();
+    let same = 0;
+    let last = '';
+    for (let t = 0; t < 20; t += 1 / SMALL_HZ) {
+      const { key } = scootchFrameAt(seat, plan, at(t));
+      if (key === last) same++;
+      last = key;
+      keys.add(key);
+    }
+    expect(same).toBeGreaterThan(100);
+    expect(keys.size).toBeGreaterThan(3);
+    const moving = scootchMotionPlan(base);
+    expect(scootchFrameAt(base, moving, at(1)).key).not.toBe(
+      scootchFrameAt(base, moving, at(1.04)).key,
     );
+  });
+
+  it('carries a look only while some of it is held', () => {
+    const plan = scootchMotionPlan(base);
+    const held = scootchFrameAt(base, plan, { ...at(2), look: { x: 0.5, y: 0, hold: 0.6 } });
+    expect(held.motion.look).toEqual({ x: 0.5, y: 0, hold: 0.6 });
+    const gone = scootchFrameAt(base, plan, { ...at(2), look: { x: 0, y: 0, hold: 0 } });
+    expect(gone.motion.look).toBeUndefined();
   });
 });

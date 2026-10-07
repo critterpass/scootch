@@ -2,8 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals
 
 import {
   createMotionRunner,
-  runInSlices,
   runWhileVisible,
+  shownInAppState,
   TICK_HZ,
   type VisibilitySource,
 } from './motion-runner';
@@ -68,9 +68,9 @@ describe('the motion clock', () => {
     const runner = createMotionRunner(() => ticks++);
     runner.setRunning(true);
     jest.advanceTimersByTime(50 * 60 * 1000);
-    // Timers fire on whole milliseconds, so the count is a shade over twelve a second.
+    // Timers fire on whole milliseconds, so the count is a shade over the rate.
     expect(ticks).toBeGreaterThanOrEqual(50 * 60 * TICK_HZ);
-    expect(ticks).toBeLessThan(50 * 60 * (TICK_HZ + 0.1));
+    expect(ticks).toBeLessThanOrEqual((50 * 60 * 1000) / Math.floor(1000 / TICK_HZ));
     expect(jest.getTimerCount()).toBe(1);
     runner.dispose();
     expect(jest.getTimerCount()).toBe(0);
@@ -146,38 +146,34 @@ describe('running only while it can be seen', () => {
   });
 });
 
-describe('building frames a few at a time', () => {
-  it('runs every job in order across pauses, then hands the results over once', () => {
-    const order: number[] = [];
-    const jobs = Array.from({ length: 10 }, (_, i) => () => {
-      order.push(i);
-      return i * 2;
-    });
-    const done = jest.fn();
-    runInSlices(jobs, 4, done);
-    expect(order).toEqual([]);
-    jest.advanceTimersToNextTimer();
-    expect(order).toEqual([0, 1, 2, 3]);
-    expect(done).not.toHaveBeenCalled();
-    jest.runAllTimers();
-    expect(done).toHaveBeenCalledTimes(1);
-    expect(done).toHaveBeenCalledWith([0, 2, 4, 6, 8, 10, 12, 14, 16, 18]);
+describe('changing how often it ticks', () => {
+  it('keeps one timer and its place in time when the rate changes', () => {
+    const seen: number[] = [];
+    const runner = createMotionRunner((seconds) => seen.push(seconds), 10);
+    runner.setRate(20);
     expect(jest.getTimerCount()).toBe(0);
+    runner.setRunning(true);
+    jest.advanceTimersByTime(1000);
+    expect(seen).toHaveLength(20);
+    runner.setRate(5);
+    expect(jest.getTimerCount()).toBe(1);
+    jest.advanceTimersByTime(1000);
+    expect(seen).toHaveLength(25);
+    expect(seen.at(-1)).toBeCloseTo(2, 1);
+    runner.setRunning(false);
+    runner.setRate(10);
+    expect(jest.getTimerCount()).toBe(0);
+    runner.dispose();
   });
+});
 
-  it('stops for good when cancelled halfway', () => {
-    const ran: number[] = [];
-    const done = jest.fn();
-    const cancel = runInSlices(
-      Array.from({ length: 10 }, (_, i) => () => ran.push(i)),
-      4,
-      done,
-    );
-    jest.advanceTimersToNextTimer();
-    cancel();
-    expect(jest.getTimerCount()).toBe(0);
-    jest.runAllTimers();
-    expect(ran).toHaveLength(4);
-    expect(done).not.toHaveBeenCalled();
+describe('what counts as on the screen', () => {
+  it('keeps a character moving under a system alert and at the first read, not in the background', () => {
+    expect(shownInAppState('active')).toBe(true);
+    // A permission prompt or an Apple sheet over the app.
+    expect(shownInAppState('inactive')).toBe(true);
+    expect(shownInAppState(null)).toBe(true);
+    expect(shownInAppState('unknown')).toBe(true);
+    expect(shownInAppState('background')).toBe(false);
   });
 });

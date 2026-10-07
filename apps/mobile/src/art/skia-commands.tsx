@@ -1,6 +1,6 @@
 import { Canvas, Group, matchFont, Path, Text } from '@shopify/react-native-skia';
 import { memo, useMemo, type ReactElement, type ReactNode } from 'react';
-import { Platform, View } from 'react-native';
+import { Platform, Pressable, View } from 'react-native';
 import type { SharedValue } from 'react-native-reanimated';
 
 import { VIEW_SIZE, type DrawCommand } from '@scootch/art';
@@ -125,6 +125,8 @@ export interface CharacterCanvasProps {
   readonly size: number;
   readonly testID?: string;
   readonly accessibilityLabel?: string;
+  /** Makes the character something to tap. Absent, it is a picture and takes no touches. */
+  readonly onPress?: (() => void) | undefined;
   /** Command layers, drawn in the 200 by 200 drawing space. */
   readonly children: ReactNode;
 }
@@ -138,9 +140,28 @@ export function CharacterCanvas({
   size,
   testID,
   accessibilityLabel,
+  onPress,
   children,
 }: CharacterCanvasProps) {
   const scale = size / VIEW_SIZE;
+  const canvas = (
+    <Canvas style={{ width: size, height: size }}>
+      <Group transform={[{ scale }]}>{children}</Group>
+    </Canvas>
+  );
+  if (onPress) {
+    return (
+      <Pressable
+        testID={testID}
+        onPress={onPress}
+        accessibilityRole="imagebutton"
+        accessibilityLabel={accessibilityLabel}
+        style={{ width: size, height: size }}
+      >
+        {canvas}
+      </Pressable>
+    );
+  }
   return (
     <View
       testID={testID}
@@ -149,9 +170,7 @@ export function CharacterCanvas({
       accessibilityLabel={accessibilityLabel}
       style={{ width: size, height: size }}
     >
-      <Canvas style={{ width: size, height: size }}>
-        <Group transform={[{ scale }]}>{children}</Group>
-      </Canvas>
+      {canvas}
     </View>
   );
 }
