@@ -2,11 +2,9 @@ import {
   addDays,
   hasStartLeft,
   isoFromInstant,
-  parkThings,
   sessionReducer,
   sessionSet,
   type LiveSession,
-  type ParkedThought,
   type SessionEffect,
   type SessionEvent,
   type SessionRow,
@@ -18,6 +16,7 @@ import type { SessionContext } from '../effects/adapters';
 
 import type { DayContext } from './day-types';
 import { persistFinishEarnings } from './finish-earnings';
+import { unansweredThoughts } from './parked-thoughts';
 import { shrinkTask } from './smaller';
 import { NO_AFTER_LINES, afterLinesFor, lineFor, toneFor } from './lines';
 
@@ -128,7 +127,10 @@ async function persist(
       await carryToTomorrow(ctx, current);
       current = (await repositories.tasks.get(current.id)) ?? current;
     } else if (effect.kind === 'forget_task') {
+      // The thoughts parked on the way are the person's own, not the task's: they stay.
+      const thoughts = await unansweredThoughts(ctx, effect.taskId);
       await repositories.forgetTask(effect.taskId);
+      for (const thought of thoughts) await repositories.parkedThoughts.put(thought);
       ctx.memory.sessionRowId = null;
     }
     // Every other effect is the runner's to perform.
@@ -229,33 +231,4 @@ async function markNotFinished(ctx: DayContext): Promise<void> {
   const { sessions } = ctx.deps.repositories;
   const row = ctx.memory.sessionRowId ? await sessions.get(ctx.memory.sessionRowId) : null;
   if (row) await sessions.put({ ...row, outcome: 'not_finished' });
-}
-
-/** Keep copies a handed-over thought into the drawer; discard lets it go. */
-export async function resolveThought(
-  ctx: DayContext,
-  thought: ParkedThought,
-  resolution: 'keep' | 'discard',
-): Promise<void> {
-  const { repositories, nextId } = ctx.deps;
-  const { localDate, parkedThoughts } = ctx.memory.state;
-  if (resolution === 'keep') {
-    const drawer = parkThings({
-      drawer: await repositories.drawerItems.all(),
-      things: [{ text: thought.text.slice(0, TEXT_MAX) }],
-      screen: 'unscreened',
-      today: localDate,
-      now: ctx.now(),
-      nextId,
-    });
-    for (const item of drawer) await repositories.drawerItems.put(item);
-  }
-  const parkedAt = isoFromInstant(thought.parkedAt);
-  for (const row of await repositories.parkedThoughts.all()) {
-    if (row.resolution === null && row.text === thought.text && row.parkedAt === parkedAt) {
-      await repositories.parkedThoughts.put({ ...row, resolution });
-    }
-  }
-  ctx.set({ parkedThoughts: parkedThoughts.filter((one) => one !== thought) });
-  await ctx.refresh();
 }

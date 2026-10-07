@@ -9,6 +9,7 @@ import {
 
 import type { DayContext } from './day-types';
 import { NO_AFTER_LINES, lineFor } from './lines';
+import { keepUnansweredThoughts } from './parked-thoughts';
 import { contextFor, currentTask } from './session-flow';
 
 const TIMED: readonly string[] = ['running', 'stuck', 'holding'];
@@ -35,9 +36,11 @@ export function turnWorkingLine(ctx: DayContext): void {
  * showed for it are cleared, so nothing of it is shown beside the next one. A session that is
  * still going is left alone.
  */
-export function closeSession(ctx: DayContext): void {
+export async function closeSession(ctx: DayContext): Promise<void> {
   const { session } = ctx.memory.state;
   if (session && !OVER.includes(session.phase)) return;
+  // Thoughts nobody chose about are not dropped with the screens: they wait in the drawer.
+  await keepUnansweredThoughts(ctx);
   ctx.set({
     session: null,
     line: null,

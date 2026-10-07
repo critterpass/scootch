@@ -12,6 +12,7 @@ import {
 
 import type { DayContext } from './day-types';
 import { toneFor } from './lines';
+import { keepUnansweredThoughts } from './parked-thoughts';
 import { contextFor } from './session-flow';
 
 /**
@@ -51,6 +52,8 @@ export async function closeStraySessions(ctx: Pick<DayContext, 'deps' | 'now'>):
  */
 export async function restoreSession(ctx: DayContext, tasks: readonly TaskRow[]): Promise<void> {
   const { repositories } = ctx.deps;
+  // What sessions that are over left unanswered (the app was closed first, or the day turned).
+  await keepUnansweredThoughts(ctx);
   for (const task of tasks) {
     const row = (await repositories.sessions.where('taskId', task.id)).find(
       (one) => one.endedAt === null,

@@ -19,7 +19,8 @@ import {
 import { NO_AFTER_LINES } from './lines';
 import { applyPickEvent } from './pick-events';
 import { drawerEvent, setBargainedSession } from './pick-flow';
-import { applySession, resolveThought, restForToday } from './session-flow';
+import { resolveThought } from './parked-thoughts';
+import { applySession, restForToday } from './session-flow';
 import { closeStraySessions, restoreSession } from './session-restore';
 import { closeSession, followTableClock, shortenSession, turnWorkingLine } from './session-moments';
 import { applySurfaceAction, noticePickUp } from './surface-actions';
