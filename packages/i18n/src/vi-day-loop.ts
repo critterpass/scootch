@@ -1,5 +1,6 @@
 /** Vietnamese interface strings for resting the day, the ways back and the wait for Scootch. */
 export const viDayLoop = {
+  'oneScreen.failed': 'Việc đó chưa làm được. Không mất gì cả. Bạn thử lại lần nữa nha.',
   'pick.picked': 'Scootch chọn',
   'pick.again': 'Chọn cái khác',
   'pick.again.hint': 'Scootch đưa ra việc khác.',

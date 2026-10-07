@@ -115,3 +115,5 @@ state is designed or removed.
 | One screen | Scootch is thinking: "Cancel" in the hint pill | The board draws the wait with no way out. Cancel puts the words back in the field; after eight seconds with no answer the words become the one thing as they are and the day starts |
 | Drawer | All of today's starts are used: a line says so in place of "Swap in" | The board draws the drawer on a day with a start left |
 | Web, catch it in the app (`/get?m=<id>`) | On a phone: "{name} is coming with you", one button that opens the app with the monster, and the monster's link in plain text | The board draws the wide screen only (QR code); a phone that lands here needs the same hand-off without a code to scan |
+| Crisis | The more button in the top corner, opening Settings | The Care board draws a corner control; Settings holds the helplines page, and leaving Settings on a crisis day comes straight back to care |
+| One screen | "That did not go through" in one plain line | No board draws a failure inside the app; the line uses the note style, goes to the crash reporter, and leaves with the next thing the person does |

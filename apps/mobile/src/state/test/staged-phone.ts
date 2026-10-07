@@ -57,7 +57,11 @@ export async function stagedPhone(
   server: StagedServer,
   database?: TestDatabase,
   at = MORNING,
-  phone: { readonly timeZone?: string; readonly plus?: boolean } = {},
+  phone: {
+    readonly timeZone?: string;
+    readonly plus?: boolean;
+    readonly onFailure?: (error: unknown) => void;
+  } = {},
 ) {
   const data = database ?? (await openTestDatabase());
   const time = fakeTime(at);
@@ -107,6 +111,7 @@ export async function stagedPhone(
     phoneLanguage: () => 'en',
     plus: () => phone.plus ?? false,
     timers: time.timers,
+    ...(phone.onFailure ? { onFailure: phone.onFailure } : {}),
   });
   await store.start();
   const say = (text = ramble, source: 'ramble' | 'typed' = 'ramble') =>

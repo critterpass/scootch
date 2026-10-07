@@ -92,6 +92,8 @@ export interface OneScreenViewProps {
   /** Drawn over the screen: the drawer. */
   readonly overlay?: ReactNode;
   readonly shown: OneScreenShown;
+  /** The last thing asked of the app went wrong: said in one plain line. */
+  readonly failed?: boolean;
 }
 
 /** How far the screen must be pulled down before it counts as meant. */
@@ -108,6 +110,7 @@ export function OneScreenView({
   onPull,
   overlay = null,
   shown,
+  failed = false,
 }: OneScreenViewProps) {
   const { palette, allowFontScaling, size } = useScreenStyle();
   const t = useT();
@@ -270,6 +273,7 @@ export function OneScreenView({
               )}
             </>
           )}
+          {failed ? note(t('oneScreen.failed'), 'one-screen-failed') : null}
           {body}
           {/* Said beside nothing else: never during a task, a pick or a hatch. */}
           {chargeNoteShows(shown.kind) ? <ChargeNote /> : null}

@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/react-native';
 import { randomUUID } from 'expo-crypto';
 import { getCalendars } from 'expo-localization';
 import { addNetworkStateListener, getNetworkStateAsync } from 'expo-network';
@@ -45,6 +46,7 @@ import { useLanguage } from '../i18n/i18n-provider';
 
 import { DataToolsContext, createAppDataTools } from './data-tools';
 import { createDayStore, effectSwitches, type DayStore } from './day-store';
+import { watchDayTurn } from './day-watch';
 import type { DayEvent, DayState, SurfaceRequest } from './day-types';
 import { lineFor } from './lines';
 import { PlusContext } from './plus-context';
@@ -100,6 +102,7 @@ function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
     repositories,
     // A finished thing is backed up at once; a failed upload is tried again within the hour.
     onFinished: () => void data.backup.afterFinish().catch(() => undefined),
+    onFailure: (error) => void Sentry.captureException(error),
     clock: systemClock,
     timeZone,
     nextId: randomUUID,
@@ -190,7 +193,9 @@ export function DayStoreProvider({ children }: { readonly children: ReactNode })
     const network = addNetworkStateListener((state) => {
       if (state.isInternetReachable ?? state.isConnected) send({ type: 'connection_returned' });
     });
+    const boundary = watchDayTurn(() => send({ type: 'day_turned' }));
     return () => {
+      boundary();
       entitlement();
       reduceMotion.remove();
       appState.remove();
