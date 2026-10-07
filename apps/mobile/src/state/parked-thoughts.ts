@@ -1,6 +1,8 @@
 import {
+  addDays,
   isoFromInstant,
   parkThings,
+  sameThing,
   type Id,
   type ParkedThought,
   type ParkedThoughtRow,
@@ -24,17 +26,29 @@ export async function unansweredThoughts(ctx: Reading, taskId: Id): Promise<Park
   return rows;
 }
 
-async function intoDrawer(ctx: DayContext, text: string): Promise<void> {
+/**
+ * Into the drawer. "Tomorrow" gives the thought tomorrow's date, so it is brought back that
+ * morning like any dated thing; a thought nobody chose about is undated and fades in its time.
+ */
+async function intoDrawer(ctx: DayContext, text: string, when: 'tomorrow' | 'whenever') {
   const { repositories, nextId } = ctx.deps;
+  const today = ctx.memory.state.localDate;
+  const tomorrow = addDays(today, 1);
+  const thing = { text: text.slice(0, TEXT_MAX) };
   const drawer = parkThings({
     drawer: await repositories.drawerItems.all(),
-    things: [{ text: text.slice(0, TEXT_MAX) }],
+    things: [when === 'tomorrow' ? { ...thing, dueDate: tomorrow } : thing],
     screen: 'unscreened',
-    today: ctx.memory.state.localDate,
+    today,
     now: ctx.now(),
     nextId,
   });
-  for (const item of drawer) await repositories.drawerItems.put(item);
+  for (const item of drawer) {
+    // It was set down today, so it is not handed straight back: tomorrow at the soonest.
+    const early =
+      when === 'tomorrow' && sameThing(item.text, thing.text) && item.dueDate === tomorrow;
+    await repositories.drawerItems.put(early ? { ...item, returnOn: tomorrow } : item);
+  }
 }
 
 /**
@@ -50,7 +64,7 @@ export async function keepUnansweredThoughts(ctx: DayContext): Promise<void> {
     if (row.resolution !== null) continue;
     const session = await sessions.get(row.sessionId);
     if (session && session.endedAt === null) continue;
-    await intoDrawer(ctx, row.text);
+    await intoDrawer(ctx, row.text, 'whenever');
     await parkedThoughts.put({ ...row, resolution: 'keep' });
     kept = true;
   }
@@ -65,7 +79,7 @@ export async function resolveThought(
 ): Promise<void> {
   const { repositories } = ctx.deps;
   const { parkedThoughts } = ctx.memory.state;
-  if (resolution === 'keep') await intoDrawer(ctx, thought.text);
+  if (resolution === 'keep') await intoDrawer(ctx, thought.text, 'tomorrow');
   const parkedAt = isoFromInstant(thought.parkedAt);
   for (const row of await repositories.parkedThoughts.all()) {
     if (row.resolution === null && row.text === thought.text && row.parkedAt === parkedAt) {

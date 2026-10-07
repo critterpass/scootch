@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { DAY_MS, MINUTE_MS, type SessionEvent } from '@scootch/domain';
+import { DAY_MS, MINUTE_MS, returningItem, type SessionEvent } from '@scootch/domain';
 
 import { MORNING, stagedPhone, stagedServer } from './test/staged-phone';
 
@@ -87,5 +87,21 @@ describe('a thought parked during a session', () => {
     const again = await relaunch(app);
     expect(inDrawer(again)).toEqual([]);
     expect(again.store.getState().session).toMatchObject({ thoughts: [{ text: THOUGHT }] });
+  });
+
+  it('comes back the next morning when "Tomorrow" is chosen for it', async () => {
+    const app = await working();
+    await session(app, { type: 'double_tapped' });
+    const [thought] = app.store.getState().parkedThoughts;
+    if (!thought) throw new Error('the thought is handed over');
+    await app.store.dispatch({ type: 'thought_resolved', thought, resolution: 'keep' });
+    await app.store.dispatch({ type: 'session_closed' });
+    const item = app.store.getState().drawer.items.find((one) => one.text === THOUGHT);
+    expect(item).toMatchObject({ dueDate: '2026-10-07', returnOn: '2026-10-07', fadesOn: null });
+
+    const tomorrow = await relaunch(app, MORNING + DAY_MS);
+    const { items } = tomorrow.store.getState().drawer;
+    expect(returningItem(items, '2026-10-07')?.text).toBe(THOUGHT);
+    expect(returningItem(items, '2026-10-06')).toBeNull();
   });
 });
