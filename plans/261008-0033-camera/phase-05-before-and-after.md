@@ -14,13 +14,13 @@ Goal: proof you can feel. Board screen: "Before and after".
   ends without a second photo, when the user declines, and after a day in
   any case.
 - Test: every ending deletes the photo unless Keep or Share was tapped.
-- Status: built — SHA5; not run on a device
+- Status: built — c1e1390; not run on a device
 
 ### 2. Asking for the second photo
 - Do: after a caught session that began with a photo, a pill on home offers
   one more, with a plain way to skip. Never after a session that was not
   finished, never on a serious task, never from Paper or Screen.
-- Status: built — SHA5; not run on a device
+- Status: built — c1e1390; not run on a device
 
 ### 3. The card
 - Do: the two photos under one drag handle, "Before" and "After · n min",
@@ -28,7 +28,7 @@ Goal: proof you can feel. Board screen: "Before and after".
   can count: minutes, things gone, zones cleared. A figure that is zero is
   not shown.
 - Test: the figures from two fixed sets of recognised things.
-- Status: built — SHA5; not run on a device
+- Status: built — c1e1390; not run on a device
 
 ### 4. Keep, share and sheets
 - Do: "Keep private" saves one picture of the card to the person's own
@@ -37,7 +37,7 @@ Goal: proof you can feel. Board screen: "Before and after".
   photos are never uploaded. Neither button, nothing is kept. Registry files
   and sheets: the card, dragging, one figure only, skipped, largest text.
 - Done when: sheets in both languages.
-- Status: built — SHA5; not run on a device
+- Status: built — c1e1390; not run on a device
 
 ## Risks
 
