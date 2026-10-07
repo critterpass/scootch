@@ -10,6 +10,21 @@ const config = getSentryExpoConfig(__dirname);
 // routes, so nothing they import (the screen registry, the developer tools) is in the bundle.
 // The developer app and the app device runs install keep them.
 if (process.env.APP_VARIANT === 'prd') {
+  // The store app is never bundled, for a build or for an update, while a helpline number or its
+  // opening hours has not been verified at its source: the check prints what is missing.
+  // eslint-disable-next-line @typescript-eslint/no-require-imports -- CommonJS, see above
+  const { execFileSync } = require('node:child_process');
+  // eslint-disable-next-line @typescript-eslint/no-require-imports -- CommonJS, see above
+  const path = require('node:path');
+  execFileSync(
+    process.execPath,
+    [
+      require.resolve('tsx/cli'),
+      path.join(__dirname, '../../tools/scripts/check-helplines-verified.ts'),
+    ],
+    { stdio: 'inherit' },
+  );
+
   const developerRoutes = /[\\/]src[\\/]app[\\/]\(dev\)[\\/].*/;
   const blocked = config.resolver.blockList;
   config.resolver.blockList = [

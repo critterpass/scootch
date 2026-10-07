@@ -28,3 +28,11 @@ Settings) wins over the device; without one, the first device locale we ship dec
 5. Run `pnpm --filter @scootch/i18n test`. It names every key that is in one language only, has
    different parameters, or is empty or unchanged in Vietnamese. A word that really is the same
    in both goes in `sameInBothLanguages` (`src/completeness.ts`).
+
+## Helplines
+
+`src/helplines/` holds the one helpline table the app and the website both read: each line's
+number, opening hours, audience, source and the day it was last verified, with the rules for
+which lines are open and the order they are shown in. It lives here because this is the package
+both already share. A row is changed only with its source open, and production waits while any
+`checkedOn` is `null` (`tools/scripts/check-helplines-verified.ts`).

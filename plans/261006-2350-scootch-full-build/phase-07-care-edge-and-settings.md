@@ -31,7 +31,7 @@ High effort for tasks 1 and 2.
   Zealand and India. Vietnam must be added and verified, because the app
   launches in Vietnamese.
 - Test: crisis wins over every other state, including an active session.
-- Status: partly done — 45cd82d; built and tested with fakes, not yet run on a device
+- Status: partly done — 45cd82d; built and tested with fakes, not yet run on a device; the helpline table is now one table shared with the website (`packages/i18n/src/helplines/`), with opening hours, a text number and an audience for each row; numbers verified at their own sources on 2026-10-07 except India (Tele-MANAS, official site would not load) and the opening hours of Hy Vọng Sống, which stay unverified; Vietnam lists 115, Ngày mai, Hy Vọng Sống and 111, closed lines say so and come last; a production bundle of the app now refuses to be made while anything is unverified, so it is blocked on those two until a person verifies them; the hours and closed states have never been seen on a device
 
 ### 3. Offline
 - Do: starting works with no connection: carry on from yesterday or type

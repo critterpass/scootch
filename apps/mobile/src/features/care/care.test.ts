@@ -14,7 +14,6 @@ import { revealSteps } from '../reveal/reveal-steps';
 import { NOTHING_PASSED, sessionView } from '../session/session-view';
 import { shareOffered } from '../share/share-rules';
 
-import { HELPLINES, HELPLINE_DIRECTORY, helplinesFor } from './helplines';
 import { carePhone, careServer } from './test/care-phone';
 
 const serious = seriousFixture.response as TaskCreateResponse;
@@ -228,33 +227,5 @@ describe('a crisis day', () => {
     // Nothing more is taken for the rest of the day.
     await phone.session({ type: 'finish_tapped' });
     expect(phone.store.getState().today).toEqual({ kind: 'crisis' });
-  });
-});
-
-describe('the helpline table', () => {
-  it('gives an unknown region no number, so the directory is what is shown', () => {
-    expect(helplinesFor('ZZ')).toEqual([]);
-    expect(helplinesFor(null)).toEqual([]);
-    expect(helplinesFor('')).toEqual([]);
-    expect(HELPLINE_DIRECTORY).toMatch(/^https:\/\//);
-  });
-
-  it('finds a region however the phone writes its code', () => {
-    expect(helplinesFor('us').map((line) => line.number)).toEqual(['988']);
-    expect(helplinesFor('IE')).toEqual(helplinesFor('GB'));
-  });
-
-  it('shows Vietnam the emergency number until a helpline has been verified', () => {
-    expect(helplinesFor('VN')).toEqual([
-      expect.objectContaining({ reach: 'emergency', number: '115' }),
-    ]);
-  });
-
-  it('has a source and a checked date field on every row', () => {
-    for (const line of HELPLINES) {
-      expect(line.source).toMatch(/^https:\/\/\S+$/);
-      expect(line).toHaveProperty('checkedOn');
-      expect(line.number).toMatch(/^[\d ]+$/);
-    }
   });
 });
