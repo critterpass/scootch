@@ -91,7 +91,7 @@ export function DrawerSheet({ open, items, today, canSwap, onSwapIn, onClose }: 
             {
               maxHeight: height - insets.top - TOP_GAP,
               paddingBottom: Math.max(22, insets.bottom),
-              backgroundColor: `${palette.page}F0`,
+              backgroundColor: palette.page,
               borderColor: `${palette.ink}1F`,
             },
           ]}

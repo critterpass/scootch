@@ -7,6 +7,15 @@ appId: app.scootch.dev
     id: 'registry-filter'
 - eraseText: 120
 - inputText: ${NAME}
+# The first time the keyboard is used, iOS may stop to explain sliding a finger across the letters,
+# and what was typed before it came up is lost: dismiss it, then type the words again whole.
+- runFlow:
+    when:
+      visible: 'Continue'
+    commands:
+      - tapOn: 'Continue'
+      - eraseText: 120
+      - inputText: ${NAME}
 - tapOn:
     id: registry-row-${NAME}
 - extendedWaitUntil:
