@@ -1,3 +1,4 @@
+import { useIsFocused } from 'expo-router';
 import {
   Canvas,
   Group,
@@ -72,7 +73,9 @@ export const ZooTile = memo(function ZooTile(props: ZooTileProps) {
     [panel.w, panel.h],
   );
   const screen = useMemo(() => dots(panel.w, panel.h), [panel.w, panel.h]);
-  const alive = !character.reducedMotion && character.care === 'none';
+  // Asked here, outside the canvas, and handed to the monster's layer inside it.
+  const focused = useIsFocused();
+  const alive = focused && !character.reducedMotion && character.care === 'none';
   const shimmer = useMemo(() => {
     const [first, middle, last] = TILE_SHIMMER.colors;
     const [a, b, c] = TILE_SHIMMER.alphas;

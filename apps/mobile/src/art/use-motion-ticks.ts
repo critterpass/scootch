@@ -31,7 +31,20 @@ export function useMotionTicks(
   onTick: (seconds: number) => void,
   hz: number = TICK_HZ,
 ): void {
-  const focused = useIsFocused();
+  useMotionTicksWhile(moving, useIsFocused(), onTick, hz);
+}
+
+/**
+ * The same ticks for a place that cannot ask whether its screen is focused: something drawn
+ * inside a canvas, which has its own tree and none of the app's contexts. Whoever draws the
+ * canvas asks, and passes the answer in.
+ */
+export function useMotionTicksWhile(
+  moving: boolean,
+  focused: boolean,
+  onTick: (seconds: number) => void,
+  hz: number = TICK_HZ,
+): void {
   const latest = useRef(onTick);
   latest.current = onTick;
   const runner = useRef<MotionRunner | null>(null);
