@@ -6,6 +6,7 @@ export * from './day';
 export * from './drawer';
 export * from './entitlements';
 export * from './habits';
+export * from './hunt';
 export * from './rarity';
 export * from './rewards';
 export * from './session';

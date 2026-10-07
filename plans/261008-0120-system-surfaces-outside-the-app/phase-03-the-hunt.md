@@ -8,7 +8,9 @@ Owns: `apps/mobile/targets/widgets/SessionLiveActivity*.swift`,
 - Do: a Swift record of the running session in the App Group. Intents start
   it, pause it for stuck, add five minutes and end it, and move the Live
   Activity themselves. The app adopts the record when it opens and the day's
-  own tables stay the truth afterwards.
+  own tables stay the truth afterwards. Stuck holds the clock here, which
+  the session row does not do today (its end is its start plus its planned
+  minutes): adopting a held session has to move the row's end with it.
 - Test: adopting a session begun outside; one begun twice; one that ended
   while away.
 - Status: todo

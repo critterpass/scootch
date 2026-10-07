@@ -5,9 +5,56 @@
   "weekBars": 3,
   "worldThings": 8,
   "plus": false,
+  "accent": null,
+  "finish": "holo",
+  "shelf": 42,
+  "latestCatch": {
+    "name": "Odd Sock",
+    "caughtAt": 1791290000000
+  },
+  "bites": [],
   "dayEndsAt": 1791342000000,
+  "lurkers": [
+    {
+      "taskId": "task-2",
+      "name": "Receipt Goblin",
+      "task": "Thing task-2",
+      "day": 9,
+      "size": 1,
+      "image": "surface-monster-task-2.png",
+      "lines": {
+        "start": "Molar is sweating.",
+        "working": [
+          "Molar is sweating. Keep going.",
+          "Molar has gone quiet.",
+          "Molar is packing a bag."
+        ],
+        "stuck": "Type only the greeting.",
+        "firstLine": null,
+        "lastMinutes": "Two minutes. Molar is writing a will.",
+        "overtime": "Time. Molar faints.",
+        "caught": "Got him.",
+        "stoppedEarly": "Not finished is fine."
+      }
+    }
+  ],
   "state": "in_session",
   "task": "Email the dentist",
+  "taskId": "task-1",
+  "taskLines": {
+    "start": "Molar is sweating.",
+    "working": [
+      "Molar is sweating. Keep going.",
+      "Molar has gone quiet.",
+      "Molar is packing a bag."
+    ],
+    "stuck": "Type only the greeting.",
+    "firstLine": null,
+    "lastMinutes": "Two minutes. Molar is writing a will.",
+    "overtime": "Time. Molar faints.",
+    "caught": "Got him.",
+    "stoppedEarly": "Not finished is fine."
+  },
   "sessionStartedAt": 1791294000000,
   "sessionEndsAt": 1791294600000,
   "monsterName": "Molar",
@@ -26,6 +73,5 @@
       "at": 1791294420000,
       "text": "Molar is sweating. Keep going."
     }
-  ],
-  "accent": null
+  ]
 }

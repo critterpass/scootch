@@ -40,5 +40,7 @@ enum AppGroup {
         static let surfaceSnapshot = "surfaces.snapshot"
         /// What the controls and buttons asked for, as one JSON string the app reads and removes.
         static let pendingSurfaceActions = "surfaces.pending-actions"
+        /// The session the Lock Screen and the Island follow, as one JSON string (`HuntRecord`).
+        static let huntRecord = "surfaces.hunt"
     }
 }
