@@ -98,6 +98,15 @@ Free core, one paid tier (Scootch Plus), small one-off cosmetics.
 Placeholder prices: $5.99 a month, $39.99 a year with a 7-day trial,
 $89.99 once.
 
+**One-off cosmetics** live in the studio and are bought once and kept: an ink
+($1.99) recolours Scootch and the app, a finish ($0.99 to $2.99) is the
+material of your card and of everything you share, a trail ($0.99) is what
+bursts out at a catch. Paper, the Tangerine ink and Confetti are everyone's.
+Plus wears every finish; without Plus a finish can be bought singly. Inks and
+trails are single purchases for everyone. Each is worn live before it is
+bought, and what is shown is what is sold. Plus also holds the member card
+with its number and the foil stamp on the day's receipt.
+
 **Free forever:** the whole day loop for one thing a day, all three attitudes,
 all work modes and monsters, every caught card, the world, the Live Activity,
 small and medium widgets, Control Center and Action button, joining a table,
@@ -131,6 +140,10 @@ iOS has no pause; cancelling goes through Apple's sheet.
   no sign-up. "Catch it in the app" carries the monster through install.
 - Every shared card, story and record clip has its own page and carries
   scootch.app.
+- Five things to share, each in the ink and finish you wear: the story of a
+  catch, its trading card, a sticker sheet, the day's receipt and the month's
+  poster. All five are free; a serious or private task is on none of them and
+  a crisis day shares nothing.
 
 ## 10. Scope
 
@@ -160,5 +173,7 @@ complex and isolated:
 | "Catch it in the app" carries the monster through install | iOS has no deferred link of its own | The App Clip hands the monster to the app through the shared App Group; spike it in phase 10 |
 | "Send the link to my phone" by email or phone number | Needs a mail or text sender, and text costs money | QR code and email only (**open**) |
 | Helplines page lists six countries | Vietnam is missing, and the app launches in Vietnamese | Add verified Vietnamese helplines before launch |
+| The trading card "shares as a looping tilt video", the sticker sheet is "a Messages sticker pack", "Add card to Wallet", an ink "recolours the widgets" | Each needs native work: a video writer, a sticker target, a signed pass and Swift changes | Built in the next native batch; until that build is installed the card and sheet share as pictures, the Wallet button is absent and widgets keep their colours |
+| The poster is "delivered on the 1st" | The brief keeps Unwrapped for after launch | The month's poster is drawn on the phone from what the phone already keeps, so it ships; the website's Unwrapped still waits |
 | "A person writes back within two working days" | The founder is that person | Keep the promise only if the founder accepts it (**open**) |
 | The weekly sentence shows in the free world | The brief puts the Scootch that learns you in Plus | Free users see it once a month, Plus weekly (**open**) |

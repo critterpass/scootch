@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><meta name="design_doc_mode" content="canvas"><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"><style>body{margin:0;background:#E9E5DE;color:#1C1A17;font-family:-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif;-webkit-font-smoothing:antialiased}a{color:#1C1A17}a:hover{color:#F0562E}</style></helmet>
+<nav style="position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:6px;padding:14px 72px;background:rgba(233,229,222,.86);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);box-shadow:0 .5px 0 rgba(28,26,23,.12);width:max-content;min-width:100%;box-sizing:border-box"><span style="font:800 17px/1 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.02em;margin-right:14px">Scootch</span><a href="Scootch%20-%20Plus.dc.html" style="text-decoration:none;font:500 14px/1 -apple-system, system-ui, sans-serif;padding:9px 14px;border-radius:999px;color:#1C1A17">Plus</a><a href="Scootch%20-%20Plus%20Materials.dc.html" style="text-decoration:none;font:650 14px/1 -apple-system, system-ui, sans-serif;padding:9px 14px;border-radius:999px;background:#1C1A17;color:#fff">Plus · materials, studio, share</a><a href="Scootch%20-%20Monsters%20and%20Keepsakes.dc.html" style="text-decoration:none;font:500 14px/1 -apple-system, system-ui, sans-serif;padding:9px 14px;border-radius:999px;color:#1C1A17">Monsters and keepsakes</a></nav>
+
+<section style="padding:72px 72px 24px" data-screen-label="Plus Materials">
+<span style="font:500 15px -apple-system, system-ui, sans-serif;color:#6F6A62">Scootch · monetisation · v2</span>
+<h1 style="margin:10px 0 0;font:800 64px/1 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.035em">Plus, in real materials</h1>
+<p style="margin:16px 0 0;max-width:760px;font:400 18px/1.45 -apple-system, system-ui, sans-serif;color:#6F6A62;text-wrap:pretty">Every cosmetic is a physical finish you can tilt: foil, chrome, jelly, frosted glass, velvet flock, riso. Pick one in the studio and it carries through to your member card, your stickers and everything you share. Move your pointer over any card.</p>
+</section>
+
+<section style="padding:56px 72px 72px;border-top:1px solid rgba(28,26,23,.08)" data-screen-label="01 The finishes">
+<div style="display:flex;align-items:baseline;gap:18px;margin:0 0 40px"><span style="font:500 15px -apple-system, system-ui, sans-serif;color:#6F6A62">01</span><div style="display:flex;flex-direction:column;gap:8px;max-width:860px"><h2 style="margin:0;font:700 34px/1.1 -apple-system, system-ui, sans-serif;letter-spacing:-.025em">The finishes</h2><p style="margin:0;font:400 17px/1.45 -apple-system, system-ui, sans-serif;color:#6F6A62;text-wrap:pretty">Seven finishes, each built from light rather than pictures, so the shine responds to the phone's tilt. Tap one to try it on in the studio below.</p></div></div>
+<div style="display:flex;gap:28px;flex-wrap:wrap;perspective:1100px">
+<sc-for list="{{ tiles }}" as="t" hint-placeholder-count="7">
+<div onClick="{{ t.pick }}" style="display:flex;flex-direction:column;gap:14px;width:188px;cursor:pointer">
+<div data-tilt="1" style="width:188px;height:262px;border-radius:22px;position:relative;overflow:hidden;box-shadow:{{ t.c.shadow }};transform-style:preserve-3d;outline:{{ t.ring }};outline-offset:5px">
+<div style="position:absolute;inset:-24px;background:{{ t.c.base }};filter:{{ t.c.bf }}"></div>
+<div data-holo="1" style="position:absolute;inset:0;background-image:{{ t.c.sheen }};background-size:300% 300%;mix-blend-mode:{{ t.c.blend }};opacity:{{ t.c.sop }}"></div>
+<div style="position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,.95) 0 1px,transparent 1.6px),radial-gradient(circle,rgba(255,255,255,.7) 0 .8px,transparent 1.3px);background-size:13px 13px,7px 7px;background-position:0 0,3px 5px;opacity:{{ t.c.spark }};mix-blend-mode:screen"></div>
+<div data-grain="1" style="position:absolute;inset:0;opacity:{{ t.c.grain }};mix-blend-mode:overlay;pointer-events:none"></div>
+<div style="position:absolute;inset:0;display:flex;flex-direction:column;padding:14px;color:{{ t.c.text }}">
+<div style="display:flex;justify-content:space-between;font:700 9.5px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.12em;color:{{ t.c.sub }}"><span>FINISH</span><span>{{ t.no }}</span></div>
+<div style="flex:1;display:flex;align-items:flex-end;justify-content:center;filter:{{ inkFilter }}"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="scootch" mood="proud" still="{{ still }}" sound="off" style="width:150px;height:150px;flex:none" hint-size="150px,150px"></x-import></div>
+<span style="font:800 19px/1 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.02em">{{ t.name }}</span>
+</div>
+<div data-glare="1" style="position:absolute;inset:0;pointer-events:none;mix-blend-mode:soft-light"></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:4px"><div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font:600 15px/1.3 -apple-system, system-ui, sans-serif">{{ t.name }}</span><span style="font:700 14px/1 ui-rounded, 'Nunito', system-ui, sans-serif;color:#6F6A62">{{ t.price }}</span></div><span style="font:400 13px/1.4 -apple-system, system-ui, sans-serif;color:#6F6A62;text-wrap:pretty">{{ t.tech }}</span></div>
+</div>
+</sc-for>
+</div>
+</section>
+
+<section style="padding:56px 72px 72px;border-top:1px solid rgba(28,26,23,.08)" data-screen-label="02 The sheet, dressed up">
+<div style="display:flex;align-items:baseline;gap:18px;margin:0 0 40px"><span style="font:500 15px -apple-system, system-ui, sans-serif;color:#6F6A62">02</span><div style="display:flex;flex-direction:column;gap:8px;max-width:860px"><h2 style="margin:0;font:700 34px/1.1 -apple-system, system-ui, sans-serif;letter-spacing:-.025em">The sheet, dressed up</h2><p style="margin:0;font:400 17px/1.45 -apple-system, system-ui, sans-serif;color:#6F6A62;text-wrap:pretty">Same rules as before: one line, one action, yearly preselected and Not now in plain sight. The difference is that the thing you're buying is now an object you can hold: a foil member card that turns with the phone, and arrives in a paper sleeve when you join.</p></div></div>
+<div style="display:flex;gap:56px;align-items:flex-start;flex-wrap:wrap">
+
+<div style="display:flex;flex-direction:column;gap:18px;width:393px;flex:none" data-screen-label="Plus sheet · Foil · Yearly">
+<div style="display:flex;flex-direction:column;gap:4px;min-height:60px"><span style="font:600 15px/1.3 -apple-system, system-ui, sans-serif">Plus sheet · Foil · Yearly</span><span style="font:400 13px/1.4 -apple-system, system-ui, sans-serif;color:#6F6A62;text-wrap:pretty">A slow ember glow behind a holo member card that follows the tilt. The selected plan has a foil edge, and a light sweep crosses the button every few seconds.</span></div>
+<div style="width:393px;height:852px;border-radius:55px;background:#120F0D;position:relative;overflow:hidden;box-shadow:0 0 0 10px #151311,0 0 0 11px #3A3632,0 50px 80px -30px rgba(28,26,23,.55);color:#fff">
+<div data-aurora="1" style="position:absolute;inset:0;overflow:hidden">
+<div style="position:absolute;width:420px;height:420px;left:-140px;top:-80px;border-radius:50%;background:#F0562E;filter:blur(90px);opacity:.6"></div>
+<div style="position:absolute;width:360px;height:360px;right:-160px;top:160px;border-radius:50%;background:#E86AD0;filter:blur(90px);opacity:.32"></div>
+<div style="position:absolute;width:380px;height:380px;left:-40px;top:440px;border-radius:50%;background:#4FB6FF;filter:blur(100px);opacity:.22"></div>
+</div>
+<div data-grain="1" style="position:absolute;inset:0;opacity:.28;mix-blend-mode:overlay;pointer-events:none"></div>
+<div style="position:absolute;top:0;left:0;right:0;height:54px;display:flex;align-items:center;justify-content:space-between;padding:4px 30px 0 44px;z-index:7;pointer-events:none"><span style="font:600 17px -apple-system, system-ui, sans-serif;letter-spacing:-.02em">9:41</span><div style="display:flex;align-items:center;gap:6px"><div style="display:flex;align-items:flex-end;gap:1.5px;height:11px"><div style="width:3px;height:4px;border-radius:1px;background:#fff"></div><div style="width:3px;height:6px;border-radius:1px;background:#fff"></div><div style="width:3px;height:8.5px;border-radius:1px;background:#fff"></div><div style="width:3px;height:11px;border-radius:1px;background:#fff"></div></div><div style="width:25px;height:12px;border-radius:4px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.5);padding:2px;box-sizing:border-box"><div style="width:75%;height:100%;border-radius:2px;background:#fff"></div></div></div></div>
+<div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:125px;height:37px;border-radius:20px;background:#000;z-index:8"></div>
+<div style="position:absolute;inset:54px 0 0 0;display:flex;flex-direction:column;padding:0 20px 34px">
+<div style="display:flex;align-items:center;justify-content:space-between;height:52px;padding-top:4px"><span style="font:800 20px/1 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.02em;display:inline-flex;align-items:baseline;gap:5px">Scootch<span style="background:linear-gradient(180deg,#FFFFFF 0%,#D9D4CC 35%,#8E8982 52%,#F3F0EA 56%,#BDB8B0 100%);-webkit-background-clip:text;background-clip:text;color:transparent">Plus</span></span><div data-press="1" style="width:44px;height:44px;border-radius:22px;background:rgba(255,255,255,.1);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);box-shadow:inset 0 1px .5px rgba(255,255,255,.35),0 0 0 .5px rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center"><div style="position:relative;width:14px;height:14px"><div style="position:absolute;left:6px;top:-1px;width:2.2px;height:16px;border-radius:1px;background:#fff;transform:rotate(45deg)"></div><div style="position:absolute;left:6px;top:-1px;width:2.2px;height:16px;border-radius:1px;background:#fff;transform:rotate(-45deg)"></div></div></div></div>
+<div style="height:270px;display:flex;align-items:center;justify-content:center;perspective:900px;position:relative">
+<div style="position:absolute;bottom:18px;left:50%;transform:translateX(-50%);width:260px;height:26px;border-radius:50%;background:rgba(0,0,0,.6);filter:blur(14px)"></div>
+<div data-tilt="1" style="width:310px;height:196px;border-radius:22px;position:relative;overflow:hidden;transform-style:preserve-3d;box-shadow:inset 0 0 0 1px rgba(255,255,255,.7),0 30px 60px -20px rgba(240,86,46,.55)">
+<div style="position:absolute;inset:0;background:linear-gradient(135deg,#F3EDFB 0%,#E6F7F6 45%,#FBF1E4 100%)"></div>
+<div data-holo="1" style="position:absolute;inset:0;background-image:repeating-linear-gradient(115deg,rgba(255,105,180,.5) 0%,rgba(100,215,255,.5) 5%,rgba(255,235,120,.5) 10%,rgba(150,120,255,.5) 15%,rgba(255,105,180,.5) 20%);background-size:300% 300%;opacity:.9"></div>
+<div style="position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,.95) 0 1px,transparent 1.6px),radial-gradient(circle,rgba(255,255,255,.7) 0 .8px,transparent 1.3px);background-size:13px 13px,7px 7px;background-position:0 0,3px 5px;mix-blend-mode:screen"></div>
+<div style="position:absolute;inset:0;padding:18px 20px;display:flex;flex-direction:column;color:#1C1A17">
+<div style="display:flex;justify-content:space-between;align-items:flex-start"><span style="font:900 22px/1 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.03em;text-shadow:0 1px 0 rgba(255,255,255,.7)">Scootch Plus</span><div style="width:38px;height:28px;border-radius:7px;background:repeating-linear-gradient(90deg,transparent 0 8px,rgba(0,0,0,.18) 8px 9px),linear-gradient(160deg,#FDFDFC 0%,#B9B5AE 30%,#F2EFEA 50%,#8A867F 80%,#F4F2EE 100%);box-shadow:inset 0 0 0 1px rgba(0,0,0,.18)"></div></div>
+<div style="margin-top:auto;display:flex;flex-direction:column;gap:6px"><span style="font:700 14px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.16em;text-shadow:0 1px 0 rgba(255,255,255,.7)">0042 · 2026</span><span style="font:500 10px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.14em;color:rgba(28,26,23,.65)">YOUR NAME HERE</span></div>
+</div>
+<div style="position:absolute;right:-6px;bottom:-26px"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="scootch" mood="bargaining" still="{{ still }}" sound="{{ sound }}" style="width:132px;height:132px;flex:none" hint-size="132px,132px"></x-import></div>
+<div data-glare="1" style="position:absolute;inset:0;pointer-events:none;mix-blend-mode:soft-light"></div>
+</div>
+</div>
+<p style="margin:4px 0 0;font:800 25px/1.14 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.02em;text-align:center;text-wrap:balance">I work for free. I'd like to work for slightly more than free.</p>
+<div style="display:flex;gap:8px;margin-top:22px">
+<div data-press="1" style="flex:1;border-radius:20px;padding:13px 8px;display:flex;flex-direction:column;gap:4px;align-items:center;background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)"><span style="font:600 13px/1 -apple-system, system-ui, sans-serif;color:rgba(255,255,255,.7)">Monthly</span><span style="font:800 21px/1.05 ui-rounded, 'Nunito', system-ui, sans-serif">$5.99</span><span style="font:400 11px/1.25 -apple-system, system-ui, sans-serif;color:rgba(255,255,255,.7)">a month</span></div>
+<div data-press="1" style="flex:1;border-radius:20px;padding:2px;background:linear-gradient(120deg,#FF8FC8,#8FE3FF,#FFE38A,#B59BFF,#FF8FC8);box-shadow:0 10px 30px -10px rgba(255,143,200,.7)"><div style="height:100%;border-radius:18px;padding:11px 6px;display:flex;flex-direction:column;gap:4px;align-items:center;background:#1E1915;box-sizing:border-box"><span style="font:700 13px/1 -apple-system, system-ui, sans-serif;color:#FFB8A3">Yearly</span><span style="font:800 21px/1.05 ui-rounded, 'Nunito', system-ui, sans-serif">$39.99</span><span style="font:500 11px/1.25 -apple-system, system-ui, sans-serif;color:rgba(255,255,255,.8)">7 days free</span></div></div>
+<div data-press="1" style="flex:1;border-radius:20px;padding:13px 8px;display:flex;flex-direction:column;gap:4px;align-items:center;background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)"><span style="font:600 13px/1 -apple-system, system-ui, sans-serif;color:rgba(255,255,255,.7)">Lifetime</span><span style="font:800 21px/1.05 ui-rounded, 'Nunito', system-ui, sans-serif">$89.99</span><span style="font:400 11px/1.25 -apple-system, system-ui, sans-serif;color:rgba(255,255,255,.7)">once, forever</span></div>
+</div>
+<div data-press="1" style="margin-top:auto;height:56px;border-radius:28px;background:#FBF8F3;color:#1C1A17;display:flex;align-items:center;justify-content:center;font:650 17px -apple-system, system-ui, sans-serif;letter-spacing:-.01em;position:relative;overflow:hidden;box-shadow:inset 0 -2px 0 rgba(28,26,23,.12),0 12px 30px -8px rgba(240,86,46,.6)"><div data-sweep="1" style="position:absolute;top:0;bottom:0;left:-40%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,180,150,.9),rgba(160,220,255,.7),transparent);mix-blend-mode:multiply"></div><span style="position:relative">Start 7 free days</span></div>
+<span data-press="1" style="font:600 16px/1 -apple-system, system-ui, sans-serif;text-align:center;margin-top:16px">Not now</span>
+<span style="margin-top:14px;font:400 11.5px/1.38 -apple-system, system-ui, sans-serif;color:rgba(255,255,255,.66);text-align:center;text-wrap:pretty">7 days free, then $39.99 a year. Renews automatically until cancelled in Settings. I'll remind you the day before you're charged.</span>
+<div style="display:flex;justify-content:center;gap:16px;margin-top:9px;font:500 12.5px/1 -apple-system, system-ui, sans-serif;color:rgba(255,255,255,.85)"><span style="text-decoration:underline;text-underline-offset:2px">Terms</span><span style="text-decoration:underline;text-underline-offset:2px">Privacy</span><span style="text-decoration:underline;text-underline-offset:2px">Restore</span></div>
+</div>
+<div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:139px;height:5px;border-radius:3px;background:#fff;z-index:9"></div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:18px;width:393px;flex:none" data-screen-label="Welcome · the card arrives">
+<div style="display:flex;flex-direction:column;gap:4px;min-height:60px"><span style="font:600 15px/1.3 -apple-system, system-ui, sans-serif">Welcome · the card arrives</span><span style="font:400 13px/1.4 -apple-system, system-ui, sans-serif;color:#6F6A62;text-wrap:pretty">After purchase, the card slides out of a paper sleeve and Scootch climbs on top. The trial dates are stated once, plainly, under the celebration.</span></div>
+<div style="width:393px;height:852px;border-radius:55px;background:#F6F3EE;position:relative;overflow:hidden;box-shadow:0 0 0 10px #151311,0 0 0 11px #3A3632,0 50px 80px -30px rgba(28,26,23,.45);color:#1C1A17">
+<div style="position:absolute;left:50%;top:330px;width:520px;height:520px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(240,86,46,.28),rgba(240,86,46,0) 62%)"></div>
+<div data-grain="1" style="position:absolute;inset:0;opacity:.35;mix-blend-mode:overlay;pointer-events:none"></div>
+<div style="position:absolute;top:0;left:0;right:0;height:54px;display:flex;align-items:center;justify-content:space-between;padding:4px 30px 0 44px;z-index:7;pointer-events:none"><span style="font:600 17px -apple-system, system-ui, sans-serif;letter-spacing:-.02em">9:41</span><div style="display:flex;align-items:center;gap:6px"><div style="display:flex;align-items:flex-end;gap:1.5px;height:11px"><div style="width:3px;height:4px;border-radius:1px;background:#1C1A17"></div><div style="width:3px;height:6px;border-radius:1px;background:#1C1A17"></div><div style="width:3px;height:8.5px;border-radius:1px;background:#1C1A17"></div><div style="width:3px;height:11px;border-radius:1px;background:#1C1A17"></div></div><div style="width:25px;height:12px;border-radius:4px;box-shadow:inset 0 0 0 1px rgba(28,26,23,.35);padding:2px;box-sizing:border-box"><div style="width:75%;height:100%;border-radius:2px;background:#1C1A17"></div></div></div></div>
+<div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:125px;height:37px;border-radius:20px;background:#000;z-index:8"></div>
+<div data-anim="float" style="position:absolute;left:52px;top:120px;width:10px;height:16px;border-radius:2px;background:#F0562E;transform:rotate(-20deg)"></div>
+<div data-anim="float" style="position:absolute;left:318px;top:150px;width:14px;height:8px;border-radius:2px;background:#7FB7FF;transform:rotate(30deg)"></div>
+<div data-anim="float" style="position:absolute;left:80px;top:300px;width:9px;height:9px;border-radius:50%;background:#FFD66B"></div>
+<div data-anim="float" style="position:absolute;left:300px;top:330px;width:8px;height:14px;border-radius:2px;background:#1C1A17;transform:rotate(16deg)"></div>
+<div data-anim="float" style="position:absolute;left:330px;top:90px;width:10px;height:10px;border-radius:50%;background:#F49AC1"></div>
+<div style="position:absolute;left:0;right:0;top:110px;height:420px;perspective:900px">
+<div style="position:absolute;left:46px;right:46px;top:200px;height:210px;border-radius:22px;background:#D9CBB6;box-shadow:inset 0 2px 0 rgba(255,255,255,.4)"></div>
+<div data-anim="rise" style="position:absolute;left:62px;right:62px;top:120px;height:170px">
+<div style="position:absolute;left:50%;top:-118px;transform:translateX(-50%)"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="scootch" mood="celebrate" still="{{ still }}" sound="{{ sound }}" style="width:150px;height:150px;flex:none" hint-size="150px,150px"></x-import></div>
+<div style="position:absolute;inset:0;border-radius:18px;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.7),0 20px 40px -18px rgba(80,40,120,.5)">
+<div style="position:absolute;inset:0;background:linear-gradient(135deg,#F3EDFB 0%,#E6F7F6 45%,#FBF1E4 100%)"></div>
+<div data-shimmer="1" style="position:absolute;inset:0;background-image:repeating-linear-gradient(115deg,rgba(255,105,180,.5) 0%,rgba(100,215,255,.5) 5%,rgba(255,235,120,.5) 10%,rgba(150,120,255,.5) 15%,rgba(255,105,180,.5) 20%);background-size:300% 300%;opacity:.9"></div>
+<div style="position:absolute;inset:0;padding:16px 18px;display:flex;flex-direction:column"><span style="font:900 20px/1 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.03em">Scootch Plus</span><span style="margin-top:auto;font:700 12px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.16em">0042 · 2026</span></div>
+</div>
+</div>
+<div style="position:absolute;left:46px;right:46px;top:262px;height:148px;border-radius:6px 6px 22px 22px;background:linear-gradient(180deg,#EADFCF,#E1D3BE);box-shadow:0 -1px 0 rgba(255,255,255,.6),0 24px 40px -20px rgba(28,26,23,.45);display:flex;align-items:center;justify-content:center"><div style="display:flex;flex-direction:column;align-items:center;gap:6px"><span style="font:700 10px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.2em;color:#8A7A63">MEMBER No. 0042</span><span style="font:800 15px/1 ui-rounded, 'Nunito', system-ui, sans-serif;color:#6F5E48">Handle with glee</span></div></div>
+</div>
+<div style="position:absolute;left:0;right:0;bottom:34px;padding:0 26px;display:flex;flex-direction:column;gap:10px;text-align:center">
+<span style="font:900 44px/1 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.035em">You're in.</span>
+<p style="margin:0;font:400 17px/1.42 -apple-system, system-ui, sans-serif;color:#1C1A17;text-wrap:balance">Plus is on. I celebrated by buying myself a very small hat.</p>
+<span style="font:400 12.5px/1.4 -apple-system, system-ui, sans-serif;color:#6F6A62;text-wrap:pretty">Yearly · 7 days free · first charge on 15 Oct 2026. I'll remind you on 14 Oct.</span>
+<div data-press="1" style="margin-top:12px;height:56px;border-radius:28px;background:#1C1A17;color:#fff;display:flex;align-items:center;justify-content:center;font:650 17px -apple-system, system-ui, sans-serif;box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 6px 16px -4px rgba(28,26,23,.35)">Pick my first finish</div>
+<span data-press="1" style="font:600 16px/1 -apple-system, system-ui, sans-serif;margin-top:6px">Done</span>
+</div>
+<div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:139px;height:5px;border-radius:3px;background:#1C1A17;z-index:9"></div>
+</div>
+</div>
+</div>
+</section>
+
+<section style="padding:56px 72px 72px;border-top:1px solid rgba(28,26,23,.08)" data-screen-label="03 The studio">
+<div style="display:flex;align-items:baseline;gap:18px;margin:0 0 40px"><span style="font:500 15px -apple-system, system-ui, sans-serif;color:#6F6A62">03</span><div style="display:flex;flex-direction:column;gap:8px;max-width:860px"><h2 style="margin:0;font:700 34px/1.1 -apple-system, system-ui, sans-serif;letter-spacing:-.025em">The studio · ink, finish, trail</h2><p style="margin:0;font:400 17px/1.45 -apple-system, system-ui, sans-serif;color:#6F6A62;text-wrap:pretty">Ink recolours Scootch and the app. Finish is the material of your card. Trail is what bursts out when you catch a monster. Everything is worn live before you pay, and nothing is random. This one is interactive: tap the tabs and swatches.</p></div></div>
+<div style="display:flex;gap:56px;align-items:flex-start;flex-wrap:wrap">
+
+<div style="display:flex;flex-direction:column;gap:18px;width:393px;flex:none" data-screen-label="Studio · live try-on">
+<div style="display:flex;flex-direction:column;gap:4px;min-height:60px"><span style="font:600 15px/1.3 -apple-system, system-ui, sans-serif">Studio · live try-on</span><span style="font:400 13px/1.4 -apple-system, system-ui, sans-serif;color:#6F6A62;text-wrap:pretty">One card in focus. Each change pops the card and replays the trail, so you see the purchase doing its job.</span></div>
+<div style="width:393px;height:852px;border-radius:55px;background:#F6F3EE;position:relative;overflow:hidden;box-shadow:0 0 0 10px #151311,0 0 0 11px #3A3632,0 50px 80px -30px rgba(28,26,23,.45);color:#1C1A17">
+<div style="position:absolute;top:0;left:0;right:0;height:54px;display:flex;align-items:center;justify-content:space-between;padding:4px 30px 0 44px;z-index:7;pointer-events:none"><span style="font:600 17px -apple-system, system-ui, sans-serif;letter-spacing:-.02em">9:41</span><div style="display:flex;align-items:center;gap:6px"><div style="display:flex;align-items:flex-end;gap:1.5px;height:11px"><div style="width:3px;height:4px;border-radius:1px;background:#1C1A17"></div><div style="width:3px;height:6px;border-radius:1px;background:#1C1A17"></div><div style="width:3px;height:8.5px;border-radius:1px;background:#1C1A17"></div><div style="width:3px;height:11px;border-radius:1px;background:#1C1A17"></div></div><div style="width:25px;height:12px;border-radius:4px;box-shadow:inset 0 0 0 1px rgba(28,26,23,.35);padding:2px;box-sizing:border-box"><div style="width:75%;height:100%;border-radius:2px;background:#1C1A17"></div></div></div></div>
+<div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:125px;height:37px;border-radius:20px;background:#000;z-index:8"></div>
+<div style="position:absolute;inset:54px 0 0 0;display:flex;flex-direction:column">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 16px 0;height:52px;flex:none">
+<div data-press="1" style="width:44px;height:44px;border-radius:22px;background:rgba(255,255,255,.58);-webkit-backdrop-filter:blur(22px) saturate(180%);backdrop-filter:blur(22px) saturate(180%);box-shadow:inset 0 1px .5px rgba(255,255,255,.95),0 0 0 .5px rgba(28,26,23,.16),0 10px 30px -8px rgba(28,26,23,.18);display:flex;align-items:center;justify-content:center"><div style="position:relative;width:14px;height:14px"><div style="position:absolute;left:6px;top:-1px;width:2.2px;height:16px;border-radius:1px;background:#1C1A17;transform:rotate(45deg)"></div><div style="position:absolute;left:6px;top:-1px;width:2.2px;height:16px;border-radius:1px;background:#1C1A17;transform:rotate(-45deg)"></div></div></div>
+<div style="height:38px;border-radius:19px;padding:0 4px;display:flex;align-items:center;gap:2px;background:rgba(255,255,255,.58);-webkit-backdrop-filter:blur(22px) saturate(180%);backdrop-filter:blur(22px) saturate(180%);box-shadow:inset 0 1px .5px rgba(255,255,255,.95),0 0 0 .5px rgba(28,26,23,.16),0 10px 30px -8px rgba(28,26,23,.18)">
+<sc-for list="{{ tabs }}" as="tb" hint-placeholder-count="3"><span onClick="{{ tb.pick }}" style="padding:0 14px;height:30px;border-radius:15px;display:flex;align-items:center;font:{{ tb.fw }} 13px -apple-system, system-ui, sans-serif;background:{{ tb.bg }};box-shadow:{{ tb.sh }};cursor:pointer">{{ tb.label }}</span></sc-for>
+</div>
+<div style="width:44px"></div>
+</div>
+<div style="margin:10px 16px 0;height:372px;flex:none;border-radius:34px;position:relative;overflow:hidden;background:#EDE8E0;display:flex;align-items:center;justify-content:center;perspective:1000px">
+<div style="position:absolute;inset:0;background-image:radial-gradient(rgba(28,26,23,.13) 1.4px,transparent 1.6px);background-size:12px 12px"></div>
+<div style="position:absolute;left:50%;top:50%;width:300px;height:300px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,{{ glow }},rgba(255,255,255,0) 65%)"></div>
+<div data-trailbox="1" style="position:absolute;inset:0;pointer-events:none;z-index:3">
+<sc-for list="{{ parts }}" as="p" hint-placeholder-count="0"><div data-p="1" data-dx="{{ p.dx }}" data-dy="{{ p.dy }}" data-rot="{{ p.rot }}" style="position:absolute;left:50%;top:50%;width:{{ p.w }};height:{{ p.h }};background:{{ p.bg }};border-radius:{{ p.r }};box-shadow:{{ p.sh }};opacity:0"></div></sc-for>
+</div>
+<div data-pop="1" style="position:relative;z-index:2">
+<div data-tilt="1" style="width:214px;height:298px;border-radius:22px;position:relative;overflow:hidden;transform-style:preserve-3d;box-shadow:{{ c.shadow }}">
+<div style="position:absolute;inset:-24px;background:{{ c.base }};filter:{{ c.bf }}"></div>
+<div data-holo="1" style="position:absolute;inset:0;background-image:{{ c.sheen }};background-size:300% 300%;mix-blend-mode:{{ c.blend }};opacity:{{ c.sop }}"></div>
+<div style="position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,.95) 0 1px,transparent 1.6px),radial-gradient(circle,rgba(255,255,255,.7) 0 .8px,transparent 1.3px);background-size:13px 13px,7px 7px;background-position:0 0,3px 5px;opacity:{{ c.spark }};mix-blend-mode:screen"></div>
+<div data-grain="1" style="position:absolute;inset:0;opacity:{{ c.grain }};mix-blend-mode:overlay;pointer-events:none"></div>
+<div style="position:absolute;inset:0;display:flex;flex-direction:column;padding:16px;color:{{ c.text }}">
+<div style="display:flex;justify-content:space-between;font:700 9.5px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.12em;color:{{ c.sub }}"><span>SCOOTCH</span><span>No. 0042</span></div>
+<div style="flex:1;display:flex;align-items:flex-end;justify-content:center;filter:{{ inkFilter }}"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="scootch" mood="proud" still="{{ still }}" sound="{{ sound }}" style="width:180px;height:180px;flex:none" hint-size="180px,180px"></x-import></div>
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><span style="font:800 19px/1 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.02em">{{ c.name }}</span><span style="font:700 9.5px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.1em;color:{{ c.sub }}">{{ inkCode }}</span></div>
+</div>
+<div data-glare="1" style="position:absolute;inset:0;pointer-events:none;mix-blend-mode:soft-light"></div>
+</div>
+</div>
+<span style="position:absolute;left:16px;top:16px;z-index:4;font:700 12px/1 -apple-system, system-ui, sans-serif;padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.85)">Trying on</span>
+<span style="position:absolute;right:16px;top:16px;z-index:4;font:700 12px/1 'JetBrains Mono', ui-monospace, monospace;padding:7px 10px;border-radius:999px;background:#1C1A17;color:#fff">{{ trailName }}</span>
+</div>
+<div style="padding:0 28px;margin-top:18px;display:flex;flex-direction:column;gap:6px;flex:none"><div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px"><span style="font:800 25px/1.1 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.02em">{{ itemName }}</span><span style="font:800 20px/1 ui-rounded, 'Nunito', system-ui, sans-serif">{{ itemPrice }}</span></div><p style="margin:0;font:400 15px/1.4 -apple-system, system-ui, sans-serif;color:#6F6A62;text-wrap:pretty;min-height:42px">{{ itemLine }}</p></div>
+<div style="display:flex;gap:10px;padding:14px 24px 4px;overflow-x:auto;scrollbar-width:none;flex:none">
+<sc-for list="{{ options }}" as="o" hint-placeholder-count="5"><div data-press="1" onClick="{{ o.pick }}" style="display:flex;flex-direction:column;align-items:center;gap:8px;flex:none;width:56px;cursor:pointer;padding-top:5px"><div style="width:50px;height:50px;border-radius:25px;background:{{ o.sw }};box-shadow:{{ o.ring }}"></div><span style="font:{{ o.fw }} 11px/1.1 -apple-system, system-ui, sans-serif;white-space:nowrap">{{ o.short }}</span></div></sc-for>
+</div>
+<div style="margin-top:auto;padding:0 14px 30px;flex:none">
+<div style="border-radius:34px;padding:7px;display:flex;gap:7px;align-items:center;background:rgba(255,255,255,.58);-webkit-backdrop-filter:blur(22px) saturate(180%);backdrop-filter:blur(22px) saturate(180%);box-shadow:inset 0 1px .5px rgba(255,255,255,.95),0 0 0 .5px rgba(28,26,23,.16),0 10px 30px -8px rgba(28,26,23,.18)">
+<div data-press="1" onClick="{{ reset }}" style="flex:1;height:54px;border-radius:27px;display:flex;align-items:center;justify-content:center;font:500 17px -apple-system, system-ui, sans-serif;cursor:pointer">Take it off</div>
+<div data-press="1" style="flex:1.3;height:54px;border-radius:27px;background:#1C1A17;color:#fff;display:flex;align-items:center;justify-content:center;font:650 17px -apple-system, system-ui, sans-serif;position:relative;overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 6px 16px -4px rgba(28,26,23,.35)"><div data-sweep="1" style="position:absolute;top:0;bottom:0;left:-40%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.28),transparent)"></div><span style="position:relative">{{ cta }}</span></div>
+</div>
+</div>
+</div>
+<div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:139px;height:5px;border-radius:3px;background:#1C1A17;z-index:9"></div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:18px;width:393px;flex:none" data-screen-label="Your card · Settings">
+<div style="display:flex;flex-direction:column;gap:4px;min-height:60px"><span style="font:600 15px/1.3 -apple-system, system-ui, sans-serif">Your card · Settings</span><span style="font:400 13px/1.4 -apple-system, system-ui, sans-serif;color:#6F6A62;text-wrap:pretty">The member card wears whatever you pick in the studio. Renewal and Manage sit right under it, never hidden.</span></div>
+<div style="width:393px;height:852px;border-radius:55px;background:#F6F3EE;position:relative;overflow:hidden;box-shadow:0 0 0 10px #151311,0 0 0 11px #3A3632,0 50px 80px -30px rgba(28,26,23,.45);color:#1C1A17">
+<div style="position:absolute;top:0;left:0;right:0;height:54px;display:flex;align-items:center;justify-content:space-between;padding:4px 30px 0 44px;z-index:7;pointer-events:none"><span style="font:600 17px -apple-system, system-ui, sans-serif;letter-spacing:-.02em">9:41</span><div style="display:flex;align-items:center;gap:6px"><div style="display:flex;align-items:flex-end;gap:1.5px;height:11px"><div style="width:3px;height:4px;border-radius:1px;background:#1C1A17"></div><div style="width:3px;height:6px;border-radius:1px;background:#1C1A17"></div><div style="width:3px;height:8.5px;border-radius:1px;background:#1C1A17"></div><div style="width:3px;height:11px;border-radius:1px;background:#1C1A17"></div></div><div style="width:25px;height:12px;border-radius:4px;box-shadow:inset 0 0 0 1px rgba(28,26,23,.35);padding:2px;box-sizing:border-box"><div style="width:75%;height:100%;border-radius:2px;background:#1C1A17"></div></div></div></div>
+<div style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:125px;height:37px;border-radius:20px;background:#000;z-index:8"></div>
+<div style="position:absolute;inset:54px 0 0 0;display:flex;flex-direction:column;padding:0 16px">
+<div style="display:flex;align-items:center;gap:12px;height:52px;padding-top:4px"><div data-press="1" style="width:44px;height:44px;border-radius:22px;background:rgba(255,255,255,.58);box-shadow:inset 0 1px .5px rgba(255,255,255,.95),0 0 0 .5px rgba(28,26,23,.16),0 10px 30px -8px rgba(28,26,23,.18);display:flex;align-items:center;justify-content:center"><div style="width:10px;height:10px;border-left:2.4px solid #1C1A17;border-bottom:2.4px solid #1C1A17;transform:translateX(2px) rotate(45deg)"></div></div><span style="font:700 17px -apple-system, system-ui, sans-serif">Your card</span></div>
+<div style="height:270px;display:flex;align-items:center;justify-content:center;perspective:1000px;position:relative;margin-top:6px">
+<div style="position:absolute;bottom:22px;left:50%;transform:translateX(-50%);width:280px;height:24px;border-radius:50%;background:rgba(28,26,23,.35);filter:blur(14px)"></div>
+<div data-tilt="1" style="width:345px;height:218px;border-radius:24px;position:relative;overflow:hidden;transform-style:preserve-3d;box-shadow:{{ c.shadow }}">
+<div style="position:absolute;inset:-24px;background:{{ c.base }};filter:{{ c.bf }}"></div>
+<div data-holo="1" style="position:absolute;inset:0;background-image:{{ c.sheen }};background-size:300% 300%;mix-blend-mode:{{ c.blend }};opacity:{{ c.sop }}"></div>
+<div style="position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,.95) 0 1px,transparent 1.6px),radial-gradient(circle,rgba(255,255,255,.7) 0 .8px,transparent 1.3px);background-size:13px 13px,7px 7px;background-position:0 0,3px 5px;opacity:{{ c.spark }};mix-blend-mode:screen"></div>
+<div data-grain="1" style="position:absolute;inset:0;opacity:{{ c.grain }};mix-blend-mode:overlay;pointer-events:none"></div>
+<div style="position:absolute;inset:0;padding:20px 22px;display:flex;flex-direction:column;color:{{ c.text }}">
+<div style="display:flex;justify-content:space-between;align-items:flex-start"><span style="font:900 23px/1 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.03em">Scootch Plus</span><div style="width:40px;height:30px;border-radius:7px;background:repeating-linear-gradient(90deg,transparent 0 8px,rgba(0,0,0,.18) 8px 9px),linear-gradient(160deg,#FDFDFC 0%,#B9B5AE 30%,#F2EFEA 50%,#8A867F 80%,#F4F2EE 100%);box-shadow:inset 0 0 0 1px rgba(0,0,0,.18)"></div></div>
+<div style="margin-top:auto;display:flex;flex-direction:column;gap:6px"><span style="font:700 15px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.16em">0042 · 2026</span><span style="font:500 10px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.14em;color:{{ c.sub }}">{{ c.name }} · {{ inkCode }}</span></div>
+</div>
+<div style="position:absolute;right:0;bottom:-28px;filter:{{ inkFilter }}"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="scootch" mood="proud" still="{{ still }}" sound="off" style="width:150px;height:150px;flex:none" hint-size="150px,150px"></x-import></div>
+<div data-glare="1" style="position:absolute;inset:0;pointer-events:none;mix-blend-mode:soft-light"></div>
+</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:8px">
+<div style="border-radius:20px;background:#fff;padding:14px 12px;display:flex;flex-direction:column;gap:4px"><span style="font:800 24px/1 ui-rounded, 'Nunito', system-ui, sans-serif">42</span><span style="font:400 12px/1.3 -apple-system, system-ui, sans-serif;color:#6F6A62">monsters caught</span></div>
+<div style="border-radius:20px;background:#fff;padding:14px 12px;display:flex;flex-direction:column;gap:4px"><span style="font:800 24px/1 ui-rounded, 'Nunito', system-ui, sans-serif">3</span><span style="font:400 12px/1.3 -apple-system, system-ui, sans-serif;color:#6F6A62">finishes owned</span></div>
+<div style="border-radius:20px;background:#fff;padding:14px 12px;display:flex;flex-direction:column;gap:4px"><span style="font:800 24px/1 ui-rounded, 'Nunito', system-ui, sans-serif">Oct</span><span style="font:400 12px/1.3 -apple-system, system-ui, sans-serif;color:#6F6A62">member since 2026</span></div>
+</div>
+<div data-press="1" style="margin-top:14px;height:54px;border-radius:27px;background:#1C1A17;color:#fff;display:flex;align-items:center;justify-content:center;gap:10px;font:650 17px -apple-system, system-ui, sans-serif"><div style="display:flex;flex-direction:column;gap:2px;width:22px"><div style="height:4px;border-radius:2px;background:#7FB7FF"></div><div style="height:4px;border-radius:2px;background:#FFD66B"></div><div style="height:4px;border-radius:2px;background:#F0562E"></div></div>Add card to Wallet</div>
+<div style="margin-top:16px;border-radius:22px;background:#fff;display:flex;flex-direction:column">
+<div style="display:flex;justify-content:space-between;padding:15px 18px;box-shadow:inset 0 -.5px 0 rgba(28,26,23,.12);font:400 16px -apple-system, system-ui, sans-serif"><span>Plan</span><span style="color:#6F6A62">Yearly · $39.99</span></div>
+<div style="display:flex;justify-content:space-between;padding:15px 18px;box-shadow:inset 0 -.5px 0 rgba(28,26,23,.12);font:400 16px -apple-system, system-ui, sans-serif"><span>Renews</span><span style="color:#6F6A62">15 Oct 2027</span></div>
+<div style="display:flex;justify-content:space-between;padding:15px 18px;font:400 16px -apple-system, system-ui, sans-serif"><span>Manage subscription</span><span style="color:#6F6A62">›</span></div>
+</div>
+</div>
+<div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:139px;height:5px;border-radius:3px;background:#1C1A17;z-index:9"></div>
+</div>
+</div>
+</div>
+</section>
+
+<section style="padding:56px 72px 96px;border-top:1px solid rgba(28,26,23,.08)" data-screen-label="04 Made to share">
+<div style="display:flex;align-items:baseline;gap:18px;margin:0 0 40px"><span style="font:500 15px -apple-system, system-ui, sans-serif;color:#6F6A62">04</span><div style="display:flex;flex-direction:column;gap:8px;max-width:860px"><h2 style="margin:0;font:700 34px/1.1 -apple-system, system-ui, sans-serif;letter-spacing:-.025em">Made to share</h2><p style="margin:0;font:400 17px/1.45 -apple-system, system-ui, sans-serif;color:#6F6A62;text-wrap:pretty">Five formats, each a different object: a riso story, a foil trading card, a die-cut sticker sheet, a thermal receipt of the day and a chrome monthly poster. Each one picks up your current ink and finish, so the things you share look like yours.</p></div></div>
+<div style="display:flex;gap:48px;align-items:flex-start;flex-wrap:wrap;perspective:1200px">
+
+<div style="display:flex;flex-direction:column;gap:16px;width:360px;flex:none" data-screen-label="Story · caught, riso">
+<div style="display:flex;flex-direction:column;gap:4px;min-height:60px"><span style="font:600 15px/1.3 -apple-system, system-ui, sans-serif">Story · caught, riso</span><span style="font:400 13px/1.4 -apple-system, system-ui, sans-serif;color:#6F6A62;text-wrap:pretty">1080 × 1920. Two-ink headline slightly off register, the caught card in your finish, stickers slapped on top.</span></div>
+<div style="width:360px;height:640px;border-radius:26px;position:relative;overflow:hidden;background:#F4EBDA;box-shadow:0 40px 70px -30px rgba(28,26,23,.5)">
+<div style="position:absolute;inset:0;background:radial-gradient(circle,rgba(240,86,46,.9) 30%,transparent 33%) 0 0/7px 7px;-webkit-mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.15) 55%,rgba(0,0,0,0) 75%);mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.15) 55%,rgba(0,0,0,0) 75%)"></div>
+<div data-grain="1" style="position:absolute;inset:0;opacity:.55;mix-blend-mode:multiply;pointer-events:none"></div>
+<div style="position:absolute;left:22px;right:22px;top:24px;display:flex;justify-content:space-between;font:700 11px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.16em"><span>SCOOTCH</span><span>WED 07.10</span></div>
+<div style="position:absolute;left:16px;top:56px;font:900 74px/.9 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.05em;color:#3460C8;mix-blend-mode:multiply;transform:translate(4px,3px)">CAUGHT.</div>
+<div style="position:absolute;left:16px;top:56px;font:900 74px/.9 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.05em;color:#1C1A17;mix-blend-mode:multiply">CAUGHT.</div>
+<div style="position:absolute;left:50%;top:190px;margin-left:-105px">
+<div data-tilt="1" data-base="rotate(-6deg)" style="width:210px;height:292px;border-radius:20px;position:relative;overflow:hidden;transform:rotate(-6deg);box-shadow:{{ sc.shadow }}">
+<div style="position:absolute;inset:-24px;background:{{ sc.base }};filter:{{ sc.bf }}"></div>
+<div data-holo="1" style="position:absolute;inset:0;background-image:{{ sc.sheen }};background-size:300% 300%;mix-blend-mode:{{ sc.blend }};opacity:{{ sc.sop }}"></div>
+<div style="position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,.95) 0 1px,transparent 1.6px);background-size:11px 11px;opacity:{{ sc.spark }};mix-blend-mode:screen"></div>
+<div style="position:absolute;inset:12px 12px 64px;border-radius:12px;background:rgba(255,255,255,.55);box-shadow:inset 0 0 0 1px rgba(255,255,255,.6);display:flex;align-items:flex-end;justify-content:center;filter:{{ shareInk }}"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="task" seed="receipt" type="receipt" mood="idle" still="{{ still }}" sound="off" style="width:180px;height:180px;flex:none" hint-size="180px,180px"></x-import></div>
+<div style="position:absolute;left:14px;right:14px;bottom:14px;display:flex;flex-direction:column;gap:5px;color:{{ sc.text }}"><span style="font:800 19px/1 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.02em">Receipt Goblin</span><span style="font:700 9.5px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.12em;color:{{ sc.sub }}">No. 0042 · {{ sc.name }}</span></div>
+<div data-glare="1" style="position:absolute;inset:0;pointer-events:none;mix-blend-mode:soft-light"></div>
+</div>
+</div>
+<div style="position:absolute;right:20px;top:186px;width:86px;height:86px;border-radius:50%;background:#1C1A17;color:#FBF8F3;display:flex;flex-direction:column;align-items:center;justify-content:center;transform:rotate(12deg);box-shadow:0 0 0 5px #fff,0 10px 18px -6px rgba(28,26,23,.45)"><span style="font:900 26px/1 ui-rounded, 'Nunito', system-ui, sans-serif">+1</span><span style="font:700 9px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.14em;margin-top:3px">SHELF</span></div>
+<div style="position:absolute;right:18px;top:500px;padding:9px 14px;border-radius:999px;background:#FFD66B;font:800 15px/1 ui-rounded, 'Nunito', system-ui, sans-serif;transform:rotate(-8deg);box-shadow:0 0 0 4px #fff,0 10px 18px -6px rgba(28,26,23,.4)">took 4 minutes</div>
+<p style="position:absolute;left:22px;right:22px;bottom:50px;margin:0;font:800 21px/1.15 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.02em;text-wrap:balance">Lived in my inbox for 11 days. Not any more.</p>
+<span style="position:absolute;left:22px;bottom:26px;font:700 11px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.14em;color:#6F5E48">SCOOTCH.APP</span>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:16px;width:300px;flex:none" data-screen-label="Trading card · foil">
+<div style="display:flex;flex-direction:column;gap:4px;min-height:60px"><span style="font:600 15px/1.3 -apple-system, system-ui, sans-serif">Trading card · foil</span><span style="font:400 13px/1.4 -apple-system, system-ui, sans-serif;color:#6F6A62;text-wrap:pretty">Shares as a looping tilt video. Real facts on the back of the joke: how long it lurked, when you caught it.</span></div>
+<div data-tilt="1" style="width:300px;height:420px;border-radius:24px;position:relative;overflow:hidden;transform-style:preserve-3d;box-shadow:{{ sc.shadow }}">
+<div style="position:absolute;inset:-24px;background:{{ sc.base }};filter:{{ sc.bf }}"></div>
+<div data-holo="1" style="position:absolute;inset:0;background-image:{{ sc.sheen }};background-size:300% 300%;mix-blend-mode:{{ sc.blend }};opacity:{{ sc.sop }}"></div>
+<div style="position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,.95) 0 1px,transparent 1.6px),radial-gradient(circle,rgba(255,255,255,.7) 0 .8px,transparent 1.3px);background-size:13px 13px,7px 7px;background-position:0 0,3px 5px;opacity:{{ sc.spark }};mix-blend-mode:screen"></div>
+<div data-grain="1" style="position:absolute;inset:0;opacity:{{ sc.grain }};mix-blend-mode:overlay;pointer-events:none"></div>
+<div style="position:absolute;inset:0;padding:16px;display:flex;flex-direction:column;gap:12px;color:{{ sc.text }}">
+<div style="display:flex;justify-content:space-between;font:700 10px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.14em;color:{{ sc.sub }}"><span>SERIES 01 · PAPERWORK</span><span>1 OF 1</span></div>
+<div style="height:206px;border-radius:14px;position:relative;overflow:hidden;background:#F6F3EE;box-shadow:inset 0 0 0 1px rgba(28,26,23,.1),0 1px 0 rgba(255,255,255,.6);display:flex;align-items:flex-end;justify-content:center"><div style="position:absolute;inset:0;background-image:radial-gradient(rgba(28,26,23,.12) 1.4px,transparent 1.6px);background-size:11px 11px"></div><div style="position:relative;filter:{{ shareInk }}"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="task" seed="receipt" type="receipt" mood="idle" still="{{ still }}" sound="off" style="width:200px;height:200px;flex:none" hint-size="200px,200px"></x-import></div></div>
+<span style="font:900 28px/1 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.03em">Receipt Goblin</span>
+<div style="display:flex;flex-direction:column;gap:6px;font:500 11.5px/1 'JetBrains Mono', ui-monospace, monospace">
+<div style="display:flex;gap:6px;align-items:baseline"><span>Lurked</span><div style="flex:1;border-bottom:1px dotted currentColor;opacity:.45"></div><span>11 days</span></div>
+<div style="display:flex;gap:6px;align-items:baseline"><span>Caught</span><div style="flex:1;border-bottom:1px dotted currentColor;opacity:.45"></div><span>Wed 09:41</span></div>
+<div style="display:flex;gap:6px;align-items:baseline"><span>Fight</span><div style="flex:1;border-bottom:1px dotted currentColor;opacity:.45"></div><span>4 min</span></div>
+</div>
+<div style="margin-top:auto;display:flex;justify-content:space-between;font:700 10px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.14em;color:{{ sc.sub }}"><span>No. 0042</span><span>{{ sc.name }}</span></div>
+</div>
+<div data-glare="1" style="position:absolute;inset:0;pointer-events:none;mix-blend-mode:soft-light"></div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:16px;width:420px;flex:none" data-screen-label="Sticker sheet · die-cut">
+<div style="display:flex;flex-direction:column;gap:4px;min-height:60px"><span style="font:600 15px/1.3 -apple-system, system-ui, sans-serif">Sticker sheet · die-cut</span><span style="font:400 13px/1.4 -apple-system, system-ui, sans-serif;color:#6F6A62;text-wrap:pretty">A Messages sticker pack that also prints. Thick white die-cut borders, one foil sticker, one corner already peeling.</span></div>
+<div style="width:420px;height:540px;border-radius:20px;position:relative;overflow:hidden;background:#EFE9DF;box-shadow:0 40px 70px -30px rgba(28,26,23,.45)">
+<div data-grain="1" style="position:absolute;inset:0;opacity:.5;mix-blend-mode:multiply;pointer-events:none"></div>
+<div style="position:absolute;left:20px;top:18px;font:700 10px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.16em;color:#8A7A63">SCOOTCH · STICKER SHEET 01</div>
+<div style="position:absolute;left:14px;top:36px;transform:rotate(-8deg);filter:drop-shadow(3px 0 0 #fff) drop-shadow(-3px 0 0 #fff) drop-shadow(0 3px 0 #fff) drop-shadow(0 -3px 0 #fff) drop-shadow(0 8px 10px rgba(28,26,23,.25))"><div style="filter:{{ shareInk }}"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="scootch" mood="proud" still="{{ still }}" sound="off" style="width:190px;height:190px;flex:none" hint-size="190px,190px"></x-import></div></div>
+<div style="position:absolute;right:26px;top:52px;width:150px;height:150px;border-radius:50%;overflow:hidden;transform:rotate(10deg);box-shadow:0 0 0 6px #fff,0 10px 18px -6px rgba(28,26,23,.35)">
+<div style="position:absolute;inset:0;background:linear-gradient(135deg,#F3EDFB 0%,#E6F7F6 45%,#FBF1E4 100%)"></div>
+<div data-shimmer="1" style="position:absolute;inset:0;background-image:repeating-linear-gradient(115deg,rgba(255,105,180,.55) 0%,rgba(100,215,255,.55) 5%,rgba(255,235,120,.55) 10%,rgba(150,120,255,.55) 15%,rgba(255,105,180,.55) 20%);background-size:300% 300%"></div>
+<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px"><span style="font:900 34px/1 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.04em">PLUS</span><span style="font:700 9px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.2em">MEMBER 0042</span></div>
+</div>
+<div style="position:absolute;left:34px;top:262px;padding:14px 20px;border-radius:999px;background:#1C1A17;color:#FBF8F3;font:900 24px/1 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.02em;transform:rotate(-4deg);box-shadow:0 0 0 6px #fff,0 10px 18px -6px rgba(28,26,23,.4)">DONE IS A VIBE</div>
+<div style="position:absolute;right:30px;top:248px;transform:rotate(9deg);filter:drop-shadow(3px 0 0 #fff) drop-shadow(-3px 0 0 #fff) drop-shadow(0 3px 0 #fff) drop-shadow(0 -3px 0 #fff) drop-shadow(0 8px 10px rgba(28,26,23,.25))"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="task" seed="sock" type="sock" mood="idle" still="{{ still }}" sound="off" style="width:120px;height:120px;flex:none" hint-size="120px,120px"></x-import></div>
+<div style="position:absolute;left:24px;top:350px;transform:rotate(5deg);filter:drop-shadow(3px 0 0 #fff) drop-shadow(-3px 0 0 #fff) drop-shadow(0 3px 0 #fff) drop-shadow(0 -3px 0 #fff) drop-shadow(0 8px 10px rgba(28,26,23,.25))"><div style="filter:{{ shareInk }}"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="scootch" mood="sleepy" still="{{ still }}" sound="off" style="width:160px;height:160px;flex:none" hint-size="160px,160px"></x-import></div></div>
+<div style="position:absolute;right:28px;bottom:40px;width:176px;height:96px;border-radius:22px;background:#F0562E;color:#fff;display:flex;align-items:center;justify-content:center;font:900 26px/1 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.03em;transform:rotate(-6deg);box-shadow:0 0 0 6px #fff,0 10px 18px -6px rgba(28,26,23,.4);overflow:hidden">tiny wins only<div style="position:absolute;right:0;bottom:0;width:38px;height:38px;background:linear-gradient(135deg,#C9BCA8 0%,#EFE9DF 48%,#fff 50%,#E7E2DA 100%);border-top-left-radius:6px;box-shadow:-3px -3px 6px rgba(28,26,23,.18)"></div></div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:16px;width:290px;flex:none" data-screen-label="Receipt · today's done log">
+<div style="display:flex;flex-direction:column;gap:4px;min-height:60px"><span style="font:600 15px/1.3 -apple-system, system-ui, sans-serif">Receipt · today's done log</span><span style="font:400 13px/1.4 -apple-system, system-ui, sans-serif;color:#6F6A62;text-wrap:pretty">Thermal paper, printed at the end of a good day. Free for everyone; Plus adds the foil stamp.</span></div>
+<div style="width:290px;position:relative;filter:drop-shadow(0 30px 30px rgba(28,26,23,.28));transform:rotate(1.5deg)">
+<div style="background:#FCFBF7;padding:26px 22px 20px;display:flex;flex-direction:column;gap:12px;font:500 12px/1.35 'JetBrains Mono', ui-monospace, monospace;color:#1C1A17;position:relative">
+<div data-grain="1" style="position:absolute;inset:0;opacity:.4;mix-blend-mode:multiply;pointer-events:none"></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center"><span style="font:900 22px/1 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.02em">Scootch</span><span style="letter-spacing:.14em;font-size:10.5px">DONE LOG · WED 07 OCT 2026</span></div>
+<div style="border-top:1.5px dashed rgba(28,26,23,.5)"></div>
+<div style="display:flex;flex-direction:column;gap:7px">
+<div style="display:flex;gap:6px;align-items:baseline"><span>reply to Sam</span><div style="flex:1;border-bottom:1px dotted rgba(28,26,23,.5)"></div><span>09:12</span></div>
+<div style="display:flex;gap:6px;align-items:baseline"><span>fold laundry</span><div style="flex:1;border-bottom:1px dotted rgba(28,26,23,.5)"></div><span>11:40</span></div>
+<div style="display:flex;gap:6px;align-items:baseline"><span>do my taxes ★</span><div style="flex:1;border-bottom:1px dotted rgba(28,26,23,.5)"></div><span>14:05</span></div>
+<div style="display:flex;gap:6px;align-items:baseline"><span>water plants</span><div style="flex:1;border-bottom:1px dotted rgba(28,26,23,.5)"></div><span>16:22</span></div>
+<div style="display:flex;gap:6px;align-items:baseline"><span>brush the dog</span><div style="flex:1;border-bottom:1px dotted rgba(28,26,23,.5)"></div><span>18:30</span></div>
+</div>
+<div style="border-top:1.5px dashed rgba(28,26,23,.5)"></div>
+<div style="display:flex;flex-direction:column;gap:5px;font-weight:700"><div style="display:flex;justify-content:space-between"><span>THINGS DONE</span><span>5</span></div><div style="display:flex;justify-content:space-between"><span>MONSTERS CAUGHT</span><span>5</span></div><div style="display:flex;justify-content:space-between"><span>TIME SPENT</span><span>1h 52m</span></div></div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px"><span style="font-size:11px">CHANGE DUE:<br>one calmer brain</span><div style="width:74px;height:74px;border-radius:50%;position:relative;overflow:hidden;transform:rotate(-14deg);box-shadow:inset 0 0 0 2px rgba(28,26,23,.25)"><div style="position:absolute;inset:0;background:{{ sc.base }}"></div><div data-shimmer="1" style="position:absolute;inset:0;background-image:{{ sc.sheen }};background-size:300% 300%;opacity:{{ sc.sop }}"></div><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:{{ sc.text }};font:900 13px/1 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.01em">PLUS<span style="font:700 7px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.14em;margin-top:3px">STAMPED</span></div></div></div>
+<div style="height:42px;margin-top:4px;background:repeating-linear-gradient(90deg,#1C1A17 0 2px,transparent 2px 4px,#1C1A17 4px 5px,transparent 5px 8px,#1C1A17 8px 11px,transparent 11px 12px,#1C1A17 12px 13px,transparent 13px 16px)"></div>
+<span style="text-align:center;font-size:10px;letter-spacing:.12em">THANK YOU FOR SHOPPING<br>AT YOUR OWN LIFE</span>
+</div>
+<div style="height:12px;background:linear-gradient(135deg,#FCFBF7 50%,transparent 50%) 0 0/14px 14px repeat-x,linear-gradient(225deg,#FCFBF7 50%,transparent 50%) 0 0/14px 14px repeat-x"></div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:16px;width:360px;flex:none" data-screen-label="Poster · month, wrapped">
+<div style="display:flex;flex-direction:column;gap:4px;min-height:60px"><span style="font:600 15px/1.3 -apple-system, system-ui, sans-serif">Poster · month, wrapped</span><span style="font:400 13px/1.4 -apple-system, system-ui, sans-serif;color:#6F6A62;text-wrap:pretty">Monthly recap, delivered on the 1st. Liquid-chrome numeral, your whole shelf of monsters underneath.</span></div>
+<div style="width:360px;height:640px;border-radius:26px;position:relative;overflow:hidden;background:#120F0D;color:#fff;box-shadow:0 40px 70px -30px rgba(28,26,23,.6)">
+<div data-aurora="1" style="position:absolute;inset:0">
+<div style="position:absolute;width:360px;height:360px;left:-120px;top:-60px;border-radius:50%;background:#F0562E;filter:blur(90px);opacity:.5"></div>
+<div style="position:absolute;width:320px;height:320px;right:-140px;top:220px;border-radius:50%;background:#4FB6FF;filter:blur(90px);opacity:.28"></div>
+</div>
+<div data-grain="1" style="position:absolute;inset:0;opacity:.3;mix-blend-mode:overlay;pointer-events:none"></div>
+<div style="position:absolute;left:24px;right:24px;top:26px;display:flex;justify-content:space-between;font:700 11px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.16em;color:rgba(255,255,255,.85)"><span>SEPTEMBER, WRAPPED</span><span>2026</span></div>
+<div data-chrome="1" style="position:absolute;left:14px;top:40px;font:900 230px/1 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.07em;background:linear-gradient(180deg,#FFFFFF 0%,#E4DFD8 22%,#8F8A83 44%,#2A2622 50%,#D8D3CC 54%,#FFFFFF 70%,#9C978F 100%);background-size:100% 160%;-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 0 rgba(255,255,255,.25)) drop-shadow(0 20px 30px rgba(0,0,0,.6))">42</div>
+<span style="position:absolute;left:26px;top:270px;font:800 30px/1.05 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.025em">monsters caught.</span>
+<span style="position:absolute;left:26px;right:26px;top:316px;font:400 15px/1.4 -apple-system, system-ui, sans-serif;color:rgba(255,255,255,.78);text-wrap:pretty">Most feared: paperwork, nine times. Best day: a Thursday, obviously.</span>
+<div style="position:absolute;left:50%;bottom:30px;margin-left:-150px;filter:{{ shareInk }}"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="world" count="42" mood="proud" still="{{ still }}" sound="off" style="width:300px;height:250px;flex:none" hint-size="300px,250px"></x-import></div>
+<span style="position:absolute;right:24px;bottom:22px;font:700 10px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.14em;color:rgba(255,255,255,.7)">SCOOTCH.APP</span>
+</div>
+</div>
+
+</div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;boil&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Motion&quot;},&quot;sound&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Motion&quot;},&quot;follow&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Share assets&quot;,&quot;label&quot;:&quot;Share assets wear the studio look&quot;}}">
+const INKS = [
+  { id: 'tangerine', name: 'Tangerine', code: 'INK 01', hue: 0, sat: 1, q: ['#F0562E', '#1C1A17', '#F6F3EE', '#C63F22'], price: 'Owned', line: 'The original. Orange ink on warm paper.' },
+  { id: 'midnight', name: 'Midnight Riso', code: 'INK 02', hue: 185, sat: .9, q: ['#34506E', '#1C1A17', '#E9EEF4', '#22364C'], price: '$1.99', line: 'Blue ink on cool paper. Recolours the app, your cards and the widgets.' },
+  { id: 'moss', name: 'Moss', code: 'INK 03', hue: 95, sat: .8, q: ['#4C6A4C', '#1C1A17', '#EEF1E6', '#334833'], price: '$1.99', line: 'Damp forest green. Very calming. Faintly smells of fern.' },
+  { id: 'plum', name: 'Plum', code: 'INK 04', hue: 295, sat: .85, q: ['#5E3B57', '#1C1A17', '#F2ECF0', '#40273B'], price: '$1.99', line: 'Deep purple for people who light candles on purpose.' },
+  { id: 'mustard', name: 'Mustard', code: 'INK 05', hue: 28, sat: 1.1, q: ['#C1922F', '#1C1A17', '#FBF3E2', '#9A7020'], price: '$1.99', line: 'Seventies kitchen yellow. Goes with everything, sadly.' }
+];
+const HOLO = 'repeating-linear-gradient(115deg,rgba(255,105,180,.5) 0%,rgba(100,215,255,.5) 5%,rgba(255,235,120,.5) 10%,rgba(150,120,255,.5) 15%,rgba(255,105,180,.5) 20%)';
+const FINS = [
+  { id: 'paper', name: 'Paper', base: '#FBF8F3', sheen: 'linear-gradient(115deg,transparent 35%,rgba(255,255,255,.7) 50%,transparent 65%)', sop: .6, shadow: 'inset 0 0 0 1px rgba(28,26,23,.1),0 24px 40px -18px rgba(28,26,23,.45)', text: '#1C1A17', sub: '#6F6A62', grain: .5, price: 'Owned', tech: 'Uncoated stock with a soft fibre grain.', line: 'Plain card stock. Honest. Smells faintly of library.', glow: 'rgba(255,255,255,.7)' },
+  { id: 'holo', name: 'Holo foil', base: 'linear-gradient(135deg,#F3EDFB 0%,#E6F7F6 45%,#FBF1E4 100%)', sheen: HOLO, sop: .9, spark: .9, shadow: 'inset 0 0 0 1px rgba(255,255,255,.7),0 24px 40px -18px rgba(80,40,120,.45)', text: '#1C1A17', sub: 'rgba(28,26,23,.65)', grain: .2, price: '$1.99', tech: 'Rainbow diffraction that chases the tilt.', line: 'Rainbow foil that follows your thumb. Absolutely unnecessary. Wonderful.', glow: 'rgba(200,160,255,.55)', sw: 'conic-gradient(from 200deg,#FF9AD0,#9AE6FF,#FFEE9A,#C2A8FF,#FF9AD0)' },
+  { id: 'chrome', name: 'Chrome', base: 'linear-gradient(165deg,#FDFDFC 0%,#B9B5AE 20%,#F2EFEA 36%,#5F5B56 50%,#D6D2CC 62%,#8A867F 80%,#F4F2EE 100%)', sheen: 'linear-gradient(115deg,transparent 38%,rgba(255,255,255,.95) 48%,rgba(255,255,255,0) 58%)', sop: 1, blend: 'screen', shadow: 'inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(0,0,0,.3),inset 0 0 0 1px rgba(0,0,0,.12),0 24px 40px -18px rgba(28,26,23,.55)', text: '#1C1A17', sub: 'rgba(28,26,23,.7)', grain: .15, price: '$2.99', tech: 'Polished steel; a bright band sweeps as it turns.', line: 'Liquid metal. Reflects your face, your choices, your unread emails.', glow: 'rgba(255,255,255,.8)' },
+  { id: 'jelly', name: 'Jelly', base: 'radial-gradient(120% 90% at 30% 10%,#FFC1AD 0%,#F7774F 35%,#F0562E 55%,#A92F14 100%)', sheen: 'radial-gradient(55% 22% at 35% 10%,rgba(255,255,255,.85),rgba(255,255,255,0) 70%),radial-gradient(30% 12% at 70% 92%,rgba(255,220,200,.6),rgba(255,255,255,0) 70%)', sop: 1, shadow: 'inset 0 10px 24px rgba(255,255,255,.4),inset 0 -24px 40px rgba(110,20,0,.5),inset 0 0 0 1px rgba(255,255,255,.25),0 24px 40px -14px rgba(240,86,46,.6)', text: '#FFF8F3', sub: 'rgba(255,248,243,.85)', grain: 0, price: '$1.99', tech: 'Translucent gel, inner glow, wet highlight.', line: 'Squishy gummy candy. Please do not lick the phone.', glow: 'rgba(240,86,46,.45)' },
+  { id: 'glass', name: 'Frosted glass', base: 'radial-gradient(circle at 18% 22%,rgba(240,86,46,.9) 0 16%,transparent 42%),radial-gradient(circle at 85% 75%,rgba(110,170,255,.85) 0 18%,transparent 46%),radial-gradient(circle at 70% 12%,rgba(255,210,90,.85) 0 10%,transparent 34%),#ECE8E1', bf: 'blur(16px) saturate(1.4)', sheen: 'linear-gradient(160deg,rgba(255,255,255,.55) 0%,rgba(255,255,255,.12) 40%,rgba(255,255,255,.3) 100%)', sop: 1, shadow: 'inset 0 1px 1px rgba(255,255,255,.95),inset 0 0 0 1px rgba(255,255,255,.55),0 24px 40px -18px rgba(28,26,23,.4)', text: '#1C1A17', sub: 'rgba(28,26,23,.7)', grain: .2, price: '$1.99', tech: 'A frosted pane over drifting colour.', line: 'Frosted glass with a sunset stuck behind it.', glow: 'rgba(255,190,120,.5)' },
+  { id: 'flock', name: 'Velvet', base: 'radial-gradient(90% 70% at 30% 20%,#3F6E58 0%,#2C5141 55%,#1F3B2F 100%)', sheen: 'radial-gradient(70% 50% at 30% 15%,rgba(255,255,255,.14),rgba(255,255,255,0) 70%)', sop: 1, shadow: 'inset 0 0 28px rgba(0,0,0,.4),inset 0 0 0 1px rgba(255,255,255,.06),0 24px 40px -18px rgba(20,40,30,.6)', text: '#F3EBDD', sub: 'rgba(243,235,221,.78)', grain: .9, price: '$1.99', tech: 'Flocked velvet: fuzzy, matte, eats light.', line: 'Fuzzy velvet, like a pool table that loves you.', glow: 'rgba(90,150,110,.4)' },
+  { id: 'riso', name: 'Riso', base: 'radial-gradient(circle,rgba(240,86,46,.8) 30%,transparent 33%) 0 0/6px 6px,radial-gradient(circle,rgba(52,96,200,.4) 30%,transparent 33%) 3px 3px/6px 6px,#F4EBDA', sheen: 'linear-gradient(115deg,transparent 40%,rgba(255,255,255,.35) 50%,transparent 60%)', sop: .7, shadow: 'inset 0 0 0 1px rgba(28,26,23,.1),0 24px 40px -18px rgba(28,26,23,.45)', text: '#1C1A17', sub: '#4E443B', grain: .6, price: '$0.99', tech: 'Two-ink halftone, slightly off register.', line: 'Two inks, a bit off register, like a zine you made at 2am.', glow: 'rgba(240,86,46,.3)' }
+];
+const TRAILS = [
+  { id: 'confetti', name: 'Confetti', price: 'Owned', line: 'Little paper squares. Classic catch energy.', sw: 'conic-gradient(#F0562E 0 25%,#FFD66B 0 50%,#7FB7FF 0 75%,#1C1A17 0)' },
+  { id: 'stardust', name: 'Stardust', price: '$0.99', line: 'Gold flecks that hang in the air a beat too long.', sw: 'radial-gradient(circle at 30% 35%,#FFE6A3 0 9%,transparent 11%),radial-gradient(circle at 66% 62%,#FFD66B 0 7%,transparent 9%),radial-gradient(circle at 60% 25%,#fff 0 4%,transparent 6%),#1C1A17' },
+  { id: 'bubbles', name: 'Bubbles', price: '$0.99', line: 'Soap bubbles. They pop when the monster does.', sw: 'radial-gradient(circle at 35% 30%,#fff 0 12%,rgba(160,210,255,.6) 14%,rgba(160,210,255,.15) 60%),#EAF3FB' },
+  { id: 'splat', name: 'Ink splat', price: '$0.99', line: 'A satisfying blot. Mildly violent. Very tidy.', sw: 'radial-gradient(circle at 50% 50%,#1C1A17 0 32%,transparent 34%),radial-gradient(circle at 78% 28%,#1C1A17 0 9%,transparent 11%),radial-gradient(circle at 24% 76%,#1C1A17 0 7%,transparent 9%),#F6F3EE' }
+];
+const NOISE = 'url("data:image/svg+xml;utf8,' + encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%' height='100%' filter='url(#n)'/></svg>") + '")';
+
+class Component extends DCLogic {
+  state = { tab: 'finish', ink: 'tangerine', fin: 'holo', trail: 'confetti' };
+  componentDidMount() {
+    this.RM = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    this._c = [];
+    const SPR = 'cubic-bezier(.32,.72,0,1)';
+    const down = e => { const b = e.target.closest && e.target.closest('[data-press]'); if (!b || this.RM) return; this._p = b; b.animate([{ transform: 'scale(1)' }, { transform: 'scale(.95)' }], { duration: 140, easing: 'ease-out', fill: 'forwards' }); };
+    const up = () => { const b = this._p; if (!b) return; this._p = null; b.animate([{ transform: 'scale(.95)' }, { transform: 'scale(1.03)', offset: .55 }, { transform: 'scale(1)' }], { duration: 420, easing: SPR, fill: 'forwards' }); };
+    document.addEventListener('pointerdown', down); document.addEventListener('pointerup', up);
+    this._c.push(() => { document.removeEventListener('pointerdown', down); document.removeEventListener('pointerup', up); });
+    this.grain();
+    if (this.RM || this.props.boil === false) return;
+    const P = { x: -1, y: -1, t: 0 };
+    const mv = e => { P.x = e.clientX; P.y = e.clientY; P.t = performance.now(); };
+    window.addEventListener('pointermove', mv, { passive: true }); this._c.push(() => window.removeEventListener('pointermove', mv));
+    let tilts = [], shims = [], frame = 0, raf;
+    const scan = () => { tilts = [...document.querySelectorAll('[data-tilt]')]; tilts.forEach(el => { if (el._rx == null) { el._rx = 0; el._ry = 0; } el._holo = el.querySelector('[data-holo]'); el._glare = el.querySelector('[data-glare]'); }); shims = [...document.querySelectorAll('[data-shimmer]')]; this.grain(); };
+    const tick = () => { const now = performance.now(), T = now / 1000; if (frame++ % 90 === 0) scan();
+      tilts.forEach((el, i) => { const r = el.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight) return; let tx, ty, hov = false;
+        if (now - P.t < 1500 && P.x > r.left - 50 && P.x < r.right + 50 && P.y > r.top - 50 && P.y < r.bottom + 50) { const nx = (P.x - r.left) / r.width - .5, ny = (P.y - r.top) / r.height - .5; tx = -ny * 24; ty = nx * 28; hov = true; } else { tx = Math.sin(T * .9 + i) * 6; ty = Math.sin(T * .6 + i * 2) * 11; }
+        el._rx += (tx - el._rx) * .12; el._ry += (ty - el._ry) * .12;
+        el.style.transform = (el.dataset.base || '') + ' rotateX(' + el._rx.toFixed(2) + 'deg) rotateY(' + el._ry.toFixed(2) + 'deg)' + (hov ? ' scale(1.03)' : '');
+        const px = 50 + el._ry * 2.6, py = 50 - el._rx * 2.6;
+        if (el._holo) el._holo.style.backgroundPosition = px + '% ' + py + '%';
+        if (el._glare) el._glare.style.background = 'radial-gradient(circle at ' + px + '% ' + (py - 20) + '%,rgba(255,255,255,.75),transparent 50%)';
+      });
+      shims.forEach((s, i) => { s.style.backgroundPosition = (50 + Math.sin(T * .8 + i) * 45) + '% ' + (50 + Math.cos(T * .5 + i) * 30) + '%'; });
+      raf = requestAnimationFrame(tick); };
+    raf = requestAnimationFrame(tick); this._c.push(() => cancelAnimationFrame(raf));
+    document.querySelectorAll('[data-aurora]').forEach(a => [...a.children].forEach((b, k) => b.animate([{ transform: 'translate(0,0) scale(1)' }, { transform: 'translate(' + (k % 2 ? -50 : 60) + 'px,' + (k ? 70 : 40) + 'px) scale(1.2)' }], { duration: 7000 + k * 1800, iterations: Infinity, direction: 'alternate', easing: 'ease-in-out' })));
+    document.querySelectorAll('[data-sweep]').forEach((s, k) => s.animate([{ transform: 'translateX(0) skewX(-20deg)' }, { transform: 'translateX(400%) skewX(-20deg)', offset: .35 }, { transform: 'translateX(400%) skewX(-20deg)' }], { duration: 3800, delay: k * 700, iterations: Infinity, easing: 'cubic-bezier(.5,0,.3,1)' }));
+    document.querySelectorAll('[data-chrome]').forEach(c => c.animate([{ backgroundPosition: '0 0%' }, { backgroundPosition: '0 100%' }], { duration: 4200, iterations: Infinity, direction: 'alternate', easing: 'ease-in-out' }));
+    document.querySelectorAll('[data-anim="float"]').forEach((f, k) => f.animate([{ translate: '0 0', rotate: '0deg' }, { translate: '0 -14px', rotate: (k % 2 ? 40 : -40) + 'deg' }], { duration: 2200 + k * 300, iterations: Infinity, direction: 'alternate', easing: 'ease-in-out' }));
+    document.querySelectorAll('[data-anim="rise"]').forEach(r => r.animate([{ transform: 'translateY(150px)' }, { transform: 'translateY(150px)', offset: .08 }, { transform: 'translateY(-14px)', offset: .3 }, { transform: 'translateY(0)', offset: .38 }, { transform: 'translateY(0)', offset: .9 }, { transform: 'translateY(150px)' }], { duration: 6000, iterations: Infinity, easing: 'cubic-bezier(.32,.72,0,1)' }));
+    this.burst();
+  }
+  componentDidUpdate(pp, ps) {
+    const S = this.state;
+    if (!ps) return;
+    if (ps.fin !== S.fin || ps.ink !== S.ink || ps.trail !== S.trail) { this.grain(); if (!this.RM && this.props.boil !== false) { this.burst(); document.querySelectorAll('[data-pop]').forEach(p => p.animate([{ transform: 'scale(.9)' }, { transform: 'scale(1.06)', offset: .45 }, { transform: 'scale(1)' }], { duration: 560, easing: 'cubic-bezier(.34,1.56,.64,1)' })); } }
+  }
+  componentWillUnmount() { (this._c || []).forEach(f => f()); }
+  grain() { document.querySelectorAll('[data-grain]').forEach(g => { if (!g._g) { g.style.backgroundImage = NOISE; g.style.backgroundSize = '180px 180px'; g._g = 1; } }); }
+  burst() {
+    const tr = this.state.trail, fall = tr === 'bubbles' ? -70 : tr === 'confetti' ? 80 : tr === 'stardust' ? 20 : 0;
+    document.querySelectorAll('[data-trailbox] [data-p]').forEach((p, i) => {
+      p.getAnimations().forEach(a => a.cancel());
+      const dx = +p.dataset.dx, dy = +p.dataset.dy, r = +p.dataset.rot;
+      const at = (k, f, s) => 'translate(calc(-50% + ' + (dx * k) + 'px),calc(-50% + ' + (dy * k + f) + 'px)) rotate(' + (r * k) + 'deg) scale(' + s + ')';
+      p.animate([{ transform: at(0, 0, 0), opacity: 0 }, { transform: at(.75, 0, 1.15), opacity: 1, offset: .22 }, { transform: at(1, fall * .6, 1), opacity: 1, offset: .6 }, { transform: at(1.05, fall, tr === 'splat' ? 1 : .5), opacity: 0 }], { duration: 2800, delay: (i % 8) * 25, iterations: Infinity, easing: 'cubic-bezier(.2,.8,.2,1)' });
+    });
+  }
+  parts(trail) {
+    const out = [], N = 18;
+    for (let i = 0; i < N; i++) {
+      const a = i / N * Math.PI * 2 + (i % 2) * .17, d = 125 + (i * 37 % 55), dx = Math.round(Math.cos(a) * d), dy = Math.round(Math.sin(a) * d * .95);
+      let w = 8, h = 8, bg = '#F0562E', r = '2px', sh = 'none';
+      if (trail === 'confetti') { bg = ['#F0562E', '#FFD66B', '#7FB7FF', '#1C1A17', '#F49AC1'][i % 5]; w = i % 3 ? 7 : 11; h = i % 3 ? 13 : 6; r = '1.5px'; }
+      else if (trail === 'stardust') { w = h = 4 + (i * 7 % 7); bg = 'radial-gradient(circle,#FFF8DD 0 30%,#FFC94A 60%,rgba(255,201,74,0) 72%)'; r = '50%'; sh = '0 0 12px rgba(255,200,80,.95)'; }
+      else if (trail === 'bubbles') { w = h = 12 + (i * 11 % 20); bg = 'radial-gradient(circle at 32% 30%,rgba(255,255,255,.95) 0 14%,rgba(190,225,255,.35) 18%,rgba(190,225,255,.08) 62%,rgba(255,255,255,.55) 72%,rgba(255,255,255,0) 74%)'; r = '50%'; sh = 'inset 0 0 0 1px rgba(255,255,255,.7),0 2px 6px rgba(110,170,255,.25)'; }
+      else { w = h = 6 + (i * 13 % 18); bg = '#1C1A17'; r = i % 2 ? '50%' : '46% 54% 40% 60%'; }
+      out.push({ dx, dy, w: w + 'px', h: h + 'px', bg, r, sh, rot: i * 47 % 360 });
+    }
+    return out;
+  }
+  renderVals() {
+    const S = this.state, set = o => () => this.setState(o);
+    const I = INKS.find(x => x.id === S.ink), F = FINS.find(x => x.id === S.fin), T = TRAILS.find(x => x.id === S.trail);
+    const follow = this.props.follow ?? true, SF = follow ? F : FINS[1], SI = follow ? I : INKS[0];
+    const ink = i => 'hue-rotate(' + i.hue + 'deg) saturate(' + i.sat + ')';
+    const card = f => ({ base: f.base, bf: f.bf || 'none', sheen: f.sheen, sop: f.sop, blend: f.blend || 'normal', shadow: f.shadow, text: f.text, sub: f.sub, grain: f.grain || 0, spark: f.spark || 0, name: f.name });
+    const ringOn = '0 0 0 3px #F6F3EE,0 0 0 5px #1C1A17', ringOff = 'inset 0 0 0 .5px rgba(28,26,23,.14),0 4px 10px -4px rgba(28,26,23,.25)';
+    const lists = {
+      ink: INKS.map(o => ({ short: o.name.split(' ')[0], sw: 'conic-gradient(' + o.q[0] + ' 0 25%,' + o.q[1] + ' 0 50%,' + o.q[2] + ' 0 75%,' + o.q[3] + ' 0)', ring: o.id === S.ink ? ringOn : ringOff, fw: o.id === S.ink ? 700 : 500, pick: set({ ink: o.id }) })),
+      finish: FINS.map(o => ({ short: o.name.split(' ')[0], sw: o.sw || o.base, ring: o.id === S.fin ? ringOn : ringOff, fw: o.id === S.fin ? 700 : 500, pick: set({ fin: o.id }) })),
+      trail: TRAILS.map(o => ({ short: o.name, sw: o.sw, ring: o.id === S.trail ? ringOn : ringOff, fw: o.id === S.trail ? 700 : 500, pick: set({ trail: o.id }) }))
+    };
+    const item = S.tab === 'ink' ? I : S.tab === 'finish' ? F : T;
+    return {
+      still: this.props.boil === false ? 'true' : undefined,
+      sound: this.props.sound === false ? 'off' : 'on',
+      tabs: [['ink', 'Ink'], ['finish', 'Finish'], ['trail', 'Trail']].map(([id, label]) => ({ label, bg: S.tab === id ? '#fff' : 'transparent', sh: S.tab === id ? '0 1px 3px rgba(28,26,23,.12)' : 'none', fw: S.tab === id ? 650 : 500, pick: set({ tab: id }) })),
+      options: lists[S.tab],
+      c: card(F), sc: card(SF), inkFilter: ink(I), shareInk: ink(SI), inkCode: I.code, glow: F.glow,
+      trailName: T.name.toUpperCase(), parts: this.parts(S.trail),
+      itemName: item.name, itemPrice: item.price === 'Owned' ? 'Owned' : item.price, itemLine: item.line,
+      cta: item.price === 'Owned' ? 'Wearing it' : 'Buy · ' + item.price,
+      reset: set({ ink: 'tangerine', fin: 'paper', trail: 'confetti' }),
+      tiles: FINS.map((f, k) => ({ c: card(f), name: f.name, price: f.price, tech: f.tech, no: '0' + (k + 1), ring: f.id === S.fin ? '2px solid #1C1A17' : '2px solid transparent', pick: set({ fin: f.id, tab: 'finish' }) }))
+    };
+  }
+}
+</script>
+</body>
+</html>
