@@ -242,9 +242,11 @@ export async function restoreSession(ctx: DayContext, tasks: readonly TaskRow[])
     };
     ctx.memory.sessionRowId = row.id;
     if (row.outcome === 'not_finished') {
-      // The three choices are still waiting. The tap's own moment is not stored: time was up.
+      // The three choices are still waiting. The tap's own moment is not stored, and it may have
+      // come before time was up: never later than now.
+      const endedAt = Math.min(endsAt, ctx.now());
       ctx.set({
-        session: { ...base, phase: 'not_finished', endedAt: endsAt, warned: true, checkedIn: true },
+        session: { ...base, phase: 'not_finished', endedAt, warned: true, checkedIn: true },
       });
       ctx.deps.runner.run([{ kind: 'show_line', line: 'notFinished' }], contextFor(ctx, task));
       return;
