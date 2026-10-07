@@ -2,83 +2,17 @@ import { describe, expect, it } from '@jest/globals';
 
 import { HOUR_MS, MINUTE_MS } from '@scootch/domain';
 
-import { openRepositories } from '../../data/repositories';
-import { openTestDatabase } from '../../data/test/open-test-database';
-
-import { createBackup } from './backup';
-import type { BackupApi } from './backup-api';
-import { createBackupTokens } from './backup-token';
 import { SERVER_DELETE_PENDING_KEY, settingsValues } from './settings-values';
 import { buildSnapshot, restoreSnapshot } from './snapshot';
+import { NOW, phone } from './test/backup-phone';
 import {
   CRISIS_DATE,
   CRISIS_DAY_LINE,
   crisisDayTask,
   day,
-  fillWorld,
-  memoryStore,
   monster,
   TOKEN,
 } from './test/sample-world';
-
-const NOW = Date.parse('2026-10-06T10:00:00.000Z');
-
-/** The server at the network boundary: what it holds, and what it was asked. */
-function fakeServer(stored: unknown = null) {
-  const server = {
-    online: true,
-    stored,
-    puts: [] as string[],
-    gets: [] as string[],
-  };
-  const api: BackupApi = {
-    put: (token, snapshot) => {
-      if (!server.online) return Promise.reject(new Error('offline'));
-      server.puts.push(token);
-      // What travels is JSON, so what comes back is what JSON keeps.
-      server.stored = JSON.parse(JSON.stringify(snapshot));
-      return Promise.resolve();
-    },
-    get: (token) => {
-      if (!server.online) return Promise.reject(new Error('offline'));
-      server.gets.push(token);
-      return Promise.resolve(server.stored);
-    },
-    remove: () => {
-      server.stored = null;
-      return Promise.resolve();
-    },
-  };
-  return Object.assign(server, { api });
-}
-
-async function phone(options: { token?: string | null; stored?: unknown; world?: boolean } = {}) {
-  const data = await openTestDatabase();
-  const repositories = openRepositories(data.db);
-  if (options.world ?? true) await fillWorld(repositories);
-  const keychain = memoryStore(options.token ?? null);
-  const cloud = memoryStore(options.token ?? null);
-  let made = 0;
-  const tokens = createBackupTokens({
-    keychain,
-    cloud,
-    newToken: () => {
-      made += 1;
-      return TOKEN;
-    },
-  });
-  const server = fakeServer(options.stored);
-  const time = { now: NOW };
-  const open = () =>
-    createBackup({
-      tokens,
-      api: server.api,
-      repositories,
-      db: data.db,
-      clock: { now: () => time.now },
-    });
-  return { data, repositories, keychain, cloud, server, time, open, made: () => made };
-}
 
 describe('a snapshot', () => {
   it('restores the world, the cards and the drawer on an empty database', async () => {
@@ -145,7 +79,7 @@ describe('a snapshot', () => {
     expect((await fresh.repositories.settings.read('vi')).language).toBe('vi');
   });
 
-  it('is refused whole when its version is unknown, it is malformed, or the phone has data', async () => {
+  it('is refused whole when its version is unknown or it is malformed, and is added to a phone that has data', async () => {
     const old = await phone();
     const snapshot = await buildSnapshot(old.repositories, NOW);
     const fresh = await phone({ world: false });
@@ -156,9 +90,14 @@ describe('a snapshot', () => {
     expect(await restoreSnapshot(fresh.repositories, broken)).toBe('refused');
     for (const table of fresh.data.tableNames()) expect(fresh.data.count(table)).toBe(0);
 
-    await fresh.repositories.tasks.put(crisisDayTask);
-    expect(await restoreSnapshot(fresh.repositories, snapshot)).toBe('refused');
-    expect(await fresh.repositories.monsters.all()).toEqual([]);
+    // A row the phone already has stays as the phone has it; the rest of the world joins it.
+    const mine = { ...crisisDayTask, text: 'Water the fern, the big one' };
+    await fresh.repositories.tasks.put(mine);
+    await fresh.repositories.settings.write({ attitude: 'soft' });
+    expect(await restoreSnapshot(fresh.repositories, snapshot)).toBe('restored');
+    expect(await fresh.repositories.tasks.get(mine.id)).toEqual(mine);
+    expect(await fresh.repositories.monsters.all()).toEqual([monster]);
+    expect((await fresh.repositories.settings.read('en')).attitude).toBe('soft');
   });
 });
 
@@ -241,10 +180,13 @@ describe('finding a restore', () => {
     expect(fresh.cloud.value).toBeNull();
   });
 
-  it('returns null on a phone that already has data', async () => {
-    const used = await phone({ token: TOKEN, stored: { version: 1 } });
+  it('returns null on a phone that holds as much as the server, and asks only once', async () => {
+    const old = await phone({ token: TOKEN });
+    await old.open().afterFinish();
+    const used = await phone({ token: TOKEN, stored: old.server.stored });
     expect(await used.open().findRestore()).toBeNull();
-    expect(used.server.gets).toEqual([]);
+    expect(await used.open().findRestore()).toBeNull();
+    expect(used.server.gets).toEqual([TOKEN]);
   });
 
   it('returns null when the server has none, or cannot be reached', async () => {

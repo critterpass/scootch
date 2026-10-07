@@ -16,6 +16,7 @@ import { createDayStore, type DayStore } from '../day-store';
 
 // 10:00 on 6 October in London, the day and zone of the recorded task call.
 export const MORNING = Date.parse('2026-10-06T09:00:00.000Z');
+const LAUNCHED = '2026-10-01T09:00:00.000Z';
 export const recordedStart = startFixture.response as TaskCreateStartResponse;
 export const recordedLines = linesFixture.response as Required<TaskLinesAnswer>;
 export const ramble = startFixture.request.text;
@@ -64,6 +65,10 @@ export async function stagedPhone(
   } = {},
 ) {
   const data = database ?? (await openTestDatabase());
+  // A phone in use has first launch behind it; one opened on an existing database keeps its own.
+  if (!database) {
+    await openRepositories(data.db).settings.write({ firstLaunchDoneAt: LAUNCHED });
+  }
   const time = fakeTime(at);
   const device = fakeDevice();
   let ids = 0;

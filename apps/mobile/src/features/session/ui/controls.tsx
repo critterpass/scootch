@@ -3,6 +3,7 @@ import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 
 import { radius, spacing } from '@scootch/tokens';
 
+import { GlassPill } from '../../../ui/buttons';
 import { CloseButton } from '../../../ui/corner-bar';
 
 import type { SessionInks } from './session-inks';
@@ -19,17 +20,7 @@ export interface ControlProps {
   readonly style?: StyleProp<ViewStyle>;
 }
 
-const lift = (inks: SessionInks) =>
-  ({
-    backgroundColor: inks.surface,
-    shadowColor: '#1C1A17',
-    shadowOpacity: 0.1,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 3,
-  }) as const;
-
-/** The soft raised capsule: "Park a thought", the session's name. */
+/** The glass capsule that floats over the session: "Park a thought". */
 export function Capsule({
   label,
   hint,
@@ -40,19 +31,12 @@ export function Capsule({
   lead,
 }: ControlProps & { readonly lead?: ReactNode }) {
   return (
-    <PressSpring
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      accessibilityHint={hint}
-      testID={testID}
-      onPress={onPress}
-      style={[styles.capsule, lift(inks), style]}
-    >
+    <GlassPill label={label} hint={hint} testID={testID} onPress={onPress} style={style}>
       {lead}
       <SessionText face="action" color={inks.ink}>
         {label}
       </SessionText>
-    </PressSpring>
+    </GlassPill>
   );
 }
 
@@ -117,16 +101,6 @@ export function TextButton({
 }
 
 const styles = StyleSheet.create({
-  capsule: {
-    minHeight: 48,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.sm,
-  },
   filled: {
     minHeight: 56,
     borderRadius: radius.pill,

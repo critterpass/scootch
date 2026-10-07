@@ -3,7 +3,7 @@ import { DRAWER_CLOSED, currentScootchDay, isoFromInstant, type ClockTime } from
 import { defaultSettings } from '../data/repositories/settings';
 import type { EffectSwitches, ScreenSink } from '../effects/adapters';
 
-import { askReminder, crisisInWords, setSeriousAside } from './care-flow';
+import { NOTHING_SAID, askReminder, crisisInWords, setSeriousAside } from './care-flow';
 import { DEFAULT_USUAL_START, usualStart } from './day-notifications';
 import { readToday } from './day-refresh';
 import { openDay } from './day-rollover';
@@ -19,9 +19,13 @@ import {
 import { NO_AFTER_LINES } from './lines';
 import { applyPickEvent } from './pick-events';
 import { drawerEvent, setBargainedSession } from './pick-flow';
-import { applySession, resolveThought, restForToday, restoreSession } from './session-flow';
+import { resolveThought } from './parked-thoughts';
+import { restForToday, undoRest } from './rest-flow';
+import { UNDER_WAY, applySession } from './session-flow';
+import { closeStraySessions, restoreSession } from './session-restore';
 import { closeSession, followTableClock, shortenSession, turnWorkingLine } from './session-moments';
 import { applySurfaceAction, noticePickUp } from './surface-actions';
+import { parkStartedTask, returnOneThing } from './way-out';
 import {
   askAnother,
   beFunny,
@@ -63,6 +67,7 @@ const NOT_READY: DayState = {
   modelDown: false,
   reminderAt: null,
   waitingForTomorrow: null,
+  restUndo: false,
   heardDeadlines: [],
   line: null,
   burst: null,
@@ -133,16 +138,53 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
     for (let seen = 0; seen < arriving.length; seen += 1) await arriving[seen];
   };
 
+  /** True while today is rebuilt under screens that are already showing: they see only the result. */
+  let rebuilding = false;
   const set = (changes: Partial<DayState>) => {
     memory.state = { ...memory.state, ...changes };
-    for (const listener of listeners) listener();
+    if (!rebuilding) for (const listener of listeners) listener();
   };
 
   const refresh = () => readToday({ deps, memory, set }, usual);
 
   const ctx: DayContext = { deps, memory, set, refresh, later, now: () => deps.clock.now() };
 
+  /**
+   * A session keeps the day it started on: while one is under way, or its last screens are still
+   * showing, the day does not turn under it. The turn is applied when it is closed.
+   */
+  const sessionHoldsDay = () => {
+    const { session } = memory.state;
+    return session !== null && session.phase !== 'set' && session.phase !== 'left_early';
+  };
+  const turnIfDue = () => {
+    const latestDay = memory.state.localDate;
+    if (!memory.state.ready || sessionHoldsDay()) return undefined;
+    const now = currentScootchDay({ now: ctx.now(), timeZone: deps.timeZone(), latestDay });
+    return now === latestDay ? undefined : rebuild();
+  };
+
+  /**
+   * Today from storage. When screens are already showing they stay mounted (what is typed in
+   * them is theirs) and see the new day in one step.
+   */
   async function rebuild(): Promise<void> {
+    rebuilding = memory.state.ready;
+    try {
+      await build();
+    } finally {
+      rebuilding = false;
+    }
+    // A session that did not come back has no timers and no Live Activity left running.
+    const { session } = memory.state;
+    if (session === null || session.phase === 'let_go' || !UNDER_WAY.includes(session.phase)) {
+      deps.runner.run([{ kind: 'cancel_timer' }, { kind: 'end_live_activity' }], NOTHING_SAID);
+    }
+    set({ ready: true });
+    await fetchPending(ctx);
+  }
+
+  async function build(): Promise<void> {
     const now = ctx.now();
     const timeZone = deps.timeZone();
     await repositories.transcripts.purgeOld(now);
@@ -166,6 +208,7 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
       });
     }
 
+    await closeStraySessions(ctx);
     await openDay(ctx, localDate, opened);
 
     usual = usualStart(await repositories.sessions.all(), timeZone);
@@ -179,8 +222,6 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
     if (memory.state.today.kind !== 'crisis') {
       await restoreSession(ctx, await repositories.tasks.where('localDate', localDate));
     }
-    set({ ready: true });
-    await fetchPending(ctx);
   }
 
   async function handle(event: DayEvent): Promise<void> {
@@ -212,13 +253,20 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
       case 'working_line_turned':
         return turnWorkingLine(ctx);
       case 'session_closed':
-        return closeSession(ctx);
+        await closeSession(ctx);
+        return turnIfDue();
       case 'table_clock':
         return followTableClock(ctx, event.endsAt);
       case 'developer_session_ends_in':
         return shortenSession(ctx, event.seconds);
       case 'done_for_today':
         return restForToday(ctx);
+      case 'rest_undone':
+        return undoRest(ctx);
+      case 'started_task_parked':
+        return parkStartedTask(ctx);
+      case 'one_thing_returned':
+        return returnOneThing(ctx);
       case 'one_more_asked': {
         const { today } = memory.state;
         // Not on a day with something heavy in it: nothing is sold, or asked for, beside it.
@@ -252,20 +300,13 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
         return noticePickUp(ctx);
       case 'app_backgrounded':
         return applySession(ctx, { type: 'backgrounded' });
-      case 'day_turned': {
-        // A day left open overnight ends at its boundary, a crisis day included. A session that
-        // is running is left alone: the day turns when the app next comes forward.
-        const { today, localDate: latestDay } = memory.state;
-        if (today.kind === 'in_session' || (today.kind === 'serious' && today.session !== null)) {
-          return;
-        }
-        const now = currentScootchDay({ now: ctx.now(), timeZone: deps.timeZone(), latestDay });
-        return now === latestDay ? undefined : rebuild();
-      }
+      case 'day_turned':
+        // A day left open overnight ends at its boundary, a crisis day included.
+        return turnIfDue();
       case 'app_foregrounded': {
-        const latestDay = memory.state.localDate;
-        const today = currentScootchDay({ now: ctx.now(), timeZone: deps.timeZone(), latestDay });
-        if (today !== latestDay) return rebuild();
+        const day = memory.state.localDate;
+        await turnIfDue();
+        if (memory.state.localDate !== day) return;
         await applySession(ctx, { type: 'foregrounded' });
         deps.runner.resync();
         return fetchPending(ctx);

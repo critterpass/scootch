@@ -36,6 +36,12 @@ interface Server {
 /** A phone: one database that outlives the app, and an app process that can be started on it again. */
 async function phone(server: Server, database?: TestDatabase, at = MORNING) {
   const data = database ?? (await openTestDatabase());
+  // A phone in use has first launch behind it.
+  if (!database) {
+    await openRepositories(data.db).settings.write({
+      firstLaunchDoneAt: '2026-10-01T09:00:00.000Z',
+    });
+  }
   const time = fakeTime(at);
   const device = fakeDevice();
   let ids = 0;
@@ -250,7 +256,7 @@ describe('the day store', () => {
     expect(second.store.getState().session).toMatchObject({ phase: 'time_up' });
   });
 
-  it('leaves no row behind when a task is let go, and still hands over the parked thoughts', async () => {
+  it('leaves no row of a task that is let go, and keeps the thoughts parked beside it', async () => {
     const app = await phone({ online: true, answer: pass, calls: 0 });
     await app.type('call the plumber');
     await app.store.dispatch({ type: 'session_set', minutes: 10 });
@@ -260,13 +266,16 @@ describe('the day store', () => {
     await app.session({ type: 'not_finished' });
     await app.session({ type: 'chose_let_go' });
 
-    for (const table of ['tasks', 'monsters', 'sessions', 'parked_thoughts']) {
+    for (const table of ['tasks', 'monsters', 'sessions']) {
       expect([table, app.data.count(table)]).toEqual([table, 0]);
     }
+    // The thought is the person's own, not the task's: it stays stored until they answer for it.
+    expect(app.data.count('parked_thoughts')).toBe(1);
     expect(app.data.dump()).not.toContain('plumber about');
+    // The start its session used stays used.
     expect(app.store.getState().today).toEqual({
       kind: 'nothing_yet',
-      startsLeft: FREE_STARTS_PER_DAY,
+      startsLeft: FREE_STARTS_PER_DAY - 1,
     });
     expect(app.store.getState().parkedThoughts.map((one) => one.text)).toEqual(['buy washers']);
   });

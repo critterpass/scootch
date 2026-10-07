@@ -11,7 +11,7 @@ import type { ScreenProps } from './screen-props';
 
 /**
  * The thoughts parked during the session, shown only now. Each can come back tomorrow or go; the
- * ones left untouched are simply still there. One tap moves on.
+ * ones left untouched wait in the drawer. One tap moves on, and never drops one.
  */
 export function ParkedThoughtsScreen({ model, actions, inks, t }: ScreenProps) {
   const thoughts = model.view.kind === 'thoughts' ? model.view.thoughts : [];
