@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import type { Language } from '@scootch/i18n';
@@ -15,6 +16,7 @@ import { SessionText } from '../session/ui/session-text';
 import type { RecordPlayback } from './use-record-playback';
 import { weekShareOffered, type WeekView } from './record-week';
 import { CreditRow } from './ui/credit-row';
+import { RecordDaySheet } from './ui/record-day-sheet';
 import { RecordDiscView } from './ui/record-disc-view';
 import { BarStrip, bandLine, instrumentName } from './ui/record-parts';
 import { PressSpring } from '../../ui/motion/press-spring';
@@ -56,6 +58,10 @@ export function RecordScreen({ model, actions }: { model: RecordModel; actions: 
   const fallbackName = t('record.week', { number: week.weekNumber });
   const cover = week.rows.flatMap((row) => (row.monster ? [row.monster.spec] : []));
   const waiting = week.waitingFor;
+  // The day whose things are listed on the sheet; it stays drawn while the sheet closes.
+  const [dayOpen, setDayOpen] = useState(false);
+  const [day, setDay] = useState<number | null>(null);
+  const shown = week.rows.find((row) => row.position === day) ?? null;
   // While the band builds, one instrument is lit: the one joining. The line under the name says so.
   const joining =
     playback.playing && playback.lit.length === 1
@@ -203,6 +209,16 @@ export function RecordScreen({ model, actions }: { model: RecordModel; actions: 
               lit={lit}
               // A day with no monster asked for care: its row names no task and draws nobody.
               {...(row.monster ? { work: row.workMode } : {})}
+              // A day with something caught on it opens the list of what that was.
+              {...(row.caught.length > 0
+                ? {
+                    hint: t('record.day.hint'),
+                    onPress: () => {
+                      setDay(row.position);
+                      setDayOpen(true);
+                    },
+                  }
+                : {})}
             />
           );
         })}
@@ -229,6 +245,12 @@ export function RecordScreen({ model, actions }: { model: RecordModel; actions: 
           </SessionText>
         ) : null}
       </View>
+      <RecordDaySheet
+        open={dayOpen}
+        row={shown}
+        language={language}
+        onClose={() => setDayOpen(false)}
+      />
     </KeepFrame>
   );
 }

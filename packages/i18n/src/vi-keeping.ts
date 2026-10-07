@@ -65,6 +65,8 @@ export const viKeeping = {
   'record.produced': 'Sản xuất: Scootch. Sáng tác: tuần của bạn. Bản quyền thuộc về bạn.',
   'record.waiting': 'Đang chờ {weekday}',
   'record.waiting.hint': 'làm xong một việc bất kỳ để thêm {instrument}',
+  'record.day.hint': 'Xem những gì bạn đã bắt được hôm đó.',
+  'record.day.brought': 'mang đến {instrument}',
   'record.instrument.keys': 'Phím đàn',
   'record.instrument.bassline': 'Bè trầm',
   'record.instrument.marimba': 'Đàn marimba',
