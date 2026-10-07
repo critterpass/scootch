@@ -138,7 +138,7 @@ describe('the house rules', () => {
       .flatMap((file) => waysIn(file).map((line) => `${relative(file)}: ${line}`));
     expect(users.sort()).toEqual(
       [
-        'features/one-screen/one-screen.tsx: onLocked={() => router.push(PLUS_SHEET_ONE_MORE)}',
+        'features/one-screen/one-screen.tsx: onUnlock: () => router.push(PLUS_SHEET_ONE_MORE),',
         'features/plus/first-offer.tsx: onTell={() => router.push(PLUS_SHEET)}',
         'features/plus/manage-container.tsx: openShelf: () => router.push(SHELF_ROUTE),',
         'features/plus/manage-container.tsx: seePlus: () => router.push(PLUS_SHEET),',
@@ -188,34 +188,38 @@ describe('the house rules', () => {
     }
   });
 
-  it('reaches the sheet from the one screen only through "One more" on done for today', () => {
-    const home = closureOf(routes.get('/') ?? '');
-    const users = home.filter((file) => file !== ROUTES_FILE && waysIn(file).length > 0);
+  it('reaches the sheet from the one screen only through the locked talk capsule on home', () => {
+    const closure = closureOf(routes.get('/') ?? '');
+    const users = closure.filter((file) => file !== ROUTES_FILE && waysIn(file).length > 0);
     expect(users.map(relative)).toEqual(['features/one-screen/one-screen.tsx']);
 
     const source = readFileSync(users[0] ?? '', 'utf8');
     const at = source.indexOf('router.push(PLUS_SHEET_ONE_MORE)');
-    // It sits in the done-for-today branch, after every other state has had its own return, and
-    // nothing in the waiting, task-set or composer branches names a selling route.
-    const done = source.indexOf("stage.kind === 'done'");
+    // It sits in home's branch, after every other state has had its own return, as the tap of
+    // the gated capsule and nothing else. No task-set, pick or hatch branch names a selling route.
     const taskSet = source.indexOf("stage.kind === 'task_set'");
-    expect(done).toBeGreaterThan(-1);
-    expect(at).toBeGreaterThan(done);
-    expect(at).toBeLessThan(taskSet);
-    expect(source.slice(taskSet)).not.toMatch(/PLUS_|SHELF_ROUTE|\/plus|\/shelf/);
+    const home = source.indexOf('const starts = homeStarts(');
+    expect(taskSet).toBeGreaterThan(-1);
+    expect(home).toBeGreaterThan(taskSet);
+    expect(at).toBeGreaterThan(home);
+    expect(source.slice(taskSet, home)).not.toMatch(/PLUS_|SHELF_ROUTE|\/plus|\/shelf/);
     expect(source.match(/PLUS_SHEET/g)).toHaveLength(2);
-    // The view draws the control it is handed and knows no route at all.
-    for (const file of home) {
-      if (/one-screen-view|one-more|charge-note/.test(file)) {
+    expect(source).toMatch(
+      /gate: \{\s*kind: starts,\s*onUnlock: \(\) => router\.push\(PLUS_SHEET_ONE_MORE\),\s*\}/,
+    );
+    // The view and the dock draw the control they are handed and know no route at all.
+    for (const file of closure) {
+      if (/one-screen-view|composer-(row|stacked|view)|charge-note/.test(file)) {
         expect(readFileSync(file, 'utf8')).not.toMatch(/router|Redirect|Href/);
       }
     }
   });
 
-  it('asks the one selling guard before "One more", the first offer and any spoken Plus line', () => {
+  it('asks the one selling guard before the locked capsule, the first offer and any spoken Plus line', () => {
     const read = (file: string) => readFileSync(path.join(SOURCE, file), 'utf8');
+    // Whether the capsule locks is decided with the guard's own answer, and by nothing else.
     expect(read('features/one-screen/one-screen.tsx')).toMatch(
-      /showsSelling\(day\) \? null : \(\s*<OneMore/,
+      /homeStarts\(\{ startLeft: stage\.startLeft, plus, selling: showsSelling\(day\) \}\)/,
     );
     expect(read('state/plus-runtime.ts')).toMatch(/selling: showsSelling\(day\)/);
     // A Plus screen takes Scootch's words from `plusLine`, which is silent on a heavy day. Only

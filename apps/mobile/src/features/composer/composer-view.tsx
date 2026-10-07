@@ -10,6 +10,7 @@ import { useScreenStyle } from '../../ui/use-screen-style';
 import { DOCK_HELD_SCALE, DOCK_PADDING } from './composer-fold';
 import { ComposerHints, type ComposerHintsProps } from './composer-hints';
 import type { ComposerEvent } from './composer-machine';
+import type { ComposerGate } from './composer-parts';
 import { ComposerRow } from './composer-row';
 import { ComposerStacked } from './composer-stacked';
 import { SendFly, useSendShot } from './send-fly';
@@ -19,6 +20,8 @@ export interface ComposerViewProps extends ComposerHintsProps {
   /** The voice's level, from 0 to 1. */
   readonly level: number;
   readonly onEvent: (event: ComposerEvent) => void;
+  /** The day has no start left: the dock takes no words. Unset on an ordinary dock. */
+  readonly gate?: ComposerGate;
 }
 
 /**
@@ -29,7 +32,7 @@ export interface ComposerViewProps extends ComposerHintsProps {
  * transform and opacity on the UI thread. At the large text sizes the controls stack full width.
  * Where nothing may move, the states crossfade.
  */
-export function ComposerView({ level, onEvent, ...hints }: ComposerViewProps) {
+export function ComposerView({ level, onEvent, gate, ...hints }: ComposerViewProps) {
   const { state, screenReader } = hints;
   const { largeText, reducedMotion } = useScreenStyle();
   const t = useT();
@@ -43,7 +46,7 @@ export function ComposerView({ level, onEvent, ...hints }: ComposerViewProps) {
     transform: [{ scale: 1 + (DOCK_HELD_SCALE - 1) * swell.value }],
   }));
   const shot = useSendShot(state, !reducedMotion && !largeText);
-  const parts = { state, level, listening, busy, screenReader, drag, onEvent };
+  const parts = { state, level, listening, busy, screenReader, drag, gate: gate ?? null, onEvent };
 
   return (
     <View style={styles.wrap}>

@@ -162,18 +162,3 @@ describe('"Carry on tomorrow"', () => {
     expect(skipped.store.getState().waitingForTomorrow).toBeNull();
   });
 });
-
-describe('ending the day without finishing', () => {
-  it('carries a set task to tomorrow and rests the day', async () => {
-    const { server, app, task } = await dayWithATaskLeft();
-    await app.store.dispatch({ type: 'done_for_today' });
-    expect(app.store.getState().today).toEqual({
-      kind: 'done_for_today',
-      startsLeft: FREE_STARTS_PER_DAY,
-    });
-    expect(app.store.getState().waitingForTomorrow).toMatchObject({ id: task.id });
-
-    const next = await stagedPhone(server, app.data, MORNING + DAY_MS);
-    expect(next.task()).toMatchObject({ id: task.id, carriedOver: true });
-  });
-});

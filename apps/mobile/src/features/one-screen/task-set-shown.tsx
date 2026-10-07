@@ -6,12 +6,10 @@ import type { Translate } from '../../i18n/i18n-provider';
 import type { useToday } from '../../state/day-store-provider';
 import type { DayEvent } from '../../state/day-types';
 import { lineFor } from '../../state/lines';
-import { QuietLink, Stack } from '../dump/dump-panels';
 import { HatchFigure } from '../monster/hatch-figure';
 import { wordsWhileUnscreened, type Connection } from '../offline/waiting-words';
 import { TogetherLinks } from '../table/together-links';
 
-import { NotNow } from './not-now';
 import { FRAMES, TASK_SET_MONSTER } from './one-screen-frame';
 import { minuteOptions } from './one-screen-panels';
 import type { Stage } from './one-screen-stage';
@@ -70,6 +68,10 @@ export function taskSetShown(
       onMinutes: env.onMinutes,
       // Start that would be refused is drawn off, with the reason, instead of doing nothing.
       onStart: off ? null : () => void start().catch(() => undefined),
+      // Put down, a task not yet started leaves its words in the drawer; one started and left is
+      // parked whole, with its monster, and the start it used stays used.
+      onDiscard: () =>
+        send({ type: stage.task.status === 'started' ? 'started_task_parked' : 'task_set_aside' }),
       ...(carried ? { startLabel: t('morning.start', { minutes }) } : {}),
       ...(monster
         ? {
@@ -86,36 +88,7 @@ export function taskSetShown(
             ),
           }
         : {}),
-      extra: (
-        <Stack>
-          {carried ? (
-            <QuietLink
-              label={t('morning.somethingElse')}
-              hint={t('morning.somethingElse.hint')}
-              onPress={() => send({ type: 'carried_task_set_aside' })}
-              testID="something-else"
-            />
-          ) : null}
-          {stage.task.status === 'started' ? (
-            // Started and left: it cannot be bargained over or swapped, but it can be set down.
-            <QuietLink
-              label={t('taskSet.park')}
-              hint={t('taskSet.park.hint')}
-              onPress={() => send({ type: 'started_task_parked' })}
-              testID="park-started"
-            />
-          ) : (
-            <NotNow onExcuse={(text) => send({ type: 'excuse_given', text })} />
-          )}
-          <QuietLink
-            label={t('taskSet.rest')}
-            hint={t('taskSet.rest.hint')}
-            onPress={() => send({ type: 'done_for_today' })}
-            testID="rest-today"
-          />
-          <TogetherLinks day={day} task={stage.task} monster={day.monster} />
-        </Stack>
-      ),
+      extra: <TogetherLinks day={day} task={stage.task} monster={day.monster} />,
     },
   };
 }

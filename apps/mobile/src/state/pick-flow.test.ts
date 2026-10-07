@@ -2,7 +2,7 @@ import { describe, expect, it } from '@jest/globals';
 
 import type { TaskLinesAnswer } from '../api/scootch-api';
 
-import { ASK_MINUTES, MONSTER_SIZE_STEPS, smallerAsk } from './smaller';
+import { MONSTER_SIZE_STEPS } from './smaller';
 import { recordedLines, recordedStart, stagedPhone, stagedServer } from './test/staged-phone';
 
 if (recordedStart.verdict !== 'pass') throw new Error('the recorded first stage is a pass');
@@ -152,47 +152,6 @@ describe('another, and the drawer', () => {
 });
 
 describe('the ask only gets smaller', () => {
-  it('never returns more minutes than it was given', () => {
-    for (let minutes = 1; minutes <= 60; minutes += 1) {
-      let ask = { minutes, shrinkCount: 0 };
-      for (let step = 0; step < ASK_MINUTES.length + 2; step += 1) {
-        const next = smallerAsk(ask);
-        expect(next.minutes).toBeLessThanOrEqual(ask.minutes);
-        expect(next.shrinkCount).toBeGreaterThanOrEqual(ask.shrinkCount);
-        ask = next;
-      }
-    }
-  });
-
-  it('counters an excuse with less each time, and sets no session longer than the offer', async () => {
-    const app = await stagedPhone(stagedServer());
-    await app.say();
-    await app.store.dispatch({ type: 'one_thing_picked' });
-    await app.store.dispatch({ type: 'monster_met' });
-
-    const asked: number[] = [];
-    const ask = () => {
-      const { pick } = app.store.getState();
-      if (pick.kind !== 'bargaining') throw new Error(`not bargaining: ${pick.kind}`);
-      asked.push(pick.ask.minutes);
-      return pick.ask.minutes;
-    };
-    await app.store.dispatch({ type: 'excuse_given', text: "I'm wiped" });
-    ask();
-    for (let tap = 0; tap < 4; tap += 1) {
-      await app.store.dispatch({ type: 'smaller_asked' });
-      ask();
-    }
-    await app.store.dispatch({ type: 'excuse_given', text: 'still no' });
-    const offer = ask();
-    expect(asked[0]).toBeLessThan(10);
-    expect(asked).toEqual([...asked].sort((a, b) => b - a));
-
-    // Even a longer length chosen now cannot raise it.
-    await app.store.dispatch({ type: 'session_set', minutes: 50 });
-    expect(app.store.getState().session).toMatchObject({ ask: { minutes: offer } });
-  });
-
   it('makes the task and its monster smaller on "too big", and never bigger', async () => {
     const app = await stagedPhone(stagedServer());
     await app.say();

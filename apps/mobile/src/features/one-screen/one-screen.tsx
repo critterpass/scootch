@@ -3,7 +3,7 @@ import { useIsFocused, useRouter, type Href } from 'expo-router';
 import { useEffect, useRef, useState, type ReactElement } from 'react';
 import { Linking, View } from 'react-native';
 
-import { hasStartLeft, startsAllowed, type Attitude } from '@scootch/domain';
+import { FREE_STARTS_PER_DAY, hasStartLeft, startsAllowed, type Attitude } from '@scootch/domain';
 
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import {
@@ -20,22 +20,21 @@ import { showsSelling } from '../../state/shows-comedy';
 import { useSurfaceRequest } from '../../state/surface-requests';
 import { touchHaptic } from '../../ui/motion/press-spring';
 import { useFeel } from '../../ui/motion/use-feel';
+import { useKeyboardOpen } from '../../ui/use-keyboard-open';
 import { useScreenReader } from '../../ui/use-screen-style';
 import { seriousShown } from '../care/serious-shown';
 import type { SpeechPort } from '../composer/speech';
 import { useComposerFeedback } from '../composer/composer-feedback';
 import { useComposer } from '../composer/use-composer';
 import { DrawerSheet } from '../drawer/drawer-sheet';
-import { QuietLink } from '../dump/dump-panels';
 import { HatchHauntLink } from '../haunt/hatch-haunt-link';
 import { wordsWhileUnscreened } from '../offline/waiting-words';
-import { OneMore } from '../plus/one-more';
 import { PLUS_SHEET_ONE_MORE } from '../plus/routes';
 
 import { composerMood } from './composer-mood';
 import { composerWays } from './composer-ways';
 import { doneLine } from './done-line';
-import { holdsWords, stageOf } from './one-screen-stage';
+import { holdsWords, homeStarts, stageOf } from './one-screen-stage';
 import { OneScreenView, type OneScreenShown } from './one-screen-view';
 import { stageShown } from './stage-shown';
 import { taskSetShown } from './task-set-shown';
@@ -58,9 +57,8 @@ const SESSION = '/session' as Href;
 const COVERED = 'covered';
 
 /**
- * The one screen, driven by the day store: the composer, the one thing that comes back, its
- * hatch, a counter-offer, the task set with Start, or done for today. Which of them shows is
- * worked out from the store; every word Scootch says comes from the task's lines or the offline
+ * The one screen, driven by the day store: home with its composer, the one thing that comes back,
+ * its hatch, or the task set with Start. Which of them shows is worked out from the store; every word Scootch says comes from the task's lines or the offline
  * pack.
  */
 export function OneScreen(props: OneScreenProps) {
@@ -95,6 +93,7 @@ function useOneScreenDrawn({
   const plus = usePlus();
   const network = useNetworkState();
   const playCue = useCue();
+  const keyboardOpen = useKeyboardOpen();
   const [chosenMinutes, setMinutes] = useState<number | null>(null);
   const [treat, setTreat] = useState('');
   const [revealedFor, setRevealedFor] = useState<string | null>(null);
@@ -120,7 +119,8 @@ function useOneScreenDrawn({
     if (asked && !questionShows) giveBack(sendComposer);
   }, [asked, questionShows, giveBack, sendComposer]);
   // A control or a widget asked for the composer: it opens for typing, or starts listening.
-  useSurfaceRequest('composer', stage.kind === 'composer' && taskCall === 'idle', (request) =>
+  const takesWords = stage.kind === 'home' && stage.startLeft;
+  useSurfaceRequest('composer', takesWords && taskCall === 'idle', (request) =>
     sendComposer(
       request.listening ? { type: 'toggled', at: Date.now() } : { type: 'keyboard_tapped' },
     ),
@@ -169,6 +169,8 @@ function useOneScreenDrawn({
             : null
         }
         onSwapIn={(itemId) => send({ type: 'drawer_item_swapped_in', itemId })}
+        onRemove={(itemId) => send({ type: 'drawer_item_removed', itemId })}
+        onEdit={(itemId, text) => send({ type: 'drawer_item_edited', itemId, text })}
         onClose={() => send({ type: 'drawer', event: { type: 'closed' } })}
       />
     ),
@@ -180,43 +182,6 @@ function useOneScreenDrawn({
 
   if (care) return null;
   if (stage.kind === 'session') return COVERED;
-
-  if (stage.kind === 'done') {
-    // A start still open today is offered on any day. Only the locked control, which leads to
-    // Plus, is held back on a heavy day.
-    const left = today.kind === 'done_for_today' ? today.startsLeft : 0;
-    const more =
-      left === 0 && !showsSelling(day) ? null : (
-        <OneMore
-          plus={plus}
-          left={left}
-          onLocked={() => router.push(PLUS_SHEET_ONE_MORE)}
-          onMore={() => send({ type: 'one_more_asked' })}
-        />
-      );
-    // "That's it for today" can be taken back for as long as the day lasts.
-    const under = day.restUndo ? (
-      <>
-        {more}
-        <QuietLink
-          label={t('taskSet.rest.undo')}
-          hint={t('taskSet.rest.undo.hint')}
-          onPress={() => send({ type: 'rest_undone' })}
-          testID="rest-undo"
-        />
-      </>
-    ) : (
-      more
-    );
-    return (
-      <OneScreenView
-        {...frame}
-        mood="asleep"
-        line={doneLine(shownLine, voice)}
-        shown={{ kind: 'done', under, waiting: stage.waiting?.text ?? null }}
-      />
-    );
-  }
 
   const connection = { offline, modelDown: day.modelDown };
   if (stage.kind === 'task_set' && stage.quiet) {
@@ -247,7 +212,7 @@ function useOneScreenDrawn({
     return <OneScreenView {...frame} {...drawn} />;
   }
 
-  if (stage.kind !== 'composer') {
+  if (stage.kind !== 'home') {
     const drawn = stageShown(stage, {
       t,
       language,
@@ -268,12 +233,6 @@ function useOneScreenDrawn({
         pickAgain: () => send({ type: 'pick_for_me' }),
         takePick: (itemId) => send({ type: 'drawer_item_swapped_in', itemId }),
         dropPick: () => send({ type: 'pick_dropped' }),
-        smaller: () => send({ type: 'smaller_asked' }),
-        deal: () => {
-          void dispatch({ type: 'deal_struck', treat: treat.trim() || null })
-            .then(() => dispatch({ type: 'session', event: { type: 'started' } }))
-            .catch(() => undefined);
-        },
         tooBig: () => send({ type: 'too_big' }),
         catchIt: () => send({ type: 'monster_met' }),
         revealDone: () => {
@@ -290,9 +249,16 @@ function useOneScreenDrawn({
   }
 
   const { state } = composer;
+  // The warm-up ask is first launch's: once something was done today it is an ordinary home.
+  const firstAsk = warmUp && !stage.rested;
+  const starts = homeStarts({ startLeft: stage.startLeft, plus, selling: showsSelling(day) });
   // After a rejected text nothing is spoken: the composer's own plain words ask for something else.
   const quiet = state.phase !== 'idle' || taskCall !== 'idle' || notice !== null;
-  const slot = state.mode === 'typing' ? 'typing' : warmUp ? 'firstOneThing' : 'waiting';
+  const typing = state.mode === 'typing' && (keyboardOpen || state.text.trim() !== '');
+  // A day with something done in it rests until Scootch is spoken to: he sleeps, and wakes to
+  // listen the moment the capsule is held or the keyboard comes up.
+  const resting = stage.rested && !quiet && !typing;
+  const slot = state.mode === 'typing' ? 'typing' : firstAsk ? 'firstOneThing' : 'waiting';
   const sendChip = (text: string) => {
     composer.send({ type: 'keyboard_tapped' });
     composer.send({ type: 'text_changed', text });
@@ -309,30 +275,49 @@ function useOneScreenDrawn({
       screenReader,
       onOpenSettings: () => void Linking.openSettings().catch(() => undefined),
       onCancelThinking: () => send({ type: 'task_call_cancelled' }),
+      // With no start left the dock takes no words. Only the locked capsule, on a day with nothing
+      // heavy in it, leads to the sheet, and only when it is tapped.
+      ...(starts === 'open'
+        ? {}
+        : {
+            gate: {
+              kind: starts,
+              onUnlock: () => router.push(PLUS_SHEET_ONE_MORE),
+            },
+          }),
     },
-    warmUp: warmUp
+    warmUp: firstAsk
       ? {
           chips: [t('launch.chip.reply'), t('launch.chip.water'), t('launch.chip.email')],
           onChip: sendChip,
         }
       : null,
     notificationsOff: notificationsRefused,
-    ...composerWays({
-      stage,
-      warmUp,
-      t,
-      language,
-      today: localDate,
-      sendChip,
-      pickForMe: () => send({ type: 'pick_for_me' }),
-    }),
+    ...(firstAsk
+      ? {}
+      : {
+          home: {
+            waiting: stage.waiting?.text ?? null,
+            startsNote:
+              starts === 'locked'
+                ? t('plus.oneMore.freeDone', { count: FREE_STARTS_PER_DAY })
+                : null,
+          },
+        }),
+    ...composerWays({ stage, t, language, today: localDate, sendChip }),
   };
   return (
     <OneScreenView
       {...frame}
-      mood={composerMood(state, taskCall, warmUp, nudging)}
+      mood={resting ? 'asleep' : composerMood(state, taskCall, firstAsk, nudging)}
       // With no connection Scootch says so, in place of his usual ask: starting still works.
-      line={quiet ? null : lineWithNoTask(offline && slot === 'waiting' ? 'offline' : slot, voice)}
+      line={
+        resting
+          ? doneLine(shownLine, voice)
+          : quiet
+            ? null
+            : lineWithNoTask(offline && slot === 'waiting' ? 'offline' : slot, voice)
+      }
       shown={shown}
     />
   );

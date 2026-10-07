@@ -247,9 +247,8 @@ function useDayState(): DayState {
 export function useToday() {
   const state = useDayState();
   const { ready, localDate, today, morning, monster, monsterPending } = state;
-  const { taskCall, notice, heardDeadlines, settings, pick, energyNeeded, oneMore } = state;
+  const { taskCall, notice, heardDeadlines, settings, pick, energyNeeded } = state;
   const { modelDown, reminderAt, heavyToday, waitingForTomorrow, returnedText } = state;
-  const { restUndo } = state;
   return useMemo(
     () => ({
       ready,
@@ -264,13 +263,11 @@ export function useToday() {
       settings,
       pick,
       energyNeeded,
-      oneMore,
       modelDown,
       reminderAt,
       heavyToday,
       waitingForTomorrow,
       returnedText,
-      restUndo,
     }),
     [
       ready,
@@ -285,13 +282,11 @@ export function useToday() {
       settings,
       pick,
       energyNeeded,
-      oneMore,
       modelDown,
       reminderAt,
       heavyToday,
       waitingForTomorrow,
       returnedText,
-      restUndo,
     ],
   );
 }

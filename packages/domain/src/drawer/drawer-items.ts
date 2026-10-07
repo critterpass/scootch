@@ -94,6 +94,24 @@ export function mentionAgain(
   };
 }
 
+/** The longest a parked thing's words may be: a task's own limit. */
+export const ITEM_TEXT_MAX = 280;
+
+/**
+ * The item with new words from the person. Rewording is mentioning it again. The words have not
+ * been screened; an item that was serious stays serious until a screen says otherwise. Empty or
+ * unchanged words give the same item back.
+ */
+export function editItem(item: DrawerItemRow, words: string, today: IsoDate): DrawerItemRow {
+  const text = words.trim().replace(/\s+/g, ' ').slice(0, ITEM_TEXT_MAX);
+  if (text === '' || text === item.text) return item;
+  return {
+    ...mentionAgain(item, today),
+    text,
+    screen: item.screen === 'serious' ? 'serious' : 'unscreened',
+  };
+}
+
 /** Undated items whose two weeks are up are deleted; dated ones never fade. */
 export function fadeDrawer(
   drawer: readonly DrawerItemRow[],

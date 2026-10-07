@@ -7,6 +7,7 @@ import {
   oneThingSchema,
   parkedItemSchema,
   sessionLinePackSchema,
+  taskCreateChooseSchema,
   taskCreateCrisisSchema,
   taskCreateRejectSchema,
   taskCreateRequestSchema,
@@ -52,12 +53,13 @@ export const taskCreateStartPassSchema = taskJudgeSchema.extend({
 });
 export type TaskCreateStartPass = z.infer<typeof taskCreateStartPassSchema>;
 
-/** Serious, crisis and reject answer in full at stage one: they have no stage two. */
+/** Serious, crisis, reject and choose answer in full at stage one: they have no stage two. */
 export const taskCreateStartResponseSchema = z.discriminatedUnion('verdict', [
   taskCreateStartPassSchema,
   taskCreateSeriousSchema,
   taskCreateCrisisSchema,
   taskCreateRejectSchema,
+  taskCreateChooseSchema,
 ]);
 export type TaskCreateStartResponse = z.infer<typeof taskCreateStartResponseSchema>;
 

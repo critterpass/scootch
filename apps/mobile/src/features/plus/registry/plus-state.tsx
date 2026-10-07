@@ -31,7 +31,6 @@ export type PlusCapture =
       /** A day with something heavy in it: the sheet opens with nothing spoken. */
       readonly heavyDay?: boolean;
     }
-  | { readonly screen: 'one-more'; readonly plus: boolean; readonly left: number }
   | { readonly screen: 'offer' }
   | { readonly screen: 'charge-note' }
   | { readonly screen: 'trial-started' }

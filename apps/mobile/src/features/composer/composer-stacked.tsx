@@ -6,9 +6,10 @@ import { useT } from '../../i18n/i18n-provider';
 import { CapsuleButton, CONTROL_HEIGHT } from '../../ui/buttons';
 import { WaveIcon } from '../../ui/icons';
 import { useScreenStyle } from '../../ui/use-screen-style';
+import { Lock } from '../plus/ui/parts';
 
 import { ComposerField, ComposerSend } from './composer-field';
-import { showsSwitch, switchWords, type ComposerParts } from './composer-parts';
+import { gateWords, showsSwitch, switchWords, type ComposerParts } from './composer-parts';
 import { ComposerTalk } from './composer-talk';
 import { Waveform } from './waveform';
 
@@ -27,10 +28,26 @@ export function ComposerStacked({
   busy,
   screenReader,
   drag,
+  gate,
   onEvent,
 }: ComposerParts) {
   const { palette, allowFontScaling, size, reducedMotion } = useScreenStyle();
   const t = useT();
+  if (gate) {
+    // No start is left today: one full-width control, locked or spent, and no way to type.
+    const gated = gateWords(gate);
+    const spent = gate.kind === 'spent';
+    return (
+      <CapsuleButton
+        label={t(gated.label)}
+        hint={t(gated.hint)}
+        disabled={spent}
+        onPress={gate.onUnlock}
+        testID={`composer-${gate.kind}`}
+        {...(spent ? {} : { icon: <Lock color={palette.page} /> })}
+      />
+    );
+  }
   const typing = state.mode === 'typing';
   const words = switchWords(typing);
   const labelStyle = [styles.label, { color: palette.page, fontSize: size(LABEL_SIZE) }] as const;

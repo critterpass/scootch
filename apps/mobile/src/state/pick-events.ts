@@ -1,11 +1,8 @@
 import type { DayContext, PickEvent } from './day-types';
 import {
-  askSmaller,
-  counterOffer,
   deadlineAnswered,
   deadlineItem,
   pickForMe,
-  setBargainedSession,
   setTaskAside,
   swapItemIn,
   tooBig,
@@ -13,8 +10,8 @@ import {
 import { afterPicked, dropTaskCall, resolveTranscript } from './task-flow';
 
 /**
- * The events between a sent ramble and a set task: the pick, a heard date, the drawer's swap,
- * bargaining and the hatch.
+ * The events between a sent ramble and a set task: the pick, a heard date, the drawer's swap
+ * and the hatch.
  */
 export async function applyPickEvent(ctx: DayContext, event: PickEvent): Promise<void> {
   switch (event.type) {
@@ -43,22 +40,10 @@ export async function applyPickEvent(ctx: DayContext, event: PickEvent): Promise
     case 'pick_for_me':
       pickForMe(ctx);
       return;
-    case 'pick_dropped': {
-      const { kind } = ctx.memory.state.pick;
-      if (kind !== 'picked_for_me' && kind !== 'bargaining') return;
+    case 'pick_dropped':
+      if (ctx.memory.state.pick.kind !== 'picked_for_me') return;
       ctx.memory.turnedDown = [];
       ctx.set({ pick: { kind: 'none' } });
-      return;
-    }
-    case 'excuse_given':
-      counterOffer(ctx, event.text);
-      return;
-    case 'smaller_asked':
-      askSmaller(ctx);
-      return;
-    case 'deal_struck':
-      await resolveTranscript(ctx);
-      setBargainedSession(ctx, null, event.treat ?? null);
       return;
     case 'too_big':
       await tooBig(ctx);
@@ -66,7 +51,7 @@ export async function applyPickEvent(ctx: DayContext, event: PickEvent): Promise
     case 'monster_met':
       ctx.set({ pick: { kind: 'none' } });
       return;
-    case 'carried_task_set_aside':
+    case 'task_set_aside':
       await setTaskAside(ctx);
       return;
   }

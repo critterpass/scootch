@@ -2,7 +2,7 @@ import { lazy } from 'react';
 
 import { standardVariants, type ScreenState } from './support/screen-state';
 
-/** The quiet end of the day, with the world row drawn but not working yet. */
+/** Home on a day with something done in it: Scootch asleep, the world card and the composer. */
 export const oneScreenDoneForToday: ScreenState = {
   id: 'one-screen-done-for-today',
   design: { board: 'Scootch', section: '02 The one screen', screen: 'Done for today' },

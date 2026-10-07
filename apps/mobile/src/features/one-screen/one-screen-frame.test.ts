@@ -8,7 +8,9 @@ describe('how big Scootch is on each state of the one screen', () => {
     expect(frameFor({ kind: 'composer', warmUp: true }).figure).toBe(270);
     expect(frameFor({ kind: 'composer', recording: true, warmUp: true })).toBe(FRAMES.listening);
     expect(frameFor({ kind: 'task_set' }).figure).toBe(200);
-    expect(frameFor({ kind: 'done' }).figure).toBe(260);
+    // Home keeps one size at rest and held, so nothing jumps as Scootch is spoken to.
+    expect(frameFor({ kind: 'composer', home: true }).figure).toBe(260);
+    expect(frameFor({ kind: 'composer', home: true, recording: true }).figure).toBe(260);
     expect(frameFor({ kind: 'panel', name: 'one-thing', choosing: true }).figure).toBe(230);
     expect(frameFor({ kind: 'panel', name: 'one-thing' }).figure).toBe(250);
   });

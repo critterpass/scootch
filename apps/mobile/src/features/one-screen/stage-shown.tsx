@@ -6,7 +6,6 @@ import type { Language } from '@scootch/i18n';
 import type { ScootchProps } from '../../art/Scootch';
 import type { Translate } from '../../i18n/i18n-provider';
 import { lineFor } from '../../state/lines';
-import { smallerAsk } from '../../state/smaller';
 import { dayWords } from '../drawer/day-words';
 import {
   ChoiceDock,
@@ -36,10 +35,8 @@ export interface StageActions {
   readonly answerDeadline: (text: string, choice: 'park' | 'today') => void;
   readonly pickAgain: () => void;
   readonly takePick: (itemId: Id) => void;
-  /** The way back from Scootch's pick, or from a counter-offer, to where it was asked for. */
+  /** The way back from Scootch's pick to where it was asked for. */
   readonly dropPick: () => void;
-  readonly smaller: () => void;
-  readonly deal: () => void;
   readonly tooBig: () => void;
   readonly catchIt: () => void;
   readonly revealDone: () => void;
@@ -70,10 +67,7 @@ export interface StageDrawn {
   readonly shown: OneScreenShown;
 }
 
-type Drawable = Extract<
-  Stage,
-  { kind: 'energy' | 'one_thing' | 'picked_for_me' | 'hatch' | 'bargain' }
->;
+type Drawable = Extract<Stage, { kind: 'energy' | 'one_thing' | 'picked_for_me' | 'hatch' }>;
 
 /** The states between sending and a set task, as the one screen draws them. */
 export function stageShown(stage: Drawable, env: StageEnv): StageDrawn {
@@ -216,52 +210,6 @@ export function stageShown(stage: Drawable, env: StageEnv): StageDrawn {
               }}
             />
           </RevealGate>
-        ),
-      },
-    };
-  }
-
-  if (stage.kind === 'bargain') {
-    const { task, ask } = stage;
-    return {
-      mood: 'bargaining',
-      line: lineFor('checkIn', task, voice),
-      shown: {
-        kind: 'panel',
-        name: 'bargain',
-        body: (
-          <Stack>
-            <Headed
-              label={t('bargain.youSaid', { excuse: stage.excuse })}
-              heading={null}
-              said={lineFor('tinyNextStep', task, voice)}
-              testID="bargain"
-            />
-            <QuietLink
-              label={t('pick.back')}
-              hint={t('pick.back.hint')}
-              onPress={actions.dropPick}
-              testID="bargain-back"
-            />
-          </Stack>
-        ),
-        footer: (
-          <ChoiceDock
-            quiet={{
-              label: t('bargain.smaller'),
-              hint: t('bargain.smaller.hint'),
-              onPress: actions.smaller,
-              // Nothing is smaller than the smallest ask; the rule is the store's, not this screen's.
-              disabled: smallerAsk(ask).minutes === ask.minutes,
-              testID: 'bargain-smaller',
-            }}
-            action={{
-              label: t('bargain.deal', { minutes: ask.minutes }),
-              hint: t('bargain.deal.hint', { minutes: ask.minutes }),
-              onPress: actions.deal,
-              testID: 'bargain-deal',
-            }}
-          />
         ),
       },
     };

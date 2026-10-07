@@ -5,6 +5,7 @@ import type { EffectSwitches, ScreenSink } from '../effects/adapters';
 
 import { NOTHING_SAID, askReminder, crisisInWords, setSeriousAside } from './care-flow';
 import { DEFAULT_USUAL_START, usualStart } from './day-notifications';
+import { editDrawerItem, removeDrawerItem } from './drawer-flow';
 import { readToday } from './day-refresh';
 import { openDay } from './day-rollover';
 import {
@@ -18,9 +19,8 @@ import {
 } from './day-types';
 import { NO_AFTER_LINES } from './lines';
 import { applyPickEvent } from './pick-events';
-import { drawerEvent, setBargainedSession } from './pick-flow';
+import { drawerEvent, setChosenSession } from './pick-flow';
 import { resolveThought } from './parked-thoughts';
-import { restForToday, undoRest } from './rest-flow';
 import { UNDER_WAY, applySession } from './session-flow';
 import { closeStraySessions, dayOfRunningSession, restoreSession } from './session-restore';
 import { closeSession, followTableClock, shortenSession, turnWorkingLine } from './session-moments';
@@ -57,7 +57,6 @@ const NOT_READY: DayState = {
   morning: { kind: 'fresh_ask' },
   pick: { kind: 'none' },
   energyNeeded: false,
-  oneMore: false,
   session: null,
   monster: null,
   monsterPending: false,
@@ -67,7 +66,6 @@ const NOT_READY: DayState = {
   modelDown: false,
   reminderAt: null,
   waitingForTomorrow: null,
-  restUndo: false,
   heardDeadlines: [],
   line: null,
   burst: null,
@@ -248,11 +246,15 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
         return set({ returnedText: null });
       case 'session_set':
         await resolveTranscript(ctx);
-        return setBargainedSession(ctx, event.minutes, event.treat ?? null);
+        return setChosenSession(ctx, event.minutes, event.treat ?? null);
       case 'session':
         return applySession(ctx, event.event);
       case 'drawer':
         return drawerEvent(ctx, event.event);
+      case 'drawer_item_removed':
+        return removeDrawerItem(ctx, event.itemId);
+      case 'drawer_item_edited':
+        return editDrawerItem(ctx, event.itemId, event.text);
       case 'thought_resolved':
         return resolveThought(ctx, event.thought, event.resolution);
       case 'working_line_turned':
@@ -264,22 +266,10 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
         return followTableClock(ctx, event.endsAt);
       case 'developer_session_ends_in':
         return shortenSession(ctx, event.seconds);
-      case 'done_for_today':
-        return restForToday(ctx);
-      case 'rest_undone':
-        return undoRest(ctx);
       case 'started_task_parked':
         return parkStartedTask(ctx);
       case 'one_thing_returned':
         return returnOneThing(ctx);
-      case 'one_more_asked': {
-        const { today } = memory.state;
-        // Not on a day with something heavy in it: nothing is sold, or asked for, beside it.
-        if (today.kind === 'done_for_today' && today.startsLeft > 0) {
-          set({ oneMore: true, line: null });
-        }
-        return;
-      }
       case 'entitlement_changed':
         return refresh();
       case 'be_funny_asked':

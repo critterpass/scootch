@@ -1,7 +1,8 @@
 # Scootch: product brief
 
 The source of truth for what Scootch is. It wins over a design board when they
-disagree. Decided with the founder on 6 Oct 2026.
+disagree. Decided with the founder on 6 Oct 2026; home, the task set and the
+drawer's gestures on 7 Oct 2026.
 
 ## 1. What it is
 
@@ -33,16 +34,16 @@ website and the store listing.
 | Step | What happens |
 |---|---|
 | Morning | Scootch opens with a fresh, specific line and waits |
-| Ramble | Hold to talk or type for twenty seconds; one thing comes back, the rest is parked in a drawer |
+| Ramble | Hold to talk or type for twenty seconds; one thing comes back, the rest is parked in a drawer. "Pick for me", said or typed, has Scootch offer one of the parked things instead |
 | Deadline heard | A real date in the ramble is said out loud and brought back on its own day |
-| Energy and bargaining | Low, medium or fine; an excuse only ever makes the ask smaller |
-| It hatches | The task becomes a named monster; "too big" shrinks the task and the monster |
+| Energy | Low, medium or fine; the one thing is picked to fit it |
+| It hatches | The task becomes a named monster; "too big" shrinks the task and the monster, and is the one way to a smaller ask. A set task can be put down into the drawer from beside Start |
 | Start | Two taps to a 10, 25 or 50 minute session, with a burst of sound and haptics, and a named treat for afterwards |
 | Work beside | Scootch works next to you in a mode that matches the task; park a thought, ask for a tiny next step |
 | Finish | Hold to finish (or tap twice, or say "done"); "not finished" is a normal outcome with three choices |
 | Keep it | A collectible card, a permanent piece in your world, one bar of the week's song |
 | Share | A story card that says what you did and how long it waited |
-| Quiet | Done for today |
+| Home again | Scootch rests beside your world. The composer stays, so the next thing is simply said or typed, up to the day's limit |
 
 ## 4. Scootch's voice
 
@@ -70,7 +71,8 @@ website and the store listing.
   an outfit. Earned only, on no schedule, never bought.
 - **Letting go.** A task the user lets go leaves quietly, with no trace.
 - **The drawer.** Parked tasks, opened only by a deliberate pull. Undated ones
-  fade after two weeks.
+  fade after two weeks. A parked thing can be swapped in, reworded, ticked off
+  or swiped away there; a tick clears it quietly and earns nothing.
 
 ## 6. Care
 
@@ -108,6 +110,8 @@ the Paper and Screen camera modes.
 
 **House rules:** no paywall in first launch, on the one screen, in a session or
 on "Done for today". Paid features are quiet locked controls where they live.
+At the day's limit the talk capsule on home is that locked control: the sheet
+opens only when it is tapped, and never on a day with something heavy in it.
 The first offer comes after the third catch. Rarity, random packs, currency and
 fixing a missed day are never sold. A reminder goes out before every charge.
 iOS has no pause; cancelling goes through Apple's sheet.

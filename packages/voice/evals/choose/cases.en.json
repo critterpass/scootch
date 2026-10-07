@@ -1,0 +1,222 @@
+[
+  {
+    "id": "en-choose-01",
+    "text": "pick for me",
+    "wants": "choose"
+  },
+  {
+    "id": "en-choose-02",
+    "text": "you choose",
+    "wants": "choose"
+  },
+  {
+    "id": "en-choose-03",
+    "text": "can you just pick one for me",
+    "wants": "choose"
+  },
+  {
+    "id": "en-choose-04",
+    "text": "I don't know, anything",
+    "wants": "choose"
+  },
+  {
+    "id": "en-choose-05",
+    "text": "surprise me",
+    "wants": "choose"
+  },
+  {
+    "id": "en-choose-06",
+    "text": "honestly you decide",
+    "wants": "choose"
+  },
+  {
+    "id": "en-choose-07",
+    "text": "whatever you think, pick something",
+    "wants": "choose"
+  },
+  {
+    "id": "en-choose-08",
+    "text": "just give me one from the drawer",
+    "wants": "choose"
+  },
+  {
+    "id": "en-choose-09",
+    "text": "no idea, your call",
+    "wants": "choose"
+  },
+  {
+    "id": "en-choose-10",
+    "text": "pick whatever is easiest",
+    "wants": "choose"
+  },
+  {
+    "id": "en-choose-11",
+    "text": "choose something small for me",
+    "wants": "choose"
+  },
+  {
+    "id": "en-choose-12",
+    "text": "I can't decide, you pick",
+    "wants": "choose"
+  },
+  {
+    "id": "en-choose-13",
+    "text": "dealer's choice",
+    "wants": "choose"
+  },
+  {
+    "id": "en-choose-14",
+    "text": "anything from my list",
+    "wants": "choose"
+  },
+  {
+    "id": "en-choose-15",
+    "text": "you tell me what to do",
+    "wants": "choose"
+  },
+  {
+    "id": "en-choose-16",
+    "text": "pick one of the parked things",
+    "wants": "choose"
+  },
+  {
+    "id": "en-choose-17",
+    "text": "up to you",
+    "wants": "choose"
+  },
+  {
+    "id": "en-choose-18",
+    "text": "something, anything, you choose",
+    "wants": "choose"
+  },
+  {
+    "id": "en-choose-19",
+    "text": "I'm too tired to choose, pick for me",
+    "wants": "choose"
+  },
+  {
+    "id": "en-choose-20",
+    "text": "give me whichever",
+    "wants": "choose"
+  },
+  {
+    "id": "en-task-01",
+    "text": "pick up the parcel from the post office",
+    "wants": "task"
+  },
+  {
+    "id": "en-task-02",
+    "text": "choose a dentist and book a check-up",
+    "wants": "task"
+  },
+  {
+    "id": "en-task-03",
+    "text": "decide on the holiday dates with Sam",
+    "wants": "task"
+  },
+  {
+    "id": "en-task-04",
+    "text": "pick a present for mum's birthday",
+    "wants": "task"
+  },
+  {
+    "id": "en-task-05",
+    "text": "choose a paint colour for the hallway",
+    "wants": "task"
+  },
+  {
+    "id": "en-task-06",
+    "text": "pick the kids up at four",
+    "wants": "task"
+  },
+  {
+    "id": "en-task-07",
+    "text": "decide what to cook for dinner",
+    "wants": "task"
+  },
+  {
+    "id": "en-task-08",
+    "text": "email the landlord about the boiler",
+    "wants": "task"
+  },
+  {
+    "id": "en-task-09",
+    "text": "pick out an outfit for the interview",
+    "wants": "task"
+  },
+  {
+    "id": "en-task-10",
+    "text": "choose a new phone plan",
+    "wants": "task"
+  },
+  {
+    "id": "en-task-11",
+    "text": "anything but the tax return, maybe the washing up",
+    "wants": "task"
+  },
+  {
+    "id": "en-task-12",
+    "text": "pick up my prescription",
+    "wants": "task"
+  },
+  {
+    "id": "en-task-13",
+    "text": "reply to one message",
+    "wants": "task"
+  },
+  {
+    "id": "en-task-14",
+    "text": "do the washing up",
+    "wants": "task"
+  },
+  {
+    "id": "en-task-15",
+    "text": "sort the receipts for the accountant",
+    "wants": "task"
+  },
+  {
+    "id": "en-task-16",
+    "text": "call the bank about the card",
+    "wants": "task"
+  },
+  {
+    "id": "en-task-17",
+    "text": "choose between the two job offers and write back",
+    "wants": "task"
+  },
+  {
+    "id": "en-task-18",
+    "text": "pick the tomatoes before they rot",
+    "wants": "task"
+  },
+  {
+    "id": "en-task-19",
+    "text": "surprise party invites for Jo need sending",
+    "wants": "task"
+  },
+  {
+    "id": "en-task-20",
+    "text": "decide whether to renew the gym membership",
+    "wants": "task"
+  },
+  {
+    "id": "en-task-21",
+    "text": "water the plants",
+    "wants": "task"
+  },
+  {
+    "id": "en-task-22",
+    "text": "I need to pick a date for the MOT",
+    "wants": "task"
+  },
+  {
+    "id": "en-task-23",
+    "text": "book the vet",
+    "wants": "task"
+  },
+  {
+    "id": "en-task-24",
+    "text": "you know what, the bathroom needs cleaning",
+    "wants": "task"
+  }
+]

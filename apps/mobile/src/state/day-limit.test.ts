@@ -18,7 +18,6 @@ async function finishOne(app: Phone, text: string, at: number): Promise<void> {
   await app.store.dispatch({ type: 'session', event: { type: 'started' } });
   await app.store.dispatch({ type: 'session', event: { type: 'double_tapped' } });
   await app.store.dispatch({ type: 'session_closed' });
-  await app.store.dispatch({ type: 'one_more_asked' });
 }
 
 /** Every start a free phone has, used: one thing after another, twenty minutes apart. */
@@ -67,25 +66,23 @@ describe("the day's limit on starts", () => {
 });
 
 describe('"pick for me"', () => {
-  it('shows the pick after "One more", where the ask had come back', async () => {
+  it('shows the pick on home after a finish, with a way back that changes nothing', async () => {
     const app = await stagedPhone(stagedServer());
     await finishOne(app, 'water the plants', MORNING);
-    expect(stage(app)).toMatchObject({ kind: 'composer', canPickForMe: true });
+    expect(stage(app)).toMatchObject({ kind: 'home', rested: true, startLeft: true });
 
     await app.store.dispatch({ type: 'pick_for_me' });
     expect(stage(app).kind).toBe('picked_for_me');
 
-    // And there is a way back to the ask that changes nothing.
     await app.store.dispatch({ type: 'pick_dropped' });
-    expect(stage(app)).toMatchObject({ kind: 'composer' });
-    expect(app.store.getState().oneMore).toBe(true);
+    expect(stage(app)).toMatchObject({ kind: 'home', rested: true, startLeft: true });
   });
 
   it('offers no "Pick again" with one thing parked, and never loops on it', async () => {
     const app = await stagedPhone(stagedServer({ online: false }));
     await app.say('sort the receipts', 'typed');
     await app.store.dispatch({ type: 'one_thing_picked' });
-    await app.store.dispatch({ type: 'carried_task_set_aside' });
+    await app.store.dispatch({ type: 'task_set_aside' });
     expect(parkedIds(app)).toHaveLength(1);
 
     await app.store.dispatch({ type: 'pick_for_me' });
@@ -95,20 +92,6 @@ describe('"pick for me"', () => {
     expect(app.store.getState().pick).toBe(before);
 
     await app.store.dispatch({ type: 'pick_dropped' });
-    expect(stage(app).kind).toBe('composer');
-  });
-
-  it('drops a counter-offer without starting anything', async () => {
-    const app = await stagedPhone(stagedServer());
-    await app.say();
-    await app.store.dispatch({ type: 'one_thing_picked' });
-    await app.store.dispatch({ type: 'monster_met' });
-    await app.store.dispatch({ type: 'excuse_given', text: 'wiped' });
-    expect(stage(app).kind).toBe('bargain');
-
-    await app.store.dispatch({ type: 'pick_dropped' });
-    expect(stage(app).kind).toBe('task_set');
-    expect(app.store.getState().session).toBeNull();
-    expect(app.task().status).toBe('set');
+    expect(stage(app).kind).toBe('home');
   });
 });

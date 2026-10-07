@@ -68,7 +68,7 @@ export function createStagedTaskClient(api: StagedApi): TaskClient {
   return {
     async createTask(input, options = {}): Promise<TaskCall> {
       const start = await api.taskCreateStart(input);
-      if (start.verdict === 'crisis' || start.verdict === 'reject') {
+      if (start.verdict === 'crisis' || start.verdict === 'reject' || start.verdict === 'choose') {
         return { first: { verdict: start.verdict }, rest: Promise.resolve(null) };
       }
       const shared = {

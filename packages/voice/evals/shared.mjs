@@ -53,7 +53,12 @@ export async function registerDevice(language) {
 }
 
 /** Stage one of the task call for one piece of text, as the phone asks it. */
-export function startTask(language, token, text, { attitude = 'cheeky', source = 'typed' } = {}) {
+export function startTask(
+  language,
+  token,
+  text,
+  { attitude = 'cheeky', source = 'typed', canChoose = false } = {},
+) {
   return post(
     '/v1/task-create',
     {
@@ -65,6 +70,7 @@ export function startTask(language, token, text, { attitude = 'cheeky', source =
       localDate,
       timeZone: timeZones[language],
       overrideSerious: false,
+      ...(canChoose ? { canChoose } : {}),
       staged: true,
     },
     token,

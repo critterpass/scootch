@@ -31,7 +31,7 @@ describe('a text the server rejects', () => {
     }
     expect(app.data.dump()).not.toContain('flatmate');
     // The composer is back, and the next thing said clears the notice.
-    expect(stageOf({ ...state, energyAsked: false }).kind).toBe('composer');
+    expect(stageOf({ ...state, energyAsked: false }).kind).toBe('home');
   });
 
   it('takes back a task typed with no connection, with its session and its kept words', async () => {

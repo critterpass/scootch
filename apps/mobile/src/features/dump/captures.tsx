@@ -26,8 +26,6 @@ const NO_ACTIONS: StageActions = {
   pickAgain: nothing,
   takePick: nothing,
   dropPick: nothing,
-  smaller: nothing,
-  deal: nothing,
   tooBig: nothing,
   catchIt: nothing,
   revealDone: nothing,
@@ -40,14 +38,12 @@ const SAID = {
     parked: ['Call mum back', 'Bathroom', 'Start running', 'Reply to Sam'],
     dated: 'Council tax',
     heardAs: 'due on Friday',
-    excuse: "I'm wiped",
   },
   vi: {
     task: 'Gửi email cho nha sĩ về lịch thứ Năm',
     parked: ['Gọi lại cho mẹ', 'Dọn nhà tắm', 'Bắt đầu chạy bộ', 'Trả lời Lan'],
     dated: 'Đóng tiền điện',
     heardAs: 'hạn thứ Sáu',
-    excuse: 'Mình đuối rồi',
   },
 } as const satisfies Record<Language, unknown>;
 
@@ -172,7 +168,13 @@ type Drawable = Parameters<typeof stageShown>[0];
 /** One state, drawn from the fixtures of the capture's language. */
 function captured(
   stage: (data: Fixtures) => Drawable,
-  more: { drawerOpen?: boolean; revealed?: boolean; drawerCount?: number; heavy?: boolean } = {},
+  more: {
+    drawerOpen?: boolean;
+    revealed?: boolean;
+    drawerCount?: number;
+    heavy?: boolean;
+    editing?: boolean;
+  } = {},
 ) {
   return function Captured() {
     const { language } = useLanguage();
@@ -204,6 +206,9 @@ function captured(
               today={TODAY}
               canSwap
               onSwapIn={nothing}
+              onRemove={nothing}
+              onEdit={nothing}
+              {...(more.editing ? { startEditing: 'capture-drawer-1' } : {})}
               // The sheet is a window of its own over the registry's way back: it closes the state.
               onClose={() => router.back()}
             />
@@ -237,6 +242,11 @@ export const DrawerThree = captured((data) => oneThing(data), {
   drawerCount: 3,
   heavy: true,
 });
+export const DrawerEditing = captured((data) => oneThing(data), {
+  drawerOpen: true,
+  drawerCount: 3,
+  editing: true,
+});
 export const DrawerTwelve = captured((data) => oneThing(data), {
   drawerOpen: true,
   drawerCount: 12,
@@ -246,12 +256,6 @@ export const DumpPickForMe = captured((data) => {
   const item = data.drawer.at(-1);
   return item ? { kind: 'picked_for_me', item, canPickAgain: true } : { kind: 'energy' };
 });
-export const OneScreenBargaining = captured((data) => ({
-  kind: 'bargain',
-  task: data.task,
-  excuse: data.said.excuse,
-  ask: { minutes: 5, shrinkCount: 1 },
-}));
 export const MonsterHatched = captured((data) => ({
   kind: 'hatch',
   task: data.task,

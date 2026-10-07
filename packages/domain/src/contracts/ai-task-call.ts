@@ -31,6 +31,11 @@ export const taskCreateRequestSchema = z.object({
   overrideSerious: z.boolean(),
   /** One things already offered from this text and turned down with "Another". */
   declined: z.array(taskTextSchema).max(10).optional(),
+  /**
+   * The phone has things parked and can show Scootch's own pick of them: a text that only asks
+   * him to choose may be answered with `choose`. Unset, such a text is treated as any other.
+   */
+  canChoose: z.boolean().optional(),
   /** True asks for stage one only; the answer is then `taskCreateStartResponseSchema`. */
   staged: z.boolean().optional(),
 });
@@ -202,11 +207,18 @@ const crisisSchema = taskJudgeSchema.extend({ verdict: z.literal('crisis') });
 /** Abuse or an injection attempt: nothing is written, and the user is asked to say it another way. */
 const rejectSchema = taskJudgeSchema.extend({ verdict: z.literal('reject') });
 
+/**
+ * The text named nothing to do and asked Scootch to choose ("pick for me"). Nothing is written or
+ * parked; the phone offers one of the things it already holds. Only answered when `canChoose`.
+ */
+const chooseSchema = taskJudgeSchema.extend({ verdict: z.literal('choose') });
+
 export const taskCreateResponseSchema = z.discriminatedUnion('verdict', [
   passSchema,
   seriousSchema,
   crisisSchema,
   rejectSchema,
+  chooseSchema,
 ]);
 export type TaskCreateResponse = z.infer<typeof taskCreateResponseSchema>;
 export type TaskCreatePass = z.infer<typeof passSchema>;
@@ -216,3 +228,4 @@ export type TaskCreateSerious = z.infer<typeof seriousSchema>;
 export const taskCreateSeriousSchema = seriousSchema;
 export const taskCreateCrisisSchema = crisisSchema;
 export const taskCreateRejectSchema = rejectSchema;
+export const taskCreateChooseSchema = chooseSchema;

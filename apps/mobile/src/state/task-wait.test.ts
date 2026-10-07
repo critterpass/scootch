@@ -105,7 +105,7 @@ describe('waiting for the model', () => {
   it('drops the answer when the person took something from the drawer meanwhile', async () => {
     const first = await stagedPhone(stagedServer());
     await first.say();
-    await first.store.dispatch({ type: 'carried_task_set_aside' });
+    await first.store.dispatch({ type: 'task_set_aside' });
     const [parked] = first.store.getState().drawer.items;
     if (!parked) throw new Error('the recorded call parks something');
 

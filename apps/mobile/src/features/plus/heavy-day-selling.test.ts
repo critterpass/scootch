@@ -11,6 +11,7 @@ import seriousFixture from '../../../../../packages/voice/fixtures/task.create.s
 import { plusLine } from '../../state/lines';
 import { readOfferFacts } from '../../state/plus-runtime';
 import { showsSelling } from '../../state/shows-comedy';
+import { homeStarts, stageOf } from '../one-screen/one-screen-stage';
 
 import { offerShows } from './offer-rules';
 import { CUSTOMERS, fakeStore } from './test/fake-purchases';
@@ -58,9 +59,14 @@ describe('nothing is sold near something heavy', () => {
     expect(showsSelling(state)).toBe(false);
 
     // A start still open under the day's limit is the person's own, not an offer of Plus.
-    await app.store.dispatch({ type: 'one_more_asked' });
-    expect(app.store.getState().oneMore).toBe(true);
-    expect(showsSelling(app.store.getState())).toBe(false);
+    expect(stageOf({ ...state, energyAsked: false })).toMatchObject({
+      kind: 'home',
+      startLeft: true,
+    });
+    // And were none left, the dock would be spent, never the locked control that leads to Plus.
+    for (const plus of [false, true]) {
+      expect(homeStarts({ startLeft: false, plus, selling: showsSelling(state) })).toBe('spent');
+    }
   });
 
   it('keeps it away after a serious task is finished, and the day after while it waits in the drawer', async () => {

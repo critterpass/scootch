@@ -1,4 +1,4 @@
-import type { TaskRow } from '@scootch/domain';
+import { FREE_STARTS_PER_DAY, type TaskRow } from '@scootch/domain';
 
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { lineFor, lineWithNoTask } from '../../state/lines';
@@ -13,6 +13,8 @@ import { OneScreenView, type OneScreenShown } from './one-screen-view';
 
 const nothing = () => undefined;
 const READY = initialComposer('ready');
+/** Home with nothing waiting for tomorrow and a start still open. */
+const HOME = { waiting: null, startsNote: null } as const;
 /** How long the captured recording has been running. */
 const RECORDING_FOR_MS = 14_000;
 
@@ -34,6 +36,8 @@ function composerShown(
     kind: 'composer',
     warmUp: null,
     notificationsOff: false,
+    // The warm-up ask is still first launch; every other composer state is home.
+    ...(rest.warmUp ? {} : { home: HOME }),
     ...rest,
     composer: {
       level: 0.6,
@@ -81,6 +85,7 @@ export function OneScreenWaiting() {
       attitude={voice.attitude}
       line={lineWithNoTask('waiting', voice)}
       offline={false}
+      onWorld={nothing}
       shown={composerShown()}
     />
   );
@@ -178,6 +183,7 @@ function TaskSet({ offline }: { readonly offline: boolean }) {
         onTreat: nothing,
         onMinutes: nothing,
         onStart: nothing,
+        onDiscard: nothing,
       }}
     />
   );
@@ -191,17 +197,37 @@ export function OneScreenOffline() {
   return <TaskSet offline />;
 }
 
-export function OneScreenDoneForToday() {
-  const { voice } = useCapture();
+/** Home on a day with something done in it: Scootch rests, and the dock is `gate`d or open. */
+function Rested({ gate }: { readonly gate?: 'locked' | 'spent' }) {
+  const { voice, t } = useCapture();
   return (
     <OneScreenView
       mood="asleep"
       attitude={voice.attitude}
       line={lineWithNoTask('doneForToday', voice)}
       offline={false}
-      shown={{ kind: 'done' }}
+      onWorld={nothing}
+      shown={composerShown(gate ? { gate: { kind: gate, onUnlock: nothing } } : {}, {
+        home: {
+          waiting: null,
+          startsNote:
+            gate === 'locked' ? t('plus.oneMore.freeDone', { count: FREE_STARTS_PER_DAY }) : null,
+        },
+      })}
     />
   );
+}
+
+export function OneScreenDoneForToday() {
+  return <Rested />;
+}
+
+export function OneScreenStartsLocked() {
+  return <Rested gate="locked" />;
+}
+
+export function OneScreenStartsSpent() {
+  return <Rested gate="spent" />;
 }
 
 function TypingOnly({ voice: status }: { readonly voice: 'refused' | 'unavailable' }) {

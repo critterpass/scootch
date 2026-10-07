@@ -29,7 +29,6 @@ describe('asking the server for what is waiting', () => {
     const server = stagedServer({ online: false });
     const app = await stagedPhone(server);
     await finishOffline(app, 'ring the bank');
-    await app.store.dispatch({ type: 'one_more_asked' });
     await app.say('post the letter', 'typed');
     await app.store.dispatch({ type: 'one_thing_picked' });
     const today = app.task();
@@ -40,24 +39,6 @@ describe('asking the server for what is waiting', () => {
     // One return of the connection is enough for today's task, whatever else is waiting.
     const { tasks } = openRepositories(app.data.db);
     expect((await tasks.get(today.id))?.screen).toBe('pass');
-  });
-});
-
-describe('taking back "That\'s it for today"', () => {
-  it('brings a started task back started', async () => {
-    const app = await stagedPhone(stagedServer());
-    await app.say('ring the bank', 'typed');
-    await app.store.dispatch({ type: 'one_thing_picked' });
-    await app.store.dispatch({ type: 'session_set', minutes: 10 });
-    await app.store.dispatch({ type: 'session', event: { type: 'started' } });
-    await app.store.dispatch({ type: 'session', event: { type: 'left' } });
-    await app.store.dispatch({ type: 'session_closed' });
-    const before = app.task();
-    expect(before.status).toBe('started');
-
-    await app.store.dispatch({ type: 'done_for_today' });
-    await app.store.dispatch({ type: 'rest_undone' });
-    expect(app.task()).toEqual(before);
   });
 });
 

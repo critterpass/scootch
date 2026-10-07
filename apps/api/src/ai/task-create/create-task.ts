@@ -25,7 +25,7 @@ import {
   type VoiceCheckSummary,
 } from './context';
 import type { ContinuationPayload } from './continuation';
-import { guessEnergy, labelsFor } from './labels';
+import { asksForAPick, guessEnergy, labelsFor } from './labels';
 import { ownWordsAtMost, pickThings } from './pick';
 import { notePrompt, plainSystem } from './prompt';
 import { plainOutputSchema } from './schema';
@@ -48,7 +48,7 @@ export type TaskStart =
       readonly payload: ContinuationPayload;
     }
   | {
-      readonly verdict: 'serious' | 'crisis' | 'reject';
+      readonly verdict: 'serious' | 'crisis' | 'reject' | 'choose';
       readonly response: Exclude<TaskCreateResponse, { verdict: 'pass' }>;
     };
 
@@ -148,7 +148,8 @@ function held<T>(work: Promise<T>): Promise<T> {
 
 /**
  * Stage one: what the screen shows first. The care screen, the fast pick and the energy guess all
- * start at once, and nothing is answered until the screen has: a crisis or a text that is not a
+ * start at once (and, for a phone that can show a pick, whether the text only asks for one), and
+ * nothing is answered until the screen has: a crisis or a text that is not a
  * note answers with the verdict alone, and a heavy task with plain words and no monster, exactly as if nothing else had run.
  * "It's fine, be funny" lifts a serious verdict only when a judge that can be trusted gave it:
  * never a text nobody screened, one only the fallback cleared, or one whose marks were not read.
@@ -170,6 +171,10 @@ export async function startTask(
   // A note this short is its own one thing, so its labels need not wait for the pick.
   const early: Promise<TaskLabels> | null =
     wordsOf(text).length <= ownWordsAtMost ? held(labelsFor(decideContext(context), text)) : null;
+  // A phone with things parked may be asking Scootch to choose among them instead.
+  const choosing: Promise<boolean> = request.canChoose
+    ? held(asksForAPick(decideContext(context), text).catch(() => false))
+    : Promise.resolve(false);
   const speculative = Promise.allSettled([picking, energy, ...(early === null ? [] : [early])]);
 
   const { verdict, screened, judge } = await screen(context, request.text);
@@ -182,6 +187,12 @@ export async function startTask(
   if (serious && !(request.overrideSerious && screened)) {
     context.defer?.(speculative);
     return { verdict: 'serious', response: { ...(await plainTask(context, request)), ...judge } };
+  }
+
+  // Only a text the screen passed is ever read as a request to choose: the care flag wins.
+  if (!serious && (await choosing)) {
+    context.defer?.(speculative);
+    return { verdict: 'choose', response: { verdict: 'choose', ...judge } };
   }
 
   const sorted = await picking;
