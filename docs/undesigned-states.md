@@ -114,3 +114,4 @@ state is designed or removed.
 | One screen | Counter-offer: "Back" under the offer | The board's only exits are Smaller and Deal, and Deal starts the session |
 | One screen | Scootch is thinking: "Cancel" in the hint pill | The board draws the wait with no way out. Cancel puts the words back in the field; after eight seconds with no answer the words become the one thing as they are and the day starts |
 | Drawer | All of today's starts are used: a line says so in place of "Swap in" | The board draws the drawer on a day with a start left |
+| Web, catch it in the app (`/get?m=<id>`) | On a phone: "{name} is coming with you", one button that opens the app with the monster, and the monster's link in plain text | The board draws the wide screen only (QR code); a phone that lands here needs the same hand-off without a code to scan |

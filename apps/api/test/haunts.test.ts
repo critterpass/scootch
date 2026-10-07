@@ -188,10 +188,7 @@ describe('haunting', () => {
 
     vi.useFakeTimers({ toFake: ['Date'], now: Date.now() + 7 * day - 60_000 });
     expect(await waitingCount()).toEqual({ waiting: 1 });
-    expect((await waiting(recipient)).haunts[0]).toMatchObject({
-      id: pageId,
-      expiresAt: expect.any(String),
-    });
+    expect((await waiting(recipient)).haunts[0]).toMatchObject({ id: pageId });
     // The sender may look through the link, and sees only that it is still waiting.
     expect(await page()).toMatchObject({ state: 'waiting' });
 

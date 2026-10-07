@@ -1,0 +1,8 @@
+---
+import GetPage from '../../components/get-page.astro';
+import { languagePaths } from '../../copy';
+
+export const getStaticPaths = languagePaths;
+---
+
+<GetPage language={Astro.params.lang === 'vi' ? 'vi' : 'en'} />

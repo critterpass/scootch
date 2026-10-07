@@ -31,13 +31,11 @@ let key: ApnsKey;
 let publicKey: CryptoKey;
 
 beforeAll(async () => {
-  const pair = (await crypto.subtle.generateKey({ name: 'ECDSA', namedCurve: 'P-256' }, true, [
+  const pair = await crypto.subtle.generateKey({ name: 'ECDSA', namedCurve: 'P-256' }, true, [
     'sign',
     'verify',
-  ])) as CryptoKeyPair;
-  const der = new Uint8Array(
-    (await crypto.subtle.exportKey('pkcs8', pair.privateKey)) as ArrayBuffer,
-  );
+  ]);
+  const der = new Uint8Array(await crypto.subtle.exportKey('pkcs8', pair.privateKey));
   const base64 = btoa(String.fromCharCode(...der));
   const lines = base64.match(/.{1,64}/g)?.join('\n') ?? '';
   key = {
@@ -82,13 +80,13 @@ const withKey = (): Bindings => ({
 /** Stands in for Apple at the network boundary, keeping what it was sent. */
 function apple(answer: () => Response = () => new Response(null, { status: 200 })) {
   const sent: Request[] = [];
-  const send: typeof fetch = async (input, init) => {
+  const send: typeof fetch = (input, init) => {
     const request = new Request(input, init);
     if (!/^https:\/\/api(\.sandbox)?\.push\.apple\.com\//.test(request.url)) {
-      throw new Error(`unexpected request to ${request.url}`);
+      return Promise.reject(new Error(`unexpected request to ${request.url}`));
     }
     sent.push(request);
-    return answer();
+    return Promise.resolve(answer());
   };
   return { send, sent };
 }

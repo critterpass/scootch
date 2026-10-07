@@ -1,0 +1,73 @@
+---
+import type { Language } from '@scootch/i18n';
+
+import { preLaunch, togetherFor } from '../copy';
+import SiteLayout from '../layouts/site-layout.astro';
+import '../styles/together.css';
+
+import AppStoreBadge from './app-store-badge.astro';
+import NotFound from './not-found.astro';
+import OpenInApp from './open-in-app.astro';
+
+interface Props {
+  language: Language;
+}
+
+// "Catch it in the app" lands here with the monster's id (`/get?m=<id>`). A phone gets one
+// button that opens the app with the monster; a wide screen gets a QR code of the monster's own
+// link, which the phone's camera opens in the app, and the link itself in plain text.
+const { language } = Astro.props;
+const copy = togetherFor(language).get;
+---
+
+<SiteLayout language={language} path="/get" title={copy.title} description={copy.description} social={false}>
+  <section
+    class="wrap shared-page"
+    data-get-page
+    data-state="loading"
+    data-language={language}
+    data-lines={JSON.stringify(copy)}
+  >
+    <p class="lede" data-show="loading" aria-live="polite">{copy.loading}</p>
+
+    <div class="wandered" data-show="found" hidden>
+      <p class="eyebrow">{copy.eyebrow}</p>
+      <h1 tabindex="-1" data-headline></h1>
+      <div class="phone-only">
+        <p class="lede">{copy.phoneBody}</p>
+        {
+          preLaunch ? (
+            <AppStoreBadge language={language} />
+          ) : (
+            <OpenInApp language={language} kind="m" label={copy.open} showCode={false} />
+          )
+        }
+      </div>
+      <div class="desk-only">
+        <p class="lede">{copy.deskBody}</p>
+        <img class="qr" alt={copy.qrLabel} width="220" height="220" data-qr />
+        <p class="desk-title">{copy.deskTitle}</p>
+      </div>
+      <p class="small">
+        {copy.orLink}
+        <a data-link></a>
+      </p>
+    </div>
+
+    <div data-show="missing" hidden>
+      <NotFound language={language} focusable />
+    </div>
+    <div data-show="offline" hidden>
+      <h1 tabindex="-1">{copy.offlineTitle}</h1>
+      <p class="lede">{copy.offlineBody}</p>
+    </div>
+  </section>
+</SiteLayout>
+
+<script>
+  import { startGetPage } from '../scripts/get-page';
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-get-page]')) {
+    void startGetPage(root);
+  }
+</script>

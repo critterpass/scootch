@@ -1,6 +1,7 @@
 import { buildMonster, type MONSTER_BODIES, specFromSeed, toSvg } from '@scootch/art';
 
 import { saveCardImage } from './card-image';
+import { getPath } from './get-page';
 import { monsterPath, shareMonster, unshareMonster } from './monster-sharing';
 import { startWaitlistForm } from './waitlist-form';
 
@@ -225,7 +226,22 @@ export function startMonsterMaker(root: HTMLElement): void {
     if (root.dataset['state'] !== 'hatching') void hatch();
   });
   showTyped.addEventListener('change', drawTypedLine);
+  // "Catch it in the app" carries the monster: it is given a page, as sharing gives it one (the
+  // typed line only if it is showing), and the hand-off page takes that page's id into the app.
+  const carryIntoApp = async (store: string): Promise<void> => {
+    const id = await ensureShared();
+    if (id !== null) location.assign(getPath(id, language));
+    else if (!last) return;
+    else location.assign(store);
+  };
+
   root.addEventListener('click', (event) => {
+    const link = event.target instanceof Element ? event.target.closest('a[data-catch]') : null;
+    if (link instanceof HTMLAnchorElement && last) {
+      event.preventDefault();
+      void carryIntoApp(link.href);
+      return;
+    }
     const target = event.target instanceof Element ? event.target.closest('button') : null;
     if (!target) return;
     if (target.hasAttribute('data-example')) {

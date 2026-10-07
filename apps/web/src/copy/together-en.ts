@@ -46,6 +46,22 @@ export const togetherEn = {
     offlineTitle: 'I couldn’t find this link.',
     offlineBody: 'Check your connection and load the page again.',
   },
+  get: {
+    title: 'Catch it in the app · Scootch',
+    description: 'Take your monster with you into Scootch.',
+    loading: 'Fetching the monster…',
+    eyebrow: 'Catch it in the app',
+    headlineBy: '{name} is coming with you.',
+    phoneBody:
+      'Open Scootch and it will be waiting there. No Scootch yet? Get it, then open this link again.',
+    open: 'Open in Scootch',
+    deskBody: 'Scootch lives on your iPhone. Point its camera here and the monster comes along.',
+    deskTitle: 'Scan this with your iPhone.',
+    qrLabel: 'A QR code that opens this monster in Scootch',
+    orLink: 'Or open this link on your iPhone: ',
+    offlineTitle: 'I couldn’t fetch this monster.',
+    offlineBody: 'Check your connection and load the page again.',
+  },
   handOff: {
     pasteLine: 'Nothing opened? Copy this code and paste it in Scootch, under “Sit with someone”.',
     codeLabel: 'The code',
