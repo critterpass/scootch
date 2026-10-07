@@ -13,6 +13,7 @@ import { DEVELOPER_END } from '../dev/short-session';
 import { companyLine } from '../session-view';
 import { Capsule, FilledButton, RoundButton, Tag, TextButton } from '../ui/controls';
 import { ParkComposer } from '../ui/park-composer';
+import { ParkedToast } from '../ui/parked-toast';
 import { SessionFrame } from '../ui/session-frame';
 import { SessionText } from '../ui/session-text';
 import { StuckCard } from '../ui/stuck-card';
@@ -131,7 +132,7 @@ export function WorkingScreen(props: ScreenProps) {
   const { model, actions, inks, t } = props;
   const { width, height } = useWindowDimensions();
   if (model.view.kind !== 'working') return null;
-  const { quiet, stuck, timeUp } = model.view;
+  const { quiet, stuck, timeUp, twoMinutesLeft } = model.view;
   // The disc and Scootch share the screen with the task and Scootch's line, which may run to
   // three lines: both give way on a short screen so the line is never pushed under the buttons.
   const discSize =
@@ -143,7 +144,16 @@ export function WorkingScreen(props: ScreenProps) {
     ? t('session.timeUpSpoken')
     : t('session.minutesLeftSpoken', { count: model.minutesLeft });
   const line = companyLine(model.line);
-  const mood = quiet ? 'serious' : stuck ? 'stuck' : model.parkedNote ? 'pleased' : 'working';
+  // He acts the moment: stuck with you, a small wave for a parked thought, shocked at the clock.
+  const mood = quiet
+    ? 'serious'
+    : stuck
+      ? 'stuck'
+      : model.parkedNote
+        ? 'nudge'
+        : twoMinutesLeft
+          ? 'shocked'
+          : 'working';
 
   return (
     <KeyboardAvoidingView
@@ -154,6 +164,16 @@ export function WorkingScreen(props: ScreenProps) {
         inks={inks}
         testID={quiet ? 'session-quiet' : 'session-running'}
         footer={<Footer {...props} />}
+        over={
+          model.parkedNote ? (
+            <ParkedToast
+              thought={model.parkedNote}
+              title={t('session.park.parked')}
+              detail={t('session.park.seeItAfter', { thought: model.parkedNote })}
+              inks={inks}
+            />
+          ) : null
+        }
         top={
           <>
             {quiet ? (
@@ -178,20 +198,6 @@ export function WorkingScreen(props: ScreenProps) {
           </>
         }
       >
-        {model.parkedNote ? (
-          <View
-            accessibilityLiveRegion="polite"
-            testID="session-parked-note"
-            style={[styles.note, { backgroundColor: inks.surface }]}
-          >
-            <SessionText face="caption" color={inks.ink} style={styles.strong}>
-              {t('session.park.parked')}
-            </SessionText>
-            <SessionText face="caption" color={inks.muted}>
-              {t('session.park.seeItAfter', { thought: model.parkedNote })}
-            </SessionText>
-          </View>
-        ) : null}
         <TimeDisc
           fraction={model.fraction}
           quiet={quiet}
@@ -206,6 +212,7 @@ export function WorkingScreen(props: ScreenProps) {
           attitude={model.attitude}
           workMode={model.workMode}
           reducedMotion={model.reducedMotion}
+          squashOnChange
           size={scootchSize}
           testID="session-scootch"
         />
@@ -257,13 +264,6 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'center',
     gap: spacing.sm,
-  },
-  note: {
-    alignSelf: 'stretch',
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    gap: 2,
   },
   strong: {
     fontWeight: '600',
