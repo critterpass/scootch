@@ -21,7 +21,7 @@ const HOME = { waiting: null, startsNote: null } as const;
 /** How long the captured recording has been running. */
 const RECORDING_FOR_MS = 14_000;
 
-function useCapture() {
+export function useCapture() {
   const { language } = useLanguage();
   const t = useT();
   return { voice: { language, attitude: 'cheeky' } as const, words: t('launch.chip.reply'), t };
@@ -31,7 +31,7 @@ type ComposerCapture = Partial<Omit<ComposerViewProps, 'state'>> & {
   readonly state?: Partial<ComposerState>;
 };
 
-function composerShown(
+export function composerShown(
   capture: ComposerCapture = {},
   rest: Partial<Extract<OneScreenShown, { kind: 'composer' }>> = {},
 ): OneScreenShown {

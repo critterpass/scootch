@@ -1,6 +1,6 @@
 # Phase 01: Native batch: camera and on-device reading
 
-Status: tasks 1 to 3 done; the build is dispatched, not yet proven · Tasks: 4 · Needs: —
+Status: tasks 1 to 3 done; the build failed twice on the build tools' doctor step, which is now skipped; not yet proven · Tasks: 4 · Needs: —
 Owns: `apps/mobile/modules/scootch-reading/`, `apps/mobile/app.config.ts`
 (native fields only), `apps/mobile/package.json`, `pnpm-workspace.yaml`
 (catalog), `docs/tech-decisions.md` section 4

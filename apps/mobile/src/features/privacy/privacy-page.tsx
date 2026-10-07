@@ -21,6 +21,11 @@ export interface PrivacyPageProps {
   readonly backupTooLarge?: boolean;
   /** The name this phone is signed in with for tables; absent when it never signed in. */
   readonly accountName?: string | null;
+  /**
+   * On a phone with the camera: whether Scootch asks before the words on a Paper or Screen photo
+   * are sent to be read. Absent where there is no camera, and then no camera row is drawn.
+   */
+  readonly camera?: { readonly asks: boolean; readonly onAsks: (asks: boolean) => void };
   readonly onKeepTranscripts: (keep: boolean) => void;
   readonly onExport: () => void;
   readonly onAskDelete: () => void;
@@ -32,7 +37,7 @@ export interface PrivacyPageProps {
 /**
  * Privacy and data, in plain answers: what happens to a ramble, that nothing is used to train
  * models, and the two things that are the person's to do: take their data, or delete all of it.
- * The camera rows of the design are left out because there is no camera.
+ * The camera rows are drawn only on a phone that has the camera.
  */
 export function PrivacyPage(props: PrivacyPageProps) {
   const t = useT();
@@ -57,9 +62,28 @@ export function PrivacyPage(props: PrivacyPageProps) {
           testID="privacy-keep-transcripts"
         />
       </Section>
-      <Section label={t('privacy.tasks')}>
+      <Section label={t(props.camera ? 'privacy.photosAndTasks' : 'privacy.tasks')}>
+        {props.camera ? (
+          <>
+            <Row
+              first
+              kind="fact"
+              label={t('privacy.camera.photos')}
+              sub={t('privacy.camera.photos.sub')}
+              testID="privacy-camera-photos"
+            />
+            <SwitchRow
+              label={t('privacy.camera.ask')}
+              sub={t(props.camera.asks ? 'privacy.camera.ask.on' : 'privacy.camera.ask.off')}
+              hint={t('privacy.camera.ask.hint')}
+              value={props.camera.asks}
+              onChange={props.camera.onAsks}
+              testID="privacy-camera-ask"
+            />
+          </>
+        ) : null}
         <Row
-          first
+          first={!props.camera}
           kind="fact"
           label={t('privacy.neverTrained')}
           value={t('privacy.always')}

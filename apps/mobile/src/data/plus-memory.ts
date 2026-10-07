@@ -8,7 +8,10 @@ export type PlusMemoryKey =
   | 'worldVisitedAt'
   | 'keptWeeks'
   | 'ink'
-  | 'lifetimeMarkedOn';
+  | 'lifetimeMarkedOn'
+  /** The free reads of Paper and Screen already had, and whether words may be sent to be read. */
+  | 'cameraTries'
+  | 'cameraConsent';
 
 export interface PlusMemory {
   /** The stored value, or `null` when nothing was stored or it cannot be read. */

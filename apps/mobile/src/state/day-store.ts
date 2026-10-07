@@ -294,6 +294,8 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
         return applySurfaceAction(ctx, event.action);
       case 'surface_request_taken':
         return set({ surfaceRequest: null });
+      case 'camera_step_chosen':
+        return set({ surfaceRequest: { kind: 'composer', listening: false, text: event.text } });
       case 'opened_mid_session':
         return noticePickUp(ctx);
       case 'app_backgrounded':

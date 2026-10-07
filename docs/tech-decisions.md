@@ -231,6 +231,8 @@ The website's privacy table is a commitment the build must match:
 | Web monster-maker input | 24 hours, unless the card is shared |
 | Shared cards and records | Until unshared |
 | Table label | While seated |
+| Camera photos | Never leave the phone. Read on it, and deleted when the camera closes |
+| Words read from a Paper or Screen photo | Sent only after the user allows it, to be care-screened and read. Not stored, not logged |
 | Analytics | Counts only, no ad ids, 13 months |
 | Delete everything | Gone from phone and servers within 30 days |
 

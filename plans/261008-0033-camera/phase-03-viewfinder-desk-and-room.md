@@ -1,6 +1,6 @@
 # Phase 03: Opening, viewfinder, Desk and Room
 
-Status: not started · Tasks: 5 · Needs: 01, 02
+Status: built and tested off a phone; never run on a device · Tasks: 5 · Needs: 01, 02
 Owns: `apps/mobile/src/features/camera/`, `apps/mobile/src/app/camera.tsx`,
 `apps/mobile/src/screens/registry/camera-*.tsx`,
 `apps/mobile/src/features/composer/composer-row.tsx`,
@@ -17,7 +17,7 @@ Goal: the two free modes, end to end, offline included. Board screens:
   Shown only when the reading module exists. Off, with the dock, when the
   day has no start left. Scootch's opening line comes from the opening route
   or the offline pack, once per day at most.
-- Status: not started
+- Status: built — SHA3; not run on a device
 
 ### 2. The camera machine
 - Owns: `apps/mobile/src/features/camera/`.
@@ -27,7 +27,7 @@ Goal: the two free modes, end to end, offline included. Board screens:
   camera closes, unless a session started from it (phase 05 keeps it until
   that session ends).
 - Test: the machine; the photo is deleted on every way out.
-- Status: not started
+- Status: built — SHA3; not run on a device
 
 ### 3. Viewfinder and overlays
 - Owns: `apps/mobile/src/features/camera/`.
@@ -36,7 +36,7 @@ Goal: the two free modes, end to end, offline included. Board screens:
   the mode chips. Desk: one ring, everything else dimmed, "Start here".
   Room: lettered zones with the chosen one lit. Retake and "Bigger zone" as
   chips, the step as the main button.
-- Status: not started
+- Status: built — SHA3; not run on a device
 
 ### 4. From step to task
 - Owns: `apps/mobile/src/features/camera/`.
@@ -45,7 +45,7 @@ Goal: the two free modes, end to end, offline included. Board screens:
   and the session behave as for any task. Offline, it is the offline task
   path.
 - Test: a step sets a task exactly as typing the same words does.
-- Status: not started
+- Status: built — SHA3; not run on a device
 
 ### 5. Screens, walk and sheets
 - Owns: `apps/mobile/src/screens/registry/camera-*.tsx`, `e2e/camera/`,
@@ -56,7 +56,7 @@ Goal: the two free modes, end to end, offline included. Board screens:
   walk: open the camera, allow, photograph, start. Dispatch the device run
   and report its id.
 - Done when: sheets for every screen above in both languages.
-- Status: not started
+- Status: built — SHA3; not run on a device
 
 ## Risks
 

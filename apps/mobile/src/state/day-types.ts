@@ -102,6 +102,8 @@ export type DayEvent =
   | { readonly type: 'surface_action'; readonly action: SurfaceActionKind }
   /** A screen has acted on `surfaceRequest`, so it is cleared. */
   | { readonly type: 'surface_request_taken' }
+  /** A step found by the camera: the composer sends its words as it sends typed ones. */
+  | { readonly type: 'camera_step_chosen'; readonly text: string }
   /** Scootch was opened, or its Live Activity tapped, while a session was running. */
   | { readonly type: 'opened_mid_session' };
 
@@ -110,7 +112,12 @@ export type SurfaceActionKind = 'start_session' | 'brain_dump' | 'park_thought' 
 /** Something a system surface asked for that only a screen can do. */
 export type SurfaceRequest =
   /** Open the composer; `listening` starts it on the microphone (the brain dump). */
-  | { readonly kind: 'composer'; readonly listening: boolean }
+  | {
+      readonly kind: 'composer';
+      readonly listening: boolean;
+      /** Words to send as if they had been typed: a step the camera found. */
+      readonly text?: string;
+    }
   /** Open the session's park-a-thought field. */
   | { readonly kind: 'park_thought' };
 

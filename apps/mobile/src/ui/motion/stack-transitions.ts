@@ -4,7 +4,7 @@
  *
  * - `home`: the one screen. Returning to it reads as going back.
  * - `push`: the system's push, with its interruptible swipe back: the world, the zoo, the record,
- *   settings and their children. From home the world and settings are not pushed at all: they are
+ *   the camera, settings and their children. From home the world and settings are not pushed at all: they are
  *   the pages either side of it.
  * - `sheet`: a system sheet with a grabber, pulled down to close.
  * - `fade`: a moment, not a place: the session, the reveal, a purchase's own screen. No swipe.
@@ -18,6 +18,7 @@ export const ROUTE_MOTION: Readonly<Record<string, RouteMotion>> = {
   zoo: 'push',
   record: 'push',
   shelf: 'push',
+  camera: 'push',
   settings: 'push',
   'finish-with': 'push',
   privacy: 'push',
