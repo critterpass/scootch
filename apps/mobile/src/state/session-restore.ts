@@ -4,6 +4,7 @@ import {
   isoFromInstant,
   sessionReducer,
   sessionSet,
+  type IsoDate,
   type LiveSession,
   type ParkedThought,
   type SessionRow,
@@ -14,6 +15,28 @@ import type { DayContext } from './day-types';
 import { toneFor } from './lines';
 import { keepUnansweredThoughts } from './parked-thoughts';
 import { contextFor } from './session-flow';
+
+/**
+ * The day a stored session is still running on: the latest opened day, when one of its tasks has
+ * an open session whose planned end is still ahead and that was not answered "not finished".
+ * `null` when there is none, and then the clock says what day it is.
+ */
+export async function dayOfRunningSession(
+  ctx: Pick<DayContext, 'deps' | 'now'>,
+  latestDay: IsoDate | null,
+): Promise<IsoDate | null> {
+  if (latestDay === null) return null;
+  const { sessions, tasks, days } = ctx.deps.repositories;
+  if ((await days.get(latestDay))?.status === 'crisis') return null;
+  for (const task of await tasks.where('localDate', latestDay)) {
+    if (task.status === 'finished') continue;
+    const running = (await sessions.where('taskId', task.id)).some(
+      (row) => row.endedAt === null && instantFromIso(row.endsAt) > ctx.now(),
+    );
+    if (running) return latestDay;
+  }
+  return null;
+}
 
 /**
  * A task has at most one open session, and a finished or forgotten task has none. Rows an earlier
