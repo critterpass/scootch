@@ -44,6 +44,13 @@ async function ableToTranscribe(language: Language): Promise<boolean> {
   return installedLocales.some((locale) => locale.toLowerCase().startsWith(language));
 }
 
+/** Whether the person has allowed the microphone and speech recognition. Never shows a prompt. */
+export async function speechPermission(): Promise<VoiceStatus> {
+  const permission = await Recognizer.getPermissionsAsync();
+  if (permission.granted) return 'ready';
+  return permission.canAskAgain ? 'unasked' : 'refused';
+}
+
 export interface NativeSpeechOptions {
   /**
    * The audio session the recogniser records in. Left out, the library's own is used, which stops
@@ -67,9 +74,7 @@ export function nativeSpeech(options: NativeSpeechOptions = {}): SpeechPort {
   const status = async (language: Language): Promise<VoiceStatus> => {
     try {
       if (!(await ableToTranscribe(language))) return 'unavailable';
-      const permission = await Recognizer.getPermissionsAsync();
-      if (permission.granted) return 'ready';
-      return permission.canAskAgain ? 'unasked' : 'refused';
+      return await speechPermission();
     } catch {
       return 'unavailable';
     }

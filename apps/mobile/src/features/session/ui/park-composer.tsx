@@ -55,7 +55,12 @@ export function ParkComposer({ inks, t, onPark, onCancel, handle }: ParkComposer
   const { language } = useLanguage();
   const { allowFontScaling, size } = useScreenStyle();
   const captured = useForcedVariant() !== undefined;
-  const speech = useMemo(() => (captured ? NO_SPEECH : parkSpeech()), [captured]);
+  const spoken = useRef(language);
+  spoken.current = language;
+  const speech = useMemo(
+    () => (captured ? NO_SPEECH : parkSpeech(() => spoken.current)),
+    [captured],
+  );
   // True once the field has handed over or been dismissed, so it does so only once.
   const closed = useRef(false);
   const composer = useComposer({
