@@ -38,6 +38,8 @@ export function StepDots({ step }: { readonly step: number }) {
 export interface LaunchPageProps {
   readonly step: number;
   readonly testID: string;
+  /** Pins the content under the status bar instead of centring it. */
+  readonly top?: boolean;
   /** Scrolls when the text is large, so nothing is ever cut off. */
   readonly children: ReactNode;
   /** The action, kept at the bottom of the screen. */
@@ -45,11 +47,14 @@ export interface LaunchPageProps {
 }
 
 /** The layout every first-launch step shares: its content, the step marks and the action. */
-export function LaunchPage({ step, testID, children, footer }: LaunchPageProps) {
+export function LaunchPage({ step, testID, top = false, children, footer }: LaunchPageProps) {
   const { palette } = useScreenStyle();
   return (
     <SafeFrame testID={testID} style={[styles.page, { backgroundColor: palette.page }]}>
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        contentContainerStyle={[styles.content, top && styles.contentTop]}
+        keyboardShouldPersistTaps="handled"
+      >
         {children}
       </ScrollView>
       <View style={styles.footer}>
@@ -70,6 +75,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.lg,
     gap: spacing.lg,
+  },
+  contentTop: {
+    justifyContent: 'flex-start',
+    paddingTop: spacing.xl,
   },
   footer: {
     paddingHorizontal: spacing.md,

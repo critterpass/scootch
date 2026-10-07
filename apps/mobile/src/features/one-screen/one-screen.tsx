@@ -302,7 +302,7 @@ export function OneScreen({ speech, warmUp, notificationsRefused }: OneScreenPro
   return (
     <OneScreenView
       {...frame}
-      mood={composerMood(state, taskCall)}
+      mood={composerMood(state, taskCall, warmUp)}
       // With no connection Scootch says so, in place of his usual ask: starting still works.
       line={quiet ? null : lineWithNoTask(offline && slot === 'waiting' ? 'offline' : slot, voice)}
       shown={shown}

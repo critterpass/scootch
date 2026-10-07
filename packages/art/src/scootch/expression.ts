@@ -6,7 +6,7 @@ export type EyeShape = 'round' | 'happy' | 'closed' | 'sparkle' | 'squeeze';
 export type MouthShape =
   'smile' | 'flat' | 'side' | 'o' | 'grin' | 'wobble' | 'pout' | 'tongue' | 'cat' | 'wail';
 export type Effect =
-  'dots' | 'waves' | 'think' | 'laptop' | 'sweat' | 'stars' | 'confetti' | 'zzz' | null;
+  'dots' | 'waves' | 'think' | 'laptop' | 'sweat' | 'stars' | 'confetti' | 'zzz' | 'tears' | null;
 
 /** Everything a mood decides: how the body sits, the face, where the hands go and what floats around. */
 export interface Expression {
