@@ -16,7 +16,7 @@ import {
   type ScootchTone,
 } from '@scootch/art';
 
-import { inkOf } from '../features/studio/catalogue';
+import { inkOf, type InkId } from '../features/studio/catalogue';
 import { useAppearance, useForcedVariant } from '../screens/registry/support/forced-variant';
 import { usePlusState } from '../state/plus-context';
 
@@ -72,6 +72,8 @@ export interface ScootchProps {
    * y down). `null` or absent lets go of it. Only the watching moods follow.
    */
   readonly gaze?: { readonly x: number; readonly y: number } | null;
+  /** The ink he is printed in. Left out, it is the one the person wears. */
+  readonly ink?: InkId;
   /** Width and height in points. */
   readonly size?: number;
   readonly testID?: string;
@@ -113,13 +115,15 @@ export function Scootch({
   squashOnChange = false,
   onPress,
   gaze = null,
+  ink: inkGiven,
   size = 200,
   testID,
 }: ScootchProps) {
   const appearance = useAppearance();
   const ground = groundGiven ?? appearance;
   // Scootch is printed in the ink the person wears; Tangerine is Scootch as drawn.
-  const { ink } = usePlusState().look;
+  const worn = usePlusState().look.ink;
+  const ink = inkGiven ?? worn;
   const systemReducedMotion = useReducedMotion();
   // A registry capture is always the still, whatever the screen passes.
   const captured = useForcedVariant() !== undefined;

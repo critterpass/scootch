@@ -1,4 +1,5 @@
 import {
+  BlendMode,
   ClipOp,
   FillType,
   ImageFormat,
@@ -7,14 +8,16 @@ import {
   Skia,
   StrokeCap,
   StrokeJoin,
+  TileMode,
   type SkCanvas,
+  type SkShader,
 } from '@shopify/react-native-skia';
 import { File, Paths } from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library/legacy';
 import * as Sharing from 'expo-sharing';
 import { Platform, Share } from 'react-native';
 
-import { toSkiaNodes, type SkiaNode } from '../../art/skia-nodes';
+import { GRAIN_GREY, toSkiaNodes, type SkiaNode, type SkiaPaint } from '../../art/skia-nodes';
 
 import type { ShareDevice } from './share-flow';
 
@@ -31,6 +34,26 @@ const FAMILIES = {
 };
 const WEIGHTS = ['100', '200', '300', '400', '500', '600', '700', '800', '900'] as const;
 
+const BLENDS = {
+  srcOver: BlendMode.SrcOver,
+  multiply: BlendMode.Multiply,
+  screen: BlendMode.Screen,
+  overlay: BlendMode.Overlay,
+  softLight: BlendMode.SoftLight,
+} as const;
+
+/** The gradient or the noise a paint fills its path with. */
+function shaderOf(paint: SkiaPaint): SkShader {
+  if (paint.kind === 'grain') {
+    return Skia.Shader.MakeFractalNoise(paint.frequency, paint.frequency, 3, 0, 0, 0);
+  }
+  const colors = paint.colors.map((color) => Skia.Color(color));
+  const positions = [...paint.positions];
+  return paint.kind === 'linear'
+    ? Skia.Shader.MakeLinearGradient(paint.start, paint.end, colors, positions, TileMode.Clamp)
+    : Skia.Shader.MakeRadialGradient(paint.centre, paint.radius, colors, positions, TileMode.Clamp);
+}
+
 function draw(canvas: SkCanvas, node: SkiaNode): void {
   if (node.kind === 'group') {
     canvas.save();
@@ -43,6 +66,18 @@ function draw(canvas: SkCanvas, node: SkiaNode): void {
   }
   const paint = Skia.Paint();
   paint.setAntiAlias(true);
+  if (node.kind === 'paint') {
+    const filled = Skia.Path.MakeFromSVGString(node.path);
+    if (!filled) return;
+    paint.setShader(shaderOf(node.paint));
+    if (node.paint.kind === 'grain') {
+      paint.setColorFilter(Skia.ColorFilter.MakeMatrix([...GRAIN_GREY]));
+    }
+    paint.setAlphaf(node.opacity);
+    paint.setBlendMode(BLENDS[node.blend]);
+    canvas.drawPath(filled, paint);
+    return;
+  }
   paint.setColor(Skia.Color(node.color));
   paint.setAlphaf(node.opacity);
   if (node.kind === 'text') {

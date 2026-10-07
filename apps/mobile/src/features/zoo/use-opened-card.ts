@@ -1,21 +1,18 @@
 import { usePreventRemove } from 'expo-router';
-import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
 
-import type { CardData, CardFinish, Id, TaskRow } from '@scootch/domain';
+import type { CardData, Id, TaskRow } from '@scootch/domain';
 
-import { openRepositories } from '../../data/repositories';
 import { useLanguage } from '../../i18n/i18n-provider';
 import { useToday } from '../../state/day-store-provider';
 import { useKeepsakes, usePlus } from '../../state/keepsakes';
-import { finishOpen } from '../plus/finish-picker';
 import { shareOfferedOn } from '../share/share-rules';
 import { useShare } from '../share/use-share';
 
 import { cardDataFor, zooCards, type CaughtMonster } from './zoo-cards';
 
 export interface OpenedCard {
-  /** What the phone holds: read again after a finish is chosen. */
+  /** What the phone holds. */
   readonly keepsakes: ReturnType<typeof useKeepsakes>['keepsakes'];
   readonly plus: boolean;
   /** The share panel, while it is open over the card. */
@@ -33,20 +30,17 @@ export interface OpenedCard {
     readonly card: CardData;
     readonly shareOffered: boolean;
     readonly share: () => void;
-    readonly setFinish: (finish: CardFinish) => void;
   } | null;
 }
 
 /**
  * One monster's card, opened from anywhere: the zoo and the world both open it through here, so
- * the card, its finishes and its sharing are the same in both. `reread` is anything whose change
+ * the card and its sharing are the same in both. `reread` is anything whose change
  * means the phone's tables should be read again.
  */
 export function useOpenedCard(reread?: unknown): OpenedCard {
   const { language } = useLanguage();
-  const db = useSQLiteContext();
-  const [finishes, setFinishes] = useState(0);
-  const { keepsakes } = useKeepsakes(`${String(reread)}:${finishes}`);
+  const { keepsakes } = useKeepsakes(reread);
   const plus = usePlus();
   const { today } = useToday();
   const share = useShare(language, today);
@@ -89,14 +83,6 @@ export function useOpenedCard(reread?: unknown): OpenedCard {
             card,
             shareOffered: shareOfferedOn(today, task),
             share: () => share.open({ task, card, signed: monster.signed ?? null, kind: 'card' }),
-            setFinish: (finish) => {
-              // The entitlement decides again here, whatever the picker drew.
-              if (!finishOpen(finish, plus, monster.finish)) return;
-              void openRepositories(db)
-                .monsters.put({ ...monster, finish })
-                .then(() => setFinishes((count) => count + 1))
-                .catch(() => undefined);
-            },
           }
         : null,
   };

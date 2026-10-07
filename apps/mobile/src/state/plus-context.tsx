@@ -11,6 +11,7 @@ import {
   type PurchasesPort,
 } from '../features/plus/purchases-port';
 
+import { NO_MEMBER } from '../features/plus/member';
 import { PLAIN_LOOK } from '../features/studio/look';
 
 import type { PlusState, PlusStore } from './plus-store';
@@ -33,6 +34,7 @@ const FREE_STATE: PlusState = {
   unlocked: unlockedFor(FREE_CUSTOMER),
   prices: {},
   look: PLAIN_LOOK,
+  member: NO_MEMBER,
 };
 
 /** Outside the app's provider (a registry capture, a test) every phone is the free one. */
@@ -46,6 +48,7 @@ const NO_RUNTIME: PlusRuntime = {
     accept: () => Promise.resolve(),
     rememberPrices: () => Promise.resolve(),
     wear: () => Promise.resolve(),
+    rememberMember: () => Promise.resolve(),
   },
   memory: { read: () => Promise.resolve(null), write: () => Promise.resolve() },
   timeZone: () => 'UTC',

@@ -10,6 +10,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { usePlusState } from '../../../state/plus-context';
+import type { TrailId } from '../../studio/catalogue';
 
 import { BURST_MS, burstSources, type BurstMark, type BurstRing } from './burst-shapes';
 import type { SessionInks } from './session-inks';
@@ -89,6 +90,8 @@ export interface BurstMarksProps {
   readonly controlAt?: { readonly x: number; readonly y: number } | null;
   readonly inks: SessionInks;
   readonly reducedMotion: boolean;
+  /** The trail to throw. Left out, it is the one the person wears. */
+  readonly trail?: TrailId;
 }
 
 const at = ([across, down]: readonly [number, number]) =>
@@ -99,10 +102,12 @@ const at = ([across, down]: readonly [number, number]) =>
  * goes from the Start button and then from up the screen, as the board fires it). With Reduce
  * Motion nothing flies: a soft glow comes up and fades. It never takes a touch.
  */
-export function BurstMarks({ kind, inks, reducedMotion, controlAt }: BurstMarksProps) {
+export function BurstMarks(props: BurstMarksProps) {
+  const { kind, inks, reducedMotion, controlAt } = props;
   const clock = useSharedValue(0);
   const glow = useSharedValue(0);
-  const { trail } = usePlusState().look;
+  const worn = usePlusState().look.trail;
+  const trail = props.trail ?? worn;
 
   useEffect(() => {
     if (reducedMotion) {

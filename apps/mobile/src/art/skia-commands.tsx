@@ -16,13 +16,7 @@ import type { SharedValue } from 'react-native-reanimated';
 
 import { VIEW_SIZE, type DrawCommand } from '@scootch/art';
 
-import { toSkiaNodes, type SkiaNode, type SkiaPaint } from './skia-nodes';
-
-/** Takes the colour out of the noise and leaves its light and dark: grain is grey. */
-const GREY = [
-  0.2126, 0.7152, 0.0722, 0, 0, 0.2126, 0.7152, 0.0722, 0, 0, 0.2126, 0.7152, 0.0722, 0, 0, 0, 0,
-  0, 1, 0,
-];
+import { GRAIN_GREY, toSkiaNodes, type SkiaNode, type SkiaPaint } from './skia-nodes';
 
 /** What fills a `paint` node's path: a gradient, or noise with its colour taken out. */
 function paintFill(paint: SkiaPaint): ReactNode {
@@ -49,7 +43,7 @@ function paintFill(paint: SkiaPaint): ReactNode {
   return (
     <>
       <FractalNoise freqX={paint.frequency} freqY={paint.frequency} octaves={3} />
-      <ColorMatrix matrix={GREY} />
+      <ColorMatrix matrix={[...GRAIN_GREY]} />
     </>
   );
 }

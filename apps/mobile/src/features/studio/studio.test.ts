@@ -10,7 +10,15 @@ import { unlockedFor } from '../plus/entitlement';
 import type { CustomerState } from '../plus/purchases-port';
 import { CUSTOMERS, fakePurchases, fakeStore } from '../plus/test/fake-purchases';
 
-import { FINISHES, FREE_LOOK, INKS, STUDIO, STUDIO_KINDS, TRAILS, studioProductIds } from './catalogue';
+import {
+  FINISHES,
+  FREE_LOOK,
+  INKS,
+  STUDIO,
+  STUDIO_KINDS,
+  TRAILS,
+  studioProductIds,
+} from './catalogue';
 import { lookFromStored, PLAIN_LOOK, withPart } from './look';
 import { actionFor, finishesOwned, lookAfter, mayWear, owns, type WearFacts } from './rules';
 
@@ -111,7 +119,7 @@ describe('who may wear what', () => {
     expect(actionFor(holo, PLAIN_LOOK, factsOf(CUSTOMERS.yearly))).toBe('wear');
   });
 
-  it('counts as owned only what is the person\'s to keep: Paper and each finish bought', () => {
+  it("counts as owned only what is the person's to keep: Paper and each finish bought", () => {
     expect(finishesOwned([])).toBe(1);
     expect(finishesOwned(CUSTOMERS.lifetime.ownedItems)).toBe(1);
     expect(finishesOwned([holo.productId!, moss.productId!])).toBe(2);

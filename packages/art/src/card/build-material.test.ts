@@ -4,12 +4,7 @@ import { CARD_FINISH_IDS } from '@scootch/domain';
 
 import { toSvg } from '../backends/svg';
 import type { DrawCommand } from '../core/commands';
-import {
-  buildMaterial,
-  buildMaterialParts,
-  CARD_MATERIALS,
-  materialShift,
-} from './build-material';
+import { buildMaterial, buildMaterialParts, CARD_MATERIALS, materialShift } from './build-material';
 
 const FACE = { x: 10, y: 20, w: 214, h: 298 };
 const kinds = (commands: readonly DrawCommand[]): string[] => commands.map((one) => one.op);

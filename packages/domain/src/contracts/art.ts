@@ -166,7 +166,15 @@ export const cardRaritySchema = z.enum(['common', 'uncommon', 'rare']);
 export type CardRarity = z.infer<typeof cardRaritySchema>;
 
 /** The materials a card can be printed on, in the order the studio shows them. The first is free. */
-export const CARD_FINISH_IDS = ['paper', 'holo', 'chrome', 'jelly', 'glass', 'flock', 'riso'] as const;
+export const CARD_FINISH_IDS = [
+  'paper',
+  'holo',
+  'chrome',
+  'jelly',
+  'glass',
+  'flock',
+  'riso',
+] as const;
 export type CardFinish = (typeof CARD_FINISH_IDS)[number];
 
 /**

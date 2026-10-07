@@ -16,7 +16,7 @@ import {
 } from 'react';
 import { AccessibilityInfo, AppState } from 'react-native';
 
-import type { Language } from '@scootch/domain';
+import { memberNumberResponseSchema, type Language } from '@scootch/domain';
 import { CUES } from '@scootch/sound';
 
 import { apiBaseUrl, keychainTokenStore } from '../api/api-config';
@@ -89,6 +89,8 @@ function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
     timeZone,
     voice: () => ({ language: language(), attitude: store.getState().settings.attitude }),
     offerFacts: () => readOfferFacts(repositories, store.getState()),
+    memberNumber: () =>
+      http.post('/v1/members/number', {}, (json) => memberNumberResponseSchema.parse(json).number),
   });
   // The daily limit follows what the store last said, through the domain's entitlement rules.
   const unlocked = () => plus.store.getState().unlocked.plus;

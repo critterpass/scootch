@@ -10,7 +10,6 @@ import { useLanguage } from '../../i18n/i18n-provider';
 import { useToday } from '../../state/day-store-provider';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { useHomePager, usePagerHold, usePageShown } from '../home-pager/home-pager-context';
-import { PLUS_SHEET } from '../plus/routes';
 import { SharePanel } from '../share/share-panel';
 import { MonsterDetail } from '../zoo/monster-detail';
 import { useOpenedCard } from '../zoo/use-opened-card';
@@ -41,7 +40,7 @@ export function WorldContainer() {
   // Someone who owns lifetime finds the lighthouse here, landed before the world is read.
   const { landed } = useLighthouse();
   const opened = useOpenedCard(`${String(landed)}:${visits.current}`);
-  const { keepsakes, plus, shown } = opened;
+  const { keepsakes, shown } = opened;
   const [landing, setLanding] = useState<Id | null>(null);
   // A card being handled, or the share panel over it, keeps the pages from sliding under it.
   usePagerHold(shown !== null || opened.sharePanel !== null);
@@ -74,24 +73,14 @@ export function WorldContainer() {
     if (!inView) setLanding(null);
   }, [inView]);
 
-  const plusDoor = {
-    openPlus: () => router.push(PLUS_SHEET),
-  };
   if (!keepsakes) return <View style={{ flex: 1, backgroundColor: palette.page }} />;
   if (opened.sharePanel) return <SharePanel {...opened.sharePanel} />;
-  // A resident's card is the same screen the zoo opens: the card to handle, its finishes and its
-  // sharing. It is opened over the world and closed back to it.
+  // A resident's card is the same screen the zoo opens: the card to handle and its sharing. It is opened over the world and closed back to it.
   if (shown) {
     return (
       <MonsterDetail
-        model={{ card: shown.card, language, plus, shareOffered: shown.shareOffered }}
-        actions={{
-          close: opened.close,
-          share: shown.share,
-          // Nothing sells near something heavy: on such a day a locked finish does nothing.
-          ...(heavyToday ? {} : plusDoor),
-          setFinish: shown.setFinish,
-        }}
+        model={{ card: shown.card, language, shareOffered: shown.shareOffered }}
+        actions={{ close: opened.close, share: shown.share }}
       />
     );
   }

@@ -6,14 +6,11 @@ const TURN = ['#FF69B4', '#64D7FF', '#FFEB78', '#9678FF'] as const;
 const TURNS = 5;
 
 /** The rainbow repeated along the band, as the board's repeating gradient lays it. */
-const rainbow = Array.from(
-  { length: TURNS * TURN.length + 1 },
-  (_, index): GradientStop => [
-    index / (TURNS * TURN.length),
-    TURN[index % TURN.length] ?? TURN[0],
-    0.5,
-  ],
-);
+const rainbow = Array.from({ length: TURNS * TURN.length + 1 }, (_, index): GradientStop => [
+  index / (TURNS * TURN.length),
+  TURN[index % TURN.length] ?? TURN[0],
+  0.5,
+]);
 
 /** Rainbow diffraction that chases the tilt. */
 export const holo: FinishMaterial = {

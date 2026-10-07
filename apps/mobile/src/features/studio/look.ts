@@ -1,6 +1,13 @@
 import { CARD_FINISH_IDS, type CardFinish } from '@scootch/domain';
 
-import { FREE_LOOK, INK_IDS, TRAIL_IDS, type InkId, type StudioKind, type TrailId } from './catalogue';
+import {
+  FREE_LOOK,
+  INK_IDS,
+  TRAIL_IDS,
+  type InkId,
+  type StudioKind,
+  type TrailId,
+} from './catalogue';
 
 /** What the person wears: one ink, one finish and one trail, everywhere at once. */
 export interface Look {
@@ -22,7 +29,8 @@ const oneOf = <T extends string>(all: readonly T[], value: unknown, otherwise: T
  * the ink the shelf kept before there was a look, read once so a bought ink stays on.
  */
 export function lookFromStored(value: unknown, shelfInk: unknown = null): Look {
-  const stored = typeof value === 'object' && value !== null ? (value as Record<string, unknown>) : {};
+  const stored =
+    typeof value === 'object' && value !== null ? (value as Record<string, unknown>) : {};
   const carried =
     typeof shelfInk === 'string' && Object.hasOwn(SHELF_INKS, shelfInk)
       ? SHELF_INKS[shelfInk]

@@ -27,6 +27,12 @@ export type SkiaPaint =
   /** Noise at this many waves a unit, on both axes. */
   | { readonly kind: 'grain'; readonly frequency: number };
 
+/** The colour matrix that takes the colour out of noise and leaves its light and dark. */
+export const GRAIN_GREY: readonly number[] = [
+  0.2126, 0.7152, 0.0722, 0, 0, 0.2126, 0.7152, 0.0722, 0, 0, 0.2126, 0.7152, 0.0722, 0, 0, 0, 0, 0,
+  1, 0,
+];
+
 /** Skia's names for the model's blend modes. */
 export const SKIA_BLENDS = {
   normal: 'srcOver',
@@ -157,8 +163,7 @@ type Mappers = {
 
 const stopColors = (stops: readonly GradientStop[]): string[] =>
   stops.map(([, color, alpha]) => rgba(color, alpha));
-const stopPositions = (stops: readonly GradientStop[]): number[] =>
-  stops.map(([offset]) => offset);
+const stopPositions = (stops: readonly GradientStop[]): number[] => stops.map(([offset]) => offset);
 
 function skiaPaint(paint: Extract<DrawCommand, { op: 'paint' }>['paint']): SkiaPaint {
   if (paint.kind === 'linear') {

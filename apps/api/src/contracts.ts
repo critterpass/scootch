@@ -13,6 +13,10 @@ export {
   type ScreenInputResponse,
 } from '../../../packages/domain/src/contracts/ai-labels';
 export {
+  memberNumberResponseSchema,
+  type MemberNumberResponse,
+} from '../../../packages/domain/src/contracts/member';
+export {
   speechTokenResponseSchema,
   type SpeechTokenResponse,
 } from '../../../packages/domain/src/contracts/speech';

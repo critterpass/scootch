@@ -16,7 +16,12 @@ export interface SheetState {
   /** One plain line under the action. A purchase the person cancelled leaves none. */
   readonly notice: SheetNotice | null;
   /** Set once Plus has been bought or restored here: the sheet is over. */
-  readonly done: { readonly plan: PlanId | null; readonly customer: CustomerState } | null;
+  readonly done: {
+    readonly plan: PlanId | null;
+    readonly customer: CustomerState;
+    /** True when Plus came back through Restore: nothing was bought just now. */
+    readonly restored: boolean;
+  } | null;
 }
 
 export interface SheetController {
@@ -91,7 +96,10 @@ export function createSheetController(deps: {
       }
       if (outcome.kind === 'purchased') {
         await store.accept(outcome.customer);
-        return set({ busy: false, done: { plan: offer.plan, customer: outcome.customer } });
+        return set({
+          busy: false,
+          done: { plan: offer.plan, customer: outcome.customer, restored: false },
+        });
       }
       // Closing the store's sheet is a choice, not an error: back to the sheet, and nothing is said.
       set({ busy: false, notice: outcome.kind === 'failed' ? 'failed' : null });
@@ -103,7 +111,10 @@ export function createSheetController(deps: {
         const customer = await port.restore();
         await store.accept(customer);
         if (unlockedFor(customer).plus) {
-          return set({ busy: false, done: { plan: customer.activePlan, customer } });
+          return set({
+            busy: false,
+            done: { plan: customer.activePlan, customer, restored: true },
+          });
         }
         set({ busy: false, notice: 'restore_none' });
       } catch {

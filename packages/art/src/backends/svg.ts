@@ -127,8 +127,7 @@ export function toSvg(commands: readonly DrawCommand[], options: SvgOptions = {}
       case 'paint': {
         paints.push(command.paint);
         const id = `${ID_SLOT}p${paints.length - 1}`;
-        const blend =
-          command.blend === 'normal' ? '' : ` style="mix-blend-mode:${command.blend}"`;
+        const blend = command.blend === 'normal' ? '' : ` style="mix-blend-mode:${command.blend}"`;
         body.push(
           command.paint.kind === 'grain'
             ? `<path d="${pathData(command.path)}" filter="url(#${id})"` +

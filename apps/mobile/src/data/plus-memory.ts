@@ -10,7 +10,7 @@ export type PlusMemoryKey =
   /** The ink the shelf kept before there was a look. Read once, never written. */
   | 'ink'
   | 'look'
-  | 'lifetimeMarkedOn';
+  | 'member';
 
 export interface PlusMemory {
   /** The stored value, or `null` when nothing was stored or it cannot be read. */

@@ -3,6 +3,7 @@ export * from './art';
 export * from './common';
 export * from './haunt';
 export * from './local-db';
+export * from './member';
 export * from './public-pages';
 export * from './speech';
 export * from './table-messages';

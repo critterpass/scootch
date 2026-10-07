@@ -13,6 +13,12 @@ export type InkId = (typeof INK_IDS)[number];
 export const TRAIL_IDS = ['confetti', 'stardust', 'bubbles', 'splat'] as const;
 export type TrailId = (typeof TRAIL_IDS)[number];
 
+/** The catalogue's own words: plain strings with nothing to fill in. */
+export type StudioWord = Extract<
+  StringKey,
+  `studio.ink.${string}` | `studio.finish.${string}` | `studio.trail.${string}` | `finish.${string}`
+>;
+
 /** The four colours an ink prints in, and Scootch's own body in it. */
 export interface InkColours {
   readonly accent: string;
@@ -33,10 +39,10 @@ export interface StudioItem {
   readonly kind: StudioKind;
   /** The store's product, bought once and kept; `null` for the one that is everyone's. */
   readonly productId: string | null;
-  readonly name: StringKey;
+  readonly name: StudioWord;
   /** The word under its swatch. */
-  readonly short: StringKey;
-  readonly about: StringKey;
+  readonly short: StudioWord;
+  readonly about: StudioWord;
 }
 
 export interface InkItem extends StudioItem {
@@ -153,4 +159,13 @@ export function inkOf(id: InkId): InkItem {
 
 export function itemsOf(kind: StudioKind): readonly StudioItem[] {
   return kind === 'ink' ? INKS : kind === 'finish' ? FINISHES : TRAILS;
+}
+
+/** One item by its id; an id nobody sells is the one of its kind that is everyone's. */
+export function itemOf(kind: StudioKind, id: string): StudioItem {
+  const items = itemsOf(kind);
+  return (
+    items.find((item) => item.id === id) ??
+    (items.find((item) => item.productId === null) as StudioItem)
+  );
 }

@@ -24,6 +24,7 @@ export * from './haunts-list';
 export * from './haunts-send';
 export * from './haunts-shoo';
 export * from './health';
+export * from './members-number';
 export * from './monster-caught';
 export * from './monster-make';
 export * from './monster-page';
