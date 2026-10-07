@@ -10,6 +10,7 @@ appId: app.scootch.dev
     timeout: 90000
 - tapOn:
     id: 'more-button'
+    waitToSettleTimeoutMs: 0
 - runFlow:
     when:
       notVisible:
@@ -17,6 +18,7 @@ appId: app.scootch.dev
     commands:
       - tapOn:
           id: 'more-button'
+          waitToSettleTimeoutMs: 0
 - extendedWaitUntil:
     visible:
       id: 'settings'

@@ -11,8 +11,11 @@ appId: app.scootch.dev
 - assertNotVisible:
     id: 'one-more-locked'
 - takeScreenshot: one-screen-done-for-today-one-more--en-light-default
+# The screen never goes quiet, so the press does not wait for it to settle: a second press by the
+# runner would land on the composer that the first one opened.
 - tapOn:
     id: 'one-more'
+    waitToSettleTimeoutMs: 0
 - extendedWaitUntil:
     visible:
       id: 'composer-switch'
