@@ -1,6 +1,15 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated, { FadeIn, FadeOut, LinearTransition, ReduceMotion } from 'react-native-reanimated';
+import Animated, {
+  FadeIn,
+  FadeOut,
+  interpolate,
+  LinearTransition,
+  ReduceMotion,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { Scootch } from '../../../art/Scootch';
 import { RoundButton as GlassRound } from '../../../ui/buttons';
@@ -20,13 +29,16 @@ export const ROW = 44;
 /** How long the row takes to change shape, on the boards' soft-landing curve. */
 const SHAPE_MS = 420;
 const WORDS_MS = 220;
+/** Scootch in his corner, and brought up large by a tap. */
+const SCOOTCH = { small: 48, large: 76 } as const;
 
 /**
  * The shapes the row takes. `row` is as the board draws it: the task in its pill and the time
- * beside it. `dot` tucks the task away to its dot, for someone who wants the screen quiet.
+ * beside it. `zoomed` brings Scootch up large in his corner, and the task steps back a little
+ * towards the time to give him the room.
  * `title` gives the task the time's room too, so a long one can be read whole.
  */
-type RowShape = 'row' | 'dot' | 'title';
+type RowShape = 'row' | 'zoomed' | 'title';
 
 export interface CatchTopRowProps extends ScreenProps {
   readonly stage: CatchStage;
@@ -54,7 +66,7 @@ function scootchMood(stage: CatchStage, stuck: boolean, twoMinutesLeft: boolean)
  * the moment asks ("Time's up", "I did it", "Done", "Caught"); and the corner control.
  *
  * Each of the first three answers a tap, and the row changes shape in one soft movement. Scootch
- * tucks the task away to its dot and brings it back. The task's pill opens to show the task
+ * comes up large while the task steps back, and goes small again. The task's pill opens to show the task
  * whole, taking the time's room, and closes again. The time, while it counts, turns between how
  * long is left and when it ends. Nothing here starts, stops or changes the session.
  */
@@ -62,6 +74,31 @@ export function CatchTopRow(props: CatchTopRowProps) {
   const { model, actions, inks, t, stage } = props;
   const [shape, setShape] = useState<RowShape>('row');
   const [showsEnd, setShowsEnd] = useState(false);
+  const zoomed = shape === 'zoomed';
+  // How far Scootch has come up: 0 small in his corner, 1 large. It runs on the UI thread, and
+  // where nothing may move it is simply one or the other.
+  const up = useSharedValue(0);
+  useEffect(() => {
+    up.value = model.reducedMotion
+      ? Number(zoomed)
+      : withTiming(Number(zoomed), {
+          duration: SHAPE_MS,
+          easing: SPRING_CURVE,
+          reduceMotion: ReduceMotion.Never,
+        });
+  }, [zoomed, model.reducedMotion, up]);
+  const room = useAnimatedStyle(() => {
+    const side = interpolate(up.value, [0, 1], [SCOOTCH.small, SCOOTCH.large]);
+    return { width: side, height: side };
+  });
+  const grown = useAnimatedStyle(() => ({
+    transform: [{ scale: interpolate(up.value, [0, 1], [1, SCOOTCH.large / SCOOTCH.small]) }],
+  }));
+  // The task steps back towards the time: a little smaller and a little fainter, never gone.
+  const smaller = useAnimatedStyle(() => ({
+    opacity: interpolate(up.value, [0, 1], [1, 0.78]),
+    transform: [{ scale: interpolate(up.value, [0, 1], [1, 0.88]) }],
+  }));
   const counting = stage === 'setting' || stage === 'coach';
   const left = stage === 'coach' ? 1 : model.fraction;
   const corner =
@@ -98,63 +135,60 @@ export function CatchTopRow(props: CatchTopRowProps) {
       <PressSpring
         accessibilityRole="button"
         accessibilityLabel={t('brand.name')}
-        accessibilityHint={t(
-          shape === 'dot' ? 'session.catch.untuck.hint' : 'session.catch.tuck.hint',
-        )}
-        onPress={() => setShape((now) => (now === 'dot' ? 'row' : 'dot'))}
+        accessibilityHint={t(zoomed ? 'session.catch.untuck.hint' : 'session.catch.tuck.hint')}
+        onPress={() => setShape((now) => (now === 'zoomed' ? 'row' : 'zoomed'))}
         feedback="choice"
         hitSlop={6}
         testID="session-scootch-button"
-        style={styles.scootch}
       >
-        <View pointerEvents="none">
-          <Scootch
-            mood={scootchMood(stage, props.stuck, props.twoMinutesLeft)}
-            attitude={model.attitude}
-            workMode={model.workMode}
-            reducedMotion={model.reducedMotion}
-            squashOnChange
-            size={48}
-            testID="session-scootch"
-          />
-        </View>
+        {/* His room in the row grows with him, so the pill beside him gives way as he comes up. */}
+        <Animated.View pointerEvents="none" style={[styles.scootch, room]}>
+          <Animated.View style={grown}>
+            <Scootch
+              mood={scootchMood(stage, props.stuck, props.twoMinutesLeft)}
+              attitude={model.attitude}
+              workMode={model.workMode}
+              reducedMotion={model.reducedMotion}
+              squashOnChange
+              size={SCOOTCH.small}
+              testID="session-scootch"
+            />
+          </Animated.View>
+        </Animated.View>
       </PressSpring>
-      <Animated.View {...reshape} style={shape === 'dot' ? styles.tucked : styles.pillRoom}>
+      <Animated.View {...reshape} style={[styles.pillRoom, smaller]}>
         <PressSpring
           accessibilityRole="button"
           accessibilityLabel={model.taskText}
           accessibilityHint={t(
-            shape === 'row'
-              ? 'session.catch.task.open.hint'
-              : shape === 'title'
-                ? 'session.catch.task.close.hint'
-                : 'session.catch.untuck.hint',
+            shape === 'title' ? 'session.catch.task.close.hint' : 'session.catch.task.open.hint',
           )}
           testID="session-pill"
-          onPress={() => setShape((now) => (now === 'row' ? 'title' : 'row'))}
+          onPress={() => setShape((now) => (now === 'title' ? 'row' : 'title'))}
           answeredBy={glassPressOwner(true)}
         >
           <GlassSurface interactive style={styles.pill}>
             <View pointerEvents="none" style={styles.pillInner}>
               <PillDot inks={inks} />
-              {shape === 'dot' ? null : (
-                <Animated.View key={shape} entering={arrive} exiting={leave} style={styles.fit}>
-                  <SessionText
-                    face="pill"
-                    color={inks.ink}
-                    numberOfLines={shape === 'title' ? 3 : 1}
-                    style={styles.fit}
-                  >
-                    {model.taskText}
-                  </SessionText>
-                </Animated.View>
-              )}
+              <Animated.View
+                key={shape === 'title' ? 'whole' : 'line'}
+                entering={arrive}
+                exiting={leave}
+                style={styles.fit}
+              >
+                <SessionText
+                  face="pill"
+                  color={inks.ink}
+                  numberOfLines={shape === 'title' ? 3 : 1}
+                  style={styles.fit}
+                >
+                  {model.taskText}
+                </SessionText>
+              </Animated.View>
             </View>
           </GlassSurface>
         </PressSpring>
       </Animated.View>
-      {/* Tucked away, the room the task had stays empty: the time keeps its corner. */}
-      {shape === 'dot' ? <Animated.View {...reshape} style={styles.gap} /> : null}
       {!timeShown ? null : (
         <Animated.View {...reshape} entering={arrive} exiting={leave}>
           {stage === 'waiting' ? (
@@ -232,12 +266,10 @@ export function CatchTopRow(props: CatchTopRowProps) {
 }
 
 const styles = StyleSheet.create({
-  scootch: { width: 48, height: 48, marginVertical: -2 },
-  // The task's pill gives way before the time and the corner control do.
-  pillRoom: { flex: 1, minWidth: 0 },
-  // Tucked away, the pill is as wide as its dot needs.
-  tucked: { flexGrow: 0 },
-  gap: { flex: 1 },
+  scootch: { marginVertical: -2, alignItems: 'center', justifyContent: 'center' },
+  // The task's pill gives way before the time and the corner control do, and steps back towards
+  // the time when Scootch comes up.
+  pillRoom: { flex: 1, minWidth: 0, transformOrigin: 'right center' },
   pill: {
     minHeight: ROW,
     borderRadius: ROW / 2,
