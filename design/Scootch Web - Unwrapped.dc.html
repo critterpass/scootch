@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"><script src="./web-fx.js"></script><style>html{scroll-behavior:smooth}body{margin:0;background:#120F0D;color:#F6F3EE;font-family:-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}a{color:#F6F3EE}a:hover{color:#FF8A63}</style></helmet>
+<header style="position:sticky;top:0;z-index:40;background:rgba(246,243,238,.78);-webkit-backdrop-filter:blur(18px) saturate(160%);backdrop-filter:blur(18px) saturate(160%);box-shadow:0 .5px 0 rgba(28,26,23,.1)">
+<div style="max-width:1240px;margin:0 auto;padding:14px 28px;display:flex;align-items:center;gap:22px;flex-wrap:wrap">
+<a href="Scootch%20-%20Website%20v2.dc.html" style="text-decoration:none;color:#1C1A17;font:900 24px/1 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.03em">scootch<span style="color:#F0562E">.</span></a>
+<nav style="display:flex;gap:4px;flex-wrap:wrap;flex:1">
+<a href="Scootch%20Web%20-%20Monster.dc.html" style="text-decoration:none;color:#1C1A17;font:500 15px/1 -apple-system, system-ui, sans-serif;padding:10px 12px;border-radius:999px;transition:background .2s" style-hover="background:rgba(28,26,23,.07)">Monster maker</a>
+<a href="Scootch%20-%20Website%20v2.dc.html#hunt" style="text-decoration:none;color:#1C1A17;font:500 15px/1 -apple-system, system-ui, sans-serif;padding:10px 12px;border-radius:999px;transition:background .2s" style-hover="background:rgba(28,26,23,.07)">How it works</a>
+<a href="Scootch%20-%20Website%20v2.dc.html#tables" style="text-decoration:none;color:#1C1A17;font:500 15px/1 -apple-system, system-ui, sans-serif;padding:10px 12px;border-radius:999px;transition:background .2s" style-hover="background:rgba(28,26,23,.07)">Tables</a>
+<a href="Scootch%20Web%20-%20Plus.dc.html" style="text-decoration:none;color:#1C1A17;font:500 15px/1 -apple-system, system-ui, sans-serif;padding:10px 12px;border-radius:999px;transition:background .2s" style-hover="background:rgba(28,26,23,.07)">Plus</a>
+<a href="Scootch%20Web%20-%20Wall.dc.html" style="text-decoration:none;color:#1C1A17;font:500 15px/1 -apple-system, system-ui, sans-serif;padding:10px 12px;border-radius:999px;transition:background .2s" style-hover="background:rgba(28,26,23,.07)">The wall</a><a href="Scootch%20Web%20-%20Help.dc.html" style="text-decoration:none;color:#1C1A17;font:500 15px/1 -apple-system, system-ui, sans-serif;padding:10px 12px;border-radius:999px;transition:background .2s" style-hover="background:rgba(28,26,23,.07)">Help</a>
+</nav>
+<a data-press="1" data-magnet="1" href="Scootch%20Web%20-%20Get.dc.html" aria-label="Get Scootch on the App Store" style="display:inline-flex;align-items:center;gap:10px;height:48px;padding:0 16px 0 6px;border-radius:24px;background:#1C1A17;color:#F6F3EE;text-decoration:none;flex:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 10px 24px -12px rgba(28,26,23,.6)" style-hover="background:#2A2522"><div style="width:36px;height:36px;border-radius:9px;flex:none;position:relative;overflow:hidden;background:radial-gradient(120% 90% at 30% 15%,#FFB08F 0%,#F0562E 55%,#C63F22 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 6px 14px -6px rgba(240,86,46,.7)"><div style="position:absolute;left:50%;bottom:-6px;transform:translateX(-50%)"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="scootch" mood="scheming" still="{{ still }}" sound="off" style="width:41px;height:41px;flex:none" hint-size="41px,41px"></x-import></div></div><span style="font:700 15px/1 -apple-system, system-ui, sans-serif;letter-spacing:-.01em">Get the app</span><span style="width:22px;height:22px;border-radius:11px;background:#F0562E;color:#1C1A17;display:flex;align-items:center;justify-content:center;font:900 13px/1 ui-rounded, 'Nunito', system-ui, sans-serif">↓</span></a>
+</div>
+<div style="position:relative;height:3px;background:rgba(28,26,23,.06)"><div data-prog-fill="1" style="position:absolute;left:0;top:0;bottom:0;width:0%;background:linear-gradient(90deg,#FF8A63,#F0562E)"></div><div data-prog-run="1" style="position:absolute;left:0%;top:-3px;transform:translateX(-50%);pointer-events:none"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="scootch" mood="working" still="{{ still }}" sound="off" style="width:30px;height:30px;flex:none" hint-size="30px,30px"></x-import></div></div>
+</header>
+
+<section data-screen-label="Unwrapped · cover" style="position:relative;overflow:hidden;min-height:92vh;display:flex;align-items:center">
+<div data-aurora="1" style="position:absolute;inset:0;overflow:hidden"><div style="position:absolute;width:640px;height:640px;left:-200px;top:-180px;border-radius:50%;background:#F0562E;filter:blur(130px);opacity:.55"></div><div style="position:absolute;width:520px;height:520px;right:-160px;top:200px;border-radius:50%;background:#4FB6FF;filter:blur(130px);opacity:.25"></div></div>
+<div data-grain="1" style="position:absolute;inset:0;opacity:.28;mix-blend-mode:overlay;pointer-events:none"></div>
+<div style="max-width:1240px;width:100%;margin:0 auto;padding:60px 28px;position:relative;display:flex;flex-wrap:wrap;gap:24px 48px;align-items:center">
+<div style="flex:1 1 520px;min-width:0;display:flex;flex-direction:column;gap:6px">
+<span style="font:700 12px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.18em;color:#FFB79F">ANA'S SEPTEMBER, UNWRAPPED</span>
+<div data-chrome="1" data-count="42" style="font:900 clamp(180px,26vw,380px)/.86 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.075em;background:linear-gradient(180deg,#FFFFFF 0%,#E4DFD8 22%,#8F8A83 44%,#2A2622 50%,#D8D3CC 54%,#FFFFFF 70%,#9C978F 100%);background-size:100% 160%;-webkit-background-clip:text;background-clip:text;color:transparent;padding-right:.1em;margin-right:-.1em;filter:drop-shadow(0 30px 40px rgba(0,0,0,.6))">42</div>
+<span style="font:900 clamp(32px,4vw,56px)/1 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.04em">monsters caught.</span>
+<span style="font:400 18px/1.45 -apple-system, system-ui, sans-serif;color:rgba(246,243,238,.72);margin-top:10px;max-width:480px">That's 42 things that aren't hanging over Ana any more. Scroll for the highlights.</span>
+</div>
+<div style="flex:1 1 380px;min-width:0;display:flex;justify-content:center"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="world" count="42" mood="proud" on="dark" still="{{ still }}" sound="off" style="width:min(460px,90vw);height:min(420px,82vw);flex:none" hint-size="420px,380px"></x-import></div>
+</div>
+</section>
+
+<section data-screen-label="Unwrapped · most feared" style="position:relative;background:#F0562E;color:#1C1A17;overflow:hidden">
+<div style="position:absolute;inset:0;background:radial-gradient(circle,rgba(28,26,23,.16) 30%,transparent 33%) 0 0/12px 12px;-webkit-mask-image:linear-gradient(90deg,transparent,#000);mask-image:linear-gradient(90deg,transparent,#000)"></div>
+<div style="max-width:1240px;margin:0 auto;padding:100px 28px;display:flex;flex-wrap:wrap;gap:40px;align-items:center;position:relative">
+<div style="flex:1 1 480px;min-width:0;display:flex;flex-direction:column;gap:14px"><span style="font:700 12px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.18em">MOST FEARED</span><h2 style="margin:0;font:900 clamp(48px,7vw,110px)/.88 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.06em">Paperwork.</h2><span style="font:500 20px/1.45 -apple-system, system-ui, sans-serif;max-width:460px">Nine paperwork monsters, nine catches. Formhilda is shaking in her filing cabinet.</span></div>
+<div data-reveal="stagger" style="flex:1 1 420px;min-width:0;display:flex;flex-direction:column;gap:12px">
+<sc-for list="{{ kinds }}" as="k" hint-placeholder-count="5"><div style="display:flex;align-items:center;gap:14px"><span style="width:110px;font:700 15px/1 -apple-system, system-ui, sans-serif">{{ k.label }}</span><div style="flex:1;height:30px;border-radius:15px;background:rgba(28,26,23,.12);overflow:hidden"><div data-grow="1" style="height:100%;width:{{ k.w }};border-radius:15px;background:{{ k.bg }}"></div></div><span style="width:28px;font:900 20px/1 ui-rounded, 'Nunito', system-ui, sans-serif;text-align:right">{{ k.n }}</span></div></sc-for>
+</div>
+</div>
+</section>
+
+<section data-screen-label="Unwrapped · best day" style="position:relative;background:#F6F3EE;color:#1C1A17;overflow:hidden">
+<div data-grain="1" style="position:absolute;inset:0;opacity:.35;mix-blend-mode:multiply;pointer-events:none"></div>
+<div style="max-width:1240px;margin:0 auto;padding:100px 28px;display:flex;flex-direction:column;gap:40px;position:relative">
+<div style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end;justify-content:space-between"><div style="display:flex;flex-direction:column;gap:14px"><span style="font:700 12px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.18em;color:#C63F22">BEST DAY</span><h2 style="margin:0;font:900 clamp(44px,6vw,92px)/.9 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.055em">Thursdays, obviously.</h2></div><span style="font:400 18px/1.45 -apple-system, system-ui, sans-serif;color:#4A443D;max-width:380px">Eleven catches on Thursdays. Mondays were a write-off, and that's allowed.</span></div>
+<div data-bars="1" style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:12px;align-items:end;height:300px;padding:0 4px">
+<sc-for list="{{ days }}" as="d" hint-placeholder-count="7"><div style="display:flex;flex-direction:column;align-items:center;gap:10px;height:100%;justify-content:flex-end"><span style="font:900 20px/1 ui-rounded, 'Nunito', system-ui, sans-serif">{{ d.n }}</span><div data-bar="1" style="width:100%;max-width:92px;height:{{ d.h }};border-radius:18px 18px 8px 8px;background:{{ d.bg }};box-shadow:{{ d.sh }};position:relative"></div><span style="font:600 14px/1 -apple-system, system-ui, sans-serif;color:{{ d.fg }}">{{ d.label }}</span></div></sc-for>
+</div>
+</div>
+</section>
+
+<section data-screen-label="Unwrapped · trophies" style="position:relative;overflow:hidden">
+<div style="max-width:1240px;margin:0 auto;padding:100px 28px;display:flex;flex-direction:column;gap:36px">
+<h2 style="margin:0;font:900 clamp(40px,5vw,72px)/.92 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.05em">The trophy cabinet</h2>
+<div data-reveal="stagger" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;perspective:1300px">
+<div data-tilt="1" style="border-radius:28px;position:relative;overflow:hidden;min-height:340px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.7),0 30px 60px -30px rgba(200,120,220,.6)"><div style="position:absolute;inset:0;background:linear-gradient(135deg,#F3EDFB 0%,#E6F7F6 45%,#FBF1E4 100%)"></div><div data-holo="1" style="position:absolute;inset:0;background-image:repeating-linear-gradient(115deg,rgba(255,105,180,.5) 0%,rgba(100,215,255,.5) 5%,rgba(255,235,120,.5) 10%,rgba(150,120,255,.5) 15%,rgba(255,105,180,.5) 20%);background-size:300% 300%;opacity:.9"></div><div style="position:absolute;inset:0;padding:22px;display:flex;flex-direction:column;color:#1C1A17"><span style="font:700 11px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.14em">OLDEST CATCH</span><div style="flex:1;display:flex;align-items:flex-end;justify-content:center"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="task" seed="parcel" type="box" mood="idle" still="{{ still }}" sound="off" style="width:190px;height:190px;flex:none" hint-size="190px,190px"></x-import></div><span style="font:900 24px/1.05 ui-rounded, 'Nunito', system-ui, sans-serif">Returnio, the Unsent</span><span style="font:500 14px/1.3 -apple-system, system-ui, sans-serif;margin-top:4px">Lurked 47 days. Gone in 9 minutes.</span></div><div data-glare="1" style="position:absolute;inset:0;pointer-events:none;mix-blend-mode:soft-light"></div></div>
+<div style="border-radius:28px;background:#1E1A17;padding:22px;display:flex;flex-direction:column;gap:10px;min-height:340px;box-sizing:border-box;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)"><span style="font:700 11px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.14em;color:#FFB79F">TIME HUNTING</span><span style="font:900 72px/1 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.05em"><span data-count="7">7</span>h <span data-count="20">20</span>m</span><span style="font:400 16px/1.45 -apple-system, system-ui, sans-serif;color:rgba(246,243,238,.72)">In ten-minute bites. Less than one long film, spread across a whole month.</span><div style="margin-top:auto;display:flex;gap:3px;height:12px"><sc-for list="{{ pips }}" as="p" hint-placeholder-count="30"><div style="flex:1;border-radius:3px;background:{{ p }}"></div></sc-for></div></div>
+<div style="border-radius:28px;background:#1E1A17;padding:22px;display:flex;flex-direction:column;gap:10px;min-height:340px;box-sizing:border-box;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);position:relative;overflow:hidden"><span style="font:700 11px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.14em;color:#FFB79F">AT THE TABLE</span><span style="font:900 72px/1 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.05em"><span data-count="14">14</span></span><span style="font:400 16px/1.45 -apple-system, system-ui, sans-serif;color:rgba(246,243,238,.72)">sessions with company. Hana sat with Ana six times. Nobody said a word.</span><div style="position:absolute;left:0;right:0;bottom:-10px;display:flex;justify-content:center"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="scootch" work="writing" mood="working" on="dark" still="{{ still }}" sound="off" style="width:110px;height:110px;flex:none" hint-size="110px,110px"></x-import><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="scootch" work="email" mood="working" on="dark" still="{{ still }}" sound="off" style="width:110px;height:110px;flex:none" hint-size="110px,110px"></x-import></div></div>
+</div>
+</div>
+</section>
+
+<section data-screen-label="Unwrapped · share" style="position:relative;overflow:hidden;background:#1C1714">
+<div style="max-width:960px;margin:0 auto;padding:100px 28px 120px;display:flex;flex-direction:column;align-items:center;gap:22px;text-align:center">
+<x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="scootch" mood="celebrate" on="dark" still="{{ still }}" sound="off" style="width:200px;height:200px;flex:none" hint-size="200px,200px"></x-import>
+<h2 style="margin:0;font:900 clamp(40px,5.4vw,80px)/.92 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.05em;text-wrap:balance">Not bad for a brain that "can't start things".</h2>
+<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center"><div data-press="1" onClick="{{ share }}" style="height:56px;padding:0 24px;border-radius:28px;background:#F6F3EE;color:#1C1A17;display:flex;align-items:center;font:700 17px -apple-system, system-ui, sans-serif;cursor:pointer">{{ shareLabel }}</div><a data-press="1" href="Scootch%20-%20Website%20v2.dc.html" style="height:56px;padding:0 22px;border-radius:28px;background:rgba(255,255,255,.1);display:flex;align-items:center;font:650 16px -apple-system, system-ui, sans-serif;text-decoration:none">Make my own</a></div>
+<span style="font:400 14px/1.45 -apple-system, system-ui, sans-serif;color:rgba(246,243,238,.6)">Ana chose to share this page. Task names stay private.</span>
+</div>
+</section>
+<footer id="footer" style="background:#1C1A17;color:#F6F3EE">
+<div style="max-width:1240px;margin:0 auto;padding:64px 28px 40px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-wrap:wrap;gap:40px;justify-content:space-between">
+<div style="flex:1 1 280px;display:flex;flex-direction:column;gap:12px"><span style="font:900 28px/1 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.03em">scootch<span style="color:#F0562E">.</span></span><span style="font:400 15px/1.45 -apple-system, system-ui, sans-serif;color:rgba(246,243,238,.72);max-width:300px">Small things, one at a time, with someone quietly sitting next to you.</span></div>
+<div style="display:flex;flex-direction:column;gap:10px;font:400 15px/1.2 -apple-system, system-ui, sans-serif"><span style="font:700 12px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.12em;color:rgba(246,243,238,.6)">SCOOTCH</span><a href="Scootch%20Web%20-%20Help.dc.html#isnt" style="color:#F6F3EE;text-decoration:none">What Scootch is and isn't</a><a href="Scootch%20Web%20-%20Plus.dc.html" style="color:#F6F3EE;text-decoration:none">Plus</a><a href="Scootch%20Web%20-%20Wall.dc.html" style="color:#F6F3EE;text-decoration:none">The monster wall</a><a href="Scootch%20Web%20-%20Unwrapped.dc.html" style="color:#F6F3EE;text-decoration:none">Unwrapped</a><a href="Scootch%20Web%20-%20Invites.dc.html" style="color:#F6F3EE;text-decoration:none">Invites and gifts</a></div>
+<div style="display:flex;flex-direction:column;gap:10px;font:400 15px/1.2 -apple-system, system-ui, sans-serif"><span style="font:700 12px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.12em;color:rgba(246,243,238,.6)">HELP</span><a href="Scootch%20Web%20-%20Help.dc.html" style="color:#F6F3EE;text-decoration:none">Support and questions</a><a href="Scootch%20Web%20-%20Help.dc.html#helplines" style="color:#F6F3EE;text-decoration:none">Helplines</a><a href="Scootch%20Web%20-%20Help.dc.html#privacy" style="color:#F6F3EE;text-decoration:none">Privacy</a><a href="Scootch%20Web%20-%20Get.dc.html" style="color:#F6F3EE;text-decoration:none">Get the app · Android · Press</a></div>
+<div style="flex:1 1 280px;border-radius:24px;background:rgba(255,255,255,.07);padding:20px;display:flex;flex-direction:column;gap:8px"><span style="font:800 18px/1.2 ui-rounded, 'Nunito', system-ui, sans-serif">Having a really hard time?</span><span style="font:400 14.5px/1.45 -apple-system, system-ui, sans-serif;color:rgba(246,243,238,.78)">You deserve a real person. Find a free, confidential helpline in your country.</span><a href="Scootch%20Web%20-%20Help.dc.html#helplines" style="font:650 15px -apple-system, system-ui, sans-serif;color:#FFB79F">Find a helpline</a></div>
+</div>
+<div style="position:relative;display:flex;flex-direction:column;align-items:center;margin-top:24px">
+<div style="display:flex;gap:6vw;justify-content:center;margin-bottom:-2.4vw;position:relative;z-index:1"><div data-anim="peek"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="task" seed="dentist" type="tooth" mood="idle" on="dark" still="{{ still }}" sound="off" style="width:clamp(64px,9vw,128px);height:clamp(64px,9vw,128px);flex:none" hint-size="96px,96px"></x-import></div><div data-anim="peek"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="scootch" mood="proud" on="dark" still="{{ still }}" sound="off" style="width:clamp(80px,11vw,160px);height:clamp(80px,11vw,160px);flex:none" hint-size="120px,120px"></x-import></div><div data-anim="peek"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="task" seed="sock" type="sock" mood="idle" on="dark" still="{{ still }}" sound="off" style="width:clamp(64px,9vw,128px);height:clamp(64px,9vw,128px);flex:none" hint-size="96px,96px"></x-import></div></div>
+<span style="display:block;font:900 clamp(84px,19vw,280px)/.82 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.065em;color:#F6F3EE;text-align:center;user-select:none">scootch<span style="color:#F0562E">.</span></span>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:12px 24px;justify-content:space-between;padding-top:24px;border-top:1px solid rgba(246,243,238,.14);font:400 13px/1.45 -apple-system, system-ui, sans-serif;color:rgba(246,243,238,.62)"><span style="max-width:640px">Scootch is a support tool for starting things. It doesn't diagnose, treat or cure ADHD or anything else.</span><span>© 2026 Scootch · Made with mild panic</span></div>
+</div>
+</footer>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;boil&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;label&quot;:&quot;Motion&quot;}}">
+class Component extends DCLogic {
+  state = { shared: false };
+  componentDidMount() {
+    const go = () => { if (window.ScootchWebFX) { this._fx = ScootchWebFX.init({ still: this.props.boil === false }); this.grow(); } else this._w = setTimeout(go, 60); }; go();
+  }
+  grow() { if (this.props.boil === false) return; const io = new IntersectionObserver(es => es.forEach(e => { if (!e.isIntersecting) return; io.unobserve(e.target); e.target.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { duration: 1100, easing: 'cubic-bezier(.32,.72,0,1)', fill: 'backwards' }); }), { threshold: .5 }); document.querySelectorAll('[data-grow]').forEach(g => { g.style.transformOrigin = 'left'; io.observe(g); }); this._io = io; }
+  componentWillUnmount() { clearTimeout(this._w); this._fx && this._fx(); this._io && this._io.disconnect(); }
+  renderVals() {
+    const K = [['Paperwork', 9, '#1C1A17'], ['Email', 8, '#3A2E26'], ['Home', 7, '#5A4A3E'], ['Money', 6, '#7A6656'], ['People', 4, '#9A8573']];
+    const D = [['Mon', 2], ['Tue', 6], ['Wed', 7], ['Thu', 11], ['Fri', 8], ['Sat', 5], ['Sun', 3]];
+    return {
+      still: this.props.boil === false ? 'true' : undefined,
+      kinds: K.map(([label, n, bg]) => ({ label, n, bg, w: (n / 9 * 100) + '%' })),
+      days: D.map(([label, n]) => ({ label, n, h: (n / 11 * 82 + 6) + '%', bg: n === 11 ? 'linear-gradient(180deg,#FF8A63,#F0562E)' : 'rgba(28,26,23,.12)', sh: n === 11 ? '0 20px 40px -16px rgba(240,86,46,.7)' : 'none', fg: n === 11 ? '#C63F22' : '#6F6A62' })),
+      pips: Array.from({ length: 30 }, (_, i) => [3, 8, 9, 14, 20, 26].includes(i) ? 'rgba(255,255,255,.12)' : '#FF8A63'),
+      shareLabel: this.state.shared ? 'Link copied' : 'Share this page',
+      share: e => { const el = e.currentTarget; try { navigator.clipboard.writeText(location.href); } catch (x) {} this.setState({ shared: true }); window.ScootchWebFX && ScootchWebFX.burst(el, 20); }
+    };
+  }
+}
+</script>
+</body>
+</html>

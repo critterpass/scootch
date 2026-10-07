@@ -18,7 +18,9 @@ const copy = pagesFor(language).caughtCard;
 ---
 
 <SiteLayout language={language} path="/c" title={copy.title} description={copy.description} social={false}>
-  <section
+  <section class="band shared-band">
+    <div class="grain"></div>
+    <div
     class="wrap shared-page"
     data-caught-card-page
     data-state="loading"
@@ -51,6 +53,7 @@ const copy = pagesFor(language).caughtCard;
     <div data-show="offline" hidden>
       <h1 tabindex="-1">{pagesFor(language).monster.offlineTitle}</h1>
       <p class="lede">{pagesFor(language).monster.offlineBody}</p>
+    </div>
     </div>
   </section>
 

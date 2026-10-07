@@ -1,10 +1,13 @@
 ---
 import type { Language } from '@scootch/i18n';
 
-import { copyFor, localPath } from '../copy';
-import { monsterSvg, scootchSvg, stripMonsters } from '../lib/drawings';
+import { brand, copyFor, fill, localPath, pagesFor, preLaunch } from '../copy';
+import { monsterSvg, scootchSvg, shelfMonsters, stripMonsters } from '../lib/drawings';
 import SiteLayout from '../layouts/site-layout.astro';
+import '../styles/home.css';
 
+import Critter from './critter.astro';
+import MaterialLayers from './material-layers.astro';
 import MonsterMaker from './monster-maker.astro';
 
 interface Props {
@@ -13,126 +16,453 @@ interface Props {
 
 const { language } = Astro.props;
 const copy = copyFor(language);
-
-// The four beats as stills: ramble, hatch, start, catch.
-const molar = monsterSvg('tooth', 'dentist');
-const stills = [scootchSvg('listening'), molar, scootchSvg('celebrating'), molar];
-const ideaDrawings = [scootchSvg('thinking'), molar, scootchSvg('working')];
+const words = brand(language);
+const finishIds = ['paper', 'holo', 'chrome', 'jelly', 'glass', 'velvet', 'riso'] as const;
+const attitudeMoods = ['asleep', 'scheming', 'dramatic'] as const;
+const tileMoods = ['nudge', 'listening', 'thinking', 'working', 'pleased'] as const;
+const seatWork = ['email', 'writing', 'money', 'decluttering'] as const;
+const molar = () => monsterSvg('tooth', 'dentist');
+const hydra = () => monsterSvg('receipt', 'receipt');
+const shelf = () => shelfMonsters.map((monster) => monsterSvg(monster.bodyType, monster.seed));
+// The strip runs twice over so that it can loop without a seam.
+const strip = [...stripMonsters, ...stripMonsters].map((monster, index) => ({
+  ...monster,
+  name: copy.strip.monsters[index % stripMonsters.length]?.name ?? '',
+}));
 ---
 
 <SiteLayout language={language} path="/" title={copy.meta.title} description={copy.meta.description}>
   <MonsterMaker language={language} />
 
-  <section class="wrap panel demo" aria-labelledby="demo-title">
-    <p class="eyebrow">{copy.demo.eyebrow}</p>
-    <h2 id="demo-title">{copy.demo.headline}</h2>
-    <ol class="beats">
+  <div class="strip on-night" role="img" aria-label={`${copy.strip.label}: ${copy.strip.monsters.map((monster) => monster.name).join(', ')}`}>
+    <ul class="strip-track" aria-hidden="true">
       {
-        copy.demo.beats.map((beat, index) => (
+        strip.map((monster) => (
           <li>
-            <figure>
-              <span class={`still${index === 3 ? ' still-caught' : ''}`}>
-                <span class="drawing" aria-hidden="true" set:html={stills[index]} />
-              </span>
-              <figcaption>
-                <span class="beat-number" aria-hidden="true">
-                  {index + 1}
-                </span>
-                {beat}
-              </figcaption>
-            </figure>
+            <Critter svg={monsterSvg(monster.bodyType, monster.seed)} size="3.25rem" />
+            <span>{monster.name}</span>
+            <i />
           </li>
         ))
       }
-    </ol>
-  </section>
+    </ul>
+  </div>
 
-  <section class="wrap ideas">
-    {
-      copy.ideas.map((idea, index) => (
-        <div class="idea">
-          <span class="blob blob-small">
-            <span class="drawing" aria-hidden="true" set:html={ideaDrawings[index]} />
-          </span>
-          <div>
-            <h2>{idea.title}</h2>
-            <p>{idea.body}</p>
+  <section id="hunt" class="hunt on-night" data-hunt data-lines={JSON.stringify(copy.hunt.lines)}>
+    <div class="hunt-pin">
+      <div class="hunt-glow"></div>
+      <div class="grain"></div>
+      <div class="wrap hunt-grid">
+        <div class="hunt-words">
+          <p class="eyebrow">{copy.hunt.eyebrow}</p>
+          <h2>{copy.hunt.headline}</h2>
+          <ol class="hunt-steps">
+            {
+              copy.hunt.steps.map((step, index) => (
+                <li data-h-step class:list={{ on: index === 0 }}>
+                  <span class="hunt-number" aria-hidden="true">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+                  <div>
+                    <h3>{step.title}</h3>
+                    <p>{step.body}</p>
+                  </div>
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+        <div class="hunt-stage" aria-hidden="true">
+          <div class="session-card">
+            <div class="session-top">
+              <span class="session-monster"><span data-h-mon><Critter svg={molar()} size="7.25rem" /></span></span>
+              <div class="session-words">
+                <strong>{copy.hunt.task}</strong>
+                <span data-h-line>{copy.hunt.lines[0]}</span>
+              </div>
+              <span class="session-time" data-h-time>10:00</span>
+            </div>
+            <div class="race">
+              <div class="race-track"><div class="race-fill" data-h-fill></div></div>
+              <div class="race-runner" data-h-run>
+                <Critter svg={scootchSvg('working', { night: true })} size="4rem" />
+              </div>
+            </div>
+            <div class="session-buttons"><span>{copy.hunt.park}</span><span>{copy.hunt.stuck}</span></div>
+          </div>
+          <div class="hunt-caught" data-h-caught>
+            <div class="mcard hunt-card" data-finish="holo">
+              <MaterialLayers />
+              <span class="card-top">{copy.hunt.cardTop}</span>
+              <div class="card-window"><Critter svg={molar()} /></div>
+              <strong>{copy.hunt.cardTitle}</strong>
+              <p>{copy.hunt.cardBody}</p>
+            </div>
           </div>
         </div>
-      ))
-    }
-  </section>
-
-  <section class="wrap strip" aria-labelledby="strip-title">
-    <h2 id="strip-title">{copy.strip.headline}</h2>
-    <ul class="strip-cards">
-      {
-        stripMonsters.map((monster, index) => {
-          const words = copy.strip.monsters[index];
-          return (
-            words && (
-              <li>
-                <figure class="card" role="img" aria-label={`${words.name}. ${words.flavour}`}>
-                  <div class="card-head">
-                    <span class="card-name">{words.name}</span>
-                    <span class="card-badge">{copy.maker.wild}</span>
-                  </div>
-                  <div class="card-art" set:html={monsterSvg(monster.bodyType, monster.seed)} />
-                  <p class="card-flavour">{words.flavour}</p>
-                  <div class="card-foot">
-                    <span>{copy.maker.notCaught}</span>
-                    <strong>scootch.app</strong>
-                  </div>
-                </figure>
-              </li>
-            )
-          );
-        })
-      }
-    </ul>
-  </section>
-
-  <section class="wrap prices">
-    <div class="panel price-free">
-      <p class="eyebrow">{copy.prices.freeEyebrow}</p>
-      <h2>{copy.prices.freeHeadline}</h2>
-      <ul class="ticks">
-        {copy.prices.free.map((item) => <li>{item}</li>)}
-      </ul>
+      </div>
     </div>
-    <div class="panel price-plus">
-      <p class="eyebrow tomato-text">{copy.prices.plusEyebrow}</p>
-      <h2>{copy.prices.plusHeadline}</h2>
-      <ul class="plans">
+  </section>
+
+  <section
+    class="band lurk"
+    data-lurk
+    data-stages={JSON.stringify(copy.lurk.stages)}
+    data-day={copy.lurk.day}
+    data-units={JSON.stringify([copy.lurk.unitOne, copy.lurk.unitMany])}
+  >
+    <div class="wrap split">
+      <div class="split-words">
+        <p class="eyebrow">{copy.lurk.eyebrow}</p>
+        <h2>{copy.lurk.headline}</h2>
+        <p class="lede">{copy.lurk.body}</p>
+        <div class="lurk-control">
+          <p class="mono-note" id="lurk-drag">{copy.lurk.drag}</p>
+          <div class="slider">
+            <div class="slider-rail"></div>
+            <div class="slider-fill" data-lurk-fill></div>
+            <div class="slider-ticks" aria-hidden="true">{Array.from({ length: 14 }, () => <i />)}</div>
+            <div class="slider-thumb" aria-hidden="true" data-lurk-thumb>
+              <strong data-lurk-days>6</strong>
+              <span data-lurk-unit>{copy.lurk.unitMany}</span>
+            </div>
+            <input type="range" min="1" max="14" value="6" aria-label={copy.lurk.sliderLabel} aria-describedby="lurk-drag" />
+          </div>
+          <div class="slider-scale" aria-hidden="true">
+            {copy.lurk.scale.map((mark) => <span>{mark}</span>)}
+          </div>
+          <p class="lurk-line" aria-live="polite"><i data-lurk-chip></i><span data-lurk-line>{copy.lurk.stages[1]}</span></p>
+        </div>
+      </div>
+      <div class="split-art">
+        <div class="widget widget-large" aria-hidden="true">
+          <div class="widget-monster" data-lurk-monster><Critter svg={hydra()} size="12.5rem" /></div>
+          <div class="widget-top">
+            <span>{copy.lurk.lurking}</span>
+            <span class="day-chip" data-lurk-chip data-lurk-day>{fill(copy.lurk.day, { n: '6' })}</span>
+          </div>
+          <strong class="widget-task">{copy.lurk.task}</strong>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band surfaces" data-surfaces>
+    <div class="grain grain-light"></div>
+    <div class="wrap stack">
+      <div class="head-pair">
+        <div>
+          <p class="eyebrow">{copy.surfaces.eyebrow}</p>
+          <h2>{copy.surfaces.headline}</h2>
+        </div>
+        <p class="lede">{copy.surfaces.body}</p>
+      </div>
+      <div class="surfaces-row" data-reveal="stagger">
+        <div class="device" aria-hidden="true">
+          <div class="device-shelf">{shelf().map((svg) => <Critter svg={svg} />)}</div>
+          <span class="device-island"></span>
+          <div class="device-clock">
+            <span>{copy.surfaces.date}</span>
+            <strong>14:43<Critter svg={scootchSvg('scheming')} /></strong>
+          </div>
+          <div class="live-activity">
+            <div class="live-top">
+              <span class="live-monster"><span data-shrinks><Critter svg={molar()} /></span></span>
+              <div>
+                <strong>{copy.surfaces.task}</strong>
+                <span>{copy.surfaces.line}</span>
+              </div>
+              <b data-clock>7:12</b>
+            </div>
+            <div class="live-race">
+              <div class="live-track"></div>
+              <span class="live-runner"><Critter svg={scootchSvg('working', { night: true })} /></span>
+            </div>
+            <div class="live-buttons"><span>{copy.hunt.park}</span><span>{copy.hunt.stuck}</span></div>
+          </div>
+        </div>
+        <div class="surfaces-side">
+          <div class="island-stage">
+            <button type="button" class="island" data-island data-mode="compact" aria-label={copy.surfaces.islandLabel}>
+              <span class="island-compact">
+                <Critter svg={scootchSvg('working', { night: true })} />
+                <span><b data-mins>8m</b><i class="island-ring"></i></span>
+              </span>
+              <span class="island-table">
+                {(['email', 'writing', 'money'] as const).map((work) => <Critter svg={scootchSvg('working', { work, night: true })} />)}
+                <span><b data-mins>8m</b><small>{copy.surfaces.atTable}</small></span>
+              </span>
+              <span class="island-caught">
+                <Critter svg={scootchSvg('celebrating', { night: true })} />
+                <span><b>{copy.surfaces.caught}</b><small>{copy.surfaces.caughtLine}</small></span>
+              </span>
+            </button>
+            <span class="island-caption" aria-hidden="true">{copy.surfaces.island}</span>
+          </div>
+          <div class="widget-pair tilt-space" aria-hidden="true">
+            <div class="widget">
+              <div class="widget-monster"><Critter svg={hydra()} size="12.25rem" /></div>
+              <span class="tag tag-tomato">{copy.surfaces.widgetDay}</span>
+              <strong class="widget-task">{copy.surfaces.widgetTask}</strong>
+            </div>
+            <div class="mcard widget widget-shelf" data-finish="holo" data-lean>
+              <MaterialLayers />
+              <div class="shelf-count"><span>{copy.surfaces.shelf}</span><strong data-count="42">42</strong></div>
+              <div class="shelf-row">{shelf().slice(0, 3).map((svg) => <Critter svg={svg} />)}</div>
+              <span class="mcard-glare"></span>
+            </div>
+          </div>
+          <ul class="chips">
+            {copy.surfaces.chips.map((chip) => <li class="pill">{chip}</li>)}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tables" class="band tables">
+    <div class="wrap stack">
+      <div class="head-pair">
+        <div>
+          <p class="eyebrow">{copy.tables.eyebrow}</p>
+          <h2>{copy.tables.headline}</h2>
+        </div>
+        <p class="lede">{copy.tables.body}</p>
+      </div>
+      <div class="table-room" data-table>
+        <div class="grain grain-light"></div>
+        <div class="table-bar">
+          <strong>{copy.tables.bar}</strong>
+          <button type="button" class="button button-ink" data-wave data-waved={copy.tables.waved}>
+            {copy.tables.wave}
+          </button>
+        </div>
+        <p class="table-toast" role="status" data-wave-back hidden>{copy.tables.wavedBack}</p>
+        <ul class="table-seats">
+          {
+            seatWork.map((work, index) => (
+              <li>
+                {index < 2 && <span class="wave-ring" />}
+                <Critter svg={scootchSvg('working', { work, paper: index > 0 })} />
+                <span>{copy.tables.seats[index]}</span>
+              </li>
+            ))
+          }
+        </ul>
+        <span class="table-top" aria-hidden="true"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="band attitudes on-night" data-attitudes data-attitude="1" data-notes={JSON.stringify(copy.attitudes.notes)}>
+    <div class="grain"></div>
+    <div class="wrap split">
+      <div class="split-words">
+        <p class="eyebrow">{copy.attitudes.eyebrow}</p>
+        <h2>{copy.attitudes.headline}</h2>
+        <p class="lede">{copy.attitudes.body}</p>
+        <div class="segmented" role="group" aria-label={copy.attitudes.pick}>
+          {
+            copy.attitudes.names.map((name, index) => (
+              <button type="button" aria-pressed={index === 1 ? 'true' : 'false'} data-attitude-pick={index}>
+                {name}
+              </button>
+            ))
+          }
+        </div>
+      </div>
+      <ul class="notes" data-reveal="stagger" aria-live="polite">
         {
-          copy.prices.plans.map((plan, index) => (
-            <li class={index === 1 ? 'plan plan-picked' : 'plan'}>
-              <span class="plan-name">{plan.name}</span>
-              <strong>{plan.price}</strong>
-              <span class="plan-detail">{plan.detail}</span>
+          copy.attitudes.senders.map((sender, index) => (
+            <li class="note">
+              {index < 2 ? (
+                <span class="note-face">
+                  <Critter svg={index === 0 ? molar() : hydra()} />
+                  <i />
+                </span>
+              ) : (
+                <span class="note-face note-app">
+                  {attitudeMoods.map((mood, at) => <Critter class={`att-${at}`} svg={scootchSvg(mood)} />)}
+                </span>
+              )}
+              <div>
+                <p><strong>{sender}</strong><span>{[copy.attitudes.now, '17:30', '18:58'][index]}</span></p>
+                <p data-note>{copy.attitudes.notes[1]?.[index]}</p>
+              </div>
             </li>
           ))
         }
       </ul>
-      <ul class="ticks">
-        {copy.prices.plus.map((item) => <li>{item}</li>)}
+    </div>
+  </section>
+
+  <section id="plus" class="band prices" data-finishes>
+    <div class="wrap stack">
+      <div class="head-single">
+        <p class="eyebrow">{copy.prices.eyebrow}</p>
+        <h2>{copy.prices.headline}</h2>
+        <p class="lede">{copy.prices.body}</p>
+      </div>
+      <div class="prices-row">
+        <div class="finish-stage tilt-space">
+          <span class="finish-glow"></span>
+          <div class="flip" data-finish-flip>
+            <div class="mcard finish-card" data-lean data-wears data-finish="holo" aria-hidden="true">
+              <MaterialLayers />
+              <div class="card-top"><span>{copy.prices.cardTop}</span><span>{copy.prices.cardNumber}</span></div>
+              <div class="finish-art"><Critter svg={scootchSvg('pleased')} /></div>
+              <strong data-finish-name>{copy.prices.finishes[1]}</strong>
+              <span class="mcard-glare"></span>
+            </div>
+          </div>
+          <div class="swatches" role="group" aria-label={copy.prices.finishLabel}>
+            {
+              finishIds.map((id, index) => (
+                <button type="button" data-finish-pick={id} data-name={copy.prices.finishes[index]} aria-pressed={id === 'holo' ? 'true' : 'false'}>
+                  <i class="swatch" data-finish={id} />
+                  {copy.prices.finishes[index]?.split(' ')[0]}
+                </button>
+              ))
+            }
+          </div>
+        </div>
+        <div class="prices-side">
+          <ul class="plan-row" data-reveal="stagger">
+            {
+              copy.prices.plans.map((plan, index) => (
+                <li class:list={['plan', { 'plan-picked': index === 1 }]}>
+                  <span class="plan-name">{plan.name}</span>
+                  <strong>{plan.price}</strong>
+                  <span class="plan-detail">{plan.detail}</span>
+                </li>
+              ))
+            }
+          </ul>
+          <div class="have-pair">
+            <div class="have">
+              <h3>{copy.prices.freeHeadline}</h3>
+              <ul>{copy.prices.free.map((item) => <li>{item}</li>)}</ul>
+            </div>
+            <div class="have have-plus">
+              <h3>{copy.prices.plusHeadline}</h3>
+              <ul>{copy.prices.plus.map((item) => <li>{item}</li>)}</ul>
+            </div>
+          </div>
+          <p class="small">
+            {copy.prices.reminder}{' '}
+            <a href={localPath(language, '/plus')}>{copy.prices.allAboutPlus}</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band share">
+    <div class="grain"></div>
+    <div class="wrap stack">
+      <div class="head-single">
+        <p class="eyebrow">{copy.share.eyebrow}</p>
+        <h2>{copy.share.headline}</h2>
+        <p class="lede">{copy.share.body}</p>
+      </div>
+      <div class="share-row tilt-space" data-reveal="stagger">
+        <div class="story-card" data-lean="rotate(-5deg)" role="img" aria-label={copy.share.storyLabel}>
+          <span class="story-dots"></span>
+          <span class="story-stamp story-stamp-blue" aria-hidden="true">{copy.share.storyStamp}</span>
+          <span class="story-stamp" aria-hidden="true">{copy.share.storyStamp}</span>
+          <div class="mcard story-mini" data-finish="holo" data-wears>
+            <MaterialLayers />
+            <Critter svg={hydra()} />
+          </div>
+          <strong aria-hidden="true">{copy.share.storyLine}</strong>
+          <small aria-hidden="true">scootch.app</small>
+        </div>
+        <div class="receipt" data-lean="rotate(2deg)" role="img" aria-label={copy.share.receiptLabel}>
+          <strong>{words.name}</strong>
+          <span class="receipt-title">{copy.share.receiptTitle}</span>
+          <hr />
+          {copy.share.receiptRows.map(([task, time]) => <p><span>{task}</span><i /><span>{time}</span></p>)}
+          <hr />
+          <p class="receipt-total"><span>{copy.share.receiptTotal}</span><span>4</span></p>
+          <span class="barcode"></span>
+          <span class="receipt-thanks">{copy.share.receiptThanks}</span>
+        </div>
+        <div class="poster" data-lean="rotate(5deg)" role="img" aria-label={copy.share.posterLabel}>
+          <span class="poster-glow"></span>
+          <small>{copy.share.posterTitle}</small>
+          <b class="chrome-text" data-count="42">42</b>
+          <strong>{copy.share.posterLine}</strong>
+          <div class="poster-shelf">{shelf().map((svg) => <Critter svg={svg} />)}</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="adhd" class="band who">
+    <div class="wrap stack">
+      <div class="head-pair">
+        <div>
+          <p class="eyebrow">{copy.who.eyebrow}</p>
+          <h2>{copy.who.headline}</h2>
+        </div>
+        <p class="lede">{copy.who.body}</p>
+      </div>
+      <ul class="who-tiles" data-reveal="stagger">
+        {
+          copy.who.tiles.map((tile, index) => (
+            <li class="tile">
+              <span class="eyebrow">{tile.tag}</span>
+              <h3>{tile.title}</h3>
+              <p>{tile.body}</p>
+              <Critter svg={scootchSvg(tileMoods[index] ?? 'pleased')} size="6rem" />
+            </li>
+          ))
+        }
       </ul>
       <p class="small">
-        {copy.prices.reminder}{' '}
-        <a href={localPath(language, '/plus')}>{copy.prices.allAboutPlus}</a>
+        {copy.footer.supportTool}{' '}
+        <a href={`${localPath(language, '/help')}#isnt`}>{copy.footer.whatItIs}</a>
       </p>
     </div>
   </section>
 
-  <section class="wrap who">
-    <span class="who-art"><span class="drawing" aria-hidden="true" set:html={scootchSvg('pleased')} /></span>
-    <div>
-      <p class="eyebrow">{copy.who.eyebrow}</p>
-      <h2>{copy.who.headline}</h2>
-      <p>
-        {copy.footer.supportTool}{' '}
-        <a href={localPath(language, '/what-scootch-is')}>{copy.footer.whatItIs}</a>
-      </p>
+  <section class="band final">
+    <div class="final-dots"></div>
+    <div class="wrap final-grid">
+      <div class="final-words">
+        <h2>{copy.final.headline}</h2>
+        <p>{preLaunch ? copy.final.soonBody : copy.final.body}</p>
+        <div class="actions">
+          {
+            preLaunch ? (
+              <a class="button button-ink" href="#maker" data-magnet>
+                {copy.final.hatchHere}
+                <span class="arrow" aria-hidden="true">→</span>
+              </a>
+            ) : (
+              <>
+                <div class="app-tile">
+                  <span class="app-icon"><Critter svg={scootchSvg('scheming')} /></span>
+                  <div><strong>{words.name}</strong><span>{copy.final.appLine}</span></div>
+                  <a class="button button-ink" href={localPath(language, '/get')} data-magnet>
+                    {copy.final.get}
+                    <span class="arrow" aria-hidden="true">→</span>
+                  </a>
+                </div>
+                <a class="final-or" href="#maker">{copy.final.orHatch}</a>
+              </>
+            )
+          }
+        </div>
+        {preLaunch && <p class="small">{pagesFor(language).preLaunch.comingSoon}</p>}
+      </div>
+      <Critter class="final-scootch" svg={scootchSvg('celebrating')} />
     </div>
   </section>
 </SiteLayout>
+
+<script>
+  import { startHomePage } from '../scripts/home-page';
+
+  startHomePage();
+</script>

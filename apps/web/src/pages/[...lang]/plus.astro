@@ -1,67 +1,144 @@
 ---
-import { languagePaths, pagesFor, preLaunch } from '../../copy';
+import Critter from '../../components/critter.astro';
+import MaterialLayers from '../../components/material-layers.astro';
+import RisingWords from '../../components/rising-words.astro';
+import { fill, languagePaths, localPath, pagesFor, preLaunch } from '../../copy';
 import SiteLayout from '../../layouts/site-layout.astro';
+import { monsterSvg, scootchSvg, shelfMonsters } from '../../lib/drawings';
+import '../../styles/plus.css';
 
 export const getStaticPaths = languagePaths;
 const language = Astro.params.lang === 'vi' ? 'vi' : 'en';
 const copy = pagesFor(language).plus;
+
+// The fan, left to right, with Scootch in a different mood on each finish.
+const fan = [
+  ['paper', 'asleep'],
+  ['riso', 'pleased'],
+  ['jelly', 'celebrating'],
+  ['holo', 'pleased'],
+  ['chrome', 'scheming'],
+  ['glass', 'waiting'],
+  ['velvet', 'asleep'],
+] as const;
+const shelf = shelfMonsters.map((monster) => monsterSvg(monster.bodyType, monster.seed));
 ---
 
 <SiteLayout language={language} path="/plus" title={copy.title} description={copy.description}>
-  <article class="wrap plain plain-wide plus">
-    <p class="eyebrow tomato-text">{copy.eyebrow}</p>
-    <h1>{copy.headline}</h1>
-    <p class="lede">{copy.sub}</p>
-
-    <ul class="plans plus-plans">
+  <section class="band plus-hero on-night">
+    <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="grain"></div>
+    <div class="wrap plus-hero-words">
+      <p class="eyebrow">{copy.eyebrow}</p>
+      <h1 class="rise">
+        <RisingWords words={copy.heroWords} chrome />
+      </h1>
+      <p class="lede">{copy.heroSub}</p>
+    </div>
+    <ul class="fan tilt-space" role="img" aria-label={copy.fanLabel}>
       {
-        copy.plans.map((plan, index) => (
-          <li class={`plan${index === 1 ? ' plan-picked' : ''}`}>
-            <span class="plan-name">{plan.name}</span>
-            <strong>{plan.price}</strong>
-            <span class="plan-detail">{plan.detail}</span>
-            <span class="plan-note">{plan.note}</span>
+        fan.map(([finish, mood], index) => (
+          <li style={`--at:${index - 3};--away:${Math.abs(index - 3)}`} aria-hidden="true">
+            <div class="mcard fan-card" data-finish={finish} data-lean>
+              <MaterialLayers />
+              <span class="card-top">{fill(copy.finishLabel, { n: String(index + 1).padStart(2, '0') })}</span>
+              <div class="fan-art"><Critter svg={scootchSvg(mood)} /></div>
+              <strong>{copy.finishes[index]}</strong>
+              <span class="mcard-glare" />
+            </div>
           </li>
         ))
       }
     </ul>
-    <p class="small">{copy.priceNote}</p>
+  </section>
 
-    <div class="plain-pair">
-      <section class="panel price-free">
-        <h2>{copy.freeTitle}</h2>
-        <ul class="ticks">
-          {copy.free.map((line) => <li>{line}</li>)}
-        </ul>
-      </section>
-      <section class="panel">
-        <h2>{copy.addsTitle}</h2>
-        <dl class="plain-sections">
-          {
-            copy.adds.map((item) => (
-              <div>
-                <dt>{item.title}</dt>
-                <dd>{item.body}</dd>
-              </div>
-            ))
-          }
-        </dl>
-      </section>
-    </div>
-
-    <section class="panel">
-      <h2>{copy.rulesTitle}</h2>
-      <dl class="plain-sections rules">
+  <section class="band">
+    <div class="wrap plus-plans">
+      <h2>{copy.plansTitle}</h2>
+      <ul class="plan-cards" data-reveal="stagger">
         {
-          copy.rules.map((rule) => (
-            <div>
-              <dt>{rule.title}</dt>
-              <dd>{rule.body}</dd>
-            </div>
+          copy.plans.map((plan, index) => (
+            <li class:list={['plan-card', { 'plan-card-picked': index === 1 }]}>
+              <span class="plan-name">{plan.name}</span>
+              <strong>{plan.price}</strong>
+              <span class="plan-detail">{plan.detail}</span>
+              <span class="plan-note">{index === 1 ? `${plan.note}. ${copy.picked}.` : plan.note}</span>
+            </li>
           ))
         }
-      </dl>
-    </section>
-    <p class="plain-note">{preLaunch ? copy.buySoon : copy.buy}</p>
-  </article>
+      </ul>
+      {
+        !preLaunch && (
+          <a class="button button-ink" href={localPath(language, '/get')} data-magnet>
+            {copy.get}
+            <span class="arrow" aria-hidden="true">→</span>
+          </a>
+        )
+      }
+      <p class="small">{preLaunch ? copy.buySoon : copy.buy} {copy.priceNote}</p>
+    </div>
+  </section>
+
+  <section class="band inside">
+    <div class="grain"></div>
+    <div class="wrap stack">
+      <h2>{copy.insideTitle}</h2>
+      <ul class="bento" data-reveal="stagger">
+        <li class="bento-wide on-night">
+          <div>
+            <span class="eyebrow">{copy.finishesEyebrow}</span>
+            <h3>{copy.finishesTitle}</h3>
+            <p>{copy.finishesBody}</p>
+          </div>
+          <div class="bento-swatches" aria-hidden="true">
+            {fan.map(([finish]) => <i class="mcard" data-finish={finish}><MaterialLayers /></i>)}
+          </div>
+        </li>
+        {
+          copy.adds.map((item, index) => (
+            <li>
+              <h3>{item.title}</h3>
+              <p>{item.body}</p>
+              <div class="bento-art" aria-hidden="true">
+                {index === 0 && <b class="bento-number">25</b>}
+                {index === 1 && (
+                  <>
+                    <Critter svg={scootchSvg('working', { work: 'writing', paper: true })} size="5.25rem" />
+                    <Critter svg={scootchSvg('working', { work: 'email' })} size="5.25rem" />
+                    <i class="bento-seat">+</i>
+                  </>
+                )}
+                {index === 2 && <Critter svg={scootchSvg('thinking')} size="6rem" />}
+                {index === 3 && <span class="bento-bars">{Array.from({ length: 7 }, () => <i />)}</span>}
+                {index === 4 && (
+                  <span class="bento-cards">
+                    <i class="mcard" data-finish="paper"><MaterialLayers /></i>
+                    <i class="mcard" data-finish="chrome"><MaterialLayers /></i>
+                    <i class="mcard" data-finish="jelly"><MaterialLayers /></i>
+                  </span>
+                )}
+                {index === 5 && <span class="bento-shelf">{shelf.map((svg) => <Critter svg={svg} size="3.5rem" />)}</span>}
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap plus-answers">
+      <h2>{copy.answersTitle}</h2>
+      <div class="answers">
+        {
+          copy.answers.map((answer, index) => (
+            <details open={index === 0}>
+              <summary>{answer.q}</summary>
+              <p>{answer.a}</p>
+            </details>
+          ))
+        }
+      </div>
+    </div>
+  </section>
 </SiteLayout>

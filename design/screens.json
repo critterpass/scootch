@@ -1232,6 +1232,14 @@
     "height": 250
   },
   {
+    "board": "Scootch Web - Invites",
+    "section": "Invites · switcher",
+    "screen": "Table invite",
+    "path": "design/renders/scootch-web-invites/invites-switcher--table-invite.png",
+    "width": 1240,
+    "height": 485
+  },
+  {
     "board": "System Surfaces",
     "section": "01 Live Activities",
     "screen": "Lock Screen · working",

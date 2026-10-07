@@ -37,7 +37,9 @@ export function showState(root: HTMLElement, state: string): void {
   for (const element of root.querySelectorAll<HTMLElement>('[data-show]')) {
     element.hidden = !(element.dataset['show'] ?? '').split(' ').includes(state);
   }
-  root.querySelector<HTMLElement>(`[data-show~="${state}"] h1`)?.focus({ preventScroll: true });
+  root
+    .querySelector<HTMLElement>(`[data-show~="${state}"] h1[tabindex]`)
+    ?.focus({ preventScroll: true });
 }
 
 /** The language switch in the footer keeps the reader on the same shared thing. */

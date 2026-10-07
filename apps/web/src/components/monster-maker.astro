@@ -1,9 +1,12 @@
 ---
 import type { Language } from '@scootch/i18n';
 
-import { appStoreUrl, copyFor, localPath, pagesFor, preLaunch } from '../copy';
-import { scootchSvg } from '../lib/drawings';
+import { copyFor, localPath, pagesFor, preLaunch } from '../copy';
+import { monsterSvg, scootchSvg } from '../lib/drawings';
 
+import Critter from './critter.astro';
+import MaterialLayers from './material-layers.astro';
+import RisingWords from './rising-words.astro';
 import WaitlistForm from './waitlist-form.astro';
 
 interface Props {
@@ -11,7 +14,8 @@ interface Props {
 }
 
 const { language } = Astro.props;
-const copy = copyFor(language).maker;
+const site = copyFor(language);
+const copy = site.maker;
 const pages = pagesFor(language);
 const helplines = localPath(language, '/helplines');
 // The lines the script fills in once a monster has a name.
@@ -28,134 +32,192 @@ const lines = {
   unshare: pages.share.unshare,
   unshared: pages.share.unshared,
 };
+const hold = {
+  hold: copy.hold,
+  holding: copy.holding,
+  idle: copy.holdIdle,
+  early: copy.holdEarly,
+  done: copy.holdDone,
+  wild: copy.wild,
+  caught: copy.caught,
+  notCaught: copy.notCaught,
+  onShelf: copy.onShelf,
+};
+const words = copy.headline.split(' ');
 ---
 
-<section class="maker wrap" data-maker data-state="empty" data-language={language} data-lines={JSON.stringify(lines)}>
-  <div class="maker-words">
-    <div data-show="empty hatching">
-      <h1>{copy.headline}</h1>
-      <p class="lede">{copy.sub}</p>
-    </div>
-    <div data-show="hatched" hidden>
-      <p class="eyebrow tomato-text">{copy.hatchedEyebrow}</p>
-      <h1 data-meet tabindex="-1"></h1>
-      <p class="lede" data-flavour></p>
-    </div>
-    <div data-show="nap" hidden>
-      <h1 tabindex="-1">{copy.napTitle}</h1>
-      <p class="lede">{copy.napBody}</p>
-    </div>
-    <div data-show="offline" hidden>
-      <h1 tabindex="-1">{copy.offlineTitle}</h1>
-      <p class="lede">{copy.offlineBody}</p>
-    </div>
-    <div class="care" data-show="serious" hidden>
-      <h1 tabindex="-1">{copy.seriousTitle}</h1>
-      <p class="lede">{copy.seriousBody}</p>
-      <ul class="care-rows">
-        <li><a href={copy.helplineLocalHref}>{copy.helplineLocal}</a></li>
-        <li><a href={helplines}>{copy.helplineElsewhere}</a></li>
-        <li>{copy.someoneYouTrust}</li>
-      </ul>
-      <p class="small">{copy.helplineNote}</p>
-      <button type="button" class="button button-quiet" data-action="reset">{copy.somethingElse}</button>
-    </div>
+<section
+  id="maker"
+  class="band maker"
+  data-maker
+  data-state="empty"
+  data-language={language}
+  data-lines={JSON.stringify(lines)}
+>
+  <div class="grain"></div>
+  <div class="halftone maker-halftone"></div>
+  <div class="wrap maker-grid">
+    <div class="maker-words">
+      <p class="news"><span class="tag tag-tomato">{copy.news}</span>{copy.newsLine}</p>
 
-    <form class="maker-form" data-show="empty hatching hatched offline" novalidate>
-      <label class="sr-only" for="maker-text">{copy.fieldLabel}</label>
-      <input
-        id="maker-text"
-        name="text"
-        type="text"
-        maxlength="280"
-        autocomplete="off"
-        enterkeyhint="go"
-        placeholder={copy.placeholder}
-        aria-describedby="maker-error"
-      />
-      <button type="submit" class="button button-tomato" data-show="empty hatching">{copy.hatch}</button>
-      <button type="submit" class="link-button" data-show="hatched" hidden>{copy.another}</button>
-      <button type="submit" class="button button-tomato" data-show="offline" hidden>{copy.tryAgain}</button>
-    </form>
-    <p class="maker-error" id="maker-error" role="alert" data-error></p>
-    <p class="maker-status" role="status" aria-live="polite" data-status data-hatching={copy.hatching}></p>
+      <div data-show="empty hatching">
+        <h1 class="rise">
+          <RisingWords words={words} marker />
+        </h1>
+        <p class="lede">{copy.sub}</p>
+      </div>
+      <div data-show="hatched" hidden>
+        <p class="eyebrow">{copy.hatchedEyebrow}</p>
+        <h1 class="met" data-meet tabindex="-1"></h1>
+        <p class="lede" data-flavour></p>
+      </div>
+      <div data-show="nap" hidden>
+        <h1 tabindex="-1">{copy.napTitle}</h1>
+        <p class="lede">{copy.napBody}</p>
+      </div>
+      <div data-show="offline" hidden>
+        <h1 tabindex="-1">{copy.offlineTitle}</h1>
+        <p class="lede">{copy.offlineBody}</p>
+      </div>
 
-    <div data-show="empty">
-      <ul class="chips" aria-label={copy.examplesLabel}>
-        {
-          copy.examples.map((example) => (
-            <li>
-              <button type="button" class="chip" data-example>
-                {example}
-              </button>
-            </li>
-          ))
-        }
-      </ul>
-      <p class="small">{copy.note}</p>
-    </div>
+      <form class="maker-form" data-show="empty hatching hatched offline" data-reveal novalidate>
+        <label class="sr-only" for="maker-text">{copy.fieldLabel}</label>
+        <input
+          id="maker-text"
+          name="text"
+          type="text"
+          maxlength="280"
+          autocomplete="off"
+          enterkeyhint="go"
+          placeholder={copy.placeholder}
+          aria-describedby="maker-error"
+          data-typing={JSON.stringify(copy.typing)}
+        />
+        <button type="submit" class="button button-tomato" data-show="empty hatching hatched" data-magnet>
+          {copy.hatch}
+        </button>
+        <button type="submit" class="button button-tomato" data-show="offline" hidden>{copy.tryAgain}</button>
+      </form>
+      <p class="maker-error" id="maker-error" role="alert" data-error></p>
+      <p class="sr-only" role="status" aria-live="polite" data-status data-hatching={copy.hatching}></p>
 
-    <div data-show="hatched" hidden>
-      <label class="toggle">
-        <input type="checkbox" data-show-typed checked />
-        <span>
-          <strong>{copy.showTyped}</strong>
-          <span class="small" data-typed-note></span>
-        </span>
-      </label>
-      {preLaunch && <WaitlistForm language={language} managed intro={pages.preLaunch.intro} />}
-      <div class="actions">
+      <div class="maker-under" data-show="empty hatching">
+        <ul class="chips" aria-label={copy.examplesLabel}>
+          {
+            copy.examples.map((example) => (
+              <li>
+                <button type="button" class="chip" data-example>
+                  {example}
+                </button>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="small">{copy.note}</p>
+      </div>
+
+      <div class="maker-under" data-show="hatched" hidden>
+        <label class="toggle">
+          <input type="checkbox" data-show-typed checked />
+          <span>
+            <strong>{copy.showTyped}</strong>
+            <span class="small" data-typed-note></span>
+          </span>
+        </label>
+        {preLaunch && <WaitlistForm language={language} managed intro={pages.preLaunch.intro} />}
+        <div class="chips">
+          <button type="button" class="chip" data-action="save">{copy.save}</button>
+          <button type="button" class="chip" data-action="share">{pages.share.share}</button>
+        </div>
+        <p class="small share-status" aria-live="polite" data-share-status></p>
+      </div>
+      <div class="actions" data-show="nap" hidden>
         {
           !preLaunch && (
-            <a class="button button-ink" href={appStoreUrl} data-catch>
-              {copy.catchIt}
+            <a class="button button-ink" href={localPath(language, '/get')} data-last-only data-catch>
+              {copy.napCatch}
             </a>
           )
         }
-        <button type="button" class="button button-quiet" data-action="save">{copy.save}</button>
-        <button type="button" class="button button-quiet" data-action="share">{pages.share.share}</button>
+        <button type="button" class="button button-quiet" data-action="wake">{copy.napOk}</button>
       </div>
-      <p class="small share-status" aria-live="polite" data-share-status></p>
     </div>
-    <div class="actions" data-show="nap" hidden>
-      {
-        !preLaunch && (
-          <a class="button button-ink" href={appStoreUrl} data-last-only data-catch>
-            {copy.napCatch}
-          </a>
-        )
-      }
-      <button type="button" class="button button-quiet" data-action="wake">{copy.napOk}</button>
-    </div>
-  </div>
 
-  <div class="maker-stage">
-    <div class="blob" data-show="empty hatching nap offline">
-      <span class="drawing" aria-hidden="true" set:html={scootchSvg('waiting')} />
-    </div>
-    <div class="blob blob-quiet" data-show="serious" hidden>
-      <span class="drawing" aria-hidden="true" set:html={scootchSvg('serious')} />
-    </div>
-    <div class="blob" data-show="hatched" hidden>
-      <figure class="card card-large" role="img" data-card>
-        <div class="card-head">
-          <span class="card-name" data-card-name></span>
-          <span class="card-badge">{copy.wild}</span>
+    <div class="maker-stage tilt-space">
+      <div class="maker-idle" data-show="empty nap offline">
+        <span class="maker-disc"></span>
+        <Critter class="bob float-a" svg={monsterSvg('receipt', 'receipt')} />
+        <Critter class="bob float-b" svg={monsterSvg('tooth', 'dentist')} />
+        <Critter class="bob float-c" svg={monsterSvg('sock', 'sock')} />
+        <p class="bubble" data-show="empty">{copy.bubble}</p>
+        <Critter class="maker-scootch" svg={scootchSvg('waiting')} />
+      </div>
+
+      <div class="maker-hatching" data-show="hatching" hidden>
+        <span class="egg" aria-hidden="true"></span>
+        <p aria-hidden="true">{copy.hatchingTitle}</p>
+      </div>
+
+      <div class="maker-hatched" data-show="hatched" data-hold={JSON.stringify(hold)} hidden>
+        <div class="pop">
+          <figure class="mcard monster-card" role="img" data-card data-lean data-wears data-finish="holo">
+            <MaterialLayers />
+            <div class="card-top">
+              <span>scootch.app</span>
+              <span class="tag" data-catch-tag>{copy.wild}</span>
+            </div>
+            <div class="card-window"><div data-card-art></div></div>
+            <span class="card-name" data-card-name></span>
+            <p class="card-typed" data-card-typed></p>
+            <p class="card-flavour" data-card-flavour></p>
+            <div class="card-foot">
+              <span data-catch-foot>{copy.notCaught}</span>
+              <span data-finish-name>{site.prices.finishes[1]}</span>
+            </div>
+            <span class="card-stamp" data-catch-stamp hidden>{copy.caught}</span>
+            <span class="mcard-glare"></span>
+          </figure>
         </div>
-        <div class="card-art" data-card-art></div>
-        <p class="card-typed" data-card-typed></p>
-        <p class="card-flavour" data-card-flavour></p>
-        <div class="card-foot">
-          <span>{copy.notCaught}</span>
-          <strong>scootch.app</strong>
+        <div class="actions maker-actions">
+          <button type="button" class="hold" data-hold-button>
+            <span class="hold-fill" data-hold-fill></span>
+            <span class="hold-knob"><span class="hold-ring" data-hold-ring></span></span>
+            <span class="hold-label" data-hold-label>{copy.hold}</span>
+          </button>
+          {
+            !preLaunch && (
+              <a class="button button-ink" href={localPath(language, '/get')} data-catch>
+                {copy.catchIt}
+              </a>
+            )
+          }
+          <button type="button" class="button button-quiet" data-action="reset">{copy.another}</button>
         </div>
-      </figure>
+        <p class="small" aria-live="polite" data-hold-hint>{copy.holdIdle}</p>
+      </div>
+
+      <div class="care-panel" data-show="serious" hidden>
+        <Critter svg={scootchSvg('serious')} size="7.5rem" />
+        <h1 tabindex="-1">{copy.seriousTitle}</h1>
+        <p>{copy.seriousBody}</p>
+        <ul class="care-rows">
+          <li><a href={copy.helplineLocalHref}>{copy.helplineLocal}</a></li>
+          <li><a href={helplines}>{copy.helplineElsewhere}</a></li>
+          <li>{copy.someoneYouTrust}</li>
+        </ul>
+        <p class="small">{copy.helplineNote}</p>
+        <button type="button" class="button button-quiet" data-action="reset">{copy.somethingElse}</button>
+      </div>
     </div>
   </div>
 </section>
 
 <script>
+  import { startHoldToCatch } from '../scripts/hold-to-catch';
   import { startMonsterMaker } from '../scripts/monster-maker';
 
-  for (const root of document.querySelectorAll<HTMLElement>('[data-maker]')) startMonsterMaker(root);
+  for (const root of document.querySelectorAll<HTMLElement>('[data-maker]')) {
+    startMonsterMaker(root);
+    startHoldToCatch(root);
+  }
 </script>

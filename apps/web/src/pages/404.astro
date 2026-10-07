@@ -4,12 +4,15 @@ import { pagesFor } from '../copy';
 import SiteLayout from '../layouts/site-layout.astro';
 
 // One not-found page for the whole site, in English: an address that matches nothing has no
-// language to go by. The pages of shared things show the same monster in their own language.
+// language to go by. The pages of shared things show the same thing in their own language.
 const copy = pagesFor('en').notFound;
 ---
 
 <SiteLayout language="en" path="/404" title={copy.title} description={copy.body} social={false}>
-  <section class="wrap shared-page">
-    <NotFound language="en" />
+  <section class="band shared-band">
+    <div class="grain"></div>
+    <div class="wrap shared-page">
+      <NotFound language="en" />
+    </div>
   </section>
 </SiteLayout>

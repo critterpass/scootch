@@ -1,0 +1,341 @@
+/* The Plus page: a night hero with the seven finishes fanned out, three prices, what is inside. */
+.plus-hero {
+  --night: var(--night-deep);
+  background: var(--night-deep);
+}
+.aurora {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.aurora i {
+  position: absolute;
+  width: 35rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  filter: blur(8rem);
+  animation: aurora 7s ease-in-out infinite alternate;
+}
+.aurora i:nth-child(1) {
+  left: -11rem;
+  top: -12.5rem;
+  background: #f0562e;
+  opacity: 0.55;
+}
+.aurora i:nth-child(2) {
+  right: -10rem;
+  top: 7.5rem;
+  background: #e86ad0;
+  opacity: 0.3;
+  animation-duration: 8.8s;
+  animation-direction: alternate-reverse;
+}
+.aurora i:nth-child(3) {
+  left: 30%;
+  bottom: -19rem;
+  background: #4fb6ff;
+  opacity: 0.22;
+  animation-duration: 10.6s;
+}
+@keyframes aurora {
+  to {
+    transform: translate(4rem, 3rem) scale(1.2);
+  }
+}
+.plus-hero-words {
+  display: grid;
+  justify-items: center;
+  gap: 1.375rem;
+  text-align: center;
+  padding-block: clamp(3.5rem, 7vw, 5.5rem) 2.5rem;
+}
+.plus-hero h1 {
+  font-size: clamp(3.25rem, 1.5rem + 7.5vw, 8.75rem);
+  line-height: 0.86;
+  letter-spacing: -0.06em;
+  justify-content: center;
+}
+.plus-hero .lede {
+  max-width: 37.5rem;
+  text-wrap: balance;
+}
+.fan {
+  position: relative;
+  height: 27.5rem;
+  max-width: 77.5rem;
+  margin-inline: auto;
+}
+.fan li {
+  position: absolute;
+  left: 50%;
+  top: 2.5rem;
+  width: 12.5rem;
+  margin-left: -6.25rem;
+  z-index: calc(10 - var(--away));
+  transform: translateX(calc(var(--at) * min(9.375rem, 12.5vw)))
+    translateY(calc(var(--away) * 1.625rem)) rotate(calc(var(--at) * 7deg));
+}
+.fan-card {
+  height: 18.125rem;
+  border-radius: 1.25rem;
+  padding: 0.875rem;
+  display: flex;
+  flex-direction: column;
+}
+.fan-card .card-top {
+  font: 700 0.59375rem/1 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--card-sub);
+}
+.fan-art {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.fan-art .critter {
+  --size: 10rem;
+}
+.fan-card strong {
+  font: 800 1.125rem/1 var(--heading);
+  letter-spacing: -0.02em;
+}
+.plus-plans {
+  max-width: 67.5rem;
+  display: grid;
+  justify-items: center;
+  gap: 2rem;
+  padding-block: clamp(4rem, 8vw, 6rem);
+  text-align: center;
+}
+.plus-plans .small {
+  max-width: 38rem;
+  text-wrap: balance;
+}
+.plan-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 1rem;
+  width: 100%;
+  text-align: left;
+}
+.plan-card {
+  border-radius: 1.875rem;
+  border: 2px solid transparent;
+  background:
+    linear-gradient(var(--surface) 0 0) padding-box,
+    linear-gradient(var(--hairline) 0 0) border-box;
+  padding: 1.625rem 1.5rem;
+  display: grid;
+  gap: 0.75rem;
+  align-content: start;
+  transition: transform 0.4s var(--bounce);
+}
+.plan-card:hover {
+  transform: translateY(-0.375rem);
+}
+.plan-card-picked {
+  background:
+    linear-gradient(var(--surface) 0 0) padding-box,
+    linear-gradient(120deg, #ff8fc8, #8fe3ff, #ffe38a, #b59bff, #ff8fc8) border-box;
+  box-shadow: 0 1.5rem 3.125rem -1.375rem rgb(200 120 200 / 0.7);
+}
+.plan-card .plan-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+.plan-card-picked .plan-name {
+  color: var(--tomato-ink);
+}
+.plan-card strong {
+  font: 900 3rem/1 var(--heading);
+  letter-spacing: -0.04em;
+}
+.plan-card .plan-detail {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--text);
+}
+.plan-card .plan-note {
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--muted);
+}
+.inside {
+  background: var(--sand);
+}
+.bento {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(17.5rem, 1fr));
+  gap: 1.125rem;
+}
+.bento > li {
+  position: relative;
+  overflow: hidden;
+  min-height: 17.5rem;
+  border-radius: 2rem;
+  background: var(--surface);
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  box-shadow: 0 1.25rem 2.5rem -1.75rem rgb(28 26 23 / 0.4);
+}
+.bento h3 {
+  font: 900 1.625rem/1.05 var(--heading);
+  letter-spacing: -0.03em;
+}
+.bento p {
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  color: var(--text);
+}
+.bento > .bento-wide {
+  grid-column: span 2;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.5rem;
+  background: var(--night);
+}
+.bento-wide > div:first-child {
+  flex: 1 1 13.75rem;
+  display: grid;
+  gap: 0.625rem;
+}
+.bento-wide h3 {
+  font-size: 1.875rem;
+}
+.bento-swatches {
+  flex: 1 1 16.25rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.625rem;
+  flex-wrap: wrap;
+}
+.bento-swatches i,
+.bento-cards i {
+  width: 3.25rem;
+  height: 4.5rem;
+  border-radius: 0.625rem;
+  transition: transform 0.35s var(--bounce);
+}
+.bento-swatches i:hover {
+  transform: translateY(-0.5rem) rotate(-4deg);
+}
+.bento-art {
+  margin-top: auto;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 0.125rem;
+  min-height: 6rem;
+}
+.bento-number {
+  font: 900 5.5rem/0.9 var(--heading);
+  letter-spacing: -0.06em;
+  color: var(--tomato);
+}
+.bento-seat {
+  width: 4.375rem;
+  height: 4.375rem;
+  align-self: center;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--ink) 20%, transparent);
+  display: grid;
+  place-items: center;
+  font: 900 1.5rem/1 var(--heading);
+  font-style: normal;
+  color: var(--muted);
+}
+.bento-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.375rem;
+  height: 5.5rem;
+}
+.bento-bars i {
+  width: 1.125rem;
+  border-radius: 0.375rem 0.375rem 0.125rem 0.125rem;
+  background: color-mix(in srgb, var(--ink) 14%, transparent);
+  height: 40%;
+}
+.bento-bars i:nth-child(2) {
+  height: 70%;
+}
+.bento-bars i:nth-child(3) {
+  height: 55%;
+}
+.bento-bars i:nth-child(4) {
+  height: 100%;
+  background: linear-gradient(180deg, var(--tomato-glow), var(--tomato));
+}
+.bento-bars i:nth-child(5) {
+  height: 80%;
+}
+.bento-bars i:nth-child(6) {
+  height: 60%;
+}
+.bento-cards {
+  position: relative;
+  width: 11rem;
+  height: 6.5rem;
+}
+.bento-cards i {
+  position: absolute;
+  bottom: 0;
+  width: 4.375rem;
+  height: 6rem;
+  box-shadow: 0 0.625rem 1.25rem -0.625rem rgb(28 26 23 / 0.4);
+}
+.bento-cards i:nth-child(1) {
+  left: 0.5rem;
+  rotate: -12deg;
+}
+.bento-cards i:nth-child(2) {
+  left: 3.25rem;
+  bottom: 0.375rem;
+  rotate: -2deg;
+}
+.bento-cards i:nth-child(3) {
+  left: 6rem;
+  rotate: 10deg;
+}
+.bento-shelf {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  padding: 0.75rem 0.5rem 0;
+  border-radius: 1.375rem;
+  background: linear-gradient(180deg, #f9f4eb, #efe5d5);
+}
+.plus-answers {
+  max-width: 53.75rem;
+  display: grid;
+  gap: 1.75rem;
+  padding-block: clamp(4rem, 8vw, 6rem);
+}
+@media (max-width: 44rem) {
+  .fan {
+    height: 21rem;
+  }
+  .fan li {
+    width: 9rem;
+    margin-left: -4.5rem;
+    transform: translateX(calc(var(--at) * 13vw)) translateY(calc(var(--away) * 1.125rem))
+      rotate(calc(var(--at) * 7deg));
+  }
+  .fan-card {
+    height: 13rem;
+  }
+  .fan-art .critter {
+    --size: 6.5rem;
+  }
+  .bento > .bento-wide {
+    grid-column: auto;
+  }
+}

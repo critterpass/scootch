@@ -10,8 +10,9 @@ export function getPath(id: string, language: string): string {
 }
 
 /**
- * Wires the hand-off page: the monster's name, the button that opens the app with it, the QR
- * code of its link for a wide screen, and the link in plain text.
+ * Wires the hand-off page. With a monster in the address: its name, the button that opens the app
+ * with it, the QR code of its link for a wide screen, and the link in plain text. Without one,
+ * the page as it was built: the way to the App Store.
  */
 export async function startGetPage(root: HTMLElement): Promise<void> {
   const lines = JSON.parse(root.dataset['lines'] ?? '{}') as Record<string, string>;
@@ -19,6 +20,13 @@ export async function startGetPage(root: HTMLElement): Promise<void> {
   const id = new URLSearchParams(location.search).get('m') ?? '';
   const switcher = document.querySelector<HTMLAnchorElement>('.footer-end a[hreflang]');
   if (switcher) switcher.href = getPath(id, switcher.hreflang);
+
+  // With no monster in the address this is simply the way to the App Store.
+  if (id === '') {
+    if (switcher) switcher.href = `${switcher.hreflang === 'vi' ? '/vi' : ''}/get`;
+    showState(root, 'plain');
+    return;
+  }
 
   const monster = idShape.test(id)
     ? await fetchShared<{ name: string }>('monster-page', id)

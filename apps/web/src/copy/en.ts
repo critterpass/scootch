@@ -1,3 +1,5 @@
+import { homeEn } from './home-en';
+
 /**
  * The website's own words in English, and the source of the key set. The interface words the site
  * shares with the app (the brand, "Plus") come from `@scootch/i18n`; a monster's name and card
@@ -12,6 +14,8 @@ export const en = {
   nav: {
     label: 'Main',
     maker: 'Monster maker',
+    how: 'How it works',
+    tables: 'Tables',
     help: 'Help',
     menu: 'Menu',
     getTheApp: 'Get the app',
@@ -19,27 +23,45 @@ export const en = {
   },
   badge: { alt: 'Download on the App Store' },
   footer: {
-    tagline: 'One small thing a day, sitting quietly next to someone.',
+    tagline: 'Small things, one at a time, with someone quietly sitting next to you.',
     scootch: 'Scootch',
     whatItIs: 'What Scootch is and isn’t',
-    press: 'Press kit',
     help: 'Help',
     support: 'Support and questions',
     helplines: 'Helplines',
     privacy: 'Privacy',
     terms: 'Terms',
-    elsewhere: 'Elsewhere',
-    android: 'Android: tell me',
+    getTheApp: 'Get the app · Android · Press',
     hardTime: 'Having a really hard time?',
-    findHelpline: 'Find a helpline in your country',
+    hardBody: 'You deserve a real person. Find a free, confidential helpline in your country.',
+    findHelpline: 'Find a helpline',
     supportTool:
       'Scootch is a support tool for starting things. It doesn’t diagnose, treat or cure ADHD or anything else.',
     copyright: '© 2026 Scootch · Made with mild panic',
     otherLanguage: 'Tiếng Việt',
   },
   maker: {
+    news: 'New',
+    newsLine: 'Tables, foil finishes, and the hunt on your Lock Screen',
     headline: 'What have you been avoiding?',
-    sub: 'Type it. I’ll turn it into a monster. You’ll feel better. Probably.',
+    sub: 'Type it. I’ll turn it into a monster. Then we catch it together, ten minutes at a time. You’ll feel better. Probably.',
+    bubble: 'Go on. I won’t judge. Much.',
+    typing: [
+      'the dentist email',
+      'my taxes',
+      'replying to mum',
+      'the wobbly shelf',
+      'the gym',
+      'that one form',
+    ],
+    hatchingTitle: 'Something’s hatching…',
+    hold: 'Hold to catch',
+    holding: 'Keep holding…',
+    holdIdle: 'Hold to catch it. In the app, every monster has a catch of its own.',
+    holdEarly: 'Starting counts. Hold a little longer.',
+    holdDone: 'That’s how every catch feels.',
+    caught: 'Caught',
+    onShelf: 'On your shelf',
     fieldLabel: 'The thing you have been avoiding',
     placeholder: 'e.g. the dentist email',
     hatch: 'Hatch it',
@@ -77,32 +99,8 @@ export const en = {
       'Shown for the United States. Helplines change with your country. If you’re in immediate danger, call your local emergency number.',
     somethingElse: 'Make something else',
   },
-  demo: {
-    eyebrow: 'How it goes',
-    headline: 'From “ugh” to caught, in four taps.',
-    beats: [
-      'Ramble at Scootch for twenty seconds.',
-      'One thing comes back, and hatches.',
-      'Start. Scootch loses its mind with joy.',
-      'Hold to finish. The monster is yours.',
-    ],
-  },
-  ideas: [
-    {
-      title: 'One thing a day.',
-      body: 'Ramble at me. I’ll pick one thing and hide the rest in a drawer.',
-    },
-    {
-      title: 'A monster for every task.',
-      body: 'The dentist email becomes Molar. Catch him and he’s yours for ever.',
-    },
-    {
-      title: 'Quiet company at a table.',
-      body: 'Sit with up to three friends doing their own thing. No chat.',
-    },
-  ],
   strip: {
-    headline: 'A few I hatched earlier.',
+    label: 'A few I hatched earlier',
     monsters: [
       { name: 'Unread, the Ever-Bold', flavour: '412 unread. Has started naming them.' },
       { name: 'The Receipt Hydra', flavour: 'Grows a head for every receipt you lost.' },
@@ -112,39 +110,7 @@ export const en = {
       { name: 'Thirsty Fern', flavour: 'Dramatic. Has fainted twice this week.' },
     ],
   },
-  prices: {
-    freeEyebrow: 'Free for ever',
-    freeHeadline: 'The whole thing, up to ten things a day.',
-    free: [
-      'Up to ten things a day, for ever',
-      'Every monster you catch, kept for ever',
-      'Tables with friends, and a table for two of your own',
-      'All three attitudes',
-      'The weekly song, and sharing it',
-    ],
-    plusEyebrow: 'Scootch Plus',
-    plusHeadline: 'A bit more Scootch, for a small fee.',
-    plans: [
-      { name: 'Monthly', price: '$5.99', detail: 'a month' },
-      { name: 'Yearly', price: '$39.99', detail: '7 days free first' },
-      { name: 'Lifetime', price: '$89.99', detail: 'once, for ever' },
-    ],
-    plus: [
-      'Up to twenty-five things a day',
-      'Open tables for up to four',
-      'Keep every weekly record',
-      'The binder, with sorting and stats',
-      'Extra-large widget and StandBy',
-    ],
-    reminder:
-      'I’ll remind you the day before any charge. Cancel in two taps in your Apple settings.',
-    allAboutPlus: 'All about Plus',
-  },
-  who: {
-    eyebrow: 'Who it’s for',
-    headline:
-      'For people with ADHD, and for anyone whose to-do list has its own to-do list. If starting is the hard part, I’m your critter.',
-  },
+  ...homeEn,
 } as const;
 
 export type Loosen<T> = T extends string

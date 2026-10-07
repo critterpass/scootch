@@ -1,43 +1,36 @@
 ---
 import type { Language } from '@scootch/i18n';
 
-import { copyFor, localPath, pagesFor } from '../copy';
-import { monsterSvg } from '../lib/drawings';
+import { localPath, pagesFor } from '../copy';
+import { monsterSvg, scootchSvg } from '../lib/drawings';
+
+import Critter from './critter.astro';
 
 interface Props {
   language: Language;
-  /** The headline's level: 1 on the not-found page itself, 1 too where it replaces a page. */
+  /** True where this stands in for a page that could not be shown, and is moved to. */
   focusable?: boolean;
 }
 
 const { language, focusable = false } = Astro.props;
 const copy = pagesFor(language).notFound;
-const maker = copyFor(language).maker;
 ---
 
-<div class="shared-grid not-found">
-  <div class="maker-stage">
-    <div class="blob">
-      <figure class="card card-large" role="img" aria-label={`${copy.cardName}. ${copy.cardFlavour}`}>
-        <div class="card-head">
-          <span class="card-name">{copy.cardName}</span>
-          <span class="card-badge">{maker.wild}</span>
-        </div>
-        <div class="card-art" set:html={monsterSvg('dust', 'lostling')} />
-        <p class="card-flavour">{copy.cardFlavour}</p>
-        <div class="card-foot">
-          <span>{maker.notCaught}</span>
-          <strong>scootch.app</strong>
-        </div>
-      </figure>
-    </div>
+<div class="not-found">
+  <div class="not-found-art" aria-hidden="true">
+    <span class="not-found-number">404</span>
+    <Critter class="bob lost-a" svg={monsterSvg('sock', 'sock')} size="5.625rem" />
+    <Critter class="bob lost-b" svg={monsterSvg('clock', 'later')} size="5rem" />
+    <Critter svg={scootchSvg('thinking')} size="min(16.25rem, 60vw)" />
   </div>
-  <div>
-    <p class="eyebrow tomato-text">{copy.eyebrow}</p>
+  <div class="not-found-words">
+    <p class="eyebrow">{copy.eyebrow}</p>
     <h1 tabindex={focusable ? -1 : undefined}>{copy.headline}</h1>
     <p class="lede">{copy.body}</p>
     <div class="actions">
-      <a class="button button-ink" href={localPath(language, '/')}>{copy.make}</a>
+      <a class="button button-ink" href={localPath(language, '/')} data-magnet>{copy.home}</a>
+      <a class="button button-quiet" href={`${localPath(language, '/')}#maker`}>{copy.make}</a>
+      <a class="button button-quiet" href={localPath(language, '/help')}>{copy.help}</a>
     </div>
   </div>
 </div>

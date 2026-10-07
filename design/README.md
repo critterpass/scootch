@@ -21,7 +21,8 @@ browser as designed.
 | Plus Materials (added 8 Oct 2026) | Seven finishes, the sheet dressed up, the welcome, the studio (ink, finish, trail), your card, five things to share | Yes. It also replaces the share cards and stories of Monsters and Keepsakes |
 | Care and Edge States | Serious mode, crisis, offline, AI unavailable, accessibility, privacy, seat controls | Yes |
 | Growth | Web monster maker, haunt a friend, the share loop | Yes |
-| Website | 15 sections: system, home, maker, monster page, shared pages, invites, getting the app, Plus, wall, Unwrapped, plain pages, before launch, link previews, motion, copy | Yes, without the wall, Unwrapped, gifts and before-and-after |
+| Website | 15 sections: system, home, maker, monster page, shared pages, invites, getting the app, Plus, wall, Unwrapped, plain pages, before launch, link previews, motion, copy | Replaced on 8 Oct 2026 by Website v2 and the Scootch Web boards. Still the reference for the caught card, story and record pages, which the new boards do not draw |
+| Website v2 and Scootch Web - Monster, Plus, Invites, Get, Help, 404, Wall, Unwrapped (added 8 Oct 2026) | The website as real pages, one board each, with one shared script, `web-fx.js` | Yes, without the wall, Unwrapped, gifts and courage from strangers. See `plans/261008-0239-website-redesign/plan.md` |
 | Camera | Four modes, before and after | Yes (in scope from 8 Oct 2026) |
 | iPhone Duo | Foldable layouts | After launch |
 
@@ -37,6 +38,11 @@ copy in Claude Design still has the fault.
 
 Every board has been read against the plan as text. Nobody has yet compared
 the rendered screens.
+
+The website boards are whole pages, not screens inside numbered sections, so
+`render-design-screens.ts` finds no screens in them and `design/screens.json`
+has no rows for them. Open a board in a browser beside the built page; the
+site's own sheets come from `apps/web/tests/capture-sheets.spec.ts`.
 
 ## One image per screen
 
