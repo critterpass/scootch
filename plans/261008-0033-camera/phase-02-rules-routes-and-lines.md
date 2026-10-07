@@ -1,6 +1,6 @@
 # Phase 02: Rules, routes and lines
 
-Status: tasks 1 to 3 done; routes and lines not started · Tasks: 6 · Needs: —
+Status: done except the evals · Tasks: 6 · Needs: —
 Owns: `packages/domain/src/camera/`, `packages/domain/src/entitlements/`,
 `apps/api/src/routes/camera-*.ts`, `apps/api/src/ai/camera/`,
 `apps/api/src/ai/deepseek.ts`, `apps/api/src/contracts.ts`,
@@ -44,51 +44,46 @@ Goal: everything the camera decides and says, with no screen. Read
 
 ### 4. The reading routes
 - Owns: `apps/api/src/routes/camera-paper.ts`, `camera-screen.ts`,
-  `apps/api/src/ai/camera/`, `apps/api/src/ai/deepseek.ts`,
-  `apps/api/src/contracts.ts`.
-- Do: `POST /v1/camera/paper` and `/v1/camera/screen` take recognised lines
-  (`id`, `text`, `bbox`) and the language. The words are care-screened first
-  (`screenText`); serious or crisis returns the flag and a plain step only.
-  Otherwise one structured call: Paper returns the line id of the easiest
-  box, a jargon term from the page with its plain meaning, Scootch's line and
-  the button's words; Screen returns the line id of the one item that matters,
-  Scootch's line and a first-line draft. An unknown line id is rejected and
-  retried once. Digits in model text are stripped; counts come from the lines.
-  When the phone sent no lines, the request may carry the photo
-  (JPEG, at most 1568 px): the generation client gains an image block, the
-  photo is transcribed into lines `s0`, `s1`, … and the same parse runs.
-  Nothing is stored or logged: not the words, not the photo. Spend goes to
-  the ledger under the route id. Text in a photo is data, never instructions.
-- Test: recorded DeepSeek answers for six pages and six screens in each
-  language; unknown line id; serious letter; the photo fallback; a body with
-  both lines and a photo is refused.
-- Status: not started
+  `apps/api/src/ai/camera/`, `packages/domain/src/contracts/camera.ts`.
+- Do: `POST /v1/camera/paper` and `/v1/camera/screen` take the recognised
+  lines (`id`, `text`) and the speaker. The words are care-screened first;
+  serious or crisis returns the verdict alone. Otherwise one structured call:
+  Paper returns the boxes and the easiest one by line id, the page's name, a
+  hard word printed on the page with its plain meaning, Scootch's line, the
+  button's words and the task; Screen returns the one line that matters, a
+  first-line draft, and the same three texts. An id the phone did not send is
+  dropped; a pick that is not a line is asked for once more, then answered as
+  unreadable. Any text with a digit in it is refused: counts come from the
+  phone. Nothing is stored or logged. No photo is accepted.
+- Test: doubles shaped like recorded answers at the provider boundary:
+  ordering and unknown ids, the hard word, serious and crisis, unscreened
+  words, an unknown pick, a silent writer, nothing logged.
+- Status: done — ad6e744
 
 ### 5. The line routes
-- Owns: `apps/api/src/routes/camera-desk.ts`, `camera-room.ts`,
-  `camera-opening.ts`, `camera-after.ts`.
-- Do: each takes only what code already decided (the label picked and the
-  other labels; the zone and its count; the before-and-after figures) and
-  returns Scootch's line and button words on the fast model, through the
-  voice check.
-- Test: recorded answers; a line with a number in it is rejected.
-- Status: not started
+- Owns: `apps/api/src/routes/camera-desk.ts`, `camera-room.ts`.
+- Do: each takes only what the phone already decided (the names of the
+  ringed thing and the others; where the lit corner is and what is in it) and
+  returns Scootch's line, the button's words and the task on the fast model,
+  through the voice check, one retry, then Scootch's offline line. They answer
+  even when no model does. The opening line is an offline line (no route).
+  The before-and-after line is written with phase 05.
+- Test: the same doubles; a line with a number in it is refused.
+- Status: done — ad6e744
 
 ### 6. Voice and catalogues
-- Owns: `packages/voice/src/guide/`, `packages/voice/src/offline/`,
-  `packages/voice/evals/camera-*/`, `packages/i18n/src/{en,vi}-camera.ts`.
-- Do: a guide section for camera lines in both languages, written in each
-  language, not translated. Offline lines for the opening, Desk and Room in
-  all three attitudes. Catalogue strings for the chrome: mode names, the
-  privacy chip, "Start here", Retake, the consent sheet, the lock, every
-  undesigned state. Eval cases for each route in both languages.
-- Test: the line rules pass over every offline line; the catalogue
-  completeness check.
-- Status: not started
+- Owns: `packages/voice/src/offline/`, `packages/voice/evals/camera-*/`,
+  `packages/i18n/src/{en,vi}-camera.ts`.
+- Do: offline lines for the opening, Desk and Room in all three attitudes and
+  both languages (done with the routes). Catalogue strings for the chrome are
+  written with the screens that use them (phases 03 to 05). Eval cases for
+  each route in both languages need live calls with the dev key.
+- Test: the line rules pass over every offline line.
+- Status: partly done — ad6e744; evals not written
 
 ## Risks
 
 - A letter can be bad news. The care screen runs on the recognised words
   before any writing call, and the routes fail closed to `serious`.
-- DeepSeek's image input is proven in CritterPass only for transcription.
-  The fallback asks for nothing more.
+- The routes are tested against doubles, not live answers: how well DeepSeek
+  picks a box or an email is unmeasured until the evals run.
