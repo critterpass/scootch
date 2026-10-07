@@ -14,8 +14,18 @@
   "monsterImage": "surface-monster-00c0ffee.png",
   "line": "Molar is sweating. Keep going.",
   "sessionLines": [
-    { "at": 1791294060000, "text": "Molar has gone quiet." },
-    { "at": 1791294240000, "text": "Molar is packing a bag." },
-    { "at": 1791294420000, "text": "Molar is sweating. Keep going." }
-  ]
+    {
+      "at": 1791294060000,
+      "text": "Molar has gone quiet."
+    },
+    {
+      "at": 1791294240000,
+      "text": "Molar is packing a bag."
+    },
+    {
+      "at": 1791294420000,
+      "text": "Molar is sweating. Keep going."
+    }
+  ],
+  "accent": null
 }

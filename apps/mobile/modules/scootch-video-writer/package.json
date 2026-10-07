@@ -1,0 +1,9 @@
+{
+  "name": "scootch-video-writer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Stitches pictures the app has drawn into a short looping video (AVFoundation).",
+  "main": "index.ts",
+  "types": "index.ts",
+  "license": "UNLICENSED"
+}

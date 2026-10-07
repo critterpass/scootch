@@ -4,7 +4,12 @@ import WidgetKit
 
 /// Scootch's colours on the system surfaces, from the design board.
 enum SurfaceColor {
-    static let accent = Color(red: 0.941, green: 0.337, blue: 0.180)
+    static let tomato = Color(red: 0.941, green: 0.337, blue: 0.180)
+    /// The ink the person wears in the app, read from what the app last wrote; tomato until it
+    /// has written one. The drawings of Scootch are baked in tomato and stay so.
+    static var accent: Color {
+        SurfaceSnapshot.load().accent.flatMap(Color.init(hex:)) ?? tomato
+    }
     static let page = Color(red: 0.980, green: 0.965, blue: 0.937)
     static let pageDark = Color(red: 0.122, green: 0.106, blue: 0.094)
     static let ink = Color(red: 0.118, green: 0.106, blue: 0.090)
@@ -12,6 +17,18 @@ enum SurfaceColor {
 
     static func page(_ scheme: ColorScheme) -> Color { scheme == .dark ? pageDark : page }
     static func ink(_ scheme: ColorScheme) -> Color { scheme == .dark ? .white : ink }
+}
+
+extension Color {
+    /// A colour from six hex digits, with or without the leading hash. Nil for anything else.
+    init?(hex: String) {
+        let digits = hex.hasPrefix("#") ? String(hex.dropFirst()) : hex
+        guard digits.count == 6, let value = UInt32(digits, radix: 16) else { return nil }
+        self.init(
+            red: Double((value >> 16) & 0xFF) / 255,
+            green: Double((value >> 8) & 0xFF) / 255,
+            blue: Double(value & 0xFF) / 255)
+    }
 }
 
 /// Fixed labels, in the language the person chose in the app (the snapshot's), not the phone's.

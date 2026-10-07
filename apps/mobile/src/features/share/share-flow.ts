@@ -14,6 +14,8 @@ import {
   type KeptShares,
 } from './kept-shares';
 import {
+  CARD_TURN,
+  composeCardTurn,
   composeShareImage,
   type ShareDress,
   type ShareFormat,
@@ -27,6 +29,15 @@ export interface ShareDevice {
   /** Draws the picture off screen and writes it as a PNG file. Returns the file's address. */
   renderPng(image: ShareImage, name: string): Promise<string>;
   writeFile(name: string, bytes: Uint8Array): Promise<string>;
+  /**
+   * Draws the frames off screen and writes them as one looping video. Absent on a phone whose
+   * build has no video writer: a card is then shared as a picture.
+   */
+  renderVideo?(
+    frames: readonly ShareImage[],
+    name: string,
+    framesPerSecond: number,
+  ): Promise<string>;
   /** Opens the system share sheet with a file and, when there is one, the link to its page. */
   openShareSheet(uri: string, mimeType: string, link?: string): Promise<void>;
   /** Asks for permission to add to Photos if it has not been given, then saves. */
@@ -157,10 +168,30 @@ export async function sharedPageOf(
     : null;
 }
 
-async function pictureOf(device: ShareDevice, share: CatchShare): Promise<string | null> {
+/** What is handed to the share sheet or to Photos: a file, and what kind of file it is. */
+interface Shared {
+  readonly uri: string;
+  readonly mimeType: 'image/png' | 'video/mp4';
+}
+
+/**
+ * The file for a share: a picture, or for a trading card on a phone that can write video, the
+ * card turning once. A video that fails to write falls back to the picture, never to nothing.
+ */
+async function pictureOf(device: ShareDevice, share: CatchShare): Promise<Shared | null> {
   if (!shareOffered(share.task)) return null;
+  const name = `scootch-${share.format}-${share.card.number}`;
+  if (share.format === 'card' && device.renderVideo) {
+    try {
+      const frames = composeCardTurn(share.card, share, share.dress);
+      const uri = await device.renderVideo(frames, name, CARD_TURN.framesPerSecond);
+      return { uri, mimeType: 'video/mp4' };
+    } catch {
+      // The picture below is shared instead.
+    }
+  }
   const image = composeShareImage(share.format, share.card, share, share.dress);
-  return device.renderPng(image, `scootch-${share.format}-${share.card.number}`);
+  return { uri: await device.renderPng(image, name), mimeType: 'image/png' };
 }
 
 /**
@@ -181,19 +212,19 @@ export async function shareCatch(
   if (signed === null) {
     const picture = await pictureOf(device, share);
     if (picture === null) return 'not_offered';
-    await device.openShareSheet(picture, 'image/png');
+    await device.openShareSheet(picture.uri, picture.mimeType);
     return 'shared_picture';
   }
   const page = await pageFor(pages, share, signed);
-  const uri = await pictureOf(device, share);
-  if (uri === null) return 'not_offered';
+  const picture = await pictureOf(device, share);
+  if (picture === null) return 'not_offered';
   const link = sharedPageLink(
     pages.site,
     page.language,
     kindOf(share) === 'card' ? 'c' : 's',
     page.id,
   );
-  await device.openShareSheet(uri, 'image/png', link);
+  await device.openShareSheet(picture.uri, picture.mimeType, link);
   return 'shared';
 }
 
@@ -229,9 +260,9 @@ export async function saveCatch(
   device: ShareDevice,
   share: CatchShare,
 ): Promise<'saved' | 'refused' | 'not_offered'> {
-  const uri = await pictureOf(device, share);
-  if (uri === null) return 'not_offered';
-  return device.saveToPhotos(uri);
+  const picture = await pictureOf(device, share);
+  if (picture === null) return 'not_offered';
+  return device.saveToPhotos(picture.uri);
 }
 
 /** Sends the week's clip as an audio file. Whether it becomes a video is not decided yet. */

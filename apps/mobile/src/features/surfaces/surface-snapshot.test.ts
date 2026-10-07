@@ -54,6 +54,14 @@ describe('the shared snapshot', () => {
     expect(made.sessionLines.every((line) => line.at < (made.sessionEndsAt ?? 0))).toBe(true);
   });
 
+  it('carries the worn ink for the surfaces to tint with, and nothing for tomato', () => {
+    const today: TodayState = { kind: 'nothing_yet', startsLeft: 1 };
+    expect(snapshot(today).accent).toBeNull();
+    expect(snapshot(today, { accent: '#34506E' }).accent).toBe('#34506E');
+    // A crisis day keeps the person's own colours and nothing else of the day.
+    expect(snapshot({ kind: 'crisis' }, { accent: '#34506E' }).accent).toBe('#34506E');
+  });
+
   it('shows the line the screen is showing while a session runs', () => {
     const today: TodayState = { kind: 'in_session', task: taskRow(), session: sessionRow() };
     expect(snapshot(today, { shownLine: JOKES.twoMinutesLeft }).line).toBe(JOKES.twoMinutesLeft);

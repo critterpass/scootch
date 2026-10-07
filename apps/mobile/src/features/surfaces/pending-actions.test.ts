@@ -91,6 +91,7 @@ describe('the surface sync on a phone', () => {
       files,
       painter,
       plus: () => false,
+      accent: () => null,
       now: () => staged.time.clock.now(),
       timeZone: () => 'Europe/London',
     });

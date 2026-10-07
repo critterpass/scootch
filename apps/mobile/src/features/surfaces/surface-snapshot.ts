@@ -53,6 +53,11 @@ export interface SurfaceSnapshot {
   readonly plus: boolean;
   /** When the day this describes rolls over. After it, the surfaces show a day with nothing yet. */
   readonly dayEndsAt: Instant;
+  /**
+   * The ink the person wears, as the six-digit hex the surfaces tint with; `null` is tomato. An
+   * older reader that does not know the field draws in tomato, so the version stays as it is.
+   */
+  readonly accent: string | null;
 }
 
 export interface SurfaceSnapshotInput {
@@ -67,6 +72,8 @@ export interface SurfaceSnapshotInput {
   readonly worldThings: number;
   readonly plus: boolean;
   readonly dayEndsAt: Instant;
+  /** The worn ink's accent; left out or `null` for tomato. */
+  readonly accent?: string | null;
 }
 
 function running(session: SessionRow | null): session is SessionRow {
@@ -103,6 +110,7 @@ export function buildSurfaceSnapshot(input: SurfaceSnapshotInput): SurfaceSnapsh
     worldThings: Math.max(0, Math.floor(input.worldThings)),
     plus: input.plus,
     dayEndsAt: input.dayEndsAt,
+    accent: input.accent ?? null,
   };
   const empty = {
     task: null,
