@@ -4,8 +4,8 @@
  *
  * - `home`: the one screen. Returning to it reads as going back.
  * - `push`: the system's push, with its interruptible swipe back: the world, the zoo, the record,
- *   settings and their children. A screen opened from a zoom source (the world, from its corner
- *   button or its row) zooms out of what was tapped and back into it instead.
+ *   settings and their children. From home the world and settings are not pushed at all: they are
+ *   the pages either side of it.
  * - `sheet`: a system sheet with a grabber, pulled down to close.
  * - `fade`: a moment, not a place: the session, the reveal, a purchase's own screen. No swipe.
  * - `none`: care. A crisis day is simply there, with nothing playing around it.
@@ -251,12 +251,4 @@ export function stackBar(routeName: string, systemBar: boolean, inks: BarInks): 
     headerLargeTitle: LARGE_TITLE.has(routeName),
     headerLargeTitleStyle: titleStyle,
   };
-}
-
-/**
- * Whether a control may open its screen with the system's zoom, which grows the screen out of the
- * control and back into it. It exists from iOS 18, and is not used where nothing may move.
- */
-export function systemZoom(os: string, version: string | number, mayMove: boolean): boolean {
-  return os === 'ios' && Number.parseInt(String(version), 10) >= 18 && mayMove;
 }

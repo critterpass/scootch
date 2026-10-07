@@ -1,4 +1,3 @@
-import type { Href } from 'expo-router';
 import type { ReactNode } from 'react';
 import {
   StyleSheet,
@@ -13,8 +12,7 @@ import { fonts, shadows, spacing, tracking } from '@scootch/tokens';
 
 import { GlassSurface, glassPressOwner } from './glass-surface';
 import { useScreenStyle } from './use-screen-style';
-import { PressSpring, type PressSpringProps } from './motion/press-spring';
-import { ZoomLink } from './zoom-link';
+import { PressSpring } from './motion/press-spring';
 
 /** The height of every capsule and round control in the dock, as the design draws them. */
 export const CONTROL_HEIGHT = 54;
@@ -98,11 +96,6 @@ export interface RoundButtonProps {
   readonly onPress?: () => void;
   /** An inert button is drawn and read out, and says it does nothing yet. */
   readonly inert?: boolean;
-  /**
-   * The screen this button opens, when that screen should grow out of the button with the system's
-   * zoom. The press then goes through the router's link to it; `onPress` opens it everywhere else.
-   */
-  readonly zoomTo?: Href;
   readonly testID?: string;
   readonly children: ReactNode;
 }
@@ -116,18 +109,17 @@ export function RoundButton({
   hint,
   onPress,
   inert = false,
-  zoomTo,
   testID,
   children,
 }: RoundButtonProps) {
-  const button = (press: PressSpringProps['onPress']) => (
+  return (
     <PressSpring
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityHint={hint}
       accessibilityState={{ disabled: inert }}
       disabled={inert}
-      onPress={press}
+      onPress={onPress}
       testID={testID}
       hitSlop={spacing.sm}
       answeredBy={glassPressOwner(true)}
@@ -138,12 +130,6 @@ export function RoundButton({
         </View>
       </GlassSurface>
     </PressSpring>
-  );
-  if (zoomTo === undefined || inert) return button(onPress);
-  return (
-    <ZoomLink to={zoomTo} onPress={onPress}>
-      {button}
-    </ZoomLink>
   );
 }
 

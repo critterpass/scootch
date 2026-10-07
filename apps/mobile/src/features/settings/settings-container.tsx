@@ -9,6 +9,7 @@ import { useDataTools, useDispatch, useToday } from '../../state/day-store-provi
 import { lineWithNoTask } from '../../state/lines';
 import { useTogether } from '../../state/together-context';
 import { goBack } from '../../ui/motion/go-back';
+import { useHomePager, usePageShown } from '../home-pager/home-pager-context';
 import { accountThen, friendInviteLink } from '../table/table-rules';
 
 import { FinishWithPage } from './finish-with-page';
@@ -24,7 +25,10 @@ const PAGES = {
   'developer-tools': '/developer-tools',
 } as const satisfies Record<string, string>;
 
-/** Settings on the real phone: every change is one store event, written at once. */
+/**
+ * Settings on the real phone: every change is one store event, written at once. Beside home it is
+ * a page kept ready out of sight, and closes by sliding home.
+ */
 export function SettingsContainer() {
   const { settings } = useToday();
   const { chosen, choose, language } = useLanguage();
@@ -35,7 +39,10 @@ export function SettingsContainer() {
   const [musicWhenSilent, setMusicWhenSilent] = useMusicWhenSilent();
   const { api } = useTogether();
   const t = useT();
-  const focused = useIsFocused();
+  const pager = useHomePager();
+  // In view: on the screen, and with no other screen pushed over it.
+  const inView = usePageShown();
+  const focused = useIsFocused() && inView;
   const [tableName, setTableName] = useState<string | null>(null);
 
   // Read again whenever Settings comes back into view: the tables page can sign in or out.
@@ -98,7 +105,7 @@ export function SettingsContainer() {
           .catch(() => undefined)
       }
       onOpen={(page) => router.push(PAGES[page])}
-      onClose={() => goBack(router, '/')}
+      onClose={() => (pager ? pager.show('home') : goBack(router, '/'))}
     />
   );
 }

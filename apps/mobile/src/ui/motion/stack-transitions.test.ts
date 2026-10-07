@@ -5,14 +5,7 @@ import { describe, expect, it } from '@jest/globals';
 
 import { goBack } from './go-back';
 import { feelFor } from './may-move';
-import {
-  ROUTE_MOTION,
-  routeBar,
-  routeMotion,
-  stackBar,
-  stackMotion,
-  systemZoom,
-} from './stack-transitions';
+import { ROUTE_MOTION, routeBar, routeMotion, stackBar, stackMotion } from './stack-transitions';
 
 const APP = join(__dirname, '..', '..', 'app');
 
@@ -183,40 +176,23 @@ describe("which screens wear the system's bar", () => {
 describe('the Motion switch and the stack', () => {
   const facts = { systemReducedMotion: false, captured: false, care: 'none' } as const;
 
-  it('calms every transition and the zoom when the switch is set to calm', () => {
+  it('calms every transition when the switch is set to calm', () => {
     const { mayMove } = feelFor({ ...facts, motion: 'calm' });
     for (const route of Object.keys(ROUTE_MOTION)) {
       expect(['fade', 'none']).toContain(stackMotion(route, mayMove).animation);
     }
-    expect(systemZoom('ios', '27.0', mayMove)).toBe(false);
   });
 
-  it("lets the system's push and zoom play when the switch is set to full", () => {
+  it("lets the system's push play when the switch is set to full", () => {
     const { mayMove } = feelFor({ ...facts, motion: 'full' });
     expect(stackMotion('settings', mayMove).animation).toBe('default');
-    expect(systemZoom('ios', '27.0', mayMove)).toBe(true);
   });
 
   it('holds the stack still around a serious task and on a crisis day', () => {
     for (const care of ['serious', 'crisis'] as const) {
       const { mayMove } = feelFor({ ...facts, motion: 'full', care });
       expect(stackMotion('world', mayMove).animation).toBe('fade');
-      expect(systemZoom('ios', '27.0', mayMove)).toBe(false);
     }
-  });
-});
-
-describe('opening a screen out of the control that was tapped', () => {
-  it('zooms from iOS 18 on', () => {
-    expect(systemZoom('ios', '27.0', true)).toBe(true);
-    expect(systemZoom('ios', '18.2', true)).toBe(true);
-    expect(systemZoom('ios', '17.6', true)).toBe(false);
-    expect(systemZoom('ios', '16.4', true)).toBe(false);
-    expect(systemZoom('android', 36, true)).toBe(false);
-  });
-
-  it('does not zoom where nothing may move', () => {
-    expect(systemZoom('ios', '27.0', false)).toBe(false);
   });
 });
 

@@ -7,6 +7,7 @@ import { isoWeekOf } from '@scootch/domain';
 import { useLanguage } from '../../i18n/i18n-provider';
 import { useToday } from '../../state/day-store-provider';
 import { useKeepsakes, usePlus } from '../../state/keepsakes';
+import { goBack } from '../../ui/motion/go-back';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { useKeptWeeks } from '../plus/kept-records';
 import { PLUS_RECORDS, PLUS_SHEET } from '../plus/routes';
@@ -58,7 +59,8 @@ export function RecordContainer() {
         keptCount: shelf.weeks.length,
       }}
       actions={{
-        close: () => router.dismissTo('/world'),
+        // Back to the world it was opened from, whether that is a page beside home or a screen.
+        close: () => goBack(router, '/world'),
         togglePlay: toggle,
         // Nothing sells near something heavy: on such a day the locked control does nothing.
         ...(heavyToday ? {} : plusDoor),

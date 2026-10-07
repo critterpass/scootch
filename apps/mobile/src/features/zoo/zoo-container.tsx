@@ -4,6 +4,7 @@ import { View } from 'react-native';
 
 import { useLanguage } from '../../i18n/i18n-provider';
 import { useToday } from '../../state/day-store-provider';
+import { goBack } from '../../ui/motion/go-back';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { PLUS_SHEET } from '../plus/routes';
 import { SharePanel } from '../share/share-panel';
@@ -42,7 +43,8 @@ export function ZooContainer() {
         open: shown ? { card: shown.card, shareOffered: shown.shareOffered } : null,
       }}
       actions={{
-        close: () => router.dismissTo('/world'),
+        // Back to the world it was opened from, whether that is a page beside home or a screen.
+        close: () => goBack(router, '/world'),
         openCard: (monster) => opened.open(monster.id),
         closeCard: opened.close,
         nextSort: () => setSort(sortAfter),

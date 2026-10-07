@@ -30,6 +30,7 @@ import { useComposer } from '../composer/use-composer';
 import { drawerRowEvents } from '../drawer/drawer-events';
 import { DrawerSheet } from '../drawer/drawer-sheet';
 import { HatchHauntLink } from '../haunt/hatch-haunt-link';
+import { useHomePager, usePagerHold } from '../home-pager/home-pager-context';
 import { wordsWhileUnscreened } from '../offline/waiting-words';
 import { PLUS_SHEET_ONE_MORE } from '../plus/routes';
 import type { Company } from '../table/company-control';
@@ -93,6 +94,7 @@ function useOneScreenDrawn({
   const { language } = useLanguage();
   const dispatch = useDispatch();
   const router = useRouter();
+  const pager = useHomePager();
   const t = useT();
   const screenReader = useScreenReader();
   const plus = usePlus();
@@ -130,11 +132,13 @@ function useOneScreenDrawn({
   }, [asked, questionShows, giveBack, sendComposer]);
   // A control or a widget asked for the composer: it opens for typing, or starts listening.
   const takesWords = stage.kind === 'home' && stage.startLeft;
-  useSurfaceRequest('composer', takesWords && taskCall === 'idle', (request) =>
+  useSurfaceRequest('composer', takesWords && taskCall === 'idle', (request) => {
+    // Asked for from outside while a page beside home is showing: home comes back first.
+    pager?.show('home');
     sendComposer(
       request.listening ? { type: 'toggled', at: Date.now() } : { type: 'keyboard_tapped' },
-    ),
-  );
+    );
+  });
   useReturnedText(day.returnedText, sendComposer, dispatch);
   useForgetSentWords(
     sentWordsAreStale(
@@ -158,13 +162,17 @@ function useOneScreenDrawn({
   useEffect(() => {
     if (inSession && focused) router.push(SESSION);
   }, [inSession, focused, router]);
+  // The pages beside home are not swiped to while something here has the finger or stands over
+  // the screen: a hold on the composer, the keyboard, the drawer, a session on its way in.
+  usePagerHold(composer.state.phase !== 'idle' || keyboardOpen || drawer.open || inSession || care);
 
   const offline = (network.isInternetReachable ?? network.isConnected) === false;
   const task = 'task' in today ? today.task : null;
   const frame = {
     attitude,
     offline,
-    onWorld: () => router.push(WORLD),
+    // The world and Settings are the pages either side of home; alone, home opens them as screens.
+    onWorld: () => (pager ? pager.show('world') : router.push(WORLD)),
     // The drawer opens on the person's own pull, or their tap on what waits for tomorrow.
     onPull: () => send({ type: 'drawer', event: { type: 'pulled' } }),
     overlay: (
@@ -187,7 +195,7 @@ function useOneScreenDrawn({
         }}
       />
     ),
-    onMore: () => router.push(SETTINGS),
+    onMore: () => (pager ? pager.show('settings') : router.push(SETTINGS)),
     // Scootch answers a tap with a squeak and a small celebration of his own.
     onSqueak: () => playCue('squeak'),
     failed: notice === 'failed',
