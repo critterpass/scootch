@@ -44,12 +44,20 @@ async function ableToTranscribe(language: Language): Promise<boolean> {
   return installedLocales.some((locale) => locale.toLowerCase().startsWith(language));
 }
 
+export interface NativeSpeechOptions {
+  /**
+   * The audio session the recogniser records in. Left out, the library's own is used, which stops
+   * other apps' sound; a caller that listens while music may be playing passes one that mixes.
+   */
+  readonly iosCategory?: Parameters<typeof Recognizer.start>[0]['iosCategory'];
+}
+
 /**
  * Speech recognition on the phone itself. The recording is asked to stay on the device
  * (`requiresOnDeviceRecognition`), so the audio is never sent anywhere, and no recording option is
  * set, so no audio file is ever written. It runs only in a native build.
  */
-export function nativeSpeech(): SpeechPort {
+export function nativeSpeech(options: NativeSpeechOptions = {}): SpeechPort {
   let subscriptions: { remove(): void }[] = [];
   const release = () => {
     for (const subscription of subscriptions) subscription.remove();
@@ -122,6 +130,7 @@ export function nativeSpeech(): SpeechPort {
           requiresOnDeviceRecognition: true,
           addsPunctuation: true,
           volumeChangeEventOptions: { enabled: true, intervalMillis: 80 },
+          ...(options.iosCategory ? { iosCategory: options.iosCategory } : {}),
         });
       } catch {
         over = true;

@@ -9,13 +9,13 @@ import {
 } from 'react-native';
 
 import { Scootch } from '../../../art/Scootch';
-import { RoundButton as GlassRound } from '../../../ui/buttons';
+import { GlassTag, RoundButton as GlassRound } from '../../../ui/buttons';
 import { MoreIcon } from '../../../ui/icons';
 import { useKeyboardOpen } from '../../../ui/use-keyboard-open';
 import { companyLine, scootchShare } from '../session-view';
 import { RoundButton } from '../ui/controls';
-import { GlassPill, PillDot } from '../ui/glass-pill';
 import type { ParkComposerHandle } from '../ui/park-composer';
+import { PillDot } from '../ui/pill-marks';
 import { ParkedToast } from '../ui/parked-toast';
 import { SessionFrame } from '../ui/session-frame';
 import { SessionMenu } from '../ui/session-menu';
@@ -90,7 +90,7 @@ export function WorkingScreen(props: ScreenProps) {
         inks={inks}
         page={quiet ? inks.quietPage : inks.page}
         align="drawn"
-        footerInset={quiet || stuck || model.parkOpen || model.leaveAsked ? 14 : 0}
+        footerInset={quiet || stuck || model.parkOpen ? 14 : 0}
         testID={quiet ? 'session-quiet' : 'session-running'}
         footer={<WorkingFooter {...props} park={park} />}
         behindFooter={
@@ -98,7 +98,7 @@ export function WorkingScreen(props: ScreenProps) {
             // A touch anywhere above the dock closes it. Words already there are parked.
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel={t('session.park.cancel')}
+              accessibilityLabel={t('session.park.close')}
               accessibilityHint={t('session.park.close.hint')}
               testID="session-park-cancel"
               onPress={() => (park.current ? park.current.close() : actions.closePark())}
@@ -131,16 +131,14 @@ export function WorkingScreen(props: ScreenProps) {
             {quiet ? (
               <View />
             ) : (
-              <GlassPill
-                inks={inks}
-                testID="session-pill"
-                lead={<PillDot inks={inks} />}
-                label={
-                  name
+              <GlassTag testID="session-pill" style={styles.pill}>
+                <PillDot inks={inks} />
+                <SessionText face="pill" color={inks.ink} numberOfLines={1} style={styles.fit}>
+                  {name
                     ? t('session.pill', { name, minutes: model.plannedMinutes })
-                    : t('session.pillPlain', { minutes: model.plannedMinutes })
-                }
-              />
+                    : t('session.pillPlain', { minutes: model.plannedMinutes })}
+                </SessionText>
+              </GlassTag>
             )}
             {menu ? (
               <GlassRound
@@ -251,5 +249,13 @@ const styles = StyleSheet.create({
   },
   text: {
     textAlign: 'center',
+  },
+  // The board's pill: 16 points in from each end, and it gives way before the corner control does.
+  pill: {
+    flexShrink: 1,
+    paddingHorizontal: 16,
+  },
+  fit: {
+    flexShrink: 1,
   },
 });

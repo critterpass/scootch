@@ -16,7 +16,7 @@ import {
   type ScootchTone,
 } from '@scootch/art';
 
-import { useForcedVariant } from '../screens/registry/support/forced-variant';
+import { useAppearance, useForcedVariant } from '../screens/registry/support/forced-variant';
 
 import {
   scootchFrameAt,
@@ -45,7 +45,10 @@ export interface ScootchProps {
   readonly hat?: ScootchDrawing['hat'];
   /** `paper` is the pale Scootch who sits on the session's disc. Tomato unless told otherwise. */
   readonly tone?: ScootchTone;
-  /** On a dark ground the marks around a tomato Scootch are drawn light. */
+  /**
+   * What he stands on. Left out, it is the page: light or dark with the phone, so the marks around
+   * a tomato Scootch (dots, waves, the letters of sleep) are never ink on a dark page.
+   */
   readonly ground?: ScootchGround;
   /** Leave unset to follow the system's Reduce Motion setting. */
   readonly reducedMotion?: boolean;
@@ -100,7 +103,7 @@ export function Scootch({
   workMode = null,
   hat = null,
   tone = 'tomato',
-  ground = 'light',
+  ground: groundGiven,
   reducedMotion,
   care = 'none',
   ownLoop = true,
@@ -111,6 +114,8 @@ export function Scootch({
   size = 200,
   testID,
 }: ScootchProps) {
+  const appearance = useAppearance();
+  const ground = groundGiven ?? appearance;
   const systemReducedMotion = useReducedMotion();
   // A registry capture is always the still, whatever the screen passes.
   const captured = useForcedVariant() !== undefined;

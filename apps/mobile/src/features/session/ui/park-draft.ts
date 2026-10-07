@@ -15,8 +15,7 @@ export function parkDraft(state: Pick<ComposerState, 'phase' | 'text' | 'transcr
 /** The session's last seconds, when an open park field hands over what it holds. */
 export const CLOSING_SECONDS = 3;
 
-/** Whether the session is in its last seconds: time left, as a share of the planned minutes. */
-export function sessionClosing(fraction: number, plannedMinutes: number): boolean {
-  const secondsLeft = fraction * plannedMinutes * 60;
-  return plannedMinutes > 0 && secondsLeft <= CLOSING_SECONDS;
+/** Whether the session is in its last seconds, by its real end and not its planned length. */
+export function sessionClosing(secondsLeft: number): boolean {
+  return secondsLeft <= CLOSING_SECONDS;
 }

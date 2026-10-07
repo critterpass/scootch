@@ -1,10 +1,10 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import type { Translate } from '../../../i18n/i18n-provider';
+import { CapsuleButton, DOCK_PADDING } from '../../../ui/buttons';
 import { GlassSurface } from '../../../ui/glass-surface';
 import { RiseIn } from '../../../ui/motion/rise-in';
 
-import { DockButton, DockRow } from './dock';
 import type { SessionInks } from './session-inks';
 import { SessionText } from './session-text';
 
@@ -45,24 +45,24 @@ export function StuckCard({ lead, step, inks, t, onSmaller, onOkay }: StuckCardP
             {step}
           </SessionText>
         ) : null}
-        <DockRow style={styles.row}>
-          <DockButton
-            tone="plain"
+        <View style={styles.row}>
+          <CapsuleButton
+            tone="quiet"
             label={t('monster.smaller')}
             hint={t('session.step.smaller.hint')}
             testID="session-step-smaller"
-            inks={inks}
             onPress={onSmaller}
+            style={styles.half}
           />
-          <DockButton
+          <CapsuleButton
             tone="ink"
             label={t('session.step.okay')}
             hint={t('session.step.okay.hint')}
             testID="session-step-okay"
-            inks={inks}
             onPress={onOkay}
+            style={styles.half}
           />
-        </DockRow>
+        </View>
       </GlassSurface>
     </RiseIn>
   );
@@ -78,6 +78,13 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   row: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: DOCK_PADDING,
     marginTop: 8,
+  },
+  half: {
+    flexGrow: 1,
+    flexBasis: 120,
   },
 });

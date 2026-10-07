@@ -24,6 +24,7 @@ const RING_LINE = 1.5;
 const PULSE = { spread: 22, ms: 3200, opacity: 0.32 } as const;
 /** How far Scootch sits below the ring's centre, as a share of the disc under him. */
 const SITS_LOW = 0.05;
+const LIT_EDGE = 2;
 const NEVER = ReduceMotion.Never;
 
 export interface TimeDiscProps {
@@ -58,15 +59,17 @@ export function TimeDisc({
   children,
 }: TimeDiscProps) {
   const mayMove = useMayMove() && !reducedMotion;
-  const target = discShare(fraction) * size;
-  const diameter = useSharedValue(target);
+  // Everything that moves is a scale or an opacity of a ring-sized circle, on the UI thread: no
+  // layout is redone as the disc shrinks or pulses.
+  const target = discShare(fraction);
+  const share = useSharedValue(target);
   const pulse = useSharedValue(0);
 
   useEffect(() => {
-    diameter.value = mayMove
+    share.value = mayMove
       ? withTiming(target, { duration: 900, easing: Easing.linear, reduceMotion: NEVER })
       : target;
-  }, [target, mayMove, diameter]);
+  }, [target, mayMove, share]);
 
   const pulsing = mayMove && !quiet;
   useEffect(() => {
@@ -82,20 +85,16 @@ export function TimeDisc({
     return () => cancelAnimation(pulse);
   }, [pulsing, pulse]);
 
-  const disc = useAnimatedStyle(() => ({
-    width: diameter.value,
-    height: diameter.value,
-    borderRadius: diameter.value / 2,
+  const disc = useAnimatedStyle(() => ({ transform: [{ scale: share.value }] }));
+  // The lit edge stays two points deep however small the disc is drawn.
+  const body = useAnimatedStyle(() => ({
+    transform: [{ translateY: LIT_EDGE / Math.max(share.value, 0.05) }],
   }));
-  const halo = useAnimatedStyle(() => {
-    const across = diameter.value + PULSE.spread * 2 * pulse.value;
-    return {
-      width: across,
-      height: across,
-      borderRadius: across / 2,
-      opacity: pulse.value === 0 ? 0 : PULSE.opacity * (1 - pulse.value),
-    };
-  });
+  const halo = useAnimatedStyle(() => ({
+    opacity: pulse.value === 0 ? 0 : PULSE.opacity * (1 - pulse.value),
+    transform: [{ scale: share.value + (PULSE.spread * 2 * pulse.value) / size }],
+  }));
+  const circle = { width: size, height: size, borderRadius: size / 2 };
 
   return (
     <View
@@ -114,18 +113,25 @@ export function TimeDisc({
       />
       {pulsing ? (
         <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.centred]}>
-          <Animated.View style={[{ backgroundColor: inks.tomato }, halo]} />
+          <Animated.View style={[circle, { backgroundColor: inks.tomato }, halo]} />
         </View>
       ) : null}
       <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.centred]}>
         <Animated.View
-          style={[styles.disc, { backgroundColor: quiet ? inks.quietDisc : inks.tomato }, disc]}
+          style={[
+            styles.disc,
+            circle,
+            { backgroundColor: quiet ? inks.quietDisc : inks.tomato },
+            disc,
+          ]}
         >
           {quiet ? null : (
             <>
               {/* The lit top edge: two points of the disc's own colour, lightened. */}
               <View style={[StyleSheet.absoluteFill, styles.lit]} />
-              <View style={[styles.body, { backgroundColor: inks.tomato }]} />
+              <Animated.View
+                style={[StyleSheet.absoluteFill, circle, { backgroundColor: inks.tomato }, body]}
+              />
             </>
           )}
         </Animated.View>
@@ -135,7 +141,7 @@ export function TimeDisc({
           style={[
             StyleSheet.absoluteFill,
             styles.centred,
-            { transform: [{ translateY: target * SITS_LOW }] },
+            { transform: [{ translateY: target * size * SITS_LOW }] },
           ]}
         >
           {children}
@@ -155,13 +161,5 @@ const styles = StyleSheet.create({
   },
   lit: {
     backgroundColor: 'rgba(255,255,255,0.18)',
-  },
-  body: {
-    position: 'absolute',
-    top: 2,
-    left: 0,
-    right: 0,
-    bottom: -2,
-    borderRadius: 999,
   },
 });

@@ -1,11 +1,12 @@
 import type { RefObject } from 'react';
 import { StyleSheet } from 'react-native';
 
-import { Dock, DockButton } from '../ui/dock';
-import { GlassPill, PillPlus } from '../ui/glass-pill';
-import { LeaveAsk } from '../ui/leave-ask';
+import { CapsuleButton, DOCK_PADDING, GlassDock, GlassPill } from '../../../ui/buttons';
+
 import { ParkComposer, type ParkComposerHandle } from '../ui/park-composer';
 import { sessionClosing } from '../ui/park-draft';
+import { PillPlus } from '../ui/pill-marks';
+import { SessionText } from '../ui/session-text';
 import { StuckCard } from '../ui/stuck-card';
 
 import type { ScreenProps } from './screen-props';
@@ -24,9 +25,6 @@ export function WorkingFooter({
 }: ScreenProps & { readonly park: RefObject<ParkComposerHandle | null> }) {
   const { view } = model;
   if (view.kind !== 'working') return null;
-  if (model.leaveAsked) {
-    return <LeaveAsk inks={inks} t={t} onStay={actions.stay} onNotFinished={actions.leaveNow} />;
-  }
   if (model.parkOpen) {
     return (
       <ParkComposer
@@ -34,7 +32,7 @@ export function WorkingFooter({
         t={t}
         onPark={actions.park}
         onCancel={actions.closePark}
-        closing={sessionClosing(model.fraction, model.plannedMinutes)}
+        closing={sessionClosing(model.secondsLeft)}
         handle={park}
       />
     );
@@ -54,35 +52,35 @@ export function WorkingFooter({
   if (view.quiet) {
     // A serious task: a plain tap finishes, and stopping sits beside it. Nothing else is offered.
     return (
-      <Dock>
+      <GlassDock style={styles.dock}>
         {view.timeUp ? (
-          <DockButton
-            tone="plain"
+          <CapsuleButton
+            tone="quiet"
+            style={styles.half}
             label={t('session.notFinished')}
             hint={t('session.notFinished.hint')}
             testID="session-not-finished"
-            inks={inks}
             onPress={() => actions.send({ type: 'not_finished' })}
           />
         ) : (
-          <DockButton
-            tone="plain"
+          <CapsuleButton
+            tone="quiet"
+            style={styles.half}
             label={t('session.quiet.stop')}
             hint={t('session.quiet.stop.hint')}
             testID="session-quiet-stop"
-            inks={inks}
             onPress={actions.leave}
           />
         )}
-        <DockButton
+        <CapsuleButton
           tone="ink"
+          style={styles.half}
           label={t('session.quiet.done')}
           hint={t('session.quiet.done.hint')}
           testID="session-quiet-done"
-          inks={inks}
           onPress={() => actions.send({ type: 'finish_tapped' })}
         />
-      </Dock>
+      </GlassDock>
     );
   }
   // The last two minutes are for the finish: the board draws no pill under the warning.
@@ -92,16 +90,28 @@ export function WorkingFooter({
       label={t('talk.parkThought')}
       hint={t('session.park.hint')}
       testID="session-park"
-      inks={inks}
       onPress={actions.openPark}
-      lead={<PillPlus inks={inks} />}
       style={styles.park}
-    />
+    >
+      <PillPlus inks={inks} />
+      <SessionText face="pill" color={inks.ink} numberOfLines={1}>
+        {t('talk.parkThought')}
+      </SessionText>
+    </GlassPill>
   );
 }
 
 const styles = StyleSheet.create({
   park: {
     alignSelf: 'center',
+  },
+  dock: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: DOCK_PADDING,
+  },
+  half: {
+    flexGrow: 1,
+    flexBasis: 120,
   },
 });

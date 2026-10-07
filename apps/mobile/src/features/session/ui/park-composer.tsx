@@ -6,22 +6,21 @@ import { fonts, spacing } from '@scootch/tokens';
 import { useLanguage, type Translate } from '../../../i18n/i18n-provider';
 import { useForcedVariant } from '../../../screens/registry/support/forced-variant';
 import { useCue } from '../../../state/day-store-provider';
-import { CONTROL_HEIGHT } from '../../../ui/buttons';
+import { CONTROL_HEIGHT, DOCK_PADDING, GlassDock } from '../../../ui/buttons';
 import { GlassSurface } from '../../../ui/glass-surface';
 import { Chevron, KeyboardIcon, SendIcon, WaveIcon } from '../../../ui/icons';
 import { PressSpring, touchHaptic } from '../../../ui/motion/press-spring';
 import { useFeel } from '../../../ui/motion/use-feel';
 import { useScreenStyle } from '../../../ui/use-screen-style';
 import { useComposerFeedback } from '../../composer/composer-feedback';
-import { nativeSpeech, type SpeechPort } from '../../composer/speech';
+import type { SpeechPort } from '../../composer/speech';
 import { useComposer } from '../../composer/use-composer';
 
 import { parkDraft, THOUGHT_MAX } from './park-draft';
+import { parkSpeech } from './park-speech';
 import { ParkTalk } from './park-talk';
 import type { SessionInks } from './session-inks';
 import { SessionText } from './session-text';
-
-const DOCK_PADDING = 7;
 
 /** A capture has no microphone to ask: it is the typing field, the same every time. */
 const NO_SPEECH: SpeechPort = {
@@ -58,7 +57,7 @@ export function ParkComposer({ inks, t, onPark, onCancel, closing, handle }: Par
   const { language } = useLanguage();
   const { allowFontScaling, size } = useScreenStyle();
   const captured = useForcedVariant() !== undefined;
-  const speech = useMemo(() => (captured ? NO_SPEECH : nativeSpeech()), [captured]);
+  const speech = useMemo(() => (captured ? NO_SPEECH : parkSpeech()), [captured]);
   const composer = useComposer({
     speech,
     language,
@@ -122,7 +121,7 @@ export function ParkComposer({ inks, t, onPark, onCancel, closing, handle }: Par
           </View>
         </GlassSurface>
       ) : null}
-      <GlassSurface style={styles.dock} testID="session-park-composer">
+      <GlassDock style={styles.dock} testID="session-park-composer">
         {(!typing || canTalk) && !listening ? (
           <Pressable
             accessibilityRole="button"
@@ -171,7 +170,7 @@ export function ParkComposer({ inks, t, onPark, onCancel, closing, handle }: Par
         ) : (
           <ParkTalk state={state} level={composer.level} inks={inks} t={t} onEvent={send} />
         )}
-      </GlassSurface>
+      </GlassDock>
     </View>
   );
 }
@@ -202,9 +201,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: DOCK_PADDING,
-    borderRadius: CONTROL_HEIGHT / 2 + DOCK_PADDING,
-    padding: DOCK_PADDING,
-    overflow: 'hidden',
   },
   round: {
     width: CONTROL_HEIGHT,
