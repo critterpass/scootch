@@ -3,6 +3,7 @@ import { viCareAndSettings } from './vi-care-and-settings';
 import type { Catalogue } from './catalogue-types';
 import { viPlus } from './vi-plus';
 import { viTogether } from './vi-together';
+import { viWorld } from './vi-world';
 
 /**
  * Vietnamese interface strings, written as a Vietnamese app would say them rather than word for
@@ -185,12 +186,6 @@ export const vi = {
   'reveal.drop.wear': 'Mặc luôn',
   'reveal.drop.wear.hint': 'Cất và đánh dấu để mặc',
 
-  'world.empty': 'Chưa có gì sống ở đây. Việc đầu tiên bạn làm xong sẽ dọn vào.',
-  'world.caught': 'Đã bắt',
-  'world.caught.hint': 'Mở tất cả quái vật bạn đã bắt',
-  'world.song': 'Bài hát tuần này',
-  'world.song.hint': 'Mở đĩa nhạc của tuần',
-
   'zoo.title': 'Đã bắt',
   'zoo.count': {
     other: '{count} thẻ',
@@ -320,4 +315,5 @@ export const vi = {
   ...viDayLoop,
   ...viPlus,
   ...viTogether,
+  ...viWorld,
 } as const satisfies Catalogue;

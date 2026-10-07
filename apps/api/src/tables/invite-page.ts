@@ -2,6 +2,7 @@ import { hashFor } from '../accounts/ids';
 import type { Language, TableInvitePage } from '../contracts';
 import type { Bindings } from '../env';
 
+import { seatShownOutside } from './labels';
 import { tableStub } from './tables';
 
 type InviteRow = {
@@ -17,8 +18,8 @@ type InviteRow = {
  * forgotten.
  *
  * The database is asked first, so an unknown code, a link that has run out and a closed table
- * never reach the table's Durable Object. An open table is asked for its seats in one call that
- * reads its storage once and writes nothing; a hibernating table is woken for that read and goes
+ * never reach the table's Durable Object. An open table is read in one call that reads its
+ * storage once and writes nothing; a hibernating table is woken for that read and goes
  * back to sleep with its sockets and its alarm as they were.
  */
 export async function readInvitePage(
@@ -47,8 +48,13 @@ export async function readInvitePage(
   if (row.closed_at !== null) return closed(row.closed_at);
   if (row.expires_at <= now.toISOString()) return closed(null);
 
-  const seats = await tableStub(env, row.table_id).seatsOutside(language);
+  const table = await tableStub(env, row.table_id).stored();
   // The table closed a moment ago and its row does not say so yet.
-  if (seats === null) return closed(null);
+  if (table === null) return closed(null);
+  // A name, and a label with its work mode unless hidden. No ids.
+  const seats = table.seats.map((seat) => ({
+    name: seat.name,
+    ...seatShownOutside(seat, language),
+  }));
   return { state: 'open', hostName: row.host_name, closedAt: null, seats };
 }

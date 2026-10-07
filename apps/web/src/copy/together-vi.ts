@@ -50,6 +50,22 @@ export const togetherVi = {
     offlineTitle: 'Mình chưa tìm được lời mời này.',
     offlineBody: 'Kiểm tra kết nối rồi tải lại trang nha.',
   },
+  get: {
+    title: 'Bắt nó trong ứng dụng · Scootch',
+    description: 'Mang con quái của bạn theo vào Scootch.',
+    loading: 'Đang đi bắt con quái…',
+    eyebrow: 'Bắt nó trong ứng dụng',
+    headlineBy: '{name} sẽ đi cùng bạn.',
+    phoneBody:
+      'Mở Scootch là nó đang chờ sẵn ở đó. Chưa có Scootch? Tải về trước, rồi mở lại đường dẫn này.',
+    open: 'Mở trong Scootch',
+    deskBody: 'Scootch sống trên iPhone của bạn. Chĩa camera vào đây là con quái đi theo.',
+    deskTitle: 'Quét mã này bằng iPhone.',
+    qrLabel: 'Mã QR mở con quái này trong Scootch',
+    orLink: 'Hoặc mở đường dẫn này trên iPhone: ',
+    offlineTitle: 'Mình chưa bắt được con quái này về.',
+    offlineBody: 'Kiểm tra kết nối rồi tải lại trang nha.',
+  },
   handOff: {
     pasteLine: 'Chưa mở được gì? Chép mã này rồi dán vào Scootch, ở mục “Ngồi cùng ai đó”.',
     codeLabel: 'Mã',

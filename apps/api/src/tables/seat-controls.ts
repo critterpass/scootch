@@ -107,7 +107,7 @@ export async function reportSeat(
   notSelf(reporter, report.accountId);
   const { env, now } = context;
   const table = tableStub(env, report.tableId);
-  const seats = await table.facts();
+  const seats = (await table.stored())?.seats;
   const reported = seats?.find((seat) => seat.accountId === report.accountId);
   if (!reported || !seats?.some((seat) => seat.accountId === reporter.id)) {
     throw refusal('not_at_table', 'You are not at a table with this person');

@@ -29,7 +29,7 @@ export type { SessionMinutes } from '../../../../packages/domain/src/contracts/c
 /**
  * The only messages a table takes from a phone. Each is a strict object, so an extra field is a
  * refusal, and no field is free text: a duration from three, an account id, a work mode id and
- * a switch. The contract's `label` message, which carries words, is deliberately absent.
+ * a switch. `done` carries nothing at all. The contract's `label` message, which carries words, is deliberately absent.
  */
 export const acceptedClientMessageSchema = z.discriminatedUnion('type', [
   z.strictObject({ type: z.literal('start'), minutes: sessionMinutesSchema }),
@@ -39,6 +39,7 @@ export const acceptedClientMessageSchema = z.discriminatedUnion('type', [
     workMode: workModeSchema.nullable(),
     hidden: z.boolean(),
   }),
+  z.strictObject({ type: z.literal('done') }),
   z.strictObject({ type: z.literal('leave') }),
 ]);
 export type AcceptedClientMessage = z.infer<typeof acceptedClientMessageSchema>;
@@ -75,3 +76,25 @@ export const languageHeader = 'x-scootch-language';
 
 /** What a hibernating socket remembers: whose it is, and the language their labels are in. */
 export type Attachment = { accountId: string; language: 'en' | 'vi' };
+
+/**
+ * What a connection may arrive with: the account and language the Worker set, a work mode id
+ * and a switch. Anything else in the query, a label most of all, is refused before the socket
+ * exists: null.
+ */
+export function readConnection(
+  request: Request,
+): (Attachment & { workMode: z.infer<typeof workModeSchema> | null; hidden: boolean }) | null {
+  const url = new URL(request.url);
+  const accountId = request.headers.get(accountHeader);
+  const mode = workModeSchema.nullable().safeParse(url.searchParams.get('mode'));
+  const hidden = url.searchParams.get('hidden');
+  const known = [...url.searchParams.keys()].every((key) => key === 'mode' || key === 'hidden');
+  if (!accountId || !known || !mode.success || !(hidden === null || hidden === '1')) return null;
+  return {
+    accountId,
+    language: request.headers.get(languageHeader) === 'vi' ? 'vi' : 'en',
+    workMode: mode.data,
+    hidden: hidden === '1',
+  };
+}

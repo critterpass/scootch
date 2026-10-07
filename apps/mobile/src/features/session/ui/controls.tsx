@@ -3,6 +3,8 @@ import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { radius, spacing } from '@scootch/tokens';
 
+import { CloseButton } from '../../../ui/corner-bar';
+
 import type { SessionInks } from './session-inks';
 import { SessionText } from './session-text';
 import { PressSpring } from '../../../ui/motion/press-spring';
@@ -66,22 +68,9 @@ export function Tag({ label, inks }: { readonly label: string; readonly inks: Se
   );
 }
 
-/** The round close button in a corner. */
-export function RoundButton({ label, hint, testID, inks, onPress }: ControlProps) {
-  return (
-    <PressSpring
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      accessibilityHint={hint}
-      testID={testID}
-      onPress={onPress}
-      hitSlop={8}
-      style={[styles.round, lift(inks)]}
-    >
-      <View style={[styles.cross, { backgroundColor: inks.ink }]} />
-      <View style={[styles.cross, styles.crossOver, { backgroundColor: inks.ink }]} />
-    </PressSpring>
-  );
+/** The round close button in a corner: the same control, in the same place, as on every screen. */
+export function RoundButton({ label, hint, testID, onPress }: ControlProps) {
+  return <CloseButton label={label} hint={hint} testID={testID} onPress={onPress} />;
 }
 
 /** The one filled action of a screen. */
@@ -162,23 +151,6 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-  },
-  round: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cross: {
-    position: 'absolute',
-    width: 16,
-    height: 2,
-    borderRadius: 1,
-    transform: [{ rotate: '45deg' }],
-  },
-  crossOver: {
-    transform: [{ rotate: '-45deg' }],
   },
   filled: {
     minHeight: 56,

@@ -134,7 +134,19 @@ describe('a seat’s work mode', () => {
     // Every string in every message is an account id, a seat name, a fixed word or a work mode.
     const allowed = new Set<string>([
       ...[host, guest].flatMap((each) => [each.accountId, each.name]),
-      ...['state', 'error', 'bad_message', 'nudged', 'nudge_sent', 'admin', ''],
+      ...[
+        'state',
+        'error',
+        'bad_message',
+        'nudged',
+        'nudge_sent',
+        'admin',
+        '',
+        'here',
+        'away',
+        'working',
+        tableId,
+      ],
       ...WORK_MODE_IDS,
     ]);
     const strings: string[] = [];

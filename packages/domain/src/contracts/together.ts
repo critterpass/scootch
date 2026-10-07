@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { monsterBodyTypeSchema } from './art';
+import { monsterBodyTypeSchema, monsterSpecSchema } from './art';
 import { languageSchema } from './common';
 import { hauntSeedSchema } from './haunt';
 import { hauntPageIdPattern } from './public-pages';
@@ -113,7 +113,12 @@ export const receivedHauntSchema = z.object({
   /** After this the haunt is gone for everyone. */
   expiresAt: z.iso.datetime(),
   from: z.object({ accountId: accountIdSchema, displayName: displayNameSchema }).nullable(),
-  /** Null for a haunt sent before words were carried. The phone then names the monster itself. */
+  /**
+   * The monster's drawing as its sender's phone had it. Null when none was sent: the phone then
+   * draws it from the body and the seed alone.
+   */
+  spec: monsterSpecSchema.nullable(),
+  /** Null for a haunt sent without words. The phone then names the monster itself. */
   words: hauntMonsterWordsSchema.nullable(),
 });
 export type ReceivedHaunt = z.infer<typeof receivedHauntSchema>;

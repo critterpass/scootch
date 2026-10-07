@@ -5,6 +5,7 @@ import Animated, { FadeIn, ReduceMotion } from 'react-native-reanimated';
 import { spacing } from '@scootch/tokens';
 
 import type { SessionInks } from './session-inks';
+import { CORNER } from '../../../ui/corner-bar';
 import { SafeFrame } from '../../../ui/safe-frame';
 
 export interface SessionFrameProps {
@@ -64,8 +65,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: spacing.md,
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.sm,
+    // The same corner as every other screen, so the close control never shifts in a transition.
+    paddingHorizontal: CORNER.side,
+    paddingTop: CORNER.top,
   },
   middle: {
     flexGrow: 1,

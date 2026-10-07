@@ -1,0 +1,122 @@
+appId: app.scootch.dev
+---
+# Tour: the world as one island, at every size the registry has, in light and dark and in both
+# languages, then the largest text size and the finished day's row that leads to it. Each shot is
+# a registry row, named for the sheet that pairs it with its design.
+- runFlow: ../tour-support/to-registry.yaml
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: world-empty--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: world-empty--en-dark-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: world-empty--vi-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: world-empty--vi-dark-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: world-day-one--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: world-day-one--en-dark-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: world-day-one--vi-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: world-day-one--vi-dark-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: world-one-week--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: world-one-week--en-dark-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: world-one-week--vi-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: world-one-week--vi-dark-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: world-sixty-pieces--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: world-sixty-pieces--en-dark-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: world-sixty-pieces--vi-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: world-sixty-pieces--vi-dark-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: world-three-months--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: world-three-months--en-dark-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: world-three-months--vi-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: world-three-months--vi-dark-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: world-lighthouse--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: world-lighthouse--en-dark-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: world-lighthouse--vi-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: world-lighthouse--vi-dark-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: world-one-week--en-light-largest
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: world-one-week--vi-dark-largest
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: one-screen-done-for-today--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: one-screen-done-for-today--en-dark-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: one-screen-done-for-today--vi-light-default
