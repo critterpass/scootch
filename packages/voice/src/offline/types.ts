@@ -65,6 +65,12 @@ export const noTaskSlots = [
   'backupOff',
   /** A new phone that already holds the backup token: the one line offering the world back. */
   'restoreOffer',
+  /** Beside the camera button on the one screen: when words will not come, a photo will do. */
+  'cameraOpen',
+  /** Under a desk photo with one thing ringed, when no line could be written about it. */
+  'cameraDesk',
+  /** Under a room photo with one corner lit, when no line could be written about it. */
+  'cameraRoom',
 ] as const;
 export type NoTaskSlot = (typeof noTaskSlots)[number];
 
