@@ -128,12 +128,13 @@ describe('how each route arrives and leaves', () => {
 describe("which screens wear the system's bar", () => {
   const inks = { page: '#EEE', ink: '#111', appearance: 'dark', titleFont: 'ui-rounded' } as const;
 
-  it('gives settings and its pages a see-through bar that the list scrolls under', () => {
+  it("gives settings and its pages a solid bar in the page's colour, with nothing behind its title", () => {
     for (const route of ['settings', 'privacy', 'helplines', 'finish-with', 'account']) {
       expect(routeBar(route, true)).toBe('page');
       expect(stackBar(route, true, inks)).toMatchObject({
         headerShown: true,
-        headerTransparent: true,
+        headerTransparent: false,
+        headerStyle: { backgroundColor: '#EEE' },
         headerBackVisible: false,
         headerUserInterfaceStyle: 'dark',
       });

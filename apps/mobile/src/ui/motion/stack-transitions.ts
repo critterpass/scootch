@@ -140,8 +140,8 @@ export function stackMotion(routeName: string, mayMove: boolean): StackMotionOpt
 /**
  * Which routes wear the system's navigation bar, and how.
  *
- * - `page`: a page of rows under a see-through bar. The list scrolls beneath it with the system's
- *   scroll edge effect, and a page with a large title collapses it into the bar as it scrolls.
+ * - `page`: a page of rows under a bar in the page's colour. The list is under the bar, never
+ *   behind it, and a page with a large title collapses it into the bar as it scrolls.
  * - `frame`: a keeping screen (the world, the zoo, the record) under a bar in the page's colour:
  *   its middle is a picture or scrolls by itself, so nothing runs under the bar.
  * - `none`: a full-bleed moment, or a sheet. Its corner controls are drawn by the screen, in the
@@ -240,12 +240,16 @@ export function stackBar(routeName: string, systemBar: boolean, inks: BarInks): 
     headerUserInterfaceStyle: inks.appearance,
     headerTitleStyle: titleStyle,
   } as const;
-  if (bar === 'frame') {
-    return { ...shared, headerTransparent: false, headerStyle: { backgroundColor: inks.page } };
-  }
-  return {
+  // Every bar is solid, in the page's colour. A see-through bar left its title standing over
+  // whatever scrolled beneath it on a phone: the page is always under the bar, never behind it.
+  const solid = {
     ...shared,
-    headerTransparent: true,
+    headerTransparent: false,
+    headerStyle: { backgroundColor: inks.page },
+  } as const;
+  if (bar === 'frame') return solid;
+  return {
+    ...solid,
     headerLargeTitle: LARGE_TITLE.has(routeName),
     headerLargeTitleStyle: titleStyle,
   };
