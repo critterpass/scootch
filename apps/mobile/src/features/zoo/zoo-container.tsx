@@ -51,7 +51,7 @@ export function ZooContainer() {
         open: card ? { card, shareOffered: shareOfferedOn(today, task) } : null,
       }}
       actions={{
-        close: () => router.replace('/world'),
+        close: () => router.dismissTo('/world'),
         openCard: setOpened,
         closeCard: () => setOpened(null),
         nextSort: () => setSort(sortAfter),

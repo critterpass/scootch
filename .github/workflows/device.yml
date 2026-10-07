@@ -33,9 +33,11 @@ on:
         type: string
         default: e2e/fresh
       mode:
-        description: run (pass or fail) or capture (also keeps every takeScreenshot image)
+        description: >-
+          run (pass or fail), capture (also keeps every takeScreenshot image) or video (capture,
+          plus a screen recording of each flow on iOS)
         type: choice
-        options: [run, capture]
+        options: [run, capture, video]
         default: run
       pr:
         description: Pull request number to comment on (optional)
@@ -120,7 +122,7 @@ jobs:
           script: tools/scripts/device-android.sh "$RUNNER_TEMP/app.apk" "$RUNNER_TEMP/out" "$FLOWS"
       # One sheet per registered screen state (e2e/sheets), added to the artifact under sheets/.
       - name: Put the captured screens beside their designs
-        if: always() && inputs.mode == 'capture'
+        if: always() && inputs.mode != 'run'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -187,7 +189,7 @@ jobs:
         run: tools/scripts/device-ios.sh "$BUILD_URL" "$RUNNER_TEMP/bundle" "$RUNNER_TEMP/out" "$FLOWS"
       # One sheet per registered screen state (e2e/sheets), added to the artifact under sheets/.
       - name: Put the captured screens beside their designs
-        if: always() && inputs.mode == 'capture'
+        if: always() && inputs.mode != 'run'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |

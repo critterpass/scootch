@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text } from 'react-native';
 
 import type { Attitude } from '@scootch/domain';
 import { fonts, spacing } from '@scootch/tokens';
@@ -8,6 +8,7 @@ import type { ScootchProps } from '../../art/Scootch';
 import { useT } from '../../i18n/i18n-provider';
 import { CapsuleButton } from '../../ui/buttons';
 import { GlassSurface } from '../../ui/glass-surface';
+import { RiseIn } from '../../ui/motion/rise-in';
 import { ScootchSays } from '../../ui/scootch-says';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { ComposerView, type ComposerViewProps } from '../composer/composer-view';
@@ -130,9 +131,11 @@ export function OneScreenView({
     const { composer, warmUp } = shown;
     const { state } = composer;
     const recording = state.phase === 'listening' || state.phase === 'finishing';
-    body = (
+    const heard = recording && state.transcript !== '';
+    const anything = heard || ((warmUp ?? shown.ways) && !recording) || shown.notificationsOff;
+    body = !anything ? null : (
       <>
-        {recording && state.transcript !== '' ? (
+        {heard ? (
           <Text
             testID="composer-heard"
             accessibilityLiveRegion="polite"
@@ -274,11 +277,20 @@ export function OneScreenView({
             </>
           )}
           {failed ? note(t('oneScreen.failed'), 'one-screen-failed') : null}
-          {body}
+          {/* A new stage rises in under Scootch, who stays where he is. */}
+          {body === null ? null : (
+            <RiseIn key={testName} index={1} style={styles.body}>
+              {body}
+            </RiseIn>
+          )}
           {/* Said beside nothing else: never during a task, a pick or a hatch. */}
           {chargeNoteShows(shown.kind) ? <ChargeNote /> : null}
         </ScrollView>
-        {footer === null ? null : <View style={styles.footer}>{footer}</View>}
+        {footer === null ? null : (
+          <RiseIn key={testName} index={2} style={styles.footer}>
+            {footer}
+          </RiseIn>
+        )}
       </KeyboardAvoidingView>
       {overlay}
     </SafeFrame>
@@ -294,6 +306,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
+    gap: spacing.md,
+  },
+  body: {
     gap: spacing.md,
   },
   footer: {

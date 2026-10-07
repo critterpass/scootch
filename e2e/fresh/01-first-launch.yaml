@@ -31,19 +31,21 @@ appId: app.scootch.dev
 - takeScreenshot: launch-permissions--en-light-default
 # Notifications, then the microphone: each skipped.
 # A press that comes while the first favour is being answered is lost, so the skip is pressed
-# again until the warm-up ask is there.
+# again for as long as it is still there, and only then: once the warm-up ask has taken its place
+# there is nothing to press.
 - repeat:
     times: 4
     commands:
       - runFlow:
           when:
-            notVisible:
-              id: 'warm-up-chip-0'
+            visible:
+              id: 'launch-permission-skip'
           commands:
             - tapOn:
                 id: 'launch-permission-skip'
+                optional: true
             - waitForAnimationToEnd:
-                timeout: 2000
+                timeout: 2500
 - extendedWaitUntil:
     visible:
       id: 'warm-up-chip-0'

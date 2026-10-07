@@ -50,19 +50,19 @@ export function RecordContainer() {
         language,
         plus,
         playback,
-        reducedMotion: reducedMotion || settings.motion === 'calm',
+        reducedMotion,
         kept: shelf.weeks.includes(week.week),
         keptCount: shelf.weeks.length,
       }}
       actions={{
-        close: () => router.replace('/world'),
+        close: () => router.dismissTo('/world'),
         togglePlay: toggle,
         openPlus: () => router.push(PLUS_SHEET),
         // The entitlement decides again here, whatever the dock drew.
         keep: () => {
           if (plus) shelf.keep(week.week);
         },
-        openShelf: () => router.replace(PLUS_RECORDS),
+        openShelf: () => router.push(PLUS_RECORDS),
         shareWeek: () => {
           if (!weekShareOffered(week)) return;
           // The clip goes out as an audio file by itself: whether it becomes a video is undecided.

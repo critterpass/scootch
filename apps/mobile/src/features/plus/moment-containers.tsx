@@ -159,5 +159,5 @@ export function RecordShelfContainer() {
       t('record.week', { number: Number(week.slice(-2)) }),
     bars: keepsakes?.bars.filter((bar) => bar.week === week).length ?? 0,
   }));
-  return <RecordShelf records={records} close={() => router.replace('/record')} />;
+  return <RecordShelf records={records} close={() => router.dismissTo('/record')} />;
 }

@@ -5,6 +5,7 @@ import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { useDataTools, useDispatch, useToday } from '../../state/day-store-provider';
 import { useKeepsakes } from '../../state/keepsakes';
 import { useTogether } from '../../state/together-context';
+import { goBack } from '../../ui/motion/go-back';
 
 import { DeleteSheet, PrivacyPage } from './privacy-page';
 
@@ -100,7 +101,7 @@ export function PrivacyContainer() {
         onExport={exportData}
         onAskDelete={() => setAsking(true)}
         onSignOut={leaveAccount}
-        onClose={() => router.replace('/settings')}
+        onClose={() => goBack(router, '/settings')}
       />
       <DeleteSheet
         open={asking}

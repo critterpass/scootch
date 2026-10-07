@@ -21,7 +21,7 @@ body=$(mktemp)
     echo "The run stopped before any flow ran. See the run's log."
   fi
   echo
-  if [ "$MODE" = capture ]; then
+  if [ "$MODE" = capture ] || [ "$MODE" = video ]; then
     screens=$(find "$out_dir/screens" -name '*.png' -exec basename {} \; 2>/dev/null | sort)
     if [ -n "$screens" ]; then
       echo "Captured screens (in the artifact, under \`screens/\`):"
