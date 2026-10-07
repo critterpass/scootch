@@ -1,6 +1,6 @@
 # Phase 00: spikes and founder gates
 
-Status: in progress · Tasks: 9 · Needs: nothing
+Status: in progress: 8 of 9 done · Tasks: 9 · Needs: nothing
 
 Done: all six spikes and the design review (task 8). Open: screen renders
 (task 7, after CI exists) and three founder gates (task 9): app ids with
