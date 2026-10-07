@@ -1,5 +1,6 @@
 import { buildMonster, type MONSTER_BODIES, specFromSeed, toSvg } from '@scootch/art';
 
+import { wireOpenInApp } from './open-in-app';
 import { fetchShared, fill, idFromAddress, keepLanguageSwitchHere, showState } from './shared-page';
 
 /**
@@ -73,5 +74,6 @@ export async function startHauntPage(root: HTMLElement): Promise<void> {
         find('[data-shoo-failed]').hidden = false;
       });
   });
+  wireOpenInApp(root, id);
   showState(root, 'waiting');
 }

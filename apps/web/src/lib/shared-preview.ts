@@ -12,13 +12,15 @@ export const sharedKinds = {
   c: { route: 'shared-card' },
   s: { route: 'shared-story' },
   t: { route: 'table-invite' },
+  f: { route: 'friend-invite' },
   h: { route: 'haunt-page' },
   r: { route: 'shared-record' },
 } as const;
 export type SharedKind = keyof typeof sharedKinds;
 
-/** An invite and a haunt are for one reader: no search engine is to keep their pages. */
-export const forOneReader = (kind: SharedKind): boolean => kind === 't' || kind === 'h';
+/** An invite, a friend link and a haunt are for one reader: no search engine keeps their pages. */
+export const forOneReader = (kind: SharedKind): boolean =>
+  kind === 't' || kind === 'f' || kind === 'h';
 
 export type Preview = { title: string; description: string; image: string | null };
 
@@ -51,6 +53,15 @@ export function previewOf(
     return {
       title: typeof host === 'string' ? named(copy.invite.headlineBy, host) : copy.invite.headline,
       description: copy.invite.description,
+      image: null,
+    };
+  }
+  if (kind === 'f') {
+    if (shared['state'] !== 'valid') return null;
+    const from = shared['fromName'];
+    return {
+      title: typeof from === 'string' ? named(copy.friend.headlineBy, from) : copy.friend.headline,
+      description: copy.friend.description,
       image: null,
     };
   }

@@ -1,0 +1,8 @@
+---
+import FriendPage from '../../../components/friend-page.astro';
+import { languagePaths } from '../../../copy';
+
+export const getStaticPaths = languagePaths;
+---
+
+<FriendPage language={Astro.params.lang === 'vi' ? 'vi' : 'en'} />

@@ -1,0 +1,46 @@
+---
+import type { Language } from '@scootch/i18n';
+
+import { appStoreUrl, togetherFor } from '../copy';
+import { appScheme, type AppLinkKind } from '../lib/app-links';
+
+interface Props {
+  language: Language;
+  /** The kind of link the app is opened with: `<scheme>://<kind>/<code>`. */
+  kind: AppLinkKind;
+  label: string;
+  /** The button's colour class. */
+  tone?: 'button-ink' | 'button-tomato';
+  /** Shows the code itself with a way to copy it, for pasting into the app by hand. */
+  showCode?: boolean;
+}
+
+// The way from a page into the app with its code. The button opens the app by its scheme and,
+// when no app answers, goes on to the App Store. The code is also shown plainly, so the path
+// works for someone whose phone opened neither.
+const { language, kind, label, tone = 'button-ink', showCode = true } = Astro.props;
+const copy = togetherFor(language).handOff;
+---
+
+<div class="open-in-app" data-open-in-app data-kind={kind} data-scheme={appScheme} data-store={appStoreUrl}>
+  <div class="actions">
+    <a class={`button ${tone}`} href={appStoreUrl} data-open>{label}</a>
+    <slot />
+  </div>
+  {
+    showCode && (
+      <div class="paste-code">
+        <p class="small">{copy.pasteLine}</p>
+        <p class="code-row">
+          <code data-code aria-label={copy.codeLabel} />
+          <button type="button" class="button button-quiet" data-copy>
+            {copy.copy}
+          </button>
+        </p>
+        <p class="small" role="status" data-copied hidden>
+          {copy.copied}
+        </p>
+      </div>
+    )
+  }
+</div>

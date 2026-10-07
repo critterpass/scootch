@@ -114,11 +114,11 @@ export const en = {
   },
   prices: {
     freeEyebrow: 'Free for ever',
-    freeHeadline: 'The whole thing, one thing a day.',
+    freeHeadline: 'The whole thing, up to three things a day.',
     free: [
-      'One thing a day, for ever',
+      'Up to three things a day, for ever',
       'Every monster you catch, kept for ever',
-      'Tables with friends',
+      'Tables with friends, and a table for two of your own',
       'All three attitudes',
       'The weekly song, and sharing it',
     ],
@@ -131,7 +131,7 @@ export const en = {
     ],
     plus: [
       'A second and third thing on good days',
-      'Open your own tables for friends',
+      'Open tables for up to four',
       'Keep every weekly record',
       'The binder, with sorting and stats',
       'Extra-large widget and StandBy',
