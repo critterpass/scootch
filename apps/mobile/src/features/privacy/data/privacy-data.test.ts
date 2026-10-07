@@ -60,26 +60,64 @@ describe('delete everything', () => {
     expect(server.calls).toHaveLength(1);
   });
 
-  it('takes down the pages this phone shared, forgets them, and cancels the charge reminders', async () => {
+  const shares: KeptShare[] = [
+    { key: 'card:a:1', id: 'page-1', unshareToken: 'u1', language: 'en', taskShown: true },
+    { key: 'monster:b', id: 'page-2', unshareToken: 'u2', language: 'en', taskShown: false },
+    { key: 'story:c:2', id: 'page-3', unshareToken: 'u3', language: 'en', taskShown: true },
+  ];
+
+  it('takes down the shared pages together, and keeps the ones still up to try again', async () => {
     const { data, tokens, server } = await phone();
-    const kept = memoryKeptShares([
-      { key: 'card:a:1', id: 'page-1', unshareToken: 'u1', language: 'en', taskShown: true },
-      { key: 'monster:b', id: 'page-2', unshareToken: 'u2', language: 'en', taskShown: false },
-    ]);
+    const kept = memoryKeptShares(shares);
+    const web = { down: new Set(['page-2']), hung: new Set(['page-3']), started: [] as string[] };
     const done: string[] = [];
     const leftovers = {
       kept,
-      // The second page cannot be reached: the delete goes on, and nothing of it stays here.
+      // One page cannot be reached and one never answers: the delete goes on within its cap.
       unshare: (share: KeptShare) => {
-        done.push(`unshare ${share.id}`);
-        return share.id === 'page-2' ? Promise.reject(new Error('offline')) : Promise.resolve();
+        web.started.push(share.id);
+        if (web.hung.has(share.id)) return new Promise<void>(() => undefined);
+        return web.down.has(share.id) ? Promise.reject(new Error('offline')) : Promise.resolve();
       },
       cancelChargeReminders: () => Promise.resolve(void done.push('reminders cancelled')),
+      capMs: 20,
     };
 
     expect(await deleteEverything({ db: data.db, tokens, server, leftovers })).toBe('deleted');
-    expect(done).toEqual(['unshare page-1', 'unshare page-2', 'reminders cancelled']);
+    // All three were started at once, not one after another behind the page that hangs.
+    expect(web.started).toEqual(['page-1', 'page-2', 'page-3']);
+    expect(done).toEqual(['reminders cancelled']);
+    expect((await kept.read()).map((share) => share.id)).toEqual(['page-2', 'page-3']);
+
+    // Later, with the pages reachable, the retry takes them down and forgets them.
+    web.down.clear();
+    web.hung.clear();
+    await retryServerDelete({ db: data.db, tokens, server, leftovers });
     expect(await kept.read()).toEqual([]);
+    expect(data.dump()).not.toContain('takedownsPending');
+  });
+
+  it('never takes down a page shared after the delete', async () => {
+    const { data, tokens, server } = await phone();
+    const kept = memoryKeptShares(shares.slice(0, 1));
+    const taken: string[] = [];
+    let online = false;
+    const leftovers = {
+      kept,
+      unshare: (share: KeptShare) => {
+        if (!online) return Promise.reject(new Error('offline'));
+        taken.push(share.id);
+        return Promise.resolve();
+      },
+      cancelChargeReminders: () => Promise.resolve(),
+    };
+    await deleteEverything({ db: data.db, tokens, server, leftovers });
+    await kept.write([...(await kept.read()), ...shares.slice(1, 2)]);
+
+    online = true;
+    await retryServerDelete({ db: data.db, tokens, server, leftovers });
+    expect(taken).toEqual(['page-1']);
+    expect((await kept.read()).map((share) => share.id)).toEqual(['page-2']);
   });
 
   it('still empties the phone when the server cannot be reached, and finishes on a retry', async () => {

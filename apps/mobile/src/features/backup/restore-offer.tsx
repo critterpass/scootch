@@ -24,6 +24,8 @@ export interface RestoreOfferViewProps {
   readonly busy: boolean;
   readonly onRestore: () => void;
   readonly onFresh: () => void;
+  /** On a phone already in use, declining keeps what is here: it is not a fresh start. */
+  readonly inUse?: boolean;
 }
 
 /** A new phone that already holds the backup token: one line, and the choice. */
@@ -33,6 +35,7 @@ export function RestoreOfferView({
   busy,
   onRestore,
   onFresh,
+  inUse = false,
 }: RestoreOfferViewProps) {
   const { palette } = useScreenStyle();
   const t = useT();
@@ -51,8 +54,8 @@ export function RestoreOfferView({
         />
         <CapsuleButton
           tone="quiet"
-          label={t('backup.restore.no')}
-          hint={t('backup.restore.no.hint')}
+          label={t(inUse ? 'backup.restore.keep' : 'backup.restore.no')}
+          hint={t(inUse ? 'backup.restore.keep.hint' : 'backup.restore.no.hint')}
           disabled={busy}
           onPress={onFresh}
           testID="restore-no"
@@ -100,10 +103,11 @@ export function RestoreGate({
     };
   }, [backup]);
 
-  if (late && !found) return children;
-  if (found === undefined) return <View style={{ flex: 1, backgroundColor: palette.page }} />;
-  if (found === null) return children;
+  if (!late && found === undefined)
+    return <View style={{ flex: 1, backgroundColor: palette.page }} />;
+  if (!late && found === null) return children;
   const restore = async () => {
+    if (!found) return;
     setBusy(true);
     const outcome = await backup.restore(found).catch(() => 'refused' as const);
     if (outcome === 'restored') await dispatch({ type: 'storage_replaced' }).catch(() => undefined);
@@ -112,6 +116,7 @@ export function RestoreGate({
   const fresh = async () => {
     setBusy(true);
     await backup.declineRestore().catch(() => undefined);
+    setBusy(false);
     setFound(null);
   };
   const offer = (
@@ -121,14 +126,16 @@ export function RestoreGate({
       busy={busy}
       onRestore={() => void restore()}
       onFresh={() => void fresh()}
+      inUse={late}
     />
   );
   if (!late) return offer;
-  // What the person was doing stays mounted under the offer, so nothing typed is lost to it.
+  // The same tree with and without the offer, so what is under it is never mounted afresh and
+  // nothing typed there is lost when the offer arrives or leaves.
   return (
     <>
       {children}
-      <View style={StyleSheet.absoluteFill}>{offer}</View>
+      {found ? <View style={StyleSheet.absoluteFill}>{offer}</View> : null}
     </>
   );
 }
