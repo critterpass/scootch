@@ -5,6 +5,8 @@ import type { Friend } from '../../api/together-api';
 import { useT } from '../../i18n/i18n-provider';
 import { useToday } from '../../state/day-store-provider';
 import { useTogether } from '../../state/together-context';
+import { GhostIcon } from '../../ui/icons';
+import { useScreenStyle } from '../../ui/use-screen-style';
 import { QuietLink } from '../dump/dump-panels';
 
 import { HAUNT_SEND, hauntableFriends, offersHauntOnHatch } from './haunt-rules';
@@ -20,6 +22,7 @@ export function HatchHauntLink() {
   const day = useToday();
   const router = useRouter();
   const t = useT();
+  const { palette } = useScreenStyle();
   const [friends, setFriends] = useState<readonly Friend[]>([]);
   useEffect(() => {
     let current = true;
@@ -39,6 +42,7 @@ export function HatchHauntLink() {
       hint={t('haunt.entry.hint')}
       onPress={() => router.push(HAUNT_SEND)}
       testID="hatch-haunt-a-friend"
+      icon={<GhostIcon color={palette.ink} eyes={palette.page} />}
     />
   );
 }

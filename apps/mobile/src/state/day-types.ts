@@ -46,6 +46,10 @@ export type DayEvent =
   | { readonly type: 'drawer_item_removed'; readonly itemId: Id }
   /** The task waiting for tomorrow, swiped away in the drawer: it is let go with no trace. */
   | { readonly type: 'waiting_task_removed'; readonly taskId: Id }
+  /** The task waiting for tomorrow, reworded in the drawer. */
+  | { readonly type: 'waiting_task_edited'; readonly taskId: Id; readonly text: string }
+  /** "Swap in" on the task waiting for tomorrow: it is today's one thing after all. */
+  | { readonly type: 'waiting_task_swapped_in'; readonly taskId: Id }
   /** A parked thing reworded in the drawer. */
   | { readonly type: 'drawer_item_edited'; readonly itemId: Id; readonly text: string }
   /** "Pick for me", and "Pick again": Scootch offers one thing from the drawer. */

@@ -198,6 +198,8 @@ export const en = {
   'drawer.title': 'The drawer',
   'drawer.count': '{parked} parked · {dated} with dates',
   'drawer.empty': 'Nothing is parked.',
+  'drawer.empty.body':
+    'When you say more than one thing, the rest waits here. Pull the screen down any time to look.',
   'drawer.noDate': 'no date',
   'drawer.dated': 'due {due} · back on {back}',
   'drawer.swapIn': 'Swap in',
@@ -221,7 +223,6 @@ export const en = {
   'drawer.pull': 'Pull to open the drawer',
   'drawer.pull.ready': 'Let go to open',
   'drawer.waiting': 'Back tomorrow morning',
-  'drawer.waiting.hint': 'Swipe left to let it go.',
 
   'energy.ask': "Before I pick: how's the battery?",
   'energy.low': 'Low',

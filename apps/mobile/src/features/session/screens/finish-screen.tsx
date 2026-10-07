@@ -103,7 +103,7 @@ export function FinishScreen({ model, actions, inks, t }: ScreenProps) {
       testID={control === 'hold' ? 'session-finish-hold' : 'session-finish-tap'}
       align="drawn"
       footerInset={control === 'hold' ? 0 : 24}
-      top={
+      corner={
         // Nothing to go back to once time is up, or once the thing is caught.
         timeUp || view.kind === 'caught' ? null : (
           <RoundButton

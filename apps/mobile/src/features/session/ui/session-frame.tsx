@@ -6,14 +6,16 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { spacing } from '@scootch/tokens';
 
 import type { SessionInks } from './session-inks';
-import { CORNER } from '../../../ui/corner-bar';
+import { CornerBar } from '../../../ui/corner-bar';
 import { SafeFrame } from '../../../ui/safe-frame';
 
 export interface SessionFrameProps {
   readonly inks: SessionInks;
   readonly testID: string;
-  /** The corners: a tag or a close button. */
+  /** What leads the top row: the session's pill. */
   readonly top?: ReactNode;
+  /** The control in the trailing corner, where every screen has its close: a close, or a menu. */
+  readonly corner?: ReactNode;
   /** What stays at the bottom, above the keyboard and outside the scrolling middle. */
   readonly footer?: ReactNode;
   /** Drawn over everything, untouchable: the burst. */
@@ -38,13 +40,15 @@ const DRAWN_FOOT = 34;
 const LEAST_FOOT = 12;
 
 /**
- * One session screen: corners, a middle that scrolls when the text is large, and a footer. Each
+ * One session screen: the same top row every screen has (its corner controls on the system's
+ * glass, drawn together as a bar's are), a middle that scrolls when the text is large, and a footer. Each
  * screen fades in over the last, which is also all that moves with Reduce Motion on.
  */
 export function SessionFrame({
   inks,
   testID,
   top,
+  corner,
   footer,
   over,
   behindFooter,
@@ -63,7 +67,7 @@ export function SessionFrame({
         entering={FadeIn.duration(240).reduceMotion(ReduceMotion.Never)}
         style={styles.fill}
       >
-        <View style={styles.top}>{top}</View>
+        <CornerBar leading={top} trailing={corner} />
         <ScrollView
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={
@@ -93,16 +97,6 @@ export function SessionFrame({
 const styles = StyleSheet.create({
   fill: {
     flex: 1,
-  },
-  top: {
-    minHeight: 44,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: spacing.md,
-    // The same corner as every other screen, so the close control never shifts in a transition.
-    paddingHorizontal: CORNER.side,
-    paddingTop: CORNER.top,
   },
   middle: {
     flexGrow: 1,

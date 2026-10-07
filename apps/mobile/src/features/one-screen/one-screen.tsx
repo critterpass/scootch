@@ -26,6 +26,7 @@ import { seriousShown } from '../care/serious-shown';
 import type { SpeechPort } from '../composer/speech';
 import { useComposerFeedback } from '../composer/composer-feedback';
 import { useComposer } from '../composer/use-composer';
+import { drawerRowEvents } from '../drawer/drawer-events';
 import { DrawerSheet } from '../drawer/drawer-sheet';
 import { HatchHauntLink } from '../haunt/hatch-haunt-link';
 import { wordsWhileUnscreened } from '../offline/waiting-words';
@@ -172,15 +173,7 @@ function useOneScreenDrawn({
             ? t('drawer.cap', { count: startsAllowed(plus) })
             : null
         }
-        onSwapIn={(itemId) => send({ type: 'drawer_item_swapped_in', itemId })}
-        onRemove={(itemId) =>
-          send(
-            itemId === day.waitingForTomorrow?.id
-              ? { type: 'waiting_task_removed', taskId: itemId }
-              : { type: 'drawer_item_removed', itemId },
-          )
-        }
-        onEdit={(itemId, text) => send({ type: 'drawer_item_edited', itemId, text })}
+        {...drawerRowEvents(day.waitingForTomorrow?.id ?? null, send)}
         onClose={() => {
           markWaiting(false);
           send({ type: 'drawer', event: { type: 'closed' } });

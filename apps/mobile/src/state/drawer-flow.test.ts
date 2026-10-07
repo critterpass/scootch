@@ -187,3 +187,58 @@ describe('the task waiting for tomorrow, swiped away in the drawer', () => {
     expect(next.store.getState().today.kind).toBe('nothing_yet');
   });
 });
+
+describe('the task waiting for tomorrow, as a row in the drawer', () => {
+  /** A phone whose one thing was started, not finished, and carried on to tomorrow. */
+  async function carried(): Promise<Phone> {
+    const app = await stagedPhone(stagedServer());
+    await app.say('ring the bank', 'typed');
+    await app.store.dispatch({ type: 'one_thing_picked' });
+    await app.store.dispatch({ type: 'monster_met' });
+    await app.store.dispatch({ type: 'session_set', minutes: 10 });
+    await app.store.dispatch({ type: 'session', event: { type: 'started' } });
+    app.time.advanceTo(MORNING + 10 * 60_000);
+    await app.store.dispatch({ type: 'session', event: { type: 'not_finished' } });
+    await app.store.dispatch({ type: 'session', event: { type: 'chose_carry_on' } });
+    await app.store.dispatch({ type: 'session_closed' });
+    return app;
+  }
+
+  it('is swapped in for today as it is, with its monster, and no longer waits', async () => {
+    const app = await carried();
+    const waiting = app.store.getState().waitingForTomorrow;
+    if (!waiting) throw new Error('the task waits for tomorrow');
+    const monsters = app.data.count('monsters');
+
+    await app.store.dispatch({ type: 'waiting_task_swapped_in', taskId: waiting.id });
+    const state = app.store.getState();
+    expect(state.today.kind).toBe('task_set');
+    expect(app.task()).toMatchObject({ id: waiting.id, carriedOver: false, status: 'set' });
+    expect(state.waitingForTomorrow).toBeNull();
+    expect(app.data.count('monsters')).toBe(monsters);
+  });
+
+  it('is reworded: it still waits, in the new words, unscreened and with no monster', async () => {
+    const app = await carried();
+    const waiting = app.store.getState().waitingForTomorrow;
+    if (!waiting) throw new Error('the task waits for tomorrow');
+
+    await app.store.dispatch({ type: 'waiting_task_edited', taskId: waiting.id, text: '  ' });
+    expect(app.store.getState().waitingForTomorrow).toEqual(waiting);
+
+    await app.store.dispatch({
+      type: 'waiting_task_edited',
+      taskId: waiting.id,
+      text: 'ring the  bank about the card',
+    });
+    expect(app.store.getState().waitingForTomorrow).toMatchObject({
+      id: waiting.id,
+      text: 'ring the bank about the card',
+      screen: 'unscreened',
+      lines: null,
+    });
+    expect(app.data.count('monsters')).toBe(0);
+    const next = await stagedPhone(stagedServer({ online: false }), app.data, MORNING + DAY_MS);
+    expect(next.task()).toMatchObject({ id: waiting.id, text: 'ring the bank about the card' });
+  });
+});
