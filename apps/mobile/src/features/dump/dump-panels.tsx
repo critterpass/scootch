@@ -6,7 +6,7 @@ import { fonts, radius, spacing } from '@scootch/tokens';
 
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { CapsuleButton, type CapsuleButtonProps } from '../../ui/buttons';
-import { GlassSurface } from '../../ui/glass-surface';
+import { glassPressOwner, GlassSurface } from '../../ui/glass-surface';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { PressSpring } from '../../ui/motion/press-spring';
 
@@ -193,13 +193,20 @@ export function EnergyRead({
   );
 }
 
-/** A quiet text control under the content: "Peek in the drawer", "Not now". */
-export function QuietLink({
-  label,
-  hint,
-  onPress,
-  testID,
-}: Pick<CapsuleButtonProps, 'label' | 'hint' | 'onPress' | 'testID'>) {
+export interface QuietLinkProps extends Pick<
+  CapsuleButtonProps,
+  'label' | 'hint' | 'onPress' | 'testID'
+> {
+  /** A small glyph before the words. */
+  readonly icon?: ReactNode;
+}
+
+/**
+ * The quiet control under a screen's content: a small glass chip, as the example chips under the
+ * first ask are, with its words and sometimes a glyph. Every secondary way on is drawn as one of
+ * these: never as bare words standing in a row of their own.
+ */
+export function QuietLink({ label, hint, onPress, testID, icon }: QuietLinkProps) {
   const { palette, allowFontScaling, size } = useScreenStyle();
   return (
     <PressSpring
@@ -208,17 +215,36 @@ export function QuietLink({
       accessibilityHint={hint}
       onPress={onPress}
       testID={testID}
+      feedback="choice"
       hitSlop={spacing.sm}
+      answeredBy={glassPressOwner(true)}
       style={styles.link}
     >
-      <Text
-        allowFontScaling={allowFontScaling}
-        style={[styles.linkText, { color: palette.ink, fontSize: size(SMALL_SIZE) }]}
-      >
-        {label}
-      </Text>
+      <GlassSurface interactive style={styles.chip}>
+        <View pointerEvents="none" style={styles.chipInner}>
+          {icon}
+          <Text
+            allowFontScaling={allowFontScaling}
+            style={[
+              styles.linkText,
+              {
+                color: palette.ink,
+                fontSize: size(SMALL_SIZE),
+                lineHeight: size(SMALL_SIZE) * 1.3,
+              },
+            ]}
+          >
+            {label}
+          </Text>
+        </View>
+      </GlassSurface>
     </PressSpring>
   );
+}
+
+/** Quiet controls side by side, wrapping where they do not fit. */
+export function QuietRow({ children }: { readonly children: ReactNode }) {
+  return <View style={styles.quietRow}>{children}</View>;
 }
 
 export function Stack({ children }: { readonly children: ReactNode }) {
@@ -243,7 +269,10 @@ const styles = StyleSheet.create({
   markText: { fontFamily: fonts.heading, fontWeight: '700', fontSize: 14 },
   energy: { gap: spacing.md },
   energyRow: { flexDirection: 'row', gap: spacing.sm },
-  link: { minHeight: 44, justifyContent: 'center', alignSelf: 'flex-start' },
-  linkText: { fontFamily: fonts.heading, fontWeight: '600' },
+  link: { alignSelf: 'flex-start' },
+  chip: { borderRadius: 999, paddingHorizontal: 14, paddingVertical: 8.75, overflow: 'hidden' },
+  chipInner: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  linkText: { fontFamily: fonts.body, fontWeight: '500' },
+  quietRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   stack: { gap: spacing.md },
 });
