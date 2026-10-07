@@ -1,20 +1,32 @@
+import { useIsFocused } from 'expo-router';
+import { useEffect, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { useFrameCallback, useSharedValue } from 'react-native-reanimated';
 
 import { CARD_LABELS } from '@scootch/art';
-import type { CardData, CardFinish } from '@scootch/domain';
+import type { CardData, CardFinish, IsoDate } from '@scootch/domain';
 import type { Language } from '@scootch/i18n';
-import { spacing } from '@scootch/tokens';
 
-import { Monster } from '../../art/Monster';
 import { useT } from '../../i18n/i18n-provider';
+import { useMayMove } from '../../ui/motion/use-feel';
 import { useScreenStyle } from '../../ui/use-screen-style';
-import { FinishPicker } from '../plus/finish-picker';
-import { CardView } from '../reveal/ui/card-view';
-import { Dock, KeepFrame } from '../reveal/ui/keep-frame';
+import { Dock, KeepFrame, type DockAction } from '../reveal/ui/keep-frame';
+import { useAppActive } from '../reveal/ui/use-app-active';
 import { SessionText } from '../session/ui/session-text';
 
-import { binderOpen, BINDER_SORTS, type BinderSort, type CaughtMonster } from './zoo-cards';
-import { PressSpring } from '../../ui/motion/press-spring';
+import { MonsterDetail } from './monster-detail';
+import { Segmented } from './ui/segmented';
+import { ZooTile } from './ui/zoo-tile';
+import {
+  binderOpen,
+  BINDER_SORTS,
+  filterCards,
+  rareCount,
+  ZOO_FILTERS,
+  type BinderSort,
+  type CaughtMonster,
+  type ZooFilter,
+} from './zoo-cards';
 
 export interface ZooModel {
   /** Every caught monster, in the order to show them. */
@@ -22,6 +34,8 @@ export interface ZooModel {
   readonly language: Language;
   readonly plus: boolean;
   readonly sort: BinderSort | null;
+  /** The phone's day, for "This week". Left out, the week of the newest catch is used. */
+  readonly today?: IsoDate;
   /** The card opened at full size, with whether sharing it is offered. */
   readonly open: { readonly card: CardData; readonly shareOffered: boolean } | null;
 }
@@ -32,6 +46,8 @@ export interface ZooActions {
   readonly closeCard: () => void;
   readonly nextSort: () => void;
   readonly shareCard: () => void;
+  /** Shares the card picked from the grid. Unset, "Share a card" is not offered there. */
+  readonly shareMonster?: (monster: CaughtMonster) => void;
   /** A locked control was tapped: the Plus sheet opens. Unset, a locked control does nothing. */
   readonly openPlus?: () => void;
   /** Prints the open card in another finish. Unset, the finishes are not offered. */
@@ -39,6 +55,8 @@ export interface ZooActions {
 }
 
 const COLUMNS = 3;
+/** The board's grid: 20 points in from the sides, 10 between columns, 12 between rows. */
+const GRID = { side: 20, column: 10, row: 12, top: 16 } as const;
 
 /** The sort after this one, round through newest first and the binder's four. */
 export function sortAfter(sort: BinderSort | null): BinderSort | null {
@@ -46,136 +64,170 @@ export function sortAfter(sort: BinderSort | null): BinderSort | null {
   return BINDER_SORTS[BINDER_SORTS.indexOf(sort) + 1] ?? null;
 }
 
-/** One card at full size: the card itself carries its stats, and reads them out as one element. */
-function OpenCard({ model, actions }: { model: ZooModel; actions: ZooActions }) {
-  const t = useT();
-  const { width } = useWindowDimensions();
-  if (!model.open) return null;
-  return (
-    <KeepFrame
-      testID="zoo-card"
-      close={{ label: t('keep.close'), hint: t('keep.close.hint'), onPress: actions.closeCard }}
-      closeTestID="zoo-card-close"
-      {...(model.open.shareOffered
-        ? {
-            footer: (
-              <Dock
-                action={{
-                  label: t('zoo.shareCard'),
-                  hint: t('zoo.shareCard.hint'),
-                  testID: 'zoo-share-card',
-                  onPress: actions.shareCard,
-                }}
-              />
-            ),
-          }
-        : {})}
-    >
-      <View style={styles.centre}>
-        <CardView
-          card={model.open.card}
-          language={model.language}
-          width={Math.min(366, width - spacing.md * 2)}
-          testID="zoo-card-face"
-        />
-      </View>
-      {actions.setFinish ? (
-        <FinishPicker
-          worn={model.open.card.finish}
-          plus={model.plus}
-          onChoose={actions.setFinish}
-          onLocked={actions.openPlus ?? (() => undefined)}
-        />
-      ) : null}
-    </KeepFrame>
-  );
-}
+const FILTER_KEY = {
+  all: 'zoo.filter.all',
+  rare: 'zoo.filter.rare',
+  thisWeek: 'zoo.filter.thisWeek',
+} as const;
 
 /**
- * The zoo: every caught monster, always, newest first. The binder's sorting is Plus; without it
- * the control is drawn locked and every card is still here.
+ * The zoo: every caught monster as a mini card, newest first, under the board's three-way control
+ * (all, rare, this week). The dock sorts (the binder's sorting is Plus; without it the control is
+ * drawn locked and every card is still here) and shares a card: "Share a card" asks which, and the
+ * next card tapped goes to the share panel.
  */
 export function ZooScreen({ model, actions }: { model: ZooModel; actions: ZooActions }) {
   const t = useT();
   const { palette } = useScreenStyle();
   const { width } = useWindowDimensions();
-  if (model.open) return <OpenCard model={model} actions={actions} />;
+  const mayMove = useMayMove();
+  const focused = useIsFocused();
+  const appActive = useAppActive();
+  const [filter, setFilter] = useState<ZooFilter>('all');
+  const [picking, setPicking] = useState(false);
+
+  const today =
+    model.today ??
+    model.cards.reduce<IsoDate | null>(
+      (newest, card) => (newest === null || card.caughtOn > newest ? card.caughtOn : newest),
+      null,
+    );
+  const shown = useMemo(
+    () => (today ? filterCards(model.cards, filter, today) : [...model.cards]),
+    [model.cards, filter, today],
+  );
+  const rare = rareCount(model.cards);
+  const shimmering =
+    mayMove && focused && appActive && !model.open && shown.some((card) => card.rarity === 'rare');
+  // One clock for every rare tile's shimmer, on the UI thread, and only while one is on screen
+  // and the app is in front.
+  const clock = useSharedValue(0);
+  const ticking = useFrameCallback((frame) => {
+    'worklet';
+    clock.value = frame.timeSinceFirstFrame / 1000;
+  }, false);
+  useEffect(() => {
+    ticking.setActive(shimmering);
+  }, [ticking, shimmering]);
+
+  if (model.open) {
+    return (
+      <MonsterDetail
+        model={{ ...model.open, language: model.language, plus: model.plus }}
+        actions={{
+          close: actions.closeCard,
+          share: actions.shareCard,
+          ...(actions.openPlus ? { openPlus: actions.openPlus } : {}),
+          ...(actions.setFinish ? { setFinish: actions.setFinish } : {}),
+        }}
+      />
+    );
+  }
 
   const labels = CARD_LABELS[model.language];
-  const tile = (width - spacing.lg * 2 - spacing.sm * (COLUMNS - 1)) / COLUMNS;
-  const open = binderOpen(model.plus);
+  const tile = (width - GRID.side * 2 - GRID.column * (COLUMNS - 1)) / COLUMNS;
   const sortLabel = model.sort === null ? t('zoo.sort.newest') : t(`zoo.sort.${model.sort}`);
+  const count = t('zoo.count', { count: model.cards.length });
+  const { shareMonster } = actions;
+  const press = (monster: CaughtMonster) => {
+    if (picking && shareMonster) {
+      setPicking(false);
+      shareMonster(monster);
+    } else {
+      actions.openCard(monster);
+    }
+  };
+  const quiet: DockAction = picking
+    ? {
+        label: t('zoo.pick.cancel'),
+        hint: t('zoo.pick.cancel.hint'),
+        testID: 'zoo-share-cancel',
+        onPress: () => setPicking(false),
+      }
+    : binderOpen(model.plus)
+      ? {
+          label: `${t('zoo.sort')} · ${sortLabel}`,
+          hint: t('zoo.sort.hint'),
+          testID: 'zoo-sort',
+          onPress: actions.nextSort,
+        }
+      : {
+          label: t('zoo.openBinder'),
+          hint: t('keep.plusOnly.hint'),
+          testID: 'zoo-open-binder',
+          locked: true,
+          ...(actions.openPlus ? { onPress: actions.openPlus } : {}),
+        };
   return (
     <KeepFrame
       testID="zoo"
       title={t('zoo.title')}
-      subtitle={t('zoo.count', { count: model.cards.length })}
+      subtitle={
+        picking
+          ? t('zoo.pick')
+          : rare > 0
+            ? `${count} · ${t('zoo.count.rare', { count: rare })}`
+            : count
+      }
       close={{ label: t('keep.close'), hint: t('keep.close.hint'), onPress: actions.close }}
       closeTestID="zoo-close"
       scroll={false}
       footer={
         <Dock
-          quiet={
-            open
-              ? {
-                  label: `${t('zoo.sort')} · ${sortLabel}`,
-                  hint: t('zoo.sort.hint'),
-                  testID: 'zoo-sort',
-                  onPress: actions.nextSort,
-                }
-              : {
-                  label: t('zoo.openBinder'),
-                  hint: t('keep.plusOnly.hint'),
-                  testID: 'zoo-open-binder',
-                  locked: true,
-                  ...(actions.openPlus ? { onPress: actions.openPlus } : {}),
-                }
-          }
+          quiet={quiet}
+          {...(shareMonster && model.cards.length > 0 && !picking
+            ? {
+                action: {
+                  label: t('zoo.shareCard'),
+                  hint: t('zoo.shareCard.pick.hint'),
+                  testID: 'zoo-share-pick',
+                  onPress: () => setPicking(true),
+                },
+              }
+            : {})}
         />
       }
     >
+      {model.cards.length > 0 ? (
+        <View style={styles.filter}>
+          <Segmented
+            label={t('zoo.filter')}
+            chosen={filter}
+            onChoose={setFilter}
+            segments={ZOO_FILTERS.map((value) => ({
+              value,
+              label: t(FILTER_KEY[value]),
+              testID: `zoo-filter-${value}`,
+            }))}
+          />
+        </View>
+      ) : null}
       <FlatList
-        data={model.cards}
+        data={shown}
         numColumns={COLUMNS}
         keyExtractor={(monster) => monster.id}
         contentContainerStyle={styles.grid}
         columnWrapperStyle={styles.gridRow}
         ListEmptyComponent={
           <SessionText face="body" color={palette.muted} testID="zoo-empty">
-            {t('zoo.empty')}
+            {model.cards.length === 0 ? t('zoo.empty') : t(`zoo.empty.${filter}`)}
           </SessionText>
         }
         renderItem={({ item: monster, index }) => (
-          <PressSpring
-            accessibilityRole="button"
-            accessibilityLabel={`${monster.name}, ${labels.rarity[monster.rarity]}`}
-            accessibilityHint={t('zoo.card.hint')}
-            testID={`zoo-tile-${index}`}
-            onPress={() => actions.openCard(monster)}
-            style={{ width: tile }}
-          >
-            <View
-              style={[styles.tile, { borderColor: palette.ink, backgroundColor: palette.surface }]}
-            >
-              <Monster spec={monster.spec} size={tile - 14} />
-              {monster.rarity === 'rare' ? (
-                <View style={[styles.rare, { backgroundColor: palette.tomato }]}>
-                  <SessionText face="eyebrow" color={palette.onTomato}>
-                    {labels.rarity.rare}
-                  </SessionText>
-                </View>
-              ) : null}
-            </View>
-            <SessionText face="caption" color={palette.ink}>
-              {monster.name}
-            </SessionText>
-            <SessionText face="caption" color={palette.muted}>
-              {`${labels.number(String(monster.number).padStart(3, '0'))} · ${labels.duration(
-                Math.floor(monster.catchMinutes / 60),
-                monster.catchMinutes % 60,
-              )}`}
-            </SessionText>
-          </PressSpring>
+          <ZooTile
+            monster={monster}
+            index={index}
+            width={tile}
+            rareLabel={labels.rarity.rare}
+            meta={`${labels.number(String(monster.number).padStart(3, '0'))} · ${labels.duration(
+              Math.floor(monster.catchMinutes / 60),
+              monster.catchMinutes % 60,
+            )}`}
+            label={`${monster.name}, ${labels.rarity[monster.rarity]}`}
+            hint={picking ? t('zoo.card.pick.hint') : t('zoo.card.hint')}
+            clock={clock}
+            onPress={press}
+          />
         )}
       />
     </KeepFrame>
@@ -183,24 +235,12 @@ export function ZooScreen({ model, actions }: { model: ZooModel; actions: ZooAct
 }
 
 const styles = StyleSheet.create({
-  centre: { alignItems: 'center' },
-  grid: { paddingHorizontal: spacing.lg, paddingVertical: spacing.md, gap: spacing.md },
-  gridRow: { gap: spacing.sm },
-  tile: {
-    borderWidth: 4,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    aspectRatio: 0.76,
-    overflow: 'hidden',
-    marginBottom: spacing.xs,
+  filter: { paddingHorizontal: GRID.side, paddingTop: GRID.top },
+  grid: {
+    paddingHorizontal: GRID.side,
+    paddingTop: GRID.top,
+    paddingBottom: GRID.top,
+    gap: GRID.row,
   },
-  rare: {
-    position: 'absolute',
-    top: 4,
-    right: 4,
-    borderRadius: 6,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-  },
+  gridRow: { gap: GRID.column },
 });

@@ -6,6 +6,7 @@ import {
   type RecordBarRow,
   type TaskRow,
   type WeekRecordRow,
+  type WorkMode,
 } from '@scootch/domain';
 import type { RecordInstrument } from '@scootch/sound';
 
@@ -18,6 +19,8 @@ export interface RecordRow {
   /** The monster caught that day. A serious day has none, and its row names no task. */
   readonly monster: MonsterRow | null;
   readonly taskText: string | null;
+  /** The kind of work the task was, when it was told apart: what Scootch is drawn doing. */
+  readonly workMode: WorkMode | null;
 }
 
 /** A week's record as the screen shows it. Only what was earned is listed; nothing is missing. */
@@ -40,7 +43,7 @@ export interface WeekInput {
   readonly week: IsoWeek;
   readonly bars: readonly RecordBarRow[];
   readonly monsters: readonly MonsterRow[];
-  readonly tasks: ReadonlyMap<Id, Pick<TaskRow, 'text'>>;
+  readonly tasks: ReadonlyMap<Id, Pick<TaskRow, 'text'> & Partial<Pick<TaskRow, 'workMode'>>>;
   readonly weekRecords: readonly WeekRecordRow[];
   /** Today's place in this week, 1 to 7, or `null` when the week is over. */
   readonly todayPosition: number | null;
@@ -53,12 +56,14 @@ export function weekView(input: WeekInput): WeekView {
     .sort((a, b) => a.position - b.position)
     .map((bar): RecordRow => {
       const monster = (bar.monsterId && monsters.get(bar.monsterId)) || null;
+      const task = monster ? input.tasks.get(monster.taskId) : undefined;
       return {
         position: bar.position,
         instrument: bar.instrument,
         seed: bar.seed,
         monster,
-        taskText: (monster && input.tasks.get(monster.taskId)?.text) ?? null,
+        taskText: task?.text ?? null,
+        workMode: task?.workMode ?? null,
       };
     });
 

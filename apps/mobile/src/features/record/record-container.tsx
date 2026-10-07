@@ -24,7 +24,7 @@ export function RecordContainer() {
   const router = useRouter();
   const { language } = useLanguage();
   const { palette, reducedMotion } = useScreenStyle();
-  const { localDate, settings } = useToday();
+  const { localDate, settings, heavyToday } = useToday();
   const { keepsakes } = useKeepsakes();
   const plus = usePlus();
   const shelf = useKeptWeeks();
@@ -42,6 +42,9 @@ export function RecordContainer() {
   }, [keepsakes, localDate]);
   const { toggle, ...playback } = useRecordPlayback(week.week, week.rows, player, settings.music);
 
+  const plusDoor = {
+    openPlus: () => router.push(PLUS_SHEET),
+  };
   if (!keepsakes) return <View style={{ flex: 1, backgroundColor: palette.page }} />;
   return (
     <RecordScreen
@@ -57,7 +60,8 @@ export function RecordContainer() {
       actions={{
         close: () => router.dismissTo('/world'),
         togglePlay: toggle,
-        openPlus: () => router.push(PLUS_SHEET),
+        // Nothing sells near something heavy: on such a day the locked control does nothing.
+        ...(heavyToday ? {} : plusDoor),
         // The entitlement decides again here, whatever the dock drew.
         keep: () => {
           if (plus) shelf.keep(week.week);

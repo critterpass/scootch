@@ -2,16 +2,20 @@ import type { ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import type { Energy } from '@scootch/domain';
-import { fonts, fontSizes, radius, spacing } from '@scootch/tokens';
+import { fonts, radius, spacing } from '@scootch/tokens';
 
-import { useT } from '../../i18n/i18n-provider';
+import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { CapsuleButton, type CapsuleButtonProps } from '../../ui/buttons';
 import { GlassSurface } from '../../ui/glass-surface';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { PressSpring } from '../../ui/motion/press-spring';
 
 const LABEL_SIZE = 13;
+/** The one thing as a headline: 34 on a line of 1.07, as the board sets it. */
+const HEADING_SIZE = 34;
+const HEADING_LINE = 1.07;
 const SUB_SIZE = 17;
+const SUB_LINE = 1.42;
 const SMALL_SIZE = 15;
 
 export interface HeadedProps {
@@ -27,6 +31,9 @@ export interface HeadedProps {
 /** A small label, the task as a heading, and Scootch's sentence under it. */
 export function Headed({ label, heading, said = null, testID }: HeadedProps) {
   const { palette, allowFontScaling, size } = useScreenStyle();
+  const { language } = useLanguage();
+  // Vietnamese stacks its marks: its headline gets a line of at least 1.2.
+  const headingLine = language === 'vi' ? Math.max(HEADING_LINE, 1.2) : HEADING_LINE;
   return (
     <View testID={testID} style={styles.headed}>
       <Text
@@ -39,15 +46,30 @@ export function Headed({ label, heading, said = null, testID }: HeadedProps) {
         <Text
           accessibilityRole="header"
           allowFontScaling={allowFontScaling}
-          style={[styles.heading, { color: palette.ink, fontSize: size(fontSizes.sentence) }]}
+          style={[
+            styles.heading,
+            {
+              color: palette.ink,
+              fontSize: size(HEADING_SIZE),
+              lineHeight: size(HEADING_SIZE) * headingLine,
+            },
+          ]}
         >
           {heading}
         </Text>
       )}
       {said === null ? null : (
         <Text
+          testID={testID ? `${testID}-said` : undefined}
           allowFontScaling={allowFontScaling}
-          style={[styles.sub, { color: palette.muted, fontSize: size(SUB_SIZE) }]}
+          style={[
+            styles.sub,
+            {
+              color: palette.muted,
+              fontSize: size(SUB_SIZE),
+              lineHeight: size(SUB_SIZE) * SUB_LINE,
+            },
+          ]}
         >
           {said}
         </Text>
@@ -204,9 +226,9 @@ export function Stack({ children }: { readonly children: ReactNode }) {
 }
 
 const styles = StyleSheet.create({
-  headed: { gap: spacing.sm },
-  label: { fontFamily: fonts.body, fontWeight: '600', letterSpacing: 0.3 },
-  heading: { fontFamily: fonts.heading, fontWeight: '700', letterSpacing: -0.4 },
+  headed: { gap: 12 },
+  label: { fontFamily: fonts.body, fontWeight: '600', letterSpacing: 0.26 },
+  heading: { fontFamily: fonts.heading, fontWeight: '700', letterSpacing: -0.68 },
   sub: { fontFamily: fonts.body },
   dock: { borderRadius: 34, padding: 7, overflow: 'hidden' },
   dockRow: { flexDirection: 'row', gap: spacing.xs },

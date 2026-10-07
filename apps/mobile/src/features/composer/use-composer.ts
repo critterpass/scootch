@@ -28,6 +28,10 @@ export interface Composer {
   /** How loud the voice is right now, from 0 to 1. */
   readonly level: number;
   readonly send: (event: ComposerEvent) => void;
+  /** The words last handed over, spoken or typed, for the screen that plays them back. */
+  readonly lastSent: string | null;
+  /** Lets go of those words once they have been played. */
+  readonly forgetSent: () => void;
 }
 
 /**
@@ -37,6 +41,8 @@ export interface Composer {
 export function useComposer({ speech, language, onSend, onTick }: ComposerOptions): Composer {
   const [state, setState] = useState(() => initialComposer());
   const [level, setLevel] = useState(0);
+  const [lastSent, setLastSent] = useState<string | null>(null);
+  const forgetSent = useCallback(() => setLastSent(null), []);
   const current = useRef(state);
   const latest = useRef({ speech, language, onSend, onTick });
   latest.current = { speech, language, onSend, onTick };
@@ -65,6 +71,7 @@ export function useComposer({ speech, language, onSend, onTick }: ComposerOption
         case 'abort_listening':
           return speech.abort();
         case 'send':
+          setLastSent(effect.text);
           void onSend(effect.text, effect.source)
             .catch(() => undefined)
             .then(() => send({ type: 'sent' }));
@@ -103,5 +110,8 @@ export function useComposer({ speech, language, onSend, onTick }: ComposerOption
   // A recording never outlives the screen it was made on.
   useEffect(() => () => latest.current.speech.abort(), []);
 
-  return useMemo(() => ({ state, level, send }), [state, level, send]);
+  return useMemo(
+    () => ({ state, level, send, lastSent, forgetSent }),
+    [state, level, send, lastSent, forgetSent],
+  );
 }

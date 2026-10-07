@@ -123,6 +123,8 @@ export const enOffline: OfflinePack = {
       offline: 'No signal just now. I can still sit with you.',
       modelDown: "My thinking is slow just now. You pick today, and I'll join in soon.",
       modelDownMore: "What you type still counts, and your monster hatches as soon as I'm here.",
+      oneInDrawer: "The other one is in a drawer. I'm sitting on the drawer, gently.",
+      restInDrawer: "The other {count} are in a drawer. I'm sitting on the drawer, gently.",
       hatchesWhenBack: "Your monster will hatch when we're back online.",
       backupOff:
         "I can't keep a spare copy while iCloud is off, so your world lives on this phone only.",
@@ -154,6 +156,8 @@ export const enOffline: OfflinePack = {
       modelDown: "My brain is buffering. You pick today, I'll be witty later.",
       modelDownMore:
         "Tasks you type now still count, and your monster hatches as soon as I'm here.",
+      oneInDrawer: "The other one is in a drawer. I'm sitting on the drawer.",
+      restInDrawer: "The other {count} are in a drawer. I'm sitting on the drawer.",
       hatchesWhenBack: "Your monster will hatch when we're back online.",
       backupOff:
         "iCloud is off, so I can't keep a spare copy. Your world lives on this phone only.",
@@ -190,6 +194,8 @@ export const enOffline: OfflinePack = {
       modelDown: "MY BRAIN IS BUFFERING. You pick today, I'll be witty later.",
       modelDownMore:
         "Tasks you type now STILL COUNT, and your monster hatches as soon as I'm here.",
+      oneInDrawer: 'THE OTHER ONE IS IN A DRAWER. I am SITTING on the drawer.',
+      restInDrawer: 'THE OTHER {count} ARE IN A DRAWER. I am SITTING on the drawer.',
       hatchesWhenBack: "YOUR MONSTER WILL HATCH when we're back online. I am guarding the egg.",
       backupOff: "ICLOUD IS OFF. I can't keep a spare copy. Your world lives on this phone only.",
       restoreOffer: 'I FOUND YOUR OLD WORLD IN MY POCKET. Want it on this phone?',
