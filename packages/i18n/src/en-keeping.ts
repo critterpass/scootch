@@ -67,6 +67,8 @@ export const enKeeping = {
   'record.produced': 'Produced by Scootch. Composed by your week. All rights reserved by you.',
   'record.waiting': 'Waiting for {weekday}',
   'record.waiting.hint': 'finish anything to bring in the {instrument}',
+  'record.day.hint': 'Shows what you caught that day.',
+  'record.day.brought': 'brought in the {instrument}',
   'record.instrument.keys': 'Keys',
   'record.instrument.bassline': 'Bassline',
   'record.instrument.marimba': 'Marimba',

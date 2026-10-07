@@ -201,3 +201,4 @@ state is designed or removed.
 | Session | The top pill shows the monster's short name and the minutes; a tap spells out its whole name and title for four seconds | Founder, 7 Oct: the full name ran long and the pill did nothing. The board draws a short name |
 | Session, parked thoughts | A thought's card swipes away to the left, which lets it go as "Let go" does | Founder, 7 Oct. The board has the two buttons only |
 | Drawer | The task waiting for tomorrow swipes away like a parked row, with the same "Put it back" | Founder, 7 Oct: it could not be deleted |
+| Record | A day's line in the liner notes opens a sheet: the day, the instrument it brought in, and every task caught on it with its monster's name | Founder, 7 Oct: the lines could not be tapped. The board's notes are read only. A task that asked for care has no monster and is not listed |
