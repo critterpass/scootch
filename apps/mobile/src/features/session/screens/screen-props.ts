@@ -45,8 +45,6 @@ export interface SessionModel {
   readonly parkedNote: string | null;
   /** The task's catch, when its monster can be caught by hand; `null` when the finish is tapped. */
   readonly catch: CatchModel | null;
-  /** The person has haptics on. */
-  readonly haptics: boolean;
   /** The developer control that ends the timer in a few seconds is on show. */
   readonly developerEnd: boolean;
   /** A parked thought's time of day, as the phone writes times. */

@@ -139,17 +139,21 @@ export const Puffs = forwardRef<PuffsHandle>(function Puffs(_, ref) {
   );
 });
 
-/** The dust a slam throws out along the floor, to one side. */
-export const DUST = {
-  count: 10,
-  colors: ['#E2D9CA', '#D8CCB8'],
-  spread: 0.7,
-  speed: 90,
-  gravity: -50,
-  size: 6,
-  life: 700,
-  swells: true,
-} as const satisfies Omit<PuffOptions, 'angle'>;
+/**
+ * The dust a slam throws out along the floor, to one side. It is a shade off the page it rises
+ * from, darker on paper and lighter in the dark, so it is seen on both.
+ */
+export const dust = (dark: boolean) =>
+  ({
+    count: 10,
+    colors: dark ? ['#5A5248', '#4A433B'] : ['#CFC2AD', '#BFB29B'],
+    spread: 0.7,
+    speed: 90,
+    gravity: -50,
+    size: 6,
+    life: 700,
+    swells: true,
+  }) satisfies Omit<PuffOptions, 'angle'>;
 
 const styles = StyleSheet.create({
   at: { position: 'absolute' },

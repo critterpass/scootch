@@ -29,6 +29,23 @@ export const CAPTION_AT: Readonly<Record<CatchKind, 'top' | 'bottom'>> = {
   envelope: 'bottom',
 };
 
+/**
+ * The part of the board each catch is drawn in, top to bottom in the board's points. A phone
+ * shorter than the board keeps this part whole and gives up the empty paper round it.
+ */
+export const DRAWN_IN: Readonly<
+  Record<CatchKind, { readonly top: number; readonly bottom: number }>
+> = {
+  jar: { top: 130, bottom: 580 },
+  reel: { top: 250, bottom: 815 },
+  lasso: { top: 120, bottom: 580 },
+  sticker: { top: 176, bottom: 800 },
+  bubble: { top: 120, bottom: 580 },
+  net: { top: 120, bottom: 700 },
+  vacuum: { top: 300, bottom: 570 },
+  envelope: { top: 120, bottom: 500 },
+};
+
 function hash(text: string): number {
   let h = 2166136261;
   for (let i = 0; i < text.length; i += 1) {

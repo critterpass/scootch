@@ -241,7 +241,6 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
             }),
           }
         : null,
-    haptics: settings.haptics,
     developerEnd: shortSession.isArmed(),
     timeOf: (thought: ParkedThought) =>
       new Date(thought.parkedAt).toLocaleTimeString(language, {

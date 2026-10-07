@@ -120,7 +120,6 @@ export function fixtureModel(
     parkOpen: false,
     parkedNote: null,
     catch: null,
-    haptics: false,
     developerEnd: false,
     timeOf: (thought) => {
       const at = new Date(thought.parkedAt);

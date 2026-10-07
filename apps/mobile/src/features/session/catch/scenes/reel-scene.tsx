@@ -6,6 +6,7 @@ import { REEL_CLICK, REEL_NEEDS, turnsWound, wound } from '../catch-rules';
 import { clamp, easeOut, inOut, lerp, STAGE } from '../math';
 import {
   Board,
+  Hint,
   feetOf,
   Ink,
   MONSTER_SIZE,
@@ -33,6 +34,9 @@ const TIP = { x: 336, y: 604 } as const;
 const FEET = feetOf(MONSTER_SIZE);
 /** How high above his feet the hook holds him, at his full size. */
 const HOOKED = 128;
+/** The gesture, as the hint traces it. */
+const HINT = 'M196 620 A92 92 0 1 1 104 712 M92 728 L104 712 L120 724';
+
 /**
  * The reel: he is hooked far off on the horizon, and the work winds him closer. Three full turns
  * of the reel land him: each sixth of a turn clicks, he tugs back when the winding stops, and at
@@ -88,7 +92,7 @@ export function ReelScene(props: SceneProps) {
     m.state = 'busy';
     m.drag = false;
     setTurns(null);
-    props.host.buzz('medium');
+    props.host.cue('catch-yank');
     rig.setMood('nervous');
     props.host.react({ name: 'reel.yank' });
     const from = spot(1, 0);
@@ -117,7 +121,7 @@ export function ReelScene(props: SceneProps) {
           gravity: 560,
           life: 900,
         });
-        props.host.buzz('heavy');
+        props.host.cue('catch-splash');
         squash(rig, bucket, 480, [
           [0, 1.14, 0.84],
           [0.45, 0.95, 1.06],
@@ -131,6 +135,7 @@ export function ReelScene(props: SceneProps) {
   };
 
   const rig = useRig(props, {
+    hint: () => HINT,
     tick: (time, dt) => {
       const { m } = rig;
       if (m.state === 'busy' || m.state === 'caught') return;
@@ -176,7 +181,6 @@ export function ReelScene(props: SceneProps) {
       const clicks = Math.floor(own.wound / REEL_CLICK);
       if (clicks > before) {
         props.host.cue('tick');
-        props.host.buzz('tick');
         own.jolt = (Math.random() - 0.5) * 14;
         own.taut = 1;
         if (clicks % 6 === 0) {
@@ -228,6 +232,7 @@ export function ReelScene(props: SceneProps) {
           </SessionText>
         </View>
       )}
+      <Hint ref={rig.hint} inks={inks} />
       <Stamp sprite={stamp} x={150} y={600} label={t('session.catch.stamp')} inks={inks} />
       <Puffs ref={puffs} />
     </Board>

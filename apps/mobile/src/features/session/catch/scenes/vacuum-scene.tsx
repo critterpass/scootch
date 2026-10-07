@@ -7,6 +7,7 @@ import { SessionText } from '../../ui/session-text';
 import { easeIn, lerp } from '../math';
 import {
   Board,
+  Hint,
   feetOf,
   Floor,
   Ink,
@@ -29,6 +30,9 @@ const GRIP = { left: 215, top: 390, bottom: 560 } as const;
 const CELLS = 4;
 /** The height the air is pulled in at. */
 const MOUTH = 475;
+
+/** The gesture, as the hint traces it. */
+const HINT = 'M346 415 A60 60 0 1 1 345.9 415';
 
 /**
  * The vacuum: it charges while the work goes on, one cell at a time. Pressed and held, he
@@ -69,7 +73,7 @@ export function VacuumScene(props: SceneProps) {
       easeIn,
       () => {
         put(mon, { o: 0 });
-        props.host.buzz('heavy');
+        props.host.cue('catch-slurp');
         squash(rig, body, 520, [
           [0, 1, 1],
           [0.3, 1.18, 0.9],
@@ -85,6 +89,7 @@ export function VacuumScene(props: SceneProps) {
   };
 
   const rig = useRig(props, {
+    hint: () => HINT,
     tick: (time, dt) => {
       const { m } = rig;
       if (m.state === 'busy' || m.state === 'caught') return;
@@ -188,6 +193,7 @@ export function VacuumScene(props: SceneProps) {
           </View>
         </Animated.View>
       </Animated.View>
+      <Hint ref={rig.hint} inks={inks} />
       <Stamp sprite={stamp} x={200} y={320} label={t('session.catch.stamp')} inks={inks} />
     </Board>
   );

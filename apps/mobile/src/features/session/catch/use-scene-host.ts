@@ -1,4 +1,3 @@
-import * as Haptics from 'expo-haptics';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   useAnimatedStyle,
@@ -13,28 +12,13 @@ import type { AnimatedViewStyle } from '../../../ui/motion/animated-style';
 
 import type { Caption, CaptionName } from './captions';
 import type { CatchStage } from './catch-flow';
-import type { Buzz, SceneHost } from './rig';
+import type { SceneHost } from './rig';
 
 /** How long what the person just did keeps the caption before how things stand is back. */
 const REACTION_MS = 1800;
 
-function buzz(weight: Buzz): void {
-  const done =
-    weight === 'tick'
-      ? Haptics.selectionAsync()
-      : Haptics.impactAsync(
-          weight === 'heavy'
-            ? Haptics.ImpactFeedbackStyle.Heavy
-            : weight === 'medium'
-              ? Haptics.ImpactFeedbackStyle.Medium
-              : Haptics.ImpactFeedbackStyle.Light,
-        );
-  void done.catch(() => undefined);
-}
-
 export interface SceneHostInput {
   readonly stage: CatchStage;
-  readonly haptics: boolean;
   readonly playCue: (cue: string) => void;
   readonly sendFinish: (event: SessionEvent) => Promise<void>;
 }
@@ -52,8 +36,8 @@ export interface SceneHostHandle {
 }
 
 /**
- * What a catch scene is given to speak and act through: its captions are kept here, its sounds and
- * taps obey the person's switches, a slam jolts the drawing, and the finish is sent once.
+ * What a catch scene is given to speak and act through: its captions are kept here, its sounds
+ * (and the taps they carry) obey the person's switches, a slam jolts the drawing, and the finish is sent once.
  */
 export function useSceneHost(input: SceneHostInput): SceneHostHandle {
   const [status, setStatus] = useState<Caption | null>(null);
@@ -95,9 +79,6 @@ export function useSceneHost(input: SceneHostInput): SceneHostHandle {
       react,
       early: () => react({ name: 'early' }),
       cue: (cue) => latest.current.playCue(cue),
-      buzz: (weight) => {
-        if (latest.current.haptics) buzz(weight);
-      },
       shake: (amount) => {
         joltSize.value = amount;
         jolt.value = withSequence(

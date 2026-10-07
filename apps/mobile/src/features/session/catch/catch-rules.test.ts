@@ -1,7 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
 import { catchStage, clockLeft, gestureUnlocked, trapProgress } from './catch-flow';
-import { CATCH_KINDS, catchFor } from './catch-kinds';
+import { CATCH_KINDS, catchFor, DRAWN_IN } from './catch-kinds';
 import {
   REEL_NEEDS,
   insideLoop,
@@ -11,6 +11,7 @@ import {
   wound,
   type TimedPoint,
 } from './catch-rules';
+import { fitBoard } from './fit-board';
 import type { Point } from './math';
 import { taskPhrase } from './task-phrase';
 
@@ -136,5 +137,38 @@ describe('the reel', () => {
     expect(turnsWound(0)).toBe(0);
     expect(turnsWound(REEL_NEEDS / 3 + 0.1)).toBe(1);
     expect(turnsWound(REEL_NEEDS * 2)).toBe(3);
+  });
+});
+
+describe('the board on a phone', () => {
+  // Under the top row, and above the foot; the words take their share at the top or the bottom.
+  const room = (height: number, inset: number, words: 'top' | 'bottom') => ({
+    top: inset + 44 + (words === 'top' ? 76 : 0),
+    bottom: height - 34 - (words === 'bottom' ? 86 : 0),
+  });
+
+  it("is drawn at the board's own size and place on the board's own phone", () => {
+    const fit = fitBoard({ width: 393, height: 852 }, DRAWN_IN.jar, room(852, 59, 'bottom'));
+    expect(fit).toEqual({ scale: 1, left: 0, top: 0 });
+  });
+
+  it('keeps every catch whole and inside its room on a short phone, close to full width', () => {
+    const screen = { width: 375, height: 667 };
+    for (const kind of CATCH_KINDS) {
+      const words = kind === 'reel' || kind === 'sticker' || kind === 'vacuum' ? 'top' : 'bottom';
+      const space = room(667, 20, words);
+      const fit = fitBoard(screen, DRAWN_IN[kind], space);
+      expect(fit.top + DRAWN_IN[kind].top * fit.scale).toBeGreaterThanOrEqual(space.top - 0.001);
+      expect(fit.top + DRAWN_IN[kind].bottom * fit.scale).toBeLessThanOrEqual(space.bottom + 0.001);
+      // Scaling the whole board to this phone's height would draw it at 78%.
+      expect(fit.scale).toBeGreaterThan(0.78);
+      expect(fit.scale).toBeLessThanOrEqual(375 / 393);
+    }
+  });
+
+  it('is centred across a phone wider than the drawing needs', () => {
+    const fit = fitBoard({ width: 430, height: 600 }, DRAWN_IN.sticker, { top: 180, bottom: 580 });
+    expect(fit.left).toBeCloseTo((430 - 393 * fit.scale) / 2);
+    expect(fit.scale).toBeCloseTo(400 / 624);
   });
 });
