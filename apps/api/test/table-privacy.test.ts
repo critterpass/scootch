@@ -19,6 +19,7 @@ import {
   sitDown,
   until,
   upgrade,
+  postHaunt,
 } from './table-support';
 
 /** The tables this work added. Every column of every one is tried below. */
@@ -44,7 +45,7 @@ const word = fc.stringMatching(/^[A-Za-zÀ-ỹ0-9'’,.!?-]{1,12}$/);
 /** Something a person might write as a task: two or more words. */
 const taskText = fc.array(word, { minLength: 2, maxLength: 12 }).map((words) => words.join(' '));
 
-const vocabulary = new Set<string>(['start', 'nudge', 'mode', 'leave', ...WORK_MODE_IDS]);
+const vocabulary = new Set<string>(['start', 'nudge', 'mode', 'done', 'leave', ...WORK_MODE_IDS]);
 const messageTypes = ['start', 'nudge', 'mode', 'leave', 'label', 'rename', 'chat'];
 const fieldNames = ['label', 'text', 'task', 'to', 'workMode', 'minutes', 'hidden', 'note', 'name'];
 
@@ -179,7 +180,19 @@ describe('no task text at a table', { timeout: 60_000 }, () => {
     const [[key, kept] = []] = JSON.parse(stored) as [string, { seats: object[] }][];
     expect(key).toBe('table');
     expect(Object.keys(kept?.seats[0] ?? {}).sort()).toEqual(
-      ['accountId', 'hidden', 'name', 'nudgesSent', 'offlineSince', 'onPass', 'workMode'].sort(),
+      [
+        'accountId',
+        'done',
+        'hidden',
+        'inSession',
+        'name',
+        'nudges',
+        'nudgesSent',
+        'offlineSince',
+        'onPass',
+        'seatedAt',
+        'workMode',
+      ].sort(),
     );
     for (const table of newTables) {
       const rows = JSON.stringify((await env.DB.prepare(`SELECT * FROM ${table}`).all()).results);
@@ -219,7 +232,7 @@ describe('no task text at a table', { timeout: 60_000 }, () => {
       }),
     );
     await ok(
-      as(host, 'POST', '/v1/haunts', {
+      postHaunt(host, {
         to: guest.accountId,
         bodyType: 'sock',
         seed: '5f0c9a2e-77aa-4c1d-9d6e-0b1c2d3e4f50',

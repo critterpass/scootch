@@ -18,6 +18,10 @@ export const secretNames = [
   'TELEGRAM_CHAT_ID',
   'TELEGRAM_WEBHOOK_SECRET',
   'REVENUECAT_API_V2_KEY',
+  // Apple's push key: the `.p8` file's text, its key id, and the team id. Absent, no push is sent.
+  'APNS_KEY_P8',
+  'APNS_KEY_ID',
+  'APNS_TEAM_ID',
 ] as const;
 export type SecretName = (typeof secretNames)[number];
 

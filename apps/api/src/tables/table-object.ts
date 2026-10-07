@@ -1,30 +1,29 @@
 import { DurableObject } from 'cloudflare:workers';
 
-import type { Language } from '../contracts';
 import type { Bindings } from '../env';
 
-import { seatShown, seatShownOutside } from './labels';
 import {
-  accountHeader,
-  languageHeader,
   readClientMessage,
+  readConnection,
   TABLE_CLOSE_CODES,
-  TABLE_MAX_NUDGES,
   TABLE_PING,
   TABLE_PONG,
-  workModeSchema,
   type Attachment,
   type TableErrorCode,
   type TableServerMessage,
-  type WorkMode,
 } from './table-contract';
 import { closeTableRows, isMuted, seatRowAdded, seatRowRemoved } from './table-rows';
+import { pushNudge, type NudgeReach } from './nudge-push';
+import { snapshotFor } from './table-snapshot';
 import {
   admit,
-  capacityOf,
+  connected,
+  countNudge,
   freeSeat,
   newTable,
   nextAlarmAt,
+  nudgesLeftFor,
+  startSession,
   tick,
   type AdmitResult,
   type Guest,
@@ -37,8 +36,10 @@ import {
  * sockets. One alarm serves the session's end, freeing offline seats and closing an empty table.
  *
  * The rules decided here: anyone seated may start a session; a person may join mid-session and
- * is shown the running timer; nudges work with or without a session, three per person, counted
- * afresh each time a session starts; the host leaving changes the host and nothing else.
+ * is shown the running timer; nudges work with or without a session, three to each person,
+ * counted afresh each time a session starts, and only when they reach someone; whoever is in a
+ * session keeps their seat through it with no connection; the host leaving changes the host and
+ * nothing else.
  */
 export class TableObject extends DurableObject<Bindings> {
   constructor(ctx: DurableObjectState, env: Bindings) {
@@ -77,40 +78,22 @@ export class TableObject extends DurableObject<Bindings> {
     await this.vacate(table, accountId, 'seat_removed');
   }
 
-  /** Who is seated and how many nudges each has sent. Ids and counts only. */
-  async facts(): Promise<{ accountId: string; nudgesSent: number }[] | null> {
-    const table = await this.load();
-    return table?.seats.map(({ accountId, nudgesSent }) => ({ accountId, nudgesSent })) ?? null;
-  }
-
   /**
-   * The seats as an invite link shows them: a name, and a label with its work mode unless hidden.
-   * No ids. One storage read; nothing is written, no alarm moves and no socket is touched.
+   * The table as it is stored, for the routes that read it: an invite page, a report, a phone
+   * asking where it is seated. One storage read; nothing is written, no alarm moves and no
+   * socket is touched. Null once the table has closed.
    */
-  async seatsOutside(
-    language: Language,
-  ): Promise<{ name: string; label: string | null; workMode: WorkMode | null }[] | null> {
-    const table = await this.load();
-    return (
-      table?.seats.map((seat) => ({ name: seat.name, ...seatShownOutside(seat, language) })) ?? null
-    );
+  async stored(): Promise<StoredTable | null> {
+    return this.load();
   }
 
   override async fetch(request: Request): Promise<Response> {
     if (request.headers.get('Upgrade') !== 'websocket') {
       return new Response('expected websocket', { status: 426 });
     }
-    const url = new URL(request.url);
-    const accountId = request.headers.get(accountHeader);
-    const language = request.headers.get(languageHeader) === 'vi' ? 'vi' : 'en';
-    // Only a work mode id and a switch may arrive with a connection. Anything else, a label
-    // most of all, is refused before the socket exists.
-    const mode = workModeSchema.nullable().safeParse(url.searchParams.get('mode'));
-    const hidden = url.searchParams.get('hidden');
-    const known = [...url.searchParams.keys()].every((key) => key === 'mode' || key === 'hidden');
-    if (!accountId || !known || !mode.success || !(hidden === null || hidden === '1')) {
-      return new Response('bad request', { status: 400 });
-    }
+    const asked = readConnection(request);
+    if (asked === null) return new Response('bad request', { status: 400 });
+    const { accountId, language } = asked;
 
     const { 0: client, 1: server } = new WebSocketPair();
     const table = await this.load();
@@ -131,9 +114,9 @@ export class TableObject extends DurableObject<Bindings> {
       this.send(old, { type: 'replaced' });
       old.close(TABLE_CLOSE_CODES.replaced, 'replaced');
     }
-    seat.workMode = mode.data;
-    seat.hidden = hidden === '1';
-    seat.offlineSince = null;
+    seat.workMode = asked.workMode;
+    seat.hidden = asked.hidden;
+    connected(table, seat, Date.now());
     await this.save(table);
     this.ctx.acceptWebSocket(server, [accountId]);
     server.serializeAttachment({ accountId, language } satisfies Attachment);
@@ -145,8 +128,8 @@ export class TableObject extends DurableObject<Bindings> {
     const { accountId } = ws.deserializeAttachment() as Attachment;
     const message = readClientMessage(raw);
     if (typeof message === 'string') return this.sendError(ws, message);
-    // Read before the table is loaded, so nothing waits between loading and saving it.
-    const muted = message.type === 'nudge' && (await isMuted(this.env.DB, message.to, accountId));
+    // Settled before the table is loaded, so nothing waits between loading and saving it.
+    const reach = message.type === 'nudge' ? await this.reach(accountId, message.to) : null;
 
     const table = await this.load();
     const seat = table?.seats.find((candidate) => candidate.accountId === accountId);
@@ -157,33 +140,31 @@ export class TableObject extends DurableObject<Bindings> {
       case 'start': {
         if (table.endsAt !== null && table.endsAt > now)
           return this.sendError(ws, 'session_running');
-        table.endsAt = now + message.minutes * 60_000;
-        table.minutes = message.minutes;
-        for (const each of table.seats) each.nudgesSent = 0;
+        startSession(table, message.minutes, now, (id) => this.isOnline(id));
         await this.save(table);
         return this.broadcastState(table);
       }
       case 'nudge': {
-        if (
-          message.to === accountId ||
-          !table.seats.some((each) => each.accountId === message.to)
-        ) {
+        const to = message.to;
+        if (to === accountId || !table.seats.some((each) => each.accountId === to)) {
           return this.sendError(ws, 'bad_target');
         }
-        if (seat.nudgesSent >= TABLE_MAX_NUDGES) return this.sendError(ws, 'nudge_limit');
-        seat.nudgesSent += 1;
-        await this.save(table);
-        // A muted sender gets the same answer as anyone else and is never told.
-        if (!muted) {
-          for (const target of this.ctx.getWebSockets(message.to)) {
-            this.send(target, { type: 'nudged', from: accountId });
-          }
+        if (nudgesLeftFor(seat, to) === 0) return this.sendError(ws, 'nudge_limit');
+        const sockets = reach === 'muted' ? [] : this.ctx.getWebSockets(to);
+        // A nudge that reaches nobody is not counted. One that was muted is: the sender gets
+        // the same answer as anyone else, so they can never learn that they were muted.
+        const delivered = reach === 'muted' || reach === 'pushed' || sockets.length > 0;
+        if (delivered) {
+          countNudge(seat, to);
+          await this.save(table);
         }
-        this.send(ws, {
-          type: 'nudge_sent',
-          to: message.to,
-          nudgesLeft: TABLE_MAX_NUDGES - seat.nudgesSent,
-        });
+        for (const target of sockets) this.send(target, { type: 'nudged', from: accountId });
+        this.send(ws, { type: 'nudge_sent', to, nudgesLeft: nudgesLeftFor(seat, to), delivered });
+        return delivered ? this.broadcastState(table) : undefined;
+      }
+      case 'done': {
+        seat.done = true;
+        await this.save(table);
         return this.broadcastState(table);
       }
       case 'mode': {
@@ -239,13 +220,20 @@ export class TableObject extends DurableObject<Bindings> {
     else await this.ctx.storage.setAlarm(due);
   }
 
+  /** How a nudge would reach its person, a push included. Settled before the table is loaded. */
+  private async reach(from: string, to: string): Promise<NudgeReach> {
+    if (await isMuted(this.env.DB, to, from)) return 'muted';
+    if (this.isOnline(to)) return 'online';
+    return pushNudge(this.env, await this.load(), from, to);
+  }
+
   /** Frees a seat at once and closes that person's sockets. `tell` is null when they left. */
   private async vacate(
     table: StoredTable,
     accountId: string,
     tell: TableErrorCode | null,
   ): Promise<void> {
-    if (!freeSeat(table, accountId, Date.now())) return;
+    if (!freeSeat(table, accountId, Date.now(), tell === null)) return;
     await this.save(table);
     await seatRowRemoved(this.env.DB, table.id, accountId);
     const theirs = this.ctx.getWebSockets(accountId);
@@ -281,28 +269,17 @@ export class TableObject extends DurableObject<Bindings> {
 
   /** The full snapshot to every open socket, each in its own language. */
   private broadcastState(table: StoredTable, gone: readonly WebSocket[] = []): void {
+    const now = Date.now();
     const online = new Map(
       table.seats.map((seat) => [seat.accountId, this.isOnline(seat.accountId, gone)]),
     );
     for (const ws of this.ctx.getWebSockets()) {
       if (gone.includes(ws)) continue;
       const { accountId, language } = ws.deserializeAttachment() as Attachment;
-      this.send(ws, {
-        type: 'state',
-        you: accountId,
-        hostId: table.hostId,
-        capacity: capacityOf(table),
-        seats: table.seats.map((seat) => ({
-          userId: seat.accountId,
-          ...seatShown(seat, language),
-          name: seat.name,
-          online: online.get(seat.accountId) === true,
-          nudgesLeft: TABLE_MAX_NUDGES - seat.nudgesSent,
-        })),
-        endsAt: table.endsAt,
-        minutes: table.minutes,
-        serverNow: Date.now(),
-      });
+      this.send(
+        ws,
+        snapshotFor(table, accountId, language, (id) => online.get(id) === true, now),
+      );
     }
   }
 
