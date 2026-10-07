@@ -1,11 +1,11 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { fonts, fontSizes, spacing } from '@scootch/tokens';
 
 import { Scootch } from '../../art/Scootch';
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { CapsuleButton } from '../../ui/buttons';
+import { SafeFrame } from '../../ui/safe-frame';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { QuietLink } from '../dump/dump-panels';
 import { Row } from '../settings/rows';
@@ -53,7 +53,7 @@ export function CrisisView({
   const t = useT();
   const { language } = useLanguage();
   return (
-    <SafeAreaView style={[styles.screen, { backgroundColor: palette.page }]} testID="care-screen">
+    <SafeFrame style={[styles.screen, { backgroundColor: palette.page }]} testID="care-screen">
       <ScrollView contentContainerStyle={styles.content}>
         <View
           style={styles.figure}
@@ -147,7 +147,7 @@ export function CrisisView({
           </View>
         )}
       </ScrollView>
-    </SafeAreaView>
+    </SafeFrame>
   );
 }
 

@@ -1,11 +1,11 @@
 import type { ReactNode } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { spacing } from '@scootch/tokens';
 
 import { trace } from '../../trace-temp';
 import { useT } from '../../i18n/i18n-provider';
+import { SafeFrame } from '../../ui/safe-frame';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
 export const LAUNCH_STEPS = 4;
@@ -49,7 +49,7 @@ export interface LaunchPageProps {
 export function LaunchPage({ step, testID, children, footer }: LaunchPageProps) {
   const { palette } = useScreenStyle();
   return (
-    <SafeAreaView
+    <SafeFrame
       testID={testID}
       onTouchStart={(e) => trace(`touchStart ${testID} ${Math.round(e.nativeEvent.pageX)},${Math.round(e.nativeEvent.pageY)}`)}
       onTouchEnd={() => trace(`touchEnd ${testID}`)}
@@ -58,11 +58,14 @@ export function LaunchPage({ step, testID, children, footer }: LaunchPageProps) 
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         {children}
       </ScrollView>
-      <View style={styles.footer}>
+      <View
+        style={styles.footer}
+        onLayout={(e) => trace(`footer y=${Math.round(e.nativeEvent.layout.y)} h=${Math.round(e.nativeEvent.layout.height)}`)}
+      >
         <StepDots step={step} />
         {footer}
       </View>
-    </SafeAreaView>
+    </SafeFrame>
   );
 }
 
