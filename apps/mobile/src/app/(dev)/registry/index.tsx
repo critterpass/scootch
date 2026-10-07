@@ -1,5 +1,5 @@
-import { Link } from 'expo-router';
-import { useState } from 'react';
+import { Link, useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
 import {
   Pressable,
   ScrollView,
@@ -28,6 +28,8 @@ import { SafeFrame } from '../../../ui/safe-frame';
 export default function RegistryBrowser() {
   const palette = colors[useColorScheme() === 'dark' ? 'dark' : 'light'];
   const [query, setQuery] = useState('');
+  // Coming back from a state starts the list whole again, so a flow never types into leftovers.
+  useFocusEffect(useCallback(() => setQuery(''), []));
   const shown = captures.filter((capture) => capture.name.includes(query.trim().toLowerCase()));
 
   return (
