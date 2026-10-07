@@ -71,6 +71,8 @@ enum SurfaceLinks {
     static let home = url("")
     static let session = url("session")
     static let world = url("world")
+    /// The caught cards, where one is shared from.
+    static let cards = url("zoo")
 
     static func destination(for snapshot: SurfaceSnapshot, at date: Date) -> URL {
         if snapshot.isRunning(at: date) { return session }

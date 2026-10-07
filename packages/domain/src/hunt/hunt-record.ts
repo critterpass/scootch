@@ -113,6 +113,46 @@ export function huntView(record: HuntRecord, now: Instant): HuntView | null {
   };
 }
 
+/**
+ * The next moment the picture changes by the clock alone, which a Live Activity is told as the
+ * date its content goes stale so that it is drawn again then. `null` when only a tap changes it.
+ */
+export function nextHuntChange(record: HuntRecord, now: Instant): Instant | null {
+  const phase = phaseAt(record, now);
+  switch (phase) {
+    case 'starting':
+      return record.beginsAt;
+    case 'parked':
+      return (record.parkedAt ?? now) + HUNT_PARKED_RECEIPT_MS;
+    case 'running':
+    case 'last_minutes':
+      return record.endsAt;
+    case 'caught':
+      return (record.caughtAt ?? now) + HUNT_CAUGHT_CARD_MS;
+    case 'stuck':
+    case 'overtime':
+    case 'caught_collapsed':
+    case 'stopped_early':
+    case null:
+      return null;
+  }
+}
+
+/** A session begun in the app, as the Lock Screen follows it: no count-in, the clock runs at once. */
+export function huntOfSession(taskId: string, startedAt: Instant, endsAt: Instant): HuntRecord {
+  return {
+    taskId,
+    startedAt,
+    beginsAt: startedAt,
+    endsAt,
+    pausedAt: null,
+    parkedAt: null,
+    parkedText: null,
+    caughtAt: null,
+    stoppedAt: null,
+  };
+}
+
 /** A hunt begun outside the app: three seconds to change your mind, then the clock. */
 export function beginHunt(taskId: string, minutes: number, now: Instant): HuntRecord {
   const beginsAt = now + HUNT_COUNT_IN_MS;

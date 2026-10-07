@@ -90,7 +90,8 @@ describe('the effects runner', () => {
     drive(harness, session, [{ type: 'clock' }]);
     await harness.runner.settled();
     expect(harness.time.armed()).toEqual([]);
-    expect(harness.device.calls.live.at(-1)).toBe('end');
+    // Time is up and nothing interrupts: the Live Activity stays, in overtime.
+    expect(harness.device.calls.live.at(-1)).toBe('overtime');
   });
 
   it('stays silent and still when sound and haptics are switched off', () => {

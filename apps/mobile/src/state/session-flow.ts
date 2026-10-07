@@ -45,6 +45,7 @@ export function contextFor(ctx: DayContext, task: TaskRow): SessionContext {
   const { settings, session } = ctx.memory.state;
   return {
     title: task.text,
+    taskId: task.id,
     liveLine: lineFor('working', task, settings, ctx.memory.workingTurn) ?? '',
     // Each "Smaller" on the stuck card asks for the next step down.
     lineFor: (slot) =>

@@ -7,8 +7,10 @@ import {
   HUNT_SMALLEST_MONSTER,
   beginHunt,
   catchHunt,
+  huntOfSession,
   huntView,
   moreHunt,
+  nextHuntChange,
   parkInHunt,
   pauseHunt,
   resumeHunt,
@@ -153,6 +155,31 @@ describe('the ends of a hunt', () => {
     expect(parkInHunt(caught, 'x', begun.endsAt + SEC)).toBe(caught);
     expect(stopHunt(caught, begun.endsAt + SEC)).toBe(caught);
     expect(catchHunt(caught, begun.endsAt + MINUTE_MS)).toBe(caught);
+  });
+});
+
+describe('when the picture next changes by the clock alone', () => {
+  it('is the start of the clock, the end of the receipt, the end of the time, the fold of the card', () => {
+    expect(nextHuntChange(begun, T0)).toBe(begun.beginsAt);
+    expect(nextHuntChange(begun, CLOCK + MINUTE_MS)).toBe(begun.endsAt);
+    expect(nextHuntChange(begun, begun.endsAt - SEC)).toBe(begun.endsAt);
+    const parkedAt = CLOCK + MINUTE_MS;
+    expect(nextHuntChange(parkInHunt(begun, 'x', parkedAt), parkedAt + SEC)).toBe(
+      parkedAt + 4 * SEC,
+    );
+    const caughtAt = begun.endsAt + SEC;
+    expect(nextHuntChange(catchHunt(begun, caughtAt), caughtAt)).toBe(caughtAt + 8 * MINUTE_MS);
+  });
+
+  it('is never, where only a tap moves it on', () => {
+    expect(nextHuntChange(pauseHunt(begun, CLOCK + SEC), CLOCK + MINUTE_MS)).toBeNull();
+    expect(nextHuntChange(begun, begun.endsAt)).toBeNull();
+    expect(nextHuntChange(catchHunt(begun, begun.endsAt), begun.endsAt + 9 * MINUTE_MS)).toBeNull();
+  });
+
+  it('a session begun in the app has no count-in', () => {
+    const inApp = huntOfSession('task-1', T0, T0 + 10 * MINUTE_MS);
+    expect(huntView(inApp, T0)).toMatchObject({ phase: 'running', countIn: 0, progress: 0 });
   });
 });
 

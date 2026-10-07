@@ -50,6 +50,8 @@ any task here.
 | Finish icons marked PLUS | An icon is worn by whoever may wear its finish | One rule for who wears a finish (`features/studio/rules.ts`) |
 | "DAY 9", "3d" | Kept: it is how long the thing has waited, the same number the card carries. It is left off a serious task and nothing is shown on a crisis day | The task is the joke; the user's days are never counted |
 | Back Tap, Focus on | A row in Settings that opens Shortcuts; a Focus filter with three switches | Both are set up in iOS, not in the app |
+| Which things lurk | Today's unfinished, hatched things. One carried to tomorrow lurks from tomorrow, when it is today's again | A hunt begun from a widget has to become a session the day's limit and tables allow; only today's thing can |
+| "Stopped early" from outside | The state is drawn and its two buttons work, but nothing outside the app stops a hunt yet; Siri's "Stop" does, in the ways-to-start phase | The board draws no stop button on the Lock Screen |
 | Native batch | One batch with Plus Materials phase 07 | A build takes a runner; one fingerprint change, not two |
 
 ## Phases

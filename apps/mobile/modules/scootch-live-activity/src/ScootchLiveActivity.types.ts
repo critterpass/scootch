@@ -6,14 +6,36 @@
 /** Fixed for the life of the activity. */
 export interface SessionActivityAttributes {
   taskTitle: string;
+  /** The task the session is for, which finds its monster and its words in the shared snapshot. */
+  taskId?: string | null;
+}
+
+/**
+ * The session as the Lock Screen follows it: the fields of `HuntRecord` in `@scootch/domain` and of
+ * `targets/_shared/HuntRecord.swift`. Times are milliseconds since 1970.
+ */
+export interface SessionActivityHunt {
+  taskId: string;
+  startedAt: number;
+  beginsAt: number;
+  endsAt: number;
+  pausedAt: number | null;
+  parkedAt: number | null;
+  parkedText: string | null;
+  caughtAt: number | null;
+  stoppedAt: number | null;
 }
 
 /** What an update changes. */
 export interface SessionActivityState {
   /** When the session ends, in milliseconds since 1970; the views count down to it. */
   endDate: number;
-  /** One line of text shown under the title. */
+  /** What Scootch is saying. A state of the hunt that has words of its own shows those. */
   line: string;
+  /** Without one the activity shows a plain running session that ends at `endDate`. */
+  hunt?: SessionActivityHunt | null;
+  /** True while the phone has no connection. */
+  offline?: boolean | null;
 }
 
 export interface SessionActivityUpdateOptions {

@@ -9,7 +9,8 @@ enum SessionActivityError: Error, CustomStringConvertible {
     var description: String {
         switch self {
         case .invalidAttributes: return "attributes need a taskTitle string"
-        case .invalidState: return "state needs endDate (milliseconds since 1970) and a line string"
+        case .invalidState:
+            return "state needs endDate (milliseconds since 1970), a line string and, when it has a hunt, a whole one"
         }
     }
 }
@@ -33,7 +34,8 @@ enum SessionActivityController {
         }
         let wantsPushUpdates = options?["pushUpdates"] as? Bool ?? false
         let activity = try SessionActivity.request(
-            attributes: SessionActivityAttributes(taskTitle: taskTitle),
+            attributes: SessionActivityAttributes(
+                taskTitle: taskTitle, taskId: attributes["taskId"] as? String),
             content: try content(from: state, options: options),
             pushType: wantsPushUpdates ? .token : nil
         )
@@ -75,10 +77,15 @@ enum SessionActivityController {
         SessionActivity.activities.map { activity in
             [
                 "id": activity.id,
-                "attributes": ["taskTitle": activity.attributes.taskTitle],
+                "attributes": [
+                    "taskTitle": activity.attributes.taskTitle,
+                    "taskId": activity.attributes.taskId as Any,
+                ] as [String: Any],
                 "state": [
                     "endDate": activity.content.state.endDate.timeIntervalSince1970 * 1000,
                     "line": activity.content.state.line,
+                    "hunt": dictionary(from: activity.content.state.hunt) as Any,
+                    "offline": activity.content.state.offline as Any,
                 ] as [String: Any],
                 "status": status(of: activity),
             ]
@@ -95,10 +102,30 @@ enum SessionActivityController {
         guard let endDate = date(state["endDate"]), let line = state["line"] as? String else {
             throw SessionActivityError.invalidState
         }
+        var hunt: HuntRecord?
+        if let given = state["hunt"], !(given is NSNull) {
+            // A hunt that cannot be read is a mistake in the caller, not a session without one.
+            guard let record = record(from: given) else { throw SessionActivityError.invalidState }
+            hunt = record
+        }
         return ActivityContent(
-            state: SessionActivityAttributes.ContentState(endDate: endDate, line: line),
+            state: SessionActivityAttributes.ContentState(
+                endDate: endDate, line: line, hunt: hunt, offline: state["offline"] as? Bool),
             staleDate: date(options?["staleDate"])
         )
+    }
+
+    /// The hunt as JavaScript sends it: the fields of `HuntRecord`, times in milliseconds.
+    private static func record(from value: Any) -> HuntRecord? {
+        guard JSONSerialization.isValidJSONObject(value),
+            let data = try? JSONSerialization.data(withJSONObject: value)
+        else { return nil }
+        return try? JSONDecoder().decode(HuntRecord.self, from: data)
+    }
+
+    private static func dictionary(from record: HuntRecord?) -> [String: Any]? {
+        guard let record, let data = try? JSONEncoder().encode(record) else { return nil }
+        return (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
     }
 
     private static func date(_ milliseconds: Any?) -> Date? {

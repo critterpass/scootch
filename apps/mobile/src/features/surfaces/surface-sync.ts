@@ -10,6 +10,7 @@ import {
 import type { Repositories } from '../../data/repositories';
 import type { DayStore } from '../../state/day-store';
 import type { DayState } from '../../state/day-types';
+import { readHunt } from './hunt-store';
 
 import { finishedThings } from '../world/landmarks';
 
@@ -92,13 +93,16 @@ export function createSurfaceSync(deps: SurfaceSyncDeps) {
     const { today } = state;
     // A serious task and a crisis day have no monster on any surface, so none is kept there.
     const monster = today.kind === 'serious' || today.kind === 'crisis' ? null : state.monster;
-    // Every unfinished thing with a monster may lurk; the snapshot decides which are shown.
+    // Today's unfinished things with a monster may lurk; the snapshot decides which are shown.
+    // One carried to tomorrow lurks from tomorrow, when a hunt on it can become today's session.
     const monsters = await deps.repositories.monsters.all();
     const caught = monsters.filter((one) => one.caughtAt !== null);
     const unfinished =
       today.kind === 'crisis'
         ? []
-        : (await deps.repositories.tasks.all()).filter((task) => task.status !== 'finished');
+        : (await deps.repositories.tasks.where('localDate', state.localDate)).filter(
+            (task) => task.status !== 'finished',
+          );
     const waiting = unfinished.flatMap((task) => {
       const its = monsters.find((one) => one.taskId === task.id && one.caughtAt === null);
       return its ? [{ task, monster: its }] : [];
@@ -148,6 +152,15 @@ export function createSurfaceSync(deps: SurfaceSyncDeps) {
     lastJson = json;
   }
 
+  /** The hunt record the Lock Screen's buttons move, or `null` when there is none to read. */
+  const storedHunt = () => {
+    try {
+      return readHunt(shared.get(SHARED_KEYS.hunt));
+    } catch {
+      return null;
+    }
+  };
+
   const sync = () => {
     queue = queue.then(write).catch(() => undefined);
     return queue;
@@ -174,6 +187,9 @@ export function createSurfaceSync(deps: SurfaceSyncDeps) {
           await store.dispatch({ type: 'surface_action', action: action.kind });
         }
       }
+      // A hunt begun or moved outside the app is taken up before anything else is noticed.
+      const hunt = storedHunt();
+      if (hunt !== null) await store.dispatch({ type: 'hunt_adopted', hunt });
       if (actions.length === 0) await store.dispatch({ type: 'opened_mid_session' });
       return actions;
     },

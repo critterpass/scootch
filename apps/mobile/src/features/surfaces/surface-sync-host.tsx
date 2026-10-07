@@ -7,6 +7,19 @@ import { SESSION_ROUTE } from '../../state/session-relaunch';
 
 import type { SurfaceSync } from './surface-sync';
 
+/** What was asked for on a surface that is answered on the session screen. */
+const OPENS_SESSION: readonly string[] = [
+  'start_session',
+  'hunt',
+  'park_thought',
+  'stuck',
+  'first_line',
+  'make_smaller',
+  'five_more',
+  'finish',
+];
+const UNDER_WAY: readonly string[] = ['running', 'stuck', 'holding', 'time_up'];
+
 /**
  * Runs the surface sync for the life of the app: follows the store, and at launch and on every
  * return to the front picks up what the controls and buttons asked for. A session started that
@@ -28,8 +41,9 @@ export function SurfaceSyncHost({
         .opened()
         .then((actions) => {
           const session = store.getState().session;
-          const started = actions.some((action) => action.kind === 'start_session');
-          if (started && session?.phase === 'running') router.replace(SESSION_ROUTE);
+          const asked = actions.some((action) => OPENS_SESSION.includes(action.kind));
+          const under = session !== null && UNDER_WAY.includes(session.phase);
+          if (asked && under) router.replace(SESSION_ROUTE);
         })
         .catch(() => undefined);
 

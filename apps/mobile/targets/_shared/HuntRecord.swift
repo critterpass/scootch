@@ -4,7 +4,7 @@ import Foundation
 /// intent can move it with the app closed and the app adopts it when it next opens. The fields
 /// and every rule here are the same as packages/domain/src/hunt/hunt-record.ts; change both
 /// together. Times are milliseconds since 1970.
-struct HuntRecord: Codable, Equatable, Sendable {
+struct HuntRecord: Codable, Hashable, Sendable {
     enum Phase: String, Sendable {
         case starting, running, parked, stuck
         case lastMinutes = "last_minutes"
@@ -158,24 +158,21 @@ struct HuntRecord: Codable, Equatable, Sendable {
         return next
     }
 
-    // MARK: - In the App Group
-
-    static func load(from defaults: UserDefaults? = AppGroup.defaults) -> HuntRecord? {
-        guard let json = defaults?.string(forKey: AppGroup.Key.huntRecord),
-            let data = json.data(using: .utf8)
-        else { return nil }
-        return try? JSONDecoder().decode(HuntRecord.self, from: data)
+    /// The next moment the picture changes by the clock alone, which an activity is told as the
+    /// date its content goes stale so that it is drawn again then. Nil when only a tap changes it.
+    func nextChange(after now: Double) -> Double? {
+        guard let phase = phase(at: now) else { return nil }
+        switch phase {
+        case .starting: return beginsAt
+        case .parked: return (parkedAt ?? now) + Self.parkedReceiptMs
+        case .running, .lastMinutes: return endsAt
+        case .caught: return (caughtAt ?? now) + Self.caughtCardMs
+        case .stuck, .overtime, .caughtCollapsed, .stoppedEarly: return nil
+        }
     }
 
-    /// Stored as text, which is what the app's bridge reads back. Nil removes it.
-    static func store(_ record: HuntRecord?, in defaults: UserDefaults? = AppGroup.defaults) {
-        guard let defaults else { return }
-        guard let record, let data = try? JSONEncoder().encode(record),
-            let json = String(data: data, encoding: .utf8)
-        else {
-            defaults.removeObject(forKey: AppGroup.Key.huntRecord)
-            return
-        }
-        defaults.set(json, forKey: AppGroup.Key.huntRecord)
+    /// When a caught card that has folded to one line leaves: the top of the next hour.
+    var leavesAt: Double? {
+        caughtAt.map { ((($0 + Self.caughtCardMs) / Self.hourMs).rounded(.down) + 1) * Self.hourMs }
     }
 }

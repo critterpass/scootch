@@ -45,7 +45,8 @@ export function catchUp(state: LiveSession, now: Instant, loud: boolean): LiveSt
   const effects: SessionEffect[] = [];
 
   if (now >= state.endsAt) {
-    effects.push({ kind: 'end_live_activity' });
+    // Nothing interrupts: the activity stays on the Lock Screen in overtime until an ending.
+    effects.push({ kind: 'overtime_live_activity' });
     if (full) effects.push({ kind: 'show_line', line: 'timeUp' });
     if (full && loud)
       effects.push({ kind: 'play_cue', cue: 'nudge' }, { kind: 'haptic', pattern: 'nudge' });

@@ -1,11 +1,24 @@
 import { createAudioPlayer, type AudioPlayer } from 'expo-audio';
 import { File, Paths } from 'expo-file-system';
 import * as Haptics from 'expo-haptics';
+import { getNetworkStateAsync } from 'expo-network';
 import * as Notifications from 'expo-notifications';
 
+import {
+  HOUR_MS,
+  HUNT_CAUGHT_CARD_MS,
+  catchHunt,
+  huntOfSession,
+  nextHuntChange,
+  resumeHunt,
+  type HuntRecord,
+} from '@scootch/domain';
 import { CUES, encodeWav, type HapticTap } from '@scootch/sound';
 
 import * as LiveActivity from '../../modules/scootch-live-activity';
+import { nativeSharedStore } from '../features/surfaces/native-surface-ports';
+import { SHARED_KEYS } from '../features/surfaces/surface-ports';
+import { readHunt } from '../features/surfaces/hunt-store';
 
 import { nextLiveLineTurn } from './live-line-turns';
 import { createTapScheduler } from './tap-scheduler';
@@ -126,27 +139,105 @@ async function endAll(): Promise<void> {
   for (const id of await liveIds()) await LiveActivity.end(id, undefined, 0);
 }
 
+/** The hunt record in the App Group, which the Lock Screen's buttons move with the app away. */
+function storedHunt(): HuntRecord | null {
+  try {
+    return readHunt(nativeSharedStore().get(SHARED_KEYS.hunt));
+  } catch {
+    return null;
+  }
+}
+
+function keepHunt(hunt: HuntRecord | null): void {
+  try {
+    const shared = nativeSharedStore();
+    if (hunt === null) shared.remove(SHARED_KEYS.hunt);
+    else shared.set(SHARED_KEYS.hunt, JSON.stringify(hunt));
+  } catch {
+    // Without the App Group the activity still shows; only its buttons have nothing to move.
+  }
+}
+
+async function isOffline(): Promise<boolean> {
+  try {
+    const network = await getNetworkStateAsync();
+    return !(network.isInternetReachable ?? network.isConnected ?? true);
+  } catch {
+    return false;
+  }
+}
+
+/** Stale when the picture next changes by the clock, or at the next line turn if that is sooner. */
+function staleAt(hunt: HuntRecord | null, endsAt: number): number {
+  const now = Date.now();
+  const turn = nextLiveLineTurn(now, endsAt);
+  const change = hunt === null ? null : nextHuntChange(hunt, now);
+  return change === null ? turn : Math.min(turn, change);
+}
+
 /**
  * The session's Live Activity through the local module. The module answers "nothing there" on
  * Android and where Live Activities are switched off, so every call is then a no-op. The activity
- * is found by asking iOS which ones are live, so it is still reachable after a relaunch.
+ * is found by asking iOS which ones are live, so it is still reachable after a relaunch. The hunt
+ * record it carries is kept in the App Group as well, where the Lock Screen's buttons move it.
  */
 export const nativeLiveActivity: LiveActivityPort = {
-  start: async ({ title, endsAt, line }) => {
+  start: async ({ title, taskId, endsAt, line }) => {
     await endAll();
+    const now = Date.now();
+    const stored = storedHunt();
+    // A hunt begun outside the app keeps the moment its clock started.
+    const same =
+      stored !== null &&
+      stored.taskId === taskId &&
+      stored.caughtAt === null &&
+      stored.stoppedAt === null;
+    const hunt: HuntRecord | null =
+      taskId === undefined
+        ? null
+        : { ...(same ? resumeHunt(stored, now) : huntOfSession(taskId, now, endsAt)), endsAt };
+    keepHunt(hunt);
     await LiveActivity.start(
-      { taskTitle: title },
-      { endDate: endsAt, line },
-      // Stale at the next line turn: the system then draws the activity again, and the widget
-      // extension shows the line the shared snapshot has for that moment.
-      { staleDate: nextLiveLineTurn(Date.now(), endsAt) },
+      { taskTitle: title, taskId: taskId ?? null },
+      { endDate: endsAt, line, hunt, offline: await isOffline() },
+      // Stale at the next change: the system then draws the activity again, and the widget
+      // extension shows what the record and the shared snapshot have for that moment.
+      { staleDate: staleAt(hunt, endsAt) },
     );
   },
   update: async ({ endsAt, line }) => {
-    const staleDate = nextLiveLineTurn(Date.now(), endsAt);
+    const stored = storedHunt();
+    const hunt = stored === null ? null : { ...stored, endsAt };
+    keepHunt(hunt);
+    const offline = await isOffline();
     for (const id of await liveIds()) {
-      await LiveActivity.update(id, { endDate: endsAt, line }, { staleDate });
+      await LiveActivity.update(
+        id,
+        { endDate: endsAt, line, hunt, offline },
+        { staleDate: staleAt(hunt, endsAt) },
+      );
     }
   },
-  end: endAll,
+  overtime: async () => {
+    // The record already says so: the clock passed its end. Drawing it again shows the gold count.
+    const hunt = storedHunt();
+    if (hunt === null) return endAll();
+    for (const activity of await LiveActivity.listActive()) {
+      if (activity.status !== 'active' && activity.status !== 'stale') continue;
+      await LiveActivity.update(activity.id, { ...activity.state, hunt });
+    }
+  },
+  end: async (caught) => {
+    const stored = storedHunt();
+    keepHunt(null);
+    if (!caught || stored === null) return endAll();
+    const now = Date.now();
+    const hunt = catchHunt(stored, now);
+    // The caught card stays until the top of the hour after it would have folded.
+    const leaves = (Math.floor((now + HUNT_CAUGHT_CARD_MS) / HOUR_MS) + 1) * HOUR_MS;
+    for (const activity of await LiveActivity.listActive()) {
+      if (activity.status !== 'active' && activity.status !== 'stale') continue;
+      await LiveActivity.end(activity.id, { ...activity.state, hunt }, (leaves - now) / 1000);
+    }
+  },
 };

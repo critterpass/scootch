@@ -24,10 +24,11 @@ const APPLE_TEAM_ID = 'YFND2EEW8S';
 const LINK_HOST = 'scootch.app';
 /**
  * The oldest iOS the app, its extensions and the App Clip install on. Every target reads this one
- * value (targets/<name>/expo-target.config.js take it from `ios.deploymentTarget`). The founder is
- * deciding the minimum version; until then it stays at the Expo default.
+ * value (targets/<name>/expo-target.config.js take it from `ios.deploymentTarget`). iOS 17 is the
+ * oldest: widgets whose monsters are buttons and a Live Activity whose buttons work on the Lock
+ * Screen need it. What needs iOS 18 (controls, tinted icons) is switched on there.
  */
-const IOS_DEPLOYMENT_TARGET = '16.4';
+const IOS_DEPLOYMENT_TARGET = '17.0';
 
 const DEV: VariantConfig = {
   name: 'Scootch Dev',
