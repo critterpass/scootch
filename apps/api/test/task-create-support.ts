@@ -1,7 +1,7 @@
 import { createExecutionContext, waitOnExecutionContext } from 'cloudflare:test';
 import { env } from 'cloudflare:workers';
-import type { TaskCreatePass, TaskCreateRequest } from '@scootch/domain';
-import { vi } from 'vitest';
+import type { TaskCreatePass, TaskCreateRequest, TaskCreateResponse } from '@scootch/domain';
+import { expect, vi } from 'vitest';
 
 import passEn from '../../../packages/voice/fixtures/task.create.en.json';
 import type { PickOutput } from '../src/ai/task-create/schema';
@@ -9,7 +9,7 @@ import { createApp } from '../src/app';
 import * as routes from '../src/routes/index.generated';
 
 import { providers, type Providers, type Reply } from './ai-providers';
-import { freshIp, registerDevice } from './support';
+import { freshIp, registerDevice, shareSecret } from './support';
 
 export const passFixture = passEn as { request: TaskCreateRequest; response: TaskCreatePass };
 
@@ -34,6 +34,17 @@ export function linesOutputOf(response: TaskCreatePass) {
     ...response.lines,
     notifications: response.notifications.map(({ text }) => text),
   };
+}
+
+/**
+ * An answer without the signature its monster's words came with, which names a seed made for
+ * that one call. A pass must carry one: an answer whose words are unsigned fails here.
+ */
+export function withoutSignature(body: TaskCreateResponse): TaskCreateResponse {
+  if (body.verdict !== 'pass') return body;
+  const { signed, ...words } = body.monster;
+  expect(signed?.signature).toBeTruthy();
+  return { ...body, monster: words };
 }
 
 type Verdict = { pass: number; serious: number; crisis: number };
@@ -139,7 +150,12 @@ export async function createTask(
       },
       body: JSON.stringify(body),
     }),
-    { ...env, TYPESAFE_API_KEY: 'jev-test-key', DEEPSEEK_API_KEY: 'deepseek-test-key' },
+    {
+      ...env,
+      TYPESAFE_API_KEY: 'jev-test-key',
+      DEEPSEEK_API_KEY: 'deepseek-test-key',
+      SHARE_SIGNING_SECRET: shareSecret,
+    },
     ctx,
   );
   await waitOnExecutionContext(ctx);

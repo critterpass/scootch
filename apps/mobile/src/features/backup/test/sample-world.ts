@@ -75,6 +75,8 @@ export const monster: MonsterRow = {
   id: 'monster-1',
   taskId: 'task-1',
   origin: 'task',
+  // Caught before the server signed its words: the column is there, and empty.
+  signed: null,
   spec: {
     bodyType: 'phone',
     seed: 'task-1',

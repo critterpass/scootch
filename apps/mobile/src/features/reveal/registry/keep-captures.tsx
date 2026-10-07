@@ -134,6 +134,7 @@ function capturedShare(language: Language) {
         hideTask: false,
         notice: null,
         pageUp: false,
+        pageOffered: true,
       }}
       actions={{
         close: nothing,

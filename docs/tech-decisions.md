@@ -149,6 +149,14 @@ Jev answered in about 260 ms at the median and under 560 ms at worst.
   screen route's own values. "Be funny" does not lift an unscreened text.
 - Every route screens through the one function (`screenText`): the screen
   route, the task call, the monster maker and monster sharing.
+- The screen judges what a person typed, never what the server wrote. A monster's
+  name, title and card line leave the task call and the website's maker with a
+  signature over exactly those words, the monster's seed and the language (an
+  HMAC with `SHARE_SIGNING_SECRET`, a secret of its own; it does not expire,
+  because a card is shared whenever its owner likes). `POST /v1/card-share`
+  and `POST /v1/monster-share` make a public page only from words that carry
+  it, and send only the task line or the typed line, when it is shown, through
+  `screenText`.
 - Offline, no task gets a joke or a monster until it has been screened.
 - Not yet tested: the reject label, long rambles, speech-to-text errors,
   more than a handful of mixed-language notes, and whether Apple's on-device

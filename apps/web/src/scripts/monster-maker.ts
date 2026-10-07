@@ -11,6 +11,8 @@ type Monster = {
   readonly bodyType: keyof typeof MONSTER_BODIES;
   readonly name: string;
   readonly flavourText: string;
+  /** The server's signature over the name and the line; sharing hands it back as it came. */
+  readonly signature: string;
   /** What the visitor typed. It stays in this page: it is shown on the card and nowhere else. */
   readonly typed: string;
 };

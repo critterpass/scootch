@@ -135,6 +135,8 @@ export const viTogether = {
   'friends.accepted': 'Hai bạn là bạn bè rồi.',
   'friends.accepting': 'Đang mở link…',
 
+  'share.noPage': 'Con này nở trước khi quái có trang riêng. Nó đi dưới dạng ảnh, không kèm link.',
+  'share.pictureOnly': 'Ảnh đã đi. Con quái này không có trang nên không có link.',
   'haunt.entry': 'Ám một người bạn',
   'haunt.entry.hint': 'Gửi con quái này cho một người bạn kèm lời thách nho nhỏ',
   'haunt.send.title': 'Ám {name} nhé?',

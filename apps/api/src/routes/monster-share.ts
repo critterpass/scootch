@@ -5,9 +5,11 @@ import type { DecideContext } from '../ai/decide';
 import { screenText } from '../ai/screen-input';
 import { languageSchema } from '../contracts';
 import { hashDeviceToken, newDeviceToken } from '../device-auth';
+import { refusal } from '../accounts/ids';
 import { ApiError } from '../errors';
 import { readBody, type RouteDefinition } from '../route';
 import { newShareId, previewPrefix } from '../sharing/shared-monsters';
+import { shareSigningSecret, wordsAreSigned } from '../sharing/signed-words';
 
 const routeId = 'monster.share';
 
@@ -17,6 +19,8 @@ const monsterShareRequestSchema = z.strictObject({
   name: z.string().trim().min(1).max(60),
   flavourText: z.string().trim().min(1).max(160),
   language: languageSchema,
+  /** The signature the maker answered with, for this name, card line, seed and language. */
+  signature: z.string().min(1).max(128).optional(),
   /** Sent only when the visitor left "show what I typed" on. Absent or null: never stored. */
   typed: z.string().trim().min(1).max(280).nullish(),
 });
@@ -38,8 +42,11 @@ export type MonsterShareResponse = z.infer<typeof monsterShareResponseSchema>;
  * language, and the typed line only when the visitor chose to show it. Nothing else from the
  * maker is stored, and a shared monster is kept until it is unshared.
  *
- * Every word that would be public is screened again here, because the request comes from a
- * browser. A text that is not clearly fine, or that no model could screen, is not stored.
+ * The request comes from a browser, so the name and the card line are taken only with the
+ * signature the maker gave when it wrote them, for exactly those words, the seed and the
+ * language; anything else is refused. They are the server's own comedy and are not screened
+ * again. What the visitor typed is: a typed line left showing goes through the care screen, and
+ * one that is not clearly fine, or that no model could screen, is not stored.
  */
 export const monsterShareRoute: RouteDefinition = {
   method: 'POST',
@@ -48,20 +55,35 @@ export const monsterShareRoute: RouteDefinition = {
   handle: async (c) => {
     const request = await readBody(c, monsterShareRequestSchema);
     const typed = request.typed ?? null;
-    const context: DecideContext = { env: c.env, route: routeId, deviceHash: null };
+    const signed = await wordsAreSigned(
+      shareSigningSecret(c.env),
+      {
+        name: request.name,
+        title: '',
+        flavourText: request.flavourText,
+        seed: request.seed,
+        language: request.language,
+      },
+      request.signature,
+    );
+    if (!signed) {
+      throw refusal('words_not_signed', 'A page is made only from words Scootch wrote');
+    }
 
-    let verdict: 'pass' | 'serious' | 'crisis';
-    try {
-      const text = [typed, request.name, request.flavourText].filter((line) => line).join('\n');
-      const screened = await screenText(context, text);
-      // A text that is not a note is not shared either.
-      verdict = screened.verdict === 'reject' ? 'serious' : screened.verdict;
-    } catch (error) {
-      console.error('shared monster not screened', {
-        requestId: c.var.requestId,
-        reason: error instanceof ApiError ? error.code : 'internal',
-      });
-      verdict = 'serious';
+    let verdict: 'pass' | 'serious' | 'crisis' = 'pass';
+    if (typed !== null) {
+      const context: DecideContext = { env: c.env, route: routeId, deviceHash: null };
+      try {
+        const screened = await screenText(context, typed);
+        // A text that is not a note is not shared either.
+        verdict = screened.verdict === 'reject' ? 'serious' : screened.verdict;
+      } catch (error) {
+        console.error('shared monster not screened', {
+          requestId: c.var.requestId,
+          reason: error instanceof ApiError ? error.code : 'internal',
+        });
+        verdict = 'serious';
+      }
     }
     if (verdict !== 'pass') return c.json(monsterShareResponseSchema.parse({ verdict }));
 

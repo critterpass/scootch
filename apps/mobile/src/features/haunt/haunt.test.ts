@@ -18,7 +18,9 @@ import { fakeHttp, refused } from '../table/test/fake-table';
 import {
   catchHaunt,
   hauntToSend,
+  hauntableFriends,
   offersHaunt,
+  offersHauntOnHatch,
   sendProblemOf,
   shooHaunt,
   showsHauntCard,
@@ -53,6 +55,37 @@ describe('offering a haunt', () => {
     const day = { today: { kind: 'task_set' as const }, heavyToday: false };
     const funny = { screen: 'serious' as const, seriousOverridden: true };
     expect(offersHaunt(day, funny, { caughtOn: null })).toBe(false);
+  });
+
+  it('is offered on the hatch screen only to someone signed in with a friend who takes haunts', async () => {
+    const { state, task } = await withTask(pass, passFixture.request.text);
+    const friend = { canBeHaunted: true };
+    expect(offersHauntOnHatch(state, task, state.monster, [friend])).toBe(true);
+    // Nobody to haunt: no friends yet, or none who takes haunts.
+    expect(offersHauntOnHatch(state, task, state.monster, [])).toBe(false);
+    expect(offersHauntOnHatch(state, task, state.monster, [{ canBeHaunted: false }])).toBe(false);
+    // A friend changes nothing for a serious task, a crisis day or a heavy one.
+    const ordinary = { screen: 'pass' as const, seriousOverridden: false };
+    const funny = { screen: 'serious' as const, seriousOverridden: true };
+    const fine = { today: { kind: 'task_set' as const }, heavyToday: false };
+    const crisis = { today: { kind: 'crisis' as const }, heavyToday: false };
+    const wild = { caughtOn: null };
+    expect(offersHauntOnHatch(fine, ordinary, wild, [friend])).toBe(true);
+    expect(offersHauntOnHatch(fine, funny, wild, [friend])).toBe(false);
+    expect(offersHauntOnHatch(crisis, ordinary, wild, [friend])).toBe(false);
+    expect(offersHauntOnHatch({ ...fine, heavyToday: true }, ordinary, wild, [friend])).toBe(false);
+
+    // A phone that is not signed in is refused by the server: it has no friends, and no error.
+    const signedOut = { friends: () => Promise.reject(new Error('unauthorized')) };
+    expect(await hauntableFriends(signedOut)).toEqual([]);
+    const signedIn = {
+      friends: () =>
+        Promise.resolve([
+          { accountId: 'mnopqrstuvwx', displayName: 'Bao', canBeHaunted: true },
+          { accountId: 'abcdefghijkl', displayName: null, canBeHaunted: false },
+        ]),
+    };
+    expect(await hauntableFriends(signedIn)).toMatchObject([{ displayName: 'Bao' }]);
   });
 
   it('is never offered or shown on a crisis day, or a day that held something heavy', () => {

@@ -5,14 +5,23 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { sharedCard } from '../../web/tests/shared-fixtures';
 import { createApp } from '../src/app';
 import * as routes from '../src/routes/index.generated';
+import { signWords } from '../src/sharing/signed-words';
 
 import { connectionDrops, providers } from './ai-providers';
-import { call, freshIp, registerDevice, wireErrorOf } from './support';
+import { call, freshIp, registerDevice, shareSecret, wireErrorOf } from './support';
 import { jevDecides } from './task-create-support';
 
 const taskLine = 'email the dentist about the thing nobody should read';
 const card = { ...sharedCard.card, taskLine };
 const ordinary = { pass: 0.99, serious: 0.01, crisis: 0 };
+/** What the task call gave with the card's words when it wrote them. */
+const signature = await signWords(shareSecret, {
+  name: card.name,
+  title: card.title,
+  flavourText: card.flavourText,
+  seed: card.monster.seed,
+  language: 'en',
+});
 
 type Sent = { method?: string; body?: unknown; unshareToken?: string };
 
@@ -37,7 +46,12 @@ async function asPhone(
       },
       body: body === undefined ? null : JSON.stringify(body),
     }),
-    { ...env, TYPESAFE_API_KEY: 'jev-test-key', DEEPSEEK_API_KEY: 'deepseek-test-key' },
+    {
+      ...env,
+      TYPESAFE_API_KEY: 'jev-test-key',
+      DEEPSEEK_API_KEY: 'deepseek-test-key',
+      SHARE_SIGNING_SECRET: shareSecret,
+    },
     ctx,
   );
   await waitOnExecutionContext(ctx);
@@ -50,6 +64,7 @@ const post = (kind: 'card' | 'story', shown: Record<string, unknown> = card, scr
   language: 'en',
   card: shown,
   screen,
+  signature,
 });
 
 async function stored(table = 'shared_cards'): Promise<Record<string, unknown>[]> {
@@ -96,8 +111,12 @@ describe('POST /v1/card-share', () => {
     for (const value of devices.flatMap((row) => Object.values(row))) {
       if (typeof value === 'string' && value.length >= 16) expect(kept).not.toContain(value);
     }
-    // Every public word went through the screen.
+    // What the person typed went through the screen; the server's own words did not.
+    expect(doubles.sent.jev.length).toBeGreaterThan(0);
     expect(JSON.stringify(doubles.sent.jev[0])).toContain(taskLine);
+    for (const own of [card.name, card.title, card.flavourText]) {
+      expect(JSON.stringify(doubles.sent.jev)).not.toContain(own);
+    }
 
     const page = await call(`/v1/shared-card/${id}`);
     expect(page.status).toBe(200);
@@ -115,9 +134,13 @@ describe('POST /v1/card-share', () => {
   it('keeps no task text when the sharer hid it, in the row or on the page', async () => {
     const device = await registerDevice();
     const hidden = { ...card, taskLine: null };
-    const { response } = await asPhone(device, '/v1/card-share', { body: post('card', hidden) });
+    const { response, doubles } = await asPhone(device, '/v1/card-share', {
+      body: post('card', hidden),
+    });
 
     const { id } = await response.json<{ id: string }>();
+    // Nothing the person typed is on the page, so the screen is not asked at all.
+    expect(doubles.sent.jev).toEqual([]);
     expect(JSON.stringify(await stored())).not.toContain('dentist about');
     const page = await (await call(`/v1/shared-card/${id}`)).text();
     expect(page).not.toContain('dentist about');
@@ -130,7 +153,7 @@ describe('POST /v1/card-share', () => {
 
     const { id } = await response.json<{ id: string }>();
     expect(JSON.stringify(await stored())).not.toContain('dentist about');
-    expect(JSON.stringify(doubles.sent.jev)).not.toContain('dentist about');
+    expect(doubles.sent.jev).toEqual([]);
     const page = await call(`/v1/shared-story/${id}`);
     expect(await page.json()).toMatchObject({ kind: 'story', card: { taskLine: null } });
     expect((await call(`/v1/shared-card/${id}`)).status).toBe(404);
@@ -233,6 +256,13 @@ describe('DELETE /v1/card-share/:id', () => {
 });
 
 describe('POST /v1/monster-page/:id/caught', () => {
+  const made = {
+    seed: 'dentist',
+    name: 'Molar, Keeper of Thursday',
+    flavourText: 'Lives in the inbox. Pays no rent.',
+    language: 'en',
+  } as const;
+
   async function sharedMonster() {
     const doubles = providers({ jev: jevDecides(ordinary), deepseek: connectionDrops });
     vi.stubGlobal('fetch', doubles.fetch);
@@ -242,14 +272,17 @@ describe('POST /v1/monster-page/:id/caught', () => {
         method: 'POST',
         headers: { 'CF-Connecting-IP': freshIp(), 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          seed: 'dentist',
+          ...made,
           bodyType: 'tooth',
-          name: 'Molar, Keeper of Thursday',
-          flavourText: 'Lives in the inbox. Pays no rent.',
-          language: 'en',
+          signature: await signWords(shareSecret, { ...made, title: '' }),
         }),
       }),
-      { ...env, TYPESAFE_API_KEY: 'jev-test-key', DEEPSEEK_API_KEY: 'deepseek-test-key' },
+      {
+        ...env,
+        TYPESAFE_API_KEY: 'jev-test-key',
+        DEEPSEEK_API_KEY: 'deepseek-test-key',
+        SHARE_SIGNING_SECRET: shareSecret,
+      },
       ctx,
     );
     await waitOnExecutionContext(ctx);

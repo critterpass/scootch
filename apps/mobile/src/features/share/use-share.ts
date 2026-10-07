@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import type { CardData, TaskRow, TodayState } from '@scootch/domain';
+import type { CardData, SignedWords, TaskRow, TodayState } from '@scootch/domain';
 import type { Language } from '@scootch/i18n';
 
 import { siteBaseUrl } from '../../api/api-config';
@@ -9,6 +9,7 @@ import { useTogether } from '../../state/together-context';
 import { keychainKeptShares } from './native-kept-shares';
 import { nativeShareDevice } from './native-share-device';
 import {
+  pageOffered,
   saveCatch,
   shareCatch,
   sharedPageOf,
@@ -22,6 +23,8 @@ import { shareOfferedOn } from './share-rules';
 export interface ShareTarget {
   readonly task: Pick<TaskRow, 'id' | 'screen' | 'sharePrivate'> | null;
   readonly card: CardData;
+  /** The signature stored with the monster's words; `null` when it has none. */
+  readonly signed: SignedWords | null;
   readonly kind: 'story' | 'card';
 }
 
@@ -73,11 +76,13 @@ export function useShare(language: Language, today: Pick<TodayState, 'kind'>): S
   const panel = useMemo(() => {
     if (!target || crisis) return null;
     const share: CatchShare = { ...target, hideTask, language };
+    const page = pageOffered(share);
     /** One call to the server at a time; a tap while one is out does nothing. */
     const once = (work: () => Promise<void>) => {
       if (busy.current) return;
       busy.current = true;
-      setNotice('sending');
+      // A picture with no page sends nothing, so nothing is said to be going up.
+      setNotice(page ? 'sending' : null);
       void work()
         .catch(() => setNotice('failed'))
         .finally(() => {
@@ -92,7 +97,9 @@ export function useShare(language: Language, today: Pick<TodayState, 'kind'>): S
           // Nothing reaches the sheet, and nothing reads as shared, unless the page went up.
           const result = await shareCatch(nativeShareDevice, pages, share);
           setPageUp(result === 'shared');
-          setNotice(result === 'shared' ? 'shared' : 'failed');
+          setNotice(
+            result === 'shared' ? 'shared' : result === 'shared_picture' ? 'pictureOnly' : 'failed',
+          );
         }),
       unshare: () =>
         once(async () => {
@@ -107,7 +114,15 @@ export function useShare(language: Language, today: Pick<TodayState, 'kind'>): S
       },
     };
     return {
-      model: { card: target.card, kind: target.kind, language, hideTask, notice, pageUp },
+      model: {
+        card: target.card,
+        kind: target.kind,
+        language,
+        hideTask,
+        notice,
+        pageUp,
+        pageOffered: page,
+      },
       actions,
     };
   }, [target, hideTask, notice, pageUp, language, pages, crisis]);

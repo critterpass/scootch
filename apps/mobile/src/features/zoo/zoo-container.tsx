@@ -65,7 +65,7 @@ export function ZooContainer() {
             .catch(() => undefined);
         },
         shareCard: () => {
-          if (card) share.open({ task, card, kind: 'card' });
+          if (card) share.open({ task, card, signed: shown?.signed ?? null, kind: 'card' });
         },
       }}
     />

@@ -10,6 +10,7 @@ import {
   pickAnswers,
   pickOutputOf,
   toolCalls,
+  withoutSignature,
   writerAnswers,
   writerCalls,
 } from './task-create-support';
@@ -25,7 +26,7 @@ function models(writes: readonly unknown[], picks: readonly unknown[] = [picked]
 
 async function bodyOf(response: Response): Promise<TaskCreateResponse> {
   expect(response.status).toBe(200);
-  return taskCreateResponseSchema.parse(await response.json());
+  return withoutSignature(taskCreateResponseSchema.parse(await response.json()));
 }
 
 function promptOf(sent: Record<string, unknown> | undefined): string {

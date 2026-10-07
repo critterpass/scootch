@@ -9,7 +9,7 @@ import { createApp } from '../src/app';
 import * as routes from '../src/routes/index.generated';
 
 import { connectionDrops, providers, timesOut, type Reply } from './ai-providers';
-import { freshIp, wireErrorOf } from './support';
+import { freshIp, shareSecret, wireErrorOf } from './support';
 import { jevDecides, passFixture, writerAnswers, writerCalls } from './task-create-support';
 
 const secretText = 'ring the landlord about the boiler nobody else should read';
@@ -26,6 +26,7 @@ const monsterSchema = z.strictObject({
   bodyType: z.enum(MONSTER_BODY_TYPE_IDS),
   name: z.string().min(1).max(60),
   flavourText: z.string().min(1).max(160),
+  signature: z.string().min(1).max(128),
 });
 
 /** Sends one maker request with both provider keys set and the providers replaced. */
@@ -43,7 +44,12 @@ async function make(
       headers: { 'CF-Connecting-IP': ip, 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     }),
-    { ...env, TYPESAFE_API_KEY: 'jev-test-key', DEEPSEEK_API_KEY: 'deepseek-test-key' },
+    {
+      ...env,
+      TYPESAFE_API_KEY: 'jev-test-key',
+      DEEPSEEK_API_KEY: 'deepseek-test-key',
+      SHARE_SIGNING_SECRET: shareSecret,
+    },
     ctx,
   );
   await waitOnExecutionContext(ctx);

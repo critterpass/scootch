@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 import type { Attitude, Energy, Id, IsoDate } from '@scootch/domain';
 import type { Language } from '@scootch/i18n';
 
@@ -43,6 +45,8 @@ export interface StageEnv {
   readonly today: IsoDate;
   /** The reveal has played for this one thing. */
   readonly revealed: boolean;
+  /** A quiet control under the hatched monster's words: "Haunt a friend", when it is offered. */
+  readonly hatchExtra?: ReactNode;
   readonly actions: StageActions;
 }
 
@@ -217,13 +221,17 @@ export function stageShown(stage: Drawable, env: StageEnv): StageDrawn {
         <HatchFigure mood={shrunk ? 'pleased' : 'waiting'} attitude={attitude} monster={monster} />
       ),
       body: (
-        <Headed
-          label={t(shrunk ? 'hatch.shrunk' : 'hatch.label')}
-          // Shrunk, the smaller task is the news; hatched, the monster's name is.
-          heading={shrunk ? task.text : (monster?.name ?? null)}
-          said={monster?.flavourText ?? null}
-          testID="hatch"
-        />
+        <Stack>
+          <Headed
+            label={t(shrunk ? 'hatch.shrunk' : 'hatch.label')}
+            // Shrunk, the smaller task is the news; hatched, the monster's name is.
+            heading={shrunk ? task.text : (monster?.name ?? null)}
+            said={monster?.flavourText ?? null}
+            testID="hatch"
+          />
+          {/* Only a monster that has hatched can haunt anyone. */}
+          {monster ? env.hatchExtra : null}
+        </Stack>
       ),
       footer: (
         <ChoiceDock

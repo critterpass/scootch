@@ -8,6 +8,6 @@ export function monstersRepository(db: SqlDatabase): Table<MonsterRow> {
     name: 'monsters',
     schema: monsterRowSchema,
     key: 'id',
-    json: ['spec'],
+    json: ['spec', 'signed'],
   });
 }

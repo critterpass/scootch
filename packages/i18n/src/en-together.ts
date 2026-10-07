@@ -136,6 +136,9 @@ export const enTogether = {
   'friends.accepted': 'You’re friends now.',
   'friends.accepting': 'Opening the link…',
 
+  'share.noPage':
+    'This one hatched before monsters got pages of their own. It goes out as a picture, with no link.',
+  'share.pictureOnly': 'The picture went out. This monster has no page, so there is no link.',
   'haunt.entry': 'Haunt a friend',
   'haunt.entry.hint': 'Sends this monster to a friend with a tiny dare',
   'haunt.send.title': 'Haunt {name}?',

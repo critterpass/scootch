@@ -3,6 +3,7 @@ import { z } from 'zod';
 import {
   seriousLinePackSchema,
   sessionLinePackSchema,
+  signedWordsSchema,
   dayNotificationSchema,
 } from './ai-task-call';
 import { cardFinishSchema, cardRaritySchema, monsterSpecSchema, workModeSchema } from './art';
@@ -123,6 +124,12 @@ export const monsterRowSchema = z.object({
   name: z.string().min(1).max(60),
   title: z.string().min(1).max(40),
   flavourText: z.string().min(1).max(160),
+  /**
+   * The server's signature over the three words above, kept as it came. Null or absent on a
+   * monster the phone named itself and on one hatched before words were signed: its picture can
+   * still be shared, but no public page is made for it.
+   */
+  signed: signedWordsSchema.nullable().optional(),
   hatchedAt: isoDateTimeSchema,
   caughtAt: isoDateTimeSchema.nullable(),
   /** Derived at the catch: the user's local day of `caughtAt`. */

@@ -94,7 +94,9 @@ export function monsterFor(
   // The body comes from the task's meaning; with no label, the task's own id picks one.
   const ids = MONSTER_BODY_TYPE_IDS;
   const bodyType = labels.bodyType ?? ids[seedOf(task) % ids.length] ?? 'slime';
-  const spec = specFromSeed(bodyType, task.id);
+  // Words the server signed are signed for a seed of its choosing, and the monster is drawn from
+  // that one; a monster the phone names itself is drawn from the task's own id.
+  const spec = specFromSeed(bodyType, copy.signed?.seed ?? task.id);
   return {
     id: ctx.deps.nextId(),
     taskId: task.id,

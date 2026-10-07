@@ -5,6 +5,8 @@ export type Shareable = {
   readonly bodyType: keyof typeof MONSTER_BODIES;
   readonly name: string;
   readonly flavourText: string;
+  /** The maker's signature for this name, line and seed. A page is made only with it. */
+  readonly signature: string;
   /** Null when the visitor hid what they typed: it is then never sent. */
   readonly typed: string | null;
 };
@@ -47,6 +49,7 @@ export async function shareMonster(monster: Shareable, language: string): Promis
         name: monster.name,
         flavourText: monster.flavourText,
         language,
+        signature: monster.signature,
         ...(monster.typed === null ? {} : { typed: monster.typed }),
       }),
     });

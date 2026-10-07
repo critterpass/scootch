@@ -10,6 +10,7 @@ import { createShareApi } from '../../api/share-api';
 import { memoryKeptShares, monsterPageKey, type KeptShare } from './kept-shares';
 import {
   cardShareRequest,
+  pageOffered,
   saveCatch,
   shareCatch,
   sharedPageOf,
@@ -24,6 +25,12 @@ import { shareOffered, shareOfferedOn } from './share-rules';
 
 const task = fixtureTask(0);
 const card = cardDataFor(fixtureMonster(0), task);
+/** What the task call gave with the monster's words, as the phone stored it. */
+const signed = {
+  seed: card.monster.seed,
+  language: 'en',
+  signature: 'signed-by-the-server',
+} as const;
 
 /** A recorder standing in for the phone: what was drawn, written, shared and saved. */
 function recorder(photos: 'saved' | 'refused' = 'saved') {
@@ -100,7 +107,7 @@ describe('a shared picture', () => {
 });
 
 describe('sharing a catch', () => {
-  const share = { task, card, kind: 'story', hideTask: true, language: 'en' } as const;
+  const share = { task, card, signed, kind: 'story', hideTask: true, language: 'en' } as const;
 
   it('draws the picture and opens the share sheet', async () => {
     const { calls, device } = recorder();
@@ -111,19 +118,25 @@ describe('sharing a catch', () => {
   });
 
   it('posts the card as its page draws it, and the task line only on a card that shows it', () => {
-    const shown = cardShareRequest({ ...share, kind: 'card', hideTask: false });
-    expect(shown).toEqual({ kind: 'card', language: 'en', card, screen: 'pass' });
+    const shown = cardShareRequest({ ...share, kind: 'card', hideTask: false }, signed);
+    expect(shown).toEqual({
+      kind: 'card',
+      language: 'en',
+      card,
+      screen: 'pass',
+      signature: signed.signature,
+    });
     expect(shown.card.taskLine).toBe(card.taskLine);
 
     const posts = [
-      cardShareRequest({ ...share, kind: 'card', hideTask: true }),
+      cardShareRequest({ ...share, kind: 'card', hideTask: true }, signed),
       // A story's page never shows the task line, hidden or not.
-      cardShareRequest({ ...share, kind: 'story', hideTask: false }),
-      cardShareRequest({ ...share, kind: 'story', hideTask: true }),
+      cardShareRequest({ ...share, kind: 'story', hideTask: false }, signed),
+      cardShareRequest({ ...share, kind: 'story', hideTask: true }, signed),
     ];
     for (const post of posts) {
       expect(post.card).toEqual({ ...card, taskLine: null });
-      expect(Object.keys(post).sort()).toEqual(['card', 'kind', 'language', 'screen']);
+      expect(Object.keys(post).sort()).toEqual(['card', 'kind', 'language', 'screen', 'signature']);
       for (const word of task.text.split(' ').filter((one) => one.length > 3)) {
         expect(JSON.stringify(post)).not.toContain(word);
       }
@@ -135,7 +148,8 @@ describe('sharing a catch', () => {
   it('keeps the unshare token, shares the same page again, and takes it down with the token', async () => {
     const { calls, device } = recorder();
     const { pages, sent } = website();
-    const cardShare = { ...share, kind: 'card', language: 'vi' } as const;
+    // The page is in the language the words were written and signed in.
+    const cardShare = { ...share, kind: 'card', signed: { ...signed, language: 'vi' } } as const;
 
     await shareCatch(device, pages, cardShare);
     await shareCatch(device, pages, cardShare);
@@ -155,6 +169,40 @@ describe('sharing a catch', () => {
     });
     expect(await pages.kept.read()).toEqual([]);
     expect(await unshareCatch(pages, cardShare)).toBe('nothing_up');
+  });
+
+  it('sends the stored signature and its language when a page goes up', async () => {
+    const { device } = recorder();
+    const { pages, sent } = website();
+    const written = { ...signed, language: 'vi' } as const;
+
+    expect(pageOffered({ card, signed: written })).toBe(true);
+    expect(await shareCatch(device, pages, { ...share, signed: written })).toBe('shared');
+    expect(sent).toHaveLength(1);
+    expect(sent[0]?.body).toMatchObject({
+      kind: 'story',
+      language: 'vi',
+      signature: signed.signature,
+      card: { name: card.name, title: card.title, flavourText: card.flavourText, taskLine: null },
+    });
+  });
+
+  it('shares only the picture, and says so, for a monster with no signature', async () => {
+    // Hatched before words were signed, or signed for another seed than the one it is drawn from.
+    for (const none of [null, { ...signed, seed: 'another-seed' }]) {
+      const { calls, device } = recorder();
+      const { pages, sent } = website();
+      const unsigned = { ...share, signed: none };
+
+      expect(pageOffered(unsigned)).toBe(false);
+      expect(await shareCatch(device, pages, unsigned)).toBe('shared_picture');
+      // The picture goes to the sheet with no link, and nothing is posted or kept.
+      expect(calls.sheets).toEqual(['image/png file:///scootch-story-1.png']);
+      expect(sent).toEqual([]);
+      expect(await pages.kept.read()).toEqual([]);
+      expect(await sharedPageOf(pages, unsigned)).toBeNull();
+      expect(await saveCatch(device, unsigned)).toBe('saved');
+    }
   });
 
   it('takes the old page down before a page that shows something else goes up', async () => {

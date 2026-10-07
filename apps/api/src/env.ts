@@ -12,6 +12,8 @@ export const secretNames = [
   'TYPESAFE_API_KEY',
   // Signs task continuations. Absent, the key is derived from DEEPSEEK_API_KEY.
   'TASK_CONTINUATION_SECRET',
+  // Signs the monster words the server writes, for sharing. Absent, derived from DEEPSEEK_API_KEY.
+  'SHARE_SIGNING_SECRET',
   'TELEGRAM_BOT_TOKEN',
   'TELEGRAM_CHAT_ID',
   'TELEGRAM_WEBHOOK_SECRET',
