@@ -13,6 +13,13 @@ appId: app.scootch.dev
 # Finishing with two taps is a setting: Settings, then "Finish with".
 - tapOn:
     id: 'more-button'
+- runFlow:
+    when:
+      notVisible:
+        id: 'settings'
+    commands:
+      - tapOn:
+          id: 'more-button'
 - extendedWaitUntil:
     visible:
       id: 'settings'
@@ -63,7 +70,7 @@ appId: app.scootch.dev
     timeout: 30000
 - assertVisible:
     id: 'session-minutes'
-- takeScreenshot: fresh-03-session-running
+- takeScreenshot: session-running--en-light-default
 # Park a thought: one tap, a few words, and back to work.
 - tapOn:
     id: 'session-park'

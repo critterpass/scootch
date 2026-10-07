@@ -1,0 +1,47 @@
+appId: app.scootch.dev
+---
+# Shared by the tour flows, which start each from a clean install: first launch is said hello to
+# and passed, then the registry is opened the way a developer opens it, through the more button.
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: 'launch-hello-next'
+    timeout: 90000
+- tapOn:
+    id: 'launch-hello-next'
+- tapOn:
+    id: 'launch-attitude-confirm'
+- tapOn:
+    id: 'launch-permission-skip'
+- tapOn:
+    id: 'launch-permission-skip'
+- extendedWaitUntil:
+    visible:
+      id: 'more-button'
+    timeout: 15000
+- tapOn:
+    id: 'more-button'
+- runFlow:
+    when:
+      notVisible:
+        id: 'settings'
+    commands:
+      - tapOn:
+          id: 'more-button'
+- scrollUntilVisible:
+    element:
+      id: 'developer-tools'
+    direction: DOWN
+- tapOn:
+    id: 'developer-tools'
+- extendedWaitUntil:
+    visible:
+      id: 'dev-open-registry'
+    timeout: 15000
+- tapOn:
+    id: 'dev-open-registry'
+- extendedWaitUntil:
+    visible:
+      id: 'registry-count'
+    timeout: 15000

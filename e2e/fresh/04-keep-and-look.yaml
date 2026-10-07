@@ -59,7 +59,7 @@ appId: app.scootch.dev
     timeout: 15000
 - assertVisible:
     id: 'zoo-open-binder'
-- takeScreenshot: fresh-04-zoo
+- takeScreenshot: zoo-binder--en-light-default
 - tapOn:
     id: 'zoo-tile-0'
 - extendedWaitUntil:

@@ -12,7 +12,7 @@ appId: app.scootch.dev
     timeout: 90000
 - assertVisible:
     id: 'one-sentence'
-- takeScreenshot: fresh-01-hello
+- takeScreenshot: launch-hello--en-light-default
 - tapOn:
     id: 'launch-hello-next'
 - extendedWaitUntil:
@@ -21,14 +21,14 @@ appId: app.scootch.dev
     timeout: 15000
 - assertVisible:
     id: 'launch-attitude-cheeky'
-- takeScreenshot: fresh-01-attitude
+- takeScreenshot: launch-attitude--en-light-default
 - tapOn:
     id: 'launch-attitude-confirm'
 - extendedWaitUntil:
     visible:
       id: 'launch-permission-skip'
     timeout: 15000
-- takeScreenshot: fresh-01-permissions
+- takeScreenshot: launch-permissions--en-light-default
 # Notifications, then the microphone: each skipped.
 - tapOn:
     id: 'launch-permission-skip'
@@ -44,4 +44,4 @@ appId: app.scootch.dev
     id: 'composer-talk'
 - assertNotVisible:
     id: 'launch-hello-next'
-- takeScreenshot: fresh-01-first-one-thing
+- takeScreenshot: launch-first-one-thing--en-light-default

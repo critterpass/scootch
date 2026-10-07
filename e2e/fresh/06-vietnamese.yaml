@@ -10,6 +10,13 @@ appId: app.scootch.dev
     timeout: 90000
 - tapOn:
     id: 'more-button'
+- runFlow:
+    when:
+      notVisible:
+        id: 'settings'
+    commands:
+      - tapOn:
+          id: 'more-button'
 - extendedWaitUntil:
     visible:
       id: 'settings'
@@ -30,7 +37,7 @@ appId: app.scootch.dev
     element:
       id: 'settings-attitude-soft'
     direction: UP
-- takeScreenshot: fresh-06-settings-vietnamese
+- takeScreenshot: settings-page--vi-light-default
 - scrollUntilVisible:
     element:
       id: 'settings-privacy'
