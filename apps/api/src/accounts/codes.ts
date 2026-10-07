@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import type { ClassifyCodeResponse } from '../contracts';
 
+import { oldestWaiting, stillWaiting } from './haunt-reads';
 import { hashFor, inviteCodePattern, tableIdPattern } from './ids';
 
 /** The longest thing a paste field sends: a link with room to spare. */
@@ -45,8 +46,8 @@ export async function classifyCode(
 
   if (tableIdPattern.test(code)) {
     const haunt = await db
-      .prepare(`SELECT 1 FROM haunts WHERE id = ? AND state = 'waiting'`)
-      .bind(code)
+      .prepare(`SELECT 1 FROM haunts h WHERE h.id = ? AND ${stillWaiting}`)
+      .bind(code, oldestWaiting(now))
       .first();
     return haunt === null ? unknown : { kind: 'haunt', code };
   }

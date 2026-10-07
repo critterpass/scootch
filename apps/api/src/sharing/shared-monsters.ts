@@ -18,6 +18,12 @@ export const sharedMonsterSchema = z.strictObject({
   caughtAt: z.string().nullable(),
   catchMinutes: z.number().int().nullable(),
   sharedAt: z.string(),
+  /**
+   * The server's signature over the name, the card line (with no title), the seed and the
+   * language: what the app keeps with the monster so it can give it a card page later. Absent
+   * when no signing secret is set.
+   */
+  signature: z.string().optional(),
 });
 export type SharedMonster = z.infer<typeof sharedMonsterSchema>;
 

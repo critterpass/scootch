@@ -205,6 +205,16 @@
   }
 }
 
+/* The hand-off page's QR code: white behind it in either scheme, so any camera reads it. */
+.qr {
+  display: block;
+  width: min(100%, 13.75rem);
+  height: auto;
+  margin: 1.5rem auto 1rem;
+  border-radius: 1rem;
+  background: #fff;
+}
+
 /* The way into the app: the button, then the code to paste by hand. */
 .paste-code {
   margin-top: 1.25rem;

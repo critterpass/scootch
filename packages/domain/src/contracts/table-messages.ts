@@ -67,6 +67,12 @@ export const tableWorkModeMessageSchema = z.strictObject({
   hidden: z.boolean(),
 });
 
+/**
+ * The sender has finished their thing and is staying a while. The seat shows `done` until the
+ * next session starts.
+ */
+export const tableDoneMessageSchema = z.strictObject({ type: z.literal('done') });
+
 /** Give up the seat at once; the server closes with `TABLE_CLOSE_CODES.left`. */
 export const tableLeaveMessageSchema = z.object({ type: z.literal('leave') });
 
@@ -75,11 +81,15 @@ export const tableClientMessageSchema = z.discriminatedUnion('type', [
   tableNudgeMessageSchema,
   tableLabelMessageSchema,
   tableWorkModeMessageSchema,
+  tableDoneMessageSchema,
   tableLeaveMessageSchema,
 ]);
 export type TableClientMessage = z.infer<typeof tableClientMessageSchema>;
 
 // Server to client.
+
+export const tableSeatStatusSchema = z.enum(['here', 'working', 'away']);
+export type TableSeatStatus = z.infer<typeof tableSeatStatusSchema>;
 
 /** A seat belongs to a person, not a connection, so it survives a dropped socket. */
 export const tableSeatSchema = z.object({
@@ -93,7 +103,20 @@ export const tableSeatSchema = z.object({
   /** The person's display name, when the server sends one. */
   name: z.string().min(1).max(TABLE_NAME_MAX_LENGTH).optional(),
   online: z.boolean(),
+  /**
+   * On another person's seat: the nudges the receiver may still send that person this session
+   * (three per person). On the receiver's own seat: the most they may still send anyone.
+   */
   nudgesLeft: z.number().int().min(0).max(TABLE_MAX_NUDGES),
+  /**
+   * `here` with a connection open. `working` with none while the table's session runs for
+   * someone who was in it: a locked phone, not an empty chair. `away` otherwise.
+   */
+  status: tableSeatStatusSchema.optional(),
+  /** They said they have finished, this session. */
+  done: z.boolean().optional(),
+  /** Epoch milliseconds when they sat down. */
+  seatedAt: z.number().int().optional(),
 });
 export type TableSeat = z.infer<typeof tableSeatSchema>;
 
@@ -111,6 +134,24 @@ export const tableStateMessageSchema = z.object({
   minutes: sessionMinutesSchema.nullable(),
   /** The server's clock in epoch milliseconds, so the phone can correct its countdown. */
   serverNow: z.number().int(),
+  /** The table's own id, so a phone can keep it and come back after a relaunch. */
+  tableId: z.string().min(1).max(64).optional(),
+  /**
+   * People who left in the last few minutes, oldest first, so the table can say "finished and
+   * left" after the seat itself has gone. Someone whose seat was taken away is never listed.
+   */
+  left: z
+    .array(
+      z.object({
+        userId: tableUserIdSchema,
+        name: z.string().min(1).max(TABLE_NAME_MAX_LENGTH).optional(),
+        /** They had said they were finished. */
+        done: z.boolean(),
+        at: z.number().int(),
+      }),
+    )
+    .max(TABLE_MAX_SEATS)
+    .optional(),
 });
 export type TableStateMessage = z.infer<typeof tableStateMessageSchema>;
 
@@ -124,7 +165,13 @@ export const tableNudgedMessageSchema = z.object({
 export const tableNudgeSentMessageSchema = z.object({
   type: z.literal('nudge_sent'),
   to: tableUserIdSchema,
+  /** What the sender may still send this person. */
   nudgesLeft: z.number().int().min(0).max(TABLE_MAX_NUDGES),
+  /**
+   * False when the nudge could reach nobody (the person has no connection and no push could be
+   * sent): it was then not counted.
+   */
+  delivered: z.boolean().optional(),
 });
 
 /** The timer ran out. A `state` with `endsAt: null` follows. */

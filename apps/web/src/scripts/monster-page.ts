@@ -1,5 +1,6 @@
 import { buildMonster, type MONSTER_BODIES, specFromSeed, toSvg } from '@scootch/art';
 
+import { getPath } from './get-page';
 import { sharedFromHere, unshareMonster } from './monster-sharing';
 import {
   dateLocale,
@@ -104,6 +105,10 @@ export async function startMonsterPage(root: HTMLElement): Promise<void> {
   // A caught monster cannot be caught twice: the way into the app is then just the app.
   const catchIt = root.querySelector<HTMLElement>('[data-catch]');
   if (catchIt && caught) catchIt.textContent = lines['getScootch'] ?? '';
+  // A wild one is carried into the app: the hand-off page takes its id.
+  if (catchIt instanceof HTMLAnchorElement && !caught) {
+    catchIt.href = getPath(monster.id, language);
+  }
 
   const waitlist = root.querySelector<HTMLElement>('[data-waitlist]');
   if (waitlist) {
