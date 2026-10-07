@@ -260,6 +260,11 @@ Domains, In-App Purchase, Siri and App Intents, microphone and speech
 recognition, and the widget, Live Activity, control, notification-service and
 App Clip targets.
 
+Declared in batch two (8 Oct 2026), for the camera: the camera permission,
+`expo-camera` (stills only), `expo-image-manipulator`, and the local
+`scootch-reading` module, which reads words and finds things in a photo with
+Apple's Vision on the phone.
+
 ## 5. Ops: a Telegram bot
 
 There is no admin dashboard. One Worker route receives Telegram updates, and

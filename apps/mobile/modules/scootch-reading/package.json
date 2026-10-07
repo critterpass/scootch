@@ -1,0 +1,9 @@
+{
+  "name": "scootch-reading",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Reads a photo on the phone with Apple's Vision: the words on it with their boxes, and the separate things in it with their names.",
+  "main": "index.ts",
+  "types": "index.ts",
+  "license": "UNLICENSED"
+}

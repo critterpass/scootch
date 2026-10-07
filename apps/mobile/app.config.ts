@@ -61,14 +61,16 @@ const appVariant = resolveVariant();
 const variant = VARIANTS[appVariant];
 
 /**
- * What iOS shows when it asks for the microphone, for speech recognition and to add a picture to
- * Photos, per language.
+ * What iOS shows when it asks for the microphone, for speech recognition, for the camera and to add
+ * a picture to Photos, per language.
  */
 const PERMISSION_STRINGS = {
   en: {
     NSMicrophoneUsageDescription: 'Scootch uses the microphone so you can talk instead of type.',
     NSSpeechRecognitionUsageDescription:
       'Scootch turns what you say into text so you do not have to type.',
+    NSCameraUsageDescription:
+      'Scootch looks at a photo you take of the mess to find one place to start.',
     NSPhotoLibraryAddUsageDescription: 'Scootch saves a card to your photos when you tap Save.',
     // Apple asks for this whenever a linked library can read photos. Scootch never does.
     NSPhotoLibraryUsageDescription:
@@ -78,6 +80,7 @@ const PERMISSION_STRINGS = {
     NSMicrophoneUsageDescription: 'Scootch dùng micro để bạn có thể nói thay vì gõ.',
     NSSpeechRecognitionUsageDescription:
       'Scootch chuyển lời bạn nói thành chữ để bạn không phải gõ.',
+    NSCameraUsageDescription: 'Scootch xem tấm ảnh bạn chụp đống bừa bộn để tìm một chỗ bắt đầu.',
     NSPhotoLibraryAddUsageDescription: 'Scootch lưu thẻ vào ảnh của bạn khi bạn chạm Lưu.',
     NSPhotoLibraryUsageDescription:
       'Scootch chỉ thêm những thẻ bạn lưu vào ảnh. Scootch không bao giờ xem các ảnh khác.',
@@ -194,6 +197,17 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
     [
+      'expo-camera',
+      {
+        // Stills only: the camera never records sound or video, and reads no barcodes. The
+        // microphone string stays the one speech recognition shows.
+        cameraPermission: PERMISSION_STRINGS.en.NSCameraUsageDescription,
+        microphonePermission: PERMISSION_STRINGS.en.NSMicrophoneUsageDescription,
+        recordAudioAndroid: false,
+        barcodeScannerEnabled: false,
+      },
+    ],
+    [
       'expo-media-library',
       {
         // Saving a card only ever adds a picture and the app never reads the photo library. The
@@ -220,7 +234,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     // use; the key-value store entitlement is set above instead), @shopify/react-native-skia,
     // react-native-reanimated, react-native-worklets, react-native-gesture-handler, expo-font,
     // expo-sharing, expo-file-system, expo-clipboard, expo-crypto, expo-application, expo-device,
-    // expo-glass-effect, @expo/ui and the local modules/scootch-live-activity.
+    // expo-glass-effect, @expo/ui, expo-image-manipulator and the local modules/scootch-live-activity
+    // and modules/scootch-reading.
   ],
   experiments: {
     typedRoutes: true,

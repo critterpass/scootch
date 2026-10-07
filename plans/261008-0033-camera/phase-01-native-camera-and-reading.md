@@ -48,9 +48,10 @@ Leave behind its barcode reader, document scanner and Android half.
   each crop. Also returns the photo's brightness, so the app can say it is too
   dark. Zones are not native: the rules in phase 02 split the frame from
   these boxes.
-- Test: Swift tests on three bundled photos (a desk, a room, an empty table):
-  boxes inside the frame, at least one label each, nothing found on the empty
-  table.
+- Test: Swift tests on pictures drawn in the test (no real photos are in the
+  repository): the box of a mask, nothing found on an empty table, light
+  measured, every box inside the frame. Real desks and rooms are checked on a
+  phone.
 - Status: not started
 
 ### 4. Build and record

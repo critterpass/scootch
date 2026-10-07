@@ -119,6 +119,8 @@ jobs:
         with: { node-version: 24, cache: pnpm }
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec tsx tools/scripts/check-expo-prebuilds.ts
+      # The on-device reader runs on the Mac as it does on a phone: the same Vision requests.
+      - run: swift test --package-path apps/mobile/modules/scootch-reading/ios
 
   # This repository is public and a squash merge copies the pull request's title and body into
   # history, so neither they nor the commits may carry a session link or an attribution line.
