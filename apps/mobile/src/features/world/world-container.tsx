@@ -80,9 +80,9 @@ export function WorldContainer() {
         heavy: heavyToday,
       }}
       actions={{
-        close: () => router.replace('/'),
-        openZoo: () => router.replace('/zoo'),
-        openRecord: () => router.replace('/record'),
+        close: () => router.dismissTo('/'),
+        openZoo: () => router.push('/zoo'),
+        openRecord: () => router.push('/record'),
         openMonster: setOpened,
       }}
     />
