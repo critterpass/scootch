@@ -4,6 +4,7 @@ import { AccessibilityInfo, StyleSheet, View } from 'react-native';
 import type { StringKey } from '@scootch/i18n';
 import { spacing } from '@scootch/tokens';
 
+import { useCue } from '../../../state/day-store-provider';
 import type { HoldCaption } from '../hold-control';
 import { useHoldControl } from '../use-hold-control';
 import { Characters } from '../ui/characters';
@@ -44,6 +45,12 @@ export function FinishScreen({ model, actions, inks, t }: ScreenProps) {
   const timeUp = view.kind === 'finish' && view.timeUp;
   const hold = useHoldControl(control, actions.send, model.holdStartsAt);
   const screenReader = useScreenReader();
+  // Letting go too soon is answered with a small falling "aww", as the design's hold does.
+  const playCue = useCue();
+  const letGoEarly = hold.caption === 'nearly';
+  useEffect(() => {
+    if (letGoEarly && view.kind === 'finish' && model.holdStartsAt === 0) playCue('aww');
+  }, [letGoEarly, playCue, view.kind, model.holdStartsAt]);
   const tap = () => {
     hold.input({ type: 'tapped', at: Date.now() });
     if (hold.caption !== 'confirm') {
@@ -115,7 +122,16 @@ export function FinishScreen({ model, actions, inks, t }: ScreenProps) {
       }
     >
       <Characters
-        mood={hold.caption === 'holding' ? 'thinking' : 'waiting'}
+        // He listens for the end while it is held, and bargains when it is let go too soon. The
+        // monster knows what a hold means.
+        mood={
+          hold.caption === 'holding'
+            ? 'listening'
+            : hold.caption === 'nearly'
+              ? 'bargaining'
+              : 'waiting'
+        }
+        monsterMood={control === 'hold' ? 'nervous' : 'idle'}
         attitude={model.attitude}
         monster={model.monster}
         reducedMotion={model.reducedMotion}

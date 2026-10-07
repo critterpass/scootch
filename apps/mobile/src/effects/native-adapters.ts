@@ -8,6 +8,7 @@ import { CUES, encodeWav, type HapticTap } from '@scootch/sound';
 import * as LiveActivity from '../../modules/scootch-live-activity';
 
 import { nextLiveLineTurn } from './live-line-turns';
+import { createTapScheduler } from './tap-scheduler';
 import type {
   Clock,
   CuePlayer,
@@ -96,16 +97,10 @@ function impactFor(tap: HapticTap): Haptics.ImpactFeedbackStyle {
   return Haptics.ImpactFeedbackStyle.Heavy;
 }
 
-/** Plays a cue's taps at their own times, in step with its sound. */
-export const nativeHaptics: HapticsPlayer = {
-  play(taps) {
-    for (const tap of taps) {
-      setTimeout(() => {
-        void Haptics.impactAsync(impactFor(tap)).catch(() => undefined);
-      }, tap.atMs);
-    }
-  },
-};
+/** Plays a cue's taps at their own times, in step with its sound, until the cue is stopped. */
+export const nativeHaptics: HapticsPlayer = createTapScheduler(systemTimers, (tap) => {
+  void Haptics.impactAsync(impactFor(tap)).catch(() => undefined);
+});
 
 export const nativeNotifications: NotificationScheduler = {
   scheduledIds: async () =>
