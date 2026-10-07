@@ -39,6 +39,18 @@ export interface HoldStep {
   readonly send: readonly SessionEvent[];
 }
 
+/**
+ * Whether a finished control starts over once the store has answered. Only one that is still on
+ * the screen and whose finish was not taken does: while the catch plays on the same screen the
+ * control stays as it ended, ring full, and a screen that has gone has nothing to reset.
+ */
+export function startsOverAfterAnswer(facts: {
+  readonly onScreen: boolean;
+  readonly taken: boolean;
+}): boolean {
+  return facts.onScreen && !facts.taken;
+}
+
 export function holdControl(control: FinishControl): HoldControl {
   return { control, progress: 0, holding: false, armedAt: null, caption: 'idle', finished: false };
 }

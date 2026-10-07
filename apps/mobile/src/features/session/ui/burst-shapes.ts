@@ -1,5 +1,5 @@
 /** How long the marks are in the air, at the longest: the last throw's wait and its longest flight. */
-export const BURST_MS = 1800;
+export const BURST_MS = 1850;
 /** How long the start burst holds the screen before it goes quiet. */
 export const BURST_HOLD_MS = 2600;
 
@@ -22,6 +22,8 @@ export interface BurstMark {
 export interface BurstSource {
   readonly id: number;
   readonly at: readonly [number, number];
+  /** Thrown from the control that set it off, when the screen knows where that is. */
+  readonly fromControl: boolean;
   readonly marks: readonly BurstMark[];
   readonly rings: readonly BurstRing[];
 }
@@ -42,6 +44,10 @@ interface Throw {
   /** When each ring sets off, in milliseconds after the throw. */
   readonly rings: readonly number[];
   readonly ringTo: number;
+  /** Where the rings begin: just outside the control they come from. 20 when left out. */
+  readonly ringFrom?: number;
+  /** True for the throw that comes from the pressed control; `at` is then only where it is expected. */
+  readonly fromControl?: boolean;
   /** How long after the burst begins this throw goes. */
   readonly delay: number;
   readonly at: readonly [number, number];
@@ -52,7 +58,26 @@ const FROM_THE_BUTTON = [0.5, 0.915] as const;
 const UP_THE_SCREEN = [0.5, 0.3] as const;
 const MIDDLE = [0.5, 0.36] as const;
 
-const SHAPES: Record<'start' | 'confetti', readonly Throw[]> = {
+/** Where the finish control sits when the screen has not said. */
+const THE_FINISH_CONTROL = [0.5, 0.8] as const;
+
+const SHAPES: Record<'start' | 'confetti' | 'catch', readonly Throw[]> = {
+  // The catch, as the board fires it when the hold completes: 80 marks and three rings from the
+  // finish button, starting at its ring, then 40 more with one ring from up the screen.
+  catch: [
+    {
+      count: 80,
+      speed: 420,
+      lift: 220,
+      rings: [0, 80, 160],
+      ringTo: 120,
+      ringFrom: 62,
+      fromControl: true,
+      delay: 0,
+      at: THE_FINISH_CONTROL,
+    },
+    { count: 40, speed: 300, lift: 60, rings: [120], ringTo: 210, delay: 160, at: UP_THE_SCREEN },
+  ],
   // The start, as the board fires it: 56 marks and two rings from the Start button, thrown high,
   // then 34 more with one ring from up the screen, 90 ms later.
   start: [
@@ -110,7 +135,7 @@ function marksOf(shape: Throw, next: () => number, colors: readonly string[]): B
 function ringsOf(shape: Throw, colors: readonly string[]): BurstRing[] {
   return shape.rings.map((delay, id) => ({
     id,
-    from: 20,
+    from: shape.ringFrom ?? 20,
     to: shape.ringTo + id * 50,
     delay: shape.delay + delay,
     life: 700,
@@ -127,10 +152,11 @@ export function burstSources(
   markColors: readonly string[],
   ringColors: readonly string[],
 ): BurstSource[] {
-  const next = sequence(kind === 'start' ? 11 : 23);
+  const next = sequence(kind === 'start' ? 11 : kind === 'catch' ? 37 : 23);
   return SHAPES[kind].map((shape, id) => ({
     id,
     at: shape.at,
+    fromControl: shape.fromControl === true,
     marks: marksOf(shape, next, markColors),
     rings: ringsOf(shape, ringColors),
   }));
