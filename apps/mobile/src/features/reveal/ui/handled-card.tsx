@@ -208,7 +208,10 @@ export function HandledCard(props: HandledCardProps) {
 
 const styles = StyleSheet.create({
   shadow: { position: 'absolute' },
-  back: { transform: [{ rotateY: '180deg' }] },
+  // The back is the front's mirror image. It is mirrored flat, not turned in depth: a face turned
+  // half way round inside the card's own turn is flattened by the system into a picture at one
+  // pixel a point, and the back came out coarse.
+  back: { transform: [{ scaleX: -1 }] },
   circle: {
     position: 'absolute',
     overflow: 'hidden',
