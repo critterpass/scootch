@@ -29,6 +29,11 @@ export interface TogetherRuntime {
    * cannot be reached nothing changes, and the promise rejects.
    */
   readonly signOut: () => Promise<void>;
+  /**
+   * Deletes the account tables use and lets go of any table. Like signing out, nothing else on
+   * the phone is touched, and nothing changes when the server cannot be reached.
+   */
+  readonly deleteAccount: () => Promise<void>;
 }
 
 export interface TogetherRuntimeDeps {
@@ -75,7 +80,18 @@ export function createTogetherRuntime(deps: TogetherRuntimeDeps): TogetherRuntim
     await api.signOut();
     table.leave();
   };
-  return { api, pages: createShareApi(deps.http), table, purchaseState: deps.purchase, signOut };
+  const deleteAccount = async () => {
+    await api.deleteTableAccount();
+    table.leave();
+  };
+  return {
+    api,
+    pages: createShareApi(deps.http),
+    table,
+    purchaseState: deps.purchase,
+    signOut,
+    deleteAccount,
+  };
 }
 
 const unavailable = () => Promise.reject(new Error('No connection to the together routes here'));
@@ -100,6 +116,7 @@ const NO_RUNTIME: TogetherRuntime = {
   },
   purchaseState: () => 'free',
   signOut: unavailable,
+  deleteAccount: unavailable,
 };
 
 export const TogetherContext = createContext<TogetherRuntime>(NO_RUNTIME);

@@ -48,7 +48,11 @@ export function HauntSendContainer() {
       .friends()
       .catch(() => [])
       .then((all) => {
-        if (current) setFriends(all.filter((friend) => friend.canBeHaunted));
+        if (!current) return;
+        const taking = all.filter((friend) => friend.canBeHaunted);
+        setFriends(taking);
+        // The first friend is chosen, as the board opens on one; the person may choose another.
+        setTo((chosen) => chosen ?? taking[0]?.accountId ?? null);
       });
     return () => {
       current = false;
@@ -72,6 +76,11 @@ export function HauntSendContainer() {
 
   return (
     <HauntSendPage
+      monster={
+        day.monster === null
+          ? null
+          : { spec: day.monster.spec, name: day.monster.name, line: day.monster.flavourText }
+      }
       friends={friends}
       to={to}
       dare={dare}

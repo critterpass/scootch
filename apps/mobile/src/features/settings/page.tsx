@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { fonts, spacing } from '@scootch/tokens';
 
@@ -10,6 +11,9 @@ import { NativeBar, useRouteBar } from '../../ui/native-bar';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
 const TITLE_SIZE = 34;
+/** From the bottom of the screen up to a dock, and the dock's gutter, as the boards draw them. */
+const DOCK_BOTTOM = 30;
+const DOCK_GUTTER = 14;
 const BAR_TITLE_SIZE = 17;
 
 export interface PageProps {
@@ -18,13 +22,24 @@ export interface PageProps {
   readonly barTitle?: string;
   readonly onClose: () => void;
   readonly testID: string;
+  /** The page's actions, in a dock that stays at the bottom while the page scrolls above it. */
+  readonly footer?: ReactNode;
   readonly children: ReactNode;
 }
 
 /** A plain page of rows: a close button, a title, and a list that scrolls at any text size. */
-export function Page({ title, barTitle, onClose, testID, children }: PageProps) {
+export function Page({ title, barTitle, onClose, testID, footer, children }: PageProps) {
   const { palette, allowFontScaling, size } = useScreenStyle();
   const t = useT();
+  const insets = useSafeAreaInsets();
+  // The board's 30 points under a dock, never less than the home bar's own clear space. `kept` is
+  // the part of that space the frame around the page already keeps clear.
+  const dockOver = (kept: number) =>
+    footer === undefined ? null : (
+      <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, DOCK_BOTTOM) - kept }]}>
+        {footer}
+      </View>
+    );
   const close = {
     label: t('settings.close'),
     hint: t('settings.close.hint'),
@@ -44,6 +59,7 @@ export function Page({ title, barTitle, onClose, testID, children }: PageProps) 
         >
           {children}
         </ScrollView>
+        {dockOver(0)}
       </View>
     );
   }
@@ -72,6 +88,7 @@ export function Page({ title, barTitle, onClose, testID, children }: PageProps) 
         )}
         {children}
       </ScrollView>
+      {dockOver(insets.bottom)}
     </SafeFrame>
   );
 }
@@ -88,5 +105,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   content: { padding: spacing.md, paddingBottom: spacing.xxl, gap: spacing.lg },
+  footer: { paddingHorizontal: DOCK_GUTTER, paddingTop: spacing.sm },
   title: { fontFamily: fonts.heading, fontWeight: '700', letterSpacing: -0.6 },
 });

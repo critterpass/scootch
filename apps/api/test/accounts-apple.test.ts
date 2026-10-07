@@ -177,7 +177,7 @@ describe('POST /v1/accounts/apple', () => {
 
     const body = await ok<Record<string, unknown>>(response);
     expect(Object.keys(body).sort()).toEqual(
-      ['accountId', 'canBeHaunted', 'created', 'displayName', 'warned'].sort(),
+      ['accountId', 'canBeHaunted', 'created', 'displayName', 'warned', 'whoCanSit'].sort(),
     );
     expect(body).toMatchObject({ created: true, displayName: null });
     expect(

@@ -1,3 +1,4 @@
+import { specFromSeed } from '@scootch/art';
 import type { TableSeat } from '@scootch/domain';
 
 import { useT } from '../../i18n/i18n-provider';
@@ -7,12 +8,12 @@ import { HauntReceivedPage, HauntSendPage } from '../haunt/haunt-pages';
 import { PrivacyPage } from '../privacy/privacy-page';
 
 import { InvitePage } from './invite-page';
-import { JoinPage, LobbyPage, type JoinProblem } from './lobby-page';
+import { JoinPage, type JoinProblem } from './join-page';
+import { LobbyPage } from './lobby-page';
 import { SeatSheet } from './seat-sheet';
 import { TableMenuSheet } from './table-menu-sheet';
 import { TablePage, tableSummary, type TablePageProps } from './table-page';
-import { DEFAULT_TABLE_PREFS } from './table-prefs';
-import { TablesSettingsPage } from './tables-settings-page';
+import { TABLE_SETTINGS_CAPTURES } from './settings-captures';
 import type { TableNotice } from './table-store';
 import { TableStripView } from './table-strip';
 
@@ -152,6 +153,8 @@ function Friends({ empty }: { readonly empty: boolean }) {
     <FriendsPage
       friends={empty ? [] : FRIENDS}
       atTable={['cccccccccccc']}
+      pending={empty ? [] : [{ id: 'a'.repeat(64), days: 2 }]}
+      onCancelInvite={nothing}
       canBeHaunted
       notice={null}
       onCanBeHaunted={nothing}
@@ -179,32 +182,14 @@ export const TOGETHER_CAPTURES = {
     />
   ),
   'table-menu': () => <Table seats={FULL.slice(0, 2)} sheet="menu" />,
-  'friend-sat': () => <Table seats={FULL.slice(0, 3)} notice={{ kind: 'sat', name: 'Kofi' }} />,
+  'friend-sat': () => (
+    <Table
+      seats={FULL.slice(0, 3)}
+      notice={{ kind: 'sat', userId: 'cccccccccccc', name: 'Kofi' }}
+    />
+  ),
   'done-at-table': () => <Table done />,
-  'tables-settings': () => (
-    <TablesSettingsPage
-      account={{ name: 'Priya', friends: 3 }}
-      prefs={DEFAULT_TABLE_PREFS}
-      notice={null}
-      onPref={nothing}
-      onSignIn={nothing}
-      onFriends={nothing}
-      onSignOut={nothing}
-      onClose={nothing}
-    />
-  ),
-  'tables-settings-signed-out': () => (
-    <TablesSettingsPage
-      account={null}
-      prefs={DEFAULT_TABLE_PREFS}
-      notice={null}
-      onPref={nothing}
-      onSignIn={nothing}
-      onFriends={nothing}
-      onSignOut={nothing}
-      onClose={nothing}
-    />
-  ),
+  ...TABLE_SETTINGS_CAPTURES,
   'waiting-alone': () => <Table seats={ALONE} />,
   'full-table': () => <Table />,
   'nudge-received': () => <Table notice={{ kind: 'nudged', from: 'cccccccccccc' }} />,
@@ -258,6 +243,11 @@ export const TOGETHER_CAPTURES = {
   'friends-empty': () => <Friends empty />,
   'haunt-send': () => (
     <HauntSendPage
+      monster={{
+        spec: specFromSeed('receipt', '0f3a9c2e7b1d'),
+        name: 'The Receipt Hydra',
+        line: 'Watching your taxes. Silently. Judgingly.',
+      }}
       friends={FRIENDS}
       to="cccccccccccc"
       dare="two_minutes"

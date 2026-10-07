@@ -10,6 +10,7 @@ import { CapsuleButton } from '../../ui/buttons';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { Note, Row, Section, SwitchRow } from '../settings/rows';
 
+import { CritterAvatar } from './critter-avatar';
 import { Words } from './words';
 
 export interface SeatSheetProps {
@@ -59,11 +60,21 @@ export function SeatSheet(props: SeatSheetProps) {
         testID="seat-sheet"
         style={[styles.sheet, { backgroundColor: palette.page }]}
       >
-        <Words kind="title">{reporting ? t('table.report.title') : name}</Words>
-        {reporting || !seat || seat.label === '' ? null : <Words kind="quiet">{seat.label}</Words>}
+        <View style={[styles.grabber, { backgroundColor: `${palette.ink}33` }]} />
+        <View style={styles.head}>
+          {reporting || !seat ? null : <CritterAvatar seed={seat.userId} size={56} />}
+          <Words kind="title" centred>
+            {reporting ? t('table.report.title') : name}
+          </Words>
+          {reporting || !seat || seat.label === '' ? null : (
+            <Words kind="quiet" centred>
+              {seat.label}
+            </Words>
+          )}
+        </View>
         {reporting ? (
           <>
-            <Section label={t('table.sheet.report')}>
+            <Section>
               {REPORT_REASONS.map((one, index) => (
                 <Row
                   key={one}
@@ -93,7 +104,7 @@ export function SeatSheet(props: SeatSheetProps) {
             />
           </>
         ) : (
-          <Section label={t('table.title')}>
+          <Section>
             <Row
               first
               label={t(muted ? 'table.sheet.unmute' : 'table.sheet.mute', { name })}
@@ -143,7 +154,10 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: radius.lg + 8,
     borderTopRightRadius: radius.lg + 8,
     padding: spacing.lg,
+    paddingTop: spacing.sm,
     paddingBottom: spacing.xxl,
     gap: spacing.md,
   },
+  head: { alignItems: 'center', gap: 4 },
+  grabber: { alignSelf: 'center', width: 36, height: 5, borderRadius: 3 },
 });
