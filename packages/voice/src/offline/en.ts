@@ -121,6 +121,7 @@ export const enOffline: OfflinePack = {
       plusCancelled: "That's fair. I'll still be here. Your ten things a day are yours to keep.",
       lifetime: "You're staying for good. I'm so glad.",
       offline: 'No signal just now. I can still sit with you.',
+      shrunk: "Look at him now. He's the size of a grape. Much less to face.",
       modelDown: "My thinking is slow just now. You pick today, and I'll join in soon.",
       modelDownMore: "What you type still counts, and your monster hatches as soon as I'm here.",
       oneInDrawer: "The other one is in a drawer. I'm sitting on the drawer, gently.",
@@ -153,6 +154,7 @@ export const enOffline: OfflinePack = {
       plusCancelled: "Fair. I'll still be here. Your ten things a day are yours to keep.",
       lifetime: "You're stuck with me now. Forever. I'm thrilled.",
       offline: 'No signal. My jokes need wifi, but I can still sit with you.',
+      shrunk: "Look at him. He's furious. He's the size of a grape.",
       modelDown: "My brain is buffering. You pick today, I'll be witty later.",
       modelDownMore:
         "Tasks you type now still count, and your monster hatches as soon as I'm here.",
@@ -191,6 +193,7 @@ export const enOffline: OfflinePack = {
         "FAIR. I'll still be here. Your ten things a day are yours to keep. I am guarding them.",
       lifetime: "YOU'RE STUCK WITH ME NOW. FOREVER. I'm thrilled. The spoon is thrilled.",
       offline: 'NO SIGNAL. My jokes need wifi. I can still sit with you, dramatically.',
+      shrunk: "LOOK AT HIM. He's FURIOUS. He's the size of a GRAPE.",
       modelDown: "MY BRAIN IS BUFFERING. You pick today, I'll be witty later.",
       modelDownMore:
         "Tasks you type now STILL COUNT, and your monster hatches as soon as I'm here.",

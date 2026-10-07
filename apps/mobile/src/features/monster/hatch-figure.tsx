@@ -20,6 +20,8 @@ import { useScreenStyle } from '../../ui/use-screen-style';
 
 const FIGURE_SIZE = 150;
 const FIGURE_SIZE_LARGE_TEXT = 96;
+/** The ring left where a shrunk monster used to reach, as shares of its space on the board. */
+const RING = { side: 30 / 180, top: 40 / 180, bottom: 12 / 180, radius: 55 / 180 } as const;
 /** How long the egg wobbles before a monster that is already here breaks out of it. */
 const EGG_MS = 1100;
 
@@ -47,6 +49,8 @@ export interface HatchFigureProps {
   readonly monsterSize?: number;
   /** How far the monster tucks in behind Scootch. */
   readonly overlap?: number;
+  /** The monster has been made smaller: a faint ring stays where it used to reach. */
+  readonly outgrown?: boolean;
   /** A tap on Scootch, and a tap on the monster. Each answers with its own small reaction. */
   readonly onSqueak?: () => void;
   readonly onGrumble?: () => void;
@@ -63,6 +67,7 @@ export function HatchFigure({
   scootchSize = FIGURE_SIZE,
   monsterSize = FIGURE_SIZE,
   overlap = 0,
+  outgrown = false,
   onHatch,
   onSqueak,
   onGrumble,
@@ -139,6 +144,22 @@ export function HatchFigure({
       />
       {monster && !inEgg ? (
         <View accessible accessibilityRole="image" accessibilityLabel={monster.name} style={tuck}>
+          {outgrown ? (
+            <View
+              pointerEvents="none"
+              style={[
+                styles.ring,
+                {
+                  left: size * RING.side,
+                  right: size * RING.side,
+                  top: size * RING.top,
+                  bottom: size * RING.bottom,
+                  borderRadius: size * RING.radius,
+                  borderColor: `${palette.ink}2E`,
+                },
+              ]}
+            />
+          ) : null}
           <Monster
             spec={monster.spec}
             sizeFactor={sizeFactor}
@@ -174,6 +195,10 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     justifyContent: 'center',
     flexWrap: 'wrap',
+  },
+  ring: {
+    position: 'absolute',
+    borderWidth: 1.5,
   },
   egg: {
     borderRadius: 999,
