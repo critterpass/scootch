@@ -1,6 +1,6 @@
 # Phase 01: Native batch: camera and on-device reading
 
-Status: not started · Tasks: 4 · Needs: —
+Status: tasks 1 to 3 done; the build is dispatched, not yet proven · Tasks: 4 · Needs: —
 Owns: `apps/mobile/modules/scootch-reading/`, `apps/mobile/app.config.ts`
 (native fields only), `apps/mobile/package.json`, `pnpm-workspace.yaml`
 (catalog), `docs/tech-decisions.md` section 4
@@ -26,7 +26,7 @@ Leave behind its barcode reader, document scanner and Android half.
   and Vietnamese to `PERMISSION_STRINGS` and the plugin entry. No microphone
   use by the camera.
 - Done when: the config resolves and the fingerprint changes once.
-- Status: not started
+- Status: done — 4c39d27
 
 ### 2. Reading words
 - Owns: `apps/mobile/modules/scootch-reading/` (Swift `recognizeText`, the
@@ -38,7 +38,7 @@ Leave behind its barcode reader, document scanner and Android half.
   Vietnamese.
 - Test: the Swift reader tests and the JavaScript ordering and quality tests,
   carried over with their fixtures.
-- Status: not started
+- Status: done — 4c39d27
 
 ### 3. Finding things and zones
 - Owns: `apps/mobile/modules/scootch-reading/` (Swift `findThings`).
@@ -52,7 +52,7 @@ Leave behind its barcode reader, document scanner and Android half.
   repository): the box of a mask, nothing found on an empty table, light
   measured, every box inside the frame. Real desks and rooms are checked on a
   phone.
-- Status: not started
+- Status: done — 4c39d27
 
 ### 4. Build and record
 - Owns: `docs/tech-decisions.md` section 4.
