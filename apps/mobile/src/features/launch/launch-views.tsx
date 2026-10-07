@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import type { Attitude } from '@scootch/domain';
@@ -15,6 +16,7 @@ import { LaunchPage } from './launch-page';
 
 const ROW_SIZE = 17;
 const REASON_SIZE = 15;
+const CELEBRATION_MS = 2400;
 
 export interface HelloViewProps {
   /** Scootch's hello and what he is for, from the offline pack. */
@@ -28,6 +30,12 @@ export interface HelloViewProps {
 /** The first thing a new person sees: Scootch, his hello and one button. No sign-up. */
 export function HelloView({ line, more, attitude, onSqueak, onNext }: HelloViewProps) {
   const t = useT();
+  // The celebration is an entrance: it plays, then Scootch settles and waits.
+  const [celebrating, setCelebrating] = useState(true);
+  useEffect(() => {
+    const timer = setTimeout(() => setCelebrating(false), CELEBRATION_MS);
+    return () => clearTimeout(timer);
+  }, []);
   return (
     <LaunchPage
       step={1}
@@ -42,7 +50,7 @@ export function HelloView({ line, more, attitude, onSqueak, onNext }: HelloViewP
       }
     >
       <ScootchSays
-        mood="celebrating"
+        mood={celebrating ? 'celebrating' : 'waiting'}
         attitude={attitude}
         line={line}
         more={more}

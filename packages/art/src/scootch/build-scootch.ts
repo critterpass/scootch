@@ -63,6 +63,15 @@ function drawArm(pen: Pen, side: -1 | 1, shoulder: Point, hand: Point): void {
   pen.fill(ell(hand[0], hand[1], 6.2, 5.6, 12), SCOOTCH.shade);
 }
 
+export interface ScootchBuildOptions {
+  /**
+   * Draws the confetti of the celebrating mood behind Scootch, as the design's burst falls,
+   * instead of over him (where a piece can cross his face). Off by default: the baked widget art
+   * is drawn without it.
+   */
+  readonly confettiBehind?: boolean;
+}
+
 /**
  * Describes Scootch as drawing commands, in the same 200 by 200 space as the monsters. Pure: the
  * same props and motion always give the same list.
@@ -75,6 +84,7 @@ function drawArm(pen: Pen, side: -1 | 1, shoulder: Point, hand: Point): void {
 export function buildScootch(
   props: ScootchProps,
   motion: ScootchMotion = NO_MOTION,
+  options: ScootchBuildOptions = {},
 ): DrawCommand[] {
   const moving = props.reducedMotion ? NO_MOTION : motion;
   const beat = Math.min(1, Math.max(0, moving.beat ?? 0));
@@ -123,6 +133,9 @@ export function buildScootch(
 
   pen.fill(ell(100, GROUND_Y + 2, 50 * (1 - e.bounce * 0.45), 5, 14), SCOOTCH.ink, 0.2, 0.08);
   attachment?.behind(pen, frame, loop);
+
+  const behind = options.confettiBehind === true && e.fx === 'confetti';
+  if (behind) drawEffect(pen, e, frame, beat);
 
   const cos = Math.cos(e.rot);
   const sin = Math.sin(e.rot);
@@ -183,7 +196,7 @@ export function buildScootch(
   drawArm(pen, -1, [cx - rx * 0.86, cy + ry * 0.16], frame.leftHand);
   drawArm(pen, 1, [cx + rx * 0.86, cy + ry * 0.16], frame.rightHand);
   attachment?.held(pen, frame, loop);
-  drawEffect(pen, e, frame, beat);
+  if (!behind) drawEffect(pen, e, frame, beat);
   attachment?.effect(pen, frame, loop);
 
   pen.commands.push({ op: 'restore' });
