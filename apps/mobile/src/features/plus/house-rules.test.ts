@@ -193,9 +193,17 @@ describe('the house rules', () => {
   it('reaches the sheet from the one screen only through the locked talk capsule on home', () => {
     const closure = closureOf(routes.get('/') ?? '');
     const users = closure.filter((file) => file !== ROUTES_FILE && waysIn(file).length > 0);
-    expect(users.map(relative)).toEqual(['features/one-screen/one-screen.tsx']);
+    // The world is the page beside home, and brings its own two doors with it: the locked finish
+    // on a resident's card and the first offer. Both are held shut on a heavy day by the world
+    // itself, as the rule above checks. Nothing else on the way from home names a selling route.
+    const ONE_SCREEN = 'features/one-screen/one-screen.tsx';
+    expect(users.map(relative).sort()).toEqual([
+      ONE_SCREEN,
+      'features/plus/first-offer.tsx',
+      'features/world/world-container.tsx',
+    ]);
 
-    const source = readFileSync(users[0] ?? '', 'utf8');
+    const source = readFileSync(path.join(SOURCE, ONE_SCREEN), 'utf8');
     const at = source.indexOf('router.push(PLUS_SHEET_ONE_MORE)');
     // It sits in home's branch, after every other state has had its own return, as the tap of
     // the gated capsule and nothing else. No task-set, pick or hatch branch names a selling route.
