@@ -221,7 +221,6 @@ export const en = {
   'drawer.pull': 'Pull to open the drawer',
   'drawer.pull.ready': 'Let go to open',
   'drawer.waiting': 'Back tomorrow morning',
-  'drawer.waiting.hint': 'Swipe left to let it go.',
 
   'energy.ask': "Before I pick: how's the battery?",
   'energy.low': 'Low',

@@ -17,7 +17,7 @@ export const viDayLoop = {
   'session.letGo.ask.sub': 'Việc này rời đi cùng quái vật của nó. Những gì bạn gửi lại vẫn còn.',
   'session.letGo.keep': 'Giữ lại',
   'session.letGo.keep.hint': 'Quay lại ba lựa chọn',
-  'done.waiting': 'Để dành cho ngày mai',
+  'done.tomorrow': 'Ngày mai: {task}',
   'done.waiting.hint': 'Mở ngăn kéo và chỉ nó ở đó.',
   'drawer.cap': 'Hôm nay đã bắt đầu đủ {count} việc. Mấy việc này chờ ở đây đến mai.',
   'composer.cancelThinking': 'Thôi',

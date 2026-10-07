@@ -36,6 +36,8 @@ export interface DrawerRowProps {
   /** "no date", or when it is due and when it comes back. */
   readonly when: string;
   readonly last: boolean;
+  /** Marked out: the drawer was opened to show this row. */
+  readonly marked?: boolean;
   readonly canSwap: boolean;
   /** This row's words are in a field, with the keyboard. */
   readonly editing: boolean;
@@ -57,6 +59,7 @@ export function DrawerRow({
   index,
   when,
   last,
+  marked = false,
   canSwap,
   editing,
   onEditStart,
@@ -169,6 +172,7 @@ export function DrawerRow({
               styles.row,
               { backgroundColor: palette.surface },
               !last && { borderBottomColor: `${palette.ink}1A`, borderBottomWidth: 0.5 },
+              marked && [styles.marked, { borderLeftColor: palette.tomato }],
               sliding,
             ]}
           >
@@ -263,7 +267,11 @@ export function DrawerRow({
                   allowFontScaling={allowFontScaling}
                   style={[
                     styles.body,
-                    inkOf('400', WHEN_SIZE, dated && !ticked ? palette.tomato : palette.muted),
+                    inkOf(
+                      '400',
+                      WHEN_SIZE,
+                      (dated || marked) && !ticked ? palette.tomato : palette.muted,
+                    ),
                   ]}
                 >
                   {when}

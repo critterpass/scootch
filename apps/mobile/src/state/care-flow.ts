@@ -83,7 +83,9 @@ export async function stopWithoutAWord(ctx: DayContext): Promise<void> {
 /** The words a person typed into an event, wherever the app lets them type. */
 function typedWords(event: DayEvent): string | null {
   if (event.type === 'session_set') return event.treat ?? null;
-  if (event.type === 'drawer_item_edited') return event.text;
+  if (event.type === 'drawer_item_edited' || event.type === 'waiting_task_edited') {
+    return event.text;
+  }
   if (event.type === 'session' && event.event.type === 'thought_parked') return event.event.text;
   return null;
 }

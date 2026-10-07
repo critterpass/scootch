@@ -219,7 +219,6 @@ export const vi = {
   'drawer.pull': 'Kéo xuống để mở ngăn kéo',
   'drawer.pull.ready': 'Thả ra để mở',
   'drawer.waiting': 'Sáng mai quay lại',
-  'drawer.waiting.hint': 'Vuốt sang trái để bỏ nó đi.',
 
   'energy.ask': 'Trước khi mình chọn: pin của bạn còn nhiêu?',
   'energy.low': 'Thấp',
