@@ -4,13 +4,17 @@ import { StyleSheet, View } from 'react-native';
 import { spacing } from '@scootch/tokens';
 
 import { RoundButton } from './buttons';
+import { GlassGroup } from './glass-surface';
 import { useScreenStyle } from './use-screen-style';
 
 /**
- * Where every screen's corner control sits: 4 points under the safe area's top, 16 points in from
- * the side, 44 points across. One place, so nothing shifts as screens move into each other.
+ * Where every screen's corner control sits: the place the system's navigation bar gives its own
+ * items. The bar starts at the safe area's top and is 44 points tall, its items are 44 points
+ * across and sit on the bar's 16-point margin. A screen with no bar (the one screen, the session,
+ * the reveal, care) puts its corner controls here, so they are where a screen with the system's bar
+ * has them and nothing shifts as screens move into each other.
  */
-export const CORNER = { top: spacing.xs, side: spacing.md, size: 44 } as const;
+export const CORNER = { top: 0, side: spacing.md, size: 44 } as const;
 
 export interface CornerBarProps {
   /** The control in the leading corner, or nothing. */
@@ -24,11 +28,11 @@ export interface CornerBarProps {
 /** The top row of a screen, with its corner controls in the one place they always are. */
 export function CornerBar({ leading, children, trailing }: CornerBarProps) {
   return (
-    <View style={styles.bar}>
+    <GlassGroup style={styles.bar}>
       {leading ?? <View style={styles.empty} />}
       {children}
       {trailing ?? <View style={styles.empty} />}
-    </View>
+    </GlassGroup>
   );
 }
 
