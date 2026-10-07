@@ -7,6 +7,7 @@ import { RestoreGate } from '../features/backup/restore-offer';
 import { phoneSpeech } from '../features/composer/phone-speech';
 import { nativeSpeech } from '../features/composer/speech';
 import { HauntArrival } from '../features/haunt/haunt-containers';
+import { HomePager } from '../features/home-pager/home-pager';
 import { FirstLaunch } from '../features/launch/first-launch';
 import { firstLaunchPending, type LaunchOutcome } from '../features/launch/launch-machine';
 import { OneScreen } from '../features/one-screen/one-screen';
@@ -16,7 +17,8 @@ import { useToday } from '../state/day-store-provider';
 
 /**
  * The app's only screen. A new phone meets first launch once; after that it is always the one
- * screen. Nothing is drawn until today has been rebuilt from storage, so neither ever flashes by.
+ * screen, with the world a swipe to one side of it and Settings a swipe to the other. Nothing is
+ * drawn until today has been rebuilt from storage, so neither ever flashes by.
  */
 export default function Home() {
   const { ready, settings } = useToday();
@@ -44,11 +46,13 @@ export default function Home() {
   return (
     <RestoreGate late>
       <HauntArrival />
-      <OneScreen
-        speech={speech}
-        warmUp={arrival !== null}
-        notificationsRefused={arrival?.notifications === 'refused'}
-      />
+      <HomePager>
+        <OneScreen
+          speech={speech}
+          warmUp={arrival !== null}
+          notificationsRefused={arrival?.notifications === 'refused'}
+        />
+      </HomePager>
     </RestoreGate>
   );
 }

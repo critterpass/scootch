@@ -1,12 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, useWindowDimensions } from 'react-native';
-import Animated, {
-  Easing,
-  ReduceMotion,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
+import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import type { Attitude, Id, IsoDate, MonsterRow, WorldPieceRow } from '@scootch/domain';
 import { spacing } from '@scootch/tokens';
@@ -52,7 +45,6 @@ const REACTION_MS = 1400;
 const ISLAND_MAX = 420;
 /** How long the note about a new piece stays before it steps aside. */
 const LANDED_NOTE_MS = 3200;
-const ALWAYS = ReduceMotion.Never;
 
 /**
  * The world: everything finished, as one island with Scootch in the middle. It fills the width of
@@ -90,9 +82,8 @@ export function WorldScreen({ model, actions }: { model: WorldModel; actions: Wo
     }
   };
 
-  // The world arrives: it rises into place once. A new piece is named once, a moment after, and
-  // the note then steps aside: it is news, not a label.
-  const risen = useSharedValue(still ? 1 : 0);
+  // A new piece is named once, a moment after the world is opened, and the note then steps
+  // aside: it is news, not a label.
   const [noted, setNoted] = useState(true);
   useEffect(() => {
     if (!model.landing) return undefined;
@@ -100,19 +91,6 @@ export function WorldScreen({ model, actions }: { model: WorldModel; actions: Wo
     const timer = setTimeout(() => setNoted(false), LANDED_NOTE_MS);
     return () => clearTimeout(timer);
   }, [model.landing]);
-  useEffect(() => {
-    if (still) return;
-    risen.value = withTiming(1, {
-      duration: 420,
-      easing: Easing.out(Easing.cubic),
-      reduceMotion: ALWAYS,
-    });
-  }, [still, risen]);
-  const riseStyle = useAnimatedStyle(() => ({
-    opacity: risen.value,
-    transform: [{ translateY: (1 - risen.value) * 18 }],
-  }));
-
   const size = Math.min(width - spacing.md * 2, ISLAND_MAX);
   return (
     <KeepFrame
@@ -147,7 +125,7 @@ export function WorldScreen({ model, actions }: { model: WorldModel; actions: Wo
         scrollsToTop={false}
         contentContainerStyle={[styles.middle, { paddingTop: height > 760 ? 40 : spacing.sm }]}
       >
-        <Animated.View style={[styles.rise, riseStyle]}>
+        <View style={styles.place}>
           <Island
             pieces={model.pieces}
             monsters={model.monsters}
@@ -183,7 +161,7 @@ export function WorldScreen({ model, actions }: { model: WorldModel; actions: Wo
           >
             {told ?? sentence}
           </SessionText>
-        </Animated.View>
+        </View>
       </ScrollView>
     </KeepFrame>
   );
@@ -191,6 +169,6 @@ export function WorldScreen({ model, actions }: { model: WorldModel; actions: Wo
 
 const styles = StyleSheet.create({
   middle: { flexGrow: 1, alignItems: 'center', paddingBottom: spacing.md },
-  rise: { alignItems: 'center', alignSelf: 'stretch' },
+  place: { alignItems: 'center', alignSelf: 'stretch' },
   words: { alignSelf: 'stretch', paddingHorizontal: spacing.lg + 4, marginTop: spacing.sm },
 });

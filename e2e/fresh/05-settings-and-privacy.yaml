@@ -103,3 +103,35 @@ appId: app.scootch.dev
     visible:
       id: 'one-sentence'
     timeout: 15000
+# Settings and the world are the pages either side of home: a swipe goes to each and back, with
+# no button pressed. The swipe starts in the middle of the screen, away from both edges.
+- swipe:
+    start: 80%, 45%
+    end: 20%, 45%
+- extendedWaitUntil:
+    visible:
+      id: 'settings'
+    timeout: 15000
+- takeScreenshot: fresh-05-settings-by-swipe
+- swipe:
+    start: 20%, 45%
+    end: 80%, 45%
+- extendedWaitUntil:
+    visible:
+      id: 'one-sentence'
+    timeout: 15000
+- swipe:
+    start: 20%, 45%
+    end: 80%, 45%
+- extendedWaitUntil:
+    visible:
+      id: 'world-island'
+    timeout: 15000
+- takeScreenshot: fresh-05-world-by-swipe
+- swipe:
+    start: 80%, 45%
+    end: 20%, 45%
+- extendedWaitUntil:
+    visible:
+      id: 'one-sentence'
+    timeout: 15000
