@@ -11,11 +11,3 @@ export function parkDraft(state: Pick<ComposerState, 'phase' | 'text' | 'transcr
   const recording = state.phase === 'listening' || state.phase === 'finishing';
   return (recording ? state.transcript : state.text).trim();
 }
-
-/** The session's last seconds, when an open park field hands over what it holds. */
-export const CLOSING_SECONDS = 3;
-
-/** Whether the session is in its last seconds, by its real end and not its planned length. */
-export function sessionClosing(secondsLeft: number): boolean {
-  return secondsLeft <= CLOSING_SECONDS;
-}

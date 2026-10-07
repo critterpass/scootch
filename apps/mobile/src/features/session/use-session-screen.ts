@@ -174,7 +174,6 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
     thoughtsLine: afterLines.parkedThoughts,
     reducedMotion: character.reducedMotion,
     parkOpen,
-    secondsLeft: live?.endsAt != null ? Math.max(0, (live.endsAt - now) / 1000) : 0,
     parkedNote,
     holdStartsAt: 0,
     developerEnd: shortSession.isArmed(),

@@ -75,9 +75,10 @@ export function WorkingScreen(props: ScreenProps) {
         : twoMinutesLeft
           ? 'shocked'
           : 'working';
-  // Under the time sits the task. For the last two minutes Scootch's warning takes its place, and
-  // a serious task shows the plain words it is kept company with instead of the task.
-  const warning = twoMinutesLeft && !quiet ? line : null;
+  // Under the time there is one line, as every running frame draws it: the task. Scootch's words
+  // take its place for the last two minutes, for a serious task, and while the task has no
+  // monster yet (he says when it will hatch). His passing lines are for the Live Activity.
+  const said = quiet || twoMinutesLeft || model.monster === null ? line : null;
   // A serious task has no menu: its two ways on are the dock, and its corner simply closes.
   const menu = quiet ? null : workingMenu(props);
 
@@ -194,12 +195,7 @@ export function WorkingScreen(props: ScreenProps) {
             >
               {t('session.minutesLeft', { count: model.minutesLeft })}
             </SessionText>
-            {quiet || warning ? null : (
-              <SessionText face="task" color={inks.muted} testID="session-task" style={styles.text}>
-                {model.taskText}
-              </SessionText>
-            )}
-            {line ? (
+            {said ? (
               <SessionText
                 face="task"
                 color={inks.muted}
@@ -207,9 +203,13 @@ export function WorkingScreen(props: ScreenProps) {
                 testID="session-line"
                 style={styles.text}
               >
-                {line}
+                {said}
               </SessionText>
-            ) : null}
+            ) : quiet ? null : (
+              <SessionText face="task" color={inks.muted} testID="session-task" style={styles.text}>
+                {model.taskText}
+              </SessionText>
+            )}
           </View>
         )}
       </SessionFrame>

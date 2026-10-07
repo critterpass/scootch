@@ -9,6 +9,7 @@ import type { HoldCaption } from '../hold-control';
 import { useHoldControl } from '../use-hold-control';
 import { BurstMarks } from '../ui/burst-marks';
 import { Characters } from '../ui/characters';
+import { Stage, Words } from '../ui/drawn-parts';
 import { FilledButton, RoundButton, TextButton } from '../ui/controls';
 import { HoldButton } from '../ui/hold-button';
 import { SessionFrame } from '../ui/session-frame';
@@ -85,6 +86,8 @@ export function FinishScreen({ model, actions, inks, t }: ScreenProps) {
     <SessionFrame
       inks={inks}
       testID={control === 'hold' ? 'session-finish-hold' : 'session-finish-tap'}
+      align="drawn"
+      footerInset={control === 'hold' ? 0 : 24}
       top={
         // Nothing to go back to once time is up, or once the thing is caught.
         timeUp || view.kind === 'caught' ? null : (
@@ -187,42 +190,47 @@ export function FinishScreen({ model, actions, inks, t }: ScreenProps) {
         </View>
       }
     >
-      <Characters
-        // He listens for the end while it is held, and bargains when it is let go too soon. The
-        // monster knows what a hold means.
-        mood={
-          caught
-            ? 'celebrating'
-            : hold.caption === 'holding'
-              ? 'listening'
-              : hold.caption === 'nearly'
-                ? 'bargaining'
-                : 'waiting'
-        }
-        monsterMood={caught ? 'caught' : control === 'hold' ? 'nervous' : 'idle'}
-        attitude={model.attitude}
-        monster={model.monster}
-        reducedMotion={model.reducedMotion}
-      />
+      <Stage height={250} top={16}>
+        <Characters
+          // He listens for the end while it is held, and bargains when it is let go too soon. The
+          // monster knows what a hold means.
+          mood={
+            caught
+              ? 'celebrating'
+              : hold.caption === 'holding'
+                ? 'listening'
+                : hold.caption === 'nearly'
+                  ? 'bargaining'
+                  : 'waiting'
+          }
+          monsterMood={caught ? 'caught' : control === 'hold' ? 'nervous' : 'idle'}
+          attitude={model.attitude}
+          monster={model.monster}
+          reducedMotion={model.reducedMotion}
+        />
+      </Stage>
       {model.line ? (
-        <SessionText
-          face="headline"
-          color={inks.ink}
-          accessibilityLiveRegion="polite"
-          testID="session-finish-line"
-          style={styles.line}
-        >
-          {model.line.text}
-        </SessionText>
+        <Words top={6}>
+          <SessionText
+            face="line"
+            color={inks.ink}
+            accessibilityLiveRegion="polite"
+            testID="session-finish-line"
+          >
+            {model.line.text}
+          </SessionText>
+        </Words>
       ) : null}
     </SessionFrame>
   );
 }
 
 const styles = StyleSheet.create({
+  // The board's hold block: 22 points between the button and its caption, ending 44 from the foot.
   footer: {
     alignItems: 'stretch',
-    gap: spacing.md,
+    gap: 22,
+    paddingBottom: 10,
   },
   control: {
     alignSelf: 'center',
@@ -232,8 +240,5 @@ const styles = StyleSheet.create({
   },
   centred: {
     textAlign: 'center',
-  },
-  line: {
-    alignSelf: 'stretch',
   },
 });

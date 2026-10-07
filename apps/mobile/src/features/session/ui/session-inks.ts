@@ -12,6 +12,8 @@ export interface SessionInks extends Palette {
   readonly quietPage: string;
   /** A hairline between rows: ink at 12%. */
   readonly hairline: string;
+  /** The chevron at the end of a row. */
+  readonly chevron: string;
   /** The filled button: ink in light, paper in dark. */
   readonly button: string;
   readonly onButton: string;
@@ -25,6 +27,7 @@ export function sessionInks(scheme: ColorScheme): SessionInks {
     quietDisc: scheme === 'dark' ? '#5B544C' : '#B9B2A8',
     ringLine: scheme === 'dark' ? 'rgba(243,238,230,0.16)' : 'rgba(28,26,23,0.12)',
     quietPage: scheme === 'dark' ? palette.page : '#EFEDE9',
+    chevron: scheme === 'dark' ? '#7A7268' : '#B5AEA4',
     hairline: scheme === 'dark' ? 'rgba(243,238,230,0.14)' : 'rgba(28,26,23,0.12)',
     button: palette.ink,
     onButton: palette.page,

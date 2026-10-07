@@ -28,8 +28,6 @@ export interface SessionModel {
   readonly thoughtsLine: string | null;
   readonly reducedMotion: boolean;
   readonly parkOpen: boolean;
-  /** Seconds until the session's real end, which a short or lengthened session moves. */
-  readonly secondsLeft: number;
   /** The thought just parked, shown for a moment. */
   readonly parkedNote: string | null;
   /** Where the hold ring starts, for a capture of a ring let go of early. */
