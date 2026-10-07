@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { StyleSheet, Text, TextInput } from 'react-native';
 
-import { fonts } from '@scootch/tokens';
+import { fonts, shadows } from '@scootch/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
 import { Chevron } from '../../ui/icons';
@@ -9,9 +9,6 @@ import { PressSpring } from '../../ui/motion/press-spring';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
 const ROW_SIZE = 17;
-/** The white rows of the boards: a hairline of ink and a soft drop under them. */
-export const CARD_SHADOW =
-  '0 0 0 0.5px rgba(28, 26, 23, 0.06), 0 8px 24px -6px rgba(28, 26, 23, 0.1)';
 
 export interface TreatRowProps {
   readonly treat: string;
@@ -83,7 +80,7 @@ const styles = StyleSheet.create({
     minHeight: 52,
     paddingHorizontal: 16,
     borderRadius: 22,
-    boxShadow: CARD_SHADOW,
+    boxShadow: shadows.card,
   },
   stacked: {
     flexWrap: 'wrap',

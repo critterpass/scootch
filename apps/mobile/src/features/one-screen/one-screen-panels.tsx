@@ -1,16 +1,16 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { fonts } from '@scootch/tokens';
+import { fonts, shadows } from '@scootch/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
 import { Chevron } from '../../ui/icons';
 import { PressSpring } from '../../ui/motion/press-spring';
-import { GlassSurface } from '../../ui/glass-surface';
+import { glassPressOwner, GlassSurface } from '../../ui/glass-surface';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { WorldGlance } from '../world/world-thumbnail';
 
 import { MinutesControl } from './minutes-control';
-import { CARD_SHADOW, TreatRow } from './treat-row';
+import { TreatRow } from './treat-row';
 
 /** The session lengths on offer, in minutes. */
 export const SESSION_MINUTES = [10, 25, 50] as const;
@@ -144,9 +144,11 @@ export function Chips({ chips, disabled, onChip, hint, testPrefix = 'warm-up-chi
           feedback="choice"
           hitSlop={4}
           testID={`${testPrefix}-${index}`}
+          answeredBy={glassPressOwner(true)}
         >
-          <GlassSurface style={styles.chip}>
+          <GlassSurface interactive style={styles.chip}>
             <Text
+              pointerEvents="none"
               allowFontScaling={allowFontScaling}
               style={[
                 styles.chipLabel,
@@ -175,7 +177,7 @@ const styles = StyleSheet.create({
     paddingRight: 18,
     paddingVertical: 6,
     minHeight: WORLD_THUMBNAIL + 12,
-    boxShadow: CARD_SHADOW,
+    boxShadow: shadows.card,
   },
   worldThumbnail: {
     width: WORLD_THUMBNAIL,
