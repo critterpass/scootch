@@ -6,7 +6,7 @@ import {
   rect,
   rrect,
 } from '@shopify/react-native-skia';
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { useDerivedValue, type SharedValue } from 'react-native-reanimated';
 
 import { FOIL_LIGHT, type CardFinishInks, type FoilStrength } from '@scootch/art';
@@ -32,7 +32,8 @@ export interface CardFoilProps {
  * 2.4% for every degree the card leans. It is two Skia nodes whose gradients are shared values:
  * a lean costs no React render and nothing on the JS thread.
  */
-export function CardFoil({ face, radius, inks, strength, rx, ry, clock }: CardFoilProps) {
+export const CardFoil = memo(function CardFoil(props: CardFoilProps) {
+  const { face, radius, inks, strength, rx, ry, clock } = props;
   const clip = useMemo(
     () => rrect(rect(face.x, face.y, face.w, face.h), radius, radius),
     [face, radius],
@@ -99,4 +100,4 @@ export function CardFoil({ face, radius, inks, strength, rx, ry, clock }: CardFo
       </Rect>
     </Group>
   );
-}
+});

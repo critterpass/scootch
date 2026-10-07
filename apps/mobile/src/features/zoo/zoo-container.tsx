@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { View } from 'react-native';
 
 import { useLanguage } from '../../i18n/i18n-provider';
+import { useToday } from '../../state/day-store-provider';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { PLUS_SHEET } from '../plus/routes';
 import { SharePanel } from '../share/share-panel';
@@ -16,6 +17,7 @@ export function ZooContainer() {
   const router = useRouter();
   const { language } = useLanguage();
   const { palette } = useScreenStyle();
+  const { localDate } = useToday();
   const opened = useOpenedCard();
   const { keepsakes, plus, shown } = opened;
   const [sort, setSort] = useState<BinderSort | null>(null);
@@ -33,6 +35,7 @@ export function ZooContainer() {
         language,
         plus,
         sort,
+        today: localDate,
         open: shown ? { card: shown.card, shareOffered: shown.shareOffered } : null,
       }}
       actions={{
@@ -43,6 +46,9 @@ export function ZooContainer() {
         openPlus: () => router.push(PLUS_SHEET),
         setFinish: (finish) => shown?.setFinish(finish),
         shareCard: () => shown?.share(),
+        shareMonster: (monster) => {
+          if (!opened.shareOf(monster)) opened.open(monster.id);
+        },
       }}
     />
   );

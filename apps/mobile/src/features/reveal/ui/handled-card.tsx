@@ -34,7 +34,7 @@ import { cardSpokenLabel } from '../../zoo/zoo-cards';
 import { CardFoil } from './card-foil';
 import type { CardMotion } from './card-motion';
 import { cardCanvasSize } from './card-size';
-import { useLiveMonster } from './live-monster';
+import { LiveMonsterLayer } from './live-monster';
 import { TiltSensor } from './tilt-sensor';
 
 /** The board sets the card in 1100 points of perspective. */
@@ -77,7 +77,6 @@ export function HandledCard(props: HandledCardProps) {
   );
   const back = useMemo(() => buildCardBack({ label: t('reveal.cardBack'), scootch: false }), [t]);
   const alive = !character.reducedMotion && character.care === 'none';
-  const monster = useLiveMonster(card.monster, alive);
   const panelClip = useMemo(() => {
     const { x, y, w, h } = layers.panel;
     return rrect(rect(x, y, w, h), 11, 11);
@@ -150,7 +149,7 @@ export function HandledCard(props: HandledCardProps) {
                       { scale: layers.monster.w / VIEW_SIZE },
                     ]}
                   >
-                    <CommandLayer commands={monster} />
+                    <LiveMonsterLayer spec={card.monster} alive={alive} />
                   </Group>
                 </Group>
               </Group>

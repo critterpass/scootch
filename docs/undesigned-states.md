@@ -139,3 +139,9 @@ state is designed or removed.
 | Reveal | The turn sounds the "send" whoosh and the stamp the "tick" click with a heavy tap | The sound set has no cue made for a card turning or a stamp landing; these two are the nearest it has |
 | Reveal | The rare drop shows Scootch wearing the beret, with the step's fixed title and no sentence under it | The board names the item and has Scootch say a line about it; a drop row carries neither, and the beret is the one thing that exists to wear |
 | Reveal | "+1 to your world" names the monster where the board has Scootch's sentence; the bar step has no sentence | No line is written for either step yet |
+| Zoo | "Share a card" in the dock asks which: the line under the title becomes "Tap the card to share", the quiet control becomes "Never mind", and the next card tapped opens the share panel | The board draws the button and not what follows it. A card whose task may not be shared opens as usual instead |
+| Zoo | "Rare" and "This week" with nothing to show say so in one line; a zoo with no cards has no three-way control | The board draws a full binder only |
+| Zoo | Without Plus the dock's quiet control is the locked "Open the binder"; with it, "Sort" names the order it is in ("Sort · Rarity") | The board's binder frame is the Plus one, with a bare "Sort"; the locked control is the Plus board's. One button steps through five orders, so it says which one is on |
+| Zoo | A tile's ink edge, panel and RARE tag take the colours of the finish the card wears | The board's tiles are all the standard finish |
+| Record | A credit row shows Scootch at the task's kind of work, and plain pleased when the kind is not known; a day whose task asked for care keeps an empty picture | The board always has a work mode to draw |
+| Record | Scootch's note under the record is shown only when the week has one stored, and the title stays "Week N" | Nothing writes the week's name or note yet |

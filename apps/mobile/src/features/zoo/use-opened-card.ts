@@ -21,6 +21,11 @@ export interface OpenedCard {
   readonly sharePanel: ReturnType<typeof useShare>['panel'];
   readonly open: (monsterId: Id) => void;
   readonly close: () => void;
+  /**
+   * Opens the share panel for a card picked from the grid, and says whether it did: a card whose
+   * task may not be shared is not, and the caller opens it instead.
+   */
+  readonly shareOf: (monster: CaughtMonster) => boolean;
   /** The opened monster's card, when there is one. */
   readonly shown: {
     readonly monster: CaughtMonster;
@@ -58,6 +63,17 @@ export function useOpenedCard(reread?: unknown): OpenedCard {
     sharePanel: share.panel,
     open: setOpened,
     close: () => setOpened(null),
+    shareOf: (picked) => {
+      const pickedTask = keepsakes?.tasks.get(picked.taskId) ?? null;
+      if (!shareOfferedOn(today, pickedTask)) return false;
+      share.open({
+        task: pickedTask,
+        card: cardDataFor(picked, pickedTask),
+        signed: picked.signed ?? null,
+        kind: 'card',
+      });
+      return true;
+    },
     shown:
       monster && card
         ? {
