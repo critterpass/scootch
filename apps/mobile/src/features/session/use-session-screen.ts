@@ -13,8 +13,11 @@ import { revealSeen } from '../reveal/reveal-seen';
 import { SHORT_SESSION_SECONDS, shortSession } from './dev/short-session';
 import type { SessionActions, SessionModel } from './screens/screen-props';
 import {
+  CAUGHT_HOLD_MS,
   NOTHING_PASSED,
+  catchPlays,
   closeMeans,
+  finishedByHand,
   minutesLeft,
   sessionView,
   timeLeftFraction,
@@ -59,8 +62,13 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
   const [leaveAsked, setLeaveAsked] = useState(false);
   const [parkedNote, setParkedNote] = useState<string | null>(null);
 
+  // A finish made on the finish control on this visit: the catch may play before the reveal.
+  const [byHand, setByHand] = useState(false);
   const sendFinish = useCallback(
-    (event: SessionEvent) => dispatch({ type: 'session', event }).catch(() => undefined),
+    (event: SessionEvent) => {
+      if (finishedByHand(event)) setByHand(true);
+      return dispatch({ type: 'session', event }).catch(() => undefined);
+    },
     [dispatch],
   );
   const send = useCallback((event: SessionEvent) => void sendFinish(event), [sendFinish]);
@@ -79,6 +87,11 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
     parkedThoughts,
     finishWith: settings.finishWith,
     passed,
+    caught: catchPlays({
+      byHand,
+      reducedMotion: character.reducedMotion,
+      crisis: today.kind === 'crisis',
+    }),
     ...(session?.phase === 'finished'
       ? { reveal: revealSeen(session.taskId) ? ('seen' as const) : ('pending' as const) }
       : {}),
@@ -95,6 +108,13 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
   useEffect(() => {
     if (phase === 'set') send({ type: 'started' });
   }, [phase, send]);
+
+  // The catch ends by itself, and the reveal takes over.
+  useEffect(() => {
+    if (view.kind !== 'caught') return undefined;
+    const timer = setTimeout(() => pass({ caught: true }), CAUGHT_HOLD_MS);
+    return () => clearTimeout(timer);
+  }, [view.kind, pass]);
 
   // The burst goes quiet by itself.
   useEffect(() => {
@@ -192,6 +212,7 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
       finishEarly: () => pass({ finishingEarly: true }),
       keepGoing: () => pass({ finishingEarly: false }),
       passBurst: () => pass({ burst: true }),
+      passCaught: () => pass({ caught: true }),
       passMoment: () => pass({ moment: true }),
       passTreat: () => pass({ treat: true }),
       passThoughts: () => pass({ thoughts: true }),

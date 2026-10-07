@@ -1,8 +1,10 @@
 import {
+  addDays,
   dayRowSchema,
   drawerItemRowSchema,
   isoFromInstant,
   monsterRowSchema,
+  parkTasks,
   parkedThoughtRowSchema,
   recordBarRowSchema,
   sessionRowSchema,
@@ -89,23 +91,16 @@ export async function isFreshDatabase(repositories: Repositories): Promise<boole
   return made.every((rows) => rows.length === 0);
 }
 
-/** How much a phone or a snapshot holds, for telling a fuller one from an emptier one. */
-export interface Holdings {
-  readonly tasks: readonly unknown[];
-  readonly monsters: readonly unknown[];
-  readonly drawerItems: readonly unknown[];
-  readonly sessions: readonly unknown[];
-  readonly worldPieces: readonly unknown[];
-}
+/** The rows that make a world, each with an id. */
+type World = Pick<Snapshot, 'tasks' | 'monsters' | 'drawerItems' | 'sessions' | 'worldPieces'>;
+const WORLD = ['tasks', 'monsters', 'drawerItems', 'sessions', 'worldPieces'] as const;
 
-export function weightOf(held: Holdings): number {
-  return (
-    held.tasks.length +
-    held.monsters.length +
-    held.drawerItems.length +
-    held.sessions.length +
-    held.worldPieces.length
-  );
+/** True when every task, monster, drawer item, session and world piece of `other` is in `mine`. */
+export function holdsAll(mine: World, other: World): boolean {
+  return WORLD.every((table) => {
+    const ids = new Set(mine[table].map((row) => row.id));
+    return other[table].every((row) => ids.has(row.id));
+  });
 }
 
 export async function buildSnapshot(repositories: Repositories, now: Instant): Promise<Snapshot> {
@@ -193,6 +188,46 @@ export function isRestorableSnapshot(value: unknown): value is Snapshot {
   return parseSnapshot(value) !== null;
 }
 
+interface Mine {
+  readonly tasks: ReadonlySet<string>;
+  readonly monsters: readonly MonsterRow[];
+  readonly today: IsoDate | null;
+}
+
+/** After a world was added to a phone in use: its cards are renumbered and its open things parked. */
+async function settleAdded(
+  repositories: Repositories,
+  parsed: ParsedSnapshot,
+  mine: Mine,
+  now: Instant,
+): Promise<void> {
+  const here = new Set(mine.monsters.map((row) => row.id));
+  let number = Math.max(0, ...mine.monsters.map((row) => row.number ?? 0));
+  const caught = parsed.monsters
+    .filter((row) => !here.has(row.id) && row.number !== null)
+    .sort((a, b) => (a.number ?? 0) - (b.number ?? 0));
+  for (const row of caught) await repositories.monsters.put({ ...row, number: (number += 1) });
+
+  const today = mine.today;
+  const open = parsed.tasks.filter((row) => !mine.tasks.has(row.id) && row.status !== 'finished');
+  if (today === null || open.length === 0) return;
+  const { drawer, replacedIds } = parkTasks({
+    drawer: await repositories.drawerItems.all(),
+    tasks: open,
+    today,
+    now,
+  });
+  for (const id of replacedIds) await repositories.drawerItems.remove(id);
+  for (const task of open) {
+    const item = drawer.find((one) => one.id === task.id);
+    if (item) await repositories.drawerItems.put(item);
+    // A parked task is never dated today or later: it waits in the drawer, not on a day.
+    if (task.localDate >= today) {
+      await repositories.tasks.put({ ...task, localDate: addDays(today, -1) });
+    }
+  }
+}
+
 /** A day the app only opened: nothing was answered, finished or rested on it. */
 const untouched = (day: DayRow) =>
   day.status === 'open' && day.energy === null && day.morningLine === null;
@@ -204,15 +239,28 @@ const untouched = (day: DayRow) =>
  * On a phone with nothing made, the snapshot comes back whole, settings included. On a phone that
  * already holds things, the snapshot is added to them: a row the phone already has stays as the
  * phone has it, and the phone's settings stay. A day the app merely opened gives way to the
- * snapshot's row for that day.
+ * snapshot's row for that day. Two things keep the added world from colliding with the one here:
+ * restored cards are numbered after the ones caught on this phone, and every restored thing that
+ * is not finished goes to the drawer whole, so no day ends up with a second open task.
+ *
+ * A thing let go on this phone leaves no trace, so it cannot be recognised in a snapshot. It does
+ * not need to be: a phone only ever restores a copy it has not uploaded to, which cannot hold
+ * anything made, and so anything let go, on this phone.
  */
 export async function restoreSnapshot(
   repositories: Repositories,
   snapshot: unknown,
+  now: Instant = Date.parse(isRecord(snapshot) ? String(snapshot['takenAt']) : '') || 0,
 ): Promise<'restored' | 'refused'> {
   const parsed = parseSnapshot(snapshot);
   if (parsed === null) return 'refused';
   const fresh = await isFreshDatabase(repositories);
+  // What was here before anything is added, to tell the added rows from the phone's own.
+  const mine = {
+    tasks: new Set((await repositories.tasks.all()).map((row) => row.id)),
+    monsters: await repositories.monsters.all(),
+    today: (await repositories.days.all()).at(-1)?.localDate ?? null,
+  };
   await repositories.transaction(async () => {
     for (const row of parsed.days) {
       const local = await repositories.days.get(row.localDate);
@@ -236,6 +284,7 @@ export async function restoreSnapshot(
     await add(repositories.weekRecords, parsed.weekRecords, (row) => row.week);
     await add(repositories.surpriseDrops, parsed.surpriseDrops, byId);
     if (fresh) await repositories.settings.write(parsed.settings);
+    else await settleAdded(repositories, parsed, mine, now);
   });
   return 'restored';
 }

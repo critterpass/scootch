@@ -11,6 +11,8 @@ import {
   sessionView,
   timeLeftFraction,
   type SessionViewInput,
+  catchPlays,
+  finishedByHand,
 } from './session-view';
 
 const START = Date.parse('2026-10-06T09:00:00.000Z');
@@ -182,5 +184,50 @@ describe('the disc', () => {
     expect(scales.at(-1)).toBe(0);
     expect([...scales].sort((a, b) => b - a)).toEqual(scales);
     expect(discScale(0.25)).toBeCloseTo(0.5);
+  });
+});
+
+describe('the catch, between a finish made by hand and the reveal', () => {
+  const done = sessionReducer(started('full'), { type: 'double_tapped' }, START + MINUTE_MS);
+  const base = input({ session: done.state, burst: 'confetti', reveal: 'pending' });
+
+  it('keeps the finish screen up until the moment has played or is tapped away', () => {
+    expect(sessionView({ ...base, caught: true })).toEqual({ kind: 'caught', control: 'hold' });
+    expect(sessionView({ ...base, caught: true, finishWith: 'voice' })).toEqual({
+      kind: 'caught',
+      control: 'double_tap',
+    });
+    const passed = { ...NOTHING_PASSED, caught: true };
+    expect(sessionView({ ...base, caught: true, passed })).toEqual({ kind: 'reveal' });
+  });
+
+  it('is skipped when it may not play, and after a relaunch, which goes straight to the reveal', () => {
+    expect(sessionView({ ...base, caught: false })).toEqual({ kind: 'reveal' });
+    expect(sessionView(base)).toEqual({ kind: 'reveal' });
+    for (const [motion, crisis] of [
+      [true, false],
+      [false, true],
+      [true, true],
+    ] as const) {
+      expect(catchPlays({ byHand: true, reducedMotion: motion, crisis })).toBe(false);
+    }
+    expect(catchPlays({ byHand: false, reducedMotion: false, crisis: false })).toBe(false);
+    expect(catchPlays({ byHand: true, reducedMotion: false, crisis: false })).toBe(true);
+  });
+
+  it('never shows for a quiet session, and changes nothing once the reveal has been seen', () => {
+    const quiet = sessionReducer(started('quiet'), { type: 'finish_tapped' }, START + MINUTE_MS);
+    expect(sessionView(input({ session: quiet.state, reveal: 'pending', caught: true }))).toEqual({
+      kind: 'moment',
+      quiet: true,
+    });
+    expect(sessionView({ ...base, caught: true, reveal: 'seen' })).toEqual({ kind: 'home' });
+  });
+
+  it('counts a completed hold and a second tap as finishes by hand, and nothing else', () => {
+    expect(finishedByHand({ type: 'hold_completed' })).toBe(true);
+    expect(finishedByHand({ type: 'double_tapped' })).toBe(true);
+    expect(finishedByHand({ type: 'said_done' })).toBe(false);
+    expect(finishedByHand({ type: 'hold_started' })).toBe(false);
   });
 });

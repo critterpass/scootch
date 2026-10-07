@@ -208,8 +208,8 @@ export async function fetchPending(ctx: DayContext): Promise<void> {
   const { today, settings, localDate, monster } = ctx.memory.state;
   await sortOrphanWords(ctx);
   if (ctx.memory.restPending || ctx.memory.askingPending) return;
-  if (await askForFinished(ctx)) return;
-  if (!('task' in today) || ctx.memory.restPending || ctx.memory.askingPending) return;
+  // Today's task comes first; the finished ones nobody has screened are asked about after it.
+  if (!('task' in today)) return void (await askForFinished(ctx));
   const { task } = today;
   const screening = needsScreen(ctx, task);
   const waiting =
@@ -217,10 +217,13 @@ export async function fetchPending(ctx: DayContext): Promise<void> {
     (task.screen === 'pass' && monster === null) ||
     // "It's fine, be funny": the task is asked for again, this time with its comedy.
     (task.screen === 'serious' && task.seriousOverridden);
-  if (!waiting || !(await isOnline(ctx))) return;
+  if (!waiting) return void (await askForFinished(ctx));
+  if (!(await isOnline(ctx))) return;
   if (screening) {
     const asked = ctx.memory.screenAskedAt;
-    if (asked !== null && ctx.now() - asked < RESCREEN_EVERY_MS) return;
+    if (asked !== null && ctx.now() - asked < RESCREEN_EVERY_MS) {
+      return void (await askForFinished(ctx));
+    }
     ctx.memory.screenAskedAt = ctx.now();
   }
 

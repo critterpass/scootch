@@ -25,8 +25,9 @@ export async function restForToday(ctx: DayContext): Promise<void> {
   const notes = await dayNotes.read(localDate);
   if (today.kind === 'task_set') {
     const { id, carriedOver } = today.task;
+    const status = today.task.status === 'started' ? 'started' : 'set';
     await carryToTomorrow(ctx, today.task);
-    await dayNotes.write({ ...notes, rested: { taskId: id, carriedOver } });
+    await dayNotes.write({ ...notes, rested: { taskId: id, carriedOver, status } });
     ctx.set({ pick: { kind: 'none' }, session: null, line: null });
   } else if (today.kind === 'nothing_yet') {
     const day = await days.get(localDate);
@@ -57,8 +58,11 @@ export async function undoRest(ctx: DayContext): Promise<void> {
   const { days, tasks, dayNotes } = ctx.deps.repositories;
   const notes = await dayNotes.read(localDate);
   const task = notes.rested?.taskId ? await tasks.get(notes.rested.taskId) : null;
-  if (task)
-    await tasks.put({ ...task, localDate, carriedOver: notes.rested?.carriedOver ?? false });
+  if (task && notes.rested) {
+    // Exactly as it was: a task that had been started comes back started.
+    const { carriedOver, status = 'set' } = notes.rested;
+    await tasks.put({ ...task, localDate, carriedOver, status });
+  }
   const day = await days.get(localDate);
   if (day) await days.put({ ...day, status: 'open' });
   await dayNotes.write({ ...notes, rested: null });
