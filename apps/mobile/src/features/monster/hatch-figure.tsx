@@ -1,17 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated, {
-  cancelAnimation,
-  Easing,
-  useAnimatedStyle,
-  useSharedValue,
-  withRepeat,
-  withTiming,
-} from 'react-native-reanimated';
-
-import { EGG_WOBBLE_SECONDS, eggWobble } from '@scootch/art';
+import { EGG_BURST_SECONDS, EGG_SHAKE_SECONDS } from '@scootch/art';
 import type { Attitude, MonsterRow } from '@scootch/domain';
 
+import { HatchEgg } from '../../art/hatch-egg';
 import { Monster, type MonsterProps } from '../../art/Monster';
 import { Scootch, type ScootchProps } from '../../art/Scootch';
 import { useT } from '../../i18n/i18n-provider';
@@ -22,8 +14,10 @@ const FIGURE_SIZE = 150;
 const FIGURE_SIZE_LARGE_TEXT = 96;
 /** The ring left where a shrunk monster used to reach, as shares of its space on the board. */
 const RING = { side: 30 / 180, top: 40 / 180, bottom: 12 / 180, radius: 55 / 180 } as const;
-/** How long the egg wobbles before a monster that is already here breaks out of it. */
-const EGG_MS = 1100;
+/** From the monster being here to its breaking out: the egg's one hard shake. */
+const SHAKE_MS = EGG_SHAKE_SECONDS * 1000;
+/** The shell's pieces go on flying this long over the monster that has popped out. */
+const BURST_MS = EGG_BURST_SECONDS * 1000;
 
 // The monsters whose hatch has been shown since the app was opened: each hatches once.
 const hatched = new Set<string>();
@@ -31,14 +25,14 @@ const hatched = new Set<string>();
 export interface HatchFigureProps {
   readonly mood: ScootchProps['mood'];
   readonly attitude: Attitude;
-  /** `null` while the monster is still on its way: its place wobbles, as an egg does. */
+  /** `null` while the monster is still on its way: its egg rocks and hops in its place. */
   readonly monster: MonsterRow | null;
   /** An extra scale on the stored size, for a morning when it is drawn a size down. */
   readonly sizeFactor?: number;
   /** How the monster feels: nervous once its task has been shrunk. */
   readonly monsterMood?: MonsterProps['mood'];
   /**
-   * This is the monster's hatch: it is met as an egg that wobbles and breaks, once, whether its
+   * This is the monster's hatch: it is met as an egg that shakes and bursts, once, whether its
    * name arrived a moment ago or before this screen was drawn. Elsewhere it simply stands there.
    */
   readonly hatches?: boolean;
@@ -91,6 +85,13 @@ export function HatchFigure({
   if (waiting) fromEgg.current = true;
   const hatchNow = useRef(onHatch);
   hatchNow.current = onHatch;
+  // The shell's pieces are still in the air for a moment after the monster is out.
+  const [bursting, setBursting] = useState(false);
+  useEffect(() => {
+    if (!bursting) return undefined;
+    const timer = setTimeout(() => setBursting(false), BURST_MS);
+    return () => clearTimeout(timer);
+  }, [bursting]);
 
   useEffect(() => {
     if (!hatches || seed === null || hatched.has(seed)) {
@@ -101,36 +102,19 @@ export function HatchFigure({
     const out = () => {
       hatched.add(seed);
       setInEgg(false);
+      setBursting(!reducedMotion);
       hatchNow.current?.();
     };
-    // It arrived while its egg was already wobbling, or nothing may move: it is out at once.
     if (!inEgg) {
-      out();
+      // It arrived while its egg was already waiting: the egg gives its last shake first. Where
+      // nothing may move it is out at once.
+      if (fromEgg.current && !reducedMotion) setInEgg(true);
+      else out();
       return undefined;
     }
-    const timer = setTimeout(out, EGG_MS);
+    const timer = setTimeout(out, SHAKE_MS);
     return () => clearTimeout(timer);
-  }, [hatches, seed, inEgg]);
-
-  // Seconds into one wobble of the egg.
-  const wobbling = useSharedValue(0);
-  useEffect(() => {
-    if (!waiting || reducedMotion) return undefined;
-    wobbling.value = withRepeat(
-      withTiming(EGG_WOBBLE_SECONDS, {
-        duration: EGG_WOBBLE_SECONDS * 1000,
-        easing: Easing.linear,
-      }),
-      -1,
-    );
-    return () => {
-      cancelAnimation(wobbling);
-      wobbling.value = 0;
-    };
-  }, [reducedMotion, wobbling, waiting]);
-  const wobble = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${eggWobble(wobbling.value)}deg` }],
-  }));
+  }, [hatches, seed, inEgg, reducedMotion]);
 
   return (
     <View style={styles.row}>
@@ -142,49 +126,54 @@ export function HatchFigure({
         {...(onSqueak ? { onPress: onSqueak } : {})}
         {...character}
       />
-      {monster && !inEgg ? (
-        <View accessible accessibilityRole="image" accessibilityLabel={monster.name} style={tuck}>
-          {outgrown ? (
-            <View
-              pointerEvents="none"
-              style={[
-                styles.ring,
-                {
-                  left: size * RING.side,
-                  right: size * RING.side,
-                  top: size * RING.top,
-                  bottom: size * RING.bottom,
-                  borderRadius: size * RING.radius,
-                  borderColor: `${palette.ink}2E`,
-                },
-              ]}
+      {/* One box for the egg and the monster, so nothing beside them moves as it hatches. */}
+      <View
+        accessible
+        accessibilityRole="image"
+        accessibilityLabel={monster?.name ?? t('hatch.waiting')}
+        style={[tuck, { width: size, height: size }]}
+      >
+        {monster && !inEgg ? (
+          <>
+            {outgrown ? (
+              <View
+                pointerEvents="none"
+                style={[
+                  styles.ring,
+                  {
+                    left: size * RING.side,
+                    right: size * RING.side,
+                    top: size * RING.top,
+                    bottom: size * RING.bottom,
+                    borderRadius: size * RING.radius,
+                    borderColor: `${palette.ink}2E`,
+                  },
+                ]}
+              />
+            ) : null}
+            <Monster
+              spec={monster.spec}
+              sizeFactor={sizeFactor}
+              mood={monsterMood}
+              squashOnChange
+              hatching={fromEgg.current}
+              {...(onGrumble ? { onPress: onGrumble } : {})}
+              {...character}
+              size={size}
+              testID="hatch-monster"
             />
-          ) : null}
-          <Monster
-            spec={monster.spec}
-            sizeFactor={sizeFactor}
-            mood={monsterMood}
-            squashOnChange
-            hatching={fromEgg.current}
-            {...(onGrumble ? { onPress: onGrumble } : {})}
-            {...character}
-            size={size}
-            testID="hatch-monster"
-          />
-        </View>
-      ) : (
-        <Animated.View
-          accessible
-          accessibilityRole="image"
-          accessibilityLabel={monster?.name ?? t('hatch.waiting')}
-          testID="hatch-egg"
-          style={[
-            styles.egg,
-            { width: size * 0.5, height: size * 0.62, backgroundColor: palette.risoBlob },
-            wobble,
-          ]}
-        />
-      )}
+          </>
+        ) : null}
+        {waiting || bursting ? (
+          <View testID="hatch-egg" pointerEvents="none" style={StyleSheet.absoluteFill}>
+            <HatchEgg
+              size={size}
+              phase={monster === null ? 'waiting' : inEgg ? 'cracking' : 'burst'}
+              still={reducedMotion}
+            />
+          </View>
+        ) : null}
+      </View>
     </View>
   );
 }
@@ -199,9 +188,5 @@ const styles = StyleSheet.create({
   ring: {
     position: 'absolute',
     borderWidth: 1.5,
-  },
-  egg: {
-    borderRadius: 999,
-    alignSelf: 'center',
   },
 });

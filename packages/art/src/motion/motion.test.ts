@@ -15,8 +15,18 @@ import { specFromSeed } from '../core/spec-from-seed';
 import { buildScootch } from '../scootch/build-scootch';
 import { WORK_MODE_ATTACHMENTS } from '../scootch/work-mode-attachment';
 import {
+  EGG_BURST_SECONDS,
+  EGG_HOP_EVERY_SECONDS,
+  EGG_SHAKE_SECONDS,
+  EGG_SHARDS,
   EGG_WOBBLE_DEGREES,
   EGG_WOBBLE_SECONDS,
+  eggCrack,
+  eggEager,
+  eggHop,
+  eggRing,
+  eggRock,
+  eggShard,
   eggWobble,
   HATCH_POP_SECONDS,
   hatchPop,
@@ -197,6 +207,43 @@ describe('motion loops over time and seeds', { timeout: 60_000 }, () => {
       const t = timeAt(i);
       expect(between(eggWobble(t), -EGG_WOBBLE_DEGREES, EGG_WOBBLE_DEGREES)).toBe(true);
       expect(eggWobble(t + EGG_WOBBLE_SECONDS)).toBeCloseTo(eggWobble(t), 6);
+    }
+  });
+
+  it('gets the monster out of its egg quickly once it is here', () => {
+    // From the monster's arrival to the burst, and from the burst to a settled monster.
+    expect(EGG_SHAKE_SECONDS).toBeLessThanOrEqual(0.45);
+    expect(HATCH_POP_SECONDS).toBeLessThanOrEqual(0.35);
+    expect(EGG_BURST_SECONDS).toBeLessThanOrEqual(0.5);
+  });
+
+  it('keeps a waiting egg moving: never still for longer than a hop takes to come round', () => {
+    expect(EGG_HOP_EVERY_SECONDS).toBeLessThanOrEqual(1.2);
+    expect(eggCrack(0)).toBe(0);
+    expect(eggCrack(1)).toBeGreaterThan(0.5);
+    expect(eggEager(0)).toBe(0);
+    expect(eggEager(60)).toBe(1);
+    for (let i = 0; i < SAMPLES; i++) {
+      const t = timeAt(i);
+      expect(between(eggRock(t, eggEager(t), 0), -9, 9)).toBe(true);
+      expect(between(eggRock(t, 1, 1), -18, 18)).toBe(true);
+      const hop = eggHop(t);
+      expect(between(hop.lift, 0, 0.08)).toBe(true);
+      expect(eggHop(t + EGG_HOP_EVERY_SECONDS).lift).toBeCloseTo(hop.lift, 6);
+      expect(between(eggCrack(t), 0, 0.6)).toBe(true);
+    }
+  });
+
+  it('throws every shard out from the middle and has them gone by the end of the burst', () => {
+    expect(eggRing(0).opacity).toBeGreaterThan(0.5);
+    expect(eggRing(1).opacity).toBe(0);
+    for (let index = 0; index < EGG_SHARDS; index++) {
+      const start = eggShard(index, EGG_SHARDS, 0);
+      expect(Math.hypot(start.x, start.y)).toBeCloseTo(0, 12);
+      expect(start.opacity).toBe(1);
+      expect(eggShard(index, EGG_SHARDS, 1).opacity).toBe(0);
+      const mid = eggShard(index, EGG_SHARDS, 0.4);
+      expect(Math.hypot(mid.x, mid.y)).toBeGreaterThan(0.15);
     }
   });
 
