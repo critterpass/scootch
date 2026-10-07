@@ -17,7 +17,7 @@ import {
 } from './expression';
 import { drawBrow, drawEye, drawMouth } from './face';
 import * as moods from './moods/index.generated';
-import { SCOOTCH } from './palette';
+import { retone, SCOOTCH, scootchInks, type ScootchGround, type ScootchTone } from './palette';
 import { WORK_MODE_ATTACHMENTS } from './work-mode-attachment';
 import type { ScootchFrame, WorkModeAttachment } from './work-mode-kit';
 import { beret } from './work-props';
@@ -82,6 +82,10 @@ export interface ScootchBuildOptions {
   readonly confettiBehind?: boolean;
   /** Which of the three stroke sets to draw with. Zero, the still, when absent. */
   readonly boil?: BoilFrame;
+  /** The pale Scootch of the session's disc. Tomato when absent. */
+  readonly tone?: ScootchTone;
+  /** What he stands on: on a dark ground the marks around a tomato Scootch turn light. */
+  readonly ground?: ScootchGround;
 }
 
 /**
@@ -153,8 +157,16 @@ export function buildScootch(
   pen.fill(ell(100, GROUND_Y + 2, 50 * (1 - e.bounce * 0.45), 5, 14), SCOOTCH.ink, 0.2, 0.08);
   attachment?.behind(pen, frame, loop);
 
+  const inks = scootchInks(options.tone, options.ground);
+  // The effects are drawn in the tone already, and are left alone when the rest is retoned.
+  const kept: [number, number][] = [];
+  const inTone = (draw: () => void): void => {
+    const from = pen.commands.length;
+    draw();
+    kept.push([from, pen.commands.length]);
+  };
   const behind = options.confettiBehind === true && e.fx === 'confetti';
-  if (behind) drawEffect(pen, e, frame, fxBeat, moving.time);
+  if (behind) inTone(() => drawEffect(pen, e, frame, fxBeat, moving.time, inks));
 
   const cos = Math.cos(e.rot);
   const sin = Math.sin(e.rot);
@@ -214,13 +226,13 @@ export function buildScootch(
 
   attachment?.accessory(pen, frame, loop);
   if (attachment) attachment.prop(pen, frame, loop);
-  else if (e.fx === 'laptop') drawLaptop(pen, frame);
+  else if (e.fx === 'laptop') inTone(() => drawLaptop(pen, frame, inks));
   drawArm(pen, -1, [cx - rx * 0.86, cy + ry * 0.16], frame.leftHand);
   drawArm(pen, 1, [cx + rx * 0.86, cy + ry * 0.16], frame.rightHand);
   attachment?.held(pen, frame, loop);
-  if (!behind) drawEffect(pen, e, frame, fxBeat, moving.time);
+  if (!behind) inTone(() => drawEffect(pen, e, frame, fxBeat, moving.time, inks));
   attachment?.effect(pen, frame, loop);
 
   pen.commands.push({ op: 'restore' });
-  return pen.commands;
+  return retone(pen.commands, inks, kept);
 }

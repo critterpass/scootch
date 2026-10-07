@@ -45,6 +45,7 @@ export * from './motion';
 export { estimateTextWidth, type MeasureText, type TextStyle } from './core/text';
 export { specFromSeed } from './core/spec-from-seed';
 export { buildScootch, SCOOTCH_MOODS, type ScootchBuildOptions } from './scootch/build-scootch';
+export type { ScootchGround, ScootchTone } from './scootch/palette';
 export { GAZE_MOODS, type ScootchLook, type ScootchMotion } from './scootch/expression';
 export {
   WORK_MODE_ATTACHMENTS,

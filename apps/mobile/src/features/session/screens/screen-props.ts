@@ -28,8 +28,8 @@ export interface SessionModel {
   readonly thoughtsLine: string | null;
   readonly reducedMotion: boolean;
   readonly parkOpen: boolean;
-  /** The close control was pressed mid-session: leaving is being asked about. */
-  readonly leaveAsked: boolean;
+  /** Seconds until the session's real end, which a short or lengthened session moves. */
+  readonly secondsLeft: number;
   /** The thought just parked, shown for a moment. */
   readonly parkedNote: string | null;
   /** Where the hold ring starts, for a capture of a ring let go of early. */
@@ -41,10 +41,8 @@ export interface SessionModel {
 }
 
 export interface SessionActions {
-  /** The close control: mid-session it asks first; otherwise it leaves. */
+  /** The close control: mid-session it leads to the not-finished choices; otherwise it leaves. */
   readonly leave: () => void;
-  /** "Keep going": the question goes away and nothing has changed. */
-  readonly stay: () => void;
   /** "I'm not finished", said on purpose: on to the calm choices. */
   readonly leaveNow: () => void;
   readonly openPark: () => void;
@@ -57,6 +55,8 @@ export interface SessionActions {
   readonly finishEarly: () => void;
   readonly keepGoing: () => void;
   readonly passBurst: () => void;
+  /** A tap during the catch: the reveal takes over at once. */
+  readonly passCaught: () => void;
   readonly passMoment: () => void;
   readonly passTreat: () => void;
   readonly passThoughts: () => void;

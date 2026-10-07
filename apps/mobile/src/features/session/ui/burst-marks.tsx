@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
@@ -9,7 +9,7 @@ import Animated, {
   type SharedValue,
 } from 'react-native-reanimated';
 
-import { BURST_MS, burstMarks, burstRings, type BurstMark, type BurstRing } from './burst-shapes';
+import { BURST_MS, burstSources, type BurstMark, type BurstRing } from './burst-shapes';
 import type { SessionInks } from './session-inks';
 
 function Mark({ mark, clock }: { readonly mark: BurstMark; readonly clock: SharedValue<number> }) {
@@ -76,15 +76,17 @@ export interface BurstMarksProps {
   readonly kind: 'start' | 'confetti';
   readonly inks: SessionInks;
   readonly reducedMotion: boolean;
-  /** Where the burst opens, as shares of the screen: across, then down. */
-  readonly origin?: readonly [number, number];
 }
 
+const at = ([across, down]: readonly [number, number]) =>
+  ({ left: `${across * 100}%`, top: `${down * 100}%` }) as const;
+
 /**
- * The burst: marks thrown out from one point with two rings behind them, once. With Reduce Motion
- * nothing flies: a soft glow comes up and fades. It never takes a touch.
+ * The burst: marks thrown out with rings behind them, once, from each of its points (the start
+ * goes from the Start button and then from up the screen, as the board fires it). With Reduce
+ * Motion nothing flies: a soft glow comes up and fades. It never takes a touch.
  */
-export function BurstMarks({ kind, inks, reducedMotion, origin = [0.5, 0.36] }: BurstMarksProps) {
+export function BurstMarks({ kind, inks, reducedMotion }: BurstMarksProps) {
   const clock = useSharedValue(0);
   const glow = useSharedValue(0);
 
@@ -97,27 +99,36 @@ export function BurstMarks({ kind, inks, reducedMotion, origin = [0.5, 0.36] }: 
   }, [reducedMotion, clock, glow]);
 
   const glowStyle = useAnimatedStyle(() => ({ opacity: glow.value * 0.28 }));
-  const at = { left: `${origin[0] * 100}%`, top: `${origin[1] * 100}%` } as const;
-  const paper = inks.risoBlob;
+  const sources = useMemo(
+    () =>
+      burstSources(
+        kind,
+        [inks.tomato, inks.ink, inks.tomato, inks.risoBlob],
+        [inks.tomato, inks.ink],
+      ),
+    [kind, inks],
+  );
 
   return (
     <View pointerEvents="none" style={StyleSheet.absoluteFill} testID={`session-burst-${kind}`}>
-      <View style={[styles.origin, at]}>
-        {reducedMotion ? (
+      {reducedMotion ? (
+        <View style={[styles.origin, at([0.5, 0.36])]}>
           <Animated.View
             style={[styles.mark, styles.glow, { backgroundColor: inks.tomato }, glowStyle]}
           />
-        ) : (
-          <>
-            {burstRings(kind, [inks.tomato, inks.ink]).map((ring) => (
+        </View>
+      ) : (
+        sources.map((source) => (
+          <View key={source.id} style={[styles.origin, at(source.at)]}>
+            {source.rings.map((ring) => (
               <Ring key={ring.id} ring={ring} clock={clock} />
             ))}
-            {burstMarks(kind, [inks.tomato, inks.ink, inks.tomato, paper]).map((mark) => (
+            {source.marks.map((mark) => (
               <Mark key={mark.id} mark={mark} clock={clock} />
             ))}
-          </>
-        )}
-      </View>
+          </View>
+        ))
+      )}
     </View>
   );
 }

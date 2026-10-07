@@ -12,6 +12,9 @@ import {
 } from './hold-control';
 import type { FinishControl } from './session-view';
 
+/** How long after the store answers a finish the control looks whether it was taken. */
+const SETTLE_AFTER_MS = 100;
+
 export interface HoldControlHandle {
   readonly progress: SharedValue<number>;
   readonly caption: HoldCaption;
@@ -26,6 +29,8 @@ export function useHoldControl(
   control: FinishControl,
   send: (event: SessionEvent) => void | Promise<void>,
   startAt = 0,
+  /** The finish was taken and its catch is playing on this screen: the control stays as it ended. */
+  taken = false,
 ): HoldControlHandle {
   const state = useRef<HoldControl>({ ...holdControl(control), progress: startAt });
   const progress = useSharedValue(startAt);
@@ -35,6 +40,8 @@ export function useHoldControl(
   const sender = useRef(send);
   sender.current = send;
   const mounted = useRef(true);
+  const wasTaken = useRef(taken);
+  wasTaken.current = taken;
 
   const apply = useCallback(
     (input: HoldInput) => {
@@ -46,13 +53,16 @@ export function useHoldControl(
         const sent = sender.current(event);
         if (!step.control.finished) continue;
         // Once the store has answered, a control still on the screen was not taken: it resets.
-        void Promise.resolve(sent).then(() => {
-          if (!mounted.current) return;
-          const settled = holdReducer(state.current, { type: 'settled' });
-          state.current = settled.control;
-          progress.value = settled.control.progress;
-          setCaption(settled.control.caption);
-        });
+        // Looked at a moment later, once the screen has caught up with the store.
+        void Promise.resolve(sent).then(() =>
+          setTimeout(() => {
+            if (!mounted.current || wasTaken.current) return;
+            const settled = holdReducer(state.current, { type: 'settled' });
+            state.current = settled.control;
+            progress.value = settled.control.progress;
+            setCaption(settled.control.caption);
+          }, SETTLE_AFTER_MS),
+        );
       }
     },
     [progress],

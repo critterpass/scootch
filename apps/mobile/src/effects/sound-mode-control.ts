@@ -30,6 +30,11 @@ export interface SoundModeControl {
   setMusicWhenSilent(on: boolean): void;
   musicStarted(): void;
   musicStopped(): void;
+  /**
+   * Puts the audio session back on the rule after something else changed it (the microphone, for
+   * a spoken thought), whether or not the rule's answer is the one last applied.
+   */
+  restore(): void;
 }
 
 /** Keeps the audio session on the rule, calling `apply` only when the answer changes. */
@@ -49,5 +54,10 @@ export function createSoundModeControl(apply: (mode: AudioMode) => void): SoundM
     setMusicWhenSilent: (on) => update({ musicWhenSilent: on }),
     musicStarted: () => update({ musicPlaying: true }),
     musicStopped: () => update({ musicPlaying: false }),
+    restore: () => {
+      const mode = audioModeFor(facts);
+      applied = mode.playsInSilentMode;
+      apply(mode);
+    },
   };
 }

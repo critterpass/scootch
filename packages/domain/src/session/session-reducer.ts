@@ -120,7 +120,11 @@ function act(state: LiveSession, event: SessionEvent, now: Instant): SessionStep
       return unchanged(state);
     case 'thought_parked': {
       const text = event.text.trim();
-      if ((phase !== 'running' && phase !== 'stuck') || text === '') return unchanged(state);
+      // Up to the very end: a thought being typed as time runs out, or as the finish is held, is
+      // still handed over. A session that is over takes no more.
+      const open =
+        phase === 'running' || phase === 'stuck' || phase === 'time_up' || phase === 'holding';
+      if (!open || text === '') return unchanged(state);
       const thought: ParkedThought = { text, parkedAt: now };
       const effects: SessionEffect[] = [{ kind: 'save_parked_thought', thought }];
       if (full) effects.push({ kind: 'play_cue', cue: 'park-a-thought' });

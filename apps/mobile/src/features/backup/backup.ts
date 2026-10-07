@@ -18,7 +18,7 @@ import {
   isFreshDatabase,
   isRestorableSnapshot,
   restoreSnapshot,
-  weightOf,
+  holdsAll,
   type Snapshot,
 } from './snapshot';
 
@@ -38,8 +38,8 @@ export interface Backup {
   maybeUpload(): Promise<void>;
   /**
    * The snapshot the server holds that this phone should be offered, or `null`. It is offered to
-   * a phone that holds a token and has made nothing yet, and to one that has made less than the
-   * server holds and has never been asked. It never makes a token, so a first-ever launch asks
+   * a phone that holds a token and has made nothing yet, and to one the server holds something
+   * more for and that has never been asked. It never makes a token, so a first-ever launch asks
    * the server nothing. Once the answer is known to be "none", it is not asked again.
    */
   findRestore(): Promise<Snapshot | null>;
@@ -86,23 +86,29 @@ export function createBackup(deps: BackupDeps): Backup {
    */
   async function unanswered(): Promise<Snapshot | null> {
     if (await settled()) return null;
-    const { token } = await deps.tokens.read();
-    // With no token there is no server copy this phone could replace.
-    if (token === null) return settle().then(() => null);
+    const { token, answered } = await deps.tokens.read();
+    if (token === null) {
+      // With no token there is no server copy this phone could replace. A store that would not
+      // answer may still hold one, so nothing is settled until one of them has.
+      if (answered.keychain || answered.cloud) await settle();
+      return null;
+    }
     const held = await deps.api.get(token);
     if (held === null || held === undefined) return settle().then(() => null);
     // A copy this app cannot read (a newer app wrote it) is left alone, and never replaced.
     if (!isRestorableSnapshot(held)) return null;
     if (await isFreshDatabase(deps.repositories)) return held;
+    // The same world, as far as the server knows it, is already here: nothing to offer. Anything
+    // the server holds that this phone does not is another world, however small, and is offered.
     const local = await buildSnapshot(deps.repositories, deps.clock.now());
-    return weightOf(held) > weightOf(local) ? held : settle().then(() => null);
+    return holdsAll(local, held) ? settle().then(() => null) : held;
   }
 
   /**
    * A failed upload is silent: nothing is recorded, so the next finish or the next hourly check
    * tries again. Three things are never uploaded. An empty phone, because that would replace the
-   * snapshot it may be about to restore. A phone that holds less than the server and has not been
-   * asked whether to bring that back. And anything while "delete everything" is still waiting
+   * snapshot it may be about to restore. A phone the server holds something more for, that has
+   * not been asked whether to bring that back. And anything while "delete everything" is still waiting
    * to reach the server, because that would put back what the person asked to be removed.
    *
    * A snapshot over the server's cap first loses the detail of its oldest finished sessions. One
@@ -144,7 +150,7 @@ export function createBackup(deps: BackupDeps): Backup {
       }
     },
     async restore(snapshot) {
-      const outcome = await restoreSnapshot(deps.repositories, snapshot);
+      const outcome = await restoreSnapshot(deps.repositories, snapshot, deps.clock.now());
       if (outcome === 'restored') await settle();
       return outcome;
     },

@@ -110,11 +110,9 @@ export async function askForFinished(ctx: DayContext): Promise<boolean> {
     if (answer === null || !finished || finished.status !== 'finished') return;
     const { verdict } = answer.first;
     if (verdict === 'crisis' || verdict === 'reject') {
-      // Words from an earlier day change nothing now. Today's are treated as they would have
-      // been before the finish: a crisis hides the day, and its words are kept nowhere.
+      // What the person finished is theirs and stays, with what it earned. Words from an earlier
+      // day change nothing now; today's make the day quiet, as the care rules say.
       if (verdict === 'crisis' && finished.localDate === ctx.memory.state.localDate) {
-        await repositories.unsortedWords.remove(finished.id);
-        await repositories.forgetTask(finished.id);
         await enterCrisis(ctx);
         await ctx.refresh();
       }
