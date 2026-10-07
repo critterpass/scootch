@@ -15,10 +15,12 @@ const ATTITUDES = ['soft', 'cheeky', 'unhinged'] as const satisfies readonly Att
 /** How each attitude's Scootch looks on its card. */
 const CARD_MOODS: Record<Attitude, ScootchProps['mood']> = {
   soft: 'asleep',
-  cheeky: 'waiting',
-  unhinged: 'stuck',
+  cheeky: 'scheming',
+  unhinged: 'dramatic',
 };
 const CARD_SCOOTCH = 64;
+/** The tick is white on the tomato disc, as the design draws it, in both appearances. */
+const TICK_WHITE = '#FFFFFF';
 const NAME_SIZE = 19;
 const ABOUT_SIZE = 15;
 
@@ -38,6 +40,7 @@ export function AttitudeView({ line, selected, onChoose, onConfirm }: AttitudeVi
   return (
     <LaunchPage
       step={2}
+      top
       testID="launch-attitude"
       footer={
         <CapsuleButton
@@ -106,7 +109,7 @@ export function AttitudeView({ line, selected, onChoose, onConfirm }: AttitudeVi
                     : { borderColor: `${palette.ink}33` },
                 ]}
               >
-                {chosen ? <Tick color={palette.onTomato} /> : null}
+                {chosen ? <Tick color={TICK_WHITE} /> : null}
               </View>
             </Pressable>
           );

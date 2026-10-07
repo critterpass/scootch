@@ -1,0 +1,72 @@
+appId: app.scootch.dev
+---
+# Tour: Parts (f) to (i): offline, the largest text size, dark and Vietnamese on the one screen and its neighbours. Each shot is a registry row, named for the sheet that pairs it with its design.
+- runFlow: ../tour-support/to-registry.yaml
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: one-screen-offline--en-light-default-offline
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: one-screen-offline--en-light-largest-offline
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: one-screen-offline--vi-light-default-offline
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: one-screen-task-set--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: one-screen-task-set--en-dark-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: one-screen-task-set--en-light-largest
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: one-screen-task-set--vi-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: one-screen-largest-text--en-light-largest
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: one-screen-waiting--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: one-screen-done-for-today--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: one-screen-done-for-today--en-dark-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: one-screen-model-unavailable--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: settings-page--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: settings-page--en-light-largest
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: settings-page--en-dark-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: launch-hello--en-dark-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: launch-attitude--en-dark-default

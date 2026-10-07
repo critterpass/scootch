@@ -1,0 +1,42 @@
+appId: app.scootch.dev
+---
+# Like shot.yaml for a state that is a sheet in a window of its own (env NAME): the sheet's own
+# close control returns to the registry, because the registry's way back lies under the window.
+# With env EXPAND set to anything, "more" is pressed first and the capture is named `<NAME>-all`.
+- tapOn:
+    id: 'registry-filter'
+- eraseText: 120
+- inputText: ${NAME}
+# The first time the keyboard is used, iOS may stop to explain sliding a finger across the letters,
+# and what was typed before it came up is lost: dismiss it, then type the words again whole.
+- runFlow:
+    when:
+      visible: 'Continue'
+    commands:
+      - tapOn: 'Continue'
+      - eraseText: 120
+      - inputText: ${NAME}
+- tapOn:
+    id: registry-row-${NAME}
+- extendedWaitUntil:
+    visible:
+      id: 'drawer'
+    timeout: 20000
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: ${NAME}
+- runFlow:
+    when:
+      true: ${typeof EXPAND !== 'undefined'}
+    commands:
+      - tapOn:
+          id: 'drawer-more'
+      - waitForAnimationToEnd:
+          timeout: 2000
+      - takeScreenshot: ${NAME}-all
+- tapOn:
+    id: 'drawer-close'
+- extendedWaitUntil:
+    visible:
+      id: 'registry-filter'
+    timeout: 15000

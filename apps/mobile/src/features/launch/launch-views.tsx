@@ -17,6 +17,9 @@ import { LaunchPage } from './launch-page';
 const ROW_SIZE = 17;
 const REASON_SIZE = 15;
 const CELEBRATION_MS = 2400;
+/** How big the design draws Scootch on these two screens. */
+const HELLO_SCOOTCH = 320;
+const PERMISSIONS_SCOOTCH = 230;
 
 export interface HelloViewProps {
   /** Scootch's hello and what he is for, from the offline pack. */
@@ -54,6 +57,7 @@ export function HelloView({ line, more, attitude, onSqueak, onNext }: HelloViewP
         attitude={attitude}
         line={line}
         more={more}
+        figureSize={HELLO_SCOOTCH}
         onPress={onSqueak}
       />
     </LaunchPage>
@@ -116,7 +120,12 @@ export function PermissionsView({
         </GlassSurface>
       }
     >
-      <ScootchSays mood="bargaining" attitude={attitude} line={line} />
+      <ScootchSays
+        mood="bargaining"
+        attitude={attitude}
+        line={line}
+        figureSize={PERMISSIONS_SCOOTCH}
+      />
       <View style={[styles.card, { backgroundColor: palette.surface }]}>
         {FAVOURS.map((favour, index) => {
           const current = favour === asking && !prompting;

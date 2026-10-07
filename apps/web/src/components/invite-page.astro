@@ -7,6 +7,7 @@ import '../styles/together.css';
 
 import AppStoreBadge from './app-store-badge.astro';
 import NotFound from './not-found.astro';
+import OpenInApp from './open-in-app.astro';
 
 interface Props {
   language: Language;
@@ -42,12 +43,10 @@ const copy = togetherFor(language).invite;
               <AppStoreBadge language={language} />
             ) : (
               <>
-                <div class="actions phone-only">
-                  <a class="button button-ink" href={appStoreUrl} data-sit-down>
-                    {copy.sitDown}
-                  </a>
+                <div class="phone-only">
+                  <OpenInApp language={language} kind="t" label={copy.sitDown} />
+                  <p class="small">{copy.note}</p>
                 </div>
-                <p class="small phone-only">{copy.note}</p>
                 <div class="desk-hand-off desk-only">
                   <div>
                     <p class="desk-title">{copy.deskTitle}</p>

@@ -111,14 +111,15 @@ export const viOffline: OfflinePack = {
       typing: 'Gõ cũng được nha. Bạn cứ thong thả.',
       doneForToday: 'Hôm nay vậy là xong. Bạn nghỉ ngơi đi, ở đây có mình trông.',
       plusSheet: 'Nếu bạn muốn có mình nhiều hơn một chút thì ở đây nha. Không vội gì đâu.',
-      plusOneMore: 'Việc thứ hai trong ngày nằm trong Plus nha. Bạn cứ thong thả.',
+      plusOneMore:
+        'Hôm nay đủ ba việc rồi, mai lại có ba việc nữa. Việc thứ tư nằm trong Plus nha. Bạn cứ thong thả.',
       plusOffer: 'Bắt được ba bé rồi. Mình còn giúp được thêm chút nữa, khi nào bạn muốn nha.',
       trialStarted: 'Bảy ngày mở hết mọi thứ. Trước khi tốn đồng nào mình sẽ báo bạn.',
       trialEndsTomorrow:
         'Mai là hết tuần dùng thử và bắt đầu tính tiền. Mình muốn tự báo bạn trước.',
       trialLastDay: 'Tối nay hết tuần dùng thử rồi. Bạn muốn sao nè?',
       renewalOff: 'Xong rồi. Plus sẽ không gia hạn nữa.',
-      plusCancelled: 'Vậy cũng được mà. Mình vẫn ở đây. Mỗi ngày một việc vẫn là của bạn.',
+      plusCancelled: 'Vậy cũng được mà. Mình vẫn ở đây. Ba việc mỗi ngày vẫn là của bạn.',
       lifetime: 'Vậy là bạn ở lại luôn rồi. Mình vui lắm.',
       offline: 'Đang mất mạng rồi. Mình vẫn ngồi cạnh bạn được nha.',
       modelDown: 'Đầu mình đang chạy hơi chậm. Hôm nay bạn chọn nha, lát mình theo kịp.',
@@ -141,14 +142,15 @@ export const viOffline: OfflinePack = {
       typing: 'Gõ chữ luôn hả? Sang ghê. Tui đọc không sót chữ nào.',
       doneForToday: 'Hôm nay xong rồi. Đi chơi đi, khỏi làm gì hết.',
       plusSheet: 'Tui làm không công đó. Tui muốn làm hơn không công một xíu.',
-      plusOneMore: 'Thêm việc nữa hả? Thời buổi này? Cái đó là đồ của Plus nha.',
+      plusOneMore:
+        'Việc thứ tư hả? Thời buổi này? Hôm nay đủ ba rồi, mai có ba việc nữa. Thêm nữa là đồ của Plus nha.',
       plusOffer:
         'Bắt được ba con rồi. Tui làm thêm được nhiều thứ lắm, có tí phí thôi. Không ép. Ép chút xíu.',
       trialStarted: 'Bảy ngày xài hết mọi thứ. Trước khi tốn đồng nào tui sẽ chọc bạn một cái.',
       trialEndsTomorrow: 'Mai tui tính tiền bạn đó. Tui nói trước vì tui đâu phải quái vật.',
       trialLastDay: 'Tối nay hết tuần miễn phí rồi. Tính sao đây ta?',
       renewalOff: 'Xong. Plus sẽ không gia hạn nữa.',
-      plusCancelled: 'Cũng được. Tui vẫn ở đây. Mỗi ngày một việc là của bạn luôn.',
+      plusCancelled: 'Cũng được. Tui vẫn ở đây. Ba việc mỗi ngày là của bạn luôn.',
       lifetime: 'Giờ bạn dính với tui rồi. Mãi mãi. Tui khoái lắm.',
       offline: 'Mất sóng rồi. Mấy câu đùa của tui cần wifi, nhưng tui vẫn ngồi cạnh bạn được.',
       modelDown: 'Não tui đang quay vòng vòng. Hôm nay bạn chọn đi, lát tui duyên dáng bù.',
@@ -172,7 +174,8 @@ export const viOffline: OfflinePack = {
       typing: 'GÕ CHỮ. Sang ghê. Tui đọc từng chữ một.',
       doneForToday: 'HÔM NAY XONG RỒI. Đi chơi đi, khỏi làm gì hết. Tui trông cho.',
       plusSheet: 'Tui chuẩn bị sẵn một bài diễn văn, một điệu nhảy và một cái hoá đơn bé xíu.',
-      plusOneMore: 'THÊM VIỆC NỮA? HÔM NAY? Cái đó là đồ của Plus. Tui tra sổ luật tí hon rồi.',
+      plusOneMore:
+        'VIỆC THỨ TƯ? HÔM NAY? Đủ ba rồi, mai có ba việc nữa. Thêm nữa là đồ của Plus. Tui tra sổ luật tí hon rồi.',
       plusOffer:
         'BẮT ĐƯỢC BA CON. Tui làm thêm được nhiều thứ lắm, có tí phí thôi. Tui tập nói câu này cho tự nhiên đó.',
       trialStarted:
@@ -182,7 +185,7 @@ export const viOffline: OfflinePack = {
       trialLastDay:
         'TỐI NAY HẾT TUẦN MIỄN PHÍ. Tính sao đây? Tui không lảng vảng đâu. Tui đang lảng vảng.',
       renewalOff: 'XONG. Plus sẽ không gia hạn nữa. Tui cất vô ngăn xong xuôi rồi.',
-      plusCancelled: 'CŨNG ĐƯỢC. Tui vẫn ở đây. Mỗi ngày một việc là của bạn luôn. Tui canh cho.',
+      plusCancelled: 'CŨNG ĐƯỢC. Tui vẫn ở đây. Ba việc mỗi ngày là của bạn luôn. Tui canh cho.',
       lifetime: 'GIỜ BẠN DÍNH VỚI TUI RỒI. MÃI MÃI. Tui khoái lắm. Cái muỗng cũng khoái.',
       offline: 'MẤT SÓNG RỒI. Mấy câu đùa của tui cần wifi. Tui vẫn ngồi cạnh bạn, ngồi rất kịch.',
       modelDown: 'NÃO TUI ĐANG QUAY VÒNG VÒNG. Hôm nay bạn chọn đi, lát tui duyên dáng bù.',

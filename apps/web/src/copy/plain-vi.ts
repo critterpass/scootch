@@ -133,7 +133,7 @@ export const plainVi = {
     questions: [
       {
         q: 'Scootch có miễn phí không?',
-        a: 'Có. Trọn vòng một ngày cho mỗi ngày một việc là miễn phí mãi mãi: cả ba kiểu tính cách, mọi con quái bạn bắt được, ngồi vào bàn của bạn bè, và bài hát mỗi tuần. Plus thêm vài món phụ. Không thứ gì bạn cần để bắt đầu nằm sau Plus.',
+        a: 'Có. Trọn vòng một ngày, mỗi ngày tới ba việc, là miễn phí mãi mãi: cả ba kiểu tính cách, mọi con quái bạn bắt được, ngồi vào bàn của bạn bè, và bài hát mỗi tuần. Plus thêm vài món phụ. Không thứ gì bạn cần để bắt đầu nằm sau Plus.',
       },
       {
         q: 'Có cần tài khoản không?',
@@ -152,8 +152,8 @@ export const plainVi = {
         a: 'Giọng nói của bạn được chuyển thành chữ ngay trên điện thoại khi có thể, và âm thanh không bao giờ được giữ lại. Phần chữ được giữ tới khi chọn xong một việc của bạn. Không gì trong đó được dùng để huấn luyện mô hình AI. Trang quyền riêng tư có đủ cả bảng.',
       },
       {
-        q: 'Sao mỗi ngày chỉ một việc?',
-        a: 'Vì bắt đầu được đã là thắng, còn một danh sách dài chính là thứ phần lớn chúng ta đang né. Scootch chọn một việc và cất phần còn lại vào ngăn kéo. Có Plus, bạn thêm được tối đa hai việc nữa vào những ngày bạn muốn.',
+        q: 'Sao mỗi lần chỉ một việc?',
+        a: 'Vì bắt đầu được đã là thắng, còn một danh sách dài chính là thứ phần lớn chúng ta đang né. Scootch chọn một việc và cất phần còn lại vào ngăn kéo. Xong việc đó thì bạn chọn việc khác: mỗi ngày tới ba việc, miễn phí.',
       },
       {
         q: 'Nếu tôi không làm xong thì sao?',

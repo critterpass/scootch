@@ -93,16 +93,16 @@ export const pagesVi = {
       'Giá tính bằng USD. Giá trên App Store ở nước bạn có thể khác. Gói đăng ký tự gia hạn cho tới khi bạn hủy trong cài đặt Apple, mục Đăng ký.',
     freeTitle: 'Miễn phí mãi mãi',
     free: [
-      'Mỗi ngày một việc, mãi mãi',
+      'Mỗi ngày tới ba việc, mãi mãi',
       'Mọi con quái bạn bắt được, giữ mãi mãi',
-      'Ngồi bàn với bạn bè',
+      'Ngồi bàn với bạn bè, và tự mở bàn hai chỗ',
       'Cả ba kiểu tính cách',
       'Bài hát mỗi tuần, và chia sẻ mọi thứ',
     ],
     addsTitle: 'Plus thêm gì',
     adds: [
       { title: 'Thêm một, hoặc hai', body: 'Việc thứ hai, thứ ba vào những ngày bạn còn sức.' },
-      { title: 'Bàn của riêng bạn', body: 'Mở bàn và rủ tới ba người bạn ngồi miễn phí.' },
+      { title: 'Bàn rộng hơn', body: 'Mở bàn bốn chỗ và rủ ba người bạn ngồi miễn phí.' },
       {
         title: 'Một Scootch hiểu bạn',
         body: 'Nó tự học xem bạn bắt đầu dễ nhất lúc nào, kiểu nào.',

@@ -1,0 +1,56 @@
+appId: app.scootch.dev
+---
+# Tour: Part (e): the Plus sheet in its loading, unavailable, failed and purchasing states, and the manage page. Each shot is a registry row, named for the sheet that pairs it with its design.
+- runFlow: ../tour-support/to-registry.yaml
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: plus-sheet-loading--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: plus-sheet-unavailable--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: plus-sheet-failed--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: plus-sheet-purchasing--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: plus-sheet-soft-monthly--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: plus-sheet-cheeky-yearly--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: plus-sheet-unavailable--en-light-largest
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: plus-first-offer--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: plus-manage-free--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: plus-manage-trial--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: plus-manage-yearly--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: plus-manage-lifetime--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: plus-manage-free--vi-light-default

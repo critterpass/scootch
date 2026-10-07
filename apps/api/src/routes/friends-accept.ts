@@ -2,12 +2,15 @@ import { z } from 'zod';
 
 import { requireAccount } from '../accounts/accounts';
 import { acceptFriendInvite } from '../accounts/friends';
-import { inviteCodePattern } from '../accounts/ids';
+import { pastedInviteCodeSchema } from '../accounts/codes';
 import { readBody, type RouteDefinition } from '../route';
 
-const acceptRequestSchema = z.strictObject({ code: z.string().regex(inviteCodePattern) });
+const acceptRequestSchema = z.strictObject({ code: pastedInviteCodeSchema });
 
-/** Accepts a friend link. This is the only way two accounts become friends. */
+/**
+ * Accepts a friend link, given as the bare code (typed or pasted) or as the link itself. Beside
+ * sitting down through a table link, this is the only way two accounts become friends.
+ */
 export const friendsAcceptRoute: RouteDefinition = {
   method: 'POST',
   path: '/v1/friends/accept',

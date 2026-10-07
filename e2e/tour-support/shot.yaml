@@ -1,0 +1,42 @@
+appId: app.scootch.dev
+---
+# Opens one registry row by its name (env NAME, such as `care-serious--en-light-default`),
+# waits for the state, takes one screenshot named after it, and returns to the registry list.
+# The name is the one the design-beside-device sheets pair with the state's design.
+- tapOn:
+    id: 'registry-filter'
+- eraseText: 120
+- inputText: ${NAME}
+# The first time the keyboard is used, iOS may stop to explain sliding a finger across the letters,
+# and what was typed before it came up is lost: dismiss it, then type the words again whole.
+- runFlow:
+    when:
+      visible: 'Continue'
+    commands:
+      - tapOn: 'Continue'
+      - eraseText: 120
+      - inputText: ${NAME}
+- tapOn:
+    id: registry-row-${NAME}
+- extendedWaitUntil:
+    visible:
+      id: registry-state-${NAME}
+    timeout: 20000
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: ${NAME}
+- tapOn:
+    id: 'registry-state-close'
+# A state with a control of its own near the top can take the first press: press again if the list
+# has not come back.
+- runFlow:
+    when:
+      notVisible:
+        id: 'registry-filter'
+    commands:
+      - tapOn:
+          id: 'registry-state-close'
+- extendedWaitUntil:
+    visible:
+      id: 'registry-filter'
+    timeout: 15000

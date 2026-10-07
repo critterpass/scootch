@@ -15,6 +15,6 @@ export const standard: CardFinishInks = {
   pill: '#FFFFFF',
   pillInk: '#1C1A17',
   foil: ['#FFAA8C', '#FFE6A0', '#AAEBD2', '#A0C8FF', '#E6AAFF'],
-  foilAlpha: 0.32,
+  foilAlpha: 0.12,
   glare: '#FFFFFF',
 };

@@ -1,0 +1,60 @@
+appId: app.scootch.dev
+---
+# Tour: Part (b): the session part-way, two minutes left, I'm stuck, Too big (the shrink), parked thoughts, quiet and offline. Each shot is a registry row, named for the sheet that pairs it with its design.
+- runFlow: ../tour-support/to-registry.yaml
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: session-running--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: session-running--en-dark-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: session-running--vi-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: session-running--en-light-largest
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: session-two-minutes-left--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: session-stuck-help--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: monster-shrunk--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: monster-shrunk--vi-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: session-park-a-thought--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: session-parked-thoughts--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: session-quiet--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: session-offline--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: session-not-finished--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: session-released-early--en-light-default

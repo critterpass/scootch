@@ -274,6 +274,8 @@ export const en = {
   'drawer.dated': 'due {due} · back on {back}',
   'drawer.swapIn': 'Swap in',
   'drawer.swapIn.hint': "Makes this today's one thing. The current one goes in the drawer.",
+  'drawer.more': '+{count} more.',
+  'drawer.more.hint': 'Shows the rest of what is parked.',
   'drawer.fades': 'Anything without a date fades out after two weeks unless you mention it again.',
   'drawer.close': 'Close the drawer',
   'drawer.close.hint': 'Goes back to the one thing.',

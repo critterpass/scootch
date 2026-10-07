@@ -1,5 +1,6 @@
 import { buildScootch, toSvg } from '@scootch/art';
 
+import { wireOpenInApp } from './open-in-app';
 import {
   dateLocale,
   fetchShared,
@@ -105,5 +106,6 @@ export async function startInvitePage(root: HTMLElement): Promise<void> {
       host === null ? line('closedBody') : line('closedBodyBy', { name: host });
   }
   document.title = `${find('[data-headline]').textContent} · Scootch`;
+  if (open) wireOpenInApp(root, code);
   showState(root, invite.state);
 }

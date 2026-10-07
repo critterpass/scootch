@@ -14,6 +14,7 @@ Import them from `@scootch/domain` through `index.ts`.
 | `ai-labels.ts` | `screen.input` and the typed decisions (work mode, body type, size, energy, share, table name) |
 | `local-db.ts` | The phone's tables, one row schema each, with derived fields marked |
 | `table-messages.ts` | The messages between a phone and its table, and the close codes |
+| `together.ts` | What the routes for tables, friends, pasted codes, haunts and push tokens answer with |
 | `public-pages.ts` | What the website's table invite and haunt pages read, and the answers that carry their link ids |
 
 Recorded fixtures live in `packages/voice/fixtures/` as

@@ -10,11 +10,20 @@ appId: app.scootch.dev
     timeout: 90000
 - tapOn:
     id: 'more-button'
+    waitToSettleTimeoutMs: 0
+- runFlow:
+    when:
+      notVisible:
+        id: 'settings'
+    commands:
+      - tapOn:
+          id: 'more-button'
+          waitToSettleTimeoutMs: 0
 - extendedWaitUntil:
     visible:
       id: 'settings'
     timeout: 15000
-- takeScreenshot: fresh-05-settings
+- takeScreenshot: settings-page--en-light-default
 - tapOn:
     id: 'settings-attitude-soft'
 - assertVisible:
@@ -32,14 +41,14 @@ appId: app.scootch.dev
     timeout: 15000
 - assertVisible:
     id: 'privacy-keep-transcripts'
-- takeScreenshot: fresh-05-privacy
+- takeScreenshot: privacy-and-data--en-light-default
 - tapOn:
     id: 'privacy-delete'
 - extendedWaitUntil:
     visible:
       id: 'delete-keep'
     timeout: 15000
-- takeScreenshot: fresh-05-delete-everything
+- takeScreenshot: privacy-delete-everything--en-light-default
 - tapOn:
     id: 'delete-keep'
 # Nothing was deleted: the page is as it was.

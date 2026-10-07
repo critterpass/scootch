@@ -110,14 +110,15 @@ export const enOffline: OfflinePack = {
       typing: 'Typing is lovely. Take your time.',
       doneForToday: "Done for today. Go and rest. I'll keep things cosy here.",
       plusSheet: "If you'd like a little more of me, it's here. No rush at all.",
-      plusOneMore: 'A second thing today lives in Plus. No rush at all.',
+      plusOneMore:
+        "Today's three are done, and tomorrow has three more. A fourth lives in Plus. No rush at all.",
       plusOffer: "Three caught. There's a little more of me, if you ever want it.",
       trialStarted: "A whole week of everything. I'll tell you before it costs a thing.",
       trialEndsTomorrow:
         'Your free week ends tomorrow, and the charge comes then. I wanted you to hear it from me.',
       trialLastDay: 'The free week ends tonight. What would you like to do?',
       renewalOff: "Done. Plus won't renew.",
-      plusCancelled: "That's fair. I'll still be here. The one thing a day is yours to keep.",
+      plusCancelled: "That's fair. I'll still be here. Your three things a day are yours to keep.",
       lifetime: "You're staying for good. I'm so glad.",
       offline: 'No signal just now. I can still sit with you.',
       modelDown: "My thinking is slow just now. You pick today, and I'll join in soon.",
@@ -139,14 +140,15 @@ export const enOffline: OfflinePack = {
       typing: "Typing? Fancy. I'll read every letter.",
       doneForToday: 'Done for today. Go do absolutely nothing.',
       plusSheet: "I work for free. I'd like to work for slightly more than free.",
-      plusOneMore: "A second one? In this economy? That's a Plus thing.",
+      plusOneMore:
+        "A fourth? In this economy? Today's three are done and tomorrow has three more. More today is a Plus thing.",
       plusOffer:
         'Three caught. I could do more for you, for a small fee. No pressure. Some pressure.',
       trialStarted: "A whole week of everything. I'll poke you before it costs a thing.",
       trialEndsTomorrow: "Tomorrow I charge you. I'm telling you now because I'm not a monster.",
       trialLastDay: 'Free week ends tonight. What shall we do?',
       renewalOff: "Done. Plus won't renew.",
-      plusCancelled: "Fair. I'll still be here. The one thing a day is yours to keep.",
+      plusCancelled: "Fair. I'll still be here. Your three things a day are yours to keep.",
       lifetime: "You're stuck with me now. Forever. I'm thrilled.",
       offline: 'No signal. My jokes need wifi, but I can still sit with you.',
       modelDown: "My brain is buffering. You pick today, I'll be witty later.",
@@ -170,7 +172,8 @@ export const enOffline: OfflinePack = {
       typing: 'TYPING. Fancy. I will read every single letter.',
       doneForToday: "DONE FOR TODAY. Go do absolutely nothing. I'll supervise.",
       plusSheet: 'I have prepared a speech, a dance, and one very small invoice.',
-      plusOneMore: "A SECOND ONE? TODAY? That's a Plus thing. I checked the tiny rulebook.",
+      plusOneMore:
+        'A FOURTH? TODAY? Three are done and tomorrow has three more. A fourth is a Plus thing. I checked the tiny rulebook.',
       plusOffer:
         'THREE CAUGHT. I could do more for you, for a small fee. I rehearsed saying that casually.',
       trialStarted:
@@ -181,7 +184,7 @@ export const enOffline: OfflinePack = {
         'THE FREE WEEK ENDS TONIGHT. What shall we do? I am not hovering. I am hovering.',
       renewalOff: "DONE. Plus won't renew. I filed it under handled.",
       plusCancelled:
-        "FAIR. I'll still be here. The one thing a day is yours to keep. I am guarding it.",
+        "FAIR. I'll still be here. Your three things a day are yours to keep. I am guarding it.",
       lifetime: "YOU'RE STUCK WITH ME NOW. FOREVER. I'm thrilled. The spoon is thrilled.",
       offline: 'NO SIGNAL. My jokes need wifi. I can still sit with you, dramatically.',
       modelDown: "MY BRAIN IS BUFFERING. You pick today, I'll be witty later.",
