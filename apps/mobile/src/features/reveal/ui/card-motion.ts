@@ -60,6 +60,8 @@ export interface CardMotionOptions {
   /** The card's size on screen, for reading where a finger is on it. */
   readonly width: number;
   readonly height: number;
+  /** Where the card starts, for one that arrives turned over. Face up at full size when left out. */
+  readonly startsAt?: { readonly flip: number; readonly scale: number };
   /** Called on the JS thread each time the card is turned over by hand. */
   readonly onTurn?: () => void;
 }
@@ -74,8 +76,8 @@ export function useCardMotion(options: CardMotionOptions): CardMotion {
   const { mayMove, handled, width, height, onTurn } = options;
   const rx = useSharedValue(0);
   const ry = useSharedValue(0);
-  const flip = useSharedValue(0);
-  const scale = useSharedValue(1);
+  const flip = useSharedValue(options.startsAt?.flip ?? 0);
+  const scale = useSharedValue(options.startsAt?.scale ?? 1);
   const phone = useSharedValue({ x: 0, y: 0 });
   const clock = useSharedValue(0);
   const held = useSharedValue(false);
@@ -111,8 +113,7 @@ export function useCardMotion(options: CardMotionOptions): CardMotion {
     if (mayMove) return;
     rx.value = 0;
     ry.value = 0;
-    scale.value = 1;
-  }, [mayMove, rx, ry, scale]);
+  }, [mayMove, rx, ry]);
 
   const turned = () => onTurn?.();
   const turn = (direction: number) => {

@@ -1,6 +1,6 @@
 import { Canvas, Group, rect, rrect } from '@shopify/react-native-skia';
 import { useIsFocused } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
@@ -52,6 +52,8 @@ export interface HandledCardProps {
   readonly hideTask?: boolean;
   /** False leaves the stamp off the face, for a reveal that brings it down by itself. */
   readonly stamped?: boolean;
+  /** Drawn over the face and turning with it: the reveal's own stamp. */
+  readonly overFront?: ReactNode;
   readonly testID?: string;
 }
 
@@ -165,6 +167,7 @@ export function HandledCard(props: HandledCardProps) {
               {stamped ? <CommandLayer commands={layers.stamp} /> : null}
             </Group>
           </Canvas>
+          {props.overFront}
         </Animated.View>
         <Animated.View
           pointerEvents="none"
