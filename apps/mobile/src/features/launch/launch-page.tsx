@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { spacing } from '@scootch/tokens';
 
+import { trace } from '../../trace-temp';
 import { useT } from '../../i18n/i18n-provider';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
@@ -48,7 +49,12 @@ export interface LaunchPageProps {
 export function LaunchPage({ step, testID, children, footer }: LaunchPageProps) {
   const { palette } = useScreenStyle();
   return (
-    <SafeAreaView testID={testID} style={[styles.page, { backgroundColor: palette.page }]}>
+    <SafeAreaView
+      testID={testID}
+      onTouchStart={(e) => trace(`touchStart ${testID} ${Math.round(e.nativeEvent.pageX)},${Math.round(e.nativeEvent.pageY)}`)}
+      onTouchEnd={() => trace(`touchEnd ${testID}`)}
+      style={[styles.page, { backgroundColor: palette.page }]}
+    >
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         {children}
       </ScrollView>
