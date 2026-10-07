@@ -110,7 +110,8 @@ async function persist(
       if (!row) continue;
       await repositories.sessions.put({
         ...row,
-        endedAt: isoFromInstant(effect.endedAt),
+        // The session ended when the person ended it, and no later than its planned end.
+        endedAt: isoFromInstant(Math.min(effect.endedAt, Date.parse(row.endsAt))),
         outcome: effect.outcome,
         finishMethod: effect.finishMethod,
         notFinishedChoice: effect.notFinishedChoice,

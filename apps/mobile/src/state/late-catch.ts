@@ -12,12 +12,20 @@ import { showsComedy } from './shows-comedy';
 import { wordsToAsk } from './late-words';
 import { applyCall, treatNamed } from './task-answers';
 
-/** Every sitting a task took that has ended. */
+/**
+ * Every sitting a task took that has ended. Time worked is the session's own running time: it
+ * stops at the planned end, however long the screen was left open after that.
+ */
 export async function sittingsOf(ctx: Pick<DayContext, 'deps'>, task: TaskRow): Promise<Sitting[]> {
   return (await ctx.deps.repositories.sessions.where('taskId', task.id)).flatMap((row) =>
     row.endedAt === null
       ? []
-      : [{ startedAt: instantFromIso(row.startedAt), endedAt: instantFromIso(row.endedAt) }],
+      : [
+          {
+            startedAt: instantFromIso(row.startedAt),
+            endedAt: Math.min(instantFromIso(row.endedAt), instantFromIso(row.endsAt)),
+          },
+        ],
   );
 }
 

@@ -47,7 +47,8 @@ export async function stopWithoutAWord(ctx: DayContext): Promise<void> {
 
   const row = ctx.memory.sessionRowId ? await sessions.get(ctx.memory.sessionRowId) : null;
   if (row && row.endedAt === null) {
-    await sessions.put({ ...row, endedAt: isoFromInstant(ctx.now()), outcome: 'left_early' });
+    const endedAt = isoFromInstant(Math.min(ctx.now(), Date.parse(row.endsAt)));
+    await sessions.put({ ...row, endedAt, outcome: 'left_early' });
   }
   ctx.memory.sessionRowId = null;
   ctx.memory.restPending = false;
