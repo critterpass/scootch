@@ -22,7 +22,7 @@ import { drawerEvent, setBargainedSession } from './pick-flow';
 import { resolveThought } from './parked-thoughts';
 import { restForToday, undoRest } from './rest-flow';
 import { UNDER_WAY, applySession } from './session-flow';
-import { closeStraySessions, restoreSession } from './session-restore';
+import { closeStraySessions, dayOfRunningSession, restoreSession } from './session-restore';
 import { closeSession, followTableClock, shortenSession, turnWorkingLine } from './session-moments';
 import { applySurfaceAction, noticePickUp } from './surface-actions';
 import { parkStartedTask, returnOneThing } from './way-out';
@@ -169,9 +169,14 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
    * them is theirs) and see the new day in one step.
    */
   async function rebuild(): Promise<void> {
-    rebuilding = memory.state.ready;
+    const before = memory.state;
+    rebuilding = before.ready;
     try {
       await build();
+    } catch (error) {
+      // Screens that were showing keep the day they had; the failure is said and reported.
+      if (before.ready) memory.state = before;
+      throw error;
     } finally {
       rebuilding = false;
     }
@@ -191,11 +196,11 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
     const settings = await repositories.settings.read(deps.phoneLanguage());
 
     const days = await repositories.days.all();
-    const localDate = currentScootchDay({
-      now,
-      timeZone,
-      latestDay: days.at(-1)?.localDate ?? null,
-    });
+    const latestDay = days.at(-1)?.localDate ?? null;
+    // A session still inside its planned time keeps its day, also when the app is opened cold.
+    const localDate =
+      (await dayOfRunningSession(ctx, latestDay)) ??
+      currentScootchDay({ now, timeZone, latestDay });
     memory.lastOpenedDay = days.findLast((day) => day.localDate < localDate)?.localDate ?? null;
     const opened = days.map((day) => day.localDate);
     if (!opened.includes(localDate)) {

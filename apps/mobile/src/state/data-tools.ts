@@ -61,7 +61,7 @@ export function createAppDataTools(deps: {
     deleteEverything: () => deleteEverything({ db, tokens, server, leftovers }),
     // A delete the server never heard about is finished first, so nothing is uploaded before it.
     keepUp: () =>
-      retryServerDelete({ db, tokens, server })
+      retryServerDelete({ db, tokens, server, leftovers })
         .catch(() => undefined)
         .then(() => backup.maybeUpload())
         .catch(() => undefined),

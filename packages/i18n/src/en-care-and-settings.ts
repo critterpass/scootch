@@ -139,6 +139,9 @@ export const enCareAndSettings = {
   'backup.restore.yes.hint': 'Puts your world, cards and drawer on this phone',
   'backup.restore.no': 'Start fresh',
   'backup.restore.no.hint': 'Leaves the old world where it is and starts a new one',
+  'backup.restore.keep': 'Keep this phone as it is',
+  'backup.restore.keep.hint':
+    'Leaves the old world where it is. What is on this phone becomes the backup.',
   // Scootch's plain words for a task nobody trusted has screened yet. They claim nothing about
   // the task: no joke, and no word that it is heavy.
   'plain.unscreened.acknowledge': "I'll keep this one simple. Ready when you are.",

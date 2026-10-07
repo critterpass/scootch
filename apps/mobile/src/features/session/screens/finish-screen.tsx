@@ -41,9 +41,14 @@ function useScreenReader(): boolean {
  */
 export function FinishScreen({ model, actions, inks, t }: ScreenProps) {
   const { view } = model;
-  const control = view.kind === 'finish' ? view.control : 'hold';
+  const control = view.kind === 'finish' || view.kind === 'caught' ? view.control : 'hold';
   const timeUp = view.kind === 'finish' && view.timeUp;
-  const hold = useHoldControl(control, actions.sendFinish, model.holdStartsAt);
+  const hold = useHoldControl(
+    control,
+    actions.sendFinish,
+    model.holdStartsAt,
+    view.kind === 'caught',
+  );
   const screenReader = useScreenReader();
   // Letting go too soon is answered with a small falling "aww", as the design's hold does.
   const playCue = useCue();
@@ -63,7 +68,8 @@ export function FinishScreen({ model, actions, inks, t }: ScreenProps) {
       inks={inks}
       testID={control === 'hold' ? 'session-finish-hold' : 'session-finish-tap'}
       top={
-        timeUp ? null : (
+        // Nothing to go back to once time is up, or once the thing is caught.
+        timeUp || view.kind === 'caught' ? null : (
           <RoundButton
             label={t('session.finish.keepGoing')}
             hint={t('session.finish.keepGoing.hint')}

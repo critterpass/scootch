@@ -3,6 +3,7 @@ import {
   type Instant,
   type LiveSession,
   type ParkedThought,
+  type SessionEvent,
   type SessionState,
   type SettingsRow,
 } from '@scootch/domain';
@@ -33,6 +34,12 @@ export type SessionView =
       readonly timeUp: boolean;
     }
   | { readonly kind: 'not_finished' }
+  /**
+   * The catch: the finish screen stays up for a moment after a finish made by hand, so the burst
+   * and the caught monster have a screen to play on before the reveal takes over. Everything the
+   * finish records is already stored; only the hand-over waits.
+   */
+  | { readonly kind: 'caught'; readonly control: FinishControl }
   /** What the finish gave is shown on its own screens; the session waits behind them. */
   | { readonly kind: 'reveal' }
   /** The finish itself: the caught line, or the plain one of a serious task. */
@@ -43,6 +50,8 @@ export type SessionView =
 /** What the person has already passed on this visit to the session screens. */
 export interface Passed {
   readonly burst: boolean;
+  /** The catch has played, or was tapped away. */
+  readonly caught: boolean;
   readonly moment: boolean;
   readonly treat: boolean;
   readonly thoughts: boolean;
@@ -52,6 +61,7 @@ export interface Passed {
 
 export const NOTHING_PASSED: Passed = {
   burst: false,
+  caught: false,
   moment: false,
   treat: false,
   thoughts: false,
@@ -70,6 +80,29 @@ export interface SessionViewInput {
    * is no reveal and the finish says its caught line here.
    */
   readonly reveal?: 'pending' | 'seen';
+  /** The catch may play before the reveal: see `catchPlays`. Left out, it does not. */
+  readonly caught?: boolean;
+}
+
+/** How long the finish screen stays up for the catch before the reveal takes over. */
+export const CAUGHT_HOLD_MS = 3200;
+
+/** A finish made on the finish control itself: a completed hold, or the second of two taps. */
+export function finishedByHand(event: SessionEvent): boolean {
+  return event.type === 'hold_completed' || event.type === 'double_tapped';
+}
+
+/**
+ * Whether the catch plays. Only straight after a finish made by hand on this visit (so never
+ * after a relaunch), never when motion may not play, and never on a crisis day. A quiet session
+ * has no reveal to wait for, so it never reaches it.
+ */
+export function catchPlays(facts: {
+  readonly byHand: boolean;
+  readonly reducedMotion: boolean;
+  readonly crisis: boolean;
+}): boolean {
+  return facts.byHand && !facts.reducedMotion && !facts.crisis;
 }
 
 /**
@@ -93,7 +126,11 @@ function afterFinish(session: LiveSession, input: SessionViewInput): SessionView
   const quiet = session.tone === 'quiet';
   const { treat, passed } = input;
   // A serious task has no ceremony: no reveal, and the treat is never handed over with one.
-  if (!quiet && input.reveal === 'pending') return { kind: 'reveal' };
+  if (!quiet && input.reveal === 'pending') {
+    return input.caught === true && !passed.caught
+      ? { kind: 'caught', control: finishControl(input.finishWith) }
+      : { kind: 'reveal' };
+  }
   if (!quiet && treat !== null) {
     if (!passed.treat) return { kind: 'treat', treat };
   } else if (!passed.moment && (quiet || input.reveal !== 'seen')) {

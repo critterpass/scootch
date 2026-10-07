@@ -137,6 +137,9 @@ export const viCareAndSettings = {
   'backup.restore.yes.hint': 'Đưa thế giới, thẻ và ngăn kéo của bạn về máy này',
   'backup.restore.no': 'Bắt đầu mới',
   'backup.restore.no.hint': 'Để thế giới cũ ở yên đó và bắt đầu một cái mới',
+  'backup.restore.keep': 'Giữ nguyên máy này',
+  'backup.restore.keep.hint':
+    'Để thế giới cũ ở yên đó. Những gì trên máy này sẽ thành bản sao lưu.',
   'plain.unscreened.acknowledge':
     'Mình sẽ giữ việc này thật đơn giản. Bạn sẵn sàng thì mình bắt đầu.',
   'plain.unscreened.working.first': 'Mình ở ngay đây.',
