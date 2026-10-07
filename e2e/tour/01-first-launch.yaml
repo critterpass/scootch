@@ -1,0 +1,82 @@
+appId: app.scootch.dev
+---
+# Tour, first launch on a clean install, the real path with captures named for the sheets that
+# pair them with their designs. The hello is looked at again after three seconds, once its
+# celebration should have settled; the more button is pressed with Scootch still moving about.
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: 'launch-hello-next'
+    timeout: 90000
+- takeScreenshot: launch-hello--en-light-default
+- waitForAnimationToEnd:
+    timeout: 3000
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: launch-hello-after-six-seconds--en-light-default
+- tapOn:
+    id: 'launch-hello-next'
+- extendedWaitUntil:
+    visible:
+      id: 'launch-attitude-confirm'
+    timeout: 15000
+- takeScreenshot: launch-attitude--en-light-default
+- tapOn:
+    id: 'launch-attitude-confirm'
+- extendedWaitUntil:
+    visible:
+      id: 'launch-permission-skip'
+    timeout: 15000
+- takeScreenshot: launch-permissions--en-light-default
+- tapOn:
+    id: 'launch-permission-skip'
+- extendedWaitUntil:
+    visible:
+      id: 'launch-permission-skip'
+    timeout: 15000
+- takeScreenshot: launch-notifications--en-light-default
+- tapOn:
+    id: 'launch-permission-skip'
+- extendedWaitUntil:
+    visible:
+      id: 'more-button'
+    timeout: 15000
+- takeScreenshot: launch-first-one-thing--en-light-default
+# One press on the more button must open Settings, whatever Scootch is doing.
+- tapOn:
+    id: 'more-button'
+- extendedWaitUntil:
+    visible:
+      id: 'settings'
+    timeout: 15000
+- takeScreenshot: settings-page--en-light-default
+# Then the registry, for the card and the session disc part-way, which a real run cannot hold still.
+- scrollUntilVisible:
+    element:
+      id: 'developer-tools'
+    direction: DOWN
+- tapOn:
+    id: 'developer-tools'
+- extendedWaitUntil:
+    visible:
+      id: 'dev-open-registry'
+    timeout: 15000
+- tapOn:
+    id: 'dev-open-registry'
+- extendedWaitUntil:
+    visible:
+      id: 'registry-count'
+    timeout: 15000
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: zoo-card--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: reveal-card--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: session-running--en-light-default

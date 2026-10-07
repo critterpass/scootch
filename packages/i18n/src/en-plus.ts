@@ -54,6 +54,7 @@ export const enPlus = {
     other: 'One more · {count} left today',
   },
   'plus.oneMore.hint': 'Starts another thing today',
+  'plus.oneMore.freeDone': 'Today’s three are done. Tomorrow has three more.',
   'plus.oneMore.cap': 'That’s every start for today',
   'plus.offer.tell': 'Tell me',
   'plus.offer.tell.hint': 'Opens Scootch Plus',
@@ -68,7 +69,8 @@ export const enPlus = {
   'plus.trial.ok.hint': 'Goes back to today',
   'plus.note.trialEndsTomorrow':
     'Your free week ends tomorrow. The yearly charge follows unless you cancel in Settings.',
-  'plus.lastDay.keeps': 'Whatever you pick, your world, cards and the one thing a day stay yours.',
+  'plus.lastDay.keeps':
+    'Whatever you pick, your world, cards and your three things a day stay yours.',
   'plus.lastDay.keep': 'Keep yearly',
   'plus.lastDay.keep.note': '{price} a year, starting tomorrow',
   'plus.lastDay.keep.noteNoPrice': 'The yearly price, starting tomorrow',
@@ -103,7 +105,7 @@ export const enPlus = {
   'plus.manage.ends': 'Stays on until {date}. It will not renew.',
   'plus.manage.lifetime': 'Bought once. Nothing renews, ever.',
   'plus.manage.free': 'Free Scootch',
-  'plus.manage.free.note': 'The one thing a day, every monster and your world, for good.',
+  'plus.manage.free.note': 'Three things a day, every monster and your world, for good.',
   'plus.manage.see': 'See Plus',
   'plus.manage.see.hint': 'Opens the Plus sheet',
   'plus.manage.lastDay': 'Your free week ends tonight',
@@ -114,7 +116,7 @@ export const enPlus = {
   'plus.manage.shelf': 'The shelf',
   'plus.manage.shelf.hint': 'Opens the inks',
   'plus.manage.keeps':
-    'Cancelling keeps everything you’ve caught, every card, your world and the one thing a day.',
+    'Cancelling keeps everything you’ve caught, every card, your world and your three things a day.',
   'finish.standard': 'Standard',
   'finish.kraft': 'Kraft',
   'finish.gold': 'Gold',

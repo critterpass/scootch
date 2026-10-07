@@ -15,19 +15,22 @@ import { startsAllowed, startsLeft, todayState } from './today-state';
 const base = { localDate: TODAY, day: dayRow(), tasks: [], sessions: [], plus: false };
 
 describe('how many things may be started today', () => {
-  it('is one when free and three with Plus', () => {
-    expect(startsAllowed(false)).toBe(1);
-    expect(startsAllowed(true)).toBe(3);
+  it('is three when free and six with Plus', () => {
+    expect(startsAllowed(false)).toBe(3);
+    expect(startsAllowed(true)).toBe(6);
   });
 
   it.each([
-    [false, [], 1],
-    [false, ['set'], 1],
-    [false, ['started'], 0],
-    [false, ['finished'], 0],
-    [true, ['finished'], 2],
-    [true, ['finished', 'finished', 'started'], 0],
-    [true, ['finished', 'finished', 'finished', 'finished'], 0],
+    [false, [], 3],
+    [false, ['set'], 3],
+    [false, ['started'], 2],
+    [false, ['finished'], 2],
+    [false, ['finished', 'finished'], 1],
+    // The cap: the third start is the last one a free phone has.
+    [false, ['finished', 'finished', 'started'], 0],
+    [false, ['finished', 'finished', 'finished', 'finished'], 0],
+    [true, ['finished'], 5],
+    [true, ['finished', 'finished', 'finished', 'finished', 'finished', 'started'], 0],
   ] as const)('plus %s with tasks %j leaves %i', (plus, statuses, left) => {
     const tasks = statuses.map((status, index) => taskRow({ id: `task-${index}x`, status }));
     expect(startsLeft({ localDate: TODAY, tasks, plus })).toBe(left);
@@ -35,14 +38,14 @@ describe('how many things may be started today', () => {
 
   it('does not count another day, and a task that was let go has no row to count', () => {
     const tasks = [taskRow({ localDate: addDays(TODAY, -1), status: 'finished' })];
-    expect(startsLeft({ localDate: TODAY, tasks, plus: false })).toBe(1);
+    expect(startsLeft({ localDate: TODAY, tasks, plus: false })).toBe(3);
   });
 });
 
 describe("today's state", () => {
   it('is nothing yet before a task is set, also before the day has a row', () => {
-    expect(todayState(base)).toEqual({ kind: 'nothing_yet', startsLeft: 1 });
-    expect(todayState({ ...base, day: null })).toEqual({ kind: 'nothing_yet', startsLeft: 1 });
+    expect(todayState(base)).toEqual({ kind: 'nothing_yet', startsLeft: 3 });
+    expect(todayState({ ...base, day: null })).toEqual({ kind: 'nothing_yet', startsLeft: 3 });
   });
 
   it('is task set, then in session while a session row is open', () => {
@@ -50,7 +53,7 @@ describe("today's state", () => {
     expect(todayState({ ...base, tasks: [task] })).toEqual({
       kind: 'task_set',
       task,
-      startsLeft: 1,
+      startsLeft: 3,
     });
     const started = taskRow({ status: 'started' });
     const session = sessionRow();
@@ -88,11 +91,11 @@ describe("today's state", () => {
     const finished = taskRow({ status: 'finished' });
     expect(todayState({ ...base, tasks: [finished] })).toEqual({
       kind: 'done_for_today',
-      startsLeft: 0,
+      startsLeft: 2,
     });
     expect(todayState({ ...base, tasks: [finished], plus: true })).toEqual({
       kind: 'done_for_today',
-      startsLeft: 2,
+      startsLeft: 5,
     });
     expect(todayState({ ...base, day: dayRow({ status: 'done' }) }).kind).toBe('done_for_today');
   });
@@ -103,7 +106,7 @@ describe("today's state", () => {
       taskRow({ id: 'task-b', createdAt: '2026-10-06T11:00:00+01:00' }),
     ];
     const state = todayState({ ...base, day: dayRow({ status: 'done' }), tasks, plus: true });
-    expect(state).toEqual({ kind: 'task_set', task: tasks[1], startsLeft: 2 });
+    expect(state).toEqual({ kind: 'task_set', task: tasks[1], startsLeft: 5 });
   });
 
   it('ignores tasks that belong to another day', () => {

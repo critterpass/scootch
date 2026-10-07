@@ -6,6 +6,9 @@ Actions only (`.github/workflows/device.yml`), never on a developer's machine.
 - `e2e/fresh/` is the fresh-user walk: one new install, walked the way a new person meets the app.
   **Every feature extends this folder** with its next numbered step (`02-…`, `03-…`); a feature
   without a step here has not been proven for a real user.
+- `e2e/tour/` is the look at every other screen: each flow opens registry states from the developer
+  tools (the registry list has a filter field, `registry-filter`) and takes one capture per state,
+  for the sheets. Its shared steps are in `e2e/tour-support/`, outside the folder a run walks.
 - `e2e/_run/` belongs to the pipeline. `js-commit.yaml` runs first in every run and is not a place
   for product flows.
 
@@ -119,7 +122,10 @@ never fetched into the repository: a sister repository filled a disk that way.
 - Meet the real permission prompts; nothing is granted beforehand.
 - Find elements by test id; match text only when the text is the thing being proven.
 - Assert the outcome of each step (what the screen shows afterwards), not just that it rendered.
-- Name every `takeScreenshot` `<folder>-<step>-<state>`, for example `fresh-01-first-launch`.
+- Name a `takeScreenshot` after the registered screen state it shows, as `<state id>--<variant>`
+  (`launch-hello--en-light-default`): a capture with that name is put beside the state's design in
+  the run's `sheets/`, and one whose state is not registered is listed in `sheets/summary.md` as
+  matching nothing. Other captures may be named `<folder>-<step>-<state>`.
 
 ## Writing flows that pass on iOS
 

@@ -1,0 +1,80 @@
+appId: app.scootch.dev
+---
+# Tour: Parts (c) and (d): the drawer, the world, the zoo binder, a card opened from the zoo, the reveal card and the record shelf. Each shot is a registry row, named for the sheet that pairs it with its design.
+- runFlow: ../tour-support/to-registry.yaml
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: dump-peek-in-the-drawer--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: dump-peek-in-the-drawer--en-dark-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: world-empty--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: world-day-one--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: world-one-week--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: world-three-months--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: world-sixty-pieces--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: world-one-week--vi-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: zoo-empty--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: zoo-binder--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: zoo-card--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: zoo-card--en-dark-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: zoo-caught--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: reveal-card--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: record-one-bar--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: record-building--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: record-complete--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: plus-record-shelf--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: plus-record-shelf-empty--en-light-default

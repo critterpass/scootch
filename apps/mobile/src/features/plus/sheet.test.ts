@@ -124,7 +124,7 @@ describe('the sheet at the store', () => {
     await controller.buy();
     expect(shop.calls).toContain('purchase plus_yearly');
     expect(controller.getState().done?.customer.inTrial).toBe(true);
-    expect(store.getState().unlocked.startsPerDay).toBe(3);
+    expect(store.getState().unlocked.startsPerDay).toBe(6);
   });
 
   it('restores through the Apple ID, and says so when there is nothing to restore', async () => {

@@ -11,6 +11,7 @@ const doors: readonly (readonly [method: string, path: RegExp])[] = [
   ['GET', /^shared-card\/[a-z0-9-]{1,40}$/],
   ['GET', /^shared-story\/[a-z0-9-]{1,40}$/],
   ['GET', /^table-invite\/[a-z0-9-]{1,40}$/],
+  ['GET', /^friend-invite\/[a-z0-9-]{1,40}$/],
   ['GET', /^haunt-page\/[a-z0-9-]{1,40}$/],
   ['POST', /^haunt-page\/[a-z0-9-]{1,40}\/shoo$/],
   ['GET', /^shared-record\/[a-z0-9-]{1,40}(\/clip)?$/],
