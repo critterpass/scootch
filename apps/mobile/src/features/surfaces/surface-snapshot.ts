@@ -16,6 +16,7 @@ import {
 } from '@scootch/domain';
 
 import { liveLineTurns } from '../../effects/live-line-turns';
+import { bitesOf } from '../../state/bites';
 import { lineFor, lineWithNoTask } from '../../state/lines';
 import { showsComedy } from '../../state/shows-comedy';
 
@@ -67,6 +68,7 @@ export interface SurfaceLurker {
 
 /** One of a monster's three bites. */
 export interface SurfaceBite {
+  /** The task's id and the bite's place, 0 to 2, joined by a colon. */
   readonly id: string;
   readonly taskId: string;
   readonly text: string;
@@ -178,12 +180,13 @@ function huntLines(task: TaskRow, settings: Voice): SurfaceHuntLines {
  * The waiting things that may be shown as monsters. The care flag decides, through the one place
  * that answers it: a serious task never lurks, with or without "it's fine, be funny".
  */
-function lurkers(input: SurfaceSnapshotInput): SurfaceLurker[] {
+function lurkers(input: SurfaceSnapshotInput): Pick<SurfaceSnapshot, 'lurkers' | 'bites'> {
   const shown = input.waiting
     .filter(({ task, monster }) => task.status !== 'finished' && monster.caughtAt === null)
     .filter(({ task }) => showsComedy(task, 'monster'))
     .map(({ task, monster, image }) => {
       const day = dayOfLurking(task.firstMentionedOn, input.localDate);
+      const caught = task.bitesCaught ?? [];
       return {
         taskId: task.id,
         name: monster.name,
@@ -192,9 +195,20 @@ function lurkers(input: SurfaceSnapshotInput): SurfaceLurker[] {
         size: lurkerSize(day),
         image,
         lines: huntLines(task, input.settings),
+        bites: bitesOf(task).map(({ text, minutes }, place): SurfaceBite => ({
+          id: `${task.id}:${place}`,
+          taskId: task.id,
+          text,
+          minutes,
+          caught: caught.includes(place),
+        })),
       };
     });
-  return oldestFirst(shown);
+  const oldest = oldestFirst(shown);
+  return {
+    lurkers: oldest.map(({ bites: _bites, ...lurker }) => lurker),
+    bites: oldest.flatMap(({ bites }) => bites),
+  };
 }
 
 function running(session: SessionRow | null): session is SessionRow {
@@ -233,8 +247,6 @@ export function buildSurfaceSnapshot(input: SurfaceSnapshotInput): SurfaceSnapsh
     finish: input.finish,
     shelf: Math.max(0, Math.floor(input.shelf)),
     latestCatch: input.latestCatch,
-    // Written with the task; none until the task call writes them.
-    bites: [],
     dayEndsAt: input.dayEndsAt,
     accent: input.accent ?? null,
   };
@@ -252,9 +264,9 @@ export function buildSurfaceSnapshot(input: SurfaceSnapshotInput): SurfaceSnapsh
 
   // Nothing of the day on a crisis day: no lurker, and nothing kept from before it either.
   if (today.kind === 'crisis') {
-    return { ...base, ...empty, state: 'crisis', lurkers: [], latestCatch: null };
+    return { ...base, ...empty, state: 'crisis', lurkers: [], bites: [], latestCatch: null };
   }
-  const waiting = { lurkers: lurkers(input) };
+  const waiting = lurkers(input);
   if (today.kind === 'nothing_yet') {
     const line = lineWithNoTask('waiting', settings);
     return { ...base, ...empty, ...waiting, state: 'nothing_yet', line };

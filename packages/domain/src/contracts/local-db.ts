@@ -89,6 +89,11 @@ export const taskRowSchema = z.object({
   /** The stored result of the task call; `null` until it has run. */
   lines: z.union([sessionLinePackSchema, seriousLinePackSchema]).nullable(),
   notifications: z.array(dayNotificationSchema),
+  /**
+   * Which of the three bites in `lines` have been ticked, by their place (0 to 2). Null or absent
+   * on a task nobody has bitten and on one stored before bites existed.
+   */
+  bitesCaught: z.array(z.number().int().min(0).max(2)).max(3).nullable().optional(),
   createdAt: isoDateTimeSchema,
   finishedAt: isoDateTimeSchema.nullable(),
 });

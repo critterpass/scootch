@@ -17,6 +17,7 @@ import type { ContinuationPayload } from './continuation';
 import { writerSystem } from './line-briefs';
 import { rewritePrompt, taskPrompt, treatPrompt } from './prompt';
 import {
+  bitesAt,
   checkWritten,
   failuresIn,
   listAt,
@@ -245,6 +246,7 @@ export async function writePack(
     treat,
   });
   const at = (slot: string) => texts.get(`lines.${slot}`) ?? '';
+  const bites = bitesAt(texts);
   const response = taskCreatePackResponseSchema.parse({
     lines: {
       start: at('start'),
@@ -263,6 +265,7 @@ export async function writePack(
           : at('treatHandOver').replaceAll(treatPlaceholder, treat),
       parkedThoughts: at('parkedThoughts'),
       releasedEarly: at('releasedEarly'),
+      ...(bites === undefined ? {} : { bites }),
     },
     notifications: listAt(texts, 'notifications').map((text) => ({ text })),
   });

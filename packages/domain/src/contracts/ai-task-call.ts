@@ -104,6 +104,16 @@ export const taskLabelsSchema = z.object({
 export type TaskLabels = z.infer<typeof taskLabelsSchema>;
 
 /**
+ * One of a monster's three bites: a single small step of the task with the minutes it takes,
+ * always under five. A plain instruction, never a joke.
+ */
+export const biteSchema = z.object({
+  text: lineSchema,
+  minutes: z.number().int().min(1).max(4),
+});
+export type Bite = z.infer<typeof biteSchema>;
+
+/**
  * Every line a session can need, written about this task, stored on the phone
  * and played back offline. None of them names a session length.
  */
@@ -140,6 +150,11 @@ export const sessionLinePackSchema = z.object({
   parkedThoughts: lineSchema.optional(),
   /** Said when the hold to finish is let go too soon. Kind, never a telling-off. */
   releasedEarly: lineSchema.optional(),
+  /**
+   * The task in three bites, in the order they are done; the third finishes it. All three or
+   * none: absent on packs written before bites existed and when the writer's were not kept.
+   */
+  bites: z.array(biteSchema).length(3).optional(),
 });
 
 /** Where a `treatHandOver` line names the treat until a real treat is filled in. */

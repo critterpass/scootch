@@ -81,4 +81,26 @@ describe('the lines of a task call', () => {
     }
     expect(prompt).not.toContain('Gerald');
   });
+
+  it('brings the three bites with their minutes, and none when one of them is not kept', async () => {
+    const bites = ["Find the plumber's number.", 'Say which tap drips.', 'Ask for Thursday.'];
+    const ask = async (minutes: number[]) => {
+      const { response } = await createTask({
+        jev: jevDecides(ordinary),
+        deepseek: pickAnswers(
+          [picked],
+          writerAnswers([{ ...written, bites, biteMinutes: minutes }]),
+        ),
+      });
+      const body = await bodyOf(response);
+      return body.verdict === 'pass' ? body.lines.bites : null;
+    };
+
+    expect(await ask([2, 1, 3])).toEqual([
+      { text: bites[0], minutes: 2 },
+      { text: bites[1], minutes: 1 },
+      { text: bites[2], minutes: 3 },
+    ]);
+    expect(await ask([2, 1, 9])).toBeUndefined();
+  });
 });

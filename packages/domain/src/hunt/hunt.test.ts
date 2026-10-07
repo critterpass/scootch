@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { HOUR_MS, MINUTE_MS } from '../day/local-time';
 
+import { bittenScale, tickBite } from './bites';
 import {
   HUNT_SMALLEST_MONSTER,
   beginHunt,
@@ -174,5 +175,29 @@ describe('lurking', () => {
   it('shows the four that have waited longest, oldest first', () => {
     const waiting = [3, 9, 1, 5, 9, 2].map((day, index) => ({ day, id: index }));
     expect(oldestFirst(waiting).map((one) => one.id)).toEqual([1, 4, 3, 0]);
+  });
+});
+
+describe('bites', () => {
+  it('takes a third of the monster each, down to a crumb', () => {
+    expect(bittenScale(0)).toBe(1);
+    expect(bittenScale(1)).toBeCloseTo(2 / 3);
+    expect(bittenScale(2)).toBeCloseTo(1 / 3);
+    expect(bittenScale(3)).toBe(0.25);
+    expect(bittenScale(9)).toBe(0.25);
+  });
+
+  it('are ticked in any order, and the last one says so', () => {
+    expect(tickBite([], 1)).toEqual({ caught: [1], last: false });
+    expect(tickBite([1], 0)).toEqual({ caught: [0, 1], last: false });
+    expect(tickBite([0, 1], 2)).toEqual({ caught: [0, 1, 2], last: true });
+  });
+
+  it('cannot be ticked twice, and there is no fourth', () => {
+    expect(tickBite([1], 1)).toBeNull();
+    expect(tickBite([0, 1, 2], 2)).toBeNull();
+    expect(tickBite([], 3)).toBeNull();
+    expect(tickBite([], -1)).toBeNull();
+    expect(tickBite([], 0.5)).toBeNull();
   });
 });

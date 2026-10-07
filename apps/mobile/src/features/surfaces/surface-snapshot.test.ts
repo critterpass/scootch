@@ -235,4 +235,27 @@ describe("the one thing's words for a hunt", () => {
     const made = snapshot({ kind: 'done_for_today', startsLeft: 0 }, { latestCatch });
     expect(made).toMatchObject({ finish: 'holo', shelf: 42, latestCatch, bites: [] });
   });
+
+  it("carries the bites of each lurker's monster, with the ones already gone", () => {
+    const bites = [
+      { text: "Find the dentist's email.", minutes: 1 },
+      { text: 'Write two lines.', minutes: 4 },
+      { text: 'Hit send.', minutes: 1 },
+    ];
+    const task = { lines: { ...JOKES, bites }, bitesCaught: [0] };
+    const made = snapshot(
+      { kind: 'nothing_yet', startsLeft: 1 },
+      {
+        waiting: [
+          waitingThing('a', 'Molar', '2026-10-06', task),
+          waitingThing('b', 'Odd Sock', '2026-10-06'),
+        ],
+      },
+    );
+    expect(made.bites).toEqual([
+      { id: 'a:0', taskId: 'a', text: bites[0]?.text, minutes: 1, caught: true },
+      { id: 'a:1', taskId: 'a', text: 'Write two lines.', minutes: 4, caught: false },
+      { id: 'a:2', taskId: 'a', text: 'Hit send.', minutes: 1, caught: false },
+    ]);
+  });
 });
