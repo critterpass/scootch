@@ -96,6 +96,31 @@ Crisis notes caught 67 of 67 with none answered "pass"; 4 of 82 harmless notes
 flagged as crisis; name and hatch line 1.9 s, pack 3.7 s; lines regenerated on
 18.8% of calls against a target under 10%.
 
+### The work queue (design against code, 7 Oct)
+
+Four read-only reviews compared the brief and the design boards (including
+the design's own animation code) with the code, flow by flow. They are the
+queue the fix lanes work from; a lane ticks an item by quoting its number.
+
+- [What a person can reach](reports/261007-reachability-audit.md)
+- [Day loop and care](reports/261007-design-vs-code-day-loop-and-care.md): 153
+  items. First: a carried task that vanishes, "Carry on tomorrow" returning to
+  the ask, the whole app waiting up to 25 s behind the model call, "Swap in"
+  passing the daily limit, "Pick for me" with no way out, the crisis screen
+  with no way to the helplines page, a heard deadline that never returns.
+- [Characters, keeping and Plus](reports/261007-design-vs-code-characters-keeping-plus.md):
+  no line boil, static poses, monsters with no life of their own, nothing
+  reacting to touch, no transitions, five designed moods missing, sound silent
+  with the ringer off, hold haptics that keep firing, inks that recolour
+  nothing, Plus sold on a heavy day.
+- [Tables, system surfaces and website](reports/261007-design-vs-code-tables-surfaces-website.md):
+  the nine pieces two friends need to sit at a table and send one haunt, in
+  order; no remote push; widgets and the Live Activity against the boards; the
+  missing web-to-app hand-off.
+
+Decided 7 Oct after these: a free person can join any table and open a table
+of two; a larger table needs Plus.
+
 ### Next, in order
 
 1. The founder's notes: the drawer, the dead taps, three a day (first
