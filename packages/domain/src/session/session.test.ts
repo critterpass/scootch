@@ -221,7 +221,25 @@ describe('not finished', () => {
       { kind: 'cancel_timer' },
       { kind: 'show_line', line: 'notFinished' },
     ]);
-    expect(at(started(), 'not_finished', minutes(3)).state).toMatchObject({ phase: 'running' });
+  });
+
+  it('can be said before time is up, and leads to the same choices with the work recorded', () => {
+    const early = at(started(), 'not_finished', minutes(3));
+    expect(early.state).toMatchObject({ phase: 'not_finished', endedAt: T0 + minutes(3) });
+    expect(early.effects).toEqual([
+      { kind: 'cancel_timer' },
+      { kind: 'end_live_activity' },
+      { kind: 'show_line', line: 'notFinished' },
+    ]);
+    const carried = at(early.state as LiveSession, 'chose_carry_on', minutes(4));
+    expect(carried.state).toMatchObject({ phase: 'carried_over' });
+    expect(carried.effects).toContainEqual({
+      kind: 'record_session_end',
+      outcome: 'not_finished',
+      finishMethod: null,
+      notFinishedChoice: 'carry_on',
+      endedAt: T0 + minutes(3),
+    });
   });
 
   it('carries the task on tomorrow', () => {

@@ -174,9 +174,10 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
       leave: () =>
         closeMeans(shown.current) === 'ask' ? setLeaveAsked(true) : send({ type: 'left' }),
       stay: () => setLeaveAsked(false),
+      // Stopping on purpose leads to the not-finished choices; the work so far is recorded.
       leaveNow: () => {
         setLeaveAsked(false);
-        send({ type: 'left' });
+        send({ type: 'not_finished' });
       },
       openPark: () => setParkOpen(true),
       closePark: () => setParkOpen(false),

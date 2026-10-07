@@ -111,3 +111,63 @@ describe('closing a screen', () => {
     expect(alone.calls).toEqual(['replace /settings']);
   });
 });
+
+/** A stack that moves as the router's documents say push, replace, back and dismissTo do. */
+function walk(start: string[]) {
+  const stack = [...start];
+  const router = {
+    stack,
+    push: (href: string) => void stack.push(href),
+    replace: (href: string) => void stack.splice(stack.length - 1, 1, href),
+    canGoBack: () => stack.length > 1,
+    back: () => void stack.pop(),
+    dismissTo: (href: string) => {
+      const at = stack.lastIndexOf(href);
+      if (at >= 0) stack.splice(at + 1);
+      else stack.splice(stack.length - 1, 1, href);
+    },
+  };
+  return router;
+}
+
+describe('the paths a new person walks', () => {
+  it('goes from the one screen to the session, the reveal and home again, leaving one home', () => {
+    const router = walk(['/']);
+    router.push('/session');
+    router.replace('/reveal');
+    // The reveal hands back to the session for the treat and the parked thoughts.
+    router.replace('/session');
+    router.dismissTo('/');
+    expect(router.stack).toEqual(['/']);
+  });
+
+  it('comes home from a session the app was reopened into, with nothing under it', () => {
+    const router = walk(['/session']);
+    router.dismissTo('/');
+    expect(router.stack).toEqual(['/']);
+  });
+
+  it('opens Settings and a page of it, and closes each back to where it came from', () => {
+    const router = walk(['/']);
+    router.push('/settings');
+    router.push('/privacy');
+    goBack(router, '/settings');
+    expect(router.stack).toEqual(['/', '/settings']);
+    goBack(router, '/');
+    expect(router.stack).toEqual(['/']);
+  });
+
+  it('opens the world, the record inside it, and closes the record back to the world', () => {
+    const pushed = walk(['/']);
+    pushed.push('/world');
+    pushed.push('/record');
+    pushed.dismissTo('/world');
+    expect(pushed.stack).toEqual(['/', '/world']);
+
+    // The world's own buttons replace it with its child: closing the child is still the world.
+    const replaced = walk(['/', '/world']);
+    replaced.replace('/zoo');
+    replaced.dismissTo('/world');
+    expect(replaced.stack).toEqual(['/', '/world']);
+  });
+});
