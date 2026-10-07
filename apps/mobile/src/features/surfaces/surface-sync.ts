@@ -1,12 +1,20 @@
-import { DAY_ROLLOVER_HOUR, addDays, instantOfLocal, isoWeekOf } from '@scootch/domain';
+import {
+  DAY_ROLLOVER_HOUR,
+  addDays,
+  instantFromIso,
+  instantOfLocal,
+  isoWeekOf,
+  type CardFinish,
+} from '@scootch/domain';
 
 import type { Repositories } from '../../data/repositories';
 import type { DayStore } from '../../state/day-store';
 import type { DayState } from '../../state/day-types';
+import { readHunt } from './hunt-store';
 
 import { finishedThings } from '../world/landmarks';
 
-import { shareMonsterImage } from './monster-image';
+import { shareMonsterImages } from './monster-image';
 import { createPendingActions } from './pending-actions';
 import {
   SHARED_KEYS,
@@ -14,25 +22,39 @@ import {
   type SharedFiles,
   type SharedStore,
 } from './surface-ports';
-import { buildSurfaceSnapshot } from './surface-snapshot';
+import { buildSurfaceSnapshot, type WaitingThing } from './surface-snapshot';
 
 export interface SurfaceSyncDeps {
   readonly store: DayStore;
-  readonly repositories: Pick<Repositories, 'recordBars' | 'worldPieces'>;
+  readonly repositories: Pick<Repositories, 'recordBars' | 'worldPieces' | 'tasks' | 'monsters'>;
   readonly shared: SharedStore;
   readonly files: SharedFiles;
   readonly painter: MonsterPainter;
   readonly plus: () => boolean;
   /** The worn ink's accent as a hex colour; `null` for tomato. */
   readonly accent: () => string | null;
+  /** The finish the person wears. */
+  readonly finish: () => CardFinish;
   readonly now: () => number;
   readonly timeZone: () => string;
 }
 
 const TIMED: readonly string[] = ['running', 'stuck', 'holding'];
+/** The phases of a session a hunt record can still be about. */
+const HOLDS_HUNT: readonly string[] = [...TIMED, 'time_up', 'not_finished'];
+/** The actions today's store acts on. The others are about a hunt begun outside the app. */
+const DAY_ACTIONS = ['start_session', 'brain_dump', 'park_thought', 'stuck'] as const;
+type DayAction = (typeof DAY_ACTIONS)[number];
+const isDayAction = (kind: string): kind is DayAction =>
+  (DAY_ACTIONS as readonly string[]).includes(kind);
 
 /** The parts of the day a surface shows. While none of them changes, nothing is written. */
-function shownParts(state: DayState, plus: boolean, accent: string | null): readonly unknown[] {
+function shownParts(
+  state: DayState,
+  plus: boolean,
+  accent: string | null,
+  finish: CardFinish,
+): readonly unknown[] {
   const { settings } = state;
   return [
     state.today,
@@ -42,6 +64,8 @@ function shownParts(state: DayState, plus: boolean, accent: string | null): read
     settings.language,
     plus,
     accent,
+    finish,
+    state.localDate,
   ];
 }
 
@@ -63,26 +87,65 @@ export function createSurfaceSync(deps: SurfaceSyncDeps) {
     if (!state.ready) return;
     const plus = deps.plus();
     const accent = deps.accent();
-    const parts = shownParts(state, plus, accent);
+    const finish = deps.finish();
+    const parts = shownParts(state, plus, accent, finish);
     if (lastParts && parts.every((part, index) => part === lastParts?.[index])) return;
     lastParts = parts;
 
     const { today } = state;
     // A serious task and a crisis day have no monster on any surface, so none is kept there.
     const monster = today.kind === 'serious' || today.kind === 'crisis' ? null : state.monster;
-    const monsterImage = await shareMonsterImage(monster, deps.painter, deps.files);
+    // Today's unfinished things with a monster may lurk; the snapshot decides which are shown.
+    // One carried to tomorrow lurks from tomorrow, when a hunt on it can become today's session.
+    const monsters = await deps.repositories.monsters.all();
+    const caught = monsters.filter((one) => one.caughtAt !== null);
+    const unfinished =
+      today.kind === 'crisis'
+        ? []
+        : (await deps.repositories.tasks.where('localDate', state.localDate)).filter(
+            (task) => task.status !== 'finished',
+          );
+    const waiting = unfinished.flatMap((task) => {
+      const its = monsters.find((one) => one.taskId === task.id && one.caughtAt === null);
+      return its ? [{ task, monster: its }] : [];
+    });
+    const latest = caught.reduce<(typeof caught)[number] | null>(
+      (last, one) => (last === null || (one.caughtAt ?? '') > (last.caughtAt ?? '') ? one : last),
+      null,
+    );
+    // The last catch keeps its picture: its card may still be on the Lock Screen.
+    const images = await shareMonsterImages(
+      [
+        ...(monster ? [monster] : []),
+        ...waiting.map((one) => one.monster),
+        ...(latest && today.kind !== 'crisis' ? [latest] : []),
+      ],
+      deps.painter,
+      deps.files,
+    );
     const live = state.session !== null && TIMED.includes(state.session.phase);
     const snapshot = buildSurfaceSnapshot({
       today,
       settings: state.settings,
       monster,
-      monsterImage,
+      monsterImage: monster ? (images.get(monster.id) ?? null) : null,
       shownLine: live ? (state.line?.text ?? null) : null,
       weekBars: (await deps.repositories.recordBars.where('week', isoWeekOf(state.localDate).week))
         .length,
       worldThings: finishedThings(await deps.repositories.worldPieces.all()),
       plus,
       accent,
+      localDate: state.localDate,
+      waiting: waiting.map((one): WaitingThing => ({
+        ...one,
+        image: images.get(one.monster.id) ?? null,
+      })),
+      finish,
+      shelf: caught.length,
+      latestCatch:
+        latest?.caughtAt != null
+          ? { name: latest.name, caughtAt: instantFromIso(latest.caughtAt) }
+          : null,
       dayEndsAt: instantOfLocal(
         addDays(state.localDate, 1),
         `${String(DAY_ROLLOVER_HOUR).padStart(2, '0')}:00`,
@@ -95,6 +158,15 @@ export function createSurfaceSync(deps: SurfaceSyncDeps) {
     shared.reloadSurfaces();
     lastJson = json;
   }
+
+  /** The hunt record the Lock Screen's buttons move, or `null` when there is none to read. */
+  const storedHunt = () => {
+    try {
+      return readHunt(shared.get(SHARED_KEYS.hunt));
+    } catch {
+      return null;
+    }
+  };
 
   const sync = () => {
     queue = queue.then(write).catch(() => undefined);
@@ -118,7 +190,31 @@ export function createSurfaceSync(deps: SurfaceSyncDeps) {
       if (!store.getState().ready) return [];
       const actions = pending.take();
       for (const action of actions) {
-        await store.dispatch({ type: 'surface_action', action: action.kind });
+        if (isDayAction(action.kind)) {
+          await store.dispatch({ type: 'surface_action', action: action.kind });
+        }
+      }
+      // A hunt begun or moved outside the app is taken up before anything else is noticed.
+      const hunt = storedHunt();
+      if (hunt !== null) {
+        await store.dispatch({ type: 'hunt_adopted', hunt });
+        // A record nothing took up, with its clock started and no ending waiting on the Lock
+        // Screen, was left behind (the app was killed mid-session, the day turned): it goes, so
+        // it cannot be mistaken for a hunt that is on.
+        const { session, today } = store.getState();
+        const taken =
+          session !== null &&
+          HOLDS_HUNT.includes(session.phase) &&
+          'task' in today &&
+          today.task.id === hunt.taskId;
+        const waiting = hunt.stoppedAt !== null || deps.now() < hunt.beginsAt;
+        if (!taken && !waiting) {
+          try {
+            shared.remove(SHARED_KEYS.hunt);
+          } catch {
+            // Cleared the next time the app comes to the front.
+          }
+        }
       }
       if (actions.length === 0) await store.dispatch({ type: 'opened_mid_session' });
       return actions;

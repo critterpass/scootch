@@ -27,4 +27,5 @@ export interface MonsterPainter {
 export const SHARED_KEYS = {
   snapshot: 'surfaces.snapshot',
   pendingActions: 'surfaces.pending-actions',
+  hunt: 'surfaces.hunt',
 } as const;

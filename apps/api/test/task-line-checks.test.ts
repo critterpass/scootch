@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
 
 import {
+  bitesAt,
   checkWritten,
   failuresIn,
   packFields,
@@ -159,5 +160,88 @@ describe('lines checked together', () => {
     );
     expect(tidied('right here. go slowly.', 'start', 'unhinged')).toBe('right here. go slowly.');
     expect(tidied('desk lurker', 'monsterTitle', 'soft')).toBe('desk lurker');
+  });
+});
+
+describe('the three bites', () => {
+  const bites = ["Find the dentist's email.", 'Write two lines about Thursday.', 'Hit send.'];
+  const answer = {
+    start: 'Off we go.',
+    working: ['Still here.', 'Typing along.', 'One line down.'],
+    pickedUp: 'Oh, hello up here.',
+    checkIn: 'How is it going? A smaller step is fine.',
+    tinyNextStep: 'Open the email app.',
+    tinierNextSteps: ['Find the last email from them.', 'Look at the inbox.'],
+    bites,
+    biteMinutes: [1, 4, 1],
+  };
+  const read = (given: Record<string, unknown>, language: 'en' | 'vi' = 'en') => {
+    const texts = textsFrom(firstHalf, schemaFor(firstHalf, language).parse(given));
+    return { texts, failures: failuresIn(slotsOf(firstHalf), texts, language, 'cheeky') };
+  };
+
+  it('are kept with their minutes when all three are there', () => {
+    const { texts, failures } = read(answer);
+
+    expect(failures).toEqual([]);
+    expect(bitesAt(texts)).toEqual([
+      { text: bites[0], minutes: 1 },
+      { text: bites[1], minutes: 4 },
+      { text: bites[2], minutes: 1 },
+    ]);
+  });
+
+  it('reads minutes that came as text, or as one string holding the list', () => {
+    expect(
+      bitesAt(read({ ...answer, biteMinutes: ['2', 3, '1'] }).texts)?.map((b) => b.minutes),
+    ).toEqual([2, 3, 1]);
+    expect(
+      bitesAt(read({ ...answer, biteMinutes: '[1, 2, 3]' }).texts)?.map((b) => b.minutes),
+    ).toEqual([1, 2, 3]);
+  });
+
+  it.each([
+    ['a bite of five minutes', { biteMinutes: [1, 5, 1] }],
+    ['a bite of no minutes', { biteMinutes: [1, 0, 1] }],
+    ['half a minute', { biteMinutes: [1, 0.5, 1] }],
+    ['two minutes for three bites', { biteMinutes: [1, 4] }],
+    ['no minutes at all', { biteMinutes: undefined }],
+    ['words where the minutes go', { biteMinutes: ['one', 'two', 'three'] }],
+    ['two bites', { bites: bites.slice(0, 2) }],
+    ['no bites', { bites: undefined }],
+  ])('are left out whole with %s', (_, change) => {
+    expect(bitesAt(read({ ...answer, ...change }).texts)).toBeUndefined();
+  });
+
+  it('are not needed for the answer to be whole', () => {
+    const { failures } = read({ ...answer, bites: undefined, biteMinutes: undefined });
+
+    expect(failures).toEqual([]);
+  });
+
+  it('fail the check when one is too long or says what another said', () => {
+    const long =
+      'Find the email from the dentist that came some time last spring and read all of it slowly.';
+    expect(
+      read({ ...answer, bites: [long, bites[1], bites[2]] }).failures.map((f) => f.slot),
+    ).toEqual(['lines.bites.0']);
+    expect(read({ ...answer, bites: [bites[0], 'Hit send.', 'hit send'] }).failures).toEqual([
+      { slot: 'lines.bites.2', kind: 'bite', reasons: ['repeated_step'] },
+    ]);
+  });
+
+  it('are never an answer on their own', () => {
+    expect(schemaFor(firstHalf, 'en').safeParse({ biteMinutes: [1, 2, 3] }).success).toBe(false);
+  });
+
+  it.each(['en', 'vi'] as const)('tells the %s writer what the minutes are', (language) => {
+    const schema = z.toJSONSchema(schemaFor(firstHalf, language)) as {
+      properties: Record<string, { description?: string; type: string; items?: { type: string } }>;
+    };
+
+    expect(schema.properties['biteMinutes']?.items?.type).toBe('number');
+    expect(schema.properties['biteMinutes']?.description).toMatch(/1 .* 4/);
+    const [words = ''] = /\d+/.exec(schema.properties['bites']?.description ?? '') ?? [];
+    expect(Number(words)).toBe(3);
   });
 });

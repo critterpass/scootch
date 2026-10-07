@@ -137,7 +137,7 @@ describe('while it runs', () => {
     const step = at(started(), 'clock', minutes(10));
     expect(step.state).toMatchObject({ phase: 'time_up', endsAt: END });
     expect(step.effects).toEqual([
-      { kind: 'end_live_activity' },
+      { kind: 'overtime_live_activity' },
       { kind: 'show_line', line: 'timeUp' },
       { kind: 'play_cue', cue: 'nudge' },
       { kind: 'haptic', pattern: 'nudge' },
@@ -148,7 +148,7 @@ describe('while it runs', () => {
 describe('finishing', () => {
   const finishEffects = (method: string) => [
     { kind: 'cancel_timer' },
-    { kind: 'end_live_activity' },
+    { kind: 'end_live_activity', caught: true },
     {
       kind: 'record_session_end',
       outcome: 'finished',
@@ -225,8 +225,10 @@ describe('not finished', () => {
 
   it('is a normal outcome with one line and three choices', () => {
     expect(asked.state).toMatchObject({ phase: 'not_finished' });
+    // Said in overtime, where the Live Activity was still up: it ends here.
     expect(asked.effects).toEqual([
       { kind: 'cancel_timer' },
+      { kind: 'end_live_activity' },
       { kind: 'show_line', line: 'notFinished' },
     ]);
   });
@@ -327,7 +329,7 @@ describe('leaving, and the app going away', () => {
     const step = at(killed, 'relaunched', minutes(90));
     expect(step.state).toMatchObject({ phase: 'time_up', endsAt: END });
     expect(step.effects).toEqual([
-      { kind: 'end_live_activity' },
+      { kind: 'overtime_live_activity' },
       { kind: 'show_line', line: 'timeUp' },
     ]);
     const done = endOf(step.state, each(1000, 'hold_started', 'hold_completed'));

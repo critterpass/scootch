@@ -134,15 +134,22 @@ export function createEffectsRunner(options: EffectsRunnerOptions): EffectsRunne
         return options.screen.showParkedThoughts(effect.thoughts);
       case 'start_live_activity': {
         const { until } = effect;
-        const { title, liveLine } = context;
+        const { title, taskId, liveLine } = context;
         liveEndsAt = until;
-        void enqueue(() => options.liveActivity.start({ title, endsAt: until, line: liveLine }));
+        void enqueue(() =>
+          options.liveActivity.start({ title, taskId, endsAt: until, line: liveLine }),
+        );
         return;
       }
-      case 'end_live_activity':
-        liveEndsAt = null;
-        void enqueue(() => options.liveActivity.end());
+      case 'overtime_live_activity':
+        void enqueue(() => options.liveActivity.overtime());
         return;
+      case 'end_live_activity': {
+        const caught = effect.caught === true;
+        liveEndsAt = null;
+        void enqueue(() => options.liveActivity.end(caught));
+        return;
+      }
       // Storage effects: the store writes these through the repositories.
       case 'grant_start_reward':
       case 'grant_finish_reward':

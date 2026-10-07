@@ -126,6 +126,7 @@ function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
       const { ink } = plus.store.getState().look;
       return ink === 'tangerine' ? null : inkOf(ink).colours.accent;
     },
+    finish: () => plus.store.getState().look.finish,
     now: () => systemClock.now(),
     timeZone,
   });

@@ -71,11 +71,29 @@ describe('pending actions from the system surfaces', () => {
     const fresh = { id: 'f', kind: 'stuck', at: MORNING + PENDING_ACTION_MAX_AGE_MS };
     const list = JSON.stringify([fresh, { id: 'x', kind: 'delete_everything', at: fresh.at }]);
     shared.values.set(SHARED_KEYS.pendingActions, list);
-    expect(pending.take()).toEqual([fresh]);
+    expect(pending.take()).toEqual([{ ...fresh, taskId: null, biteId: null }]);
     shared.values.set(SHARED_KEYS.pendingActions, list);
     expect(pending.take()).toEqual([]);
     shared.values.set(SHARED_KEYS.pendingActions, '{not json');
     expect(pending.take()).toEqual([]);
+  });
+});
+
+describe('what was asked about one thing', () => {
+  it('keeps the task and the bite an action is about, in the order asked', () => {
+    const shared = fakeShared();
+    const pending = createPendingActions(shared.store, () => MORNING + 1000);
+    const list = [
+      { id: 'b', kind: 'bite', taskId: 'task-1', biteId: 'bite-2', at: MORNING + 2 },
+      { id: 'a', kind: 'hunt', taskId: 'task-1', at: MORNING + 1 },
+      { id: 'c', kind: 'turn_down', taskId: 7, at: MORNING + 3 },
+    ];
+    shared.values.set(SHARED_KEYS.pendingActions, JSON.stringify(list));
+    expect(pending.take()).toEqual([
+      { id: 'a', kind: 'hunt', taskId: 'task-1', biteId: null, at: MORNING + 1 },
+      { id: 'b', kind: 'bite', taskId: 'task-1', biteId: 'bite-2', at: MORNING + 2 },
+      { id: 'c', kind: 'turn_down', taskId: null, biteId: null, at: MORNING + 3 },
+    ]);
   });
 });
 
@@ -92,6 +110,7 @@ describe('the surface sync on a phone', () => {
       painter,
       plus: () => false,
       accent: () => null,
+      finish: () => 'paper',
       now: () => staged.time.clock.now(),
       timeZone: () => 'Europe/London',
     });

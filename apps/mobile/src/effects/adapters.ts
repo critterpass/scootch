@@ -38,9 +38,18 @@ export interface NotificationScheduler {
 
 /** The session's Live Activity. Every method does nothing where there are no Live Activities. */
 export interface LiveActivityPort {
-  start(activity: { title: string; endsAt: Instant; line: string }): Promise<void>;
+  /** `taskId` finds the task's monster and words on the Lock Screen; without one it shows a plain session. */
+  start(activity: {
+    title: string;
+    taskId?: string | undefined;
+    endsAt: Instant;
+    line: string;
+  }): Promise<void>;
   update(activity: { endsAt: Instant; line: string }): Promise<void>;
-  end(): Promise<void>;
+  /** Time is up and the session goes on: the activity stays, counting up. */
+  overtime(): Promise<void>;
+  /** `caught` leaves the caught card on the Lock Screen; otherwise the activity goes at once. */
+  end(caught?: boolean): Promise<void>;
 }
 
 /** What the runner hands to the screen layer as state. */
@@ -64,6 +73,8 @@ export interface EffectSwitches {
 export interface SessionContext {
   /** The Live Activity's title. */
   readonly title: string;
+  /** The task the session is for. */
+  readonly taskId?: string;
   /** The line the Live Activity opens with. */
   readonly liveLine: string;
   /** The words for a line slot, or `null` when there is nothing to say. */

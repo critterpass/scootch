@@ -17,7 +17,7 @@ function thoughtsEffect(state: LiveSession): SessionEffect[] {
 export function finish(state: LiveSession, method: FinishMethod, now: Instant): LiveStep {
   const effects: SessionEffect[] = [
     { kind: 'cancel_timer' },
-    { kind: 'end_live_activity' },
+    { kind: 'end_live_activity', caught: true },
     {
       kind: 'record_session_end',
       outcome: 'finished',
@@ -65,13 +65,15 @@ export function leaveEarly(state: LiveSession, now: Instant): LiveStep {
 }
 
 /**
- * "Not finished" is a normal outcome: one line, then three calm choices. Said before time is up
- * (the person chose to stop), the Live Activity ends with the timer.
+ * "Not finished" is a normal outcome: one line, then three calm choices. The Live Activity ends
+ * with it, whether the person stopped before time was up or the activity was in overtime.
  */
 export function notFinished(state: LiveSession, now: Instant): LiveStep {
-  const effects: SessionEffect[] = [{ kind: 'cancel_timer' }];
-  if (state.phase !== 'time_up') effects.push({ kind: 'end_live_activity' });
-  effects.push({ kind: 'show_line', line: 'notFinished' });
+  const effects: SessionEffect[] = [
+    { kind: 'cancel_timer' },
+    { kind: 'end_live_activity' },
+    { kind: 'show_line', line: 'notFinished' },
+  ];
   return { state: { ...state, phase: 'not_finished', heldFrom: null, endedAt: now }, effects };
 }
 

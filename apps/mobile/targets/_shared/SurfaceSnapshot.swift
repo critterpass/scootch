@@ -24,8 +24,56 @@ struct SurfaceSnapshot: Codable, Equatable, Sendable {
         let text: String
     }
 
+    /// A task's words for each state of its hunt, so a session begun with the app closed has
+    /// them. A serious task's are its plain words; nil means nothing is said in that state.
+    struct HuntLines: Codable, Equatable, Sendable {
+        let start: String?
+        /// Turned through while the clock runs.
+        let working: [String]
+        /// The one concrete nudge shown while stuck, and the smaller one "Give me a first line" shows.
+        let stuck: String?
+        let firstLine: String?
+        let lastMinutes: String?
+        let overtime: String?
+        let caught: String?
+        let stoppedEarly: String?
+    }
+
+    /// A hatched thing that is waiting. Never a serious task, and none on a crisis day: the app
+    /// decides that before it writes.
+    struct Lurker: Codable, Equatable, Sendable, Identifiable {
+        let taskId: String
+        let name: String
+        let task: String
+        /// Which day of waiting the thing is on, from 1.
+        let day: Int
+        /// How big it is drawn for that day, up to 1 when it is pressed against the glass.
+        let size: Double
+        let image: String?
+        let lines: HuntLines
+
+        var id: String { taskId }
+    }
+
+    /// One of a monster's three bites.
+    struct Bite: Codable, Equatable, Sendable, Identifiable {
+        let id: String
+        let taskId: String
+        let text: String
+        let minutes: Int
+        let caught: Bool
+    }
+
+    struct Catch: Codable, Equatable, Sendable {
+        let name: String
+        let caughtAt: Double
+    }
+
     let version: Int
     let state: DayState
+    /// The one thing's id and its words for a hunt. Both nil whenever `task` is.
+    let taskId: String?
+    let taskLines: HuntLines?
     /// Always nil on a crisis day.
     let task: String?
     let sessionStartedAt: Double?
@@ -41,6 +89,15 @@ struct SurfaceSnapshot: Codable, Equatable, Sendable {
     let weekBars: Int
     let worldThings: Int
     let plus: Bool
+    /// The waiting monsters, the one that has waited longest first, four at most.
+    let lurkers: [Lurker]
+    /// The bites of the lurkers' monsters.
+    let bites: [Bite]
+    /// The finish the person wears, which the shelf and the caught card are made of.
+    let finish: String
+    /// How many monsters have been caught, and the last of them.
+    let shelf: Int
+    let latestCatch: Catch?
     /// When the day this snapshot describes rolls over into the next one.
     let dayEndsAt: Double
     /// The ink the person wears, as a six-digit hex colour. Nil is tomato, and so is a snapshot
@@ -50,11 +107,12 @@ struct SurfaceSnapshot: Codable, Equatable, Sendable {
     /// What every surface shows before the app has written anything, or after a version it
     /// cannot read: nothing yet, in plain words.
     static let empty = SurfaceSnapshot(
-        version: currentVersion, state: .nothingYet, task: nil, sessionStartedAt: nil,
-        sessionEndsAt: nil, monsterName: nil, monsterImage: nil, line: nil, sessionLines: [],
-        attitude: .cheeky, language: Locale.preferredLanguages.first?.hasPrefix("vi") == true ? "vi" : "en",
-        weekBars: 0, worldThings: 0, plus: false, dayEndsAt: .greatestFiniteMagnitude,
-        accent: nil)
+        version: currentVersion, state: .nothingYet, taskId: nil, taskLines: nil, task: nil,
+        sessionStartedAt: nil, sessionEndsAt: nil, monsterName: nil, monsterImage: nil, line: nil,
+        sessionLines: [], attitude: .cheeky,
+        language: Locale.preferredLanguages.first?.hasPrefix("vi") == true ? "vi" : "en",
+        weekBars: 0, worldThings: 0, plus: false, lurkers: [], bites: [], finish: "paper",
+        shelf: 0, latestCatch: nil, dayEndsAt: .greatestFiniteMagnitude, accent: nil)
 
     /// Nil when the text is not a snapshot of the version this code reads.
     static func decode(_ json: String) -> SurfaceSnapshot? {
@@ -75,14 +133,30 @@ struct SurfaceSnapshot: Codable, Equatable, Sendable {
     }
 
     /// The snapshot as it reads at `date`. Once its day is over, and the app has not been opened
-    /// to write the new one, nothing of yesterday is shown: it is a day with nothing yet.
+    /// to write the new one, nothing of yesterday is shown: it is a day with nothing yet. The
+    /// lurkers go too, because whether each may still be shown is the app's to decide for the
+    /// new day; what was caught stays caught.
     func shown(at date: Date) -> SurfaceSnapshot {
         guard date >= dayEnd else { return self }
         return SurfaceSnapshot(
-            version: version, state: .nothingYet, task: nil, sessionStartedAt: nil,
-            sessionEndsAt: nil, monsterName: nil, monsterImage: nil, line: nil, sessionLines: [],
-            attitude: attitude, language: language, weekBars: weekBars, worldThings: worldThings,
-            plus: plus, dayEndsAt: .greatestFiniteMagnitude, accent: accent)
+            version: version, state: .nothingYet, taskId: nil, taskLines: nil, task: nil,
+            sessionStartedAt: nil, sessionEndsAt: nil, monsterName: nil, monsterImage: nil,
+            line: nil, sessionLines: [], attitude: attitude, language: language,
+            weekBars: weekBars, worldThings: worldThings, plus: plus, lurkers: [], bites: [],
+            finish: finish, shelf: shelf, latestCatch: latestCatch,
+            dayEndsAt: .greatestFiniteMagnitude, accent: accent)
+    }
+
+    /// The lurker that has waited longest, which a control or the Action button hunts.
+    var oldestLurker: Lurker? { lurkers.first }
+
+    func lurker(for taskId: String) -> Lurker? {
+        lurkers.first { $0.taskId == taskId }
+    }
+
+    /// The words for a hunt on this task: the lurker's, or today's one thing's.
+    func huntLines(for taskId: String) -> HuntLines? {
+        lurker(for: taskId)?.lines ?? (self.taskId == taskId ? taskLines : nil)
     }
 
     var sessionEnd: Date? {

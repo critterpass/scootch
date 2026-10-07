@@ -6,7 +6,7 @@ The designs live in Claude Design, project
 
 ## Boards (exported 7 Oct 2026 from the founder's archive)
 
-All twelve boards are in this folder as `<board>.dc.html`, with the three
+All thirteen boards are in this folder as `<board>.dc.html`, with the three
 scripts they load (`support.js`, `critters.js`, `fx.js`), so each opens in a
 browser as designed.
 
@@ -16,7 +16,8 @@ browser as designed.
 | Monsters and Keepsakes | The monster, the world, the week's song, share cards and stories, the binder | Yes |
 | Tables | Lobby, waiting alone, invite, full table, nudges, labels | Yes, friends only |
 | Characters | 30 work modes, 20 monster bodies | Yes |
-| System Surfaces | Live Activities, widgets, controls, notifications | Yes |
+| System Surfaces | Live Activities, widgets, controls, notifications | Replaced by System Surfaces v2 |
+| System Surfaces v2 (added 8 Oct 2026) | The hunt on the Lock Screen and Island in ten states, lurker widgets, notifications from the monsters with three bites, ten app icons, Settings · Look and wallpaper, every way to start, share into a monster, the table outside the app | Yes, without the distraction shield, calendar and location warnings and the Watch app |
 | Plus | Locked controls, first offer, the trial's last day, renewal, friend pass | Yes, without gifts. Its sheet, trial-started and lifetime moments, shelf and manage page are replaced by Plus Materials |
 | Plus Materials (added 8 Oct 2026) | Seven finishes, the sheet dressed up, the welcome, the studio (ink, finish, trail), your card, five things to share | Yes. It also replaces the share cards and stories of Monsters and Keepsakes |
 | Care and Edge States | Serious mode, crisis, offline, AI unavailable, accessibility, privacy, seat controls | Yes |

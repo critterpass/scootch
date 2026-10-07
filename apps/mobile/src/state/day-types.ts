@@ -1,4 +1,5 @@
 import type {
+  HuntRecord,
   DrawerEvent,
   DrawerItemRow,
   Energy,
@@ -100,6 +101,8 @@ export type DayEvent =
   | { readonly type: 'app_backgrounded' }
   /** A control, the Action button or a Live Activity button asked for something. */
   | { readonly type: 'surface_action'; readonly action: SurfaceActionKind }
+  /** The hunt record in the App Group, read as the app came to the front. */
+  | { readonly type: 'hunt_adopted'; readonly hunt: HuntRecord }
   /** A screen has acted on `surfaceRequest`, so it is cleared. */
   | { readonly type: 'surface_request_taken' }
   /** A step found by the camera: the composer sends its words as it sends typed ones. */

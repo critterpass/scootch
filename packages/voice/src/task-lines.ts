@@ -30,7 +30,7 @@ export type TaskLineFailure = {
 
 /** Every line and name of a task call's answer, in a fixed order. */
 export function taskLines({ monster, lines, notifications, deadlines }: TaskCopy): TaskLine[] {
-  const { working, tinierNextSteps = [], ...single } = lines;
+  const { working, tinierNextSteps = [], bites = [], ...single } = lines;
   const tinierKinds = ['tinierNextStep', 'tiniestNextStep'] as const;
   return [
     { slot: 'monster.name', kind: 'monsterName', text: monster.name },
@@ -47,6 +47,11 @@ export function taskLines({ monster, lines, notifications, deadlines }: TaskCopy
     ...tinierNextSteps.map((text, index): TaskLine => ({
       slot: `lines.tinierNextSteps.${index}`,
       kind: tinierKinds[index] ?? 'tiniestNextStep',
+      text,
+    })),
+    ...bites.map(({ text }, index): TaskLine => ({
+      slot: `lines.bites.${index}`,
+      kind: 'bite',
       text,
     })),
     ...notifications.map(({ text }, index): TaskLine => ({
@@ -67,10 +72,15 @@ export function repeatedStepSlots(steps: readonly string[]): Set<string> {
   return new Set(repeatedSteps(steps).map((index) => `lines.tinierNextSteps.${index - 1}`));
 }
 
+/** The slots of the bites that repeat an earlier bite: three bites are three different steps. */
+export function repeatedBiteSlots(bites: readonly string[]): Set<string> {
+  return new Set(repeatedSteps(bites).map((index) => `lines.bites.${index}`));
+}
+
 /**
  * Runs the voice check on every line and name of a task call's answer. `treat` is the treat the
  * answer was asked with, when there was one. A smaller step that only repeats an earlier one
- * fails too.
+ * fails too, and so does a bite that repeats another.
  */
 export function checkTaskCopy(
   copy: TaskCopy,
@@ -82,6 +92,9 @@ export function checkTaskCopy(
     copy.lines.tinyNextStep,
     ...(copy.lines.tinierNextSteps ?? []),
   ]);
+  for (const slot of repeatedBiteSlots((copy.lines.bites ?? []).map(({ text }) => text))) {
+    repeated.add(slot);
+  }
   return taskLines(copy).flatMap(({ slot, kind, text }) => {
     const check = checkWrittenLine({
       text,

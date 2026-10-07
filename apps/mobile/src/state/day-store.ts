@@ -29,6 +29,7 @@ import { drawerEvent, setChosenSession } from './pick-flow';
 import { resolveThought } from './parked-thoughts';
 import { UNDER_WAY, applySession } from './session-flow';
 import { closeStraySessions, dayOfRunningSession, restoreSession } from './session-restore';
+import { adoptHunt } from './hunt-adoption';
 import { closeSession, followTableClock, shortenSession, turnWorkingLine } from './session-moments';
 import { applySurfaceAction, noticePickUp } from './surface-actions';
 import { cancelOneThing, parkStartedTask } from './way-out';
@@ -292,6 +293,8 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
         return fetchPending(ctx);
       case 'surface_action':
         return applySurfaceAction(ctx, event.action);
+      case 'hunt_adopted':
+        return adoptHunt(ctx, event.hunt);
       case 'surface_request_taken':
         return set({ surfaceRequest: null });
       case 'camera_step_chosen':

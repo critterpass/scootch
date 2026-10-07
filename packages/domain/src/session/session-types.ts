@@ -130,7 +130,10 @@ export type SessionEffect =
   | { readonly kind: 'haptic'; readonly pattern: SessionCue }
   | { readonly kind: 'show_burst'; readonly burst: 'start' | 'confetti' }
   | { readonly kind: 'start_live_activity'; readonly until: Instant }
-  | { readonly kind: 'end_live_activity' }
+  /** `caught` when the session ended in a finish: the Lock Screen then shows the caught card. */
+  | { readonly kind: 'end_live_activity'; readonly caught?: true }
+  /** Time is up and the session goes on: the Live Activity stays, in overtime. */
+  | { readonly kind: 'overtime_live_activity' }
   | { readonly kind: 'grant_start_reward'; readonly taskId: Id; readonly tone: SessionTone }
   | { readonly kind: 'grant_finish_reward'; readonly taskId: Id; readonly tone: SessionTone }
   | { readonly kind: 'hand_over_treat'; readonly treat: string }

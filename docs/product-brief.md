@@ -37,7 +37,7 @@ website and the store listing.
 | Ramble | Hold to talk or type for twenty seconds; one thing comes back, the rest is parked in a drawer. "Pick for me", said or typed, has Scootch offer one of the parked things instead |
 | Deadline heard | A real date in the ramble is said out loud and brought back on its own day |
 | Energy | Low, medium or fine; the one thing is picked to fit it |
-| It hatches | The task becomes a named monster; "too big" shrinks the task and the monster, and is the one way to a smaller ask. A set task can be put down into the drawer from beside Start |
+| It hatches | The task becomes a named monster; "too big" shrinks the task and the monster. The one other way to a smaller ask is the monster's three bites (section 5). A set task can be put down into the drawer from beside Start |
 | Start | A wheel sets the length, 5 to 180 minutes (10 unless turned), and Start begins it with a burst of sound and haptics. The named treat for afterwards is not asked for at present (founder, 7 Oct) |
 | Work beside | Scootch works next to you in a mode that matches the task; park a thought, ask for a tiny next step |
 | Finish | Catch the task's monster: each task rolls one of eight catches, the work sets its trap, and when time is up Scootch asks whether the thing was really done before the gesture unlocks (or tap twice, or say "done"); "not finished" is a normal outcome with three choices |
@@ -63,6 +63,13 @@ website and the store listing.
 - **Monsters and cards.** 20 body types chosen from the task's meaning, varied
   by ink, size, eyes, mouth and accessories. Cards carry real stats (days
   lurked, catch time), rarity earned from the task, and flavour text.
+- **Lurkers and bites** (founder, 8 Oct). A hatched thing that is waiting
+  (today's thing, or one carried to tomorrow) is a lurker: widgets show it
+  with how long it has waited, and it is a button that starts ten minutes on
+  it. A parked thing never lurks; the drawer stays closed. A monster's
+  notification opens into three bites, steps under five minutes written with
+  the task. Ticking a bite shrinks the monster and earns nothing; the last
+  one opens the catch in the app. A serious task has neither.
 - **The world.** Every finished thing adds a permanent piece. It never shrinks.
 - **The record.** Each finished day adds one bar and one instrument; on Sunday
   the week is a full track with a name and cover written by the AI. A week
@@ -159,12 +166,20 @@ is complex and isolated:
 | Monster wall and Unwrapped | Need moderation at volume and a month of data |
 | Tables with strangers | Seating by similar work and pace; waits until moderation has been exercised with friends |
 | Android release | The Android build exists from day one as a test device only |
+| Distraction shield during a hunt | Needs Apple to grant the Family Controls entitlement |
+| Calendar wrap-up and leave-by warnings, arrive-home reminders | New Calendar and Location permissions, and a new privacy promise for each |
+| Apple Watch app with a tap every five minutes | A new platform; until then the Live Activity shows in the Watch's Smart Stack by itself |
 
 ## 11. Known gaps between design and platform
 
 | Design | Reality | Plan |
 |---|---|---|
 | "Phone picked up" Live Activity show | Nothing can tell the app the phone was picked up while it is locked (researched, not device-tested) | The Live Activity always carries an in-character line, so a pick-up shows one. The "you picked me up" show plays when Scootch is opened or its Live Activity is tapped mid-session. An app-blocking shield is possible after launch with Apple's Family Controls entitlement |
+| "When the time runs out" the Live Activity turns into the caught card | Scootch asks whether the thing was really done before the catch unlocks | Time running out shows overtime with "Finish", which opens the catch; the caught card follows the real catch |
+| The caught card's shine moves as the Lock Screen is tilted | A Live Activity cannot read motion | The shine is drawn still |
+| "Say it to Park" on the Lock Screen | A locked phone cannot record for an app that is not in front | Park opens the app on the park field, already listening |
+| "Tables now" shows strangers by category | Strangers are after launch | Friends' tables only |
+| Wallpaper that "refreshes every morning" | An app can neither set the wallpaper nor create an automation | Scootch draws the picture and offers a Shortcuts action; the user adds the automation |
 | Stuck help "when nothing has moved" | The app cannot see the user's work | A timed check-in plus the "I'm stuck" button |
 | Gift redemption | No native gifting | After launch |
 | "Someone always shows up around ten" at an empty table | Untrue with friends-only tables | Say the seats are saved, and offer the invite |

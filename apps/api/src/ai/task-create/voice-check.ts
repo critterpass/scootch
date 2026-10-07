@@ -1,5 +1,5 @@
 import type { Attitude, Language } from '@scootch/domain';
-import { treatPlaceholder } from '@scootch/domain';
+import { BITE_COUNT, treatPlaceholder } from '@scootch/domain';
 import {
   checkLine,
   checkWrittenLine,
@@ -8,6 +8,7 @@ import {
   offlineSlots,
   promptCharacterLimit,
   promptWordLimit,
+  repeatedBiteSlots,
   repeatedStepSlots,
   sentenceCased,
   type CheckReason,
@@ -40,6 +41,11 @@ export type Field = {
   readonly list: boolean;
   /** How many lines of a list must be there. The rest are welcome and not asked for again. */
   readonly needed: number;
+  /**
+   * A list of whole numbers, not lines: read leniently, never voice-checked or asked for again.
+   * What they mean, and whether they will do, is for whoever reads them.
+   */
+  readonly numbers?: { readonly count: number; readonly note: Readonly<Record<Language, string>> };
 };
 
 const one = (key: string, path: string, kind: LineKind): Field => ({
@@ -56,6 +62,24 @@ const many = (
   kinds: readonly LineKind[],
   needed = kinds.length,
 ): Field => ({ key, path, kinds, list: true, needed });
+
+/** The most minutes one bite may take: always under five. */
+export const BITE_MAX_MINUTES = 4;
+
+const biteMinutes: Field = {
+  key: 'biteMinutes',
+  path: 'lines.biteMinutes',
+  kinds: [],
+  list: true,
+  needed: 0,
+  numbers: {
+    count: BITE_COUNT,
+    note: {
+      en: `A real JSON array of exactly ${BITE_COUNT} whole numbers, each from 1 to ${BITE_MAX_MINUTES}.`,
+      vi: `Một mảng JSON thật gồm đúng ${BITE_COUNT} số nguyên, mỗi số từ 1 đến ${BITE_MAX_MINUTES}.`,
+    },
+  },
+};
 
 /** What is written first: the monster and the line it hatches with. */
 export const nameFields: readonly Field[] = [
@@ -79,6 +103,9 @@ export function packFields(attitude: Attitude): readonly (readonly Field[])[] {
       line('checkIn'),
       line('tinyNextStep'),
       many('tinierNextSteps', 'lines.tinierNextSteps', ['tinierNextStep', 'tiniestNextStep']),
+      // The pack is whole without bites: a bite that fails the check is dropped, never replaced.
+      many('bites', 'lines.bites', ['bite', 'bite', 'bite'], 0),
+      biteMinutes,
     ],
     [
       line('twoMinutesLeft'),
@@ -110,7 +137,8 @@ export function slotsOf(fields: readonly Field[]): Slot[] {
 const namesAndTitles = new Set<LineKind>(['monsterName', 'monsterTitle']);
 
 /** A field's limits as the schema tells them: a margin under what the check allows. */
-function limitNote({ kinds, list }: Field, language: Language): string | undefined {
+function limitNote({ kinds, list, numbers }: Field, language: Language): string | undefined {
+  if (numbers) return numbers.note[language];
   const [first] = kinds;
   if (first === undefined || namesAndTitles.has(first)) return undefined;
   const limit = (kind: LineKind) =>
@@ -144,6 +172,26 @@ function linesOf(given: unknown): string[] {
   return Array.isArray(list) ? list.map((line) => (typeof line === 'string' ? line : '')) : [];
 }
 
+/** A list of numbers as the writer gave it; a number written as text is still that number. */
+function numbersOf(given: unknown): number[] {
+  let list = given;
+  if (typeof given === 'string' && given.trim().startsWith('[')) {
+    try {
+      list = JSON.parse(given);
+    } catch {
+      list = [];
+    }
+  }
+  if (!Array.isArray(list)) return [];
+  return list.map((one) =>
+    typeof one === 'number'
+      ? one
+      : typeof one === 'string' && one.trim() !== ''
+        ? Number(one)
+        : NaN,
+  );
+}
+
 /**
  * What the writer is asked for: one flat object with a key per field, each telling its own
  * limits. The schema the writer sees is plain (no defaults that invite leaving a key out). Its
@@ -155,7 +203,11 @@ export function schemaFor(fields: readonly Field[], language: Language) {
   const shape = z.object(
     Object.fromEntries(
       fields.map((field) => {
-        const type = field.list ? z.array(z.string()) : z.string();
+        const type = field.numbers
+          ? z.array(z.number())
+          : field.list
+            ? z.array(z.string())
+            : z.string();
         const note = limitNote(field, language);
         return [field.key, note === undefined ? type : type.describe(note)];
       }),
@@ -168,15 +220,22 @@ export function schemaFor(fields: readonly Field[], language: Language) {
         unknown
       >;
       return Object.fromEntries(
-        fields.map(({ key, list }) => {
+        fields.map(({ key, list, numbers }): [string, unknown] => {
           const value = answer[key];
+          // What is not a number keeps its place as 0, which no reader takes for a real one.
+          if (numbers) {
+            return [key, numbersOf(value).map((one) => (Number.isFinite(one) ? one : 0))];
+          }
           return [key, list ? linesOf(value) : typeof value === 'string' ? value : ''];
         }),
       );
     },
+    // Numbers alone are no answer: there has to be at least one line.
     shape.refine((answer) =>
       Object.values(answer).some((value) =>
-        typeof value === 'string' ? value.trim() !== '' : value.some((line) => line.trim() !== ''),
+        typeof value === 'string'
+          ? value.trim() !== ''
+          : value.some((line) => typeof line === 'string' && line.trim() !== ''),
       ),
     ),
   );
@@ -224,8 +283,16 @@ export function textsFrom(
   output: Readonly<Record<string, unknown>> = {},
 ): Map<string, string> {
   const texts = new Map<string, string>();
-  for (const { key, path, kinds, list } of fields) {
+  for (const { key, path, kinds, list, numbers } of fields) {
     const given = output[key];
+    if (numbers) {
+      const values = Array.isArray(given) ? (given as unknown[]) : [];
+      for (let index = 0; index < numbers.count; index += 1) {
+        const value = values[index];
+        texts.set(`${path}.${index}`, typeof value === 'number' ? String(value) : '');
+      }
+      continue;
+    }
     kinds.forEach((_, index) => {
       const value: unknown = list ? (Array.isArray(given) ? given[index] : '') : given;
       texts.set(list ? `${path}.${index}` : path, typeof value === 'string' ? value.trim() : '');
@@ -248,6 +315,11 @@ export function failuresIn(
       (slot) => texts.get(slot) ?? '',
     ),
   );
+  for (const slot of repeatedBiteSlots(
+    Array.from({ length: BITE_COUNT }, (_, index) => texts.get(`lines.bites.${index}`) ?? ''),
+  )) {
+    repeated.add(slot);
+  }
   return slots.flatMap(({ slot, kind, optional }) => {
     const text = texts.get(slot) ?? '';
     if (optional && text === '') return [];
@@ -277,6 +349,25 @@ export function offlineFor(
   if (kind === 'monsterTitle') return offlinePacks[language].monsterTitles[0];
   const index = Number(/\.(\d+)$/.exec(slot)?.[1] ?? 0);
   return isOfflineSlot(kind) ? offlineLine(language, attitude, kind, index) : '';
+}
+
+/**
+ * The three bites with their minutes, or `undefined` unless all three are there, each kept by the
+ * voice check, with a whole number of minutes under five. Three or none: a monster in two bites
+ * is not what the card says.
+ */
+export function bitesAt(
+  texts: ReadonlyMap<string, string>,
+): { text: string; minutes: number }[] | undefined {
+  const bites = Array.from({ length: BITE_COUNT }, (_, index) => ({
+    text: texts.get(`lines.bites.${index}`) ?? '',
+    minutes: Number(texts.get(`lines.biteMinutes.${index}`) || NaN),
+  }));
+  const whole = bites.every(
+    ({ text, minutes }) =>
+      text !== '' && Number.isInteger(minutes) && minutes >= 1 && minutes <= BITE_MAX_MINUTES,
+  );
+  return whole ? bites : undefined;
 }
 
 /** The lines under a list's path, in order, without the ones that were not given. */

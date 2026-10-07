@@ -22,28 +22,39 @@ export function monsterImageName(monster: MonsterRow): string {
 }
 
 /**
- * Makes sure the task's monster is in the App Group container as a PNG and returns its file name,
- * or `null` when there is no monster or it could not be drawn. Images of other monsters are
- * removed, so the container holds one at most.
+ * Makes sure each of these monsters is in the App Group container as a PNG and returns the file
+ * name of each by monster id, `null` for one that could not be drawn. Images of any other monster
+ * are removed, so the container holds only what the surfaces show.
  */
-export async function shareMonsterImage(
-  monster: MonsterRow | null,
+export async function shareMonsterImages(
+  monsters: readonly MonsterRow[],
   painter: MonsterPainter,
   files: SharedFiles,
-): Promise<string | null> {
-  const name = monster ? monsterImageName(monster) : null;
+): Promise<ReadonlyMap<string, string | null>> {
+  const names = new Map(monsters.map((monster) => [monster.id, monsterImageName(monster)]));
+  const kept = new Set(names.values());
+  const shared = new Map<string, string | null>();
   try {
     for (const other of files.list()) {
-      if (other.startsWith(PREFIX) && other !== name) files.remove(other);
+      if (other.startsWith(PREFIX) && !kept.has(other)) files.remove(other);
     }
-    if (!monster || name === null) return null;
-    if (files.exists(name)) return name;
-    const bytes = await painter.paint(monster.spec, MONSTER_IMAGE_PIXELS);
-    if (bytes === null) return null;
-    await files.write(name, bytes);
-    return name;
   } catch {
-    // A surface without the monster still shows the task.
-    return null;
+    // A file that could not be cleared is cleared next time.
   }
+  for (const monster of monsters) {
+    const name = names.get(monster.id) ?? null;
+    try {
+      if (name === null) continue;
+      if (!files.exists(name)) {
+        const bytes = await painter.paint(monster.spec, MONSTER_IMAGE_PIXELS);
+        if (bytes === null) throw new Error('not drawn');
+        await files.write(name, bytes);
+      }
+      shared.set(monster.id, name);
+    } catch {
+      // A surface without the monster still shows the task.
+      shared.set(monster.id, null);
+    }
+  }
+  return shared;
 }

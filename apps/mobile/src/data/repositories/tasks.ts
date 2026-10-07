@@ -9,6 +9,6 @@ export function tasksRepository(db: SqlDatabase): Table<TaskRow> {
     schema: taskRowSchema,
     key: 'id',
     booleans: ['seriousOverridden', 'carriedOver', 'fitsTenMinutes', 'sharePrivate'],
-    json: ['lines', 'notifications'],
+    json: ['lines', 'notifications', 'bitesCaught'],
   });
 }

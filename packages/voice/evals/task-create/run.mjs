@@ -9,8 +9,8 @@
 // Per answer it checks: one clear thing the ramble names, nothing invented, the voice check
 // (banned words, the user's worth, missed days, off-limits topics, limits), instructions that are
 // true to the app's controls, the language, no date the ramble does not give, the name-first and
-// pack contracts, the new line slots with the treat named, and, where the case lists them, a body
-// that fits. It exits non-zero under 96% on the checks, under 85% on body fit, or on a contract
+// pack contracts, the new line slots with the treat named, three bites that pass the same voice
+// check with their minutes, and, where the case lists them, a body that fits. It exits non-zero under 96% on the checks, under 85% on body fit, or on a contract
 // failure. EVAL_CONCURRENCY=1 gives the true latency. No ramble is heavy: the care screen has its
 // own eval.
 import { writeFileSync } from 'node:fs';
@@ -105,6 +105,8 @@ function failedChecks(testCase, language, attitude, answer) {
   ) {
     failed.push('slots: absent');
   }
+  // The writer's bites are dropped whole when one of them fails, so their absence is the failure.
+  if (lines.bites?.length !== 3) failed.push('slots: no bites');
 
   const heard = [
     ...deadlines,

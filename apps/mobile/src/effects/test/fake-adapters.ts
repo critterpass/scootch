@@ -95,8 +95,12 @@ export function fakeDevice() {
       calls.live.push(`update: ${line}`);
       return Promise.resolve();
     },
-    end: () => {
-      calls.live.push('end');
+    overtime: () => {
+      calls.live.push('overtime');
+      return Promise.resolve();
+    },
+    end: (caught) => {
+      calls.live.push(caught ? 'end caught' : 'end');
       return Promise.resolve();
     },
   };

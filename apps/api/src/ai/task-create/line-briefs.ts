@@ -17,6 +17,7 @@ function briefs(language: Language, attitude: Attitude): Readonly<Record<string,
   const notification = promptWordLimit('notification');
   const tinier = promptWordLimit('tinierNextStep');
   const tiniest = promptWordLimit('tiniestNextStep');
+  const bite = promptWordLimit('bite');
   const count = notificationCount(attitude);
   if (language === 'en') {
     return {
@@ -31,6 +32,9 @@ function briefs(language: Language, attitude: Attitude): Readonly<Record<string,
       tinyNextStep:
         'the tiniest concrete first step of this thing, as a plain instruction. No joke.',
       tinierNextSteps: `exactly 2 more plain instructions for the same thing, no joke, each smaller than the one before: the first smaller than tinyNextStep and at most ${tinier} words, the second smaller again and at most ${tiniest} words (only opening it, only finding it, only looking at it).`,
+      bites: `exactly 3 plain instructions that, done in this order, get the thing done. No joke. Each is one small action that takes under five minutes, at most ${bite} words, and the third is the one that finishes the thing. Not the same step said three ways.`,
+      biteMinutes:
+        'how many minutes each of the 3 bites takes, in the same order: whole numbers from 1 to 4.',
       twoMinutesLeft: 'says two minutes are left.',
       timeUp:
         'says time is up and that it is time to catch the monster. Never says how to finish: the person chooses how, and the button on the screen says it.',
@@ -58,6 +62,8 @@ function briefs(language: Language, attitude: Attitude): Readonly<Record<string,
     tinyNextStep:
       'bước đầu tiên nhỏ nhất, cụ thể, của việc này, viết như một lời chỉ dẫn thường. Không đùa.',
     tinierNextSteps: `đúng 2 lời chỉ dẫn thường nữa cho cùng việc này, không đùa, cái sau nhỏ hơn cái trước: cái đầu nhỏ hơn tinyNextStep và tối đa ${tinier} chữ, cái thứ hai nhỏ hơn nữa và tối đa ${tiniest} chữ (chỉ mở nó ra, chỉ tìm nó, chỉ nhìn nó).`,
+    bites: `đúng 3 lời chỉ dẫn thường, làm lần lượt theo thứ tự này là xong việc. Không đùa. Mỗi cái là một việc nhỏ làm trong chưa tới năm phút, tối đa ${bite} chữ, và cái thứ ba là cái làm xong việc. Không phải một bước nói ba kiểu.`,
+    biteMinutes: 'mỗi bước trong 3 bước đó mất mấy phút, theo đúng thứ tự: số nguyên từ 1 đến 4.',
     twoMinutesLeft: 'báo còn hai phút.',
     timeUp:
       'báo hết giờ và nói đã đến lúc tóm con quái. Không nói cách kết thúc: người dùng tự chọn cách, và cái nút trên màn hình đã nói rồi.',

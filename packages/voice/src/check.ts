@@ -17,6 +17,7 @@ export const lineKinds = [
   'tinyNextStep',
   'tinierNextStep',
   'tiniestNextStep',
+  'bite',
   'twoMinutesLeft',
   'timeUp',
   'caught',
@@ -49,6 +50,8 @@ export const lineLimits: Readonly<Record<LineKind, { words: number; characters: 
   // Each smaller step is also a shorter instruction than the one before it.
   tinierNextStep: { words: 16, characters: 130 },
   tiniestNextStep: { words: 12, characters: 100 },
+  // A bite is read in a notification, three to a card.
+  bite: { words: 12, characters: 100 },
   twoMinutesLeft: sessionLine,
   timeUp: sessionLine,
   caught: sessionLine,

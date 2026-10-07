@@ -1,12 +1,37 @@
 import { SHARED_KEYS, type SharedStore } from './surface-ports';
 
-/** What a control, the Action button or a Live Activity button asked for while the app was away. */
-export const SURFACE_ACTIONS = ['start_session', 'brain_dump', 'park_thought', 'stuck'] as const;
+/**
+ * What a widget, a control, the Action button, a notification or a Live Activity button asked for
+ * while the app was away (`targets/_shared/PendingSurfaceActions.swift` has the same names).
+ */
+export const SURFACE_ACTIONS = [
+  'start_session',
+  'brain_dump',
+  'park_thought',
+  'stuck',
+  /** Ten minutes on one lurker, begun outside the app. */
+  'hunt',
+  /** "Not yet" during the count-in. */
+  'not_yet',
+  'finish',
+  'five_more',
+  'first_line',
+  'make_smaller',
+  /** A bite was ticked. */
+  'bite',
+  'tomorrow',
+  'keep_here',
+  /** That monster's messages at Soft for a week. */
+  'turn_down',
+] as const;
 export type SurfaceAction = (typeof SURFACE_ACTIONS)[number];
 
 export interface PendingAction {
   readonly id: string;
   readonly kind: SurfaceAction;
+  /** The thing it is about, and the bite when it is about one. `null` when it is about today. */
+  readonly taskId: string | null;
+  readonly biteId: string | null;
   /** When it was asked for, in milliseconds since 1970. */
   readonly at: number;
 }
@@ -26,10 +51,17 @@ function parse(stored: string | null): PendingAction[] {
   const actions: PendingAction[] = [];
   for (const one of list as unknown[]) {
     if (typeof one !== 'object' || one === null) continue;
-    const { id, kind, at } = one as Record<string, unknown>;
+    const { id, kind, at, taskId, biteId } = one as Record<string, unknown>;
     if (typeof id !== 'string' || typeof at !== 'number') continue;
     const known = SURFACE_ACTIONS.find((action) => action === kind);
-    if (known) actions.push({ id, kind: known, at });
+    if (!known) continue;
+    actions.push({
+      id,
+      kind: known,
+      taskId: typeof taskId === 'string' ? taskId : null,
+      biteId: typeof biteId === 'string' ? biteId : null,
+      at,
+    });
   }
   return actions;
 }
