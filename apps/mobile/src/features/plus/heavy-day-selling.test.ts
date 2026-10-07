@@ -6,7 +6,6 @@ import seriousFixture from '../../../../../packages/voice/fixtures/task.create.s
 import { plusLine } from '../../state/lines';
 import { readOfferFacts } from '../../state/plus-runtime';
 import { showsSelling } from '../../state/shows-comedy';
-import { stageOf } from '../one-screen/one-screen-stage';
 
 import { offerShows } from './offer-rules';
 import { CUSTOMERS, fakeStore } from './test/fake-purchases';
@@ -45,7 +44,7 @@ describe('nothing is sold near something heavy', () => {
     expect(showsSelling({ today: { kind: 'crisis' }, heavyToday: false })).toBe(false);
   });
 
-  it('keeps "One more" away once the serious task is set aside, even with starts left', async () => {
+  it('still lets another thing start once the serious task is set aside, and sells nothing', async () => {
     const app = await heavyDay();
     await app.store.dispatch({ type: 'serious_set_aside' });
     const state = app.store.getState();
@@ -53,9 +52,10 @@ describe('nothing is sold near something heavy', () => {
     expect(state.heavyToday).toBe(true);
     expect(showsSelling(state)).toBe(false);
 
+    // A start still open under the day's limit is the person's own, not an offer of Plus.
     await app.store.dispatch({ type: 'one_more_asked' });
-    expect(app.store.getState().oneMore).toBe(false);
-    expect(stageOf({ ...app.store.getState(), energyAsked: false }).kind).toBe('done');
+    expect(app.store.getState().oneMore).toBe(true);
+    expect(showsSelling(app.store.getState())).toBe(false);
   });
 
   it('keeps it away after a serious task is finished, and the day after while it waits in the drawer', async () => {

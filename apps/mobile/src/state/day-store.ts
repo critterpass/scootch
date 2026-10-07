@@ -21,7 +21,6 @@ import { applyPickEvent } from './pick-events';
 import { drawerEvent, setBargainedSession } from './pick-flow';
 import { applySession, resolveThought, restForToday, restoreSession } from './session-flow';
 import { closeSession, followTableClock, shortenSession, turnWorkingLine } from './session-moments';
-import { showsSelling } from './shows-comedy';
 import { applySurfaceAction, noticePickUp } from './surface-actions';
 import {
   askAnother,
@@ -217,7 +216,7 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
       case 'one_more_asked': {
         const { today } = memory.state;
         // Not on a day with something heavy in it: nothing is sold, or asked for, beside it.
-        if (today.kind === 'done_for_today' && today.startsLeft > 0 && showsSelling(memory.state)) {
+        if (today.kind === 'done_for_today' && today.startsLeft > 0) {
           set({ oneMore: true, line: null });
         }
         return;
