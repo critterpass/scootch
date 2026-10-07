@@ -96,7 +96,7 @@ export function RoundButton({
       disabled={inert}
       onPress={onPress}
       testID={testID}
-      hitSlop={spacing.xs}
+      hitSlop={spacing.sm}
       style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
     >
       <GlassSurface style={styles.round}>

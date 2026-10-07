@@ -1,0 +1,60 @@
+appId: app.scootch.dev
+---
+# Tour: Part (a): the serious day and the crisis screens, from the registry states only: no crisis wording is typed into the app by a flow. Each shot is a registry row, named for the sheet that pairs it with its design.
+- runFlow: ../tour-support/to-registry.yaml
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: care-serious--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: dump-serious--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: care-serious--vi-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: care-serious--en-light-largest
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: care-crisis--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: care-crisis--en-dark-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: care-crisis--en-light-largest
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: care-crisis-vietnam--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: care-crisis-vietnam--vi-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: care-crisis-vietnam--en-light-largest
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: care-crisis-unknown-region--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: care-crisis-sitting--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: care-helplines--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: care-helplines--vi-light-default

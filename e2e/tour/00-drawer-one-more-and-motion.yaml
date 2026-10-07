@@ -1,0 +1,91 @@
+appId: app.scootch.dev
+---
+# Tour: the drawer sheet empty, with three things (one of them heavy) and with twelve, in both languages, dark and at the largest text,
+# and "One more" free with starts left, at the free limit, with Plus and at the Plus cap.
+- runFlow: ../tour-support/to-registry.yaml
+- runFlow:
+    file: ../tour-support/shot-drawer.yaml
+    env:
+      NAME: drawer-empty--en-light-default
+- runFlow:
+    file: ../tour-support/shot-drawer.yaml
+    env:
+      NAME: drawer-empty--vi-light-default
+- runFlow:
+    file: ../tour-support/shot-drawer.yaml
+    env:
+      NAME: drawer-three--en-light-default
+- runFlow:
+    file: ../tour-support/shot-drawer.yaml
+    env:
+      NAME: drawer-three--vi-light-default
+- runFlow:
+    file: ../tour-support/shot-drawer.yaml
+    env:
+      NAME: drawer-three--en-dark-default
+- runFlow:
+    file: ../tour-support/shot-drawer.yaml
+    env:
+      NAME: drawer-three--en-light-largest
+- runFlow:
+    file: ../tour-support/shot-drawer.yaml
+    env:
+      NAME: drawer-twelve--en-light-default
+      EXPAND: yes
+- runFlow:
+    file: ../tour-support/shot-drawer.yaml
+    env:
+      NAME: drawer-twelve--vi-light-default
+- runFlow:
+    file: ../tour-support/shot-drawer.yaml
+    env:
+      NAME: drawer-twelve--en-light-largest
+- runFlow:
+    file: ../tour-support/shot-drawer.yaml
+    env:
+      NAME: dump-peek-in-the-drawer--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: plus-one-more-free--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: plus-one-more-locked--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: plus-one-more-locked--vi-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: plus-one-more-open--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: plus-one-more-cap--en-light-default
+# Is character motion running in the exported bundle? The app is opened again on the one screen
+# and captured six times a second apart; the captures are compared pixel by pixel afterwards.
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: 'composer-talk'
+    timeout: 30000
+- waitForAnimationToEnd:
+    timeout: 1000
+- takeScreenshot: motion-proof-1
+- waitForAnimationToEnd:
+    timeout: 1000
+- takeScreenshot: motion-proof-2
+- waitForAnimationToEnd:
+    timeout: 1000
+- takeScreenshot: motion-proof-3
+- waitForAnimationToEnd:
+    timeout: 1000
+- takeScreenshot: motion-proof-4
+- waitForAnimationToEnd:
+    timeout: 1000
+- takeScreenshot: motion-proof-5
+- waitForAnimationToEnd:
+    timeout: 1000
+- takeScreenshot: motion-proof-6

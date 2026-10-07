@@ -25,6 +25,8 @@ export interface ScootchSaysProps {
   readonly line: string | null;
   /** A second, quieter sentence of his, under the first. */
   readonly more?: string | null;
+  /** How big he is drawn, where the design draws him other than 260 points. */
+  readonly figureSize?: number;
   /** Tapping him, where he answers to it. */
   readonly onPress?: () => void;
 }
@@ -33,14 +35,21 @@ export interface ScootchSaysProps {
  * Scootch and his sentence, as one element: a screen reader meets "Scootch" once, and his value
  * is what he is saying.
  */
-export function ScootchSays({ mood, attitude, line, more = null, onPress }: ScootchSaysProps) {
+export function ScootchSays({
+  mood,
+  attitude,
+  line,
+  more = null,
+  figureSize = SCOOTCH_SIZE,
+  onPress,
+}: ScootchSaysProps) {
   const { palette, allowFontScaling, size, largeText, captured } = useScreenStyle();
   const t = useT();
   const { width } = useWindowDimensions();
   const keyboardOpen = useKeyboardOpen();
   const figure = Math.min(
-    largeText ? SCOOTCH_SIZE_LARGE_TEXT : keyboardOpen ? SCOOTCH_SIZE_KEYBOARD : SCOOTCH_SIZE,
-    keyboardOpen ? SCOOTCH_SIZE_KEYBOARD : SCOOTCH_SIZE,
+    largeText ? SCOOTCH_SIZE_LARGE_TEXT : keyboardOpen ? SCOOTCH_SIZE_KEYBOARD : figureSize,
+    keyboardOpen ? SCOOTCH_SIZE_KEYBOARD : figureSize,
     width - spacing.lg * 2,
   );
   const said = [line, more].filter((part) => part !== null).join(' ');

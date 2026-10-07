@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import { specFromSeed } from '@scootch/art';
 import type { DrawerItemRow, MonsterRow, TaskRow } from '@scootch/domain';
 import type { Language } from '@scootch/i18n';
@@ -47,6 +48,56 @@ const SAID = {
     excuse: 'Mình đuối rồi',
   },
 } as const satisfies Record<Language, unknown>;
+
+/** Things parked in the drawer, in each language; the first and third carry a date. */
+const PARKED = {
+  en: [
+    'Council tax',
+    'Call mum back',
+    'Book the MOT',
+    'Bathroom',
+    'Start running',
+    'Reply to Sam',
+    'Renew the passport',
+    'Return the parcel',
+    'Water the plants',
+    'Back up the laptop',
+    'Email the landlord',
+    'Sort the receipts',
+  ],
+  vi: [
+    'Đóng tiền điện',
+    'Gọi lại cho mẹ',
+    'Đăng kiểm xe',
+    'Dọn nhà tắm',
+    'Bắt đầu chạy bộ',
+    'Trả lời Lan',
+    'Gia hạn hộ chiếu',
+    'Trả lại bưu kiện',
+    'Tưới cây',
+    'Sao lưu laptop',
+    'Nhắn chủ nhà',
+    'Sắp xếp hoá đơn',
+  ],
+} as const satisfies Record<Language, readonly string[]>;
+
+/** `count` parked things for the drawer's own states; the second is a heavy one when asked. */
+function drawerOf(language: Language, count: number, heavySecond = false): DrawerItemRow[] {
+  return PARKED[language].slice(0, count).map((text, index) => {
+    const dueDate = index === 0 ? '2026-10-09' : index === 2 ? '2026-10-30' : null;
+    return {
+      id: `capture-drawer-${index}`,
+      text,
+      screen: heavySecond && index === 1 ? 'serious' : 'pass',
+      dueDate,
+      firstMentionedOn: TODAY,
+      lastMentionedOn: TODAY,
+      returnOn: index === 0 ? '2026-10-08' : index === 2 ? '2026-10-23' : null,
+      fadesOn: dueDate === null ? '2026-10-20' : null,
+      createdAt: '2026-10-06T09:00:00.000Z',
+    };
+  });
+}
 
 export function fixtures(language: Language) {
   const said = SAID[language];
@@ -119,10 +170,11 @@ type Drawable = Parameters<typeof stageShown>[0];
 /** One state, drawn from the fixtures of the capture's language. */
 function captured(
   stage: (data: Fixtures) => Drawable,
-  more: { drawerOpen?: boolean; revealed?: boolean } = {},
+  more: { drawerOpen?: boolean; revealed?: boolean; drawerCount?: number; heavy?: boolean } = {},
 ) {
   return function Captured() {
     const { language } = useLanguage();
+    const router = useRouter();
     const t = useT();
     const data = fixtures(language);
     const drawn = stageShown(stage(data), {
@@ -142,11 +194,16 @@ function captured(
           more.drawerOpen ? (
             <DrawerSheet
               open
-              items={data.drawer}
+              items={
+                more.drawerCount === undefined
+                  ? data.drawer
+                  : drawerOf(language, more.drawerCount, more.heavy)
+              }
               today={TODAY}
               canSwap
               onSwapIn={nothing}
-              onClose={nothing}
+              // The sheet is a window of its own over the registry's way back: it closes the state.
+              onClose={() => router.back()}
             />
           ) : null
         }
@@ -172,6 +229,16 @@ export const DumpSerious = captured((data) =>
   oneThing(data, { quiet: true, task: { ...data.task, screen: 'serious' } }),
 );
 export const DrawerPeek = captured((data) => oneThing(data), { drawerOpen: true });
+export const DrawerEmpty = captured((data) => oneThing(data), { drawerOpen: true, drawerCount: 0 });
+export const DrawerThree = captured((data) => oneThing(data), {
+  drawerOpen: true,
+  drawerCount: 3,
+  heavy: true,
+});
+export const DrawerTwelve = captured((data) => oneThing(data), {
+  drawerOpen: true,
+  drawerCount: 12,
+});
 export const DumpEnergyRead = captured(() => ({ kind: 'energy' }));
 export const DumpPickForMe = captured((data) => {
   const item = data.drawer.at(-1);

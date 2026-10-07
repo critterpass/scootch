@@ -55,6 +55,8 @@ export const scootchMoodSchema = z.enum([
   'celebrating',
   'asleep',
   'serious',
+  'scheming',
+  'dramatic',
 ]);
 export type ScootchMood = z.infer<typeof scootchMoodSchema>;
 

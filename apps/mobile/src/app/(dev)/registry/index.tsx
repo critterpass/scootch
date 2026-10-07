@@ -1,5 +1,14 @@
-import { Link } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { Link, useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  useColorScheme,
+  View,
+} from 'react-native';
 
 import { colors, fonts, fontSizes, radius, spacing } from '@scootch/tokens';
 
@@ -12,23 +21,45 @@ import { SafeFrame } from '../../../ui/safe-frame';
  *
  * Ids: `registry-row-<state>--<variant>` is a row's button and never changes for that capture.
  * `registry-count` holds the number of rows and `registry-name-<n>` holds the n-th row's name, so
- * a device flow can walk the list without knowing what is registered.
+ * a device flow can walk the list without knowing what is registered. Typing in `registry-filter`
+ * keeps only the rows whose name contains the words, so a flow can open one state without
+ * scrolling a thousand rows; both ids then describe the rows that are left.
  */
 export default function RegistryBrowser() {
   const palette = colors[useColorScheme() === 'dark' ? 'dark' : 'light'];
+  const [query, setQuery] = useState('');
+  // Coming back from a state starts the list whole again, so a flow never types into leftovers.
+  useFocusEffect(useCallback(() => setQuery(''), []));
+  const shown = captures.filter((capture) => capture.name.includes(query.trim().toLowerCase()));
 
   return (
     <SafeFrame style={[styles.screen, { backgroundColor: palette.page }]}>
-      <ScrollView testID="registry-list" contentContainerStyle={styles.content}>
+      <ScrollView
+        testID="registry-list"
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={styles.header}>
           <Text accessibilityRole="header" style={[styles.title, { color: palette.ink }]}>
             Screen registry
           </Text>
           <Text testID="registry-count" style={[styles.title, { color: palette.muted }]}>
-            {String(captures.length)}
+            {String(shown.length)}
           </Text>
         </View>
-        {captures.map((capture, index) => (
+        <TextInput
+          testID="registry-filter"
+          accessibilityLabel="Filter the registry"
+          value={query}
+          onChangeText={setQuery}
+          autoCapitalize="none"
+          autoCorrect={false}
+          selectTextOnFocus
+          placeholder="Filter"
+          placeholderTextColor={palette.muted}
+          style={[styles.filter, { backgroundColor: palette.surface, color: palette.ink }]}
+        />
+        {shown.map((capture, index) => (
           <View key={capture.name} style={[styles.row, { backgroundColor: palette.surface }]}>
             <Text
               testID={`registry-name-${index}`}
@@ -75,6 +106,13 @@ const styles = StyleSheet.create({
     fontFamily: fonts.heading,
     fontSize: fontSizes.action,
     fontWeight: '700',
+  },
+  filter: {
+    minHeight: 44,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.lg,
+    fontFamily: fonts.body,
+    fontSize: fontSizes.body,
   },
   row: {
     minHeight: 56,

@@ -96,6 +96,18 @@ export function drawEffect(pen: Pen, e: Expression, g: EffectFrame, beat: number
         );
       }
       break;
+    case 'tears':
+      for (let i = 0; i < e.fxCount; i++) {
+        const side = i % 2 ? 1 : -1;
+        const k = frac(beat + i * 0.5);
+        pen.fill(
+          drop(g.cx + side * 30 + side * k * 4, g.cy - 2 + k * 30, 0.9 - k * 0.3),
+          SCOOTCH.water,
+          0.2,
+          1 - k * 0.6,
+        );
+      }
+      break;
     case 'stars': {
       const places = [
         [-66, 16, 0],

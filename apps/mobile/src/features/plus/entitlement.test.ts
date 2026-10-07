@@ -30,7 +30,7 @@ describe('what a customer has unlocked', () => {
     expect(purchaseStateOf(customer)).toBe(state);
     const unlocked = unlockedFor(customer);
     expect(unlocked.plus).toBe(plus);
-    expect(unlocked.startsPerDay).toBe(plus ? 3 : 1);
+    expect(unlocked.startsPerDay).toBe(plus ? 6 : 3);
     for (const capability of ALWAYS_FREE) expect(unlocked.capabilities.has(capability)).toBe(true);
     for (const capability of PLUS_ONLY) expect(unlocked.capabilities.has(capability)).toBe(plus);
   });
