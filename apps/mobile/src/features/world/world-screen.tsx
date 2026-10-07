@@ -145,6 +145,8 @@ export function WorldScreen({ model, actions }: { model: WorldModel; actions: Wo
       }
     >
       <ScrollView
+        // The island is not a page to scroll back up: a tap on the status bar is left alone.
+        scrollsToTop={false}
         contentContainerStyle={[styles.middle, { paddingTop: height > 760 ? 40 : spacing.sm }]}
       >
         <Animated.View style={[styles.rise, riseStyle]}>
