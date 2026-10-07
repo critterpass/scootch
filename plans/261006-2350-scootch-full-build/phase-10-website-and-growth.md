@@ -1,6 +1,8 @@
 # Phase 10: website and growth
 
-Status: in progress: 7 partly; deployed on dev · Tasks: 8 · Needs: 02, 03 · Owns: `apps/web`
+Status: see the audit note below · Tasks: 8 · Needs: 02, 03 · Owns: `apps/web`
+
+> Audit 7 Oct 2026: dev site only. No production site, no universal links file, no banner or QR, no friend-invite page; the record page always answers not found.
 
 Goal: anyone can play with Scootch in ten seconds, and every shared thing lands
 on a good page. Boards: Growth; Website (15 sections, with a copy sheet and

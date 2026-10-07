@@ -1,6 +1,8 @@
 # Phase 08: Plus
 
-Status: built, unproven on a device: 8 partly · Tasks: 8 · Needs: 05
+Status: see the audit note below · Tasks: 8 · Needs: 05
+
+> Audit 7 Oct 2026: no purchase has ever been made. The shelf is inks only and a chosen ink is applied nowhere outside its preview. The weekly sentence and "learns you" are not wired to any screen. No Live Activity line for the charge reminder was found. The server trusts the phone for Plus.
 Owns: `apps/mobile/src/features/{plus,shelf}`, `packages/domain/src/entitlements`
 
 Goal: Scootch can be paid for without ever interrupting. Board: Plus. Read

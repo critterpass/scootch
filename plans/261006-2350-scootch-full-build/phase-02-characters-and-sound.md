@@ -1,6 +1,8 @@
 # Phase 02: characters and sound
 
-Status: built, unproven on a device: 1 done, 5 partly · Tasks: 8 · Needs: 01 · Owns: `packages/art`, `packages/sound`
+Status: see the audit note below · Tasks: 8 · Needs: 01 · Owns: `packages/art`, `packages/sound`
+
+> Audit 7 Oct 2026: stills work on a phone. The founder found no motion, transitions or feedback worth the name: a full pass is owed. The squeak on tap exists only on the hello screen.
 
 Goal: Scootch, every monster and every sound exist as components other lanes
 drop in. Board: Characters; the card on App flows.
