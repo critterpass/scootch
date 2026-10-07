@@ -225,6 +225,8 @@ export const enTogether = {
     'This one hatched before monsters got pages of their own. It goes out as a picture, with no link.',
   'share.pictureOnly': 'The picture went out. This monster has no page, so there is no link.',
   'haunt.entry': 'Haunt a friend',
+  'haunt.entry.sub':
+    'Send this monster to a friend with a tiny dare. They can catch it or shoo it.',
   'haunt.card.wild': 'Not caught yet',
   'haunt.card.tag': 'Wild',
   'haunt.card.says': '{name} says: {dare}',

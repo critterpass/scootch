@@ -4,6 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import { spacing } from '@scootch/tokens';
 
 import { RoundButton } from './buttons';
+import { Chevron, MoreIcon } from './icons';
 import { GlassGroup } from './glass-surface';
 import { useScreenStyle } from './use-screen-style';
 
@@ -52,6 +53,26 @@ export function CloseButton({ label, hint, onPress, testID }: CloseButtonProps) 
         <View style={[styles.stroke, styles.down, { backgroundColor: palette.ink }]} />
         <View style={[styles.stroke, styles.up, { backgroundColor: palette.ink }]} />
       </View>
+    </RoundButton>
+  );
+}
+
+/** The way back, in the leading corner: the round glass button with one arrow. */
+export function BackButton({ label, hint, onPress, testID }: CloseButtonProps) {
+  const { palette } = useScreenStyle();
+  return (
+    <RoundButton label={label} hint={hint} onPress={onPress} testID={testID}>
+      <Chevron color={palette.ink} direction="left" />
+    </RoundButton>
+  );
+}
+
+/** A screen's own menu, in the trailing corner: the round glass button with three dots. */
+export function MenuButton({ label, hint, onPress, testID }: CloseButtonProps) {
+  const { palette } = useScreenStyle();
+  return (
+    <RoundButton label={label} hint={hint} onPress={onPress} testID={testID}>
+      <MoreIcon color={palette.ink} />
     </RoundButton>
   );
 }

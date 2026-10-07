@@ -6,7 +6,7 @@ import { fonts, spacing } from '@scootch/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
 import { SafeFrame } from '../../ui/safe-frame';
-import { CloseButton, CornerBar } from '../../ui/corner-bar';
+import { BackButton, CloseButton, CornerBar, MenuButton } from '../../ui/corner-bar';
 import { NativeBar, useRouteBar } from '../../ui/native-bar';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
@@ -22,13 +22,18 @@ export interface PageProps {
   readonly barTitle?: string;
   readonly onClose: () => void;
   readonly testID: string;
+  /**
+   * The page's own menu. With one, the way back sits in the leading corner and the menu in the
+   * trailing one.
+   */
+  readonly menu?: { readonly label: string; readonly hint: string; readonly onPress: () => void };
   /** The page's actions, in a dock that stays at the bottom while the page scrolls above it. */
   readonly footer?: ReactNode;
   readonly children: ReactNode;
 }
 
 /** A plain page of rows: a close button, a title, and a list that scrolls at any text size. */
-export function Page({ title, barTitle, onClose, testID, footer, children }: PageProps) {
+export function Page({ title, barTitle, onClose, testID, menu, footer, children }: PageProps) {
   const { palette, allowFontScaling, size } = useScreenStyle();
   const t = useT();
   const insets = useSafeAreaInsets();
@@ -46,12 +51,13 @@ export function Page({ title, barTitle, onClose, testID, footer, children }: Pag
     onPress: onClose,
     testID: `${testID}-close`,
   };
+  const menuItem = menu === undefined ? undefined : { ...menu, testID: `${testID}-menu` };
   // Under the system's bar the title and the close control are the bar's, and the list runs
   // beneath it: the system keeps it clear of the bar and of the home indicator.
   if (useRouteBar() === 'page') {
     return (
       <View style={[styles.page, { backgroundColor: palette.page }]} testID={testID}>
-        <NativeBar title={title ?? barTitle ?? ''} close={close} />
+        <NativeBar title={title ?? barTitle ?? ''} close={close} menu={menuItem} />
         <ScrollView
           contentInsetAdjustmentBehavior="automatic"
           contentContainerStyle={styles.content}
@@ -65,12 +71,21 @@ export function Page({ title, barTitle, onClose, testID, footer, children }: Pag
   }
   return (
     <SafeFrame style={[styles.page, { backgroundColor: palette.page }]} testID={testID}>
-      <CornerBar trailing={<CloseButton {...close} />}>
+      <CornerBar
+        {...(menuItem === undefined
+          ? { trailing: <CloseButton {...close} /> }
+          : { leading: <BackButton {...close} />, trailing: <MenuButton {...menuItem} /> })}
+      >
         {barTitle === undefined ? null : (
           <Text
             accessibilityRole="header"
             allowFontScaling={allowFontScaling}
-            style={[styles.barTitle, { color: palette.ink, fontSize: size(BAR_TITLE_SIZE) }]}
+            style={[
+              styles.barTitle,
+              // With a control in each corner the title is already centred between them.
+              menuItem !== undefined && styles.between,
+              { color: palette.ink, fontSize: size(BAR_TITLE_SIZE) },
+            ]}
           >
             {barTitle}
           </Text>
@@ -104,6 +119,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.heading,
     fontWeight: '700',
   },
+  between: { marginLeft: 0 },
   content: { padding: spacing.md, paddingBottom: spacing.xxl, gap: spacing.lg },
   footer: { paddingHorizontal: DOCK_GUTTER, paddingTop: spacing.sm },
   title: { fontFamily: fonts.heading, fontWeight: '700', letterSpacing: -0.6 },
