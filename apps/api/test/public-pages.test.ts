@@ -32,6 +32,7 @@ import {
   sitDown,
   until,
   type Person,
+  postHaunt,
 } from './table-support';
 
 const minute = 60_000;
@@ -188,7 +189,7 @@ async function haunted(extra?: Record<string, unknown>) {
   const [sender, recipient] = [await person('Mai'), await person('Bo')];
   await befriend(sender, recipient);
   const { pageId } = sendHauntResponseSchema.parse(
-    await ok(as(sender, 'POST', '/v1/haunts', sendBody(recipient, extra))),
+    await ok(postHaunt(sender, sendBody(recipient, extra))),
   );
   return { sender, recipient, pageId };
 }
@@ -273,7 +274,7 @@ describe('the haunt page', () => {
       ...apart,
     });
     // The week between haunts runs on for the sender, shooed or not.
-    const again = await as(byLink.sender, 'POST', '/v1/haunts', sendBody(byLink.recipient));
+    const again = await postHaunt(byLink.sender, sendBody(byLink.recipient));
     expect((await again.json<{ error: { detail: unknown } }>()).error.detail).toEqual({
       reason: 'haunted_recently',
     });
