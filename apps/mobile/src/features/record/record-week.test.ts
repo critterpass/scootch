@@ -136,3 +136,33 @@ function weekTrackSections() {
     { kind: 'ending', startSeconds: 5.28, instruments: ['keys', 'bassline'] },
   ] as const;
 }
+
+describe('what a day of the week caught', () => {
+  it('lists everything caught that day in the order it was caught, and nothing from other days', () => {
+    const [first, second] = monsters;
+    if (!first?.caughtOn || !second) throw new Error('the fixtures are caught');
+    // A second thing caught on the first monster's day, later than it.
+    const later = {
+      ...second,
+      id: 'later-the-same-day',
+      caughtOn: first.caughtOn,
+      caughtAt: `${first.caughtOn}T23:00:00.000Z`,
+    };
+    const week = weekView({
+      week: '2026-W41',
+      bars: fixtureBars(2),
+      monsters: [later, ...monsters],
+      tasks,
+      weekRecords: [],
+      todayPosition: 3,
+    });
+    const day = week.rows.find((row) => row.monster?.id === first.id);
+    expect(day?.caught.map((one) => one.id)).toEqual([first.id, later.id]);
+    expect(day?.caught[0]).toMatchObject({ name: first.name, taskText: day?.taskText });
+    for (const row of week.rows) {
+      expect(row.caught.every((one) => one.id !== second.id || row.monster?.id === second.id)).toBe(
+        true,
+      );
+    }
+  });
+});

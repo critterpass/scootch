@@ -1,5 +1,6 @@
 import {
   INSTRUMENT_BY_WEEKDAY,
+  isoWeekOf,
   type Id,
   type IsoWeek,
   type MonsterRow,
@@ -9,6 +10,13 @@ import {
   type WorkMode,
 } from '@scootch/domain';
 import type { RecordInstrument } from '@scootch/sound';
+
+/** One thing caught on a day of the week: its monster's name and the task it was. */
+export interface DayCatch {
+  readonly id: Id;
+  readonly name: string;
+  readonly taskText: string | null;
+}
 
 /** One bar on the record's liner notes: its instrument, its day and the task that earned it. */
 export interface RecordRow {
@@ -21,6 +29,11 @@ export interface RecordRow {
   readonly taskText: string | null;
   /** The kind of work the task was, when it was told apart: what Scootch is drawn doing. */
   readonly workMode: WorkMode | null;
+  /**
+   * Everything caught that day, in the order it was caught. A task that asked for care has no
+   * monster and is not listed: its day may show fewer things than were done, or none.
+   */
+  readonly caught: readonly DayCatch[];
 }
 
 /** A week's record as the screen shows it. Only what was earned is listed; nothing is missing. */
@@ -51,6 +64,19 @@ export interface WeekInput {
 
 export function weekView(input: WeekInput): WeekView {
   const monsters = new Map(input.monsters.map((monster) => [monster.id, monster]));
+  const caughtOn = (position: number): DayCatch[] =>
+    input.monsters
+      .filter((monster) => {
+        if (monster.caughtOn === null) return false;
+        const day = isoWeekOf(monster.caughtOn);
+        return day.week === input.week && day.weekday === position;
+      })
+      .sort((a, b) => (a.caughtAt ?? '').localeCompare(b.caughtAt ?? ''))
+      .map((monster) => ({
+        id: monster.id,
+        name: monster.name,
+        taskText: input.tasks.get(monster.taskId)?.text ?? null,
+      }));
   const rows = input.bars
     .filter((bar) => bar.week === input.week)
     .sort((a, b) => a.position - b.position)
@@ -64,6 +90,7 @@ export function weekView(input: WeekInput): WeekView {
         monster,
         taskText: task?.text ?? null,
         workMode: task?.workMode ?? null,
+        caught: caughtOn(bar.position),
       };
     });
 
