@@ -25,15 +25,8 @@ import { UNDER_WAY, applySession } from './session-flow';
 import { closeStraySessions, dayOfRunningSession, restoreSession } from './session-restore';
 import { closeSession, followTableClock, shortenSession, turnWorkingLine } from './session-moments';
 import { applySurfaceAction, noticePickUp } from './surface-actions';
-import { parkStartedTask, returnOneThing } from './way-out';
-import {
-  askAnother,
-  beFunny,
-  cancelTaskCall,
-  fetchPending,
-  resolveTranscript,
-  submitText,
-} from './task-flow';
+import { cancelOneThing, parkStartedTask } from './way-out';
+import { beFunny, cancelTaskCall, fetchPending, resolveTranscript, submitText } from './task-flow';
 
 export interface DayStore {
   readonly getState: () => DayState;
@@ -237,9 +230,7 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
     if (isPickEvent(event)) return applyPickEvent(ctx, event);
     switch (event.type) {
       case 'text_submitted':
-        return submitText(ctx, { ...event, declined: [], transcriptId: null, candidates: [] });
-      case 'another_asked':
-        return askAnother(ctx);
+        return submitText(ctx, { ...event, transcriptId: null });
       case 'task_call_cancelled':
         return cancelTaskCall(ctx);
       case 'returned_text_taken':
@@ -268,8 +259,8 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
         return shortenSession(ctx, event.seconds);
       case 'started_task_parked':
         return parkStartedTask(ctx);
-      case 'one_thing_returned':
-        return returnOneThing(ctx);
+      case 'one_thing_cancelled':
+        return cancelOneThing(ctx);
       case 'entitlement_changed':
         return refresh();
       case 'be_funny_asked':

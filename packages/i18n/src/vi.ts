@@ -179,10 +179,10 @@ export const vi = {
   'dump.justThis': 'Hôm nay chỉ việc này thôi',
   'dump.heard': 'Những gì bạn vừa nói',
   'dump.skip.hint': 'Xem luôn việc hôm nay của bạn.',
-  'dump.another': 'Việc khác',
-  'dump.another.hint': 'Đưa ra một việc khác trong những gì bạn nói.',
   'dump.accept': 'Chốt việc này',
   'dump.accept.hint': 'Chọn việc này làm một việc của hôm nay.',
+  'dump.cancel': 'Huỷ',
+  'dump.cancel.hint': 'Bỏ việc này và quay lại. Chưa có gì được chọn.',
 
   'deadline.mark': 'Hạn chót',
   'deadline.back': 'Cất đến {day}, hôm đó nó quay lại làm một việc của ngày.',
@@ -191,8 +191,6 @@ export const vi = {
   'deadline.today': 'Làm hôm nay',
   'deadline.today.hint': 'Đổi nó vào làm một việc của hôm nay.',
 
-  'drawer.peek': 'Ngó ngăn kéo',
-  'drawer.peek.hint': 'Xem những gì đang cất. Không có gì đổi cho đến khi bạn chọn.',
   'drawer.title': 'Ngăn kéo',
   'drawer.count': '{parked} việc đang cất · {dated} việc có hạn',
   'drawer.empty': 'Chưa cất việc nào.',
@@ -218,6 +216,7 @@ export const vi = {
   'drawer.undo.hint': 'Đưa nó về lại ngăn kéo.',
   'drawer.pull': 'Kéo xuống để mở ngăn kéo',
   'drawer.pull.ready': 'Thả ra để mở',
+  'drawer.waiting': 'Sáng mai quay lại',
 
   'energy.ask': 'Trước khi mình chọn: pin của bạn còn nhiêu?',
   'energy.low': 'Thấp',

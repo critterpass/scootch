@@ -22,7 +22,7 @@ describe('the staged task call', () => {
     );
     const offered = app.store.getState();
     expect(app.task().text).toBe(start.oneThing.text);
-    expect(offered.pick).toMatchObject({ kind: 'offered', another: true });
+    expect(offered.pick).toMatchObject({ kind: 'offered' });
     expect(offered.pick.kind === 'offered' && offered.pick.reveal?.phrases).toContain(
       start.oneThing.text,
     );
@@ -78,7 +78,7 @@ describe('the staged task call', () => {
     expect(app.task()).toMatchObject({ text: 'email the dentist about tuesday', lines: null });
     expect(app.store.getState()).toMatchObject({
       monster: null,
-      pick: { kind: 'offered', reveal: null, another: false },
+      pick: { kind: 'offered', reveal: null },
     });
     // No monster, so there is no hatch: the pick lands on the set task.
     await app.store.dispatch({ type: 'one_thing_picked' });
@@ -86,30 +86,12 @@ describe('the staged task call', () => {
   });
 });
 
-describe('another, and the drawer', () => {
-  it('offers the next parked thing without a call, and parks the one turned down', async () => {
-    const server = stagedServer();
-    const app = await stagedPhone(server);
-    await app.say();
-    const first = app.task().text;
-    const parked = start.parked.map((one) => one.text);
-
-    await app.store.dispatch({ type: 'another_asked' });
-    expect(server.startCalls).toBe(1);
-    expect(parked).toContain(app.task().text);
-    const inDrawer = app.store.getState().drawer.items.map((item) => item.text);
-    expect(inDrawer).toContain(first);
-    expect(inDrawer).not.toContain(app.task().text);
-    expect(app.data.count('tasks')).toBe(1);
-    expect(app.data.count('monsters')).toBe(0);
-  });
-
+describe('the drawer', () => {
   it('opens only on the pull, whatever else happens to it', async () => {
     const app = await stagedPhone(stagedServer());
     const open = () => app.store.getState().drawer.open;
     await app.say();
     expect(open()).toBe(false);
-    await app.store.dispatch({ type: 'another_asked' });
     await app.store.dispatch({ type: 'pick_for_me' });
     for (const type of [
       'things_parked',

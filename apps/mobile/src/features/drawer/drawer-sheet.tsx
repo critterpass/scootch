@@ -28,6 +28,10 @@ export interface DrawerSheetProps {
   readonly today: IsoDate;
   /** False once today's thing has been started: nothing can be swapped for it then. */
   readonly canSwap: boolean;
+  /** The task carried on to tomorrow: it is not parked, and is listed first so it can be found. */
+  readonly waiting?: string | null;
+  /** The drawer was opened from that task's words on home: it is marked out. */
+  readonly waitingMarked?: boolean;
   /** Said in place of "Swap in" when today's starts are all used; `null` otherwise. */
   readonly capNote?: string | null;
   readonly onSwapIn: (itemId: Id) => void;
@@ -50,6 +54,8 @@ export function DrawerSheet({
   today,
   canSwap,
   capNote = null,
+  waiting = null,
+  waitingMarked = false,
   onSwapIn,
   onRemove,
   onEdit,
@@ -137,7 +143,7 @@ export function DrawerSheet({
               style={[styles.body, type('500', COUNT_SIZE, palette.muted)]}
             >
               {listed.length === 0
-                ? t('drawer.empty')
+                ? t(waiting === null ? 'drawer.empty' : 'drawer.waiting')
                 : t('drawer.count', { parked: listed.length, dated })}
             </Text>
           </View>
@@ -163,6 +169,43 @@ export function DrawerSheet({
         >
           {capNote}
         </Text>
+      )}
+      {waiting === null ? null : (
+        <View
+          testID="drawer-waiting"
+          accessible
+          accessibilityLabel={`${waiting}, ${t('drawer.waiting')}`}
+          style={[
+            styles.card,
+            styles.row,
+            styles.waiting,
+            {
+              backgroundColor: waitingMarked ? `${palette.tomato}1F` : palette.surface,
+              borderColor: waitingMarked ? palette.tomato : 'transparent',
+            },
+          ]}
+        >
+          <View style={[styles.marker, { backgroundColor: palette.ink }]}>
+            <View style={[styles.waitingDot, { backgroundColor: palette.page }]} />
+          </View>
+          <View style={styles.words}>
+            <Text
+              allowFontScaling={allowFontScaling}
+              style={[styles.body, type('500', 16, palette.ink)]}
+            >
+              {waiting}
+            </Text>
+            <Text
+              allowFontScaling={allowFontScaling}
+              style={[
+                styles.body,
+                type('400', 12.5, waitingMarked ? palette.tomato : palette.muted),
+              ]}
+            >
+              {t('drawer.waiting')}
+            </Text>
+          </View>
+        </View>
       )}
       {listed.length === 0 ? null : (
         <SheetScroll style={styles.list} contentContainerStyle={styles.listContent}>

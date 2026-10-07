@@ -8,6 +8,7 @@ import { fonts } from '@scootch/tokens';
 import type { ScootchProps } from '../../art/Scootch';
 import { useT } from '../../i18n/i18n-provider';
 import { FadeAway } from '../../ui/motion/fade-away';
+import { PressSpring } from '../../ui/motion/press-spring';
 import { RiseIn } from '../../ui/motion/rise-in';
 import { useKeyboardOpen } from '../../ui/use-keyboard-open';
 import { useScreenStyle } from '../../ui/use-screen-style';
@@ -108,17 +109,24 @@ export function OneScreenView({
       <>
         {heard ? <HeardWords transcript={state.transcript} /> : null}
         {waiting === null ? null : (
-          <>
+          <PressSpring
+            accessibilityRole="button"
+            accessibilityLabel={`${t('done.waiting')}: ${waiting}`}
+            accessibilityHint={t('done.waiting.hint')}
+            disabled={home?.onWaiting === undefined}
+            onPress={home?.onWaiting}
+            testID="done-waiting-row"
+            style={styles.waiting}
+          >
             {note(t('done.waiting'), 'done-waiting-label')}
             <Text
               testID="done-waiting"
-              accessibilityLabel={`${t('done.waiting')}: ${waiting}`}
               allowFontScaling={allowFontScaling}
               style={[styles.heard, { color: palette.ink, fontSize: size(HEARD_SIZE) }]}
             >
               {waiting}
             </Text>
-          </>
+          </PressSpring>
         )}
         {startsNote === null ? null : note(startsNote, 'starts-note')}
         {warmUp && !recording ? (
@@ -296,6 +304,9 @@ const styles = StyleSheet.create({
   footer: {
     paddingHorizontal: GUTTER.dock,
     gap: 18,
+  },
+  waiting: {
+    gap: 12,
   },
   heard: {
     fontFamily: fonts.body,

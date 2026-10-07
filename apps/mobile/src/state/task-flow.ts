@@ -6,7 +6,7 @@ import type { TaskCall } from '../api/task-client';
 
 import { enterCrisis } from './care-flow';
 import type { DayContext, Offer } from './day-types';
-import { pickForMe, swapItemIn } from './pick-flow';
+import { pickForMe } from './pick-flow';
 import { applyCall, keepTranscript, treatNamed } from './task-answers';
 import { askForFinished } from './late-catch';
 import { setWithoutAnswer, sortOrphanWords, wordsToAsk } from './late-words';
@@ -26,7 +26,6 @@ function requestFor(ctx: DayContext, offer: Offer, canChoose = false): TaskCreat
     timeZone: ctx.deps.timeZone(),
     overrideSerious: false,
     ...(canChoose ? { canChoose } : {}),
-    ...(offer.declined.length > 0 ? { declined: offer.declined.slice(-10) } : {}),
   };
 }
 
@@ -116,18 +115,11 @@ async function applyAnswer(
   if (call !== null) {
     await applyCall(ctx, call, null);
   } else {
-    const { tasks, monsters } = ctx.deps.repositories;
-    if (offer.turnedDown) {
-      // Nothing came for "Another": the thing it turned down is back exactly as it was.
-      await tasks.put(offer.turnedDown.task);
-      if (offer.turnedDown.monster) await monsters.put(offer.turnedDown.monster);
-    } else {
-      await setWithoutAnswer(ctx, offer);
-      await keepTranscript(ctx, offer);
-    }
+    await setWithoutAnswer(ctx, offer);
+    await keepTranscript(ctx, offer);
     // Nothing else was heard, so there is nothing else to offer. With a connection up, it was
     // the model that did not answer, and Scootch says so.
-    ctx.set({ pick: { kind: 'offered', reveal: null, another: false }, modelDown: online });
+    ctx.set({ pick: { kind: 'offered', reveal: null }, modelDown: online });
   }
   // Today is read back before the waiting ends, so the composer never shows again in between.
   await ctx.refresh();
@@ -151,45 +143,6 @@ export function cancelTaskCall(ctx: DayContext): void {
   if (ctx.memory.state.taskCall === 'idle' || offer === null) return;
   dropTaskCall(ctx);
   ctx.set({ returnedText: offer.text, notice: null });
-}
-
-/**
- * "Another". While this text's parked rest has things not yet offered, the next of them is
- * swapped in and the turned-down one goes to the drawer in its place: no call is made. Only when
- * none are left is the same text asked again without the ones turned down.
- */
-export async function askAnother(ctx: DayContext): Promise<void> {
-  const { offer } = ctx.memory;
-  const { today } = ctx.memory.state;
-  if (!offer || !('task' in today) || today.task.status !== 'set') return;
-
-  const inDrawer = new Set((await ctx.deps.repositories.drawerItems.all()).map((item) => item.id));
-  const [next, ...left] = offer.candidates.filter((id) => inDrawer.has(id));
-  if (next !== undefined) {
-    ctx.memory.offer = { ...offer, candidates: left };
-    if (await swapItemIn(ctx, next)) {
-      ctx.set({ pick: { kind: 'offered', reveal: null, another: true }, line: null });
-      return ctx.refresh();
-    }
-  }
-  // With no connection there is nothing else to offer: the offered thing stays where it is.
-  if (!(await isOnline(ctx))) {
-    ctx.set({ pick: { kind: 'offered', reveal: null, another: false } });
-    return;
-  }
-  const { monsters, forgetTask } = ctx.deps.repositories;
-  const monster = (await monsters.where('taskId', today.task.id))[0] ?? null;
-  await forgetTask(today.task.id);
-  // The turned-down thing leaves the screen while the next is asked for: nothing on it can be
-  // tapped for a task that is no longer there.
-  ctx.set({ pick: { kind: 'none' }, heardDeadlines: [] });
-  await ctx.refresh();
-  await submitText(ctx, {
-    ...offer,
-    candidates: [],
-    declined: [...offer.declined, today.task.text],
-    turnedDown: { task: today.task, monster },
-  });
 }
 
 /** The one thing is picked: the ramble's words go, unless the person keeps transcripts. */

@@ -1,11 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
-import type { TaskCreateStartResponse } from '@scootch/domain';
-
-import type { Judged } from '../api/scootch-api';
 import { openRepositories } from '../data/repositories';
 
-import { TASK_PATIENCE_MS } from './task-flow';
 import { MORNING, ramble, recordedStart, stagedPhone, stagedServer } from './test/staged-phone';
 
 if (recordedStart.verdict !== 'pass') throw new Error('the recorded call is an ordinary one');
@@ -16,8 +12,6 @@ const others = [...recordedStart.parked, ...recordedStart.deadlines].map((one) =
 const filler = 'and then there is the thing with the car and the other thing with the shed, ';
 const longRamble = `${filler.repeat(4)}${ramble}`;
 
-/** Lets what is already under way reach its next wait. */
-const flush = () => new Promise<void>((done) => setImmediate(done));
 const drawerTexts = (app: Awaited<ReturnType<typeof stagedPhone>>) =>
   app.store.getState().drawer.items.map((item) => item.text);
 
@@ -70,56 +64,5 @@ describe('words sent while the model cannot answer', () => {
     await app.store.dispatch({ type: 'connection_returned' });
     expect(drawerTexts(app)).toEqual(expect.arrayContaining(others));
     expect(await openRepositories(app.data.db).unsortedWords.all()).toEqual([]);
-  });
-});
-
-describe('"Another"', () => {
-  it('leaves the offered thing where it is with no connection', async () => {
-    const server = stagedServer();
-    const app = await stagedPhone(server);
-    await app.say('ring the bank', 'typed');
-    const offered = app.task();
-    const { monster } = app.store.getState();
-
-    server.online = false;
-    // Everything parked from these words has been offered already.
-    for (const item of app.store.getState().drawer.items) {
-      await openRepositories(app.data.db).drawerItems.remove(item.id);
-    }
-    await app.store.dispatch({ type: 'another_asked' });
-    expect(app.task()).toEqual(offered);
-    expect(app.store.getState().monster).toEqual(monster);
-    expect(app.store.getState()).toMatchObject({
-      taskCall: 'idle',
-      pick: { kind: 'offered', another: false },
-    });
-  });
-
-  it('puts the offered thing back, monster and all, when the model does not answer in time', async () => {
-    const waiting: ((start: TaskCreateStartResponse & Judged) => void)[] = [];
-    const server = stagedServer();
-    const app = await stagedPhone(server);
-    await app.say('ring the bank', 'typed');
-    const offered = app.task();
-    const { monster } = app.store.getState();
-    expect(monster).not.toBeNull();
-    for (const item of app.store.getState().drawer.items) {
-      await openRepositories(app.data.db).drawerItems.remove(item.id);
-    }
-
-    server.startStage = () => new Promise((resolve) => waiting.push(resolve));
-    const asked = app.store.dispatch({ type: 'another_asked' });
-    await app.until(() => app.store.getState().taskCall === 'waiting');
-    await flush();
-    app.time.advanceTo(MORNING + TASK_PATIENCE_MS);
-    await asked;
-    expect(app.task()).toEqual(offered);
-    expect(app.store.getState().monster).toEqual(monster);
-    expect(app.store.getState()).toMatchObject({
-      taskCall: 'idle',
-      modelDown: true,
-      pick: { kind: 'offered', another: false },
-    });
-    expect(app.data.count('tasks')).toBe(1);
   });
 });

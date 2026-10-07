@@ -56,7 +56,6 @@ export type Stage =
       readonly quiet: boolean;
       readonly reveal: Reveal | null;
       readonly deadline: HeardDeadline | null;
-      readonly another: boolean;
     }
   | {
       readonly kind: 'hatch';
@@ -137,7 +136,6 @@ export function stageOf(input: StageInput): Stage {
       quiet,
       reveal: quiet ? null : pick.reveal,
       deadline: input.heardDeadlines[0] ?? null,
-      another: pick.another,
     };
   }
   if (pick.kind === 'hatching' && showsComedy(task, 'monster')) {

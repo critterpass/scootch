@@ -36,6 +36,8 @@ export const drawerStyles = StyleSheet.create({
   listContent: { gap: 8 },
   card: { borderRadius: 22, overflow: 'hidden' },
   rowClip: { overflow: 'hidden' },
+  waiting: { borderWidth: 1.5, marginBottom: 8 },
+  waitingDot: { width: 8, height: 8, borderRadius: 4 },
   lane: {
     position: 'absolute',
     top: 0,

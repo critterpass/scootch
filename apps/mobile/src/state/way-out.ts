@@ -19,17 +19,14 @@ export async function parkStartedTask(ctx: DayContext): Promise<void> {
 }
 
 /**
- * "Fix the words", on the offered one thing: nothing is set, and everything the person said is
- * back in the composer to change and send. What was already parked from those words stays parked;
- * saying a thing a second time does not park it twice.
+ * "Cancel", on the offered one thing: it is dropped with its monster, nothing is set, no start is
+ * used and home is back. What was already parked from those words stays parked.
  */
-export async function returnOneThing(ctx: DayContext): Promise<void> {
+export async function cancelOneThing(ctx: DayContext): Promise<void> {
   const { today, pick } = ctx.memory.state;
   if (pick.kind !== 'offered' || !('task' in today) || today.task.status !== 'set') return;
   const { transcripts, unsortedWords, forgetTask } = ctx.deps.repositories;
   const { task } = today;
-  const kept = await unsortedWords.for(task.id);
-  const text = ctx.memory.offer?.text ?? kept?.text ?? task.originalText;
   for (let one = await transcripts.pending(); one; one = await transcripts.pending()) {
     await transcripts.remove(one.id);
   }
@@ -42,7 +39,6 @@ export async function returnOneThing(ctx: DayContext): Promise<void> {
     heardDeadlines: [],
     line: null,
     modelDown: false,
-    returnedText: text,
   });
   await ctx.refresh();
 }
