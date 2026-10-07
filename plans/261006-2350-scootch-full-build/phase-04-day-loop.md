@@ -1,6 +1,8 @@
 # Phase 04: the day loop
 
-Status: built, unproven on a device: 10 partly · Tasks: 10 · Needs: 01 (art from 02 and routes from 03
+Status: see the audit note below · Tasks: 10 · Needs: 01 (art from 02 and routes from 03
+
+> Audit 7 Oct 2026: walked on a device and on the founder's iPhone. Not built: arriving with a monster from the website, saying "done". Never walked: hold to talk, "Another", a heard deadline, pick for me, "Not now", too big, "I'm stuck", hold to finish, not finished.
 replace placeholders and fixtures as they merge)
 Owns: `apps/mobile/src/features/{launch,one-screen,dump,monster,session}`,
 `packages/domain/src/{session,drawer,day}`

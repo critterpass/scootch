@@ -1,6 +1,8 @@
 # Phase 07: care, edge states and settings
 
-Status: built, unproven on a device: 8 partly · Tasks: 8 · Needs: 03, 04
+Status: see the audit note below · Tasks: 8 · Needs: 03, 04
+
+> Audit 7 Oct 2026: settings, privacy, language and helplines walked. Serious, crisis, offline, model-down and restore never walked. "Invite a friend" in settings is an inert row.
 Owns: `apps/mobile/src/features/{care,offline,settings,privacy}`
 
 Goal: Scootch behaves well when the task is heavy, the network is gone or the

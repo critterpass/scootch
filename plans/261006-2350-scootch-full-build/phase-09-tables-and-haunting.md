@@ -1,6 +1,8 @@
 # Phase 09: tables and haunting
 
-Status: built, unproven on a device: 8 partly; deployed on dev · Tasks: 8 · Needs: 03, 04
+Status: see the audit note below · Tasks: 8 · Needs: 03, 04
+
+> Audit 7 Oct 2026: not usable by a real person. No way to become friends (the invite page does not exist and the app opens no links); joining is by pasted code only; opening a table needs Plus and a sign-in that has never run on a build; "friends' open tables" does not exist; no push tells anyone about a haunt or a nudge.
 Owns: `apps/api/src/tables`, `apps/mobile/src/features/{table,friends,haunt}`
 
 Goal: doing the one thing next to a friend. Boards: Tables; Care and Edge

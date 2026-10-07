@@ -1,6 +1,8 @@
 # Phase 05: keeping
 
-Status: built, unproven on a device: 7 partly · Tasks: 8 · Needs: 02, 04
+Status: see the audit note below · Tasks: 8 · Needs: 02, 04
+
+> Audit 7 Oct 2026: the app does post cards and stories for sharing (the "not started" line on the app side is stale), never walked. Not built: the week's name and cover text (nothing writes it), wearing a surprise drop, the record as a video.
 Owns: `apps/mobile/src/features/{world,zoo,record,share}`,
 `packages/domain/src/rarity`
 
