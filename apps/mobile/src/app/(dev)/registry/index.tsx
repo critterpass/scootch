@@ -52,6 +52,7 @@ export default function RegistryBrowser() {
           onChangeText={setQuery}
           autoCapitalize="none"
           autoCorrect={false}
+          selectTextOnFocus
           placeholder="Filter"
           placeholderTextColor={palette.muted}
           style={[styles.filter, { backgroundColor: palette.surface, color: palette.ink }]}
