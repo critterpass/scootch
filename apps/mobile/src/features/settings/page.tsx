@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated, {
   Extrapolation,
   interpolate,
@@ -28,8 +28,9 @@ const BAR_TITLE_SIZE = 17;
 const COLLAPSES_BY = 52;
 /** How far the title grows when the page is pulled down past its top, and over what pull. */
 const STRETCH = { by: 1.08, over: 90 } as const;
-/** A sheet's own top: room for the grabber, then the close control in its corner. */
-const SHEET = { top: 14, room: 64 } as const;
+/** A sheet's own top: room for the grabber above the close control. */
+const SHEET_TOP = 14;
+const SHEET_EDGES = ['bottom', 'left', 'right'] as const;
 
 export interface PageProps {
   /**
@@ -54,7 +55,7 @@ export interface PageProps {
 /**
  * A plain page of rows: a close button, a title, and a list that scrolls at any text size. It is
  * drawn three ways from the route it is in: under the system's bar, with its own corner bar, or
- * as a sheet, whose close control floats over the top of its content.
+ * as a sheet, which keeps clear of its own top edge instead of the status bar.
  */
 export function Page({ title, barTitle, onClose, testID, menu, footer, children }: PageProps) {
   const { palette, allowFontScaling, size, reducedMotion } = useScreenStyle();
@@ -127,11 +128,11 @@ export function Page({ title, barTitle, onClose, testID, menu, footer, children 
         {title}
       </Animated.Text>
     );
-  const list = (top: number) => (
+  const list = (
     <Animated.ScrollView
       onScroll={follow}
       scrollEventThrottle={16}
-      contentContainerStyle={[styles.content, top > 0 && { paddingTop: top }]}
+      contentContainerStyle={styles.content}
       testID={`${testID}-list`}
     >
       {large}
@@ -139,18 +140,25 @@ export function Page({ title, barTitle, onClose, testID, menu, footer, children 
     </Animated.ScrollView>
   );
 
-  // A sheet has its own top edge and grabber, and is already clear of the status bar. Its close
-  // control floats over the top of the content, drawn last so nothing can lie over it and take
-  // its touch.
+  // A sheet has its own top edge and grabber, and is already clear of the status bar: only the
+  // bottom edge is kept clear. It is laid out as a page with its own corner bar is, which is the
+  // arrangement a sheet is known to draw. The bar is raised over the list, so the list can never
+  // lie on the close control and take its touch.
   if (sheet) {
     return (
-      <View style={[styles.page, { backgroundColor: palette.page }]} testID={testID}>
-        {list(SHEET.room)}
-        {dockOver(0)}
-        <View pointerEvents="box-none" style={styles.sheetBar}>
-          <CloseButton {...close} />
+      <SafeFrame
+        edges={SHEET_EDGES}
+        style={[styles.page, { backgroundColor: palette.page }]}
+        testID={testID}
+      >
+        <View style={styles.raised}>
+          <CornerBar trailing={<CloseButton {...close} />} />
         </View>
-      </View>
+        <ScrollView contentContainerStyle={styles.content} testID={`${testID}-list`}>
+          {children}
+        </ScrollView>
+        {dockOver(insets.bottom)}
+      </SafeFrame>
     );
   }
   // Under the system's bar the close control is the bar's, and so is the small title: a page with
@@ -163,7 +171,7 @@ export function Page({ title, barTitle, onClose, testID, menu, footer, children 
           close={close}
           menu={menuItem}
         />
-        {list(0)}
+        {list}
         {dockOver(0)}
       </View>
     );
@@ -193,7 +201,7 @@ export function Page({ title, barTitle, onClose, testID, menu, footer, children 
           </Animated.Text>
         )}
       </CornerBar>
-      {list(0)}
+      {list}
       {dockOver(insets.bottom)}
     </SafeFrame>
   );
@@ -221,12 +229,6 @@ const styles = StyleSheet.create({
     letterSpacing: -0.6,
     transformOrigin: 'left center',
   },
-  sheetBar: {
-    position: 'absolute',
-    top: SHEET.top,
-    right: spacing.md,
-    left: spacing.md,
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
+  // The frame sets its own edge padding, so the room for the grabber is the bar's.
+  raised: { zIndex: 1, paddingTop: SHEET_TOP },
 });
