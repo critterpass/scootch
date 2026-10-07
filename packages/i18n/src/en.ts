@@ -1,6 +1,7 @@
 import { enCareAndSettings } from './en-care-and-settings';
 import { enPlus } from './en-plus';
 import { enTogether } from './en-together';
+import { enWorld } from './en-world';
 
 /**
  * English interface strings, and the source of the key set. Lines Scootch speaks never go here.
@@ -186,12 +187,6 @@ export const en = {
   'reveal.drop.wear': 'Wear it',
   'reveal.drop.wear.hint': 'Keeps it and marks it to wear',
 
-  'world.empty': 'Nothing lives here yet. The first thing you finish moves in.',
-  'world.caught': 'Caught',
-  'world.caught.hint': 'Opens every monster you caught',
-  'world.song': 'This week’s song',
-  'world.song.hint': 'Opens the week’s record',
-
   'zoo.title': 'Caught',
   'zoo.count': {
     one: '{count} card',
@@ -327,4 +322,5 @@ export const en = {
   ...enCareAndSettings,
   ...enPlus,
   ...enTogether,
+  ...enWorld,
 } as const;

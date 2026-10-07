@@ -5,6 +5,7 @@ import { fonts, radius, spacing } from '@scootch/tokens';
 import { useT } from '../../i18n/i18n-provider';
 import { Chevron } from '../../ui/icons';
 import { useScreenStyle } from '../../ui/use-screen-style';
+import { WorldGlance } from '../world/world-thumbnail';
 
 /** The session lengths on offer, in minutes. */
 export const SESSION_MINUTES = [10, 25, 50] as const;
@@ -106,29 +107,64 @@ export function TaskSetChoices({
   );
 }
 
-/** The way into the world, on the quiet screen. */
+/** The side of the world's thumbnail in the row, as the board draws it. */
+const WORLD_THUMBNAIL = 84;
+
+/**
+ * The way into the world, on the quiet screen: the world itself, small and alive, and how many
+ * things live there now.
+ */
 export function WorldRow({ onPress }: { readonly onPress: () => void }) {
   const { palette, allowFontScaling, size } = useScreenStyle();
   const t = useT();
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={t('oneScreen.world')}
-      accessibilityHint={t('oneScreen.world.hint')}
-      onPress={onPress}
-      testID="world-row"
-      style={[styles.world, { backgroundColor: palette.surface }]}
-    >
-      <View style={styles.worldWords}>
-        <Text
-          allowFontScaling={allowFontScaling}
-          style={[styles.worldTitle, { color: palette.ink, fontSize: size(ROW_SIZE) }]}
-        >
-          {t('oneScreen.world')}
-        </Text>
-      </View>
-      <Chevron color={palette.muted} direction="right" />
-    </Pressable>
+    <WorldGlance>
+      {({ count, thumbnail }) => {
+        const living =
+          count === null
+            ? ''
+            : count === 0
+              ? t('world.row.empty')
+              : t('world.row.count', { count });
+        return (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={
+              living ? `${t('oneScreen.world')}, ${living}` : t('oneScreen.world')
+            }
+            accessibilityHint={t('oneScreen.world.hint')}
+            onPress={onPress}
+            testID="world-row"
+            style={({ pressed }) => [
+              styles.world,
+              { backgroundColor: palette.surface, opacity: pressed ? 0.8 : 1 },
+            ]}
+          >
+            <View style={styles.worldThumbnail} pointerEvents="none">
+              {thumbnail(WORLD_THUMBNAIL)}
+            </View>
+            <View style={styles.worldWords}>
+              <Text
+                allowFontScaling={allowFontScaling}
+                style={[styles.worldTitle, { color: palette.ink, fontSize: size(ROW_SIZE) }]}
+              >
+                {t('oneScreen.world')}
+              </Text>
+              {living ? (
+                <Text
+                  allowFontScaling={allowFontScaling}
+                  testID="world-row-count"
+                  style={[styles.worldCount, { color: palette.muted, fontSize: size(14) }]}
+                >
+                  {living}
+                </Text>
+              ) : null}
+            </View>
+            <Chevron color={palette.muted} direction="right" />
+          </Pressable>
+        );
+      }}
+    </WorldGlance>
   );
 }
 
@@ -226,11 +262,19 @@ const styles = StyleSheet.create({
   world: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.md,
-    borderRadius: radius.lg + 4,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    minHeight: 72,
+    gap: 6,
+    borderRadius: 30,
+    paddingLeft: 6,
+    paddingRight: 18,
+    paddingVertical: 6,
+    minHeight: WORLD_THUMBNAIL + 12,
+  },
+  worldThumbnail: {
+    width: WORLD_THUMBNAIL,
+    height: WORLD_THUMBNAIL,
+  },
+  worldCount: {
+    fontFamily: fonts.body,
   },
   worldWords: {
     flex: 1,
