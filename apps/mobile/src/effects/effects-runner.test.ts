@@ -59,6 +59,23 @@ describe('the effects runner', () => {
     ]);
   });
 
+  it('lets a parked thought be felt as well as heard, and felt alone with sound effects off', () => {
+    const parked = { type: 'thought_parked', text: 'ring the vet' } as const;
+    const heard = fakeRunner(START);
+    const running = drive(heard, set(), [{ type: 'started' }]);
+    heard.device.calls.haptics.length = 0;
+    drive(heard, running, [parked]);
+    expect(heard.device.calls.cues).toContain('park-a-thought');
+    expect(heard.device.calls.haptics).toEqual([CUES['park-a-thought']?.haptics]);
+
+    const muted = fakeRunner(START, () => ({ ...ALL_ON, effects: false }));
+    const quiet = drive(muted, set(), [{ type: 'started' }]);
+    muted.device.calls.haptics.length = 0;
+    drive(muted, quiet, [parked]);
+    expect(muted.device.calls.cues).toEqual([]);
+    expect(muted.device.calls.haptics).toEqual([CUES['park-a-thought']?.haptics]);
+  });
+
   it('asks for a clock event when each moment comes due, and plays the warning then', async () => {
     const harness = fakeRunner(START);
     let session = drive(harness, set(), [{ type: 'started' }]);

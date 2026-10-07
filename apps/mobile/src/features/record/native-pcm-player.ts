@@ -3,6 +3,8 @@ import { File, Paths } from 'expo-file-system';
 
 import { encodeWav } from '@scootch/sound';
 
+import { soundMode } from '../../effects/sound-mode';
+
 import type { PcmPlayer } from './pcm-player';
 
 /**
@@ -20,6 +22,8 @@ export function nativePcmPlayer(): PcmPlayer {
       // Nothing was playing.
     }
     playing = null;
+    // Music over: the ringer switch silences everything again.
+    soundMode.musicStopped();
   };
   return {
     play(key, render) {
@@ -30,6 +34,8 @@ export function nativePcmPlayer(): PcmPlayer {
           file.create();
           file.writeSync(encodeWav(render()));
         }
+        // Music may play through a silenced phone, when the person has chosen so in Settings.
+        soundMode.musicStarted();
         playing = createAudioPlayer(file.uri);
         playing.play();
       } catch {
