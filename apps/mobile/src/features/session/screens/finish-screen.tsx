@@ -17,6 +17,9 @@ import { SessionText } from '../ui/session-text';
 
 import type { ScreenProps } from './screen-props';
 
+/** How long the catch plays before a tap anywhere may pass it. */
+const PASS_AFTER_MS = 400;
+
 const CAPTIONS = {
   idle: 'session.finish.holdIdle',
   holding: 'session.finish.holdGoing',
@@ -50,6 +53,18 @@ export function FinishScreen({ model, actions, inks, t }: ScreenProps) {
   const control = view.kind === 'finish' || view.kind === 'caught' ? view.control : 'hold';
   const timeUp = view.kind === 'finish' && view.timeUp;
   const caught = view.kind === 'caught';
+  // The catch plays on the screen the finish was made on: "Not finished" keeps its room under the
+  // control, unseen, so nothing moves under the finger as the burst goes up.
+  const wasTimeUp = useRef(timeUp);
+  if (view.kind === 'finish') wasTimeUp.current = view.timeUp;
+  const keepsRow = caught && wasTimeUp.current;
+  // A tap anywhere passes the catch, but not the tail of the taps that made the finish.
+  const [mayPass, setMayPass] = useState(false);
+  useEffect(() => {
+    if (!caught) return setMayPass(false);
+    const timer = setTimeout(() => setMayPass(true), PASS_AFTER_MS);
+    return () => clearTimeout(timer);
+  }, [caught]);
   // Where the burst goes up from: the middle of the finish control, found as the catch begins.
   const controlRef = useRef<ComponentRef<typeof View>>(null);
   const [burstFrom, setBurstFrom] = useState<{ x: number; y: number } | null | undefined>();
@@ -111,14 +126,16 @@ export function FinishScreen({ model, actions, inks, t }: ScreenProps) {
                 controlAt={burstFrom}
               />
             )}
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={t('session.skip')}
-              accessibilityHint={t('session.skip.hint')}
-              testID="session-caught-pass"
-              onPress={actions.passCaught}
-              style={StyleSheet.absoluteFill}
-            />
+            {mayPass ? (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={t('session.skip')}
+                accessibilityHint={t('session.skip.hint')}
+                testID="session-caught-pass"
+                onPress={actions.passCaught}
+                style={StyleSheet.absoluteFill}
+              />
+            ) : null}
           </>
         ) : null
       }
@@ -175,9 +192,14 @@ export function FinishScreen({ model, actions, inks, t }: ScreenProps) {
               />
             </View>
           )}
-          {timeUp ? (
+          {timeUp || keepsRow ? (
             // Set apart from the finish control, so reaching for one does not land on the other.
-            <View style={styles.apart}>
+            <View
+              style={[styles.apart, keepsRow ? styles.unseen : null]}
+              pointerEvents={keepsRow ? 'none' : 'auto'}
+              accessibilityElementsHidden={keepsRow}
+              importantForAccessibility={keepsRow ? 'no-hide-descendants' : 'auto'}
+            >
               <TextButton
                 label={t('session.notFinished')}
                 hint={t('session.notFinished.hint')}
@@ -234,6 +256,9 @@ const styles = StyleSheet.create({
   },
   control: {
     alignSelf: 'center',
+  },
+  unseen: {
+    opacity: 0,
   },
   apart: {
     marginTop: spacing.lg,

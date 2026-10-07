@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { View } from 'react-native';
 
 import { useT } from '../../i18n/i18n-provider';
@@ -23,7 +24,10 @@ export interface SessionScreenProps {
  * and the screen registry.
  */
 export function SessionScreen({ model, actions }: SessionScreenProps) {
-  const inks = sessionInks(useAppearance());
+  // One object for as long as the scheme lasts: a burst builds its marks from these inks, and
+  // must not build them again on every tick of the clock.
+  const scheme = useAppearance();
+  const inks = useMemo(() => sessionInks(scheme), [scheme]);
   const t = useT();
   const props = { model, actions, inks, t };
   switch (model.view.kind) {
