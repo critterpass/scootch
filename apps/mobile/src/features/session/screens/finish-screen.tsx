@@ -68,7 +68,8 @@ export function FinishScreen({ model, actions, inks, t }: ScreenProps) {
       inks={inks}
       testID={control === 'hold' ? 'session-finish-hold' : 'session-finish-tap'}
       top={
-        timeUp ? null : (
+        // Nothing to go back to once time is up, or once the thing is caught.
+        timeUp || view.kind === 'caught' ? null : (
           <RoundButton
             label={t('session.finish.keepGoing')}
             hint={t('session.finish.keepGoing.hint')}
