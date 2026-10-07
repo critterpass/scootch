@@ -1,9 +1,22 @@
 import type { Attitude, MonsterRow, ParkedThought, SessionEvent, WorkMode } from '@scootch/domain';
 
 import type { Translate } from '../../../i18n/i18n-provider';
+import type { CatchKind } from '../catch/catch-kinds';
 import type { ShownLine } from '../../../state/day-types';
 import type { SessionView } from '../session-view';
 import type { SessionInks } from '../ui/session-inks';
+
+/** What a session that ends in a catch draws beside the session itself. */
+export interface CatchModel {
+  /** The catch this task rolled. */
+  readonly kind: CatchKind;
+  /** How many monsters the binder already holds; `null` until that has been read. */
+  readonly caughtCount: number | null;
+  /** The other monsters caught this month, oldest first. */
+  readonly monthMates: readonly MonsterRow[];
+  /** The month's name, as the phone writes it. */
+  readonly monthName: string;
+}
 
 /** Everything the session screens draw, already worked out. No screen reads the store itself. */
 export interface SessionModel {
@@ -30,8 +43,10 @@ export interface SessionModel {
   readonly parkOpen: boolean;
   /** The thought just parked, shown for a moment. */
   readonly parkedNote: string | null;
-  /** Where the hold ring starts, for a capture of a ring let go of early. */
-  readonly holdStartsAt: number;
+  /** The task's catch, when its monster can be caught by hand; `null` when the finish is tapped. */
+  readonly catch: CatchModel | null;
+  /** The person has haptics on. */
+  readonly haptics: boolean;
   /** The developer control that ends the timer in a few seconds is on show. */
   readonly developerEnd: boolean;
   /** A parked thought's time of day, as the phone writes times. */
@@ -50,6 +65,8 @@ export interface SessionActions {
   readonly send: (event: SessionEvent) => void;
   /** The same, for the finish control: settles when the store has applied or refused it. */
   readonly sendFinish: (event: SessionEvent) => Promise<void>;
+  /** "Start" on the card that explains catching: the session begins. */
+  readonly startNow: () => void;
   readonly finishEarly: () => void;
   readonly keepGoing: () => void;
   readonly passBurst: () => void;

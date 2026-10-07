@@ -57,4 +57,48 @@ appId: app.scootch.dev
 - runFlow:
     file: ../tour-support/shot.yaml
     env:
-      NAME: session-released-early--en-light-default
+      NAME: session-catch-explained--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: session-catch-jar--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: session-catch-reel--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: session-catch-lasso--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: session-catch-sticker--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: session-catch-bubble--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: session-catch-net--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: session-catch-vacuum--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: session-catch-envelope--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: session-catch-time-up--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: session-catch-unlocked--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: session-catch-caught--en-light-default

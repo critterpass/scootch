@@ -10,8 +10,11 @@ import {
 
 import type { ShownLine } from '../../state/day-types';
 
-/** The control a finish is made with. Saying "done" has no control of its own. */
-export type FinishControl = 'hold' | 'double_tap';
+/**
+ * The control a finish is made with: the catch, or two taps. Saying "done" has no control of its
+ * own.
+ */
+export type FinishControl = 'catch' | 'double_tap';
 
 /** What the session screens show, worked out from the store's state and nothing else. */
 export type SessionView =
@@ -19,6 +22,8 @@ export type SessionView =
   | { readonly kind: 'home' }
   /** The session is set and its start is on the way. */
   | { readonly kind: 'starting' }
+  /** Before the very first catch: how catching works, and the start is the person's to press. */
+  | { readonly kind: 'coach' }
   | { readonly kind: 'burst' }
   | {
       readonly kind: 'working';
@@ -26,6 +31,8 @@ export type SessionView =
       readonly stuck: boolean;
       readonly twoMinutesLeft: boolean;
       readonly timeUp: boolean;
+      /** The session ends in a catch, so the work is shown as the trap setting itself. */
+      readonly trap: boolean;
     }
   | {
       readonly kind: 'finish';
@@ -82,14 +89,33 @@ export interface SessionViewInput {
   readonly reveal?: 'pending' | 'seen';
   /** The catch may play before the reveal: see `catchPlays`. Left out, it does not. */
   readonly caught?: boolean;
+  /** The task's monster can be caught by hand here: see `catchable`. Left out, it cannot. */
+  readonly catchable?: boolean;
+  /** How catching works has still to be shown before this session starts. Left out, it has not. */
+  readonly coach?: boolean;
 }
 
 /** How long the finish screen stays up for the catch before the reveal takes over. */
 export const CAUGHT_HOLD_MS = 3200;
 
-/** A finish made on the finish control itself: a completed hold, or the second of two taps. */
+/** A finish made on the finish control itself: a catch, or the second of two taps. */
 export function finishedByHand(event: SessionEvent): boolean {
-  return event.type === 'hold_completed' || event.type === 'double_tapped';
+  return (
+    event.type === 'caught' || event.type === 'hold_completed' || event.type === 'double_tapped'
+  );
+}
+
+/**
+ * Whether the task's monster can be caught by hand. A catch is a gesture made on a moving
+ * drawing: it needs a monster, a finger that can find it, and motion that may play. Without any
+ * of them the finish is two taps, which needs none.
+ */
+export function catchable(facts: {
+  readonly monster: boolean;
+  readonly screenReader: boolean;
+  readonly reducedMotion: boolean;
+}): boolean {
+  return facts.monster && !facts.screenReader && !facts.reducedMotion;
 }
 
 /**
@@ -106,12 +132,16 @@ export function catchPlays(facts: {
 }
 
 /**
- * The control shown for a finish method. Someone who chose to say "done" gets the tap-twice
- * control, which needs no holding either, alone until a spoken "done" can be heard and beside it
- * afterwards.
+ * The control shown for a finish method. The catch took the hold's place and keeps its stored
+ * name. Someone who chose to say "done" gets the tap-twice control, which needs no gesture
+ * either, alone until a spoken "done" can be heard and beside it afterwards; so does anyone whose
+ * monster cannot be caught by hand here.
  */
-export function finishControl(finishWith: SettingsRow['finishWith']): FinishControl {
-  return finishWith === 'hold' ? 'hold' : 'double_tap';
+export function finishControl(
+  finishWith: SettingsRow['finishWith'],
+  canCatch = true,
+): FinishControl {
+  return finishWith === 'hold' && canCatch ? 'catch' : 'double_tap';
 }
 
 function afterTheEnd(input: SessionViewInput): SessionView {
@@ -128,7 +158,7 @@ function afterFinish(session: LiveSession, input: SessionViewInput): SessionView
   // A serious task has no ceremony: no reveal, and the treat is never handed over with one.
   if (!quiet && input.reveal === 'pending') {
     return input.caught === true && !passed.caught
-      ? { kind: 'caught', control: finishControl(input.finishWith) }
+      ? { kind: 'caught', control: finishControl(input.finishWith, input.catchable === true) }
       : { kind: 'reveal' };
   }
   if (!quiet && treat !== null) {
@@ -152,6 +182,10 @@ export function closeMeans(view: SessionView): 'ask' | 'leave' {
 export function sessionView(input: SessionViewInput): SessionView {
   const { session, passed } = input;
   if (session === null) return { kind: 'home' };
+  const control =
+    session.phase !== 'let_go' && session.tone === 'quiet'
+      ? 'double_tap'
+      : finishControl(input.finishWith, input.catchable === true);
   switch (session.phase) {
     case 'let_go':
     case 'carried_over':
@@ -160,7 +194,7 @@ export function sessionView(input: SessionViewInput): SessionView {
     case 'left_early':
       return { kind: 'home' };
     case 'set':
-      return { kind: 'starting' };
+      return input.coach === true && control === 'catch' ? { kind: 'coach' } : { kind: 'starting' };
     case 'finished':
       return afterFinish(session, input);
     case 'not_finished':
@@ -180,6 +214,7 @@ export function sessionView(input: SessionViewInput): SessionView {
     stuck: session.phase === 'stuck',
     twoMinutesLeft: session.warned && !timeUp,
     timeUp,
+    trap: control === 'catch',
   };
   // A serious task has no burst and finishes with a plain tap on the working screen.
   if (quiet) return working;
@@ -187,7 +222,7 @@ export function sessionView(input: SessionViewInput): SessionView {
     return { kind: 'burst' };
   }
   if (timeUp || session.phase === 'holding' || passed.finishingEarly) {
-    return { kind: 'finish', control: finishControl(input.finishWith), timeUp };
+    return { kind: 'finish', control, timeUp };
   }
   return working;
 }

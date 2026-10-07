@@ -10,8 +10,8 @@ import {
   type HoldCaption,
   type HoldControl,
   type HoldInput,
+  type HoldKind,
 } from './hold-control';
-import type { FinishControl } from './session-view';
 
 /** How long after the store answers a finish the control looks whether it was taken. */
 const SETTLE_AFTER_MS = 100;
@@ -27,7 +27,7 @@ export interface HoldControlHandle {
  * and while the ring is filling or draining it is fed one frame after another.
  */
 export function useHoldControl(
-  control: FinishControl,
+  control: HoldKind,
   send: (event: SessionEvent) => void | Promise<void>,
   startAt = 0,
   /** The finish was taken and its catch is playing on this screen: the control stays as it ended. */

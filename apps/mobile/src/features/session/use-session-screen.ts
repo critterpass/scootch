@@ -2,20 +2,23 @@ import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AccessibilityInfo } from 'react-native';
 
-import type { ParkedThought, SessionEvent } from '@scootch/domain';
+import type { MonsterRow, ParkedThought, SessionEvent } from '@scootch/domain';
 
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { useCharacterMotion } from '../../ui/motion/use-feel';
 import { useDispatch, useSession, useToday } from '../../state/day-store-provider';
+import { useKeepsakes } from '../../state/keepsakes';
 import { useSurfaceRequest } from '../../state/surface-requests';
 import { revealSeen } from '../reveal/reveal-seen';
 
+import { catchFor } from './catch/catch-kinds';
 import { SHORT_SESSION_SECONDS, shortSession } from './dev/short-session';
 import type { SessionActions, SessionModel } from './screens/screen-props';
 import {
   CAUGHT_HOLD_MS,
   NOTHING_PASSED,
   catchPlays,
+  catchable,
   closeMeans,
   finishedByHand,
   minutesLeft,
@@ -32,6 +35,27 @@ const WORKING_LINE_EVERY_MS = 90_000;
 const PARKED_NOTE_MS = 2600;
 
 const TICKING: readonly string[] = ['running', 'stuck', 'holding'];
+/** How long a session that is set waits to learn whether catching has still to be explained. */
+const COACH_WAIT_MS = 800;
+
+function useScreenReader(): boolean {
+  const [on, setOn] = useState(false);
+  useEffect(() => {
+    void AccessibilityInfo.isScreenReaderEnabled()
+      .then(setOn)
+      .catch(() => undefined);
+    const listener = AccessibilityInfo.addEventListener('screenReaderChanged', setOn);
+    return () => listener.remove();
+  }, []);
+  return on;
+}
+
+/** The monsters already caught, oldest first, without the one this session is for. */
+function caughtBefore(monsters: readonly MonsterRow[], taskId: string | null): MonsterRow[] {
+  return monsters
+    .filter((monster) => monster.caughtAt !== null && monster.taskId !== taskId)
+    .sort((a, b) => (a.caughtAt ?? '').localeCompare(b.caughtAt ?? ''));
+}
 
 /** The current time, read once a second while `ticking`. */
 function useNow(ticking: boolean): number {
@@ -52,7 +76,7 @@ function useNow(ticking: boolean): number {
  */
 export function useSessionScreen(): { model: SessionModel; actions: SessionActions } {
   const { session, line, burst, treat, parkedThoughts, tinyNextStep, afterLines } = useSession();
-  const { today, monster, settings } = useToday();
+  const { today, monster, settings, localDate } = useToday();
   const dispatch = useDispatch();
   const { language } = useLanguage();
   const t = useT();
@@ -78,6 +102,32 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
 
   const live = session !== null && session.phase !== 'let_go' ? session : null;
   const phase = session?.phase ?? null;
+
+  // A catch is a gesture on a moving drawing: it needs a monster, a finger that can find it and
+  // motion that may play. Otherwise the finish is two taps.
+  const screenReader = useScreenReader();
+  const canCatch = catchable({
+    monster: monster !== null,
+    screenReader,
+    reducedMotion: character.reducedMotion,
+  });
+  const catches = canCatch && settings.finishWith === 'hold' && live?.tone === 'full';
+  // What is already kept is read once for the task: the binder's count and the month's page.
+  const { keepsakes } = useKeepsakes(live?.taskId ?? null);
+  const caught = useMemo(
+    () => (keepsakes ? caughtBefore(keepsakes.monsters, live?.taskId ?? null) : null),
+    [keepsakes, live?.taskId],
+  );
+  // How catching works is explained before the start until the first monster has been caught. A
+  // phone that cannot say in time whether one has been simply starts.
+  const [coached, setCoached] = useState(false);
+  const [waited, setWaited] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => setWaited(true), COACH_WAIT_MS);
+    return () => clearTimeout(timer);
+  }, []);
+  const coach = catches && !coached && caught !== null && caught.length === 0;
+  const startHeld = catches && !coached && (coach || (caught === null && !waited));
   const now = useNow(phase !== null && TICKING.includes(phase));
   const view = sessionView({
     session,
@@ -86,6 +136,8 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
     parkedThoughts,
     finishWith: settings.finishWith,
     passed,
+    catchable: canCatch,
+    coach,
     caught: catchPlays({
       byHand,
       reducedMotion: character.reducedMotion,
@@ -103,10 +155,11 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
     if (view.kind === 'reveal') router.replace('/reveal');
   }, [view.kind, router]);
 
-  // Arriving here with a session that is set means Start was tapped: the session begins.
+  // Arriving here with a session that is set means Start was tapped: the session begins, unless
+  // catching has still to be explained, and then the card's own Start begins it.
   useEffect(() => {
-    if (phase === 'set') send({ type: 'started' });
-  }, [phase, send]);
+    if (phase === 'set' && !startHeld) send({ type: 'started' });
+  }, [phase, startHeld, send]);
 
   // The catch ends by itself, and the reveal takes over.
   useEffect(() => {
@@ -175,7 +228,20 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
     reducedMotion: character.reducedMotion,
     parkOpen,
     parkedNote,
-    holdStartsAt: 0,
+    catch:
+      catches && live
+        ? {
+            kind: catchFor(live.taskId),
+            caughtCount: caught ? caught.length : null,
+            monthMates: (caught ?? []).filter(
+              (mate) => mate.caughtOn?.slice(0, 7) === localDate.slice(0, 7),
+            ),
+            monthName: new Date(`${localDate}T12:00:00`).toLocaleDateString(language, {
+              month: 'long',
+            }),
+          }
+        : null,
+    haptics: settings.haptics,
     developerEnd: shortSession.isArmed(),
     timeOf: (thought: ParkedThought) =>
       new Date(thought.parkedAt).toLocaleTimeString(language, {
@@ -202,6 +268,10 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
       },
       send,
       sendFinish,
+      startNow: () => {
+        setCoached(true);
+        send({ type: 'started' });
+      },
       finishEarly: () => pass({ finishingEarly: true }),
       keepGoing: () => pass({ finishingEarly: false }),
       passBurst: () => pass({ burst: true }),

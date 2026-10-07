@@ -29,8 +29,9 @@ export interface FinishWithPageProps {
 }
 
 /**
- * "Finish with": hold, tap twice, or say "done". Holding is hard for some hands, and the reward is
- * the same whichever is chosen. The control underneath is a preview: it finishes nothing.
+ * "Finish with": the catch, tap twice, or say "done". A catch is a gesture, which is hard for some
+ * hands, and the reward is the same whichever is chosen. The control underneath is a preview of
+ * the tapped finish: it finishes nothing. The catch has none, since it changes with the task.
  */
 export function FinishWithPage({ finishWith, onChoose, onClose }: FinishWithPageProps) {
   const { palette } = useScreenStyle();
@@ -73,10 +74,8 @@ function FinishPreview({ finishWith }: { readonly finishWith: FinishWith }) {
     return () => clearTimeout(timer);
   }, [stage]);
 
-  const hold = finishWith === 'hold';
-  const label = hold
-    ? t(stage === 'going' ? 'session.finish.holdGoing' : 'session.finish.holdIdle')
-    : t(stage === 'going' ? 'session.finish.tapConfirm' : 'session.finish.tap');
+  if (finishWith === 'hold') return null;
+  const label = t(stage === 'going' ? 'session.finish.tapConfirm' : 'session.finish.tap');
   return (
     <View style={styles.preview}>
       <Text
@@ -90,9 +89,7 @@ function FinishPreview({ finishWith }: { readonly finishWith: FinishWith }) {
         accessibilityLabel={label}
         accessibilityHint={t('finishWith.preview.hint')}
         testID="finish-with-preview"
-        {...(hold
-          ? { onPressIn: () => setStage('going'), onPressOut: () => setStage('idle') }
-          : { onPress: () => setStage(stage === 'idle' ? 'going' : 'idle') })}
+        onPress={() => setStage(stage === 'idle' ? 'going' : 'idle')}
         style={[styles.control, { backgroundColor: palette.tomato }]}
       >
         <Text

@@ -170,6 +170,9 @@ function act(state: LiveSession, event: SessionEvent, now: Instant): SessionStep
       return phase === 'holding' ? finish(state, 'hold', now) : unchanged(state);
     case 'double_tapped':
       return canFinish ? finish(state, 'double_tap', now) : unchanged(state);
+    case 'caught':
+      // A serious task has no monster to catch.
+      return canFinish && full ? finish(state, 'hold', now) : unchanged(state);
     case 'said_done':
       return canFinish ? finish(state, 'voice', now) : unchanged(state);
     case 'finish_tapped':
