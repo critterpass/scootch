@@ -4,7 +4,7 @@ import { CARD_BLEED, CARD_HEIGHT, CARD_WIDTH, type CardTilt } from '@scootch/art
 import type { CardData } from '@scootch/domain';
 import type { Language } from '@scootch/i18n';
 
-import { composeShareImage } from '../../share/share-image';
+import { composeCardImage } from '../../share/share-image';
 import { cardSpokenLabel } from '../../zoo/zoo-cards';
 
 import { CommandCanvas } from './command-canvas';
@@ -29,7 +29,7 @@ export interface CardViewProps {
  */
 export function CardView({ card, language, width, tilt = FLAT, hideTask, testID }: CardViewProps) {
   const commands = useMemo(
-    () => composeShareImage('card', card, { hideTask: hideTask === true, language, tilt }).commands,
+    () => composeCardImage(card, { hideTask: hideTask === true, language, tilt }).commands,
     [card, language, hideTask, tilt],
   );
   return (

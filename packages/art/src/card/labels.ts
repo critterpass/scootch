@@ -1,4 +1,4 @@
-import type { CardRarity } from '@scootch/domain';
+import type { CardFinish, CardRarity } from '@scootch/domain';
 
 export type CardLanguage = 'en' | 'vi';
 
@@ -23,6 +23,34 @@ export interface CardLabels {
   readonly storyWaited: (days: string) => string;
   /** The story headline when the task is hidden or none was written. */
   readonly storyHeadline: string;
+  /** The finish a card is printed on, as its foot names it. */
+  readonly finish: Record<CardFinish, string>;
+  /** The round sticker on a story: one more on the shelf. */
+  readonly shelf: string;
+  /** The pill on a story: "took 4 minutes". */
+  readonly took: (duration: string) => string;
+  /** The rows of facts on a trading card. */
+  readonly caught: string;
+  readonly fight: string;
+  /** The words on the sticker sheet. */
+  readonly stickerSheet: string;
+  readonly stickers: readonly [string, string];
+  readonly member: (number: string) => string;
+  /** The day's receipt. */
+  readonly doneLog: string;
+  readonly thingsDone: string;
+  readonly monstersCaught: string;
+  readonly timeSpent: string;
+  readonly changeDue: readonly [string, string];
+  readonly stamped: string;
+  readonly thanks: readonly [string, string];
+  /** The month's poster. */
+  readonly months: readonly string[];
+  readonly wrapped: (month: string) => string;
+  readonly caughtThisMonth: (count: number) => string;
+  readonly mostCaught: (kind: string, times: number) => string;
+  readonly bestDay: (weekday: string) => string;
+  readonly longWeekdays: readonly [string, string, string, string, string, string, string];
 }
 
 const EN_MONTHS = 'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split(' ');
@@ -53,6 +81,38 @@ export const CARD_LABELS: Record<CardLanguage, CardLabels> = {
     storyTook: (duration) => `It took ${duration}.`,
     storyWaited: (days) => `It had been ${days}.`,
     storyHeadline: 'Did the thing.',
+    finish: {
+      paper: 'Paper',
+      holo: 'Holo foil',
+      chrome: 'Chrome',
+      jelly: 'Jelly',
+      glass: 'Frosted glass',
+      flock: 'Velvet',
+      riso: 'Riso',
+    },
+    shelf: 'SHELF',
+    took: (duration) => `took ${duration}`,
+    caught: 'Caught',
+    fight: 'Fight',
+    stickerSheet: 'STICKER SHEET',
+    stickers: ['DONE IS A VIBE', 'tiny wins only'],
+    member: (number) => `MEMBER ${number}`,
+    doneLog: 'DONE LOG',
+    thingsDone: 'THINGS DONE',
+    monstersCaught: 'MONSTERS CAUGHT',
+    timeSpent: 'TIME SPENT',
+    changeDue: ['CHANGE DUE:', 'one calmer brain'],
+    stamped: 'STAMPED',
+    thanks: ['THANK YOU FOR SHOPPING', 'AT YOUR OWN LIFE'],
+    months:
+      'January February March April May June July August September October November December'.split(
+        ' ',
+      ),
+    wrapped: (month) => `${month.toUpperCase()}, WRAPPED`,
+    caughtThisMonth: (count) => (count === 1 ? 'monster caught.' : 'monsters caught.'),
+    mostCaught: (kind, times) => `Most caught: ${kind}, ${plural(times, 'time', 'times')}.`,
+    bestDay: (weekday) => `Best day: a ${weekday}, obviously.`,
+    longWeekdays: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
   },
   vi: {
     rarity: { common: 'Thường', uncommon: 'Ít gặp', rare: 'Hiếm' },
@@ -72,6 +132,35 @@ export const CARD_LABELS: Record<CardLanguage, CardLabels> = {
     storyTook: (duration) => `Chỉ mất ${duration}.`,
     storyWaited: (days) => `Mà để tận ${days}.`,
     storyHeadline: 'Làm xong việc đó rồi.',
+    finish: {
+      paper: 'Giấy',
+      holo: 'Ánh bảy màu',
+      chrome: 'Crôm',
+      jelly: 'Thạch',
+      glass: 'Kính mờ',
+      flock: 'Nhung',
+      riso: 'In riso',
+    },
+    shelf: 'LÊN KỆ',
+    took: (duration) => `mất ${duration}`,
+    caught: 'Bắt lúc',
+    fight: 'Vật lộn',
+    stickerSheet: 'TỜ NHÃN DÁN',
+    stickers: ['XONG LÀ VUI', 'thắng nhỏ thôi'],
+    member: (number) => `THÀNH VIÊN ${number}`,
+    doneLog: 'SỔ VIỆC XONG',
+    thingsDone: 'VIỆC ĐÃ XONG',
+    monstersCaught: 'QUÁI ĐÃ BẮT',
+    timeSpent: 'THỜI GIAN',
+    changeDue: ['TIỀN THỐI:', 'một cái đầu nhẹ hơn'],
+    stamped: 'ĐÃ ĐÓNG DẤU',
+    thanks: ['CẢM ƠN BẠN ĐÃ MUA SẮM', 'Ở CHÍNH ĐỜI MÌNH'],
+    months: Array.from({ length: 12 }, (_, index) => `Tháng ${index + 1}`),
+    wrapped: (month) => `${month.toUpperCase()}, NHÌN LẠI`,
+    caughtThisMonth: () => 'con quái đã bắt.',
+    mostCaught: (kind, times) => `Bắt nhiều nhất: ${kind}, ${times} lần.`,
+    bestDay: (weekday) => `Ngày đỉnh nhất: ${weekday}, khỏi nói.`,
+    longWeekdays: ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'],
   },
 };
 

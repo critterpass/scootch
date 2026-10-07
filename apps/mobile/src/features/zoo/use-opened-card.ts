@@ -72,7 +72,7 @@ export function useOpenedCard(reread?: unknown): OpenedCard {
         task: pickedTask,
         card: cardDataFor(picked, pickedTask),
         signed: picked.signed ?? null,
-        kind: 'card',
+        format: 'card',
       });
       return true;
     },
@@ -82,7 +82,7 @@ export function useOpenedCard(reread?: unknown): OpenedCard {
             monster,
             card,
             shareOffered: shareOfferedOn(today, task),
-            share: () => share.open({ task, card, signed: monster.signed ?? null, kind: 'card' }),
+            share: () => share.open({ task, card, signed: monster.signed ?? null, format: 'card' }),
           }
         : null,
   };

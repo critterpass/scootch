@@ -20,12 +20,16 @@ import {
   CARD_MATERIALS,
   CARD_HEIGHT,
   CARD_WIDTH,
+  buildPoster,
+  buildReceipt,
+  buildStickerSheet,
+  buildTradingCard,
   drawCommands,
   specFromSeed,
   type CardLean,
   type CardOptions,
 } from '../src/index';
-import { measureWithCanvas, renderCardPng, renderStoryPng } from '../src/node';
+import { measureWithCanvas, renderCardPng, renderSharePng, renderStoryPng } from '../src/node';
 
 const molar: CardData = {
   monster: specFromSeed('tooth', 'dentist'),
@@ -108,7 +112,7 @@ function materials(lean: CardLean): Buffer {
   });
   return canvas.toBuffer('image/png');
 }
-const story = { headline: 'I finally emailed the dentist.', time: '14:52' };
+const story = { headline: 'Emailed the dentist.' };
 const files: Record<string, Buffer> = {
   'materials-level.png': materials({ rx: 0, ry: 0 }),
   'materials-leant.png': materials({ rx: 8, ry: -11 }),
@@ -123,12 +127,69 @@ const files: Record<string, Buffer> = {
     ['vi, long text, holo', { ...vietnamese, finish: 'holo' }, { language: 'vi' }],
   ]),
   'card-export.png': renderCardPng(molar, {}, 660),
-  'story-9x16.png': renderStoryPng(molar, '9:16', story, 720),
-  'story-4x5.png': renderStoryPng(molar, '4:5', story, 1024),
-  'story-9x16-vi-hidden.png': renderStoryPng(
-    vietnamese,
-    '9:16',
+  'story.png': renderStoryPng({ ...molar, finish: 'riso' }, story, 720),
+  'story-vi-hidden.png': renderStoryPng(
+    { ...vietnamese, finish: 'holo' },
     { language: 'vi', hideTask: true },
+    720,
+  ),
+  'trading-card.png': renderSharePng(
+    buildTradingCard({ ...molar, finish: 'holo' }, { measure: measureWithCanvas, time: '09:41' }),
+    720,
+  ),
+  'trading-card-vi-velvet.png': renderSharePng(
+    buildTradingCard(
+      { ...vietnamese, finish: 'flock' },
+      { measure: measureWithCanvas, language: 'vi', lean: { rx: 6, ry: -9 } },
+    ),
+    720,
+  ),
+  'sticker-sheet.png': renderSharePng(
+    buildStickerSheet({
+      measure: measureWithCanvas,
+      finish: 'holo',
+      member: 42,
+      monster: specFromSeed('sock', 'sock'),
+    }),
+    840,
+  ),
+  'receipt.png': renderSharePng(
+    buildReceipt({
+      measure: measureWithCanvas,
+      date: '2026-10-07',
+      rows: [
+        { label: 'reply to Sam', time: '09:12' },
+        { label: 'fold laundry', time: '11:40' },
+        { label: 'do my taxes, the whole lot of them, including the annex', time: '14:05' },
+        { label: 'water plants', time: '16:22' },
+        { label: 'brush the dog', time: '18:30' },
+      ],
+      caught: 5,
+      minutes: 112,
+      stamp: 'holo',
+    }),
+    660,
+  ),
+  'poster.png': renderSharePng(
+    buildPoster({
+      measure: measureWithCanvas,
+      year: 2026,
+      month: 9,
+      caught: 42,
+      monsters: [
+        'tooth',
+        'receipt',
+        'sock',
+        'slime',
+        'box',
+        'pillow',
+        'tooth',
+        'sock',
+        'receipt',
+      ].map((body, index) => specFromSeed(body as 'tooth', `poster-${index}`)),
+      most: { kind: 'paperwork', times: 9 },
+      bestWeekday: 4,
+    }),
     720,
   ),
 };

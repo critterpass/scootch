@@ -13,7 +13,12 @@ import {
   type KeptShare,
   type KeptShares,
 } from './kept-shares';
-import { composeShareImage, type ShareImage } from './share-image';
+import {
+  composeShareImage,
+  type ShareDress,
+  type ShareFormat,
+  type ShareImage,
+} from './share-image';
 import { sharedPageLink } from './share-links';
 import { shareOffered } from './share-rules';
 
@@ -34,10 +39,25 @@ export interface CatchShare {
   readonly card: CardData;
   /** The server's signature for the monster's words, as stored with it; `null` when it has none. */
   readonly signed: SignedWords | null;
-  readonly kind: 'story' | 'card';
+  /**
+   * The picture that is sent. A story and a card go with the catch's page of the same kind on the
+   * website; a sticker sheet, a receipt and a poster are the person's own and have no page.
+   */
+  readonly format: ShareFormat;
+  /** What the pictures wear and carry besides the catch. */
+  readonly dress: ShareDress;
   readonly hideTask: boolean;
   readonly language: CardLanguage;
 }
+
+/** The page a format goes with; `null` for a picture that stands by itself. */
+export function pageKindOf(format: ShareFormat): 'story' | 'card' | null {
+  return format === 'story' || format === 'card' ? format : null;
+}
+
+/** The kind of page a share is filed under. A picture with no page is never filed. */
+const kindOf = (share: Pick<CatchShare, 'format'>): 'story' | 'card' =>
+  pageKindOf(share.format) ?? 'story';
 
 /** The website's side of sharing: its routes, the pages this phone keeps, and its address. */
 export interface SharePages {
@@ -46,26 +66,28 @@ export interface SharePages {
   readonly site: string;
 }
 
-const keyOf = (share: CatchShare) =>
-  cardShareKey(share.kind, share.card.monster.seed, share.card.number);
+const keyOf = (share: Pick<CatchShare, 'card' | 'format'>) =>
+  cardShareKey(kindOf(share), share.card.monster.seed, share.card.number);
 
 /** Whether the page will show the task's words: only a card's page can, and only when not hidden. */
 const taskShown = (share: CatchShare) =>
-  share.kind === 'card' && !share.hideTask && share.card.taskLine !== null;
+  kindOf(share) === 'card' && !share.hideTask && share.card.taskLine !== null;
 
 /**
  * The signature a page can be made with: the one stored with the monster, when it is for the
  * monster as the card draws it. A monster hatched before words were signed, or one the phone
  * named itself, has none.
  */
-function signatureOf(share: Pick<CatchShare, 'card' | 'signed'>): SignedWords | null {
+function signatureOf(share: Pick<CatchShare, 'card' | 'signed' | 'format'>): SignedWords | null {
+  // A sticker sheet, a receipt and a poster have no page, whatever the catch's words carry.
+  if (pageKindOf(share.format) === null) return null;
   return share.signed !== null && share.signed.seed === share.card.monster.seed
     ? share.signed
     : null;
 }
 
 /** Whether this catch can have a page on the website. Without one, only its picture is shared. */
-export function pageOffered(share: Pick<CatchShare, 'card' | 'signed'>): boolean {
+export function pageOffered(share: Pick<CatchShare, 'card' | 'signed' | 'format'>): boolean {
   return signatureOf(share) !== null;
 }
 
@@ -77,7 +99,7 @@ export function pageOffered(share: Pick<CatchShare, 'card' | 'signed'>): boolean
 export function cardShareRequest(share: CatchShare, signed: SignedWords): CardShareRequest {
   const stored = share.task?.screen;
   return {
-    kind: share.kind,
+    kind: kindOf(share),
     language: signed.language,
     card: { ...share.card, taskLine: taskShown(share) ? share.card.taskLine : null },
     // An unscreened or forgotten task is never offered; if one came this far the server refuses it.
@@ -125,17 +147,20 @@ async function pageFor(
 }
 
 /** The page that is up for this catch, whatever it shows; `null` when there is none. */
-export async function sharedPageOf(pages: SharePages, share: CatchShare): Promise<string | null> {
+export async function sharedPageOf(
+  pages: SharePages,
+  share: Pick<CatchShare, 'card' | 'format'>,
+): Promise<string | null> {
   const up = (await pages.kept.read()).find((one) => one.key === keyOf(share));
   return up
-    ? sharedPageLink(pages.site, up.language, share.kind === 'card' ? 'c' : 's', up.id)
+    ? sharedPageLink(pages.site, up.language, kindOf(share) === 'card' ? 'c' : 's', up.id)
     : null;
 }
 
 async function pictureOf(device: ShareDevice, share: CatchShare): Promise<string | null> {
   if (!shareOffered(share.task)) return null;
-  const image = composeShareImage(share.kind, share.card, share);
-  return device.renderPng(image, `scootch-${share.kind}-${share.card.number}`);
+  const image = composeShareImage(share.format, share.card, share, share.dress);
+  return device.renderPng(image, `scootch-${share.format}-${share.card.number}`);
 }
 
 /**
@@ -165,7 +190,7 @@ export async function shareCatch(
   const link = sharedPageLink(
     pages.site,
     page.language,
-    share.kind === 'card' ? 'c' : 's',
+    kindOf(share) === 'card' ? 'c' : 's',
     page.id,
   );
   await device.openShareSheet(uri, 'image/png', link);

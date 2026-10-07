@@ -47,7 +47,7 @@ describe('buildCard', () => {
   it('gives identical commands for the same data and options', () => {
     const options: CardOptions = { language: 'vi', tilt: { x: 0.3, y: -0.7 } };
     expect(buildCard(molar, options)).toEqual(buildCard({ ...molar }, { ...options }));
-    expect(buildStory(molar, '9:16', options)).toEqual(buildStory({ ...molar }, '9:16', options));
+    expect(buildStory(molar, options)).toEqual(buildStory({ ...molar }, options));
   });
 
   it('prints the card data, and the fixed labels in the chosen language', () => {
@@ -72,9 +72,7 @@ describe('buildCard', () => {
     for (const language of ['en', 'vi'] as const) {
       const options = { hideTask: true, language, headline: `Did ${task}.` };
       expect(JSON.stringify(buildCard(data, options))).not.toContain('zzqx');
-      for (const format of ['4:5', '9:16'] as const) {
-        expect(JSON.stringify(buildStory(data, format, options).commands)).not.toContain('zzqx');
-      }
+      expect(JSON.stringify(buildStory(data, options).commands)).not.toContain('zzqx');
     }
   });
 
@@ -147,11 +145,9 @@ describe('card text', { timeout: 60_000 }, () => {
       });
       const language = run % 2 === 0 ? 'en' : 'vi';
       const card = buildCard(data, { language });
-      const format = run % 3 === 0 ? '4:5' : '9:16';
-      const story = buildStory(data, format, {
+      const story = buildStory(data, {
         language,
         headline: words(run + 4, length(8, 120), pool),
-        time: '14:52',
       });
       for (const line of [...texts(card), ...texts(story.commands)]) {
         const style = { ...line, tracking: line.letterSpacing / line.size };
@@ -163,12 +159,9 @@ describe('card text', { timeout: 60_000 }, () => {
       expect(flavour.length).toBeGreaterThan(0);
       for (const line of flavour) expect(line.y, line.text).toBeLessThan(412);
       for (const line of texts(card)) expect(line.y, line.text).toBeLessThan(444);
-      // The story's own three blocks of text end above the card (9:16) or above Scootch (4:5).
-      const cardStart = story.commands.findIndex((command) => command.op === 'save');
-      const ownText = texts(story.commands.slice(0, cardStart));
-      expect(ownText.length).toBeGreaterThanOrEqual(3);
-      for (const line of ownText) {
-        expect(line.y, line.text).toBeLessThan(format === '9:16' ? 214 : 474);
+      // The story's own sentence stays on the page, above the mark at its foot.
+      for (const line of texts(story.commands)) {
+        expect(line.y, line.text).toBeLessThan(story.height - 20);
       }
     }
   });

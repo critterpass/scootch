@@ -24,11 +24,21 @@ export {
   type CardOptions,
 } from './card/build-card';
 export {
+  buildCaughtCard,
   buildStory,
+  type ShareComposition,
   type StoryComposition,
-  type StoryFormat,
   type StoryOptions,
 } from './card/build-story';
+export { buildPoster, POSTER_MONSTERS, type PosterOptions } from './card/build-poster';
+export {
+  buildReceipt,
+  RECEIPT_ROWS,
+  type ReceiptOptions,
+  type ReceiptRow,
+} from './card/build-receipt';
+export { buildStickerSheet, type StickerSheetOptions } from './card/build-sticker-sheet';
+export { buildTradingCard, TRADING_CARD, type TradingCardOptions } from './card/build-trading-card';
 export type { CardFinishInks } from './card/finish';
 export {
   buildCardShadow,

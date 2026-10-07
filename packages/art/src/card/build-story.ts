@@ -1,182 +1,273 @@
 import type { CardData } from '@scootch/domain';
 
+import { buildMonster } from '../core/build-monster';
 import { VIEW_SIZE, type DrawCommand } from '../core/commands';
 import {
   baseline,
   estimateTextWidth,
   fitText,
   textCommand,
-  type TextBox,
+  type MeasureText,
   type TextStyle,
 } from '../core/text';
-import { buildScootch } from '../scootch/build-scootch';
-import { buildCard, CARD_HEIGHT, CARD_WIDTH, type CardOptions } from './build-card';
+import type { CardOptions } from './build-card';
+import { buildCardShadow, buildMaterial, CARD_MATERIALS } from './build-material';
 import { CARD_LABELS, formatCardDate, splitMinutes } from './labels';
-import { dotScreen, fill, placed, roundRect, type Box } from './shapes';
+import { fill, placed, roundRect, type Box } from './shapes';
+import {
+  fadingScreen,
+  line,
+  rect,
+  SHARE_INK,
+  SHARE_MARK,
+  SHARE_PAPER,
+  STAMP,
+  turned,
+} from './share-kit';
 
-export type StoryFormat = '4:5' | '9:16';
-
-export interface StoryOptions extends Omit<CardOptions, 'wild'> {
+export interface StoryOptions extends Pick<CardOptions, 'hideTask' | 'language' | 'measure'> {
   /** What the user did, in a sentence: "Emailed the dentist." Dropped when the task is hidden. */
   readonly headline?: string;
-  /** The time of the catch as the user's clock showed it, "14:52". */
-  readonly time?: string;
 }
 
-export interface StoryComposition {
+/** One shared picture: its commands and the size of the space they were written in. */
+export interface ShareComposition {
   readonly commands: DrawCommand[];
   readonly width: number;
   readonly height: number;
 }
+/** The story's own name for what every share builder returns. */
+export type StoryComposition = ShareComposition;
 
-interface StoryLayout {
-  readonly width: number;
-  readonly height: number;
-  readonly text: { readonly x: number; readonly top: number; readonly width: number };
-  readonly headline: { readonly size: number; readonly lines: number };
-  /** How many lines the last sentence may take before it would reach the card. */
-  readonly subLines: number;
-  /** The card's top centre, its scale and its lean. */
-  readonly card: { readonly cx: number; readonly top: number; readonly scale: number };
-  readonly scootch: Box;
+const WIDTH = 360;
+const HEIGHT = 640;
+const SIDE = 22;
+const TOMATO = '#F0562E';
+const SECOND_INK = '#3460C8';
+const MUTED = '#6F5E48';
+/** The caught card on the story: where it sits, how big it is and how it leans. */
+const CARD: Box = { x: 75, y: 190, w: 210, h: 292 };
+const LEAN = -6;
+
+const SHOUT: TextStyle = { font: 'rounded', size: 74, weight: 900, tracking: -0.05 };
+const NAME: TextStyle = { font: 'rounded', size: 19, weight: 800, tracking: -0.02 };
+const SENTENCE: TextStyle = { font: 'rounded', size: 21, weight: 800, tracking: -0.02 };
+const PLUS_ONE: TextStyle = { font: 'rounded', size: 26, weight: 900 };
+const PILL: TextStyle = { font: 'rounded', size: 15, weight: 800 };
+
+/** The small caught card the story and the sticker sheet show: a monster on a finish. */
+export function buildCaughtCard(
+  data: CardData,
+  box: Box,
+  options: Pick<CardOptions, 'language' | 'measure'> = {},
+): DrawCommand[] {
+  const labels = CARD_LABELS[options.language ?? 'en'];
+  const measure = options.measure ?? estimateTextWidth;
+  const material = CARD_MATERIALS[data.finish];
+  const unit = box.w / 210;
+  const panel: Box = {
+    x: box.x + 12 * unit,
+    y: box.y + 12 * unit,
+    w: box.w - 24 * unit,
+    h: box.h - 76 * unit,
+  };
+  const monster = 180 * unit;
+  const inner = box.w - 28 * unit;
+  return [
+    ...buildCardShadow(box, 20 * unit, material, unit),
+    ...buildMaterial(box, 20 * unit, material, { unit }),
+    fill(roundRect(panel, 12 * unit), '#FFFFFF', 0.55),
+    { op: 'save' },
+    { op: 'clip', path: roundRect(panel, 12 * unit) },
+    ...placed(
+      buildMonster(data.monster),
+      {
+        x: panel.x + (panel.w - monster) / 2,
+        // The drawing's ground line is a little above the foot of its square.
+        y: panel.y + panel.h - monster * 0.88,
+        w: monster,
+        h: monster,
+      },
+      VIEW_SIZE,
+    ),
+    { op: 'restore' },
+    line(
+      data.name,
+      { ...NAME, size: NAME.size * unit },
+      {
+        x: box.x + 14 * unit,
+        top: box.y + box.h - 48 * unit,
+        maxWidth: inner,
+        color: material.text,
+        minSize: 9 * unit,
+      },
+      measure,
+    ),
+    line(
+      `${labels.number(String(data.number).padStart(4, '0'))} · ${labels.finish[data.finish]}`.toUpperCase(),
+      { ...STAMP, size: 9.5 * unit, tracking: 0.12 },
+      {
+        x: box.x + 14 * unit,
+        top: box.y + box.h - 24 * unit,
+        maxWidth: inner,
+        color: material.sub[0],
+        alpha: material.sub[1],
+      },
+      measure,
+    ),
+  ];
 }
 
-/** 9:16 is the design's story; 4:5 keeps its parts and sets the text beside the card. */
-const LAYOUTS: Record<StoryFormat, StoryLayout> = {
-  '9:16': {
-    width: 360,
-    height: 640,
-    text: { x: 26, top: 34, width: 308 },
-    headline: { size: 38, lines: 3 },
-    subLines: 2,
-    card: { cx: 180, top: 214, scale: 0.74 },
-    scootch: { x: -6, y: 498, w: 150, h: 150 },
-  },
-  '4:5': {
-    width: 512,
-    height: 640,
-    text: { x: 28, top: 44, width: 180 },
-    headline: { size: 34, lines: 5 },
-    subLines: 4,
-    card: { cx: 342, top: 112, scale: 0.76 },
-    scootch: { x: 10, y: 474, w: 172, h: 172 },
-  },
-};
-
-const PAPER = '#F3E6D3';
-const DOT = '#F0562E';
-const INK = '#1C1A17';
-const MUTED = '#6F6A62';
-const LEAN = (-5 * Math.PI) / 180;
-
-const KICKER: TextStyle = { font: 'sans', size: 12, weight: 600, tracking: 0.06 };
-const HEADLINE: TextStyle = { font: 'rounded', size: 38, weight: 800, tracking: -0.03 };
-const SUB: TextStyle = { font: 'sans', size: 15, weight: 500 };
-const MARK: TextStyle = { font: 'sans', size: 14, weight: 700 };
+/** A bottom-anchored block of wrapped text: its last line sits just above `bottom`. */
+function blockAbove(
+  text: string,
+  style: TextStyle,
+  place: { x: number; bottom: number; maxWidth: number; maxLines: number; color: string },
+  measure: MeasureText,
+): DrawCommand[] {
+  const fitted = fitText(
+    text,
+    style,
+    { maxWidth: place.maxWidth, minSize: 12, maxLines: () => place.maxLines },
+    measure,
+  );
+  const lineHeight = fitted.style.size * 1.15;
+  const top = place.bottom - lineHeight * fitted.lines.length;
+  return fitted.lines.map((one, index) =>
+    textCommand(one, fitted.style, {
+      x: place.x,
+      y: baseline(top + lineHeight * index, fitted.style.size, lineHeight),
+      maxWidth: place.maxWidth,
+      color: place.color,
+    }),
+  );
+}
 
 /**
- * The share story of a catch: when, what the user did, how long it took and how long it had
- * waited, with the card as the hero, Scootch cheering and the scootch.app mark. Pure, like the card.
+ * The share story of a catch, as a two-ink riso print: the day, "CAUGHT." a little off register,
+ * the caught card in the finish the person wears, a "+1" and how long it took slapped on as
+ * stickers, what they did and how long it had waited, and the scootch.app mark. Pure, like the
+ * card: the same data always gives the same picture.
  */
-export function buildStory(
-  data: CardData,
-  format: StoryFormat,
-  options: StoryOptions = {},
-): StoryComposition {
-  const layout = LAYOUTS[format];
+export function buildStory(data: CardData, options: StoryOptions = {}): StoryComposition {
   const language = options.language ?? 'en';
   const labels = CARD_LABELS[language];
   const measure = options.measure ?? estimateTextWidth;
-  const { x, width } = layout.text;
-  const out: DrawCommand[] = [];
-  let top = layout.text.top;
-  const block = (
-    text: string,
-    style: TextStyle,
-    box: TextBox,
-    leading: number,
-    color: string,
-  ): void => {
-    const fitted = fitText(text, style, box, measure);
-    const lineHeight = fitted.style.size * leading;
-    for (const line of fitted.lines) {
-      out.push(
-        textCommand(line, fitted.style, {
-          x,
-          y: baseline(top, fitted.style.size, lineHeight),
-          maxWidth: box.maxWidth,
-          color,
-        }),
-      );
-      top += lineHeight;
-    }
-    top += 8;
-  };
-
-  const frame: Box = { x: 0, y: 0, w: layout.width, h: layout.height };
-  out.push(fill(roundRect(frame, 0), PAPER), fill(dotScreen(frame, 12, 1.5), DOT, 0.18));
-
-  const date = formatCardDate(data.caughtOn, language).toUpperCase();
-  const headline = options.hideTask ? undefined : options.headline;
-  const [hours, minutes] = splitMinutes(data.catchMinutes);
-  block(
-    options.time ? `${date} · ${options.time}` : date,
-    KICKER,
-    { maxWidth: width, minSize: 8, maxLines: () => 1 },
-    1,
-    MUTED,
-  );
-  block(
-    headline ?? labels.storyHeadline,
-    { ...HEADLINE, size: layout.headline.size },
-    { maxWidth: width, minSize: 18, maxLines: () => layout.headline.lines },
-    1.02,
-    INK,
-  );
-  block(
-    `${labels.storyTook(labels.durationLong(hours, minutes))} ${labels.storyWaited(labels.days(data.daysLurked))}`,
-    SUB,
-    { maxWidth: width, minSize: 11, maxLines: () => layout.subLines },
-    1.3,
-    MUTED,
-  );
-
-  const { cx, scale } = layout.card;
-  const c = Math.cos(LEAN) * scale;
-  const s = Math.sin(LEAN) * scale;
-  out.push(
-    { op: 'save' },
+  const page: Box = { x: 0, y: 0, w: WIDTH, h: HEIGHT };
+  const wide = WIDTH - SIDE * 2;
+  const out: DrawCommand[] = [
+    fill(rect(page), SHARE_PAPER),
+    ...fadingScreen(page, 7, 2.1, TOMATO),
     {
-      op: 'transform',
-      matrix: [c, s, -s, c, cx - (CARD_WIDTH / 2) * c, layout.card.top - (CARD_WIDTH / 2) * s],
+      op: 'paint',
+      path: rect(page),
+      paint: { kind: 'grain', size: 1.2 },
+      alpha: 0.3,
+      blend: 'multiply',
     },
-    fill(roundRect({ x: 4, y: 16, w: CARD_WIDTH - 8, h: CARD_HEIGHT }, 26), INK, 0.14),
-    ...buildCard(data, { ...options, wild: false }),
-    { op: 'restore' },
-    ...placed(
-      buildScootch({
-        mood: 'celebrating',
-        attitude: 'cheeky',
-        workMode: null,
-        reducedMotion: true,
-      }),
-      layout.scootch,
-      VIEW_SIZE,
+    line('SCOOTCH', STAMP, { x: SIDE, top: 24, maxWidth: wide / 2, color: SHARE_INK }, measure),
+    line(
+      formatCardDate(data.caughtOn, language).toUpperCase(),
+      STAMP,
+      { x: WIDTH - SIDE, top: 24, maxWidth: wide / 2, color: SHARE_INK, align: 'right' },
+      measure,
+    ),
+  ];
+
+  // The headline, printed twice: the second ink first, a few points off, then the black.
+  const shout = `${labels.stamp}.`;
+  const fitted = fitText(
+    shout,
+    SHOUT,
+    { maxWidth: WIDTH - 32, minSize: 30, maxLines: () => 1 },
+    measure,
+  );
+  const shoutAt = { x: 16, y: baseline(56, fitted.style.size, fitted.style.size * 0.9) };
+  out.push(
+    textCommand(fitted.lines[0] ?? shout, fitted.style, {
+      x: shoutAt.x + 4,
+      y: shoutAt.y + 3,
+      maxWidth: WIDTH - 32,
+      color: SECOND_INK,
+    }),
+    textCommand(fitted.lines[0] ?? shout, fitted.style, {
+      ...shoutAt,
+      maxWidth: WIDTH - 32,
+      color: SHARE_INK,
+    }),
+  );
+
+  out.push(
+    ...turned(buildCaughtCard(data, CARD, options), CARD.x + CARD.w / 2, CARD.y + CARD.h / 2, LEAN),
+  );
+
+  // "+1" on a black disc with a white edge, slapped on over the card's corner.
+  const disc = { x: WIDTH - 20 - 43, y: 186 + 43, r: 43 };
+  out.push(
+    ...turned(
+      [
+        fill([['O', disc.x, disc.y, disc.r + 5]], '#FFFFFF'),
+        fill([['O', disc.x, disc.y, disc.r]], SHARE_INK),
+        line(
+          '+1',
+          PLUS_ONE,
+          { x: disc.x, top: disc.y - 24, maxWidth: 70, color: '#FBF8F3', align: 'center' },
+          measure,
+        ),
+        line(
+          labels.shelf,
+          { ...STAMP, size: 9 },
+          { x: disc.x, top: disc.y + 8, maxWidth: 70, color: '#FBF8F3', align: 'center' },
+          measure,
+        ),
+      ],
+      disc.x,
+      disc.y,
+      12,
     ),
   );
 
-  const mark = 'scootch.app';
-  const pill: Box = { x: layout.width - 22 - 117, y: layout.height - 30 - 40, w: 117, h: 40 };
+  // How long it took, on a yellow pill.
+  const [hours, minutes] = splitMinutes(data.catchMinutes);
+  const took = labels.took(labels.durationLong(hours, minutes));
+  const tookWidth = Math.min(200, measure(took, PILL) + 28);
+  const pill: Box = { x: WIDTH - 18 - tookWidth, y: 500, w: tookWidth, h: 33 };
   out.push(
-    fill(roundRect({ ...pill, y: pill.y + 3 }, 20), INK, 0.08),
-    fill(roundRect(pill, 20), '#FBF8F2', 0.9),
-    textCommand(mark, MARK, {
-      x: pill.x + pill.w / 2,
-      y: baseline(pill.y + 13, MARK.size, MARK.size),
-      maxWidth: pill.w - 16,
-      color: INK,
-      align: 'center',
-    }),
+    ...turned(
+      [
+        fill(
+          roundRect({ x: pill.x - 4, y: pill.y - 4, w: pill.w + 8, h: pill.h + 8 }, 21),
+          '#FFFFFF',
+        ),
+        fill(roundRect(pill, 17), '#FFD66B'),
+        line(
+          took,
+          PILL,
+          {
+            x: pill.x + pill.w / 2,
+            top: pill.y + 9,
+            maxWidth: pill.w - 20,
+            color: SHARE_INK,
+            align: 'center',
+          },
+          measure,
+        ),
+      ],
+      pill.x + pill.w / 2,
+      pill.y + pill.h / 2,
+      -8,
+    ),
   );
-  return { commands: out, width: layout.width, height: layout.height };
+
+  const did = options.hideTask ? undefined : options.headline;
+  out.push(
+    ...blockAbove(
+      `${did ?? labels.storyHeadline} ${labels.storyWaited(labels.days(data.daysLurked))}`,
+      SENTENCE,
+      { x: SIDE, bottom: HEIGHT - 50, maxWidth: wide, maxLines: 2, color: SHARE_INK },
+      measure,
+    ),
+    line(SHARE_MARK, STAMP, { x: SIDE, top: HEIGHT - 37, maxWidth: wide, color: MUTED }, measure),
+  );
+  return { commands: out, width: WIDTH, height: HEIGHT };
 }
