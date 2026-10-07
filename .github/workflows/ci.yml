@@ -106,6 +106,20 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec vitest run tools/scripts/no-plan-ids.test.ts
 
+  # Expo ships some modules as prebuilt frameworks compiled against one version of expo-modules-core
+  # and expo-modules-jsi; a mismatched set cannot be loaded by the app. Needs nm and the Swift
+  # demangler, which the macOS runner has and Linux does not.
+  native-set:
+    name: expo native set links
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with: { node-version: 24, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec tsx tools/scripts/check-expo-prebuilds.ts
+
   # This repository is public and a squash merge copies the pull request's title and body into
   # history, so neither they nor the commits may carry a session link or an attribution line.
   no-session-links:
@@ -144,6 +158,7 @@ jobs:
       - mobile
       - web
       - no-ids
+      - native-set
       - no-session-links
     runs-on: ubuntu-latest
     steps:
