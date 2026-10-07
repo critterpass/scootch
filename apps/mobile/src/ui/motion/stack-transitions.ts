@@ -175,8 +175,6 @@ const LARGE_TITLE: ReadonlySet<string> = new Set([
   'finish-with',
   'privacy',
   'helplines',
-  'friends',
-  'table/index',
   'table-settings',
   'table-quieted',
 ]);

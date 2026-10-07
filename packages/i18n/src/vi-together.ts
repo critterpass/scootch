@@ -221,6 +221,8 @@ export const viTogether = {
   'share.noPage': 'Con này nở trước khi quái có trang riêng. Nó đi dưới dạng ảnh, không kèm link.',
   'share.pictureOnly': 'Ảnh đã đi. Con quái này không có trang nên không có link.',
   'haunt.entry': 'Ám một người bạn',
+  'haunt.entry.sub':
+    'Gửi con quái này cho một người bạn kèm một lời thách nhỏ. Họ có thể bắt nó hoặc xua nó đi.',
   'haunt.card.wild': 'Chưa bắt được',
   'haunt.card.tag': 'Hoang dã',
   'haunt.card.says': '{name} nói: {dare}',

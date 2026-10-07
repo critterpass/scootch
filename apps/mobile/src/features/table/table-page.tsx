@@ -4,8 +4,6 @@ import type { TableSeat, WorkMode } from '@scootch/domain';
 import { spacing } from '@scootch/tokens';
 
 import { useT, type Translate } from '../../i18n/i18n-provider';
-import { RoundButton } from '../../ui/buttons';
-import { MoreIcon } from '../../ui/icons';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { Page } from '../settings/page';
 import { Note, Row, Section } from '../settings/rows';
@@ -216,23 +214,14 @@ export function TablePage(props: TablePageProps) {
     );
 
   return (
-    <Page barTitle={t('table.title')} onClose={props.onClose} testID="table" footer={dock}>
+    <Page
+      barTitle={t('table.title')}
+      onClose={props.onClose}
+      testID="table"
+      menu={{ label: t('table.menu'), hint: t('table.menu.hint'), onPress: props.onMenu }}
+      footer={dock}
+    >
       <Banner {...props} status={status} />
-      <View style={styles.head}>
-        <View style={styles.summary}>
-          <Words kind="quiet" testID="table-summary">
-            {tableSummary(table, t)}
-          </Words>
-        </View>
-        <RoundButton
-          label={t('table.menu')}
-          hint={t('table.menu.hint')}
-          onPress={props.onMenu}
-          testID="table-menu-button"
-        >
-          <MoreIcon color={palette.ink} />
-        </RoundButton>
-      </View>
       <View style={[styles.seats, { backgroundColor: palette.risoBlob }]}>
         {table.seats.map((seat) => (
           <Seat
@@ -304,8 +293,6 @@ export function TablePage(props: TablePageProps) {
 }
 
 const styles = StyleSheet.create({
-  head: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingLeft: spacing.sm },
-  summary: { flexGrow: 1, flexShrink: 1, flexBasis: 0 },
   seats: {
     flexDirection: 'row',
     flexWrap: 'wrap',
