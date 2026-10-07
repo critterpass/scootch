@@ -117,6 +117,7 @@ describe('the house rules', () => {
         '/shelf',
         '/t/[code]',
         '/table',
+        '/table-quieted',
         '/table-settings',
         '/table/seat',
         '/world',

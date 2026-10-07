@@ -9,6 +9,7 @@ import { JoinPage } from '../table/join-page';
 import {
   FRIENDS_ACCEPTED,
   accountThen,
+  daysUntil,
   friendInviteLink,
   inviteCodeFrom,
 } from '../table/table-rules';
@@ -26,17 +27,25 @@ export function FriendsContainer() {
   const [friends, setFriends] = useState<readonly Friend[]>([]);
   const [me, setMe] = useState<AccountView | null>(null);
   const [atTable, setAtTable] = useState<readonly string[]>([]);
+  const [pending, setPending] = useState<readonly { id: string; days: number }[]>([]);
   const [notice, setNotice] = useState<'failed' | 'accepted' | null>(
     accepted === '1' ? 'accepted' : null,
   );
 
   const load = useCallback(() => {
-    void Promise.all([api.me(), api.friends().catch(() => []), api.friendsTables().catch(() => [])])
-      .then(([account, all, tables]) => {
+    void Promise.all([
+      api.me(),
+      api.friends().catch(() => []),
+      api.friendsTables().catch(() => []),
+      api.pendingInvites().catch(() => []),
+    ])
+      .then(([account, all, tables, invites]) => {
         if (account === null) return router.replace(accountThen('/friends'));
         setMe(account);
         setFriends(all);
         setAtTable(tables.flatMap((table) => table.friends.map((friend) => friend.accountId)));
+        const now = Date.now();
+        setPending(invites.map(({ id, expiresAt }) => ({ id, days: daysUntil(expiresAt, now) })));
       })
       .catch(() => setNotice('failed'));
   }, [api, router]);
@@ -50,6 +59,8 @@ export function FriendsContainer() {
     <FriendsPage
       friends={friends}
       atTable={atTable}
+      pending={pending}
+      onCancelInvite={(id) => act(api.cancelInvite(id))}
       canBeHaunted={me?.canBeHaunted ?? null}
       notice={notice}
       onCanBeHaunted={(on) => act(api.setCanBeHaunted(on))}

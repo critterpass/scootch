@@ -166,8 +166,10 @@ export interface NamePageProps {
   readonly busy: boolean;
   /** Why the last name was not kept, said plainly under the field. */
   readonly problem: NameProblem | null;
-  /** What the field starts with: a first name from Apple, or nothing. */
+  /** What the field starts with: a first name from Apple, the name in use, or nothing. */
   readonly suggested?: string;
+  /** The name in the field is the person's own, being changed: not one Apple offered. */
+  readonly renaming?: boolean;
   /** Whether a seat shows its one or two words; unset, the switch is not drawn. */
   readonly showLabel?: boolean;
   readonly onShowLabel?: (shown: boolean) => void;
@@ -228,7 +230,13 @@ export function NamePage(props: NamePageProps) {
           { color: palette.ink, backgroundColor: palette.surface, fontSize: size(26) },
         ]}
       />
-      <Note text={t(props.suggested ? 'account.name.fromApple' : 'account.name.sub')} />
+      <Note
+        text={t(
+          props.suggested && props.renaming !== true
+            ? 'account.name.fromApple'
+            : 'account.name.sub',
+        )}
+      />
       {problem === null ? null : (
         <Words kind="quiet" accessibilityLiveRegion="polite" testID="account-name-problem">
           {t(PROBLEMS[problem])}

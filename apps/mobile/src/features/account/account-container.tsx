@@ -32,7 +32,9 @@ export function AccountContainer() {
   const { today } = useToday();
   const dispatch = useDispatch();
   const router = useRouter();
-  const { next } = useLocalSearchParams<{ next?: string }>();
+  const { next, rename } = useLocalSearchParams<{ next?: string; rename?: string }>();
+  // Opened to change the name: the name step is shown once more, for someone who has one.
+  const [renamed, setRenamed] = useState(false);
   const { palette } = useScreenStyle();
   const [prefs, changePref] = useTablePrefs();
   const [account, setAccount] = useState<AccountView | null | undefined>(undefined);
@@ -55,7 +57,8 @@ export function AccountContainer() {
     };
   }, [api]);
 
-  const step = account === undefined ? null : accountStep(account);
+  const renaming = rename === '1' && !renamed && account != null;
+  const step = account === undefined ? null : renaming ? 'name' : accountStep(account);
   useEffect(() => {
     // Only the places that ask for an account are gone back to; anything else is the lobby.
     if (step === 'ready') router.replace((returnPath(next) as Href | null) ?? TABLE_LOBBY);
@@ -108,8 +111,9 @@ export function AccountContainer() {
       setBusy(true);
       void chooseName(api, name)
         .then((kept) => {
-          if (kept.ok) setAccount(kept.account);
-          else setProblem(kept.problem);
+          if (!kept.ok) return setProblem(kept.problem);
+          setRenamed(true);
+          setAccount(kept.account);
         })
         .finally(() => setBusy(false));
     };
@@ -117,7 +121,8 @@ export function AccountContainer() {
       <NamePage
         busy={busy}
         problem={problem}
-        suggested={suggested}
+        suggested={renaming ? (account.displayName ?? '') : suggested}
+        renaming={renaming}
         showLabel={prefs.showLabel}
         onShowLabel={(shown) => changePref('showLabel', shown)}
         onSave={onSave}

@@ -13,8 +13,7 @@ import { LobbyPage } from './lobby-page';
 import { SeatSheet } from './seat-sheet';
 import { TableMenuSheet } from './table-menu-sheet';
 import { TablePage, tableSummary, type TablePageProps } from './table-page';
-import { DEFAULT_TABLE_PREFS } from './table-prefs';
-import { TablesSettingsPage, type TablesSettingsPageProps } from './tables-settings-page';
+import { TABLE_SETTINGS_CAPTURES } from './settings-captures';
 import type { TableNotice } from './table-store';
 import { TableStripView } from './table-strip';
 
@@ -154,6 +153,8 @@ function Friends({ empty }: { readonly empty: boolean }) {
     <FriendsPage
       friends={empty ? [] : FRIENDS}
       atTable={['cccccccccccc']}
+      pending={empty ? [] : [{ id: 'a'.repeat(64), days: 2 }]}
+      onCancelInvite={nothing}
       canBeHaunted
       notice={null}
       onCanBeHaunted={nothing}
@@ -164,19 +165,6 @@ function Friends({ empty }: { readonly empty: boolean }) {
     />
   );
 }
-
-const TablesSettings = (props: Pick<TablesSettingsPageProps, 'account'>) => (
-  <TablesSettingsPage
-    {...props}
-    prefs={DEFAULT_TABLE_PREFS}
-    notice={null}
-    onPref={nothing}
-    onSignIn={nothing}
-    onFriends={nothing}
-    onSignOut={nothing}
-    onClose={nothing}
-  />
-);
 
 export const TOGETHER_CAPTURES = {
   'lobby-free': () => <Lobby plus={false} />,
@@ -201,8 +189,7 @@ export const TOGETHER_CAPTURES = {
     />
   ),
   'done-at-table': () => <Table done />,
-  'tables-settings': () => <TablesSettings account={{ name: 'Priya', friends: 3 }} />,
-  'tables-settings-signed-out': () => <TablesSettings account={null} />,
+  ...TABLE_SETTINGS_CAPTURES,
   'waiting-alone': () => <Table seats={ALONE} />,
   'full-table': () => <Table />,
   'nudge-received': () => <Table notice={{ kind: 'nudged', from: 'cccccccccccc' }} />,

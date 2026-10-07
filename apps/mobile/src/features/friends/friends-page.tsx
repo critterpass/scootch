@@ -16,6 +16,9 @@ export interface FriendsPageProps {
   readonly friends: readonly Friend[];
   /** The friends who are at a table now, by account. */
   readonly atTable?: readonly string[];
+  /** Friend links sent and not opened yet, each with the whole days it has left. */
+  readonly pending?: readonly { readonly id: string; readonly days: number }[];
+  readonly onCancelInvite?: (id: string) => void;
   /** The person's own switch; `null` until their account has been read. */
   readonly canBeHaunted: boolean | null;
   readonly notice: 'failed' | 'accepted' | null;
@@ -111,6 +114,24 @@ export function FriendsPage(props: FriendsPageProps) {
               </View>
             );
           })}
+        </Section>
+      )}
+      {props.pending === undefined || props.pending.length === 0 ? null : (
+        <Section label={t('friends.pending')}>
+          {props.pending.map((invite, index) => (
+            <Row
+              key={invite.id}
+              first={index === 0}
+              label={t('friends.pending.link')}
+              sub={t('friends.pending.expires', { count: invite.days })}
+              value={t('friends.pending.cancel')}
+              hint={t('friends.pending.cancel.hint')}
+              {...(props.onCancelInvite
+                ? { onPress: () => props.onCancelInvite?.(invite.id) }
+                : {})}
+              testID={`friend-invite-${index}`}
+            />
+          ))}
         </Section>
       )}
       <Note text={t('friends.note')} />

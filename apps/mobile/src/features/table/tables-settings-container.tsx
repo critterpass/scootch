@@ -4,48 +4,88 @@ import { useEffect, useState } from 'react';
 import { useTogether } from '../../state/together-context';
 import { goBack } from '../../ui/motion/go-back';
 
-import { FRIENDS, accountThen } from './table-rules';
+import { FRIENDS, TABLE_QUIETED, accountThen, renameThen } from './table-rules';
 import { useTablePrefs } from './table-prefs';
-import { TablesSettingsPage, type TablesSettingsPageProps } from './tables-settings-page';
+import {
+  TablesSettingsPage,
+  type TablesAccount,
+  type TablesSettingsPageProps,
+} from './tables-settings-page';
+
+const HERE = '/table-settings';
 
 /** Settings › Tables on the real phone. */
 export function TablesSettingsContainer() {
-  const { api, signOut } = useTogether();
+  const { api, signOut, deleteAccount } = useTogether();
   const router = useRouter();
   const focused = useIsFocused();
   const [prefs, changePref] = useTablePrefs();
-  const [account, setAccount] = useState<TablesSettingsPageProps['account']>(undefined);
-  const [notice, setNotice] = useState<'sign_out_failed' | null>(null);
+  const [account, setAccount] = useState<TablesAccount | null | undefined>(undefined);
+  const [notice, setNotice] = useState<TablesSettingsPageProps['notice']>(null);
+  const [asking, setAsking] = useState(false);
 
-  // Read again whenever the page comes back into view: signing in and the friends page change it.
+  // Read again whenever the page comes back into view: signing in, the name step, the friends
+  // page and the muted and blocked page all change what it shows.
   useEffect(() => {
     if (!focused) return undefined;
     let current = true;
-    void Promise.all([api.me().catch(() => null), api.friends().catch(() => [])]).then(
-      ([me, friends]) => {
-        if (!current) return;
-        setAccount(me === null ? null : { name: me.displayName, friends: friends.length });
-      },
-    );
+    void Promise.all([
+      api.me().catch(() => null),
+      api.friends().catch(() => []),
+      api.quieted().catch(() => ({ muted: [], blocked: [] })),
+    ]).then(([me, friends, quieted]) => {
+      if (!current) return;
+      setAccount(
+        me === null
+          ? null
+          : {
+              name: me.displayName,
+              whoCanSit: me.whoCanSit,
+              friends: friends.length,
+              quieted: quieted.muted.length + quieted.blocked.length,
+            },
+      );
+    });
     return () => {
       current = false;
     };
   }, [api, focused]);
+
+  // The account goes from this phone in one of two ways; either leaves the page signed out.
+  const leave = (work: () => Promise<void>, failed: 'sign_out_failed' | 'delete_failed') => {
+    setNotice(null);
+    setAsking(false);
+    void work()
+      .then(() => setAccount(null))
+      .catch(() => setNotice(failed));
+  };
 
   return (
     <TablesSettingsPage
       account={account}
       prefs={prefs}
       notice={notice}
+      asking={asking}
       onPref={changePref}
-      onSignIn={() => router.push(accountThen('/table-settings'))}
-      onFriends={() => router.push(FRIENDS)}
-      onSignOut={() => {
+      onWhoCanSit={(whoCanSit) => {
+        if (!account) return;
+        const before = account;
+        // Shown at once; put back if the server did not take it.
         setNotice(null);
-        void signOut()
-          .then(() => setAccount(null))
-          .catch(() => setNotice('sign_out_failed'));
+        setAccount({ ...account, whoCanSit });
+        void api.setWhoCanSit(whoCanSit).catch(() => {
+          setAccount(before);
+          setNotice('failed');
+        });
       }}
+      onSignIn={() => router.push(accountThen(HERE))}
+      onRename={() => router.push(renameThen(HERE))}
+      onFriends={() => router.push(FRIENDS)}
+      onQuieted={() => router.push(TABLE_QUIETED)}
+      onSignOut={() => leave(signOut, 'sign_out_failed')}
+      onAskDelete={() => setAsking(true)}
+      onKeep={() => setAsking(false)}
+      onDelete={() => leave(deleteAccount, 'delete_failed')}
       onClose={() => goBack(router, '/settings')}
     />
   );

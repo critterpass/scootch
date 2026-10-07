@@ -13,25 +13,33 @@ export type Account = {
   /** Null until the person has chosen a name the screen accepts. */
   readonly displayName: string | null;
   readonly canBeHaunted: boolean;
+  /** Who may sit down beside them with no link: their friends, or nobody. */
+  readonly whoCanSit: WhoCanSit;
   readonly warned: boolean;
   readonly banned: boolean;
 };
+
+export const whoCanSit = ['friends', 'nobody'] as const;
+export type WhoCanSit = (typeof whoCanSit)[number];
 
 type AccountRow = {
   id: string;
   display_name: string | null;
   can_be_haunted: number;
+  sit_with: WhoCanSit;
   warned_at: string | null;
   banned_at: string | null;
 };
 
-const accountColumns = 'a.id, a.display_name, a.can_be_haunted, a.warned_at, a.banned_at';
+const accountColumns =
+  'a.id, a.display_name, a.can_be_haunted, a.sit_with, a.warned_at, a.banned_at';
 
 function toAccount(row: AccountRow): Account {
   return {
     id: row.id,
     displayName: row.display_name,
     canBeHaunted: row.can_be_haunted === 1,
+    whoCanSit: row.sit_with,
     warned: row.warned_at !== null,
     banned: row.banned_at !== null,
   };
@@ -160,6 +168,7 @@ export function accountView(account: Account) {
     accountId: account.id,
     displayName: account.displayName,
     canBeHaunted: account.canBeHaunted,
+    whoCanSit: account.whoCanSit,
     warned: account.warned,
   };
 }

@@ -22,10 +22,14 @@ function list<T>(value: unknown, read: (item: unknown) => T): T[] {
   return value.map(read);
 }
 
+/** Who may sit down beside the person with no link: their friends, or nobody. */
+export type WhoCanSit = 'friends' | 'nobody';
+
 export interface AccountView {
   readonly accountId: string;
   readonly displayName: string | null;
   readonly canBeHaunted: boolean;
+  readonly whoCanSit: WhoCanSit;
 }
 function account(json: unknown): AccountView {
   const row = object(json);
@@ -33,10 +37,33 @@ function account(json: unknown): AccountView {
     accountId: text(row['accountId']),
     displayName: textOrNull(row['displayName']),
     canBeHaunted: row['canBeHaunted'] === true,
+    // A server that says nothing of it is one where friends may sit.
+    whoCanSit: row['whoCanSit'] === 'nobody' ? 'nobody' : 'friends',
   };
 }
 
-export type Friend = AccountView;
+/** Someone the person muted or blocked: an id to undo it by, and a name to show. */
+export interface Quieted {
+  readonly accountId: string;
+  readonly displayName: string | null;
+}
+function quieted(json: unknown): Quieted {
+  const row = object(json);
+  return { accountId: text(row['accountId']), displayName: textOrNull(row['displayName']) };
+}
+
+/** A friend link nobody has opened yet. The id cancels it and is not the link. */
+export interface PendingInvite {
+  readonly id: string;
+  readonly expiresAt: string;
+}
+
+/** A friend, as the friends list gives them: no setting of theirs but the haunt switch. */
+export type Friend = Pick<AccountView, 'accountId' | 'displayName' | 'canBeHaunted'>;
+function friend(json: unknown): Friend {
+  const { accountId, displayName, canBeHaunted } = account(json);
+  return { accountId, displayName, canBeHaunted };
+}
 
 const tableId = (json: unknown) => text(object(json)['tableId']);
 
@@ -166,6 +193,17 @@ export interface TogetherApi {
   me(): Promise<AccountView | null>;
   setDisplayName(displayName: string): Promise<AccountView>;
   setCanBeHaunted(canBeHaunted: boolean): Promise<AccountView>;
+  setWhoCanSit(whoCanSit: WhoCanSit): Promise<AccountView>;
+  /**
+   * Deletes the account tables use, and nothing else: the name, friends, links, mutes, blocks and
+   * the tie to Apple. The phone stays as it is.
+   */
+  deleteTableAccount(): Promise<void>;
+  /** The people this person muted, and the people they blocked. */
+  quieted(): Promise<{ muted: Quieted[]; blocked: Quieted[] }>;
+  /** Friend links sent and not opened yet. */
+  pendingInvites(): Promise<PendingInvite[]>;
+  cancelInvite(id: string): Promise<void>;
   /** Ends the account session on this phone. The server gives up any seat it holds. */
   signOut(): Promise<void>;
   openTable(purchase: PurchaseState): Promise<string>;
@@ -216,6 +254,21 @@ export function createTogetherApi(http: HttpClient): TogetherApi {
       }),
     setCanBeHaunted: (canBeHaunted) =>
       http.request('PUT', '/v1/accounts/me', { canBeHaunted }, account),
+    setWhoCanSit: (whoCanSit) => http.request('PUT', '/v1/accounts/me', { whoCanSit }, account),
+    deleteTableAccount: () => http.post('/v1/accounts/delete', {}, done),
+    quieted: () =>
+      http.request('GET', '/v1/seats/quieted', null, (json) => {
+        const row = object(json);
+        return { muted: list(row['muted'], quieted), blocked: list(row['blocked'], quieted) };
+      }),
+    pendingInvites: () =>
+      http.request('GET', '/v1/friends/invites', null, (json) =>
+        list(object(json)['invites'], (one) => {
+          const row = object(one);
+          return { id: text(row['id']), expiresAt: text(row['expiresAt']) };
+        }),
+      ),
+    cancelInvite: (id) => http.request('DELETE', `/v1/friends/invites/${id}`, null, done),
     signOut: () => http.post('/v1/accounts/sign-out', {}, done),
     openTable: (purchase) => http.post('/v1/tables', { purchase }, tableId),
     tableInvite: (id) => http.post(`/v1/tables/${id}/invites`, {}, invite),
@@ -230,7 +283,7 @@ export function createTogetherApi(http: HttpClient): TogetherApi {
     block: (accountId, blocked) => http.post('/v1/seats/block', { accountId, blocked }, done),
     report: (report) => http.post('/v1/seats/report', report, done),
     friends: () =>
-      http.request('GET', '/v1/friends', null, (json) => list(object(json)['friends'], account)),
+      http.request('GET', '/v1/friends', null, (json) => list(object(json)['friends'], friend)),
     friendInvite: () => http.post('/v1/friends/invites', {}, invite),
     acceptFriend: (code) => http.post('/v1/friends/accept', { code }, done),
     removeFriend: (accountId) => http.request('DELETE', `/v1/friends/${accountId}`, null, done),

@@ -199,6 +199,11 @@ export const viTogether = {
   'friends.invite.message': 'Kết bạn với mình trên Scootch nhé: {link}',
   'friends.noName': 'Một người bạn',
   'friends.atTable': 'Đang ngồi ở một bàn',
+  'friends.pending': 'Đang chờ',
+  'friends.pending.link': 'Một link kết bạn',
+  'friends.pending.expires': { other: 'Hết hạn sau {count} ngày' },
+  'friends.pending.cancel': 'Huỷ',
+  'friends.pending.cancel.hint': 'Link này sẽ không dùng được nữa. Không ai được báo.',
   'friends.row.hint': 'Hiện Bỏ kết bạn và Chặn. Vuốt sang trái để bỏ kết bạn.',
   'friends.note':
     'Bạn bè thấy bàn của bạn khi bạn đang ngồi, và thấy nhãn của bạn. Không bao giờ thấy danh sách việc.',

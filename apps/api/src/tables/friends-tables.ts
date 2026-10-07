@@ -9,7 +9,7 @@ type Row = {
 };
 
 /**
- * The open tables the caller could sit down at now: a friend is seated there, a seat is free,
+ * The open tables the caller could sit down at now: a friend who lets friends sit is seated there, a seat is free,
  * the caller is not already there, and nobody there is on either side of a block with them.
  * Only the caller's own friends are named; anyone else at the table is a count.
  */
@@ -26,7 +26,7 @@ export async function friendsTables(
        JOIN table_seats s
          ON s.account_id = CASE WHEN f.account_a = ?1 THEN f.account_b ELSE f.account_a END
        JOIN tables t ON t.id = s.table_id AND t.closed_at IS NULL
-       JOIN accounts a ON a.id = s.account_id
+       JOIN accounts a ON a.id = s.account_id AND a.sit_with = 'friends'
        WHERE (f.account_a = ?1 OR f.account_b = ?1)
          AND NOT EXISTS (
            SELECT 1 FROM table_seats mine WHERE mine.table_id = t.id AND mine.account_id = ?1)

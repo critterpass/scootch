@@ -202,6 +202,11 @@ export const enTogether = {
   'friends.invite.message': 'Be my friend on Scootch: {link}',
   'friends.noName': 'A friend',
   'friends.atTable': 'At a table now',
+  'friends.pending': 'Waiting on',
+  'friends.pending.link': 'A friend link',
+  'friends.pending.expires': { one: 'Expires in {count} day', other: 'Expires in {count} days' },
+  'friends.pending.cancel': 'Cancel',
+  'friends.pending.cancel.hint': 'Stops this link working. Nobody is told.',
   'friends.row.hint': 'Shows Remove and Block. Swipe left to remove.',
   'friends.note':
     'Friends see your table when you’re sitting, and your label. Never your task list.',

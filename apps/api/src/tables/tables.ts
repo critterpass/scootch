@@ -137,6 +137,26 @@ async function knownAtTable(
   return row !== null;
 }
 
+/** Whether a friend of the account is seated at the table and lets friends sit down beside them. */
+async function welcomeAtTable(
+  db: D1Database,
+  accountId: string,
+  tableId: string,
+): Promise<boolean> {
+  const row = await db
+    .prepare(
+      `SELECT 1 FROM table_seats s
+       JOIN accounts a ON a.id = s.account_id AND a.sit_with = 'friends'
+       JOIN friendships f
+         ON (f.account_a = ?1 AND f.account_b = s.account_id)
+         OR (f.account_b = ?1 AND f.account_a = s.account_id)
+       WHERE s.table_id = ?2 LIMIT 1`,
+    )
+    .bind(accountId, tableId)
+    .first();
+  return row !== null;
+}
+
 const invalid = () => refusal('invite_not_valid', 'This link no longer works');
 
 /** Asks the table for a seat, and answers as the routes do. */
@@ -234,8 +254,9 @@ export async function joinFriendsTable(
   )
     .bind(tableId)
     .first<{ capacity: number }>();
-  // A table that does not exist and one with no friend at it get the same answer.
-  if (table === null || !(await knownAtTable(env.DB, account.id, tableId, null))) {
+  // A table that does not exist, one with no friend at it, and one whose friends take nobody
+  // without a link all get the same answer.
+  if (table === null || !(await welcomeAtTable(env.DB, account.id, tableId))) {
     throw refusal('friends_only', 'This table is for friends');
   }
   const result = await takeSeat(
