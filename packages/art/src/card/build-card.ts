@@ -11,12 +11,14 @@ import {
   type TextStyle,
 } from '../core/text';
 import { buildScootch } from '../scootch/build-scootch';
+import { oneLine, pushLines, type LinePlace } from './card-lines';
+import { buildTiles, TILE_HEIGHT } from './card-tiles';
 import type { CardFinishInks } from './finish';
 import * as finishes from './finishes/index.generated';
 import { buildFoil, FLAT, type CardTilt } from './foil';
-import { CARD_LABELS, formatCardDate, splitMinutes, type CardLanguage } from './labels';
+import { CARD_LABELS, formatCardDate, type CardLanguage } from './labels';
 import { dashedRule, dotScreen, fill, placed, roundRect, type Box } from './shapes';
-import { buildStamp } from './stamp';
+import { buildStamp, stampCentre } from './stamp';
 
 /** Every finish of the contract, one file each in the finishes folder. */
 export const CARD_FINISHES: Record<CardFinish, CardFinishInks> = finishes;
@@ -50,7 +52,6 @@ const TOP = 23;
 const GAP = 9;
 const PANEL_HEIGHT = 188;
 const MONSTER_SIZE = 210;
-const TILE_HEIGHT = 47;
 const RULE_Y = 412.5;
 const FOOT_Y = 431;
 
@@ -58,47 +59,44 @@ const NAME: TextStyle = { font: 'rounded', size: 19, weight: 700, tracking: -0.0
 const KIND: TextStyle = { font: 'sans', size: 11, weight: 600, tracking: 0.04 };
 const NUMBER: TextStyle = { font: 'rounded', size: 13, weight: 700 };
 const PILL: TextStyle = { font: 'sans', size: 11, weight: 600 };
-const LABEL: TextStyle = { font: 'sans', size: 10, weight: 600, tracking: 0.05 };
-const VALUE: TextStyle = { font: 'rounded', size: 15, weight: 700 };
 const FLAVOUR: TextStyle = { font: 'rounded', size: 13, weight: 500, italic: true };
 const FOOT: TextStyle = { font: 'sans', size: 11, weight: 500 };
 const MARK: TextStyle = { font: 'sans', size: 11, weight: 700 };
 
-const oneLine = (minSize: number, maxWidth: number) => ({ maxWidth, minSize, maxLines: () => 1 });
-
 /**
- * Describes one card as drawing commands, in a 330 by 462 space. Pure: the same data and options
- * always give the same list. A finish changes colours only; the layout and the content are the
- * same in all five.
+ * A card in the layers a screen needs to bring it to life: a live monster goes between `under`
+ * and `over`, a moving foil over the face, and the stamp can come down by itself.
  */
-export function buildCard(data: CardData, options: CardOptions = {}): DrawCommand[] {
+export interface CardLayers {
+  /** The frame, the paper, the header and the dotted panel. */
+  readonly under: DrawCommand[];
+  /** The panel the monster stands in; it is clipped to this, with a corner radius of 11. */
+  readonly panel: Box;
+  /** Where the monster's square drawing space goes. */
+  readonly monster: Box;
+  /** The panel's edge, the task line, the stats, the flavour text and the foot. */
+  readonly over: DrawCommand[];
+  /** The paper the foil lies on, and its corner radius. */
+  readonly face: Box;
+  readonly faceRadius: number;
+  /** The stamp, and the point it turns about. Empty for a wild card. */
+  readonly stamp: DrawCommand[];
+  readonly stampCentre: { readonly x: number; readonly y: number };
+}
+
+/** The card in layers, in the same 330 by 462 space and with the same content as `buildCard`. */
+export function buildCardLayers(data: CardData, options: CardOptions = {}): CardLayers {
   const inks = CARD_FINISHES[data.finish];
   const language = options.language ?? 'en';
   const labels = CARD_LABELS[language];
   const measure = options.measure ?? estimateTextWidth;
-  const out: DrawCommand[] = [];
-  /** Draws fitted lines from `top` down and returns the height they took. */
+  let out: DrawCommand[] = [];
   const lines = (
     text: string,
     style: TextStyle,
     box: Parameters<typeof fitText>[2],
-    place: { x: number; top: number; leading: number; color: string; align?: 'right' | 'center' },
-  ): number => {
-    const fitted = fitText(text, style, box, measure);
-    const lineHeight = fitted.style.size * place.leading;
-    fitted.lines.forEach((line, i) => {
-      out.push(
-        textCommand(line, fitted.style, {
-          x: place.x,
-          y: baseline(place.top + i * lineHeight, fitted.style.size, lineHeight),
-          maxWidth: box.maxWidth,
-          color: place.color,
-          ...(place.align ? { align: place.align } : {}),
-        }),
-      );
-    });
-    return fitted.lines.length * lineHeight;
-  };
+    place: LinePlace,
+  ): number => pushLines(out, measure, text, style, box, place);
 
   out.push(
     fill(roundRect({ x: 0, y: 0, w: CARD_WIDTH, h: CARD_HEIGHT }, 22), inks.frame),
@@ -153,25 +151,23 @@ export function buildCard(data: CardData, options: CardOptions = {}): DrawComman
     { op: 'save' },
     { op: 'clip', path: panelPath },
     fill(dotScreen(panel, 9, 1.4), inks.panelDot, 0.22),
-    ...placed(
-      buildMonster(data.monster),
-      {
-        x: panel.x + (panel.w - MONSTER_SIZE) / 2,
-        y: panel.y + panel.h - MONSTER_SIZE,
-        w: MONSTER_SIZE,
-        h: MONSTER_SIZE,
-      },
-      VIEW_SIZE,
-    ),
     { op: 'restore' },
-    {
-      op: 'stroke',
-      path: roundRect({ x: panel.x + 0.5, y: panel.y + 0.5, w: panel.w - 1, h: panel.h - 1 }, 10.5),
-      color: inks.ink,
-      alpha: 0.08,
-      width: 1,
-    },
   );
+  const under = out;
+  const monster: Box = {
+    x: panel.x + (panel.w - MONSTER_SIZE) / 2,
+    y: panel.y + panel.h - MONSTER_SIZE,
+    w: MONSTER_SIZE,
+    h: MONSTER_SIZE,
+  };
+  out = [];
+  out.push({
+    op: 'stroke',
+    path: roundRect({ x: panel.x + 0.5, y: panel.y + 0.5, w: panel.w - 1, h: panel.h - 1 }, 10.5),
+    color: inks.ink,
+    alpha: 0.08,
+    width: 1,
+  });
   if (data.taskLine !== null && !options.hideTask) {
     // Short enough to end before the stamp, wherever the header puts the panel.
     const maxWidth = 196;
@@ -191,50 +187,14 @@ export function buildCard(data: CardData, options: CardOptions = {}): DrawComman
 
   // Lurked, dread and catch time.
   const tileY = panel.y + panel.h + GAP;
-  const tileWidth = (WIDTH - 12) / 3;
-  const [hours, minutes] = splitMinutes(data.catchMinutes);
-  const tiles = [
-    { label: labels.lurked, value: labels.days(data.daysLurked), color: inks.ink },
-    { label: labels.dread, value: null, color: inks.ink },
-    {
-      label: labels.caughtIn,
-      value: options.wild ? '—' : labels.duration(hours, minutes),
-      color: inks.accent,
-    },
-  ];
-  tiles.forEach((tile, i) => {
-    const x = LEFT + i * (tileWidth + 6);
-    const inner = tileWidth - 18;
-    out.push(fill(roundRect({ x, y: tileY, w: tileWidth, h: TILE_HEIGHT }, 10), inks.tile));
-    lines(tile.label.toUpperCase(), LABEL, oneLine(7, inner), {
-      x: x + 9,
-      top: tileY + 8,
-      leading: 1,
-      color: inks.muted,
-    });
-    if (tile.value !== null) {
-      const value = fitText(tile.value, VALUE, oneLine(9, inner), measure);
-      out.push(
-        textCommand(value.lines[0] ?? '', value.style, {
-          x: x + 9,
-          y: baseline(tileY + 24, VALUE.size, VALUE.size),
-          maxWidth: inner,
-          color: tile.color,
-        }),
-      );
-      return;
-    }
-    for (let pip = 0; pip < 5; pip++) {
-      const on = pip < data.dread;
-      out.push(
-        fill(
-          [['O', x + 13.5 + pip * 12, tileY + 28.5, 4.5]],
-          on ? inks.accent : inks.ink,
-          on ? 1 : 0.12,
-        ),
-      );
-    }
-  });
+  out.push(
+    ...buildTiles(data, labels, inks, measure, {
+      left: LEFT,
+      top: tileY,
+      width: WIDTH,
+      wild: options.wild === true,
+    }),
+  );
 
   // Flavour text takes what is left above the foot, shrinking before it is ever cut.
   const flavourTop = tileY + TILE_HEIGHT + GAP;
@@ -278,10 +238,33 @@ export function buildCard(data: CardData, options: CardOptions = {}): DrawComman
     { x: footLeft, top: FOOT_Y - FOOT.size / 2, leading: 1, color: inks.muted },
   );
 
-  out.push(
-    ...buildFoil(FACE, FACE_RADIUS, inks, options.reducedMotion ? FLAT : (options.tilt ?? FLAT)),
-  );
+  return {
+    under,
+    panel,
+    monster,
+    over: out,
+    face: FACE,
+    faceRadius: FACE_RADIUS,
+    stamp: options.wild ? [] : buildStamp(labels.stamp, inks, measure),
+    stampCentre: stampCentre(labels.stamp, measure),
+  };
+}
 
-  if (!options.wild) out.push(...buildStamp(labels.stamp, inks, measure));
-  return out;
+/**
+ * Describes one card as drawing commands, in a 330 by 462 space. Pure: the same data and options
+ * always give the same list. A finish changes colours only; the layout and the content are the
+ * same in all five.
+ */
+export function buildCard(data: CardData, options: CardOptions = {}): DrawCommand[] {
+  const layers = buildCardLayers(data, options);
+  const tilt = options.reducedMotion ? FLAT : (options.tilt ?? FLAT);
+  return [
+    // The monster stands inside the panel's clip, which `under` closes with its last command.
+    ...layers.under.slice(0, -1),
+    ...placed(buildMonster(data.monster), layers.monster, VIEW_SIZE),
+    { op: 'restore' },
+    ...layers.over,
+    ...buildFoil(layers.face, layers.faceRadius, CARD_FINISHES[data.finish], tilt),
+    ...layers.stamp,
+  ];
 }

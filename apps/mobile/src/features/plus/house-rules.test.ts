@@ -144,11 +144,34 @@ describe('the house rules', () => {
         'features/plus/manage-container.tsx: seePlus: () => router.push(PLUS_SHEET),',
         'features/record/record-container.tsx: openPlus: () => router.push(PLUS_SHEET),',
         'features/table/lobby-containers.tsx: onLocked={() => router.push(PLUS_SHEET)}',
+        // A monster's card is one screen, opened from the zoo or the world: its locked finishes
+        // open the sheet from both.
+        'features/world/world-container.tsx: openPlus: () => router.push(PLUS_SHEET),',
         'features/zoo/zoo-container.tsx: openPlus: () => router.push(PLUS_SHEET),',
       ].sort(),
     );
     // Every one of them is a handler: nothing redirects, replaces or opens it from an effect.
     for (const use of users) expect(use).toMatch(/\(\) => router\.push\(\w+\)[,}]?$/);
+  });
+
+  it('leaves the locked controls of the keeping screens inert on a heavy day', () => {
+    // The world's and the zoo's card and the record each have one way to the sheet, and each
+    // hands it over only when the day has nothing heavy in it.
+    for (const file of [
+      'features/world/world-container.tsx',
+      'features/zoo/zoo-container.tsx',
+      'features/record/record-container.tsx',
+    ]) {
+      const source = readFileSync(path.join(SOURCE, file), 'utf8');
+      expect(source.match(/PLUS_SHEET\)/g)).toHaveLength(1);
+      expect(source).toMatch(
+        /const plusDoor = \{\s*openPlus: \(\) => router\.push\(PLUS_SHEET\),\s*\};/,
+      );
+      // The door is used once, and only on the side of the question where the day is not heavy.
+      expect(source.match(/\bplusDoor\b/g)).toHaveLength(2);
+      expect(source).toMatch(/\.\.\.\(heavyToday \? \{\} : plusDoor\)/);
+      expect(source).toMatch(/\{[^}]*\bheavyToday\b[^}]*\} = useToday\(\)/);
+    }
   });
 
   it('reaches no selling route from first launch, a session, the reveal or the care screens', () => {

@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
-import { SensorType, useAnimatedSensor } from 'react-native-reanimated';
+import { useMemo } from 'react';
 
 import { CARD_BLEED, CARD_HEIGHT, CARD_WIDTH, type CardTilt } from '@scootch/art';
 import type { CardData } from '@scootch/domain';
@@ -24,7 +23,8 @@ export interface CardViewProps {
 }
 
 /**
- * One caught card, drawn by the art package's card builder. To a screen reader it is a single
+ * One caught card as a flat picture, drawn by the art package's card builder: what a shared image
+ * and a capture show. The card a person handles is `HandledCard`. To a screen reader it is a single
  * element that reads the card's name, its rarity and its stats.
  */
 export function CardView({ card, language, width, tilt = FLAT, hideTask, testID }: CardViewProps) {
@@ -41,27 +41,4 @@ export function CardView({ card, language, width, tilt = FLAT, hideTask, testID 
       {...(testID ? { testID } : {})}
     />
   );
-}
-
-const clamp = (value: number) => Math.min(1, Math.max(-1, Math.round(value * 10) / 10));
-/** How often the foil follows the phone. */
-const TILT_EVERY_MS = 120;
-
-/**
- * The card with its foil following the phone's tilt, read from gravity. Mounted only with motion
- * on: with Reduce Motion the plain `CardView` is shown and the foil stays where it rests.
- */
-export function TiltingCardView(props: Omit<CardViewProps, 'tilt'>) {
-  const gravity = useAnimatedSensor(SensorType.GRAVITY, { interval: TILT_EVERY_MS });
-  const [tilt, setTilt] = useState<CardTilt>(FLAT);
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const { x, y } = gravity.sensor.get();
-      // Held upright a phone reads most of gravity on y; the resting hold is the flat foil.
-      const next = { x: clamp(x / 5), y: clamp((y + 6) / 5) };
-      setTilt((before) => (before.x === next.x && before.y === next.y ? before : next));
-    }, TILT_EVERY_MS);
-    return () => clearInterval(timer);
-  }, [gravity]);
-  return <CardView {...props} tilt={tilt} />;
 }

@@ -50,6 +50,7 @@ function capturedReveal(step: RevealStep, language: Language) {
     // The offline pack's own caught line stands in for the task's.
     line: offlineLine(language, 'cheeky', 'caught', 0),
     piece: fixturePieces(2)[1] ?? null,
+    world: { pieces: fixturePieces(2), monsters: fixtureMonsters(2) },
     bar: { position: 2, instruments: ['keys', 'bassline'], playing: false },
     shareOffered: true,
   };

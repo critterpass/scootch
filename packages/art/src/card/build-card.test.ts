@@ -6,7 +6,14 @@ import type { DrawCommand, TextCommand } from '../core/commands';
 import { hash } from '../core/rng';
 import { specFromSeed } from '../core/spec-from-seed';
 import { estimateTextWidth } from '../core/text';
-import { buildCard, CARD_FINISHES, type CardOptions } from './build-card';
+import {
+  buildCard,
+  buildCardLayers,
+  CARD_FINISHES,
+  CARD_WIDTH,
+  type CardOptions,
+} from './build-card';
+import { buildCardBack } from './card-back';
 import { buildStory } from './build-story';
 import { CARD_LABELS } from './labels';
 
@@ -164,5 +171,31 @@ describe('card text', { timeout: 60_000 }, () => {
         expect(line.y, line.text).toBeLessThan(format === '9:16' ? 214 : 474);
       }
     }
+  });
+});
+
+describe('a card in layers', () => {
+  it('carries exactly what the one list carries, with the monster and the stamp set apart', () => {
+    for (const language of ['en', 'vi'] as const) {
+      const whole = buildCard(molar, { language });
+      const layers = buildCardLayers(molar, { language });
+      const drawn = [...layers.under, ...layers.over, ...layers.stamp];
+      expect(printed(drawn)).toBe(printed(whole));
+      // The monster stands inside its panel, and the stamp turns about a point on the card's edge.
+      expect(layers.monster.y + layers.monster.h).toBe(layers.panel.y + layers.panel.h);
+      expect(layers.stampCentre.x).toBeGreaterThan(CARD_WIDTH - 60);
+      expect(buildCardLayers(molar, { language, wild: true }).stamp).toEqual([]);
+    }
+  });
+
+  it('gives the back the same frame as the front, so nothing jumps as the card turns', () => {
+    const front = buildCard(molar)[0];
+    const back = buildCardBack({ label: 'Wild task card' });
+    expect(back[0] && 'path' in back[0] ? back[0].path : null).toEqual(
+      front && 'path' in front ? front.path : undefined,
+    );
+    expect(printed(back)).toContain('WILD TASK CARD');
+    const bare = buildCardBack({ label: 'Wild task card', scootch: false });
+    expect(bare.length).toBeLessThan(back.length);
   });
 });
