@@ -1,11 +1,12 @@
 import type { ReactNode } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { fonts, spacing } from '@scootch/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
 import { SafeFrame } from '../../ui/safe-frame';
 import { useScreenStyle } from '../../ui/use-screen-style';
+import { PressSpring } from '../../ui/motion/press-spring';
 
 const TITLE_SIZE = 34;
 const BAR_TITLE_SIZE = 17;
@@ -26,7 +27,7 @@ export function Page({ title, barTitle, onClose, testID, children }: PageProps) 
   return (
     <SafeFrame style={[styles.page, { backgroundColor: palette.page }]} testID={testID}>
       <View style={styles.bar}>
-        <Pressable
+        <PressSpring
           accessibilityRole="button"
           accessibilityLabel={t('settings.close')}
           accessibilityHint={t('settings.close.hint')}
@@ -37,7 +38,7 @@ export function Page({ title, barTitle, onClose, testID, children }: PageProps) 
         >
           <View style={[styles.cross, { backgroundColor: palette.ink }]} />
           <View style={[styles.cross, styles.crossOver, { backgroundColor: palette.ink }]} />
-        </Pressable>
+        </PressSpring>
         {barTitle === undefined ? null : (
           <Text
             accessibilityRole="header"

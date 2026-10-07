@@ -1,10 +1,11 @@
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { radius, spacing } from '@scootch/tokens';
 
 import type { SessionInks } from './session-inks';
 import { SessionText } from './session-text';
+import { PressSpring } from '../../../ui/motion/press-spring';
 
 export interface ControlProps {
   readonly label: string;
@@ -37,19 +38,19 @@ export function Capsule({
   lead,
 }: ControlProps & { readonly lead?: ReactNode }) {
   return (
-    <Pressable
+    <PressSpring
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityHint={hint}
       testID={testID}
       onPress={onPress}
-      style={({ pressed }) => [styles.capsule, lift(inks), { opacity: pressed ? 0.85 : 1 }, style]}
+      style={[styles.capsule, lift(inks), style]}
     >
       {lead}
       <SessionText face="action" color={inks.ink}>
         {label}
       </SessionText>
-    </Pressable>
+    </PressSpring>
   );
 }
 
@@ -68,18 +69,18 @@ export function Tag({ label, inks }: { readonly label: string; readonly inks: Se
 /** The round close button in a corner. */
 export function RoundButton({ label, hint, testID, inks, onPress }: ControlProps) {
   return (
-    <Pressable
+    <PressSpring
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityHint={hint}
       testID={testID}
       onPress={onPress}
       hitSlop={8}
-      style={({ pressed }) => [styles.round, lift(inks), { opacity: pressed ? 0.85 : 1 }]}
+      style={[styles.round, lift(inks)]}
     >
       <View style={[styles.cross, { backgroundColor: inks.ink }]} />
       <View style={[styles.cross, styles.crossOver, { backgroundColor: inks.ink }]} />
-    </Pressable>
+    </PressSpring>
   );
 }
 
@@ -96,22 +97,19 @@ export function FilledButton({
   const fill = tone === 'tomato' ? inks.tomato : inks.button;
   const ink = tone === 'tomato' ? inks.onTomato : inks.onButton;
   return (
-    <Pressable
+    <PressSpring
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityHint={hint}
       testID={testID}
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.filled,
-        { backgroundColor: fill, opacity: pressed ? 0.85 : 1 },
-        style,
-      ]}
+      feedback="primary"
+      style={[styles.filled, { backgroundColor: fill }, style]}
     >
       <SessionText face="action" color={ink} style={styles.centred}>
         {label}
       </SessionText>
-    </Pressable>
+    </PressSpring>
   );
 }
 
@@ -126,18 +124,18 @@ export function TextButton({
   strong = false,
 }: ControlProps & { readonly strong?: boolean }) {
   return (
-    <Pressable
+    <PressSpring
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityHint={hint}
       testID={testID}
       onPress={onPress}
-      style={({ pressed }) => [styles.text, { opacity: pressed ? 0.6 : 1 }, style]}
+      style={[styles.text, style]}
     >
       <SessionText face="body" color={strong ? inks.ink : inks.muted} style={styles.centred}>
         {label}
       </SessionText>
-    </Pressable>
+    </PressSpring>
   );
 }
 

@@ -5,6 +5,7 @@ import { spacing } from '@scootch/tokens';
 
 import { Scootch, type ScootchProps } from '../../art/Scootch';
 import { useT } from '../../i18n/i18n-provider';
+import { useCharacterMotion } from '../../ui/motion/use-feel';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { Dock, KeepFrame } from '../reveal/ui/keep-frame';
 import { SessionText } from '../session/ui/session-text';
@@ -20,15 +21,11 @@ export interface MomentProps {
 }
 
 function Figure({ mood, attitude }: { mood: ScootchProps['mood']; attitude: Attitude }) {
-  const { largeText, captured } = useScreenStyle();
+  const { largeText } = useScreenStyle();
+  const character = useCharacterMotion();
   return (
     <View style={styles.centre}>
-      <Scootch
-        mood={mood}
-        attitude={attitude}
-        size={largeText ? 110 : 200}
-        {...(captured ? { reducedMotion: true } : {})}
-      />
+      <Scootch mood={mood} attitude={attitude} size={largeText ? 110 : 200} {...character} />
     </View>
   );
 }

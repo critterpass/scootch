@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import type { SettingsRow } from '@scootch/domain';
 import { fonts, radius, spacing } from '@scootch/tokens';
@@ -9,6 +9,7 @@ import { useScreenStyle } from '../../ui/use-screen-style';
 
 import { Page } from './page';
 import { Note, Row } from './rows';
+import { PressSpring } from '../../ui/motion/press-spring';
 
 type FinishWith = SettingsRow['finishWith'];
 
@@ -84,7 +85,7 @@ function FinishPreview({ finishWith }: { readonly finishWith: FinishWith }) {
       >
         {t('finishWith.preview')}
       </Text>
-      <Pressable
+      <PressSpring
         accessibilityRole="button"
         accessibilityLabel={label}
         accessibilityHint={t('finishWith.preview.hint')}
@@ -92,10 +93,7 @@ function FinishPreview({ finishWith }: { readonly finishWith: FinishWith }) {
         {...(hold
           ? { onPressIn: () => setStage('going'), onPressOut: () => setStage('idle') }
           : { onPress: () => setStage(stage === 'idle' ? 'going' : 'idle') })}
-        style={({ pressed }) => [
-          styles.control,
-          { backgroundColor: palette.tomato, opacity: pressed ? 0.85 : 1 },
-        ]}
+        style={[styles.control, { backgroundColor: palette.tomato }]}
       >
         <Text
           allowFontScaling={allowFontScaling}
@@ -103,7 +101,7 @@ function FinishPreview({ finishWith }: { readonly finishWith: FinishWith }) {
         >
           {label}
         </Text>
-      </Pressable>
+      </PressSpring>
       {finishWith === 'voice' ? <Note text={t('finishWith.sayDone.note')} /> : null}
     </View>
   );

@@ -1,11 +1,11 @@
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AccessibilityInfo } from 'react-native';
-import { useReducedMotion } from 'react-native-reanimated';
 
 import type { ParkedThought, SessionEvent } from '@scootch/domain';
 
 import { useLanguage, useT } from '../../i18n/i18n-provider';
+import { useCharacterMotion } from '../../ui/motion/use-feel';
 import { useDispatch, useSession, useToday } from '../../state/day-store-provider';
 import { useSurfaceRequest } from '../../state/surface-requests';
 import { revealSeen } from '../reveal/reveal-seen';
@@ -52,7 +52,7 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
   const dispatch = useDispatch();
   const { language } = useLanguage();
   const t = useT();
-  const systemReducedMotion = useReducedMotion();
+  const character = useCharacterMotion();
   const [passed, setPassed] = useState<Passed>(NOTHING_PASSED);
   const [parkOpen, setParkOpen] = useState(false);
   const [parkedNote, setParkedNote] = useState<string | null>(null);
@@ -150,7 +150,7 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
     tinyNextStep,
     treatLine: afterLines.treat,
     thoughtsLine: afterLines.parkedThoughts,
-    reducedMotion: systemReducedMotion || settings.motion === 'calm',
+    reducedMotion: character.reducedMotion,
     parkOpen,
     parkedNote,
     holdStartsAt: 0,

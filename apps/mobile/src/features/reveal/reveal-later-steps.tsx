@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import { spacing } from '@scootch/tokens';
 
@@ -12,6 +12,7 @@ import { SessionText } from '../session/ui/session-text';
 import { skipControl, type RevealStepProps } from './reveal-model';
 import { Dock, KeepFrame } from './ui/keep-frame';
 import { weekdayName } from './weekday-name';
+import { PressSpring } from '../../ui/motion/press-spring';
 
 /** The bar the day added: the weekday's instrument joins the record, and the bar plays. */
 export function BarStep({ model, actions, t }: RevealStepProps) {
@@ -49,7 +50,7 @@ export function BarStep({ model, actions, t }: RevealStepProps) {
           reducedMotion={model.reducedMotion}
         />
         <View style={styles.playRow}>
-          <Pressable
+          <PressSpring
             accessibilityRole="button"
             accessibilityLabel={t('record.playBar')}
             accessibilityHint={t('record.playBar.hint')}
@@ -59,7 +60,7 @@ export function BarStep({ model, actions, t }: RevealStepProps) {
             style={[styles.play, { backgroundColor: palette.ink }]}
           >
             <View style={[styles.triangle, { borderLeftColor: palette.page }]} />
-          </Pressable>
+          </PressSpring>
           <SessionText face="caption" color={palette.muted} style={styles.grow}>
             {bandLine(bar.instruments, t)}
           </SessionText>

@@ -1,10 +1,11 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import type { ClockTime } from '@scootch/domain';
 import { fonts, spacing } from '@scootch/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
 import { useScreenStyle } from '../../ui/use-screen-style';
+import { PressSpring } from '../../ui/motion/press-spring';
 
 const STEP_MINUTES = 30;
 const DAY_MINUTES = 24 * 60;
@@ -61,7 +62,7 @@ interface StepperProps {
 function Stepper({ id, label, time, earlier, later, onStep }: StepperProps) {
   const { palette, allowFontScaling, size } = useScreenStyle();
   const button = (mark: string, hint: string, steps: number, name: string) => (
-    <Pressable
+    <PressSpring
       accessibilityRole="button"
       accessibilityLabel={`${label}: ${hint}`}
       accessibilityHint={hint}
@@ -73,7 +74,7 @@ function Stepper({ id, label, time, earlier, later, onStep }: StepperProps) {
       <Text allowFontScaling={false} style={[styles.mark, { color: palette.ink }]}>
         {mark}
       </Text>
-    </Pressable>
+    </PressSpring>
   );
   return (
     <View

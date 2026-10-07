@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import type { Attitude } from '@scootch/domain';
 import { fonts, fontSizes, radius, spacing } from '@scootch/tokens';
@@ -10,6 +10,7 @@ import { Tick } from '../../ui/icons';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
 import { LaunchPage } from './launch-page';
+import { PressSpring } from '../../ui/motion/press-spring';
 
 const ATTITUDES = ['soft', 'cheeky', 'unhinged'] as const satisfies readonly Attitude[];
 /** How each attitude's Scootch looks on its card. */
@@ -63,13 +64,14 @@ export function AttitudeView({ line, selected, onChoose, onConfirm }: AttitudeVi
         {ATTITUDES.map((attitude) => {
           const chosen = attitude === selected;
           return (
-            <Pressable
+            <PressSpring
               key={attitude}
               accessibilityRole="radio"
               accessibilityState={{ selected: chosen, checked: chosen }}
               accessibilityLabel={t(`settings.attitude.${attitude}`)}
               accessibilityHint={t(`launch.attitude.${attitude}.about`)}
               onPress={() => onChoose(attitude)}
+              feedback="choice"
               testID={`launch-attitude-${attitude}`}
               style={[
                 styles.card,
@@ -111,7 +113,7 @@ export function AttitudeView({ line, selected, onChoose, onConfirm }: AttitudeVi
               >
                 {chosen ? <Tick color={TICK_WHITE} /> : null}
               </View>
-            </Pressable>
+            </PressSpring>
           );
         })}
       </View>

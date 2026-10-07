@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import type { Language } from '@scootch/i18n';
 import type { RecordInstrument } from '@scootch/sound';
@@ -15,6 +15,7 @@ import type { RecordPlayback } from './use-record-playback';
 import { weekShareOffered, type RecordRow, type WeekView } from './record-week';
 import { RecordDiscView } from './ui/record-disc-view';
 import { BarStrip, bandLine, instrumentName } from './ui/record-parts';
+import { PressSpring } from '../../ui/motion/press-spring';
 
 export interface RecordModel {
   readonly week: WeekView;
@@ -144,7 +145,7 @@ export function RecordScreen({ model, actions }: { model: RecordModel; actions: 
         />
       </View>
       <View style={styles.playRow}>
-        <Pressable
+        <PressSpring
           accessibilityRole="button"
           accessibilityLabel={playback.playing ? t('record.pause') : t('record.play')}
           accessibilityHint={t('record.play.hint')}
@@ -152,6 +153,7 @@ export function RecordScreen({ model, actions }: { model: RecordModel; actions: 
           disabled={week.barCount === 0}
           testID="record-play"
           onPress={actions.togglePlay}
+          feedback="primary"
           style={[
             styles.play,
             { backgroundColor: palette.ink, opacity: week.barCount === 0 ? 0.45 : 1 },
@@ -165,7 +167,7 @@ export function RecordScreen({ model, actions }: { model: RecordModel; actions: 
           ) : (
             <View style={[styles.triangle, { borderLeftColor: palette.page }]} />
           )}
-        </Pressable>
+        </PressSpring>
         <View style={styles.grow}>
           <SessionText face="action" color={palette.ink} testID="record-name">
             {week.name ?? fallbackName}

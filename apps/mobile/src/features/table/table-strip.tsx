@@ -9,6 +9,7 @@ import { Scootch } from '../../art/Scootch';
 import { useT } from '../../i18n/i18n-provider';
 import { useDispatch, useSession, useToday } from '../../state/day-store-provider';
 import { useTableState } from '../../state/together-context';
+import { useCharacterMotion } from '../../ui/motion/use-feel';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
 import { sharedEnd } from './table-clock';
@@ -26,7 +27,8 @@ export interface TableStripViewProps {
 /** The table's critters, small, above a running session. One element to a screen reader. */
 export function TableStripView({ seats, you, workMode, reconnecting }: TableStripViewProps) {
   const t = useT();
-  const { palette, reducedMotion } = useScreenStyle();
+  const { palette } = useScreenStyle();
+  const character = useCharacterMotion();
   const here = seats.filter((seat) => seat.online).length;
   return (
     <View
@@ -44,7 +46,7 @@ export function TableStripView({ seats, you, workMode, reconnecting }: TableStri
             <Scootch
               mood="working"
               workMode={seat.userId === you ? workMode : seat.workMode}
-              reducedMotion={reducedMotion}
+              {...character}
               ownLoop={false}
               seed={seat.userId}
               size={36}

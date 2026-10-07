@@ -15,6 +15,7 @@ import type { Attitude, MonsterRow } from '@scootch/domain';
 import { Monster } from '../../art/Monster';
 import { Scootch, type ScootchProps } from '../../art/Scootch';
 import { useT } from '../../i18n/i18n-provider';
+import { useCharacterMotion } from '../../ui/motion/use-feel';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
 const FIGURE_SIZE = 150;
@@ -31,7 +32,8 @@ export interface HatchFigureProps {
 
 /** Scootch and the task's monster, side by side. The monster is drawn from its stored spec. */
 export function HatchFigure({ mood, attitude, monster, sizeFactor = 1 }: HatchFigureProps) {
-  const { palette, largeText, reducedMotion, captured } = useScreenStyle();
+  const { palette, largeText, reducedMotion } = useScreenStyle();
+  const character = useCharacterMotion();
   const t = useT();
   const size = largeText ? FIGURE_SIZE_LARGE_TEXT : FIGURE_SIZE;
   // Seconds into one wobble of the egg.
@@ -60,12 +62,7 @@ export function HatchFigure({ mood, attitude, monster, sizeFactor = 1 }: HatchFi
 
   return (
     <View style={styles.row}>
-      <Scootch
-        mood={mood}
-        attitude={attitude}
-        size={size}
-        {...(captured ? { reducedMotion: true } : {})}
-      />
+      <Scootch mood={mood} attitude={attitude} size={size} {...character} />
       {monster ? (
         <View accessible accessibilityRole="image" accessibilityLabel={monster.name}>
           <Monster
@@ -73,7 +70,7 @@ export function HatchFigure({ mood, attitude, monster, sizeFactor = 1 }: HatchFi
             sizeFactor={sizeFactor}
             idle
             hatching={waited.current}
-            reducedMotion={reducedMotion}
+            {...character}
             size={size}
             testID="hatch-monster"
           />

@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import type { SessionEvent } from '@scootch/domain';
 import type { StringKey } from '@scootch/i18n';
@@ -9,6 +9,7 @@ import { SessionFrame } from '../ui/session-frame';
 import { SessionText } from '../ui/session-text';
 
 import type { ScreenProps } from './screen-props';
+import { PressSpring } from '../../../ui/motion/press-spring';
 
 const CHOICES: readonly {
   readonly id: string;
@@ -58,19 +59,19 @@ export function NotFinishedScreen({ model, actions, inks, t }: ScreenProps) {
       ) : null}
       <View style={[styles.list, { backgroundColor: inks.surface }]}>
         {CHOICES.map((choice, index) => (
-          <Pressable
+          <PressSpring
             key={choice.id}
             accessibilityRole="button"
             accessibilityLabel={t(choice.label)}
             accessibilityHint={t(choice.hint)}
             testID={choice.id}
             onPress={() => actions.send(choice.event)}
-            style={({ pressed }) => [
+            feedback="choice"
+            style={[
               styles.row,
               index > 0
                 ? { borderTopWidth: StyleSheet.hairlineWidth, borderColor: inks.track }
                 : null,
-              { opacity: pressed ? 0.6 : 1 },
             ]}
           >
             <SessionText face="body" color={inks.ink} style={styles.grow}>
@@ -79,7 +80,7 @@ export function NotFinishedScreen({ model, actions, inks, t }: ScreenProps) {
             <SessionText face="body" color={inks.muted}>
               ›
             </SessionText>
-          </Pressable>
+          </PressSpring>
         ))}
       </View>
     </SessionFrame>

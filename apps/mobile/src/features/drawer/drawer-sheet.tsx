@@ -17,6 +17,7 @@ import { useScreenStyle } from '../../ui/use-screen-style';
 
 import { dayWords } from './day-words';
 import { drawerStyles as styles } from './drawer-sheet-styles';
+import { PressSpring } from '../../ui/motion/press-spring';
 
 const TITLE_SIZE = 22;
 const COUNT_SIZE = 13;
@@ -206,11 +207,12 @@ export function DrawerSheet({
                         </Text>
                       </View>
                       {canSwap ? (
-                        <Pressable
+                        <PressSpring
                           accessibilityRole="button"
                           accessibilityLabel={`${t('drawer.swapIn')}: ${item.text}`}
                           accessibilityHint={t('drawer.swapIn.hint')}
                           onPress={() => onSwapIn(item.id)}
+                          feedback="primary"
                           hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
                           testID={`drawer-swap-${index}`}
                           style={[styles.swap, { backgroundColor: `${palette.ink}0F` }]}
@@ -221,13 +223,13 @@ export function DrawerSheet({
                           >
                             {t('drawer.swapIn')}
                           </Text>
-                        </Pressable>
+                        </PressSpring>
                       ) : null}
                     </View>
                   );
                 })}
               </View>
-              <Pressable
+              <PressSpring
                 disabled={hidden === 0}
                 accessibilityRole={hidden === 0 ? 'text' : 'button'}
                 accessibilityHint={hidden === 0 ? undefined : t('drawer.more.hint')}
@@ -243,10 +245,10 @@ export function DrawerSheet({
                     ? t('drawer.fades')
                     : `${t('drawer.more', { count: hidden })} ${t('drawer.fades')}`}
                 </Text>
-              </Pressable>
+              </PressSpring>
             </ScrollView>
           )}
-          <Pressable
+          <PressSpring
             accessibilityRole="button"
             accessibilityLabel={t('drawer.close')}
             accessibilityHint={t('drawer.close.hint')}
@@ -260,7 +262,7 @@ export function DrawerSheet({
             >
               {t('drawer.close')}
             </Text>
-          </Pressable>
+          </PressSpring>
         </View>
       </View>
     </Modal>

@@ -1,4 +1,4 @@
-import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Modal, StyleSheet, Text, View } from 'react-native';
 
 import type { Attitude } from '@scootch/domain';
 import { fonts, radius, spacing } from '@scootch/tokens';
@@ -9,6 +9,7 @@ import { CapsuleButton } from '../../ui/buttons';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { Page } from '../settings/page';
 import { Note, Row, Section, SwitchRow } from '../settings/rows';
+import { PressSpring } from '../../ui/motion/press-spring';
 
 const DANGER = '#C8381B';
 
@@ -169,7 +170,7 @@ export function DeleteSheet({ open, monsterName, attitude, onKeep, onDelete }: D
             onPress={onKeep}
             testID="delete-keep"
           />
-          <Pressable
+          <PressSpring
             accessibilityRole="button"
             accessibilityLabel={t('settings.deleteEverything')}
             accessibilityHint={t('privacy.delete.confirm.hint')}
@@ -183,7 +184,7 @@ export function DeleteSheet({ open, monsterName, attitude, onKeep, onDelete }: D
             >
               {t('settings.deleteEverything')}
             </Text>
-          </Pressable>
+          </PressSpring>
           <Text
             allowFontScaling={allowFontScaling}
             style={[styles.note, { color: palette.muted, fontSize: size(13) }]}

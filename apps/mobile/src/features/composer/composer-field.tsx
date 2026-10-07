@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, TextInput } from 'react-native';
+import { StyleSheet, TextInput } from 'react-native';
 
 import { fonts, spacing } from '@scootch/tokens';
 
@@ -8,6 +8,7 @@ import { SendIcon } from '../../ui/icons';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
 import type { ComposerEvent } from './composer-machine';
+import { PressSpring } from '../../ui/motion/press-spring';
 
 const TEXT_SIZE = 17;
 
@@ -48,7 +49,7 @@ export function ComposerSend({ text, busy, onEvent }: FieldProps) {
   const t = useT();
   if (text.trim() === '') return null;
   return (
-    <Pressable
+    <PressSpring
       accessibilityRole="button"
       accessibilityLabel={t('composer.send')}
       accessibilityHint={t('composer.send.hint')}
@@ -58,7 +59,7 @@ export function ComposerSend({ text, busy, onEvent }: FieldProps) {
       style={[styles.send, { backgroundColor: palette.ink }]}
     >
       <SendIcon color={palette.page} />
-    </Pressable>
+    </PressSpring>
   );
 }
 
