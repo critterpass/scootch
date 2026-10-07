@@ -6,6 +6,7 @@ import { tableStub } from '../src/tables/tables';
 
 import {
   as,
+  befriend,
   connect,
   count,
   inviteCode,
@@ -61,6 +62,7 @@ describe('a table', () => {
     }
 
     const fifth = await person('Eve');
+    await befriend(people[0] as Person, fifth);
     expect(await reasonOf(as(fifth, 'POST', '/v1/tables/join', { code, purchase: 'yearly' }))).toBe(
       'table_full',
     );

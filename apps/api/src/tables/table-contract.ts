@@ -23,6 +23,7 @@ export {
   type TableSeat,
   type TableServerMessage,
 } from '../../../../packages/domain/src/contracts/table-messages';
+export { TABLE_FREE_SEATS } from '../../../../packages/domain/src/contracts/together';
 export type { SessionMinutes } from '../../../../packages/domain/src/contracts/common';
 
 /**

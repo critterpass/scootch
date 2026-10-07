@@ -1,13 +1,13 @@
 import { z } from 'zod';
 
 import { requireTableAccount } from '../accounts/accounts';
-import { inviteCodePattern } from '../accounts/ids';
+import { pastedInviteCodeSchema } from '../accounts/codes';
 import { readBody, type RouteDefinition } from '../route';
 import { joinTable, purchaseClaimSchema } from '../tables/tables';
 
 /** A strict body: a code and a purchase state. A label, or any other words, is a refusal. */
 const joinTableRequestSchema = z.strictObject({
-  code: z.string().regex(inviteCodePattern),
+  code: pastedInviteCodeSchema,
   purchase: purchaseClaimSchema,
 });
 

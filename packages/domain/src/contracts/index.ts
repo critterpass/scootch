@@ -5,3 +5,4 @@ export * from './haunt';
 export * from './local-db';
 export * from './public-pages';
 export * from './table-messages';
+export * from './together';

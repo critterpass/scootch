@@ -21,6 +21,7 @@ import {
 import { closeTableRows, isMuted, seatRowAdded, seatRowRemoved } from './table-rows';
 import {
   admit,
+  capacityOf,
   freeSeat,
   newTable,
   nextAlarmAt,
@@ -47,9 +48,13 @@ export class TableObject extends DurableObject<Bindings> {
   }
 
   /** Opens the table with its opener seated. Called once, by the route that made the id. */
-  async open(id: string, opener: { accountId: string; name: string }): Promise<void> {
+  async open(
+    id: string,
+    opener: { accountId: string; name: string },
+    capacity: number,
+  ): Promise<void> {
     if ((await this.load()) !== null) return;
-    const table = newTable(id, opener, Date.now());
+    const table = newTable(id, opener, capacity, Date.now());
     await this.save(table);
     await seatRowAdded(this.env.DB, id, opener.accountId);
   }
@@ -286,6 +291,7 @@ export class TableObject extends DurableObject<Bindings> {
         type: 'state',
         you: accountId,
         hostId: table.hostId,
+        capacity: capacityOf(table),
         seats: table.seats.map((seat) => ({
           userId: seat.accountId,
           ...seatShown(seat, language),

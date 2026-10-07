@@ -104,6 +104,8 @@ export const tableStateMessageSchema = z.object({
   you: tableUserIdSchema,
   hostId: tableUserIdSchema.nullable(),
   seats: z.array(tableSeatSchema).max(TABLE_MAX_SEATS),
+  /** How many the table seats, fixed when it opened: two without Plus, else the maximum. */
+  capacity: z.number().int().min(2).max(TABLE_MAX_SEATS).optional(),
   /** Epoch milliseconds when the running session ends; `null` with no session. */
   endsAt: z.number().int().nullable(),
   minutes: sessionMinutesSchema.nullable(),

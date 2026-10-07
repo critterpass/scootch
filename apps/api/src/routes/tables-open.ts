@@ -7,8 +7,8 @@ import { openTable, purchaseClaimSchema } from '../tables/tables';
 const openTableRequestSchema = z.strictObject({ purchase: purchaseClaimSchema });
 
 /**
- * Opens a table with the caller seated as host. Opening is the Plus control: the purchase state
- * the phone reports must unlock it while the `tables.requirePlus` flag is on.
+ * Opens a table with the caller seated as host. Anyone with an account can: the purchase state
+ * the phone reports decides only how many the table seats (two without Plus, four with it).
  */
 export const tablesOpenRoute: RouteDefinition = {
   method: 'POST',
