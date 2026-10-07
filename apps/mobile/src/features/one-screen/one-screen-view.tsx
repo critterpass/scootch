@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -12,6 +12,7 @@ import { GlassSurface } from '../../ui/glass-surface';
 import { RiseIn } from '../../ui/motion/rise-in';
 import { useKeyboardOpen } from '../../ui/use-keyboard-open';
 import { useScreenStyle } from '../../ui/use-screen-style';
+import { ComposerHintLayer } from '../composer/composer-hint-layer';
 import { ComposerView } from '../composer/composer-view';
 import { StepDots } from '../launch/launch-page';
 import { ChargeNote } from '../plus/charge-note';
@@ -72,6 +73,7 @@ export function OneScreenView({
   const t = useT();
   const insets = useSafeAreaInsets();
   const keyboardOpen = useKeyboardOpen();
+  const [composerHeight, setComposerHeight] = useState(0);
   const note = (text: string, testID: string) => (
     <Text
       testID={testID}
@@ -118,7 +120,9 @@ export function OneScreenView({
     footer = (
       <>
         {warmUp ? <StepDots step={4} /> : null}
-        <ComposerView {...composer} />
+        <View onLayout={(event) => setComposerHeight(event.nativeEvent.layout.height)}>
+          <ComposerView {...composer} />
+        </View>
       </>
     );
   } else if (shown.kind === 'task_set') {
@@ -207,58 +211,64 @@ export function OneScreenView({
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.page}
       >
-        <Corners
-          offline={offline}
-          {...(onWorld ? { onWorld } : {})}
-          {...(onMore ? { onMore } : {})}
-        />
-        <StageScroll onPull={onPull}>
-          <OneScreenFigure
-            frame={frame}
-            mood={mood}
-            attitude={attitude}
-            line={line}
-            figure={figure}
-            onPress={squeak}
+        {/* One box inside the keyboard's padding: what is placed from its bottom stays above the keys. */}
+        <View style={styles.page}>
+          <Corners
+            offline={offline}
+            {...(onWorld ? { onWorld } : {})}
+            {...(onMore ? { onMore } : {})}
           />
-          {failed ? (
-            <View style={styles.words}>{note(t('oneScreen.failed'), 'one-screen-failed')}</View>
-          ) : null}
-          {/* A new stage rises in under Scootch, who stays where he is. */}
-          {body === null ? null : (
+          <StageScroll onPull={onPull}>
+            <OneScreenFigure
+              frame={frame}
+              mood={mood}
+              attitude={attitude}
+              line={line}
+              figure={figure}
+              onPress={squeak}
+            />
+            {failed ? (
+              <View style={styles.words}>{note(t('oneScreen.failed'), 'one-screen-failed')}</View>
+            ) : null}
+            {/* A new stage rises in under Scootch, who stays where he is. */}
+            {body === null ? null : (
+              <RiseIn
+                key={testName}
+                index={1}
+                style={[
+                  styles.body,
+                  shown.kind === 'task_set' ? styles.choices : styles.words,
+                  // With nothing said above it, the body stands where the board puts the words.
+                  line === null && shown.kind !== 'task_set' && { marginTop: frame.textTop },
+                ]}
+              >
+                {body}
+              </RiseIn>
+            )}
+            {/* Said beside nothing else: never during a task, a pick or a hatch. */}
+            {chargeNoteShows(shown.kind) ? (
+              <View style={styles.words}>
+                <ChargeNote />
+              </View>
+            ) : null}
+          </StageScroll>
+          {footer === null ? null : (
             <RiseIn
               key={testName}
-              index={1}
+              index={2}
               style={[
-                styles.body,
-                shown.kind === 'task_set' ? styles.choices : styles.words,
-                // With nothing said above it, the body stands where the board puts the words.
-                line === null && shown.kind !== 'task_set' && { marginTop: frame.textTop },
+                styles.footer,
+                shown.kind === 'done' && styles.footerDone,
+                { marginBottom: dockBottom },
               ]}
             >
-              {body}
+              {footer}
             </RiseIn>
           )}
-          {/* Said beside nothing else: never during a task, a pick or a hatch. */}
-          {chargeNoteShows(shown.kind) ? (
-            <View style={styles.words}>
-              <ChargeNote />
-            </View>
+          {shown.kind === 'composer' && composerHeight > 0 ? (
+            <ComposerHintLayer {...shown.composer} composerTop={dockBottom + composerHeight} />
           ) : null}
-        </StageScroll>
-        {footer === null ? null : (
-          <RiseIn
-            key={testName}
-            index={2}
-            style={[
-              styles.footer,
-              shown.kind === 'done' && styles.footerDone,
-              { marginBottom: dockBottom },
-            ]}
-          >
-            {footer}
-          </RiseIn>
-        )}
+        </View>
       </KeyboardAvoidingView>
       {overlay}
     </SafeFrame>

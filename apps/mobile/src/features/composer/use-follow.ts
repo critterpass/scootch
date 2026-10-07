@@ -29,3 +29,17 @@ export function useFollow(
   }, [value, target, ms, easing]);
   return value;
 }
+
+/** A shared value that goes from 0 to 1 once, as the thing it belongs to appears. */
+export function useArrive(ms: number, easing?: WithTimingConfig['easing']): SharedValue<number> {
+  const value = useSharedValue(ms <= 0 ? 1 : 0);
+  useEffect(() => {
+    if (ms <= 0) return;
+    value.value = withTiming(1, {
+      duration: ms,
+      reduceMotion: ReduceMotion.Never,
+      ...(easing ? { easing } : {}),
+    });
+  }, [value, ms, easing]);
+  return value;
+}

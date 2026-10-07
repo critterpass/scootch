@@ -1,8 +1,13 @@
+import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Animated, {
+  Easing,
   interpolateColor,
+  ReduceMotion,
   useAnimatedStyle,
   useSharedValue,
+  withSequence,
+  withTiming,
   type SharedValue,
 } from 'react-native-reanimated';
 
@@ -40,6 +45,10 @@ export interface ComposerCapsuleProps {
   readonly slot: number;
   /** How far the finger has slid since it went down; left is negative. */
   readonly drag: SharedValue<number>;
+  /** The dock is a text field: the capsule has faded out under it. */
+  readonly hidden?: boolean;
+  /** The hold was too short to be a recording: the capsule shakes its head. */
+  readonly tooShort?: boolean;
 }
 
 /**
@@ -56,6 +65,8 @@ export function ComposerCapsule({
   level,
   slot,
   drag,
+  hidden = false,
+  tooShort = false,
 }: ComposerCapsuleProps) {
   const { palette, allowFontScaling, size, reducedMotion } = useScreenStyle();
   const t = useT();
@@ -72,6 +83,36 @@ export function ComposerCapsule({
   const armedLayer = useFollow(isArmed, reducedMotion ? CROSSFADE_MS : 250);
   const armedLabel = useFollow(isArmed, 200);
   const width = useSharedValue(0);
+  const present = useFollow(hidden ? 0 : 1, reducedMotion ? CROSSFADE_MS : 300);
+  const stands = useFollow(hidden ? 0 : 1, reducedMotion ? 0 : 450, SPRING_CURVE);
+  const shake = useSharedValue(0);
+  useEffect(() => {
+    if (!tooShort || reducedMotion) return;
+    const step = {
+      duration: 95,
+      easing: Easing.out(Easing.quad),
+      reduceMotion: ReduceMotion.Never,
+    };
+    shake.value = withSequence(
+      withTiming(-6, step),
+      withTiming(5, step),
+      withTiming(-3, step),
+      withTiming(0, step),
+    );
+  }, [reducedMotion, shake, tooShort]);
+  const overStyle = useAnimatedStyle(() => ({
+    opacity: present.value,
+    transform: [{ translateX: shake.value }, { scale: 0.94 + 0.06 * stands.value }],
+  }));
+  // The held capsule glows tomato underneath instead of casting ink.
+  const glowStyle = useAnimatedStyle(() => {
+    const edge = capsuleEdge(fold.value, slot);
+    const full = width.value;
+    return {
+      opacity: full > 0 ? tone.value * (1 - armedTone.value) : 0,
+      transform: [{ translateX: edge / 2 }, { scaleX: full > 0 ? (full - edge) / full : 1 }],
+    };
+  });
 
   const { ink, tomato } = palette;
   const bodyStyle = useAnimatedStyle(() => ({
@@ -91,7 +132,7 @@ export function ComposerCapsule({
     const edge = capsuleEdge(fold.value, slot);
     const full = width.value;
     return {
-      opacity: full > 0 ? 1 : 0,
+      opacity: full > 0 ? 1 - tone.value * (1 - armedTone.value) : 0,
       transform: [{ translateX: edge / 2 }, { scaleX: full > 0 ? (full - edge) / full : 1 }],
     };
   });
@@ -109,14 +150,15 @@ export function ComposerCapsule({
   const cancelStyle = useAnimatedStyle(() => ({ opacity: armedLabel.value }));
 
   return (
-    <View
+    <Animated.View
       pointerEvents="none"
       onLayout={(event) => {
         width.value = event.nativeEvent.layout.width;
       }}
-      style={[styles.over, { left: -slot }]}
+      style={[styles.over, { left: -slot }, overStyle]}
     >
       <Animated.View style={[styles.shadow, shadowStyle]} />
+      <Animated.View style={[styles.shadow, styles.glow, glowStyle]} />
       <View style={styles.clip}>
         <Animated.View style={[styles.body, bodyStyle]}>
           <Animated.View style={[styles.fill, insideStyle]}>
@@ -157,7 +199,7 @@ export function ComposerCapsule({
           </Animated.View>
         </Animated.View>
       </View>
-    </View>
+    </Animated.View>
   );
 }
 
@@ -173,6 +215,9 @@ const styles = StyleSheet.create({
     ...FILL,
     borderRadius: RADIUS,
     boxShadow: '0 6px 16px -4px rgba(28, 26, 23, 0.35)',
+  },
+  glow: {
+    boxShadow: '0 6px 16px -4px rgba(240, 86, 46, 0.5)',
   },
   clip: {
     ...FILL,
