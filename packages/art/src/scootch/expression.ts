@@ -6,7 +6,17 @@ export type EyeShape = 'round' | 'happy' | 'closed' | 'sparkle' | 'squeeze';
 export type MouthShape =
   'smile' | 'flat' | 'side' | 'o' | 'grin' | 'wobble' | 'pout' | 'tongue' | 'cat' | 'wail';
 export type Effect =
-  'dots' | 'waves' | 'think' | 'laptop' | 'sweat' | 'stars' | 'confetti' | 'zzz' | null;
+  | 'dots'
+  | 'waves'
+  | 'think'
+  | 'laptop'
+  | 'sweat'
+  | 'stars'
+  | 'confetti'
+  | 'zzz'
+  | 'tears'
+  | 'cloud'
+  | null;
 
 /** Everything a mood decides: how the body sits, the face, where the hands go and what floats around. */
 export interface Expression {
@@ -49,6 +59,11 @@ export interface Expression {
   fxCount: number;
   /** Extra sway of the curl on top. */
   tip: number;
+  /** The star eyes: how far they have turned, in radians, and their size (1 as drawn at rest). */
+  sparkTurn: number;
+  sparkSize: number;
+  /** Where the wobble of a wailing mouth stands, in radians. */
+  wail: number;
 }
 
 /** Scootch standing with nothing to say. Every mood starts from this. */
@@ -77,14 +92,46 @@ export function neutral(): Expression {
     fx: null,
     fxCount: 3,
     tip: 0,
+    sparkTurn: 0,
+    sparkSize: 1,
+    wail: 0,
   };
 }
 
 /**
  * One mood. `act` is how big the acting is (1 is cheeky, the pose as designed); `beat` is where
- * the mood's own loop stands, 0 to 1, with 0 the rest frame.
+ * the mood's own loop stands, 0 to 1, with 0 the rest frame; `t` is the seconds the mood has been
+ * moving, which the body's own motion follows (a lean, tapping hands, a tremble). At zero seconds
+ * every mood is its still.
  */
-export type MoodPose = (act: number, beat: number) => Partial<Expression>;
+export type MoodPose = (act: number, beat: number, t: number) => Partial<Expression>;
+
+/**
+ * 0 at rest, 1 a quarter of a second in. A movement the design starts off its rest pose is
+ * multiplied by this, so the still is untouched and the motion is the design's from then on.
+ */
+export function settle(t: number): number {
+  const k = Math.min(1, Math.max(0, t / 0.25));
+  return k * k * (3 - 2 * k);
+}
+
+/** The moods whose eyes follow a point, as in the design. */
+export const GAZE_MOODS: ReadonlySet<string> = new Set([
+  'waiting',
+  'listening',
+  'thinking',
+  'bargaining',
+  'pleased',
+  'nudge',
+  'shocked',
+]);
+
+/** A look towards a point: the direction, -1 to 1 each way, and how much of it is held, 0 to 1. */
+export interface ScootchLook {
+  readonly x: number;
+  readonly y: number;
+  readonly hold: number;
+}
 
 /** How loud each attitude acts. The character is the same; only the size of the gesture changes. */
 export const ACTING: Record<Attitude, number> = { soft: 0.7, cheeky: 1, unhinged: 1.3 };
@@ -103,6 +150,13 @@ export interface ScootchMotion {
   readonly gazeY?: number;
   /** Where the mood's own loop stands, 0 to 1: the jump, the dots, the drifting letters. */
   readonly beat?: number;
+  /**
+   * Seconds the mood has been moving. Drives the body's own motion: the lean and the tapping hand
+   * of waiting, typing hands, the shiver of being stuck, the sway of the curl.
+   */
+  readonly time?: number;
+  /** Eyes drawn towards a point. Only the moods that watch follow it; a work mode never does. */
+  readonly look?: ScootchLook;
   /**
    * The named values of the work mode's own loop (the fold of the shirt, the swing of the
    * hammer). Each mode lists its names and rest values; a name left out stays at rest.
@@ -126,6 +180,20 @@ export function scaleActing(e: Expression, act: number): void {
       [r[0] * act, r[1] * act],
     ];
   }
+}
+
+/**
+ * Turns the eyes towards a point the way the design follows the pointer: three quarters the
+ * point, one quarter the mood's own gaze. Waiting also lifts its lids and leans that way.
+ */
+export function applyLook(e: Expression, look: ScootchLook, waiting: boolean): void {
+  const hold = clamp(look.hold, 0, 1);
+  const pull = hold * 0.75;
+  e.lx += (clamp(look.x, -1, 1) - e.lx) * pull;
+  e.ly += (clamp(look.y, -1, 1) - e.ly) * pull;
+  if (!waiting) return;
+  e.open += (Math.max(e.open, 0.82) - e.open) * hold;
+  e.lean += (clamp(look.x, -1, 1) * 3 - e.lean) * hold;
 }
 
 export function applyMotion(e: Expression, motion: ScootchMotion): void {

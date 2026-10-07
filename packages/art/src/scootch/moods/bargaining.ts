@@ -1,7 +1,9 @@
 import type { MoodPose } from '../expression';
 
-/** Asking for a smaller step: big wet eyes, a pout and clasped hands. */
-export const bargaining: MoodPose = (act) => ({
+/** Asking for a smaller step: big wet eyes, a pout, clasped hands, a tremble and a slow lean. */
+export const bargaining: MoodPose = (act, _beat, t) => ({
+  sx: 1 + Math.sin(t * 22) * 0.005,
+  lean: Math.sin(t * 1.2) * 1.5,
   open: 1.06,
   pup: Math.min(0.8, 0.58 + 0.16 * act),
   gloss: true,

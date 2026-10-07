@@ -6,17 +6,18 @@ import { PAL, desk, filled } from '../scootch/work-props';
 const BLACK_KEYS = [1, 2, 4, 5, 6, 8, 9];
 
 /**
- * Eyes shut at a keyboard, notes floating off. `sway` rocks the body, -1 to 1; `left` and `right`
- * lift each hand off the keys, 0 to 1; `notes` is where the notes are, 0 to 1.
+ * Eyes shut at a keyboard, notes floating off. `sway` rocks the body, -1 to 1; `bounce` lifts it
+ * on the beat, 0 to 1; `left` and `right` lift each hand off the keys, 0 to 1; `notes` is where
+ * the notes are, 0 to 1.
  */
 export const music = defineWorkMode(
-  { sway: 0, left: 0, right: 0, notes: 0.3 },
+  { sway: 0, bounce: 0, left: 0, right: 0, notes: 0.3 },
   {
-    pose(e, { sway, left, right }) {
+    pose(e, { sway, bounce, left, right }) {
       e.eye = 'closed';
       e.mouth = 'smile';
       e.rot = sway * 0.04;
-      e.dy = -Math.abs(sway) * 2;
+      e.dy = -bounce * 2;
       e.hl = [0.55, 0.86 - left * 0.08];
       e.hr = [0.55, 0.86 - right * 0.08];
     },

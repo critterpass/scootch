@@ -2,12 +2,14 @@ import type { ScootchMood, ScootchProps } from '@scootch/domain';
 
 import { GROUND_Y, type DrawCommand } from '../core/commands';
 import { bez, ell, ribbon, type Point } from '../core/geometry';
-import { Pen } from '../core/pen';
+import { Pen, type BoilFrame } from '../core/pen';
 import { strHash } from '../core/rng';
 import { drawEffect, drawLaptop } from './effects';
 import {
   ACTING,
+  applyLook,
   applyMotion,
+  GAZE_MOODS,
   neutral,
   scaleActing,
   type MoodPose,
@@ -18,6 +20,7 @@ import * as moods from './moods/index.generated';
 import { SCOOTCH } from './palette';
 import { WORK_MODE_ATTACHMENTS } from './work-mode-attachment';
 import type { ScootchFrame, WorkModeAttachment } from './work-mode-kit';
+import { beret } from './work-props';
 
 /** Every mood of the contract, one file each in the moods folder. */
 export const SCOOTCH_MOODS: Record<ScootchMood, MoodPose> = moods;
@@ -29,7 +32,14 @@ const NO_MOTION: ScootchMotion = {};
 const WORK_MODES: Partial<Record<string, WorkModeAttachment>> = WORK_MODE_ATTACHMENTS;
 
 /** Scootch's outline: an egg, wider at the bottom, that leans from the top. */
-function bodyPts(cx: number, cy: number, rx: number, ry: number, lean: number): Point[] {
+function bodyPts(
+  cx: number,
+  cy: number,
+  rx: number,
+  ry: number,
+  lean: number,
+  wobble: number,
+): Point[] {
   const pts: Point[] = [];
   for (let i = 0; i < 36; i++) {
     const a = (i / 36) * Math.PI * 2;
@@ -39,7 +49,7 @@ function bodyPts(cx: number, cy: number, rx: number, ry: number, lean: number): 
       y *= 0.8;
       x *= 1 + 0.07 * y;
     } else x *= 1 - 0.1 * y * y;
-    const k = 1 + 0.012 * Math.sin(3 * a) + 0.008 * Math.sin(5 * a);
+    const k = 1 + 0.012 * Math.sin(3 * a + wobble) + 0.008 * Math.sin(5 * a - wobble);
     pts.push([cx + x * rx * k + Math.max(0, -y) * lean * 1.2, cy + y * ry * k]);
   }
   return pts;
@@ -70,6 +80,8 @@ export interface ScootchBuildOptions {
    * is drawn without it.
    */
   readonly confettiBehind?: boolean;
+  /** Which of the three stroke sets to draw with. Zero, the still, when absent. */
+  readonly boil?: BoilFrame;
 }
 
 /**
@@ -93,8 +105,10 @@ export function buildScootch(
   const attachment =
     props.mood === 'working' && props.workMode ? WORK_MODES[props.workMode] : undefined;
   const loop = moving.work;
+  const hat = props.hat === 'beret';
 
-  const e = { ...neutral(), ...SCOOTCH_MOODS[props.mood](act, beat) };
+  const time = Math.max(0, moving.time ?? 0);
+  const e = { ...neutral(), ...SCOOTCH_MOODS[props.mood](act, beat, time) };
   if (attachment) {
     e.fx = null;
     e.mouth = 'smile';
@@ -102,9 +116,14 @@ export function buildScootch(
     attachment.pose(e, loop);
   }
   scaleActing(e, act);
+  if (moving.look && !attachment && GAZE_MOODS.has(props.mood)) {
+    applyLook(e, moving.look, props.mood === 'waiting');
+  }
   applyMotion(e, moving);
 
-  const pen = new Pen(PEN_SEED);
+  // A work mode has no beat of its own: its drifting letters follow the clock, as designed.
+  const fxBeat = attachment && e.fx === 'zzz' ? (time * 0.45) % 1 : beat;
+  const pen = new Pen(PEN_SEED, props.reducedMotion ? 0 : (options.boil ?? 0));
   const rx = 58 * e.sx;
   const ry = 50 * e.sy;
   const cx = 100 + e.lean;
@@ -135,7 +154,7 @@ export function buildScootch(
   attachment?.behind(pen, frame, loop);
 
   const behind = options.confettiBehind === true && e.fx === 'confetti';
-  if (behind) drawEffect(pen, e, frame, beat);
+  if (behind) drawEffect(pen, e, frame, fxBeat, moving.time);
 
   const cos = Math.cos(e.rot);
   const sin = Math.sin(e.rot);
@@ -150,19 +169,22 @@ export function buildScootch(
   for (const side of SIDES) pen.fill(ell(cx + side * 22, by - 4, 11, 6.5, 12), SCOOTCH.shade);
   const curlX = cx + e.lean * 1.2;
   const curlY = cy - ry + 4;
-  const tip = e.tip - e.lean * 0.6;
-  const curl = bez(
-    [curlX - 2, curlY + 6],
-    [curlX - 1, curlY - 10],
-    [curlX + 15 + tip, curlY - 16 + e.tip * 0.3],
-    [curlX + 12 + tip, curlY - 4],
-    8,
-  );
-  pen.fill(ribbon(curl, 6, 2.2, 1.5), SCOOTCH.body);
-  pen.riso(bodyPts(cx, cy, rx, ry, e.lean * 0.4), SCOOTCH.body, SCOOTCH.shade, [cx, cy], 70, 60, {
-    offset: 9,
-    grains: 120,
-  });
+  // The curl sways by itself, a little quicker than the breath.
+  const tip = e.tip + Math.sin(time * 2.3) * 1.5 - e.lean * 0.6;
+  if (!hat) {
+    const curl = bez(
+      [curlX - 2, curlY + 6],
+      [curlX - 1, curlY - 10],
+      [curlX + 15 + tip, curlY - 16 + e.tip * 0.3],
+      [curlX + 12 + tip, curlY - 4],
+      8,
+    );
+    pen.fill(ribbon(curl, 6, 2.2, 1.5), SCOOTCH.body);
+  }
+  // The outline never quite holds still: its small bumps drift round the body.
+  const outline = bodyPts(cx, cy, rx, ry, e.lean * 0.4, time * 0.9);
+  pen.riso(outline, SCOOTCH.body, SCOOTCH.shade, [cx, cy], 70, 60, { offset: 9, grains: 120 });
+  if (hat) beret(pen, frame);
   pen.line(
     [
       [cx - rx * 0.62, cy - ry * 0.38],
@@ -196,7 +218,7 @@ export function buildScootch(
   drawArm(pen, -1, [cx - rx * 0.86, cy + ry * 0.16], frame.leftHand);
   drawArm(pen, 1, [cx + rx * 0.86, cy + ry * 0.16], frame.rightHand);
   attachment?.held(pen, frame, loop);
-  if (!behind) drawEffect(pen, e, frame, beat);
+  if (!behind) drawEffect(pen, e, frame, fxBeat, moving.time);
   attachment?.effect(pen, frame, loop);
 
   pen.commands.push({ op: 'restore' });

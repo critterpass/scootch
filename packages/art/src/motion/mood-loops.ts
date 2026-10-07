@@ -22,6 +22,11 @@ export const MOOD_LOOP_SECONDS: Partial<Record<ScootchMood, number>> = {
   celebrating: Math.PI / 5.5,
   // A letter drifts up every 1 / 0.45 seconds.
   asleep: 1 / 0.45,
+  // The glint and the stars pulse like the proud stars.
+  scheming: TAU / 4,
+  nudge: TAU / 4,
+  // A tear falls 1.1 times a second.
+  dramatic: 1 / 1.1,
 };
 
 /**

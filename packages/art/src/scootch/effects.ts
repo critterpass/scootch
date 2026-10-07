@@ -1,4 +1,4 @@
-import { ell, type Point } from '../core/geometry';
+import { drop, ell, type Point } from '../core/geometry';
 import type { Pen } from '../core/pen';
 import { hash } from '../core/rng';
 import type { Expression } from './expression';
@@ -14,19 +14,6 @@ export interface EffectFrame {
 }
 
 const frac = (v: number): number => ((v % 1) + 1) % 1;
-
-function drop(x: number, y: number, s: number): Point[] {
-  return [
-    [x, y - 9 * s],
-    [x + 5 * s, y - 1 * s],
-    [x + 5.5 * s, y + 3 * s],
-    [x + 3 * s, y + 6.5 * s],
-    [x, y + 7.5 * s],
-    [x - 3 * s, y + 6.5 * s],
-    [x - 5.5 * s, y + 3 * s],
-    [x - 5 * s, y - 1 * s],
-  ];
-}
 
 /** The plain desk and laptop of the working mood. */
 export function drawLaptop(pen: Pen, g: EffectFrame): void {
@@ -53,11 +40,36 @@ export function drawLaptop(pen: Pen, g: EffectFrame): void {
 
 /**
  * What floats around Scootch. `beat` is the loop position, 0 to 1; at 0 every effect is at a
- * frame that reads on its own.
+ * frame that reads on its own. `t` is the seconds the mood has been moving, for the effects that
+ * do not loop with the beat (the rain, the falling confetti).
  */
-export function drawEffect(pen: Pen, e: Expression, g: EffectFrame, beat: number): void {
+export function drawEffect(
+  pen: Pen,
+  e: Expression,
+  g: EffectFrame,
+  beat: number,
+  t: number | undefined,
+): void {
   const ink = SCOOTCH.ink;
+  const seconds = t ?? 0;
   switch (e.fx) {
+    case 'cloud': {
+      const x = g.cx + 4;
+      const y = g.top - 2;
+      pen.fill(ell(x, y, 26, 11, 14, 0.16, 1), SCOOTCH.cloud);
+      for (let i = 0; i < e.fxCount; i++) {
+        const fall = y + 15 + ((seconds * 18 + i * 7) % 16);
+        pen.line(
+          [
+            [x - 12 + i * 12, fall],
+            [x - 14 + i * 12, fall + 5],
+          ],
+          2.2,
+          SCOOTCH.water,
+        );
+      }
+      break;
+    }
     case 'dots': {
       const shown = (Math.floor(beat * 4) + 3) % 4;
       for (let i = 0; i < shown; i++) pen.blot(g.cx + 58 + i * 10, g.top + 6, 3, ink);
@@ -96,6 +108,18 @@ export function drawEffect(pen: Pen, e: Expression, g: EffectFrame, beat: number
         );
       }
       break;
+    case 'tears':
+      for (let i = 0; i < e.fxCount; i++) {
+        const side = i % 2 ? 1 : -1;
+        const k = frac(beat + i * 0.5);
+        pen.fill(
+          drop(g.cx + side * 30 + side * k * 4, g.cy - 2 + k * 30, 0.9 - k * 0.3),
+          SCOOTCH.water,
+          0.2,
+          1 - k * 0.6,
+        );
+      }
+      break;
     case 'stars': {
       const places = [
         [-66, 16, 0],
@@ -130,12 +154,13 @@ export function drawEffect(pen: Pen, e: Expression, g: EffectFrame, beat: number
       }
       break;
     case 'confetti': {
-      const t = beat * 4;
+      // Falls with the clock when there is one, so a piece never jumps as the beat starts over.
+      const fallen = seconds > 0 ? seconds : beat * 4;
       for (let i = 0; i < e.fxCount; i++) {
         const x = 100 + (hash(i + 7) * 2 - 1) * 92;
         const speed = 40 + hash(i + 50) * 50;
-        const y = ((t * speed + hash(i + 99) * 210) % 210) - 10;
-        const turn = t * (2 + hash(i + 3) * 4) + i;
+        const y = ((fallen * speed + hash(i + 99) * 210) % 210) - 10;
+        const turn = fallen * (2 + hash(i + 3) * 4) + i;
         const dx = Math.cos(turn) * 4;
         const dy = Math.sin(turn) * 4;
         pen.line(
