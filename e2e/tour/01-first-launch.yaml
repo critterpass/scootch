@@ -51,3 +51,32 @@ appId: app.scootch.dev
       id: 'settings'
     timeout: 15000
 - takeScreenshot: settings-page--en-light-default
+# Then the registry, for the card and the session disc part-way, which a real run cannot hold still.
+- scrollUntilVisible:
+    element:
+      id: 'developer-tools'
+    direction: DOWN
+- tapOn:
+    id: 'developer-tools'
+- extendedWaitUntil:
+    visible:
+      id: 'dev-open-registry'
+    timeout: 15000
+- tapOn:
+    id: 'dev-open-registry'
+- extendedWaitUntil:
+    visible:
+      id: 'registry-count'
+    timeout: 15000
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: zoo-card--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: reveal-card--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: session-running--en-light-default

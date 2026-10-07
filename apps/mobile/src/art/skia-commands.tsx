@@ -1,4 +1,4 @@
-import { Canvas, Group, matchFont, Path, Text } from '@shopify/react-native-skia';
+import { Canvas, Glyphs, Group, matchFont, Path, Text } from '@shopify/react-native-skia';
 import { memo, useMemo, type ReactElement, type ReactNode } from 'react';
 import { Platform, View } from 'react-native';
 import type { SharedValue } from 'react-native-reanimated';
@@ -46,17 +46,46 @@ function fontFor(node: TextNode) {
 
 /**
  * One fitted line. The art package gives the anchor (left edge, centre or right edge) and the
- * baseline; Skia draws from the left edge, so the line is measured to place it. Letter spacing is
- * not applied here: Skia's simple text node has no setting for it.
+ * baseline; Skia draws from the left edge, so the line is measured to place it. Skia's simple text
+ * node has no letter spacing, so a spaced line is drawn glyph by glyph: each is set the extra
+ * space after the one before it, and the spacing counts after the last character too, as the
+ * canvas's does, so both backends anchor the line alike.
  */
 function TextLine({ node }: { readonly node: TextNode }) {
   const font = useMemo(() => fontFor(node), [node]);
-  const width = node.align === 'left' ? 0 : font.measureText(node.text).width;
+  const spaced = node.letterSpacing !== 0;
+  const glyphs = useMemo(() => {
+    if (!spaced) return null;
+    const ids = font.getGlyphIDs(node.text);
+    const widths = font.getGlyphWidths(ids);
+    let at = 0;
+    const placed = ids.map((id, index) => {
+      const glyph = { id, pos: { x: at, y: 0 } };
+      at += (widths[index] ?? 0) + node.letterSpacing;
+      return glyph;
+    });
+    return { placed, width: at };
+  }, [font, node.text, node.letterSpacing, spaced]);
+  const width = glyphs
+    ? glyphs.width
+    : node.align === 'left'
+      ? 0
+      : font.measureText(node.text).width;
   const x = node.align === 'center' ? node.x - width / 2 : node.x - width;
-  return (
+  const left = node.align === 'left' ? node.x : x;
+  return glyphs ? (
+    <Glyphs
+      glyphs={glyphs.placed}
+      x={left}
+      y={node.y}
+      font={font}
+      color={node.color}
+      opacity={node.opacity}
+    />
+  ) : (
     <Text
       text={node.text}
-      x={node.align === 'left' ? node.x : x}
+      x={left}
       y={node.y}
       font={font}
       color={node.color}
