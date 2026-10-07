@@ -64,6 +64,8 @@ be told apart.
 | Scootch's lines, monster names, flavour text | A generation model | The humour is the product |
 | Monster drawing and the song | The phone, procedural | The model returns parameters; code draws and composes |
 | Learned timing and task size | The phone, plain statistics | No model |
+| Camera: Desk and Room | The phone (Apple's Vision) | The photo never leaves. The labels found go to a line route when online |
+| Camera: Paper and Screen | The phone reads the words and their boxes (Apple's Vision); the generation model picks by line id | Decided 8 Oct 2026, as CritterPass reads receipts. Only the words leave, after the user allows it. The photo is sent to be transcribed only when the phone cannot read it. Every count is made by code |
 
 ### The care screen: the phone gates, Jev judges
 

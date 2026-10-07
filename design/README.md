@@ -21,7 +21,7 @@ browser as designed.
 | Care and Edge States | Serious mode, crisis, offline, AI unavailable, accessibility, privacy, seat controls | Yes |
 | Growth | Web monster maker, haunt a friend, the share loop | Yes |
 | Website | 15 sections: system, home, maker, monster page, shared pages, invites, getting the app, Plus, wall, Unwrapped, plain pages, before launch, link previews, motion, copy | Yes, without the wall, Unwrapped, gifts and before-and-after |
-| Camera | Four modes, before and after | After launch |
+| Camera | Four modes, before and after | Yes (in scope from 8 Oct 2026) |
 | iPhone Duo | Foldable layouts | After launch |
 
 The Catch Concepts board (eight ways to catch a task's monster, which took
