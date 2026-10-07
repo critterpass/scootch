@@ -1,6 +1,8 @@
 # Phase 03: AI routes, API and ops bot
 
-Status: in progress: 2 done, 4 partly; deployed on dev · Tasks: 9 · Needs: 01 · Owns: `apps/api`, `packages/voice`
+Status: see the audit note below · Tasks: 9 · Needs: 01 · Owns: `apps/api`, `packages/voice`
+
+> Audit 7 Oct 2026: tasks 5 (small routes), 7 and 9 have no code or no status line; there is no remote push and no eval report to the bot.
 
 Goal: every model call the app makes, behind one small API, each with an eval
 set, and the founder's Telegram bot. Read tech-decisions sections 2 and 5.

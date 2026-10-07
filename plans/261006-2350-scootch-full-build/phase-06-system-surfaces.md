@@ -1,6 +1,8 @@
 # Phase 06: system surfaces
 
-Status: built, unproven on a device: 7 partly · Tasks: 7 · Needs: 02, 04
+Status: see the audit note below · Tasks: 7 · Needs: 02, 04
+
+> Audit 7 Oct 2026: compiled into the build, none of it seen. The App Clip and the notification service extension are placeholders. No notification response handler, so a tap cannot start a session. Nothing respects Sleep or Focus. Control Center and the Action button need iOS 18 while the app installs on 16.4. No remote push exists.
 Owns: `apps/mobile/targets/`, `apps/mobile/src/features/{notifications,live-activity,intents}`,
 `packages/domain/src/back-off`
 
