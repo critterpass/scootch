@@ -52,6 +52,44 @@ export interface ShareImageOptions {
   readonly tilt?: CardTilt;
 }
 
+/** The trading card as a video: one slow turn of the card, which ends where it began. */
+export const CARD_TURN = { frames: 40, framesPerSecond: 20, rx: 5, ry: 10 } as const;
+const TURN_GROUND = '#E9E5DE';
+
+/**
+ * The frames of the trading card turning once in the hand, for a video that loops. Only the light
+ * on the card moves; the first frame follows the last without a jump. A video has no see-through
+ * ground, so each frame is laid on the board's own paper.
+ */
+export function composeCardTurn(
+  card: CardData,
+  options: Pick<ShareImageOptions, 'language'>,
+  dress: Pick<ShareDress, 'finish'>,
+): ShareImage[] {
+  const worn: CardData = { ...card, taskLine: null, finish: dress.finish };
+  return Array.from({ length: CARD_TURN.frames }, (_, index) => {
+    const turn = (index / CARD_TURN.frames) * Math.PI * 2;
+    const frame = buildTradingCard(worn, {
+      language: options.language,
+      lean: { rx: Math.sin(turn) * CARD_TURN.rx, ry: Math.cos(turn) * CARD_TURN.ry },
+    });
+    const { width, height } = frame;
+    return {
+      ...frame,
+      commands: [
+        {
+          op: 'fill',
+          path: [['M', 0, 0], ['L', width, 0], ['L', width, height], ['L', 0, height], ['Z']],
+          color: TURN_GROUND,
+          alpha: 1,
+          rule: 'nonzero',
+        },
+        ...frame.commands,
+      ],
+    };
+  });
+}
+
 /** The formats that can be made right now: the receipt needs a day, the poster a month. */
 export function formatsOffered(dress: Pick<ShareDress, 'day' | 'month'>): ShareFormat[] {
   return SHARE_FORMATS.filter(

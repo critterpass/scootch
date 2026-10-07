@@ -43,6 +43,9 @@ struct SurfaceSnapshot: Codable, Equatable, Sendable {
     let plus: Bool
     /// When the day this snapshot describes rolls over into the next one.
     let dayEndsAt: Double
+    /// The ink the person wears, as a six-digit hex colour. Nil is tomato, and so is a snapshot
+    /// written before there were inks.
+    let accent: String?
 
     /// What every surface shows before the app has written anything, or after a version it
     /// cannot read: nothing yet, in plain words.
@@ -50,7 +53,8 @@ struct SurfaceSnapshot: Codable, Equatable, Sendable {
         version: currentVersion, state: .nothingYet, task: nil, sessionStartedAt: nil,
         sessionEndsAt: nil, monsterName: nil, monsterImage: nil, line: nil, sessionLines: [],
         attitude: .cheeky, language: Locale.preferredLanguages.first?.hasPrefix("vi") == true ? "vi" : "en",
-        weekBars: 0, worldThings: 0, plus: false, dayEndsAt: .greatestFiniteMagnitude)
+        weekBars: 0, worldThings: 0, plus: false, dayEndsAt: .greatestFiniteMagnitude,
+        accent: nil)
 
     /// Nil when the text is not a snapshot of the version this code reads.
     static func decode(_ json: String) -> SurfaceSnapshot? {
@@ -78,7 +82,7 @@ struct SurfaceSnapshot: Codable, Equatable, Sendable {
             version: version, state: .nothingYet, task: nil, sessionStartedAt: nil,
             sessionEndsAt: nil, monsterName: nil, monsterImage: nil, line: nil, sessionLines: [],
             attitude: attitude, language: language, weekBars: weekBars, worldThings: worldThings,
-            plus: plus, dayEndsAt: .greatestFiniteMagnitude)
+            plus: plus, dayEndsAt: .greatestFiniteMagnitude, accent: accent)
     }
 
     var sessionEnd: Date? {

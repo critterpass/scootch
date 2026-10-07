@@ -35,6 +35,7 @@ import {
 } from '../effects/native-adapters';
 import { purchaseStateOf } from '../features/plus/entitlement';
 import { revenueCatPurchases } from '../features/plus/revenuecat-port';
+import { inkOf } from '../features/studio/catalogue';
 import {
   nativeSharedFiles,
   nativeSharedStore,
@@ -121,6 +122,10 @@ function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
     files: nativeSharedFiles(),
     painter: skiaMonsterPainter,
     plus: unlocked,
+    accent: () => {
+      const { ink } = plus.store.getState().look;
+      return ink === 'tangerine' ? null : inkOf(ink).colours.accent;
+    },
     now: () => systemClock.now(),
     timeZone,
   });

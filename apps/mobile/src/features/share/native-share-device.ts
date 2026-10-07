@@ -17,15 +17,19 @@ import * as MediaLibrary from 'expo-media-library/legacy';
 import * as Sharing from 'expo-sharing';
 import { Platform, Share } from 'react-native';
 
+import * as VideoWriter from '../../../modules/scootch-video-writer';
 import { GRAIN_GREY, toSkiaNodes, type SkiaNode, type SkiaPaint } from '../../art/skia-nodes';
 
 import type { ShareDevice } from './share-flow';
+import type { ShareImage } from './share-image';
 
 // The real phone behind sharing. Nothing here is covered by the unit tests, which use a recorder:
 // it runs only in a native build.
 
 /** A shared picture is this many pixels wide, whatever the phone. */
 const PIXELS_WIDE = 1080;
+/** A frame of a shared video: narrower, since there are forty of them to draw and encode. */
+const VIDEO_PIXELS_WIDE = 720;
 
 // The same faces the on-screen renderer picks.
 const FAMILIES = {
@@ -112,19 +116,53 @@ function freshFile(name: string): File {
   return file;
 }
 
+/** Draws one picture off screen, `pixelsWide` wide, and writes it as a PNG file. */
+function writePng(image: ShareImage, name: string, pixelsWide: number): File {
+  const scale = pixelsWide / image.width;
+  const surface = Skia.Surface.MakeOffscreen(pixelsWide, Math.round(image.height * scale));
+  if (!surface) throw new Error('No off-screen surface');
+  const canvas = surface.getCanvas();
+  canvas.scale(scale, scale);
+  for (const node of toSkiaNodes(image.commands)) draw(canvas, node);
+  surface.flush();
+  const file = freshFile(`${name}.png`);
+  file.writeSync(surface.makeImageSnapshot().encodeToBytes(ImageFormat.PNG, 100));
+  return file;
+}
+
+/** The frames as files, stitched into one video; the frame files are removed whatever happens. */
+async function writeVideo(
+  frames: readonly ShareImage[],
+  name: string,
+  framesPerSecond: number,
+): Promise<string> {
+  const files: File[] = [];
+  try {
+    frames.forEach((frame, index) => {
+      files.push(writePng(frame, `${name}-frame-${index}`, VIDEO_PIXELS_WIDE));
+    });
+    const output = new File(Paths.cache, `${name}.mp4`);
+    if (output.exists) output.delete();
+    return await VideoWriter.writeVideo(
+      files.map((file) => file.uri),
+      framesPerSecond,
+      output.uri,
+    );
+  } finally {
+    for (const file of files) if (file.exists) file.delete();
+  }
+}
+
 export const nativeShareDevice: ShareDevice = {
   renderPng(image, name) {
-    const scale = PIXELS_WIDE / image.width;
-    const surface = Skia.Surface.MakeOffscreen(PIXELS_WIDE, Math.round(image.height * scale));
-    if (!surface) return Promise.reject(new Error('No off-screen surface'));
-    const canvas = surface.getCanvas();
-    canvas.scale(scale, scale);
-    for (const node of toSkiaNodes(image.commands)) draw(canvas, node);
-    surface.flush();
-    const file = freshFile(`${name}.png`);
-    file.writeSync(surface.makeImageSnapshot().encodeToBytes(ImageFormat.PNG, 100));
-    return Promise.resolve(file.uri);
+    try {
+      return Promise.resolve(writePng(image, name, PIXELS_WIDE).uri);
+    } catch (error) {
+      return Promise.reject(error instanceof Error ? error : new Error('Could not draw'));
+    }
   },
+  // Only a build that carries the video writer can turn a card; the others share it still.
+  ...(VideoWriter.isAvailable() ? { renderVideo: writeVideo } : {}),
   writeFile(name, bytes) {
     const file = freshFile(name);
     file.writeSync(bytes);

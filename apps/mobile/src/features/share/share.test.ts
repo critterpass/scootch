@@ -295,6 +295,34 @@ describe('sharing a catch', () => {
     }
   });
 
+  it('shares a trading card as one turning video where the phone can write one, and as a picture where it cannot', async () => {
+    const turning = recorder();
+    const videos: { frames: number; name: string; fps: number }[] = [];
+    turning.device.renderVideo = (frames, name, fps) => {
+      videos.push({ frames: frames.length, name, fps });
+      // Every frame is the same card: only the light on it moves.
+      const words = frames.map((frame) => texts(frame));
+      expect(new Set(words).size).toBe(1);
+      expect(frames[0]).not.toEqual(frames[10]);
+      return Promise.resolve(`file:///${name}.mp4`);
+    };
+    const { pages } = website();
+    const cardShare = { ...share, format: 'card' } as const;
+    expect(await shareCatch(turning.device, pages, cardShare)).toBe('shared');
+    expect(videos).toEqual([{ frames: 40, name: 'scootch-card-1', fps: 20 }]);
+    expect(turning.calls.sheets[0]).toMatch(/^video\/mp4 file:\/\/\/scootch-card-1\.mp4 /);
+    expect(turning.calls.drawn).toEqual([]);
+    // A story is never a video, whatever the phone can do.
+    await shareCatch(turning.device, pages, share);
+    expect(turning.calls.sheets[1]).toMatch(/^image\/png /);
+
+    // A writer that fails leaves the picture, not nothing.
+    const failing = recorder();
+    failing.device.renderVideo = () => Promise.reject(new Error('disk full'));
+    expect(await shareCatch(failing.device, website().pages, cardShare)).toBe('shared');
+    expect(failing.calls.sheets[0]).toMatch(/^image\/png file:\/\/\/scootch-card-1\.png /);
+  });
+
   it('shares only the picture, and says so, for a monster with no signature', async () => {
     // Hatched before words were signed, or signed for another seed than the one it is drawn from.
     for (const none of [null, { ...signed, seed: 'another-seed' }]) {

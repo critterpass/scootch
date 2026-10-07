@@ -23,6 +23,8 @@ export interface SurfaceSyncDeps {
   readonly files: SharedFiles;
   readonly painter: MonsterPainter;
   readonly plus: () => boolean;
+  /** The worn ink's accent as a hex colour; `null` for tomato. */
+  readonly accent: () => string | null;
   readonly now: () => number;
   readonly timeZone: () => string;
 }
@@ -30,9 +32,17 @@ export interface SurfaceSyncDeps {
 const TIMED: readonly string[] = ['running', 'stuck', 'holding'];
 
 /** The parts of the day a surface shows. While none of them changes, nothing is written. */
-function shownParts(state: DayState, plus: boolean): readonly unknown[] {
+function shownParts(state: DayState, plus: boolean, accent: string | null): readonly unknown[] {
   const { settings } = state;
-  return [state.today, state.monster, state.line, settings.attitude, settings.language, plus];
+  return [
+    state.today,
+    state.monster,
+    state.line,
+    settings.attitude,
+    settings.language,
+    plus,
+    accent,
+  ];
 }
 
 /**
@@ -52,7 +62,8 @@ export function createSurfaceSync(deps: SurfaceSyncDeps) {
     const state = store.getState();
     if (!state.ready) return;
     const plus = deps.plus();
-    const parts = shownParts(state, plus);
+    const accent = deps.accent();
+    const parts = shownParts(state, plus, accent);
     if (lastParts && parts.every((part, index) => part === lastParts?.[index])) return;
     lastParts = parts;
 
@@ -71,6 +82,7 @@ export function createSurfaceSync(deps: SurfaceSyncDeps) {
         .length,
       worldThings: finishedThings(await deps.repositories.worldPieces.all()),
       plus,
+      accent,
       dayEndsAt: instantOfLocal(
         addDays(state.localDate, 1),
         `${String(DAY_ROLLOVER_HOUR).padStart(2, '0')}:00`,
