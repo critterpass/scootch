@@ -12,6 +12,7 @@ import { wordsWhileUnscreened, type Connection } from '../offline/waiting-words'
 import { TogetherLinks } from '../table/together-links';
 
 import { NotNow } from './not-now';
+import { FRAMES, TASK_SET_MONSTER } from './one-screen-frame';
 import { minuteOptions } from './one-screen-panels';
 import type { Stage } from './one-screen-stage';
 import type { OneScreenShown } from './one-screen-view';
@@ -76,6 +77,9 @@ export function taskSetShown(
                 attitude={voice.attitude}
                 monster={monster.row}
                 sizeFactor={monster.sizeFactor}
+                scootchSize={FRAMES.taskSet.figure}
+                monsterSize={TASK_SET_MONSTER.size}
+                overlap={TASK_SET_MONSTER.overlap}
               />
             ),
           }

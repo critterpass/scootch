@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { Attitude } from '@scootch/domain';
 import { fonts, spacing } from '@scootch/tokens';
@@ -9,74 +10,27 @@ import { useT } from '../../i18n/i18n-provider';
 import { CapsuleButton } from '../../ui/buttons';
 import { GlassSurface } from '../../ui/glass-surface';
 import { RiseIn } from '../../ui/motion/rise-in';
-import { ScootchSays } from '../../ui/scootch-says';
+import { useKeyboardOpen } from '../../ui/use-keyboard-open';
 import { useScreenStyle } from '../../ui/use-screen-style';
-import { ComposerView, type ComposerViewProps } from '../composer/composer-view';
+import { ComposerView } from '../composer/composer-view';
 import { StepDots } from '../launch/launch-page';
 import { ChargeNote } from '../plus/charge-note';
 
+import { HeardWords } from './heard-words';
 import { Corners } from './one-screen-corners';
+import { OneScreenFigure } from './one-screen-figure';
+import { DOCK_BOTTOM, frameOfShown, GUTTER } from './one-screen-frame';
 import { chargeNoteShows } from './one-screen-stage';
-import { Chips, TaskSetChoices, WorldRow, type TaskSetChoicesProps } from './one-screen-panels';
+import { Chips, TaskSetChoices, WorldRow } from './one-screen-panels';
+import type { OneScreenShown } from './one-screen-shown';
+
+export type { OneScreenShown } from './one-screen-shown';
 import { SafeFrame } from '../../ui/safe-frame';
 
 const HEARD_SIZE = 22;
 const NOTE_SIZE = 15;
-
-/** What the screen is showing under Scootch and his sentence. */
-export type OneScreenShown =
-  | {
-      readonly kind: 'composer';
-      readonly composer: ComposerViewProps;
-      /** The first ask after first launch: the example chips and the last step mark. */
-      readonly warmUp: {
-        readonly chips: readonly string[];
-        readonly onChip: (text: string) => void;
-      } | null;
-      /** Said once, straight after the system's prompt was refused, and never again. */
-      readonly notificationsOff: boolean;
-      /** Small ways in under the ask: the three chips of a return, or "pick for me". */
-      readonly ways?: {
-        readonly chips: readonly string[];
-        readonly onChip: (text: string) => void;
-        readonly hint: string;
-        /** A dated thing that is close, said quietly beside the ask. */
-        readonly note: string | null;
-      };
-    }
-  | ({
-      readonly kind: 'task_set';
-      /** The person's own words for the task, shown when Scootch has no line about it yet. */
-      readonly taskText: string | null;
-      readonly onStart: () => void;
-      /** A small line above the task: a morning's greeting, or the plain words of a serious task. */
-      readonly label?: string | null;
-      /** The label of the one action, when it is not the plain "Start". */
-      readonly startLabel?: string;
-      /** Quiet controls under the choices: "Not now", "Something else". */
-      readonly extra?: ReactNode;
-      /** Drawn in place of Scootch alone, when the task's monster stands beside him. */
-      readonly figure?: ReactNode;
-    } & TaskSetChoicesProps)
-  /** A state drawn by its own feature: the one thing, the hatch, a counter-offer. */
-  | {
-      readonly kind: 'panel';
-      /** Names the state in its test id. */
-      readonly name: string;
-      /** Drawn in place of Scootch and his sentence, when the state has its own figure. */
-      readonly figure?: ReactNode;
-      readonly body: ReactNode;
-      readonly footer: ReactNode;
-    }
-  | {
-      readonly kind: 'done';
-      /** The task carried on to tomorrow, said plainly while the day rests. */
-      readonly waiting?: string | null;
-      /** Drawn under the world row: "One more". */
-      readonly under?: ReactNode;
-    }
-  /** Nothing is asked and nothing is offered. */
-  | { readonly kind: 'quiet' };
+/** With the keyboard up the dock sits just above it. */
+const DOCK_OVER_KEYBOARD = 8;
 
 export interface OneScreenViewProps {
   readonly mood: ScootchProps['mood'];
@@ -118,6 +72,8 @@ export function OneScreenView({
 }: OneScreenViewProps) {
   const { palette, allowFontScaling, size } = useScreenStyle();
   const t = useT();
+  const insets = useSafeAreaInsets();
+  const keyboardOpen = useKeyboardOpen();
   const note = (text: string, testID: string) => (
     <Text
       testID={testID}
@@ -138,16 +94,7 @@ export function OneScreenView({
     const anything = heard || ((warmUp ?? shown.ways) && !recording) || shown.notificationsOff;
     body = !anything ? null : (
       <>
-        {heard ? (
-          <Text
-            testID="composer-heard"
-            accessibilityLiveRegion="polite"
-            allowFontScaling={allowFontScaling}
-            style={[styles.heard, { color: palette.ink, fontSize: size(HEARD_SIZE) }]}
-          >
-            {state.transcript}
-          </Text>
-        ) : null}
+        {heard ? <HeardWords transcript={state.transcript} /> : null}
         {warmUp && !recording ? (
           <Chips
             chips={warmUp.chips}
@@ -188,19 +135,23 @@ export function OneScreenView({
     } = shown;
     body = (
       <>
-        {label === null ? null : note(label, 'task-label')}
-        {taskText === null ? null : (
-          <Text
-            testID="task-text"
-            accessibilityLabel={`${t('oneScreen.yourTask')}: ${taskText}`}
-            allowFontScaling={allowFontScaling}
-            style={[styles.heard, { color: palette.ink, fontSize: size(HEARD_SIZE) }]}
-          >
-            {taskText}
-          </Text>
+        {label === null && taskText === null ? null : (
+          <View style={styles.inset}>
+            {label === null ? null : note(label, 'task-label')}
+            {taskText === null ? null : (
+              <Text
+                testID="task-text"
+                accessibilityLabel={`${t('oneScreen.yourTask')}: ${taskText}`}
+                allowFontScaling={allowFontScaling}
+                style={[styles.heard, { color: palette.ink, fontSize: size(HEARD_SIZE) }]}
+              >
+                {taskText}
+              </Text>
+            )}
+          </View>
         )}
         <TaskSetChoices {...choices} />
-        {extra}
+        {extra === null ? null : <View style={styles.inset}>{extra}</View>}
       </>
     );
     footer = (
@@ -241,9 +192,13 @@ export function OneScreenView({
   }
   const figure = 'figure' in shown ? shown.figure : undefined;
   const testName = shown.kind === 'panel' ? shown.name : shown.kind;
+  const frame = frameOfShown(shown, mood === 'thinking');
 
   // A heavy task gets no squeak: nothing plays around it.
   const squeak = mood === 'serious' ? undefined : onSqueak;
+  // The dock stands 30 points off the bottom of the screen, as the boards draw it, whatever the
+  // home bar takes; over the keyboard it sits just above the keys.
+  const dockBottom = keyboardOpen ? DOCK_OVER_KEYBOARD : DOCK_BOTTOM - insets.bottom;
   return (
     <SafeFrame
       testID={`one-screen-${testName}`}
@@ -265,34 +220,49 @@ export function OneScreenView({
             if (event.nativeEvent.contentOffset.y <= -PULL_POINTS) onPull?.();
           }}
         >
-          {figure === undefined ? (
-            <ScootchSays mood={mood} attitude={attitude} line={line} onPress={squeak} />
-          ) : (
-            <>
-              {figure}
-              {line === null ? null : (
-                <Text
-                  testID="one-sentence"
-                  allowFontScaling={allowFontScaling}
-                  style={[styles.heard, { color: palette.ink, fontSize: size(HEARD_SIZE) }]}
-                >
-                  {line}
-                </Text>
-              )}
-            </>
-          )}
-          {failed ? note(t('oneScreen.failed'), 'one-screen-failed') : null}
+          <OneScreenFigure
+            frame={frame}
+            mood={mood}
+            attitude={attitude}
+            line={line}
+            figure={figure}
+            onPress={squeak}
+          />
+          {failed ? (
+            <View style={styles.words}>{note(t('oneScreen.failed'), 'one-screen-failed')}</View>
+          ) : null}
           {/* A new stage rises in under Scootch, who stays where he is. */}
           {body === null ? null : (
-            <RiseIn key={testName} index={1} style={styles.body}>
+            <RiseIn
+              key={testName}
+              index={1}
+              style={[
+                styles.body,
+                shown.kind === 'task_set' ? styles.choices : styles.words,
+                // With nothing said above it, the body stands where the board puts the words.
+                line === null && shown.kind !== 'task_set' && { marginTop: frame.textTop },
+              ]}
+            >
               {body}
             </RiseIn>
           )}
           {/* Said beside nothing else: never during a task, a pick or a hatch. */}
-          {chargeNoteShows(shown.kind) ? <ChargeNote /> : null}
+          {chargeNoteShows(shown.kind) ? (
+            <View style={styles.words}>
+              <ChargeNote />
+            </View>
+          ) : null}
         </ScrollView>
         {footer === null ? null : (
-          <RiseIn key={testName} index={2} style={styles.footer}>
+          <RiseIn
+            key={testName}
+            index={2}
+            style={[
+              styles.footer,
+              shown.kind === 'done' && styles.footerDone,
+              { marginBottom: dockBottom },
+            ]}
+          >
             {footer}
           </RiseIn>
         )}
@@ -308,18 +278,29 @@ const styles = StyleSheet.create({
   },
   content: {
     flexGrow: 1,
-    justifyContent: 'center',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    gap: spacing.md,
+    paddingBottom: spacing.md,
+  },
+  words: {
+    paddingHorizontal: GUTTER.words,
+    marginTop: 12,
+  },
+  choices: {
+    paddingHorizontal: GUTTER.choices,
+    marginTop: 16,
   },
   body: {
-    gap: spacing.md,
+    gap: 12,
+  },
+  inset: {
+    paddingHorizontal: GUTTER.words - GUTTER.choices,
+    gap: 12,
   },
   footer: {
-    paddingHorizontal: spacing.md,
-    paddingBottom: spacing.sm,
-    gap: spacing.md,
+    paddingHorizontal: GUTTER.dock,
+    gap: 18,
+  },
+  footerDone: {
+    gap: 10,
   },
   heard: {
     fontFamily: fonts.body,

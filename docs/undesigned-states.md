@@ -131,3 +131,6 @@ state is designed or removed.
 | Settings | "Music on silent" switch under Music, off by default, shown while Music is on | No board draws it. Effects always follow the ringer switch; the record and the day's bar play with it off only when this is turned on |
 | Hatch | The monster starts as the wobbling egg for about a second, then breaks out | The boards draw only "Hatched" and "Shrunk"; the egg is the existing plain oval, now played once for every hatch so the monster arrives with its sound instead of simply being there |
 | One screen | The task set keeps the monster beside Scootch when nothing may move, with no entrance | The board draws them together; with Reduce Motion or Motion off the stage change is a short crossfade |
+| One screen, task set | A tap on "Treat after this" opens the row for typing in place; an unnamed treat shows "Name it" in the faint ink | The board draws the row with "Coffee ›" and no step after the tap |
+| One screen, task set | "Not now", "Rest for today" and the table links stay under the minutes | The board's task set has only the treat, the minutes and Start |
+| One screen | Dark scheme: the minutes control's chosen pill is a warm grey (`#5E5852`), older transcript words `#7A7268`, row arrows `#5F5952` | The boards are drawn in the light scheme only |

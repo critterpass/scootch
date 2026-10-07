@@ -15,6 +15,10 @@ export interface Palette {
   readonly onTomato: string;
   /** The soft printed shape behind the critter. */
   readonly risoBlob: string;
+  /** Words that have already gone by: the older part of a live transcript. */
+  readonly faint: string;
+  /** The small arrow at the end of a row. */
+  readonly chevron: string;
 }
 
 // The values live in JSON so the app config, which loads outside the bundler, can read them too.
