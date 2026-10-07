@@ -72,6 +72,7 @@ export async function shortenSession(ctx: DayContext, seconds: number): Promise<
     [{ kind: 'cancel_timer' }, { kind: 'start_timer', until: endsAt }],
     contextFor(ctx, task),
   );
+  await ctx.refresh();
 }
 
 /**
@@ -109,4 +110,6 @@ export async function followTableClock(ctx: DayContext, endsAt: Instant): Promis
   if (!next.warned && warnAt !== null) effects.push({ kind: 'schedule_warning', at: warnAt });
   if (!next.checkedIn && checkAt !== null) effects.push({ kind: 'schedule_check_in', at: checkAt });
   ctx.deps.runner.run(effects, contextFor(ctx, task));
+  // The notification planned for the end moves with it.
+  await ctx.refresh();
 }

@@ -68,3 +68,21 @@ describe('time worked', () => {
     expect(sitting && sitting.endedAt - sitting.startedAt).toBe(10 * MINUTE_MS);
   });
 });
+
+describe('the notification for the end of a session', () => {
+  const atEnd = (app: Phone) =>
+    app.device.scheduled().filter((one) => one.at === MORNING + 10 * MINUTE_MS);
+
+  it('is waiting while the session runs and gone when it is finished or left', async () => {
+    const app = await stagedPhone(stagedServer());
+    await app.say('ring the bank', 'typed');
+    await app.store.dispatch({ type: 'one_thing_picked' });
+    await app.store.dispatch({ type: 'session_set', minutes: 10 });
+    await session(app, { type: 'started' });
+    await app.store.dispatch({ type: 'app_backgrounded' });
+    expect(atEnd(app)).toHaveLength(1);
+
+    await session(app, { type: 'left' });
+    expect(atEnd(app)).toEqual([]);
+  });
+});

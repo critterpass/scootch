@@ -1,6 +1,7 @@
 import {
   addDays,
   instantFromIso,
+  isQuietMinute,
   localDateTime,
   notificationPlan,
   type Attitude,
@@ -12,10 +13,12 @@ import {
   type SettingsRow,
   type TodayState,
 } from '@scootch/domain';
+import { t } from '@scootch/i18n';
 import { offlineLine, offlinePacks } from '@scootch/voice';
 
 import type { PlannedText } from '../effects/effects-runner';
 
+import { lineFor } from './lines';
 import { showsComedy } from './shows-comedy';
 
 /** The start time assumed on a phone with no sessions to learn from. */
@@ -54,6 +57,27 @@ function voiceFor(volume: NotificationVolume): Attitude {
 }
 
 /**
+ * The end of the session that is running, so time being up is heard with the phone locked: the
+ * timers inside the app do not run there. One notification at the end time, and none inside quiet
+ * hours, and none for a serious task, which gets nothing but the reminder it asked for. An
+ * ordinary task says it in its own time-up line; one nobody has screened, in the plain words of
+ * the interface, which never name the task. It leaves the plan as soon as the session is
+ * finished, left or answered "not finished", and moves with its end time.
+ */
+function sessionEnd(input: DayNotificationsInput): PlannedText[] {
+  const { today, settings } = input;
+  if (today.kind !== 'in_session') return [];
+  const { session, task } = today;
+  if (session.endedAt !== null || session.outcome !== null) return [];
+  const at = instantFromIso(session.endsAt);
+  const local = localDateTime(at, input.timeZone);
+  const quietHours = { start: settings.quietHoursStart, end: settings.quietHoursEnd };
+  if (isQuietMinute(local.hour * 60 + local.minute, quietHours)) return [];
+  const own = showsComedy(task, 'notification') ? lineFor('timeUp', task, settings) : null;
+  return [{ at, text: own ?? t(settings.language, 'session.timeUpSpoken') }];
+}
+
+/**
  * The local notifications from today on. They are planned whenever the app is open, so being open
  * is what resets the back-off: today is always planned at full volume, with nothing said about
  * any days before it, and each later day is planned as one more day ignored. Opening the app on
@@ -83,7 +107,7 @@ export function dayNotifications(input: DayNotificationsInput): PlannedText[] {
     quietHours: { start: settings.quietHoursStart, end: settings.quietHoursEnd },
     usualStart: input.usualStart,
   };
-  const planned: PlannedText[] = [];
+  const planned: PlannedText[] = sessionEnd(input);
 
   if (
     today.kind === 'task_set' &&

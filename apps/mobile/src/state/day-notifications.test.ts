@@ -148,9 +148,13 @@ describe('the notifications planned from today on', () => {
 
   it("sends none of today's lines once the task is started or the day is done", () => {
     const started = taskRow({ status: 'started' });
-    expect(onDay(plan({ kind: 'in_session', task: started, session: sessionRow() }), 0)).toEqual(
-      [],
-    );
+    // All that is planned today for a running session is the word that its time is up.
+    expect(onDay(plan({ kind: 'in_session', task: started, session: sessionRow() }), 0)).toEqual([
+      {
+        text: started.lines && 'timeUp' in started.lines ? started.lines.timeUp : '',
+        clock: '14:50',
+      },
+    ]);
     expect(onDay(plan({ kind: 'done_for_today', startsLeft: 0 }), 0)).toEqual([]);
   });
 
@@ -166,5 +170,40 @@ describe('the notifications planned from today on', () => {
     ).toEqual(OWN);
     await runner.syncNotifications(plan({ kind: 'crisis' }, { attitude: 'unhinged' }));
     expect(device.scheduled()).toEqual([]);
+  });
+});
+
+describe('the end of a running session', () => {
+  // 10:00 to 10:25 in London, the app's own summer clock.
+  const row = {
+    ...sessionRow(),
+    startedAt: '2026-10-06T09:00:00.000Z',
+    endsAt: '2026-10-06T09:25:00.000Z',
+    endedAt: null,
+    outcome: null,
+  };
+  const END = Date.parse(row.endsAt);
+  const running: TodayState = { kind: 'in_session', task: taskRow(), session: row };
+  const ends = (today: TodayState, changes: Partial<SettingsRow> = {}) =>
+    plan(today, changes).filter((one) => one.at === END);
+
+  it('is planned as one notification at the end time, in the task own time-up words', () => {
+    const { lines } = taskRow();
+    expect(ends(running)).toEqual([{ at: END, text: lines && 'timeUp' in lines && lines.timeUp }]);
+  });
+
+  it('is said in plain words for a task nobody has screened, and not at all for a serious one', () => {
+    const plain = [{ at: END, text: 'Time is up' }];
+    expect(ends({ kind: 'serious', task: seriousTask(), session: row })).toEqual([]);
+    const unscreened = { ...taskRow(), screen: 'unscreened' as const, lines: null };
+    expect(ends({ kind: 'in_session', task: unscreened, session: row })).toEqual(plain);
+  });
+
+  it('is not planned inside quiet hours, once the session is over, or with nothing running', () => {
+    expect(ends(running, { quietHoursStart: '10:00', quietHoursEnd: '11:00' })).toEqual([]);
+    const tapped = { ...row, outcome: 'not_finished' as const };
+    expect(ends({ kind: 'in_session', task: taskRow(), session: tapped })).toEqual([]);
+    expect(ends(SET)).toEqual([]);
+    expect(ends({ kind: 'crisis' })).toEqual([]);
   });
 });
