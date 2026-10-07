@@ -21,13 +21,14 @@ import { BurstMarks } from '../ui/burst-marks';
 import type { ParkComposerHandle } from '../ui/park-composer';
 import { ParkedToast } from '../ui/parked-toast';
 import { SessionMenu, type SessionMenuItem } from '../ui/session-menu';
-import { SessionText } from '../ui/session-text';
 
+import { CatchCaption } from './catch-caption';
 import { AskSheet, CoachCard } from './catch-cards';
 import { catchStage, gestureUnlocked, trapProgress, type CatchAnswer } from './catch-flow';
-import { CAPTION_AT } from './catch-kinds';
+import { CAPTION_AT, DRAWN_IN } from './catch-kinds';
 import { CatchTopRow, ROW } from './catch-top-row';
 import { catchWords } from './catch-words';
+import { fitBoard, type BoardFit } from './fit-board';
 import { STAGE } from './math';
 import type { SceneTouch } from './rig';
 import { SCENES } from './scenes';
@@ -38,6 +39,8 @@ const PASS_AFTER_MS = 400;
 /** The gap the board leaves under the corner row before the words, and before the coach card. */
 const UNDER_ROW = 18;
 const COACH_UNDER_ROW = 46;
+/** The room the words are given: a headline and one quiet line, as the board sets them. */
+const WORDS_ROOM = 58;
 
 /**
  * The session of a task whose monster is caught by hand, from the first minute to the catch. The
@@ -56,11 +59,15 @@ export function CatchScreen(props: ScreenProps) {
   useEffect(() => {
     if (view.kind === 'working') setAnswer('none');
   }, [view.kind]);
+  // "Yes, it's done": the catch unlocks, and is heard to.
+  const sayDone = () => {
+    playCue('catch-unlock');
+    setAnswer('yes');
+  };
   const stage = catchStage(view, answer);
   const firstStage = useRef(stage).current;
   const scene = useSceneHost({
     stage,
-    haptics: model.haptics,
     playCue,
     sendFinish: actions.sendFinish,
   });
@@ -72,14 +79,7 @@ export function CatchScreen(props: ScreenProps) {
       before && before.width === width && before.height === height ? before : { width, height },
     );
   }, []);
-  // The board's phone, fitted whole into this one.
-  const scale = size ? Math.min(size.width / STAGE.width, size.height / STAGE.height) : 1;
-  const fitted = useRef({ scale: 1, left: 0, top: 0 });
-  fitted.current = {
-    scale,
-    left: size ? (size.width - STAGE.width * scale) / 2 : 0,
-    top: size ? (size.height - STAGE.height * scale) / 2 : 0,
-  };
+  const fitted = useRef<BoardFit>({ scale: 1, left: 0, top: 0 });
 
   // A touch on the drawing, handed to the scene in the board's points.
   const touch = useRef<SceneTouch | null>(null);
@@ -141,6 +141,15 @@ export function CatchScreen(props: ScreenProps) {
   const Scene = SCENES[kind];
   const rowTop = insets.top + CORNER.top;
   const foot = Math.max(insets.bottom, 12);
+  // The board is fitted to this phone so the catch keeps its size: it stays clear of the top row
+  // and of the words, which sit above the drawing or below it.
+  const fit = size
+    ? fitBoard(size, DRAWN_IN[kind], {
+        top: rowTop + ROW + (at === 'top' ? UNDER_ROW + WORDS_ROOM : 0),
+        bottom: size.height - foot - (at === 'bottom' ? 10 + WORDS_ROOM : 0),
+      })
+    : fitted.current;
+  fitted.current = fit;
 
   return (
     <View
@@ -154,9 +163,10 @@ export function CatchScreen(props: ScreenProps) {
             style={[
               styles.board,
               {
-                left: (size.width - STAGE.width) / 2,
-                top: (size.height - STAGE.height) / 2,
-                transform: [{ scale }],
+                // A view is scaled about its middle, so its corner is set back by half the change.
+                left: fit.left - (STAGE.width * (1 - fit.scale)) / 2,
+                top: fit.top - (STAGE.height * (1 - fit.scale)) / 2,
+                transform: [{ scale: fit.scale }],
               },
             ]}
           >
@@ -199,7 +209,7 @@ export function CatchScreen(props: ScreenProps) {
           twoMinutesLeft={working?.twoMinutesLeft === true}
           hasMenu={menu !== null}
           onMenu={() => setMenuOpen((open) => !open)}
-          onDidIt={() => setAnswer('yes')}
+          onDidIt={sayDone}
         />
       </GlassGroup>
 
@@ -211,32 +221,7 @@ export function CatchScreen(props: ScreenProps) {
             at === 'top' ? { top: rowTop + ROW + UNDER_ROW } : { bottom: foot + 10 },
           ]}
         >
-          {headline ? (
-            <SessionText
-              face="step"
-              color={inks.ink}
-              accessibilityLiveRegion="polite"
-              testID="session-catch-headline"
-              // A long task shrinks a little, then ends in an ellipsis, before it reaches the drawing.
-              numberOfLines={2}
-              adjustsFontSizeToFit
-              minimumFontScale={0.75}
-              style={styles.centred}
-            >
-              {headline}
-            </SessionText>
-          ) : null}
-          {sub ? (
-            <SessionText
-              face="caption"
-              color={inks.muted}
-              testID="session-catch-line"
-              numberOfLines={3}
-              style={styles.centred}
-            >
-              {sub}
-            </SessionText>
-          ) : null}
+          <CatchCaption headline={headline} sub={sub} inks={inks} />
         </View>
       )}
 
@@ -287,7 +272,7 @@ export function CatchScreen(props: ScreenProps) {
         <AskSheet
           {...props}
           bottom={Math.max(insets.bottom, 8)}
-          onYes={() => setAnswer('yes')}
+          onYes={sayDone}
           onNotYet={() => setAnswer('not_yet')}
         />
       ) : null}
@@ -329,6 +314,5 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   words: { position: 'absolute', left: 28, right: 28, alignItems: 'center', gap: 5 },
-  centred: { textAlign: 'center' },
   footer: { paddingHorizontal: 14, paddingTop: 8 },
 });

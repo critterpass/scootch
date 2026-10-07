@@ -6,7 +6,8 @@ import { swipeMade, type TimedPoint } from '../catch-rules';
 import { clamp, easeOut, lerp, STAGE } from '../math';
 import {
   Board,
-  DUST,
+  Hint,
+  dust,
   feetOf,
   Floor,
   Ink,
@@ -47,6 +48,9 @@ const MESH = [1, -1].map((way) =>
 );
 /** How many touches of the swipe leave a trail. */
 const TRAIL = 14;
+
+/** The gesture, as the hint traces it. */
+const HINT = 'M70 505 L322 505 M308 491 L322 505 L308 519';
 
 /**
  * The net: he flits about in the air, and the work makes him dozy until he sinks to the floor. One
@@ -96,7 +100,7 @@ export function NetScene(props: SceneProps) {
     own.swooping = true;
     const from = { ...own.net };
     const to = { x: own.mx, y: FLOOR - 6 };
-    props.host.buzz('light');
+    props.host.cue('catch-swoosh');
     rig.tw(
       320,
       (k) => {
@@ -111,11 +115,10 @@ export function NetScene(props: SceneProps) {
       },
       null,
       () => {
-        props.host.buzz('heavy');
-        props.host.cue('tick');
+        props.host.cue('catch-slam');
         props.host.shake(7);
-        puffs.current?.fire(to.x - 90, FLOOR - 4, { ...DUST, angle: Math.PI });
-        puffs.current?.fire(to.x + 90, FLOOR - 4, { ...DUST, angle: 0 });
+        puffs.current?.fire(to.x - 90, FLOOR - 4, { ...dust(inks.dark), angle: Math.PI });
+        puffs.current?.fire(to.x + 90, FLOOR - 4, { ...dust(inks.dark), angle: 0 });
         rig.setMood('nervous');
         // He struggles under it, then gives in.
         const x = own.mx - MONSTER_SIZE / 2;
@@ -133,6 +136,7 @@ export function NetScene(props: SceneProps) {
   };
 
   const rig = useRig(props, {
+    hint: () => HINT,
     tick: (time, dt) => {
       const { m } = rig;
       if (m.state === 'busy' || m.state === 'caught') return;
@@ -209,6 +213,7 @@ export function NetScene(props: SceneProps) {
         <View style={[styles.hoop, { borderColor: inks.ink }]} />
       </Animated.View>
       <Ink ref={ink} style={styles.trail} />
+      <Hint ref={rig.hint} inks={inks} />
       <Stamp sprite={stamp} x={236} y={340} label={t('session.catch.stamp')} inks={inks} />
       <Puffs ref={puffs} />
     </Board>

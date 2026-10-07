@@ -222,9 +222,10 @@ export function Board({
 }
 
 export { useSprite };
+export { Hint } from './hint';
 export { Binder, BINDER_AT, bumpBinder, flyToBinder } from './binder';
 export { Ink, type InkHandle, type InkStroke } from './ink';
-export { DUST, Puffs, type PuffOptions, type PuffsHandle } from './puffs';
+export { dust, Puffs, type PuffOptions, type PuffsHandle } from './puffs';
 
 const styles = StyleSheet.create({
   at: { position: 'absolute' },

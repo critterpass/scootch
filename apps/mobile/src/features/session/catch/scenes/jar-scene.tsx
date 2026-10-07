@@ -5,7 +5,8 @@ import Animated from 'react-native-reanimated';
 import { back, clamp, lerp } from '../math';
 import {
   Board,
-  DUST,
+  Hint,
+  dust,
   Floor,
   feetOf,
   MONSTER_SIZE,
@@ -29,6 +30,9 @@ const SET = 130;
 const DOWN = 310;
 /** Pulled past here and let go, it slams; short of it, it springs back. */
 const SLAMS_PAST = 205;
+
+/** The gesture, as the hint traces it. */
+const HINT = 'M330 250 L330 400 M316 386 L330 400 L344 386';
 
 /**
  * The jar: it lowers a little with every minute of work, and the monster grows twitchy as its
@@ -65,10 +69,10 @@ export function JarScene(props: SceneProps) {
       (k) => setJar(lerp(from, DOWN, k)),
       (k) => k * k,
       () => {
-        props.host.buzz('heavy');
+        props.host.cue('catch-slam');
         props.host.shake(9);
-        puffs.current?.fire(98, FLOOR - 4, { ...DUST, angle: Math.PI });
-        puffs.current?.fire(294, FLOOR - 4, { ...DUST, angle: 0 });
+        puffs.current?.fire(98, FLOOR - 4, { ...dust(inks.dark), angle: Math.PI });
+        puffs.current?.fire(294, FLOOR - 4, { ...dust(inks.dark), angle: 0 });
         rig.setMood('nervous');
         put(mon, { x: 0 });
         squash(rig, mon, 480, [
@@ -87,6 +91,7 @@ export function JarScene(props: SceneProps) {
         });
         rig.at(1350, () => {
           rig.setMood('caught');
+          props.host.cue('catch-swoosh');
           // The jar turns right over, and he tumbles round inside it.
           rig.tw(
             780,
@@ -97,7 +102,7 @@ export function JarScene(props: SceneProps) {
             },
             null,
             () => {
-              props.host.buzz('medium');
+              props.host.cue('catch-stick');
               thwack(rig, stamp);
               rig.win('jar.won');
             },
@@ -108,6 +113,7 @@ export function JarScene(props: SceneProps) {
   };
 
   const rig = useRig(props, {
+    hint: () => HINT,
     tick: (time) => {
       const { m } = rig;
       if (m.state === 'during') {
@@ -187,6 +193,7 @@ export function JarScene(props: SceneProps) {
           style={[styles.card, { backgroundColor: inks.tomato, borderColor: inks.ink }, card.style]}
         />
       </Animated.View>
+      <Hint ref={rig.hint} inks={inks} />
       <Stamp sprite={stamp} x={226} y={336} label={t('session.catch.stamp')} inks={inks} />
       <Puffs ref={puffs} />
     </Board>

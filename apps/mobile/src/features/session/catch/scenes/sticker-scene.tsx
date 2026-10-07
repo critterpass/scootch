@@ -5,6 +5,7 @@ import Animated from 'react-native-reanimated';
 import { back, clamp, easeOut, keyed, lerp } from '../math';
 import {
   Board,
+  Hint,
   Ink,
   Puffs,
   SceneMonster,
@@ -116,8 +117,7 @@ export function StickerScene(props: SceneProps) {
               ]),
           }),
         );
-        props.host.buzz('medium');
-        props.host.cue('tick');
+        props.host.cue('catch-stick');
         puffs.current?.fire(place[0], place[1], {
           count: 16,
           colors: [inks.tomato, inks.ink, '#E7DCCB'],
@@ -133,6 +133,9 @@ export function StickerScene(props: SceneProps) {
   };
 
   const rig = useRig(props, {
+    // From the sheet to the empty place, in a shallow curve.
+    hint: () =>
+      `M${STICKER.cx} ${STICKER.cy + 20} Q${(STICKER.cx + place[0]) / 2 - 70} ${(STICKER.cy + place[1]) / 2} ${place[0]} ${place[1]}`,
     tick: () => {
       const { m } = rig;
       if (m.state === 'during' || m.state === 'ready') {
@@ -185,8 +188,7 @@ export function StickerScene(props: SceneProps) {
       setLifted(true);
       curl(false);
       rig.setMood('nervous');
-      props.host.cue('squeak');
-      props.host.buzz('light');
+      props.host.cue('catch-peel');
       props.host.react({ name: 'sticker.peeled' });
       return true;
     },
@@ -245,6 +247,7 @@ export function StickerScene(props: SceneProps) {
           <Animated.View style={[styles.peel, peel.style]} />
         </Animated.View>
       </Animated.View>
+      <Hint ref={rig.hint} inks={inks} />
       <Stamp sprite={stamp} x={250} y={600} label={t('session.catch.stamp')} inks={inks} />
       <Puffs ref={puffs} />
     </Board>

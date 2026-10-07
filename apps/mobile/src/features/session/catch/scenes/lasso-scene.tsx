@@ -8,6 +8,7 @@ import {
   Binder,
   BINDER_AT,
   Board,
+  Hint,
   bumpBinder,
   feetOf,
   Floor,
@@ -53,6 +54,9 @@ function ropePath(
   }
   return d;
 }
+
+/** The gesture, as the hint traces it. */
+const HINT = 'M196 400 A100 92 0 1 1 195.9 400';
 
 /**
  * The lasso: he runs laps, and his pep drains as the work goes on until he slows to a stop and
@@ -115,6 +119,7 @@ export function LassoScene(props: SceneProps) {
       const angle = Math.atan2(dy, dx);
       return [Math.cos(angle) * 72, Math.sin(angle) * 60] as const;
     });
+    props.host.cue('catch-swoosh');
     let loop: readonly Point[] = loose;
     const draw = (cx: number, cy: number, scale: number, slack: number) =>
       ink.current?.draw(
@@ -141,8 +146,7 @@ export function LassoScene(props: SceneProps) {
       },
       back,
       () => {
-        props.host.buzz('medium');
-        props.host.cue('tick');
+        props.host.cue('catch-cinch');
         rig.setMood('nervous');
         squash(rig, mon, 360, [
           [0, 1.08, 0.84],
@@ -169,6 +173,7 @@ export function LassoScene(props: SceneProps) {
               clear();
               put(mon, { o: 0 });
               setLanded(true);
+              props.host.cue('catch-landed');
               bumpBinder(rig, binder);
               rig.win('lasso.won');
             },
@@ -179,6 +184,7 @@ export function LassoScene(props: SceneProps) {
   };
 
   const rig = useRig(props, {
+    hint: () => HINT,
     tick: (_time, dt) => {
       const { m } = rig;
       if (m.state === 'busy' || m.state === 'caught') return;
@@ -275,6 +281,7 @@ export function LassoScene(props: SceneProps) {
         count={caughtCount === null ? null : caughtCount + (landed ? 1 : 0)}
         inks={inks}
       />
+      <Hint ref={rig.hint} inks={inks} />
       <Ink ref={ink} style={styles.rope} />
     </Board>
   );

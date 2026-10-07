@@ -1,14 +1,22 @@
 import { useRef, useState } from 'react';
-import { StyleSheet, View, type ViewProps } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   type SharedValue,
 } from 'react-native-reanimated';
 
-import type { AnimatedViewStyle } from '../../../../ui/motion/animated-style';
 import { back, clamp, keyed } from '../math';
-import { Binder, Board, bumpBinder, flyToBinder, SceneMonster, useSprite } from '../parts';
+import {
+  Binder,
+  Board,
+  Hint,
+  bumpBinder,
+  flyToBinder,
+  Ink,
+  SceneMonster,
+  useSprite,
+} from '../parts';
 import { useRig, type SceneProps } from '../rig';
 import { put } from '../sprite';
 
@@ -21,18 +29,52 @@ const OPEN = [-168, 168, 168, -168] as const;
 const ADDRESS = [70, 54, 38] as const;
 const AFTER_FOLD = ['envelope.three', 'envelope.two', 'envelope.last', 'envelope.seal'] as const;
 
-/** One flap: a triangle that turns about the edge of the envelope it is hinged on. */
+/** The paper's edge, drawn in the ink that is written on it, whatever the page. */
+const PAPER_EDGE = '#1C1A17';
+const SIDE = W * 0.54;
+const LOWER = H * 0.58;
+const UPPER = H * 0.62;
+
+/** Each flap: the edge it is hinged on, its box on the envelope, its paper, and its triangle. */
+const FLAPS = [
+  {
+    axis: 'y',
+    frame: { left: 0, top: 0, width: SIDE, height: H, transformOrigin: 'left' },
+    paper: '#F3ECE0',
+    shape: `M0 0 L${SIDE} ${H * 0.52} L0 ${H}`,
+  },
+  {
+    axis: 'y',
+    frame: { right: 0, top: 0, width: SIDE, height: H, transformOrigin: 'right' },
+    paper: '#F3ECE0',
+    shape: `M${SIDE} 0 L0 ${H * 0.52} L${SIDE} ${H}`,
+  },
+  {
+    axis: 'x',
+    frame: { left: 0, bottom: 0, width: W, height: LOWER, transformOrigin: 'bottom' },
+    paper: '#EFE7DA',
+    shape: `M0 ${LOWER} L${W / 2} 0 L${W} ${LOWER}`,
+  },
+  {
+    axis: 'x',
+    frame: { left: 0, top: 0, width: W, height: UPPER, transformOrigin: 'top' },
+    paper: '#F8F2E8',
+    shape: `M0 0 L${W / 2} ${UPPER} L${W} 0`,
+  },
+] as const;
+
+/**
+ * One flap: a paper triangle with its two free edges drawn, turning about the edge of the
+ * envelope it is hinged on.
+ */
 function Flap({
   angle,
-  axis,
-  frame,
-  shape,
+  flap,
 }: {
   readonly angle: SharedValue<number>;
-  readonly axis: 'x' | 'y';
-  readonly frame: AnimatedViewStyle;
-  readonly shape: ViewProps['style'];
+  readonly flap: (typeof FLAPS)[number];
 }) {
+  const { axis } = flap;
   const style = useAnimatedStyle(() => ({
     transform: [
       { perspective: 800 },
@@ -40,11 +82,20 @@ function Flap({
     ],
   }));
   return (
-    <Animated.View style={[styles.flap, frame, style]}>
-      <View style={[styles.triangle, shape]} />
+    <Animated.View style={[styles.flap, flap.frame, style]}>
+      <Ink
+        style={{ width: flap.frame.width, height: flap.frame.height }}
+        first={[
+          { d: `${flap.shape} Z`, width: 0, color: flap.paper, fill: true },
+          { d: flap.shape, width: 1.2, color: PAPER_EDGE, opacity: 0.55 },
+        ]}
+      />
     </Animated.View>
   );
 }
+
+/** The gesture, as the hint traces it. */
+const HINT = 'M196 374 A36 36 0 1 1 195.9 374';
 
 /**
  * The envelope: he sits in an open one that is addressed to the binder as the work goes on. A tap
@@ -74,6 +125,7 @@ export function EnvelopeScene(props: SceneProps) {
       () => {
         put(envelope, { o: 0 });
         setLanded(true);
+        props.host.cue('catch-landed');
         bumpBinder(rig, binder);
         rig.win('envelope.won');
       },
@@ -81,6 +133,7 @@ export function EnvelopeScene(props: SceneProps) {
   };
 
   const rig = useRig(props, {
+    hint: () => HINT,
     tick: () => {
       const { m } = rig;
       if (m.state !== 'during' && m.state !== 'ready') return;
@@ -115,8 +168,7 @@ export function EnvelopeScene(props: SceneProps) {
           },
           back,
         );
-        props.host.cue('tick');
-        props.host.buzz('light');
+        props.host.cue('catch-fold');
         rig.setMood(index === 3 ? 'caught' : 'nervous');
         props.host.react({ name: said });
         return false;
@@ -138,7 +190,7 @@ export function EnvelopeScene(props: SceneProps) {
         }),
       );
       rig.at(200, () => {
-        props.host.buzz('medium');
+        props.host.cue('catch-seal');
         props.host.shake(4);
       });
       props.host.react({ name: 'envelope.sealed' });
@@ -176,54 +228,15 @@ export function EnvelopeScene(props: SceneProps) {
           left={40}
           top={8}
         />
-        <Flap
-          angle={left}
-          axis="y"
-          frame={{ left: 0, top: 0, width: W * 0.54, height: H, transformOrigin: 'left' }}
-          shape={{
-            borderTopWidth: H / 2,
-            borderBottomWidth: H / 2,
-            borderLeftWidth: W * 0.54,
-            borderLeftColor: '#F3ECE0',
-          }}
-        />
-        <Flap
-          angle={right}
-          axis="y"
-          frame={{ right: 0, top: 0, width: W * 0.54, height: H, transformOrigin: 'right' }}
-          shape={{
-            borderTopWidth: H / 2,
-            borderBottomWidth: H / 2,
-            borderRightWidth: W * 0.54,
-            borderRightColor: '#F3ECE0',
-          }}
-        />
-        <Flap
-          angle={bottom}
-          axis="x"
-          frame={{ left: 0, bottom: 0, width: W, height: H * 0.58, transformOrigin: 'bottom' }}
-          shape={{
-            borderLeftWidth: W / 2,
-            borderRightWidth: W / 2,
-            borderBottomWidth: H * 0.58,
-            borderBottomColor: '#EFE7DA',
-          }}
-        />
-        <Flap
-          angle={top}
-          axis="x"
-          frame={{ left: 0, top: 0, width: W, height: H * 0.62, transformOrigin: 'top' }}
-          shape={{
-            borderLeftWidth: W / 2,
-            borderRightWidth: W / 2,
-            borderTopWidth: H * 0.62,
-            borderTopColor: '#F8F2E8',
-          }}
-        />
+        {FLAPS.map((flap, index) => {
+          const angle = flaps[index];
+          return angle ? <Flap key={index} angle={angle} flap={flap} /> : null;
+        })}
         <Animated.View style={[styles.seal, { backgroundColor: inks.tomato }, seal.style]}>
           <View style={styles.sealRing} />
         </Animated.View>
       </Animated.View>
+      <Hint ref={rig.hint} inks={inks} />
       <Binder
         sprite={binder}
         count={caughtCount === null ? null : caughtCount + (landed ? 1 : 0)}
@@ -244,7 +257,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     borderWidth: 2,
     // Paper is paper on either page: its edge is drawn in the ink that is written on it.
-    borderColor: '#1C1A17',
+    borderColor: PAPER_EDGE,
     backgroundColor: '#E9E0D1',
     boxShadow: '0 20px 30px -18px rgba(28,26,23,0.4)',
   },
@@ -266,7 +279,6 @@ const styles = StyleSheet.create({
     borderColor: '#E9E0D1',
   },
   flap: { position: 'absolute' },
-  triangle: { width: 0, height: 0, borderColor: 'transparent' },
   seal: {
     position: 'absolute',
     left: W / 2 - 19,

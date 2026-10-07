@@ -7,13 +7,31 @@ import type { SessionInks } from '../ui/session-inks';
 
 import type { Caption, CaptionName } from './captions';
 import type { CatchKind } from './catch-kinds';
+import type { HintHandle } from './hint';
 
 /** Where a scene stands: the trap setting, the gesture unlocked, the catch landing, and caught. */
 export type SceneState = 'during' | 'ready' | 'busy' | 'caught';
 export type MonsterMood = 'idle' | 'nervous' | 'caught';
 
-/** How hard a catch is felt in the hand. */
-export type Buzz = 'tick' | 'light' | 'medium' | 'heavy';
+/** The sounds a catch makes. Each carries its own taps, so what is heard is also felt. */
+export type CatchCue =
+  | 'tick'
+  | 'cancel'
+  | 'aww'
+  | 'send'
+  | 'catch-slam'
+  | 'catch-swoosh'
+  | 'catch-yank'
+  | 'catch-splash'
+  | 'catch-cinch'
+  | 'catch-peel'
+  | 'catch-stick'
+  | 'catch-float'
+  | 'catch-pop'
+  | 'catch-slurp'
+  | 'catch-fold'
+  | 'catch-seal'
+  | 'catch-landed';
 
 /** What a scene asks of the screen it is drawn on. */
 export interface SceneHost {
@@ -23,8 +41,7 @@ export interface SceneHost {
   readonly react: (caption: Caption) => void;
   /** The gesture was tried before the thing was said to be done. */
   readonly early: () => void;
-  readonly cue: (cue: 'tick' | 'cancel' | 'aww' | 'send' | 'squeak') => void;
-  readonly buzz: (weight: Buzz) => void;
+  readonly cue: (cue: CatchCue) => void;
   /** Jolts the whole drawing, as a slam does. */
   readonly shake: (amount: number) => void;
   /** The monster is caught: the finish is sent, once. */
@@ -74,6 +91,11 @@ export interface SceneHandlers {
   readonly down?: (x: number, y: number) => boolean;
   readonly move?: (x: number, y: number) => void;
   readonly up?: (x: number, y: number) => void;
+  /**
+   * The gesture this catch is waiting for, as a path on the board. It is traced as a hint once
+   * the catch has been unlocked and left alone for a moment.
+   */
+  readonly hint?: () => string;
 }
 
 type Ease = (t: number) => number;
@@ -101,10 +123,17 @@ export interface Rig {
   readonly win: (caption: CaptionName, sent?: boolean) => void;
   /** A touch that came too early: the "not yet" caption, and the small refusing sound. */
   readonly refuse: () => void;
+  /** Where the scene puts its `Hint`, for the rig to run. */
+  readonly hint: RefObject<HintHandle | null>;
 }
 
 /** What the rig keeps between frames. */
+/** How long an unlocked catch is left alone before its gesture is hinted at. */
+const HINT_AFTER = 1.4;
+
 interface Inner {
+  /** When the catch last became ready or was last let go of, in seconds; `null` while it is not. */
+  restedAt: number | null;
   /** Goes up when the scene goes away, so nothing started before then carries on. */
   gen: number;
   said: string;
@@ -127,12 +156,14 @@ export function useRig(props: SceneProps, handlers: SceneHandlers): Rig {
   const latest = useRef({ props, handlers });
   latest.current = { props, handlers };
   const inner = useRef<Inner>({
+    restedAt: null,
     gen: 0,
     said: '',
     mood: ended ? 'caught' : 'idle',
     m: { state: ended ? 'caught' : 'during', p: props.progress, drag: false },
   }).current;
 
+  const hint = useRef<HintHandle | null>(null);
   const rig = useMemo<Rig>(() => {
     const { m } = inner;
     const alive = (gen: number) => gen === inner.gen;
@@ -178,8 +209,9 @@ export function useRig(props: SceneProps, handlers: SceneHandlers): Rig {
         latest.current.props.host.early();
         latest.current.props.host.cue('cancel');
       },
+      hint,
     };
-  }, [inner]);
+  }, [inner, hint]);
 
   // The touch handlers the screen calls: a touch the scene lets go of is followed no further.
   useEffect(() => {
@@ -229,7 +261,14 @@ export function useRig(props: SceneProps, handlers: SceneHandlers): Rig {
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
       sync(dt);
-      latest.current.handlers.tick?.((now - began) / 1000, dt);
+      const seconds = (now - began) / 1000;
+      latest.current.handlers.tick?.(seconds, dt);
+      // Unlocked and untouched for a moment, the gesture is traced; a finger puts it away.
+      const resting = m.state === 'ready' && !m.drag;
+      if (!resting) inner.restedAt = null;
+      else inner.restedAt ??= seconds;
+      const since = inner.restedAt === null ? -1 : seconds - inner.restedAt - HINT_AFTER;
+      hint.current?.show(since >= 0 ? since : null, latest.current.handlers.hint?.() ?? '');
       frame = requestAnimationFrame(loop);
     };
     frame = requestAnimationFrame(loop);
@@ -237,7 +276,7 @@ export function useRig(props: SceneProps, handlers: SceneHandlers): Rig {
       inner.gen += 1;
       cancelAnimationFrame(frame);
     };
-  }, [inner, still]);
+  }, [inner, still, hint]);
 
   // The mood is state, so a change of it draws again without remaking the rig.
   return useMemo(() => ({ ...rig, mood }), [rig, mood]);

@@ -8,6 +8,7 @@ import {
   Binder,
   BINDER_AT,
   Board,
+  Hint,
   bumpBinder,
   Floor,
   Puffs,
@@ -36,6 +37,9 @@ const SHEEN = {
 /** A flick has to travel at least this far up. */
 const FLICK = 70;
 
+/** The gesture, as the hint traces it. */
+const HINT = 'M52 470 L52 320 M38 334 L52 320 L66 334';
+
 /**
  * The bubble: it forms round him as the work goes on and lifts him off the floor. Flicked upward,
  * it wobbles off, drifts into the binder and pops.
@@ -63,8 +67,7 @@ export function BubbleScene(props: SceneProps) {
     rig.m.state = 'busy';
     rig.setMood('nervous');
     props.host.react({ name: 'bubble.up' });
-    props.host.buzz('light');
-    props.host.cue('send');
+    props.host.cue('catch-float');
     const from = [own.c[0], own.c[1] + own.lift] as const;
     const scale = own.sx;
     rig.tw(
@@ -93,7 +96,7 @@ export function BubbleScene(props: SceneProps) {
           gravity: 60,
           life: 600,
         });
-        props.host.buzz('medium');
+        props.host.cue('catch-pop');
         setLanded(true);
         bumpBinder(rig, binder);
         rig.win('bubble.won');
@@ -102,6 +105,7 @@ export function BubbleScene(props: SceneProps) {
   };
 
   const rig = useRig(props, {
+    hint: () => HINT,
     tick: (time) => {
       const { m } = rig;
       if (m.state === 'busy' || m.state === 'caught') return;
@@ -194,6 +198,7 @@ export function BubbleScene(props: SceneProps) {
         count={caughtCount === null ? null : caughtCount + (landed ? 1 : 0)}
         inks={inks}
       />
+      <Hint ref={rig.hint} inks={inks} />
       <Puffs ref={puffs} />
     </Board>
   );
