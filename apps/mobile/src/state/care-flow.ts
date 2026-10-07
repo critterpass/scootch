@@ -29,6 +29,8 @@ export async function enterCrisis(ctx: DayContext): Promise<void> {
   const { days } = ctx.deps.repositories;
   const day = await days.get(ctx.memory.state.localDate);
   if (day) await days.put({ ...day, status: 'crisis' });
+  // Words kept for the model to sort may be the ones that caused it: none of them stay.
+  await ctx.deps.repositories.unsortedWords.clear();
   await stopWithoutAWord(ctx);
 }
 

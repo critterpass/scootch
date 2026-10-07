@@ -4,6 +4,7 @@ import type { TaskCall, TaskCallOptions, TaskName, TaskRest } from '../api/task-
 
 import { enterCrisis, stopWithoutAWord } from './care-flow';
 import type { DayContext, Offer, Reveal } from './day-types';
+import { sortKeptWords } from './late-words';
 import { fallbackCopy, monsterFor, newTask, park } from './task-rows';
 
 /** A ramble's words are kept while its one thing is being picked, once they are known to be safe to keep. */
@@ -122,6 +123,7 @@ async function dropRejected(ctx: DayContext, existing: TaskRow | null): Promise<
       await transcripts.remove(one.id);
     }
     await stopWithoutAWord(ctx);
+    await ctx.deps.repositories.unsortedWords.remove(existing.id);
     await forgetTask(existing.id);
   } else {
     const transcriptId = ctx.memory.offer?.transcriptId;
@@ -152,8 +154,14 @@ export async function applyCall(ctx: DayContext, call: TaskCall, existing: TaskR
   // path, and a serious one stays serious; either way the task is screened again.
   const trusted = first.trusted !== false;
   const screen: TaskScreen = trusted || first.verdict === 'serious' ? first.verdict : 'unscreened';
-  const task: TaskRow = existing
-    ? { ...existing, screen, seriousOverridden: first.seriousOverridden }
+  const waited: TaskRow | null = existing && {
+    ...existing,
+    screen,
+    seriousOverridden: first.seriousOverridden,
+  };
+  if (waited) await repositories.tasks.put(waited);
+  const task: TaskRow = waited
+    ? await sortKeptWords(ctx, waited, first)
     : {
         ...newTask(ctx, first.oneThing.text, offer?.source ?? 'typed', screen),
         seriousOverridden: first.seriousOverridden,

@@ -231,6 +231,8 @@ export interface Offer {
   readonly transcriptId: Id | null;
   /** Drawer items parked from this text and not yet offered: "Another" takes the next of them. */
   readonly candidates: readonly Id[];
+  /** The thing "Another" turned down, put back as it was when no answer comes for the next. */
+  readonly turnedDown?: { readonly task: TaskRow; readonly monster: MonsterRow | null };
 }
 
 /** The store's working memory between events. */
