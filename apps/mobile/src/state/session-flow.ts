@@ -1,5 +1,4 @@
 import {
-  addDays,
   hasStartLeft,
   isoFromInstant,
   sessionReducer,
@@ -17,6 +16,7 @@ import type { SessionContext } from '../effects/adapters';
 import type { DayContext } from './day-types';
 import { persistFinishEarnings } from './finish-earnings';
 import { unansweredThoughts } from './parked-thoughts';
+import { carryToTomorrow } from './rest-flow';
 import { shrinkTask } from './smaller';
 import { NO_AFTER_LINES, afterLinesFor, lineFor, toneFor } from './lines';
 
@@ -129,41 +129,21 @@ async function persist(
     } else if (effect.kind === 'forget_task') {
       // The thoughts parked on the way are the person's own, not the task's: they stay.
       const thoughts = await unansweredThoughts(ctx, effect.taskId);
+      // A session ran for it today: that start stays used, though nothing else of it is kept.
+      const { localDate } = ctx.memory.state;
+      const ran = (await repositories.sessions.where('taskId', effect.taskId)).some(
+        (one) => one.localDate === localDate,
+      );
       await repositories.forgetTask(effect.taskId);
+      if (ran) {
+        const notes = await repositories.dayNotes.read(localDate);
+        await repositories.dayNotes.write({ ...notes, startsLetGo: notes.startsLetGo + 1 });
+      }
       for (const thought of thoughts) await repositories.parkedThoughts.put(thought);
       ctx.memory.sessionRowId = null;
     }
     // Every other effect is the runner's to perform.
   }
-}
-
-/**
- * The task waits for tomorrow and today rests. The start it used today stays counted: its
- * session keeps today's date.
- */
-async function carryToTomorrow(ctx: DayContext, task: TaskRow): Promise<void> {
-  const { tasks, days } = ctx.deps.repositories;
-  const { localDate } = ctx.memory.state;
-  await tasks.put({ ...task, localDate: addDays(localDate, 1), carriedOver: true, status: 'set' });
-  const day = await days.get(localDate);
-  if (day && day.status === 'open') await days.put({ ...day, status: 'done' });
-}
-
-/**
- * "That's it for today": the day rests without a finish. A task that is set, or was started and
- * left, waits for tomorrow; nothing is dropped. A serious task has its own "Not today".
- */
-export async function restForToday(ctx: DayContext): Promise<void> {
-  const { today, localDate } = ctx.memory.state;
-  if (today.kind === 'task_set') {
-    await carryToTomorrow(ctx, today.task);
-    ctx.set({ pick: { kind: 'none' }, session: null, line: null });
-  } else if (today.kind === 'nothing_yet') {
-    const day = await ctx.deps.repositories.days.get(localDate);
-    if (day && day.status === 'open')
-      await ctx.deps.repositories.days.put({ ...day, status: 'done' });
-  }
-  await ctx.refresh();
 }
 
 export function currentTask(ctx: DayContext): TaskRow | null {
@@ -209,8 +189,10 @@ export async function applySession(ctx: DayContext, event: SessionEvent): Promis
 
   const step = sessionReducer(session, event, ctx.now());
   ctx.set({ session: step.state });
-  if (step.state.phase === 'not_finished' && session.phase !== 'not_finished') {
-    await markNotFinished(ctx);
+  if ((step.state.phase === 'not_finished') !== (session.phase === 'not_finished')) {
+    // Tapped, or taken back before any of the three choices: the stored session says which.
+    const back = step.state.phase === 'running' || step.state.phase === 'time_up';
+    if (step.state.phase === 'not_finished' || back) await markNotFinished(ctx, !back);
   }
   await persist(ctx, step.state.phase === 'let_go' ? null : step.state, task, step.effects);
   ctx.deps.runner.run(step.effects, contextFor(ctx, task));
@@ -227,8 +209,8 @@ export async function applySession(ctx: DayContext, event: SessionEvent): Promis
  * "Not finished" was tapped: the stored session says so at once, before any of the three choices,
  * so the tap is still there after the app is killed. The row keeps no end until a choice is made.
  */
-async function markNotFinished(ctx: DayContext): Promise<void> {
+async function markNotFinished(ctx: DayContext, tapped: boolean): Promise<void> {
   const { sessions } = ctx.deps.repositories;
   const row = ctx.memory.sessionRowId ? await sessions.get(ctx.memory.sessionRowId) : null;
-  if (row) await sessions.put({ ...row, outcome: 'not_finished' });
+  if (row) await sessions.put({ ...row, outcome: tapped ? 'not_finished' : null });
 }

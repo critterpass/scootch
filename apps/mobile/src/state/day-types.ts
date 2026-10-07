@@ -70,6 +70,8 @@ export type DayEvent =
       readonly resolution: 'keep' | 'discard';
     }
   | { readonly type: 'done_for_today' }
+  /** "Changed my mind", after "That's it for today": the day and its one thing are back. */
+  | { readonly type: 'rest_undone' }
   /** "One more", on a finished day with a start still open: the ask comes back. */
   | { readonly type: 'one_more_asked' }
   /** The store reported a change to Plus: today is worked out again. */
@@ -185,6 +187,8 @@ export interface DayState {
   readonly reminderAt: Instant | null;
   /** The task carried on to tomorrow, while today rests; `null` when none is. */
   readonly waitingForTomorrow: TaskRow | null;
+  /** "That's it for today" was tapped today and can still be taken back. */
+  readonly restUndo: boolean;
   /** Dates heard in the last ramble, each with the line that says it out loud. */
   readonly heardDeadlines: readonly HeardDeadline[];
   readonly line: ShownLine | null;

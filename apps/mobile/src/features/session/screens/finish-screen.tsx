@@ -110,13 +110,16 @@ export function FinishScreen({ model, actions, inks, t }: ScreenProps) {
             />
           )}
           {timeUp ? (
-            <TextButton
-              label={t('session.notFinished')}
-              hint={t('session.notFinished.hint')}
-              testID="session-not-finished"
-              inks={inks}
-              onPress={() => actions.send({ type: 'not_finished' })}
-            />
+            // Set apart from the finish control, so reaching for one does not land on the other.
+            <View style={styles.apart}>
+              <TextButton
+                label={t('session.notFinished')}
+                hint={t('session.notFinished.hint')}
+                testID="session-not-finished"
+                inks={inks}
+                onPress={() => actions.send({ type: 'not_finished' })}
+              />
+            </View>
           ) : null}
         </View>
       }
@@ -155,6 +158,9 @@ const styles = StyleSheet.create({
   footer: {
     alignItems: 'stretch',
     gap: spacing.md,
+  },
+  apart: {
+    marginTop: spacing.lg,
   },
   centred: {
     textAlign: 'center',

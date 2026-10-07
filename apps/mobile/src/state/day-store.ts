@@ -20,7 +20,8 @@ import { NO_AFTER_LINES } from './lines';
 import { applyPickEvent } from './pick-events';
 import { drawerEvent, setBargainedSession } from './pick-flow';
 import { resolveThought } from './parked-thoughts';
-import { applySession, restForToday } from './session-flow';
+import { restForToday, undoRest } from './rest-flow';
+import { applySession } from './session-flow';
 import { closeStraySessions, restoreSession } from './session-restore';
 import { closeSession, followTableClock, shortenSession, turnWorkingLine } from './session-moments';
 import { applySurfaceAction, noticePickUp } from './surface-actions';
@@ -65,6 +66,7 @@ const NOT_READY: DayState = {
   modelDown: false,
   reminderAt: null,
   waitingForTomorrow: null,
+  restUndo: false,
   heardDeadlines: [],
   line: null,
   burst: null,
@@ -222,6 +224,8 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
         return shortenSession(ctx, event.seconds);
       case 'done_for_today':
         return restForToday(ctx);
+      case 'rest_undone':
+        return undoRest(ctx);
       case 'one_more_asked': {
         const { today } = memory.state;
         // Not on a day with something heavy in it: nothing is sold, or asked for, beside it.

@@ -26,6 +26,7 @@ import type { SpeechPort } from '../composer/speech';
 import { useComposerFeedback } from '../composer/composer-feedback';
 import { useComposer } from '../composer/use-composer';
 import { DrawerSheet } from '../drawer/drawer-sheet';
+import { QuietLink } from '../dump/dump-panels';
 import { HatchHauntLink } from '../haunt/hatch-haunt-link';
 import { wordsWhileUnscreened } from '../offline/waiting-words';
 import { OneMore } from '../plus/one-more';
@@ -173,7 +174,7 @@ function useOneScreenDrawn({
     // A start still open today is offered on any day. Only the locked control, which leads to
     // Plus, is held back on a heavy day.
     const left = today.kind === 'done_for_today' ? today.startsLeft : 0;
-    const under =
+    const more =
       left === 0 && !showsSelling(day) ? null : (
         <OneMore
           plus={plus}
@@ -182,6 +183,20 @@ function useOneScreenDrawn({
           onMore={() => send({ type: 'one_more_asked' })}
         />
       );
+    // "That's it for today" can be taken back for as long as the day lasts.
+    const under = day.restUndo ? (
+      <>
+        {more}
+        <QuietLink
+          label={t('taskSet.rest.undo')}
+          hint={t('taskSet.rest.undo.hint')}
+          onPress={() => send({ type: 'rest_undone' })}
+          testID="rest-undo"
+        />
+      </>
+    ) : (
+      more
+    );
     return (
       <OneScreenView
         {...frame}

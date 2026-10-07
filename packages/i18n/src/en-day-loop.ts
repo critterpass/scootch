@@ -10,6 +10,8 @@ export const enDayLoop = {
   'pick.back.hint': 'Goes back to where you were. Nothing changes.',
   'taskSet.rest': "That's it for today",
   'taskSet.rest.hint': 'Keeps this for tomorrow and rests the day.',
+  'taskSet.rest.undo': 'Changed my mind',
+  'taskSet.rest.undo.hint': 'Opens today and brings its one thing back',
   'done.waiting': 'Waiting for tomorrow',
   'drawer.cap': "Today's {count} are started. These wait here until tomorrow.",
   'composer.cancelThinking': 'Cancel',

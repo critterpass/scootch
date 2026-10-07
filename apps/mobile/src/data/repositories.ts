@@ -1,6 +1,7 @@
 import type { Id } from '@scootch/domain';
 
 import { careReminders } from './care-reminder';
+import { dayNotesStore } from './day-notes';
 import { rambleTranscripts } from './ramble-transcripts';
 import { daysRepository } from './repositories/days';
 import { drawerItemsRepository } from './repositories/drawer-items';
@@ -52,6 +53,7 @@ export function openRepositories(db: SqlDatabase) {
     transcripts: rambleTranscripts(db),
     careReminder: careReminders(db),
     unsortedWords: unsortedWordsStore(db),
+    dayNotes: dayNotesStore(db),
     forgetTask,
     transaction: (task: () => Promise<void>) => db.withTransactionAsync(task),
   };

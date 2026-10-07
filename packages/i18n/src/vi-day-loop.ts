@@ -10,6 +10,8 @@ export const viDayLoop = {
   'pick.back.hint': 'Trở về chỗ bạn vừa ở. Không có gì thay đổi.',
   'taskSet.rest': 'Hôm nay thế thôi',
   'taskSet.rest.hint': 'Để việc này sang ngày mai và cho hôm nay nghỉ.',
+  'taskSet.rest.undo': 'Mình đổi ý rồi',
+  'taskSet.rest.undo.hint': 'Mở lại hôm nay và mang việc của hôm nay trở lại',
   'done.waiting': 'Để dành cho ngày mai',
   'drawer.cap': 'Hôm nay đã bắt đầu đủ {count} việc. Mấy việc này chờ ở đây đến mai.',
   'composer.cancelThinking': 'Thôi',

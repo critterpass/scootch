@@ -136,3 +136,7 @@ state is designed or removed.
 | One screen | Words held for the battery question are back in the text field when the question leaves the screen unanswered (something was taken from the drawer) | The board has no way out of the question but its answers |
 | Composer | What was heard is in the text field when the recogniser stops by itself (an error, a call, or its own end while the finger is down) | The board draws a recording that ends only when the person lets go. The words can be sent, edited or cleared; nothing is sent uninvited |
 | One screen | "Another" is drawn disabled with no connection, and after the model did not answer for it | The board draws it enabled; with nothing else to offer, the offered thing stays as it is |
+| Session | "Let it go" asks once: "Let it go for good?" with "Keep it" (filled) and "Let it go" | The board lets go on one tap. It deletes the task, its monster and its sittings, so it is asked about once; the start its session used stays used that day |
+| Session | "Changed my mind" under the three not-finished choices | The board has no way back from "Not finished". It returns to the running session, or to time up, where finishing is still there |
+| Session | "Not finished" sits a step further below the finish control on time up | A mis-tap on it was one tap from losing the catch |
+| One screen | "Changed my mind" on done for today, after "That's it for today" | The board has no way back. For the rest of that day it opens the day and brings its one thing back as it was |
