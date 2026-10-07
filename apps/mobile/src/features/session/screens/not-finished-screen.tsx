@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import type { SessionEvent } from '@scootch/domain';
@@ -5,6 +6,7 @@ import type { StringKey } from '@scootch/i18n';
 import { radius, spacing } from '@scootch/tokens';
 
 import { Characters } from '../ui/characters';
+import { FilledButton, TextButton } from '../ui/controls';
 import { SessionFrame } from '../ui/session-frame';
 import { SessionText } from '../ui/session-text';
 
@@ -39,6 +41,10 @@ const CHOICES: readonly {
 
 /** Not finished is a normal outcome: starting was the hard bit, and there are three calm ways on. */
 export function NotFinishedScreen({ model, actions, inks, t }: ScreenProps) {
+  // Letting go deletes the task and its monster, so it is asked about once before it happens.
+  const [lettingGo, setLettingGo] = useState(false);
+  const choose = (event: SessionEvent) =>
+    event.type === 'chose_let_go' ? setLettingGo(true) : actions.send(event);
   return (
     <SessionFrame inks={inks} testID="session-not-finished-choices" align="start">
       <View style={styles.characters}>
@@ -57,32 +63,66 @@ export function NotFinishedScreen({ model, actions, inks, t }: ScreenProps) {
           {model.line.text}
         </SessionText>
       ) : null}
-      <View style={[styles.list, { backgroundColor: inks.surface }]}>
-        {CHOICES.map((choice, index) => (
-          <PressSpring
-            key={choice.id}
-            accessibilityRole="button"
-            accessibilityLabel={t(choice.label)}
-            accessibilityHint={t(choice.hint)}
-            testID={choice.id}
-            onPress={() => actions.send(choice.event)}
-            feedback="choice"
-            style={[
-              styles.row,
-              index > 0
-                ? { borderTopWidth: StyleSheet.hairlineWidth, borderColor: inks.track }
-                : null,
-            ]}
-          >
-            <SessionText face="body" color={inks.ink} style={styles.grow}>
-              {t(choice.label)}
-            </SessionText>
-            <SessionText face="body" color={inks.muted}>
-              ›
-            </SessionText>
-          </PressSpring>
-        ))}
-      </View>
+      {lettingGo ? (
+        <View style={[styles.ask, { backgroundColor: inks.surface }]} testID="session-let-go-ask">
+          <SessionText face="action" color={inks.ink}>
+            {t('session.letGo.ask')}
+          </SessionText>
+          <SessionText face="caption" color={inks.muted}>
+            {t('session.letGo.ask.sub')}
+          </SessionText>
+          <FilledButton
+            label={t('session.letGo.keep')}
+            hint={t('session.letGo.keep.hint')}
+            testID="session-let-go-keep"
+            inks={inks}
+            onPress={() => setLettingGo(false)}
+          />
+          <TextButton
+            label={t('session.notFinished.letGo')}
+            hint={t('session.notFinished.letGo.hint')}
+            testID="session-let-go-confirm"
+            inks={inks}
+            onPress={() => actions.send({ type: 'chose_let_go' })}
+          />
+        </View>
+      ) : (
+        <>
+          <View style={[styles.list, { backgroundColor: inks.surface }]}>
+            {CHOICES.map((choice, index) => (
+              <PressSpring
+                key={choice.id}
+                accessibilityRole="button"
+                accessibilityLabel={t(choice.label)}
+                accessibilityHint={t(choice.hint)}
+                testID={choice.id}
+                onPress={() => choose(choice.event)}
+                feedback="choice"
+                style={[
+                  styles.row,
+                  index > 0
+                    ? { borderTopWidth: StyleSheet.hairlineWidth, borderColor: inks.track }
+                    : null,
+                ]}
+              >
+                <SessionText face="body" color={inks.ink} style={styles.grow}>
+                  {t(choice.label)}
+                </SessionText>
+                <SessionText face="body" color={inks.muted}>
+                  ›
+                </SessionText>
+              </PressSpring>
+            ))}
+          </View>
+          <TextButton
+            label={t('session.notFinished.back')}
+            hint={t('session.notFinished.back.hint')}
+            testID="session-not-finished-back"
+            inks={inks}
+            onPress={() => actions.send({ type: 'mind_changed' })}
+          />
+        </>
+      )}
     </SessionFrame>
   );
 }
@@ -90,6 +130,11 @@ export function NotFinishedScreen({ model, actions, inks, t }: ScreenProps) {
 const styles = StyleSheet.create({
   characters: {
     alignSelf: 'center',
+  },
+  ask: {
+    borderRadius: radius.lg,
+    padding: spacing.md,
+    gap: spacing.sm,
   },
   list: {
     borderRadius: radius.lg,

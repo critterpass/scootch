@@ -65,8 +65,18 @@ export function RestoreOfferView({
 /**
  * Stands in front of first launch. A phone with no backup token goes straight through, without a
  * request. One that holds a token and has a snapshot waiting is offered its world back first.
+ *
+ * With `late`, it stands over a phone that is already in use and could not be asked at first
+ * launch (no connection then): what is under it shows at once, and the offer covers it only when
+ * the server turns out to hold more than the phone does.
  */
-export function RestoreGate({ children }: { readonly children: ReactNode }) {
+export function RestoreGate({
+  children,
+  late = false,
+}: {
+  readonly children: ReactNode;
+  readonly late?: boolean;
+}) {
   const { backup } = useDataTools();
   const dispatch = useDispatch();
   const { language } = useLanguage();
@@ -79,7 +89,7 @@ export function RestoreGate({ children }: { readonly children: ReactNode }) {
     const settle = (snapshot: Snapshot | null) => {
       if (current) setFound((before) => (before === undefined ? snapshot : before));
     };
-    const timer = setTimeout(() => settle(null), LOOK_FOR_MS);
+    const timer = late ? undefined : setTimeout(() => settle(null), LOOK_FOR_MS);
     void backup
       .findRestore()
       .catch(() => null)
@@ -90,6 +100,7 @@ export function RestoreGate({ children }: { readonly children: ReactNode }) {
     };
   }, [backup]);
 
+  if (late && !found) return children;
   if (found === undefined) return <View style={{ flex: 1, backgroundColor: palette.page }} />;
   if (found === null) return children;
   const restore = async () => {
@@ -98,14 +109,27 @@ export function RestoreGate({ children }: { readonly children: ReactNode }) {
     if (outcome === 'restored') await dispatch({ type: 'storage_replaced' }).catch(() => undefined);
     setFound(null);
   };
-  return (
+  const fresh = async () => {
+    setBusy(true);
+    await backup.declineRestore().catch(() => undefined);
+    setFound(null);
+  };
+  const offer = (
     <RestoreOfferView
       line={lineWithNoTask('restoreOffer', { language, attitude: 'cheeky' })}
       attitude="cheeky"
       busy={busy}
       onRestore={() => void restore()}
-      onFresh={() => setFound(null)}
+      onFresh={() => void fresh()}
     />
+  );
+  if (!late) return offer;
+  // What the person was doing stays mounted under the offer, so nothing typed is lost to it.
+  return (
+    <>
+      {children}
+      <View style={StyleSheet.absoluteFill}>{offer}</View>
+    </>
   );
 }
 

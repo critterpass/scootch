@@ -29,7 +29,9 @@ export type HoldInput =
   | { readonly type: 'released' }
   | { readonly type: 'frame'; readonly elapsedMs: number }
   /** A tap: the tap-twice control, and VoiceOver's double-tap on the hold control. */
-  | { readonly type: 'tapped'; readonly at: number };
+  | { readonly type: 'tapped'; readonly at: number }
+  /** The store has answered the finish. If this control is still on the screen, it was not taken. */
+  | { readonly type: 'settled' };
 
 export interface HoldStep {
   readonly control: HoldControl;
@@ -46,9 +48,12 @@ const same = (control: HoldControl): HoldStep => ({ control, send: [] });
 /**
  * The finish control as a reducer. Holding fills the ring and finishes when it is full; letting go
  * early drains it, with nothing lost and nothing said against it. A tap arms the control and a
- * second tap in time finishes. Every finish is one session event, and nothing follows it.
+ * second tap in time finishes. Every finish is one session event, and nothing follows it until
+ * the store has answered.
  */
 export function holdReducer(state: HoldControl, input: HoldInput): HoldStep {
+  // A finish the store refused leaves the session running: the control starts over with it.
+  if (input.type === 'settled') return same(state.finished ? holdControl(state.control) : state);
   if (state.finished) return same(state);
   switch (input.type) {
     case 'pressed':

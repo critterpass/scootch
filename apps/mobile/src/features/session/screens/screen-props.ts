@@ -52,6 +52,8 @@ export interface SessionActions {
   readonly park: (text: string) => void;
   /** Sends one session event to the store. */
   readonly send: (event: SessionEvent) => void;
+  /** The same, for the finish control: settles when the store has applied or refused it. */
+  readonly sendFinish: (event: SessionEvent) => Promise<void>;
   readonly finishEarly: () => void;
   readonly keepGoing: () => void;
   readonly passBurst: () => void;
