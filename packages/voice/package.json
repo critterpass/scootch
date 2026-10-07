@@ -13,6 +13,7 @@
     "test": "vitest run --passWithNoTests",
     "eval:screen": "node evals/screen-input/run.mjs",
     "eval:labels": "tsx evals/labels/run.mjs",
+    "eval:choose": "tsx evals/choose/run.mjs",
     "eval:task": "tsx evals/task-create/run.mjs"
   },
   "dependencies": {

@@ -11,12 +11,12 @@ contract across the API, the domain package and the phone.
 | # | Phase | Effort | Needs | Status |
 |---|---|---|---|---|
 | 01 | [Home and the task set](phase-01-home-and-task-set.md) | high (cross-feature state) | — | in review, #96 |
-| 02 | [Drawer and the sheet](phase-02-drawer-and-sheet.md) | medium | — | not started |
-| 03 | [The hatch egg](phase-03-hatch-egg.md) | medium | — | not started |
-| 04 | [Pick for me, spoken](phase-04-spoken-pick-for-me.md) | high (contract) | 01 merged | not started |
+| 02 | [Drawer and the sheet](phase-02-drawer-and-sheet.md) | medium | — | in review, #96 |
+| 03 | [The hatch egg](phase-03-hatch-egg.md) | medium | — | in review, #96 |
+| 04 | [Pick for me, spoken](phase-04-spoken-pick-for-me.md) | high (contract) | 01 | in review, #96 |
 
-Built in order, one branch and pull request each. 04 follows 01 because 01
-removes the chip and 04 adds the spoken way in.
+Built in order on one branch and one pull request (#96), a commit per phase,
+at the founder's word on 7 Oct: no device runs; he checks it on the update.
 
 ## What changes in the product brief
 
@@ -55,4 +55,5 @@ lane 01's pull request so it stays the source of truth.
 1. The discard button sends the set task back to the drawer; a started task is
    parked whole with its monster.
 2. A ticked drawer row is cleared quietly: no card, no world piece, no start used.
-3. Built in one session, one branch and pull request per phase, in order.
+3. Built in one session and one pull request, a commit per phase. Device runs
+   are skipped; the founder verifies on the update.

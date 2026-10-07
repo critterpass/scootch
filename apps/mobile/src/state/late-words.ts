@@ -107,7 +107,7 @@ export async function sortOrphanWords(ctx: DayContext): Promise<void> {
       if (first.verdict === 'crisis') {
         await enterCrisis(ctx);
       } else {
-        if (first.verdict !== 'reject') {
+        if (first.verdict !== 'reject' && first.verdict !== 'choose') {
           await park(ctx, first.parked, parkedScreen(first));
           await park(ctx, first.deadlines, parkedScreen(first));
         }

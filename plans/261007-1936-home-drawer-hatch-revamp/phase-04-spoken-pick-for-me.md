@@ -68,4 +68,14 @@ then hold and say "pick for me". Read back the stage the app shows.
   back to the composer when nothing is offered.
 - The wait: the question runs alongside the labels inside the existing
   budget, not after them.
-- Status: not started
+- Status: in review — pull request #96, not run on a device
+
+## As built
+
+- The request says `canChoose` only when the phone has things parked and nothing set, and the
+  server answers `choose` only then: an older build never sees the new verdict, and with an empty
+  drawer the words are a task like any other (no extra line needed).
+- The phone answers its own phrase list first, online or off; Jev reads the looser wordings of up
+  to ten words, at 0.85 or more.
+- The eval (`pnpm --filter @scootch/voice eval:choose`, 44 texts a language) is in the CI matrix
+  and has not been run against the dev API yet.

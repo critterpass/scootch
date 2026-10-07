@@ -34,7 +34,7 @@ website and the store listing.
 | Step | What happens |
 |---|---|
 | Morning | Scootch opens with a fresh, specific line and waits |
-| Ramble | Hold to talk or type for twenty seconds; one thing comes back, the rest is parked in a drawer |
+| Ramble | Hold to talk or type for twenty seconds; one thing comes back, the rest is parked in a drawer. "Pick for me", said or typed, has Scootch offer one of the parked things instead |
 | Deadline heard | A real date in the ramble is said out loud and brought back on its own day |
 | Energy | Low, medium or fine; the one thing is picked to fit it |
 | It hatches | The task becomes a named monster; "too big" shrinks the task and the monster, and is the one way to a smaller ask. A set task can be put down into the drawer from beside Start |
@@ -71,7 +71,8 @@ website and the store listing.
   an outfit. Earned only, on no schedule, never bought.
 - **Letting go.** A task the user lets go leaves quietly, with no trace.
 - **The drawer.** Parked tasks, opened only by a deliberate pull. Undated ones
-  fade after two weeks.
+  fade after two weeks. A parked thing can be swapped in, reworded, ticked off
+  or swiped away there; a tick clears it quietly and earns nothing.
 
 ## 6. Care
 

@@ -96,4 +96,15 @@ open, edit one, remove one, undo, tick one.
   handler's simultaneous and native-gesture wiring, not two responders.
 - A sheet drawn in the screen sits under any pushed route; the drawer only
   opens on the one screen, which is the case today.
-- Status: not started
+- Status: in review — pull request #96, not run on a device
+
+## As built
+
+- The sheet stays a `Modal` (so it covers the status bar and lifts with the keyboard) with our own
+  motion inside it; it drags from the grabber and header, and the list closes it by a pull past
+  its top, so the list's scroll and the sheet's drag never share a finger.
+- Undo is a wait, not a restore: a row that left is removed for good only when its few seconds
+  are up or the sheet closes, so there is no `drawer_item_restored` or `drawer_item_done` event.
+- Leaving the field keeps the new words (it does not throw them away); empty words change nothing.
+- A reworded task that was parked whole loses its monster and lines: they were written for the
+  old words.

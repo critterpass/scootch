@@ -88,6 +88,10 @@ appId: app.scootch.dev
     file: ../tour-support/shot.yaml
     env:
       NAME: one-screen-task-set--en-light-largest
+- runFlow:
+    file: ../tour-support/shot-drawer.yaml
+    env:
+      NAME: drawer-editing--en-light-default
 # Is character motion running in the exported bundle? The app is opened again on the one screen
 # and captured six times a second apart; the captures are compared pixel by pixel afterwards.
 - launchApp

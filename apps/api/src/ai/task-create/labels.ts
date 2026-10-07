@@ -1,4 +1,5 @@
 import type { Energy, MonsterBodyType, TaskLabels, WorkMode } from '@scootch/domain';
+import { asksToChoose, wordsOf } from '@scootch/voice';
 
 import { decide, type DecideContext, type DecisionQuestion } from '../decide';
 import type { ChoiceQuestion } from '../jev';
@@ -108,6 +109,24 @@ export const energyQuestion = {
   },
 } as const satisfies ChoiceQuestion<Energy>;
 
+export const chooseQuestion = {
+  instructions:
+    'The state is what a person said or typed to a to-do app that had asked "what is the one thing today?", in English or Vietnamese. Did they name something to do, or did they name nothing and ask the app to choose for them?',
+  criteria: {
+    task: 'They name or describe at least one thing to do, however vaguely. This includes tasks that happen to use the words pick, choose or decide: "pick up the parcel", "choose a dentist", "decide on the dates"',
+    choose:
+      'They name nothing to do and hand the choice to the app: "pick for me", "you choose", "anything, I don\'t mind", "surprise me", "chọn giúp mình", "gì cũng được"',
+  },
+} as const satisfies ChoiceQuestion;
+
+/**
+ * A text is taken as a request to choose only when the decision model is this sure. Under it the
+ * text is a task like any other: a real task read as a request would lose the person's words.
+ */
+export const chooseAtLeast = 0.85;
+/** A request to choose is a few words. Anything longer names things, and goes to the pick. */
+export const chooseWordsAtMost = 10;
+
 /** A label is used only when its probability reaches this; otherwise the quiet default. */
 export const labelConfidenceAtLeast = 0.5;
 /**
@@ -187,6 +206,17 @@ export async function labelsFor(context: DecideContext, oneThing: string): Promi
         ? defaultLabels.sharePrivate
         : share.probabilities.shareable < shareableAtLeast,
   };
+}
+
+/**
+ * Whether the text only asks Scootch to choose. The phrases the phone knows by itself answer at
+ * once; a looser wording is the decision model's to read, and no answer means it is a task.
+ */
+export async function asksForAPick(context: DecideContext, text: string): Promise<boolean> {
+  if (wordsOf(text).length > chooseWordsAtMost) return false;
+  if (asksToChoose(text)) return true;
+  const answer = await ask(context, { ...chooseQuestion, text });
+  return answer !== null && answer.probabilities.choose >= chooseAtLeast;
 }
 
 /** The energy read from how the whole text is written. Unsure resolves to `low`, which asks least. */

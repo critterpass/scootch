@@ -27,7 +27,7 @@ jobs:
       # One at a time: the runners share the dev API and its model budget.
       max-parallel: 1
       matrix:
-        eval: [screen, labels, task]
+        eval: [screen, labels, choose, task]
     env:
       # The dev API's base URL, set as a repository variable. Empty uses the runners' default.
       SCOOTCH_API_URL: ${{ vars.SCOOTCH_API_URL }}

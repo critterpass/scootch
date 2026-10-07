@@ -128,3 +128,30 @@ describe('rewording a parked thing', () => {
     expect(app.store.getState().today.kind).toBe('crisis');
   });
 });
+
+describe('asking Scootch to choose, in words', () => {
+  it('offers one parked thing for "pick for me", with no call made and nothing set', async () => {
+    const server = stagedServer({ online: false });
+    const first = await parked();
+    const app = await stagedPhone(server, first.data);
+    await app.say('Pick for me, please', 'ramble');
+
+    const state = app.store.getState();
+    expect(state.pick.kind).toBe('picked_for_me');
+    expect(state.taskCall).toBe('idle');
+    expect(state.today.kind).toBe('nothing_yet');
+    expect(app.data.count('tasks')).toBe(0);
+  });
+
+  it('takes the same words as a task when nothing is parked, and a task that only sounds like it', async () => {
+    const empty = await stagedPhone(stagedServer({ online: false }));
+    await empty.say('pick for me', 'typed');
+    expect(empty.store.getState().pick.kind).toBe('offered');
+
+    const first = await parked();
+    const app = await stagedPhone(stagedServer({ online: false }), first.data);
+    await app.say('pick up the parcel', 'typed');
+    expect(app.store.getState().pick.kind).toBe('offered');
+    expect(app.task().originalText).toBe('pick up the parcel');
+  });
+});

@@ -1,11 +1,12 @@
 import { MINUTE_MS, hasStartLeft, type TaskCreateRequest, type TaskRow } from '@scootch/domain';
+import { asksToChoose } from '@scootch/voice';
 
 import { careGate } from '../api/care-gate';
 import type { TaskCall } from '../api/task-client';
 
 import { enterCrisis } from './care-flow';
 import type { DayContext, Offer } from './day-types';
-import { swapItemIn } from './pick-flow';
+import { pickForMe, swapItemIn } from './pick-flow';
 import { applyCall, keepTranscript, treatNamed } from './task-answers';
 import { askForFinished } from './late-catch';
 import { setWithoutAnswer, sortOrphanWords, wordsToAsk } from './late-words';
@@ -13,7 +14,7 @@ import { setWithoutAnswer, sortOrphanWords, wordsToAsk } from './late-words';
 /** A task waiting for a trusted screen is asked about at most this often. */
 export const RESCREEN_EVERY_MS = MINUTE_MS;
 
-function requestFor(ctx: DayContext, offer: Offer): TaskCreateRequest {
+function requestFor(ctx: DayContext, offer: Offer, canChoose = false): TaskCreateRequest {
   const { settings, localDate } = ctx.memory.state;
   return {
     language: settings.language,
@@ -24,6 +25,7 @@ function requestFor(ctx: DayContext, offer: Offer): TaskCreateRequest {
     localDate,
     timeZone: ctx.deps.timeZone(),
     overrideSerious: false,
+    ...(canChoose ? { canChoose } : {}),
     ...(offer.declined.length > 0 ? { declined: offer.declined.slice(-10) } : {}),
   };
 }
@@ -48,6 +50,15 @@ export async function submitText(ctx: DayContext, offer: Offer): Promise<void> {
     return ctx.refresh();
   }
 
+  // With nothing set and things parked, the words may be asking Scootch to choose among them.
+  // The phrases the phone knows are answered here, with or without a connection; a looser
+  // wording is the server's to read.
+  const canChoose = !('task' in today) && ctx.memory.state.drawer.items.length > 0;
+  if (canChoose && gate === 'clear' && asksToChoose(offer.text)) {
+    ctx.set({ notice: null, line: null });
+    return pickForMe(ctx);
+  }
+
   ctx.memory.offer = offer;
   ctx.set({
     taskCall: gate === 'hold' ? 'held' : 'waiting',
@@ -61,7 +72,7 @@ export async function submitText(ctx: DayContext, offer: Offer): Promise<void> {
     const day = await days.get(ctx.memory.state.localDate);
     if (day) await days.put({ ...day, energy: offer.energy });
   }
-  const request = requestFor(ctx, offer);
+  const request = requestFor(ctx, offer, canChoose);
   // The answer is waited for outside the queue of events: the drawer, settings and every other
   // tap go on working meanwhile. It comes back as a step of its own, in its turn.
   ctx.later(askWithPatience(ctx, request), ({ online, call }) =>

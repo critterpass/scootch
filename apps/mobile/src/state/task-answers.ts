@@ -6,6 +6,7 @@ import { enterCrisis, stopWithoutAWord } from './care-flow';
 import type { DayContext, Offer, Reveal } from './day-types';
 import { catchLateMonster } from './late-catch';
 import { sortKeptWords } from './late-words';
+import { pickForMe } from './pick-flow';
 import { fallbackCopy, monsterFor, newTask, park } from './task-rows';
 
 /** A ramble's words are kept while its one thing is being picked, once they are known to be safe to keep. */
@@ -139,6 +140,23 @@ async function dropRejected(ctx: DayContext, existing: TaskRow | null): Promise<
 }
 
 /**
+ * The words only asked Scootch to choose: nothing is made from them, and he offers one of the
+ * things already parked. Should the drawer have emptied meanwhile, the words go back to the
+ * composer as they were. It is only ever the answer to fresh words, never to a waiting task.
+ */
+async function chooseInstead(ctx: DayContext, existing: TaskRow | null): Promise<void> {
+  if (existing) return;
+  const offer = ctx.memory.offer;
+  if (offer?.transcriptId) await ctx.deps.repositories.transcripts.remove(offer.transcriptId);
+  ctx.memory.offer = null;
+  ctx.set({ pick: { kind: 'none' }, line: null, heardDeadlines: [] });
+  pickForMe(ctx);
+  if (ctx.memory.state.pick.kind !== 'picked_for_me' && offer) {
+    ctx.set({ returnedText: offer.text });
+  }
+}
+
+/**
  * Writes what a task call answered first, and leaves the rest to arrive by itself. `existing` is
  * a task already on the phone that was waiting for its answer: its words stay exactly as the
  * person typed them, and nothing is offered again.
@@ -153,6 +171,7 @@ export async function applyCall(ctx: DayContext, call: TaskCall, existing: TaskR
     return enterCrisis(ctx);
   }
   if (first.verdict === 'reject') return dropRejected(ctx, existing);
+  if (first.verdict === 'choose') return chooseInstead(ctx, existing);
 
   // An answer the trusted judge did not give clears nothing: a pass stays unscreened, on the quiet
   // path, and a serious one stays serious; either way the task is screened again.

@@ -1,0 +1,222 @@
+[
+  {
+    "id": "vi-choose-01",
+    "text": "chọn giúp mình",
+    "wants": "choose"
+  },
+  {
+    "id": "vi-choose-02",
+    "text": "bạn chọn đi",
+    "wants": "choose"
+  },
+  {
+    "id": "vi-choose-03",
+    "text": "gì cũng được",
+    "wants": "choose"
+  },
+  {
+    "id": "vi-choose-04",
+    "text": "tuỳ bạn đó",
+    "wants": "choose"
+  },
+  {
+    "id": "vi-choose-05",
+    "text": "chọn đại một việc đi",
+    "wants": "choose"
+  },
+  {
+    "id": "vi-choose-06",
+    "text": "mình không biết, chọn hộ mình",
+    "wants": "choose"
+  },
+  {
+    "id": "vi-choose-07",
+    "text": "việc nào cũng được, bạn quyết đi",
+    "wants": "choose"
+  },
+  {
+    "id": "vi-choose-08",
+    "text": "chọn giùm mình một việc nhỏ",
+    "wants": "choose"
+  },
+  {
+    "id": "vi-choose-09",
+    "text": "lấy đại một việc trong ngăn kéo",
+    "wants": "choose"
+  },
+  {
+    "id": "vi-choose-10",
+    "text": "bạn thấy việc nào thì việc đó",
+    "wants": "choose"
+  },
+  {
+    "id": "vi-choose-11",
+    "text": "mình mệt quá, chọn giúp mình đi",
+    "wants": "choose"
+  },
+  {
+    "id": "vi-choose-12",
+    "text": "chọn bừa đi",
+    "wants": "choose"
+  },
+  {
+    "id": "vi-choose-13",
+    "text": "cho mình một việc bất kỳ",
+    "wants": "choose"
+  },
+  {
+    "id": "vi-choose-14",
+    "text": "bạn quyết giúp mình",
+    "wants": "choose"
+  },
+  {
+    "id": "vi-choose-15",
+    "text": "không nghĩ ra, bạn chọn nha",
+    "wants": "choose"
+  },
+  {
+    "id": "vi-choose-16",
+    "text": "chọn cái nào dễ nhất ấy",
+    "wants": "choose"
+  },
+  {
+    "id": "vi-choose-17",
+    "text": "sao cũng được",
+    "wants": "choose"
+  },
+  {
+    "id": "vi-choose-18",
+    "text": "chọn một trong mấy việc đang cất",
+    "wants": "choose"
+  },
+  {
+    "id": "vi-choose-19",
+    "text": "bạn bảo mình làm gì đi",
+    "wants": "choose"
+  },
+  {
+    "id": "vi-choose-20",
+    "text": "tuỳ, chọn đi",
+    "wants": "choose"
+  },
+  {
+    "id": "vi-task-01",
+    "text": "chọn quà sinh nhật cho mẹ",
+    "wants": "task"
+  },
+  {
+    "id": "vi-task-02",
+    "text": "chọn nha sĩ rồi đặt lịch khám",
+    "wants": "task"
+  },
+  {
+    "id": "vi-task-03",
+    "text": "quyết định ngày đi du lịch với Lan",
+    "wants": "task"
+  },
+  {
+    "id": "vi-task-04",
+    "text": "đi lấy bưu kiện ở bưu điện",
+    "wants": "task"
+  },
+  {
+    "id": "vi-task-05",
+    "text": "chọn màu sơn cho hành lang",
+    "wants": "task"
+  },
+  {
+    "id": "vi-task-06",
+    "text": "đón con lúc bốn giờ",
+    "wants": "task"
+  },
+  {
+    "id": "vi-task-07",
+    "text": "quyết định tối nay nấu gì",
+    "wants": "task"
+  },
+  {
+    "id": "vi-task-08",
+    "text": "nhắn chủ nhà về cái bình nóng lạnh",
+    "wants": "task"
+  },
+  {
+    "id": "vi-task-09",
+    "text": "chọn đồ mặc đi phỏng vấn",
+    "wants": "task"
+  },
+  {
+    "id": "vi-task-10",
+    "text": "chọn gói cước điện thoại mới",
+    "wants": "task"
+  },
+  {
+    "id": "vi-task-11",
+    "text": "gì cũng được miễn là xong báo cáo thuế",
+    "wants": "task"
+  },
+  {
+    "id": "vi-task-12",
+    "text": "đi lấy thuốc theo đơn",
+    "wants": "task"
+  },
+  {
+    "id": "vi-task-13",
+    "text": "trả lời một tin nhắn",
+    "wants": "task"
+  },
+  {
+    "id": "vi-task-14",
+    "text": "rửa chén",
+    "wants": "task"
+  },
+  {
+    "id": "vi-task-15",
+    "text": "sắp xếp hoá đơn cho kế toán",
+    "wants": "task"
+  },
+  {
+    "id": "vi-task-16",
+    "text": "gọi ngân hàng về cái thẻ",
+    "wants": "task"
+  },
+  {
+    "id": "vi-task-17",
+    "text": "chọn giữa hai lời mời làm việc rồi trả lời",
+    "wants": "task"
+  },
+  {
+    "id": "vi-task-18",
+    "text": "hái cà chua trước khi nó hỏng",
+    "wants": "task"
+  },
+  {
+    "id": "vi-task-19",
+    "text": "gửi thiệp mời tiệc bất ngờ cho Hoa",
+    "wants": "task"
+  },
+  {
+    "id": "vi-task-20",
+    "text": "quyết định có gia hạn phòng tập không",
+    "wants": "task"
+  },
+  {
+    "id": "vi-task-21",
+    "text": "tưới cây",
+    "wants": "task"
+  },
+  {
+    "id": "vi-task-22",
+    "text": "mình cần chọn ngày đi đăng kiểm xe",
+    "wants": "task"
+  },
+  {
+    "id": "vi-task-23",
+    "text": "đặt lịch thú y",
+    "wants": "task"
+  },
+  {
+    "id": "vi-task-24",
+    "text": "thôi, dọn nhà tắm đi",
+    "wants": "task"
+  }
+]

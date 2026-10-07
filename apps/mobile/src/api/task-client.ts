@@ -17,6 +17,8 @@ import type { ScootchApi } from './scootch-api';
 export type TaskFirstStage =
   | { readonly verdict: 'crisis' }
   | { readonly verdict: 'reject' }
+  /** The text only asked Scootch to choose: nothing was made from it. */
+  | { readonly verdict: 'choose' }
   | {
       readonly verdict: 'pass' | 'serious';
       readonly seriousOverridden: boolean;
@@ -88,7 +90,11 @@ export function createTaskClient(api: Pick<ScootchApi, 'screenInput' | 'taskCrea
   return {
     async createTask(input) {
       const answer = await api.taskCreate(input);
-      if (answer.verdict === 'crisis' || answer.verdict === 'reject') {
+      if (
+        answer.verdict === 'crisis' ||
+        answer.verdict === 'reject' ||
+        answer.verdict === 'choose'
+      ) {
         return { first: { verdict: answer.verdict }, rest: Promise.resolve(null) };
       }
       const first: TaskFirstStage = {

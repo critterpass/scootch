@@ -61,4 +61,4 @@ Say what the recording's own time from "That's the one" to the monster is.
 
 - The hatch stage also waits on the server for the name. If the wait is long
   the egg must still look meant; it must never look finished and stuck.
-- Status: not started
+- Status: in review — pull request #96, not run on a device
