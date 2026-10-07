@@ -1,6 +1,8 @@
 import { CARD_FINISHES, type CardFinishInks } from '@scootch/art';
 import type { StringKey } from '@scootch/i18n';
 
+import { storeProductId } from '../plus/products';
+
 /** The parts of the shelf. A part is shown once the catalogue has something in it. */
 export const SHELF_KINDS = ['inks', 'outfits', 'worlds'] as const;
 export type ShelfKind = (typeof SHELF_KINDS)[number];
@@ -49,7 +51,7 @@ export const SHELF: readonly ShelfItem[] = [
   {
     id: 'midnight-riso',
     kind: 'inks',
-    productId: 'ink_midnight_riso',
+    productId: storeProductId('ink_midnight_riso'),
     name: 'shelf.ink.midnightRiso',
     about: 'shelf.ink.midnightRiso.about',
     colours: { ink: '#1C1A17', paper: '#E7ECF3', accent: '#0B8BBF', deep: '#22384F' },
@@ -57,7 +59,7 @@ export const SHELF: readonly ShelfItem[] = [
   {
     id: 'kraft-paper',
     kind: 'inks',
-    productId: 'ink_kraft_paper',
+    productId: storeProductId('ink_kraft_paper'),
     name: 'shelf.ink.kraftPaper',
     about: 'shelf.ink.kraftPaper.about',
     colours: fromFinish(CARD_FINISHES.kraft),
@@ -65,7 +67,7 @@ export const SHELF: readonly ShelfItem[] = [
   {
     id: 'gold-leaf',
     kind: 'inks',
-    productId: 'ink_gold_leaf',
+    productId: storeProductId('ink_gold_leaf'),
     name: 'shelf.ink.goldLeaf',
     about: 'shelf.ink.goldLeaf.about',
     colours: fromFinish(CARD_FINISHES.gold),
