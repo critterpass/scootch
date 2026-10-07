@@ -19,7 +19,7 @@ first", "Screen · the one email · Plus". High effort for tasks 1 and 2.
   nothing and returns to the viewfinder. The board's words say "this photo":
   log the change of wording as an undesigned state.
 - Test: nothing is sent before "Read it"; "Not now" spends no free try.
-- Status: built — SHA3; not run on a device
+- Status: built — 0335637; not run on a device
 
 ### 2. The lock
 - Do: Paper and Screen chips read the domain's answer: open, free try, or
@@ -27,20 +27,20 @@ first", "Screen · the one email · Plus". High effort for tasks 1 and 2.
   sheet through the existing sheet controller, which already refuses on a
   heavy day and during a session.
 - Test: the house-rules check covers the camera; one try each, then locked.
-- Status: built — SHA3; not run on a device
+- Status: built — 0335637; not run on a device
 
 ### 3. Paper
 - Do: numbered boxes drawn on the recognised lines, the chosen one lit,
   "Box n only", the document's name, Scootch's line, the jargon card,
   "Explain more" (one further call) and the main button, which sets the task.
   A poor photo (blurry, glare, cut off) asks for a retake in plain words.
-- Status: built — SHA3; not run on a device
+- Status: built — 0335637; not run on a device
 
 ### 4. Screen
 - Do: the chosen row lit and the rest dimmed, the count of rows read,
   Scootch's line, the first-line card with "Copy line" (clipboard), and the
   main button, which sets the task and names the monster as any task does.
-- Status: built — SHA3; not run on a device
+- Status: built — 0335637; not run on a device
 
 ### 5. Serious, privacy and sheets
 - Do: a read flagged serious or crisis shows the step in plain company: no
@@ -51,7 +51,7 @@ first", "Screen · the one email · Plus". High effort for tasks 1 and 2.
   screen, locked, free try, poor photo, nothing readable, offline (Paper and
   Screen say they need a connection), serious, largest text.
 - Done when: sheets in both languages; the privacy page matches the routes.
-- Status: built — SHA3; not run on a device
+- Status: built — 0335637; not run on a device
 
 ## Risks
 
