@@ -4,6 +4,7 @@ import type { TaskCreateNameResponse, TaskCreatePackResponse } from '@scootch/do
 
 import nameFixture from '../../../../packages/voice/fixtures/task.create_name.en.json';
 import packFixture from '../../../../packages/voice/fixtures/task.create_pack.en.json';
+import { openRepositories } from '../data/repositories';
 import { stageOf } from '../features/one-screen/one-screen-stage';
 
 import { lineFor } from './lines';
@@ -59,6 +60,35 @@ describe('the task call, name first', () => {
     // The monster the name brought is the one that stays.
     expect(app.store.getState().monster?.id).toBe(hatched.monster?.id);
     expect(app.data.count('monsters')).toBe(1);
+  });
+
+  it('keeps the signature the name came with, through the database, and draws from its seed', async () => {
+    const signed = {
+      seed: '0b6f1c1e-52c4-4f0e-9a51-7d7a3a0e9c11',
+      language: 'en',
+      signature: 'signed-by-the-server',
+    } as const;
+    const answer = { ...name, monster: { ...name.monster, signed } };
+    const app = await stagedPhone(
+      stagedServer({ name: () => Promise.resolve(answer), pack: () => Promise.resolve(pack) }),
+    );
+    await app.say();
+    await app.until(() => app.store.getState().monster !== null);
+
+    const [stored] = await openRepositories(app.data.db).monsters.all();
+    expect(stored?.signed).toEqual(signed);
+    expect(stored?.spec.seed).toBe(signed.seed);
+    expect(app.store.getState().monster?.signed).toEqual(signed);
+
+    // A name that came unsigned is stored with none, and its monster is drawn from the task's id.
+    const old = await stagedPhone(
+      stagedServer({ name: () => Promise.resolve(name), pack: () => Promise.resolve(pack) }),
+    );
+    await old.say();
+    await old.until(() => old.store.getState().monster !== null);
+    const [unsigned] = await openRepositories(old.data.db).monsters.all();
+    expect(unsigned?.signed).toBeNull();
+    expect(unsigned?.spec.seed).toBe(old.task().id);
   });
 
   it('asks for the pack with the treat, when one was named before the name arrived', async () => {

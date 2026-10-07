@@ -48,7 +48,7 @@ free and Plus states.
   hides the task line. Scootch never offers to share a task flagged private or
   serious.
 - Test: a serious task has no share path.
-- Status: partly done — b47f3d1; built and tested with fakes, not yet run on a device
+- Status: partly done — b47f3d1; built and tested with fakes, not yet run on a device; a page is now made only from words the server signed: the phone stores the task call's signature with the monster (a new local column) and sends it with the share, the server no longer screens its own name, title and card line (which the live screen refused, so a story or a hidden-task card could never be shared) and still screens a task line left showing; a monster with no signature shares its picture with no link and the panel says so; tested with fakes and, for the server, run locally with the real models, not deployed, never seen on a device
 
 ### 7. Shared pages, app side
 - Do: upload the card or clip and return its page link, using the phase 03

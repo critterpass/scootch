@@ -6,7 +6,10 @@ import type { DecideContext } from '../decide';
 export const taskCreateRouteId = 'task.create';
 
 export type TaskCreateContext = {
-  readonly env: Pick<Bindings, 'DB' | 'TYPESAFE_API_KEY' | 'DEEPSEEK_API_KEY'>;
+  readonly env: Pick<
+    Bindings,
+    'DB' | 'TYPESAFE_API_KEY' | 'DEEPSEEK_API_KEY' | 'SHARE_SIGNING_SECRET'
+  >;
   readonly deviceHash: string | null;
   readonly requestId?: string;
   /** Lets work that the answer no longer needs finish after it is sent, so its cost is recorded. */

@@ -9,6 +9,7 @@ import {
 import { offlineMonsterName, type LineKind } from '@scootch/voice';
 
 import { ApiError } from '../../errors';
+import { shareSigningSecret, signWords } from '../../sharing/signed-words';
 import { generate } from '../deepseek';
 
 import { record, type TaskCreateContext, type VoiceCheckSummary } from './context';
@@ -196,7 +197,9 @@ async function writeChecked(
 
 /**
  * The first part of stage two: the monster's name and card and the line it hatches with, from
- * one small writer call, so the monster can appear while the rest is still being written.
+ * one small writer call, so the monster can appear while the rest is still being written. The
+ * three words of the card are signed here, whoever wrote them (the writer or the offline pack),
+ * so that a public page can later be made from them without screening the server's own comedy.
  */
 export async function writeName(
   context: TaskCreateContext,
@@ -209,15 +212,19 @@ export async function writeName(
     maxTokens: 400,
   });
   const at = (slot: string) => texts.get(slot) ?? '';
-  return {
-    monster: {
-      name: at('monster.name'),
-      title: at('monster.title'),
-      flavourText: at('monster.flavourText'),
-    },
-    hatch: at('lines.hatch'),
-    voice,
+  const words = {
+    name: at('monster.name'),
+    title: at('monster.title'),
+    flavourText: at('monster.flavourText'),
   };
+  // The words are vouched for as they leave: with the seed the monster will be drawn from.
+  const secret = shareSigningSecret(context.env);
+  const signing = { seed: crypto.randomUUID(), language: payload.language };
+  const signed =
+    secret === undefined
+      ? {}
+      : { signed: { ...signing, signature: await signWords(secret, { ...words, ...signing }) } };
+  return { monster: { ...words, ...signed }, hatch: at('lines.hatch'), voice };
 }
 
 /**

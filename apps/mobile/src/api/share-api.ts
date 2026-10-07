@@ -2,7 +2,7 @@ import type { CardData, Language, ScreenVerdict } from '@scootch/domain';
 
 import type { HttpClient } from './http-client';
 
-/** Every public word is screened by a model before the page is kept, so the call may take a while. */
+/** A task line left showing is screened by a model before the page is kept, so the call may take a while. */
 export const SHARE_TIMEOUT_MS = 15_000;
 
 /** The header a phone proves a shared page is its own with. */
@@ -19,6 +19,8 @@ export interface CardShareRequest {
   readonly card: CardData;
   /** The care verdict stored for the task. The server shares nothing that is not `pass`. */
   readonly screen: ScreenVerdict;
+  /** The server's signature for the card's name, title and card line. No page is made without it. */
+  readonly signature: string;
 }
 
 export interface SharedPage {

@@ -29,7 +29,7 @@ friends"). The home strip of example monsters uses a fixed, hand-checked set.
   the same generator as the app; hide-the-task toggle; a nap after twelve
   hatches in a row, for five minutes. Input is deleted after 24 hours unless
   the card is shared.
-- Status: partly done — 3e9df8e; the maker on the home page with all six states and the hide toggle, and `POST /v1/monster-make` (screen first, nonsense, the nap after twelve, voice check with fallback); nothing typed is stored yet, so the 24-hour deletion waits for shared cards, not deployed
+- Status: partly done — 3e9df8e; the maker on the home page with all six states and the hide toggle, and `POST /v1/monster-make` (screen first, nonsense, the nap after twelve, voice check with fallback); nothing typed is stored yet, so the 24-hour deletion waits for shared cards, not deployed; the maker now answers with a signature over the name, the card line, the seed and the language, made with a secret of its own (`SHARE_SIGNING_SECRET`, not yet set on any environment)
 - States: empty, hatching, hatched, too many tries, nonsense, offline.
 - Test: a crisis input never returns a monster.
 
@@ -37,7 +37,7 @@ friends"). The home strip of example monsters uses a fixed, hand-checked set.
 - Do: `scootch.app/m/<id>` with the card and a 1200 × 630 link preview image,
   rendered per page, cached, and regenerated when the monster is caught; "Make your own" and "Catch it
   in the app"; flips to CAUGHT when the owner catches it.
-- Status: partly done — 78eff49; sharing from the maker (`POST /v1/monster-share`, unshare by token), the monster's page in both languages with wild, caught and not-found states, and a 1200 × 630 preview rendered in the Worker and kept per status; not deployed; the API now marks a shared monster caught for whoever holds its unshare token (`POST /v1/monster-page/:id/caught`, tested, and seen turning a local page to caught), and the app tells it when a monster it keeps a page for is caught, but nothing in the app gives a monster a page yet (that arrives with "Into the app"), so no page is turned by a real catch
+- Status: partly done — 78eff49; sharing from the maker (`POST /v1/monster-share`, unshare by token), the monster's page in both languages with wild, caught and not-found states, and a 1200 × 630 preview rendered in the Worker and kept per status; not deployed; the API now marks a shared monster caught for whoever holds its unshare token (`POST /v1/monster-page/:id/caught`, tested, and seen turning a local page to caught), and the app tells it when a monster it keeps a page for is caught, but nothing in the app gives a monster a page yet (that arrives with "Into the app"), so no page is turned by a real catch; `POST /v1/monster-share` now takes the name and the card line only with the maker's signature for exactly those words, seed and language, and refuses anything else, so a browser can no longer publish words of its own; the typed line, when shown, is still screened; the maker's page keeps the signature and sends it (browser test updated), not deployed
 
 ### 4. Pages for things shared from the app
 - Do: caught card, share story and record clip pages, with a player for the

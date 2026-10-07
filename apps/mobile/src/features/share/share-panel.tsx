@@ -20,9 +20,15 @@ export interface ShareModel {
   readonly language: Language;
   readonly hideTask: boolean;
   /** What the last press came to, said in the interface's own words. */
-  readonly notice: 'saved' | 'refused' | 'failed' | 'sending' | 'shared' | 'unshared' | null;
+  readonly notice:
+    'saved' | 'refused' | 'failed' | 'sending' | 'shared' | 'pictureOnly' | 'unshared' | null;
   /** Whether this catch has a page on the website now, which can be taken down from here. */
   readonly pageUp: boolean;
+  /**
+   * False for a monster whose words carry no signature from the server (one hatched before
+   * words were signed): its picture is shared and saved as ever, and the panel says it has no page.
+   */
+  readonly pageOffered: boolean;
 }
 
 export interface ShareActions {
@@ -40,6 +46,7 @@ const NOTICE = {
   failed: 'share.failed',
   sending: 'share.sending',
   shared: 'share.shared',
+  pictureOnly: 'share.pictureOnly',
   unshared: 'share.unshared',
 } as const;
 
@@ -98,6 +105,11 @@ export function SharePanel({ model, actions }: { model: ShareModel; actions: Sha
           trackColor={{ true: palette.tomato }}
         />
       </View>
+      {model.pageOffered ? null : (
+        <SessionText face="caption" color={palette.muted} testID="share-no-page">
+          {t('share.noPage')}
+        </SessionText>
+      )}
       {model.pageUp ? (
         <CapsuleButton
           tone="quiet"

@@ -1,5 +1,5 @@
 import type { CardLanguage } from '@scootch/art';
-import type { CardData, TaskRow } from '@scootch/domain';
+import type { CardData, SignedWords, TaskRow } from '@scootch/domain';
 import { encodeWav, type Stereo } from '@scootch/sound';
 
 import type { CardShareRequest, ShareApi } from '../../api/share-api';
@@ -32,6 +32,8 @@ export interface CatchShare {
   /** The task the card came from, as stored. Its flags decide whether sharing exists at all. */
   readonly task: Pick<TaskRow, 'id' | 'screen' | 'sharePrivate'> | null;
   readonly card: CardData;
+  /** The server's signature for the monster's words, as stored with it; `null` when it has none. */
+  readonly signed: SignedWords | null;
   readonly kind: 'story' | 'card';
   readonly hideTask: boolean;
   readonly language: CardLanguage;
@@ -52,17 +54,35 @@ const taskShown = (share: CatchShare) =>
   share.kind === 'card' && !share.hideTask && share.card.taskLine !== null;
 
 /**
- * What is posted for a page: the card as the page draws it, its language and the task's stored
- * care verdict. The task line is taken off unless the page shows it.
+ * The signature a page can be made with: the one stored with the monster, when it is for the
+ * monster as the card draws it. A monster hatched before words were signed, or one the phone
+ * named itself, has none.
  */
-export function cardShareRequest(share: CatchShare): CardShareRequest {
+function signatureOf(share: Pick<CatchShare, 'card' | 'signed'>): SignedWords | null {
+  return share.signed !== null && share.signed.seed === share.card.monster.seed
+    ? share.signed
+    : null;
+}
+
+/** Whether this catch can have a page on the website. Without one, only its picture is shared. */
+export function pageOffered(share: Pick<CatchShare, 'card' | 'signed'>): boolean {
+  return signatureOf(share) !== null;
+}
+
+/**
+ * What is posted for a page: the card as the page draws it, the signature for its words with the
+ * language they were written in, and the task's stored care verdict. The task line is taken off
+ * unless the page shows it.
+ */
+export function cardShareRequest(share: CatchShare, signed: SignedWords): CardShareRequest {
   const stored = share.task?.screen;
   return {
     kind: share.kind,
-    language: share.language,
+    language: signed.language,
     card: { ...share.card, taskLine: taskShown(share) ? share.card.taskLine : null },
     // An unscreened or forgotten task is never offered; if one came this far the server refuses it.
     screen: stored === 'pass' || stored === 'serious' ? stored : 'reject',
+    signature: signed.signature,
   };
 }
 
@@ -81,13 +101,19 @@ async function takeDown(pages: SharePages, kept: KeptShare): Promise<void> {
  * (after the old one is taken down). Throws when the server cannot be reached or refuses; nothing
  * is then kept, and nothing was shared.
  */
-async function pageFor(pages: SharePages, share: CatchShare): Promise<KeptShare> {
+async function pageFor(
+  pages: SharePages,
+  share: CatchShare,
+  signed: SignedWords,
+): Promise<KeptShare> {
   const key = keyOf(share);
+  // The page is in the language its words were written and signed in.
+  const { language } = signed;
   const up = (await pages.kept.read()).find((one) => one.key === key);
-  if (up && up.language === share.language && up.taskShown === taskShown(share)) return up;
+  if (up && up.language === language && up.taskShown === taskShown(share)) return up;
   if (up) await takeDown(pages, up);
-  const page = await pages.api.shareCard(cardShareRequest(share));
-  const kept: KeptShare = { key, ...page, language: share.language, taskShown: taskShown(share) };
+  const page = await pages.api.shareCard(cardShareRequest(share, signed));
+  const kept: KeptShare = { key, ...page, language, taskShown: taskShown(share) };
   try {
     await pages.kept.write(withShare(await pages.kept.read(), kept));
   } catch (error) {
@@ -116,14 +142,24 @@ async function pictureOf(device: ShareDevice, share: CatchShare): Promise<string
  * Sends a catch to the system share sheet: its page is put on the website first, then the picture
  * and the page's link are handed over. A private or serious task is never sent. When the page
  * cannot be put up this rejects, and the sheet never opens.
+ *
+ * A catch whose words carry no signature gets no page: its picture alone goes to the sheet, with
+ * no link and no call to the server, and the answer says so.
  */
 export async function shareCatch(
   device: ShareDevice,
   pages: SharePages,
   share: CatchShare,
-): Promise<'shared' | 'not_offered'> {
+): Promise<'shared' | 'shared_picture' | 'not_offered'> {
   if (!shareOffered(share.task)) return 'not_offered';
-  const page = await pageFor(pages, share);
+  const signed = signatureOf(share);
+  if (signed === null) {
+    const picture = await pictureOf(device, share);
+    if (picture === null) return 'not_offered';
+    await device.openShareSheet(picture, 'image/png');
+    return 'shared_picture';
+  }
+  const page = await pageFor(pages, share, signed);
   const uri = await pictureOf(device, share);
   if (uri === null) return 'not_offered';
   const link = sharedPageLink(

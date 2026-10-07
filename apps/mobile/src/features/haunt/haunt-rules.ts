@@ -2,7 +2,13 @@ import type { Href } from 'expo-router';
 
 import type { MonsterRow, TaskRow } from '@scootch/domain';
 
-import type { HauntDare, HauntToSend, TogetherApi, WaitingHaunt } from '../../api/together-api';
+import type {
+  Friend,
+  HauntDare,
+  HauntToSend,
+  TogetherApi,
+  WaitingHaunt,
+} from '../../api/together-api';
 import type { DayEvent } from '../../state/day-types';
 import { showsComedy, showsSelling, type SellingDay } from '../../state/shows-comedy';
 
@@ -21,6 +27,32 @@ export function offersHaunt(
 ): boolean {
   if (!showsSelling(day) || task === null || monster === null) return false;
   return showsComedy(task, 'share') && monster.caughtOn === null;
+}
+
+/**
+ * The friends this phone's account may haunt. A phone that is not signed in, or cannot reach the
+ * server, has none: the answer is then empty, never an error.
+ */
+export async function hauntableFriends(api: Pick<TogetherApi, 'friends'>): Promise<Friend[]> {
+  try {
+    return (await api.friends()).filter((friend) => friend.canBeHaunted);
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Whether the hatch screen offers "Haunt a friend": under the haunt's own rules (an ordinary
+ * task, its monster not caught, never a crisis or a heavy day), and only when the person is
+ * signed in with at least one friend who takes haunts.
+ */
+export function offersHauntOnHatch(
+  day: SellingDay,
+  task: Pick<TaskRow, 'screen' | 'seriousOverridden'> | null,
+  monster: Pick<MonsterRow, 'caughtOn'> | null,
+  friends: readonly Pick<Friend, 'canBeHaunted'>[],
+): boolean {
+  return offersHaunt(day, task, monster) && friends.some((friend) => friend.canBeHaunted);
 }
 
 /** What is sent: the monster's body and seed, a dare id and a switch. Never the task. */

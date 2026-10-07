@@ -9,6 +9,7 @@ import { hashDeviceToken, newDeviceToken } from '../device-auth';
 import { ApiError } from '../errors';
 import { readBody, type RouteDefinition } from '../route';
 import { newShareId, unshareTokenHeader } from '../sharing/shared-monsters';
+import { shareSigningSecret, wordsAreSigned } from '../sharing/signed-words';
 
 const routeId = 'card.share';
 
@@ -22,6 +23,8 @@ const cardShareRequestSchema = z.strictObject({
   card: cardDataSchema.strict(),
   /** The care verdict the phone stored for the task, or `crisis` on a crisis day. */
   screen: screenVerdictSchema,
+  /** The signature the task call gave with the monster's name, title and card line. */
+  signature: z.string().min(1).max(128).optional(),
 });
 
 const cardShareResponseSchema = z.strictObject({
@@ -32,6 +35,7 @@ const cardShareResponseSchema = z.strictObject({
 export type CardShareResponse = z.infer<typeof cardShareResponseSchema>;
 
 const notShared = () => refusal('not_for_this_task', 'This one stays with you');
+const notSigned = () => refusal('words_not_signed', 'A page is made only from words Scootch wrote');
 
 /**
  * Shares a caught card or a share story from the app, and answers with the id of its page on the
@@ -39,9 +43,11 @@ const notShared = () => refusal('not_for_this_task', 'This one stays with you');
  * whose sharer left it showing. A story's page never shows the task line, so a story never keeps
  * it. No name, account or device is stored with it.
  *
- * A task that is not a plain `pass` is never shared, whatever the phone drew. Every word that
- * would be public is screened again here; a text that is not clearly fine, or that no model
- * could screen, is not stored.
+ * A task that is not a plain `pass` is never shared, whatever the phone drew. The monster's name,
+ * title and card line are taken only with the signature the server gave when it wrote them, for
+ * exactly those words, the monster's seed and the language; they are the server's own comedy and
+ * are not screened again. What the person typed is: a task line left showing goes through the
+ * care screen, and one that is not clearly fine, or that no model could screen, is not stored.
  */
 export const cardShareRoute: RouteDefinition = {
   method: 'POST',
@@ -55,21 +61,33 @@ export const cardShareRoute: RouteDefinition = {
       taskLine: request.kind === 'card' ? request.card.taskLine : null,
     };
 
-    const context: DecideContext = { env: c.env, route: routeId, deviceHash: null };
-    let verdict: string;
-    try {
-      const text = [card.taskLine, card.name, card.title, card.flavourText]
-        .filter((line) => line)
-        .join('\n');
-      verdict = (await screenText(context, text)).verdict;
-    } catch (error) {
-      console.error('shared card not screened', {
-        requestId: c.var.requestId,
-        reason: error instanceof ApiError ? error.code : 'internal',
-      });
-      verdict = 'serious';
+    const signed = await wordsAreSigned(
+      shareSigningSecret(c.env),
+      {
+        name: card.name,
+        title: card.title,
+        flavourText: card.flavourText,
+        seed: card.monster.seed,
+        language: request.language,
+      },
+      request.signature,
+    );
+    if (!signed) throw notSigned();
+
+    if (card.taskLine !== null) {
+      const context: DecideContext = { env: c.env, route: routeId, deviceHash: null };
+      let verdict: string;
+      try {
+        verdict = (await screenText(context, card.taskLine)).verdict;
+      } catch (error) {
+        console.error('shared card not screened', {
+          requestId: c.var.requestId,
+          reason: error instanceof ApiError ? error.code : 'internal',
+        });
+        verdict = 'serious';
+      }
+      if (verdict !== 'pass') throw notShared();
     }
-    if (verdict !== 'pass') throw notShared();
 
     const id = newShareId(card.name);
     const unshareToken = newDeviceToken();

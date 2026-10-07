@@ -8,6 +8,9 @@ import { createApp } from '../src/app';
 import type { RouteDefinition } from '../src/route';
 import * as routes from '../src/routes/index.generated';
 
+/** The secret the tests sign the server's own words with, set on every environment they build. */
+export const shareSecret = 'share-test-secret';
+
 let nextAddress = 1;
 
 /** A sender address no other test has used, so one test's requests never count against another's. */

@@ -10,6 +10,7 @@ const maker = {
   bodyType: 'tooth',
   name: 'Molar, Keeper of Thursday',
   flavourText: 'Lives in the inbox. Pays no rent.',
+  signature: 'signed-by-the-maker',
 };
 
 test('a wild monster’s page shows its card, its status and both ways on', async ({ page }) => {
@@ -69,7 +70,7 @@ test('the monster shared from this browser can be unshared from its page', async
   expect(unsharedWith).toBe('Bearer the-token');
 });
 
-test('sharing from the maker sends the typed line only while the toggle is on', async ({
+test('sharing from the maker sends the maker’s signature, and the typed line only while the toggle is on', async ({
   page,
 }) => {
   const sent: Record<string, unknown>[] = [];
@@ -93,7 +94,13 @@ test('sharing from the maker sends the typed line only while the toggle is on', 
   await expect(page.locator('[data-share-status] a')).toHaveAttribute('href', '/m/molar-1');
 
   expect(sent).toHaveLength(1);
-  expect(sent[0]).toMatchObject({ name: maker.name, seed: 'dentist', language: 'en' });
+  expect(sent[0]).toMatchObject({
+    name: maker.name,
+    flavourText: maker.flavourText,
+    seed: 'dentist',
+    language: 'en',
+    signature: maker.signature,
+  });
   expect(JSON.stringify(sent[0])).not.toContain('dentist email');
 });
 

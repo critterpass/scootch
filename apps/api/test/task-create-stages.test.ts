@@ -96,11 +96,14 @@ describe('the task call in two stages', () => {
 
     expect(stageTwo.response.status).toBe(200);
     const { monster, lines, notifications } = passFixture.response;
-    expect(taskCreateLinesResponseSchema.parse(JSON.parse(stageTwo.raw))).toEqual({
-      monster,
+    const answer = taskCreateLinesResponseSchema.parse(JSON.parse(stageTwo.raw));
+    expect(answer).toEqual({
+      // The words come with the server's signature for them.
+      monster: { ...monster, signed: answer.monster.signed },
       lines,
       notifications,
     });
+    expect(answer.monster.signed).toMatchObject({ language: 'en' });
     expect(stageTwo.response.headers.get('X-Voice-Check')).toBe(
       'attempts=1; replaced=0; source=writer',
     );

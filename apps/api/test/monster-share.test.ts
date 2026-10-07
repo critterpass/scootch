@@ -3,19 +3,25 @@ import { env } from 'cloudflare:workers';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { createApp } from '../src/app';
+import { signWords } from '../src/sharing/signed-words';
 import * as routes from '../src/routes/index.generated';
 
 import { connectionDrops, providers } from './ai-providers';
-import { call, freshIp, wireErrorOf } from './support';
+import { call, freshIp, shareSecret, wireErrorOf } from './support';
 import { jevDecides } from './task-create-support';
 
 const typed = 'email the dentist about the thing nobody should read';
-const monster = {
+const written = {
   seed: 'dentist',
   bodyType: 'tooth',
   name: 'Molar, Keeper of Thursday',
   flavourText: 'Lives in the inbox. Pays no rent.',
   language: 'en',
+} as const;
+/** The maker's words with the signature the maker would have given for them. */
+const monster = {
+  ...written,
+  signature: await signWords(shareSecret, { ...written, title: '' }),
 };
 const ordinary = { pass: 0.99, serious: 0.01, crisis: 0 };
 
@@ -30,7 +36,12 @@ async function share(body: unknown, screen: Parameters<typeof jevDecides>[0] = o
       headers: { 'CF-Connecting-IP': freshIp(), 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     }),
-    { ...env, TYPESAFE_API_KEY: 'jev-test-key', DEEPSEEK_API_KEY: 'deepseek-test-key' },
+    {
+      ...env,
+      TYPESAFE_API_KEY: 'jev-test-key',
+      DEEPSEEK_API_KEY: 'deepseek-test-key',
+      SHARE_SIGNING_SECRET: shareSecret,
+    },
     ctx,
   );
   await waitOnExecutionContext(ctx);
@@ -82,8 +93,9 @@ describe('POST /v1/monster-share', () => {
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ verdict });
     expect(await stored()).toEqual([]);
-    // Every public word went through the screen.
-    expect(JSON.stringify(doubles.sent.jev[0])).toContain(monster.name);
+    // What the visitor typed went through the screen; the server's own words did not.
+    expect(JSON.stringify(doubles.sent.jev[0])).toContain(typed);
+    expect(JSON.stringify(doubles.sent.jev)).not.toContain(monster.name);
   });
 
   it('stores nothing when no model could screen the text', async () => {
@@ -131,10 +143,10 @@ describe('GET /v1/monster-page/:id', () => {
   });
 
   it('renders a 1200 by 630 PNG preview, and a new one once the monster is caught', async () => {
+    const vietnamese = { ...written, language: 'vi', name: 'Răng Hàm, Chúa Tể Thứ Năm' } as const;
     const { response } = await share({
-      ...monster,
-      language: 'vi',
-      name: 'Răng Hàm, Chúa Tể Thứ Năm',
+      ...vietnamese,
+      signature: await signWords(shareSecret, { ...vietnamese, title: '' }),
     });
     const { id } = await response.json<{ id: string }>();
     expect(id).toMatch(/^rang-/);

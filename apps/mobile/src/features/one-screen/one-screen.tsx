@@ -20,6 +20,7 @@ import type { SpeechPort } from '../composer/speech';
 import { useComposer } from '../composer/use-composer';
 import { DrawerSheet } from '../drawer/drawer-sheet';
 import { QuietLink, Stack } from '../dump/dump-panels';
+import { HatchHauntLink } from '../haunt/hatch-haunt-link';
 import { HatchFigure } from '../monster/hatch-figure';
 import { wordsWhileUnscreened } from '../offline/waiting-words';
 import { OneMore } from '../plus/one-more';
@@ -234,6 +235,7 @@ export function OneScreen({ speech, warmUp, notificationsRefused }: OneScreenPro
       attitude,
       today: localDate,
       revealed: stage.kind === 'one_thing' && revealedFor === stage.task.id,
+      hatchExtra: <HatchHauntLink />,
       actions: {
         answerEnergy,
         another: () => send({ type: 'another_asked' }),

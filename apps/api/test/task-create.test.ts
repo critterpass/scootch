@@ -16,6 +16,7 @@ import {
   pickOutputOf,
   rewriteAnswers,
   whenRewriting,
+  withoutSignature,
   writerAnswers,
   writerCalls,
 } from './task-create-support';
@@ -51,7 +52,7 @@ function leaks(again: string) {
 
 async function bodyOf(response: Response): Promise<TaskCreateResponse> {
   expect(response.status).toBe(200);
-  return taskCreateResponseSchema.parse(await response.json());
+  return withoutSignature(taskCreateResponseSchema.parse(await response.json()));
 }
 
 function promptOf(sent: Record<string, unknown> | undefined): string {

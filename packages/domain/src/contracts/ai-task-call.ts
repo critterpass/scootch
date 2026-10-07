@@ -61,6 +61,19 @@ export const heardDeadlineSchema = z.object({
 });
 export type HeardDeadline = z.infer<typeof heardDeadlineSchema>;
 
+/**
+ * The server's word that it wrote a monster's name, title and card line: a signature over exactly
+ * those words, the seed the monster is drawn from and the language they are in. A public page is
+ * made only from words that carry it, so the seed is the server's own choice (a random UUID) and
+ * the phone draws the monster from it.
+ */
+export const signedWordsSchema = z.object({
+  seed: z.string().min(1).max(64),
+  language: languageSchema,
+  signature: z.string().min(1).max(128),
+});
+export type SignedWords = z.infer<typeof signedWordsSchema>;
+
 /** The monster's words. Its drawing parameters are made on the phone. */
 export const monsterCopySchema = z.object({
   /** "Name, Title of Something Oddly Specific". */
@@ -69,6 +82,8 @@ export const monsterCopySchema = z.object({
   title: z.string().min(1).max(40),
   /** One sentence for the card. */
   flavourText: z.string().min(1).max(160),
+  /** Absent on words the phone made itself, and on an answer from before words were signed. */
+  signed: signedWordsSchema.optional(),
 });
 export type MonsterCopy = z.infer<typeof monsterCopySchema>;
 

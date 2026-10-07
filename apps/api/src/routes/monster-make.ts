@@ -23,6 +23,7 @@ import { bodyFrom, bodyTypeQuestion } from '../ai/task-create/labels';
 import { ApiError, wireError } from '../errors';
 import { recordAiUsage } from '../ledger';
 import { readBody, type RouteContext, type RouteDefinition } from '../route';
+import { shareSigningSecret, signWords } from '../sharing/signed-words';
 
 const routeId = 'monster.make';
 
@@ -51,6 +52,8 @@ const monsterMakeResponseSchema = z.union([
     bodyType: monsterBodyTypeSchema,
     name: z.string().min(1).max(60),
     flavourText: z.string().min(1).max(160),
+    /** The server's word that it wrote this name and line for this seed; sharing sends it back. */
+    signature: z.string().min(1).max(128),
   }),
 ]);
 export type MonsterMakeResponse = z.infer<typeof monsterMakeResponseSchema>;
@@ -270,12 +273,21 @@ export const monsterMakeRoute: RouteDefinition = {
       bodyTypeFor(context, request.text),
       writeMonster(c, request),
     ]);
+    const secret = shareSigningSecret(c.env);
+    if (secret === undefined) {
+      throw new ApiError('model_unavailable', 'The model is not answering', {
+        reason: 'missing_key',
+      });
+    }
+    const seed = randomSeed().toString(36);
     const hatched: MonsterMakeResponse = {
       verdict,
       result: 'monster',
-      seed: randomSeed().toString(36),
+      seed,
       bodyType,
       ...words,
+      // The maker writes no title, so the signature is over an empty one.
+      signature: await signWords(secret, { ...words, title: '', seed, language: request.language }),
     };
     // An answer that is not the route's shape is a failure, never a half-made monster.
     return c.json(monsterMakeResponseSchema.parse(hatched));
