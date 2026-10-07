@@ -1,5 +1,5 @@
 import { useMemo, useState, type ReactNode } from 'react';
-import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { StyleSheet, View, type ViewProps } from 'react-native';
 
 import { roundRect, type DrawCommand } from '@scootch/art';
 
@@ -14,7 +14,7 @@ export interface FoilEdgeProps {
   readonly edge?: number;
   /** What the inside is filled with. */
   readonly fill: string;
-  readonly style?: StyleProp<ViewStyle>;
+  readonly style?: ViewProps['style'];
   readonly children: ReactNode;
 }
 
