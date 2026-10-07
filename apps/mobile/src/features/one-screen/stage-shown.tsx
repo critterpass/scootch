@@ -47,6 +47,8 @@ export interface StageEnv {
   readonly today: IsoDate;
   /** The reveal has played for this one thing. */
   readonly revealed: boolean;
+  /** Plays one named cue with its haptics, under the person's switches. */
+  readonly cue?: (name: string) => void;
   /** A quiet control under the hatched monster's words: "Haunt a friend", when it is offered. */
   readonly hatchExtra?: ReactNode;
   readonly actions: StageActions;
@@ -99,7 +101,8 @@ export function stageShown(stage: Drawable, env: StageEnv): StageDrawn {
       testID: 'pick-back',
     };
     return {
-      mood: 'pleased',
+      // He has chosen for you, and is pleased with himself about it.
+      mood: 'scheming',
       line: null,
       shown: {
         kind: 'panel',
@@ -140,7 +143,7 @@ export function stageShown(stage: Drawable, env: StageEnv): StageDrawn {
     const playing = stage.reveal !== null && !env.revealed;
     const back = deadline ? dayWords(deadline.dueDate, env.today, language) : null;
     return {
-      mood: quiet ? 'serious' : playing ? 'thinking' : 'pleased',
+      mood: quiet ? 'serious' : playing ? 'thinking' : 'celebrating',
       line: null,
       shown: {
         kind: 'panel',
@@ -237,14 +240,27 @@ export function stageShown(stage: Drawable, env: StageEnv): StageDrawn {
   }
 
   const { task, monster, shrunk } = stage;
+  const cue = env.cue ?? (() => undefined);
+  // Hatched, Scootch is already bargaining for it; shrunk, he celebrates and the monster is not
+  // happy about its new size.
+  const mood = shrunk ? 'celebrating' : 'bargaining';
   return {
-    mood: shrunk ? 'pleased' : 'waiting',
+    mood,
     line: null,
     shown: {
       kind: 'panel',
       name: 'hatch',
       figure: (
-        <HatchFigure mood={shrunk ? 'pleased' : 'waiting'} attitude={attitude} monster={monster} />
+        <HatchFigure
+          mood={mood}
+          attitude={attitude}
+          monster={monster}
+          monsterMood={shrunk ? 'nervous' : 'idle'}
+          hatches={!shrunk}
+          onHatch={() => cue('hatch')}
+          onSqueak={() => cue('squeak')}
+          onGrumble={() => cue('grumble')}
+        />
       ),
       body: (
         <Stack>
@@ -264,7 +280,11 @@ export function stageShown(stage: Drawable, env: StageEnv): StageDrawn {
           quiet={{
             label: t(shrunk ? 'bargain.smaller' : 'hatch.tooBig'),
             hint: t('hatch.tooBig.hint'),
-            onPress: actions.tooBig,
+            onPress: () => {
+              // The shrink is heard and felt as the monster drops a size.
+              cue('shrink');
+              actions.tooBig();
+            },
             disabled: !stage.canShrink,
             testID: 'hatch-too-big',
           }}

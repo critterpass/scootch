@@ -1,4 +1,3 @@
-import * as Haptics from 'expo-haptics';
 import { useNetworkState } from 'expo-network';
 import { useIsFocused, useRouter, type Href } from 'expo-router';
 import { useEffect, useRef, useState, type ReactElement } from 'react';
@@ -7,15 +6,24 @@ import { Linking } from 'react-native';
 import { hasStartLeft, startsAllowed, type Attitude, type Energy } from '@scootch/domain';
 
 import { useLanguage, useT } from '../../i18n/i18n-provider';
-import { useDispatch, useDrawer, useSession, useToday } from '../../state/day-store-provider';
+import {
+  useCue,
+  useDispatch,
+  useDrawer,
+  useSession,
+  useToday,
+} from '../../state/day-store-provider';
 import type { DayEvent } from '../../state/day-types';
 import { usePlus } from '../../state/keepsakes';
 import { lineWithNoTask } from '../../state/lines';
 import { showsSelling } from '../../state/shows-comedy';
 import { useSurfaceRequest } from '../../state/surface-requests';
+import { touchHaptic } from '../../ui/motion/press-spring';
+import { useFeel } from '../../ui/motion/use-feel';
 import { useScreenReader } from '../../ui/use-screen-style';
 import { seriousShown } from '../care/serious-shown';
 import type { SpeechPort } from '../composer/speech';
+import { useComposerFeedback } from '../composer/composer-feedback';
 import { useComposer } from '../composer/use-composer';
 import { DrawerSheet } from '../drawer/drawer-sheet';
 import { HatchHauntLink } from '../haunt/hatch-haunt-link';
@@ -79,6 +87,7 @@ function useOneScreenDrawn({
   const screenReader = useScreenReader();
   const plus = usePlus();
   const network = useNetworkState();
+  const playCue = useCue();
   const [chosenMinutes, setMinutes] = useState<number | null>(null);
   const [treat, setTreat] = useState('');
   const [revealedFor, setRevealedFor] = useState<string | null>(null);
@@ -97,9 +106,11 @@ function useOneScreenDrawn({
       energyNeeded.current
         ? new Promise<void>((sent) => setHeld({ text, source, sent }))
         : dispatch({ type: 'text_submitted', text, source, energy: 'guess' }),
-    onTick: () => {
-      if (settings.haptics) void Haptics.selectionAsync().catch(() => undefined);
-    },
+  });
+  // The composer is heard and felt: listen, send, cancel, the tick of a switch, the cancel arming.
+  const feel = useFeel();
+  const { nudging } = useComposerFeedback(composer.state, playCue, () => {
+    if (feel.haptics) touchHaptic('choice');
   });
   const answerEnergy = (energy: Energy | 'guess') => {
     if (!held) return;
@@ -155,6 +166,8 @@ function useOneScreenDrawn({
       />
     ),
     onMore: () => router.push(SETTINGS),
+    // Scootch answers a tap with a squeak and a small celebration of his own.
+    onSqueak: () => playCue('squeak'),
     failed: notice === 'failed',
   };
 
@@ -221,6 +234,7 @@ function useOneScreenDrawn({
       today: localDate,
       revealed: stage.kind === 'one_thing' && revealedFor === stage.task.id,
       hatchExtra: <HatchHauntLink />,
+      cue: playCue,
       actions: {
         answerEnergy,
         another: () => send({ type: 'another_asked' }),
@@ -289,7 +303,7 @@ function useOneScreenDrawn({
   return (
     <OneScreenView
       {...frame}
-      mood={composerMood(state, taskCall, warmUp)}
+      mood={composerMood(state, taskCall, warmUp, nudging)}
       // With no connection Scootch says so, in place of his usual ask: starting still works.
       line={quiet ? null : lineWithNoTask(offline && slot === 'waiting' ? 'offline' : slot, voice)}
       shown={shown}

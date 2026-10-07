@@ -53,7 +53,7 @@ export function taskSetShown(
     await dispatch({ type: 'session_set', minutes, treat: treat.trim() || null });
     await dispatch({ type: 'session', event: { type: 'started' } });
   };
-  const mood: Mood = said === null ? 'serious' : monster ? 'pleased' : 'waiting';
+  const mood: Mood = said === null ? 'serious' : 'waiting';
   return {
     mood,
     line: said,
@@ -68,7 +68,7 @@ export function taskSetShown(
       onMinutes: env.onMinutes,
       onStart: () => void start().catch(() => undefined),
       ...(carried ? { startLabel: t('morning.start', { minutes }) } : {}),
-      ...(carried && monster
+      ...(monster
         ? {
             figure: (
               <HatchFigure

@@ -90,6 +90,8 @@ export interface OneScreenViewProps {
   readonly onWorld?: () => void;
   /** The person pulled the screen down on purpose: the drawer's own gesture. */
   readonly onPull?: () => void;
+  /** A tap on Scootch, where he is drawn alone. */
+  readonly onSqueak?: () => void;
   /** Drawn over the screen: the drawer. */
   readonly overlay?: ReactNode;
   readonly shown: OneScreenShown;
@@ -109,6 +111,7 @@ export function OneScreenView({
   onMore,
   onWorld,
   onPull,
+  onSqueak,
   overlay = null,
   shown,
   failed = false,
@@ -261,7 +264,7 @@ export function OneScreenView({
           }}
         >
           {figure === undefined ? (
-            <ScootchSays mood={mood} attitude={attitude} line={line} />
+            <ScootchSays mood={mood} attitude={attitude} line={line} onPress={onSqueak} />
           ) : (
             <>
               {figure}
