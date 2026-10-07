@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { DAY_MS } from '@scootch/domain';
+import { DAY_MS, FREE_STARTS_PER_DAY } from '@scootch/domain';
 
 import { stageOf } from '../features/one-screen/one-screen-stage';
 
@@ -21,7 +21,10 @@ describe('a task that was started and left', () => {
     expect(task.status).toBe('started');
 
     await app.store.dispatch({ type: 'started_task_parked' });
-    expect(app.store.getState().today).toEqual({ kind: 'nothing_yet', startsLeft: 2 });
+    expect(app.store.getState().today).toEqual({
+      kind: 'nothing_yet',
+      startsLeft: FREE_STARTS_PER_DAY - 1,
+    });
     expect(app.store.getState().drawer.items.map((item) => item.id)).toContain(task.id);
     expect(app.data.count('monsters')).toBe(1);
 
@@ -29,7 +32,10 @@ describe('a task that was started and left', () => {
     await app.store.dispatch({ type: 'drawer_item_swapped_in', itemId: task.id });
     expect(app.task()).toMatchObject({ id: task.id, text: task.text, status: 'set' });
     expect(app.store.getState().monster).toEqual(monster);
-    expect(app.store.getState().today).toMatchObject({ kind: 'task_set', startsLeft: 2 });
+    expect(app.store.getState().today).toMatchObject({
+      kind: 'task_set',
+      startsLeft: FREE_STARTS_PER_DAY - 1,
+    });
 
     // Left in the drawer overnight, it stays there and is not carried in by itself.
     await app.store.dispatch({ type: 'session_set', minutes: 10 });
@@ -38,7 +44,10 @@ describe('a task that was started and left', () => {
     await app.store.dispatch({ type: 'session_closed' });
     await app.store.dispatch({ type: 'started_task_parked' });
     const tomorrow = await stagedPhone(stagedServer(), app.data, MORNING + DAY_MS);
-    expect(tomorrow.store.getState().today).toEqual({ kind: 'nothing_yet', startsLeft: 3 });
+    expect(tomorrow.store.getState().today).toEqual({
+      kind: 'nothing_yet',
+      startsLeft: FREE_STARTS_PER_DAY,
+    });
     expect(tomorrow.store.getState().drawer.items.map((item) => item.id)).toContain(task.id);
   });
 
@@ -65,7 +74,7 @@ describe('"Today\'s one thing", when the words came out wrong', () => {
     const state = app.store.getState();
     expect(state).toMatchObject({
       returnedText: ramble,
-      today: { kind: 'nothing_yet', startsLeft: 3 },
+      today: { kind: 'nothing_yet', startsLeft: FREE_STARTS_PER_DAY },
       pick: { kind: 'none' },
       heardDeadlines: [],
     });

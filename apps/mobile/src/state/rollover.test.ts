@@ -1,8 +1,11 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { DAY_MS, HOUR_MS, MINUTE_MS } from '@scootch/domain';
+import { DAY_MS, FREE_STARTS_PER_DAY, HOUR_MS, MINUTE_MS } from '@scootch/domain';
 
 import { MORNING, stagedPhone, stagedServer } from './test/staged-phone';
+
+/** A day nothing has been started on: every free start is still open. */
+const UNTOUCHED = { kind: 'nothing_yet', startsLeft: FREE_STARTS_PER_DAY };
 
 /** A day on which one thing was set and left: typed, hatched, started and walked away from. */
 async function dayWithATaskLeft() {
@@ -54,7 +57,7 @@ describe('a task left unfinished when the day turns', () => {
     await stagedPhone(server, app.data, MORNING + DAY_MS);
     const third = await stagedPhone(server, app.data, MORNING + 2 * DAY_MS);
 
-    expect(third.store.getState().today).toEqual({ kind: 'nothing_yet', startsLeft: 3 });
+    expect(third.store.getState().today).toEqual(UNTOUCHED);
     expect(everything(third).drawer).toContain(task.id);
     expect(third.data.count('monsters')).toBe(1);
 
@@ -71,7 +74,7 @@ describe('a task left unfinished when the day turns', () => {
       const { server, app, task } = await dayWithATaskLeft();
       const back = await stagedPhone(server, app.data, MORNING + gap * DAY_MS);
 
-      expect(back.store.getState().today).toEqual({ kind: 'nothing_yet', startsLeft: 3 });
+      expect(back.store.getState().today).toEqual(UNTOUCHED);
       expect(back.store.getState().morning.kind).toBe('smallest_ask');
       expect(everything(back).drawer).toContain(task.id);
       expect(back.data.count('monsters')).toBe(1);
@@ -115,7 +118,10 @@ describe('a task left unfinished when the day turns', () => {
 
     const next = await stagedPhone(server, app.data, MORNING + DAY_MS);
     await next.store.dispatch({ type: 'session', event: { type: 'clock' } });
-    expect(next.store.getState().today).toMatchObject({ kind: 'task_set', startsLeft: 3 });
+    expect(next.store.getState().today).toMatchObject({
+      kind: 'task_set',
+      startsLeft: FREE_STARTS_PER_DAY,
+    });
     expect(next.task()).toMatchObject({ id: task.id, status: 'set', carriedOver: true });
     expect(next.store.getState().session).toBeNull();
     expect(next.data.dump()).toContain('left_early');
@@ -137,12 +143,15 @@ describe('"Carry on tomorrow"', () => {
   it('rests the day with the task waiting for tomorrow, and counts the start it used', async () => {
     const { server, app, task } = await carriedOn();
     const rested = app.store.getState();
-    expect(rested.today).toEqual({ kind: 'done_for_today', startsLeft: 2 });
+    expect(rested.today).toEqual({ kind: 'done_for_today', startsLeft: FREE_STARTS_PER_DAY - 1 });
     expect(rested.waitingForTomorrow).toMatchObject({ id: task.id });
 
     // Killed and opened again the same day: still resting, still one start used.
     const again = await stagedPhone(server, app.data, MORNING + HOUR_MS);
-    expect(again.store.getState().today).toEqual({ kind: 'done_for_today', startsLeft: 2 });
+    expect(again.store.getState().today).toEqual({
+      kind: 'done_for_today',
+      startsLeft: FREE_STARTS_PER_DAY - 1,
+    });
     expect(again.store.getState().waitingForTomorrow).toMatchObject({ id: task.id });
   });
 
@@ -158,7 +167,10 @@ describe('ending the day without finishing', () => {
   it('carries a set task to tomorrow and rests the day', async () => {
     const { server, app, task } = await dayWithATaskLeft();
     await app.store.dispatch({ type: 'done_for_today' });
-    expect(app.store.getState().today).toEqual({ kind: 'done_for_today', startsLeft: 3 });
+    expect(app.store.getState().today).toEqual({
+      kind: 'done_for_today',
+      startsLeft: FREE_STARTS_PER_DAY,
+    });
     expect(app.store.getState().waitingForTomorrow).toMatchObject({ id: task.id });
 
     const next = await stagedPhone(server, app.data, MORNING + DAY_MS);

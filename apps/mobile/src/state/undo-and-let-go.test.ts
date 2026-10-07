@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { DAY_MS, MINUTE_MS, type SessionEvent } from '@scootch/domain';
+import { DAY_MS, MINUTE_MS, type SessionEvent, FREE_STARTS_PER_DAY } from '@scootch/domain';
 
 import { openRepositories } from '../data/repositories';
 
@@ -31,14 +31,23 @@ describe('letting a thing go', () => {
     await session(app, { type: 'not_finished' });
     await session(app, { type: 'chose_let_go' });
     await app.store.dispatch({ type: 'session_closed' });
-    expect(app.store.getState().today).toEqual({ kind: 'nothing_yet', startsLeft: 2 });
+    expect(app.store.getState().today).toEqual({
+      kind: 'nothing_yet',
+      startsLeft: FREE_STARTS_PER_DAY - 1,
+    });
     expect(app.data.count('tasks') + app.data.count('sessions')).toBe(0);
 
     // It is still used after the app is opened again, and the next day starts whole.
     const again = await stagedPhone(stagedServer(), app.data, MORNING + 30 * MINUTE_MS);
-    expect(again.store.getState().today).toEqual({ kind: 'nothing_yet', startsLeft: 2 });
+    expect(again.store.getState().today).toEqual({
+      kind: 'nothing_yet',
+      startsLeft: FREE_STARTS_PER_DAY - 1,
+    });
     const tomorrow = await stagedPhone(stagedServer(), app.data, MORNING + DAY_MS);
-    expect(tomorrow.store.getState().today).toEqual({ kind: 'nothing_yet', startsLeft: 3 });
+    expect(tomorrow.store.getState().today).toEqual({
+      kind: 'nothing_yet',
+      startsLeft: FREE_STARTS_PER_DAY,
+    });
   });
 });
 
@@ -76,7 +85,7 @@ describe('"That\'s it for today", then "Changed my mind"', () => {
     await app.store.dispatch({ type: 'rest_undone' });
     expect(app.task()).toEqual(before);
     expect(app.store.getState()).toMatchObject({
-      today: { kind: 'task_set', startsLeft: 3 },
+      today: { kind: 'task_set', startsLeft: FREE_STARTS_PER_DAY },
       waitingForTomorrow: null,
       restUndo: false,
     });
@@ -102,7 +111,10 @@ describe('"That\'s it for today", then "Changed my mind"', () => {
     await app.store.dispatch({ type: 'done_for_today' });
     expect(app.store.getState().restUndo).toBe(true);
     await app.store.dispatch({ type: 'rest_undone' });
-    expect(app.store.getState().today).toEqual({ kind: 'nothing_yet', startsLeft: 3 });
+    expect(app.store.getState().today).toEqual({
+      kind: 'nothing_yet',
+      startsLeft: FREE_STARTS_PER_DAY,
+    });
   });
 
   it('is not offered for a thing carried on after a session', async () => {

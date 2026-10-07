@@ -1,5 +1,6 @@
 import { View } from 'react-native';
 
+import { FREE_STARTS_PER_DAY } from '@scootch/domain';
 import { spacing } from '@scootch/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
@@ -42,7 +43,7 @@ function planLine(model: ManageModel, t: ReturnType<typeof useT>): string {
   const { customer, date } = model;
   const plan: PlanId | null = customer.activePlan;
   if (plan === 'lifetime') return t('plus.manage.lifetime');
-  if (plan === null) return t('plus.manage.free.note');
+  if (plan === null) return t('plus.manage.free.note', { count: FREE_STARTS_PER_DAY });
   if (date === null) return '';
   if (customer.inTrial && customer.willRenew) return t('plus.manage.trialEnds', { date });
   if (!customer.willRenew) return t('plus.manage.ends', { date });
@@ -129,7 +130,7 @@ export function ManageScreen({ model, actions }: { model: ManageModel; actions: 
         </SessionText>
       ) : null}
       <SessionText face="caption" color={palette.muted}>
-        {t('plus.manage.keeps')}
+        {t('plus.manage.keeps', { count: FREE_STARTS_PER_DAY })}
       </SessionText>
     </KeepFrame>
   );

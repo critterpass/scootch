@@ -6,7 +6,7 @@ import { parkTasks } from '../drawer';
 import { addDays } from './local-time';
 import { rollOver, type RolloverInput } from './rollover';
 import { TODAY, drawerItem, taskRow, taskRowArbitrary } from './test/rows';
-import { startsLeft, todayState } from './today-state';
+import { FREE_STARTS_PER_DAY, startsLeft, todayState } from './today-state';
 
 const YESTERDAY = addDays(TODAY, -1);
 const base: RolloverInput = {
@@ -211,10 +211,12 @@ describe('a start is counted on the day it was used', () => {
       tableId: null,
     };
     const input = { localDate: TODAY, tasks: [carried], plus: false };
-    expect(startsLeft({ ...input, sessions: [session] })).toBe(2);
-    expect(startsLeft({ ...input, sessions: [] })).toBe(3);
+    expect(startsLeft({ ...input, sessions: [session] })).toBe(FREE_STARTS_PER_DAY - 1);
+    expect(startsLeft({ ...input, sessions: [] })).toBe(FREE_STARTS_PER_DAY);
     // A task started twice today used one start.
-    expect(startsLeft({ ...input, sessions: [session, { ...session, id: 'session-b' }] })).toBe(2);
+    expect(startsLeft({ ...input, sessions: [session, { ...session, id: 'session-b' }] })).toBe(
+      FREE_STARTS_PER_DAY - 1,
+    );
     expect(
       todayState({
         ...input,
@@ -227,6 +229,6 @@ describe('a start is counted on the day it was used', () => {
           energy: null,
         },
       }),
-    ).toEqual({ kind: 'done_for_today', startsLeft: 2 });
+    ).toEqual({ kind: 'done_for_today', startsLeft: FREE_STARTS_PER_DAY - 1 });
   });
 });

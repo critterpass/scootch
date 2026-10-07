@@ -2,6 +2,7 @@ import { describe, expect, it } from '@jest/globals';
 
 import {
   DAY_MS,
+  FREE_STARTS_PER_DAY,
   HOUR_MS,
   nextScootchDayStart,
   type TaskCreateStartResponse,
@@ -36,7 +37,7 @@ describe('a day left open overnight', () => {
     await app.store.dispatch({ type: 'day_turned' });
     expect(app.store.getState()).toMatchObject({
       localDate: '2026-10-07',
-      today: { kind: 'nothing_yet', startsLeft: 3 },
+      today: { kind: 'nothing_yet', startsLeft: FREE_STARTS_PER_DAY },
     });
   });
 
@@ -100,7 +101,7 @@ describe('a session running across the start of a new day', () => {
     await app.store.dispatch({ type: 'session_closed' });
     expect(app.store.getState()).toMatchObject({
       localDate: '2026-10-07',
-      today: { kind: 'nothing_yet', startsLeft: 3 },
+      today: { kind: 'nothing_yet', startsLeft: FREE_STARTS_PER_DAY },
       session: null,
     });
   });
