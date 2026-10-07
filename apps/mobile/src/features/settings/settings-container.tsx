@@ -1,12 +1,15 @@
-import { useRouter } from 'expo-router';
+import { useIsFocused, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
+import { Share } from 'react-native';
 
 import { useMusicWhenSilent } from '../../effects/sound-mode';
-import { useLanguage } from '../../i18n/i18n-provider';
+import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { developerToolsAllowed } from '../../screens/registry/support/developer-tools';
 import { useDataTools, useDispatch, useToday } from '../../state/day-store-provider';
 import { lineWithNoTask } from '../../state/lines';
+import { useTogether } from '../../state/together-context';
 import { goBack } from '../../ui/motion/go-back';
+import { accountThen, friendInviteLink } from '../table/table-rules';
 
 import { FinishWithPage } from './finish-with-page';
 import { SettingsPage } from './settings-page';
@@ -17,6 +20,7 @@ const PAGES = {
   helplines: '/helplines',
   // The manage page: what this phone has, and the quiet way to the sheet from there.
   plus: '/plus/manage',
+  tables: '/table-settings',
   'developer-tools': '/developer-tools',
 } as const satisfies Record<string, string>;
 
@@ -29,6 +33,34 @@ export function SettingsContainer() {
   const router = useRouter();
   const [backupOff, setBackupOff] = useState(false);
   const [musicWhenSilent, setMusicWhenSilent] = useMusicWhenSilent();
+  const { api } = useTogether();
+  const t = useT();
+  const focused = useIsFocused();
+  const [tableName, setTableName] = useState<string | null>(null);
+
+  // Read again whenever Settings comes back into view: the tables page can sign in or out.
+  useEffect(() => {
+    if (!focused) return undefined;
+    let current = true;
+    void api
+      .me()
+      .catch(() => null)
+      .then((account) => {
+        if (current) setTableName(account?.displayName ?? null);
+      });
+    return () => {
+      current = false;
+    };
+  }, [api, focused]);
+
+  // A friend link needs an account: without one, the friends page asks for it first.
+  const invite = () =>
+    void api
+      .friendInvite()
+      .then(({ code }) =>
+        Share.share({ message: t('friends.invite.message', { link: friendInviteLink(code) }) }),
+      )
+      .catch(() => router.push(accountThen('/friends')));
 
   useEffect(() => {
     let current = true;
@@ -54,6 +86,8 @@ export function SettingsContainer() {
       developerTools={developerToolsAllowed()}
       musicWhenSilent={musicWhenSilent}
       onMusicWhenSilent={setMusicWhenSilent}
+      tableName={tableName}
+      onInvite={invite}
       onChange={(changes) =>
         void dispatch({ type: 'settings_changed', changes }).catch(() => undefined)
       }

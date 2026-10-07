@@ -9,12 +9,22 @@ import fixtures from '../../../../../packages/domain/src/contracts/fixtures/tabl
 import passFixture from '../../../../../packages/voice/fixtures/task.create.en.json';
 import seriousFixture from '../../../../../packages/voice/fixtures/task.create.serious.en.json';
 import { ALL_ON } from '../../effects/test/fake-adapters';
+import { createTogetherApi } from '../../api/together-api';
 import { createTogetherRuntime } from '../../state/together-context';
 import { hauntToSend } from '../haunt/haunt-rules';
 import { MORNING, phone } from '../session/test/phone';
 
 import { seatControls } from './seat-controls';
-import { labelModeFor, openTableStep, showsTableEntry, tableTimer } from './table-rules';
+import {
+  labelModeFor,
+  lobbyPath,
+  seatPath,
+  seatsToOpen,
+  showsTableEntry,
+  startMinutesFrom,
+  tableLengthFor,
+  tableTimer,
+} from './table-rules';
 import { fakeHttp, fakeSockets } from './test/fake-table';
 
 const pass = passFixture.response as TaskCreatePass;
@@ -173,7 +183,7 @@ describe('the connection and the person’s own session', () => {
     net
       .last()
       .say({ ...STATE, seats: (STATE as { seats: { userId: string }[] }).seats.slice(0, 2) });
-    expect(table.getState().notice).toEqual({ kind: 'left', name: null });
+    expect(table.getState().notice).toEqual({ kind: 'left', name: null, done: false });
   });
 
   it('offers the table’s timer without ever ending a session', () => {
@@ -254,15 +264,163 @@ describe('the way in', () => {
     expect(showsTableEntry({ today: { kind: 'crisis' }, heavyToday: false })).toBe(false);
   });
 
-  it('opens the Plus sheet from "Open a table" without Plus, and a table with it', () => {
-    expect(openTableStep(false)).toBe('locked');
-    expect(openTableStep(true)).toBe('open');
+  it('opens a table for two without Plus, and names the sheet only from the locked four seats', () => {
+    expect(seatsToOpen(false)).toBe(2);
+    expect(seatsToOpen(true)).toBe(4);
     // The locked control's tap is the only thing in the lobby that names the sheet.
     const lobby = readFileSync(path.join(__dirname, 'lobby-containers.tsx'), 'utf8');
     expect(lobby.match(/PLUS_SHEET/g)).toHaveLength(2);
     expect(lobby).toContain('onLocked={() => router.push(PLUS_SHEET)}');
-    expect(readFileSync(path.join(__dirname, 'lobby-page.tsx'), 'utf8')).toContain(
-      "onPress={openTableStep(props.plus) === 'open' ? props.onOpen : props.onLocked}",
-    );
+    const page = readFileSync(path.join(__dirname, 'lobby-page.tsx'), 'utf8');
+    expect(page.match(/props\.onLocked/g)).toHaveLength(1);
+    expect(page).toContain('{plus ? null : (');
+  });
+});
+
+describe('who comes and goes at the table', () => {
+  const KOFI = {
+    userId: 'bcdefghijklm',
+    label: 'admin',
+    name: 'Kofi',
+    online: true,
+    nudgesLeft: 3,
+  };
+  const seats = (STATE as { seats: { userId: string }[] }).seats;
+
+  it('says nothing of who was already seated, then names someone who sits down', async () => {
+    const { net, together } = await seated();
+    expect(together.table.getState().notice).toBeNull();
+    net.last().say({ ...STATE, seats: [...seats, KOFI] });
+    expect(together.table.getState().notice).toEqual({ kind: 'sat', name: 'Kofi' });
+  });
+
+  it('says a seat emptied because its person finished, when the table says so', async () => {
+    const { net, together } = await seated();
+    net.last().say({
+      ...STATE,
+      seats: seats.slice(0, 2),
+      left: [{ userId: seats[2]?.userId, done: true, at: 1791340400000 }],
+    });
+    expect(together.table.getState().notice).toEqual({ kind: 'left', name: null, done: true });
+  });
+
+  it('seats as many as the table says it does', async () => {
+    const { net, together } = await seated();
+    expect(together.table.getState().capacity).toBe(4);
+    net.last().say({ ...STATE, capacity: 2 });
+    expect(together.table.getState().capacity).toBe(2);
+  });
+
+  it('drops a nudge that is muted here or switched off, and feels nothing', async () => {
+    const { app, net, together } = await seated();
+    const { table } = together;
+    const before = app.device.calls.haptics.length;
+    table.muteNudges(true);
+    net.last().say({ type: 'nudged', from: OTHER });
+    table.muteNudges(false);
+    table.allowNudges(false);
+    net.last().say({ type: 'nudged', from: OTHER });
+    await app.runner.settled();
+    expect(app.device.calls.haptics).toHaveLength(before);
+    expect(table.getState().notice).toBeNull();
+
+    table.allowNudges(true);
+    net.last().say({ type: 'nudged', from: OTHER });
+    expect(table.getState().notice).toEqual({ kind: 'nudged', from: OTHER });
+  });
+
+  it('mutes nudges for one table only', async () => {
+    const { together } = await seated();
+    together.table.muteNudges(true);
+    expect(together.table.getState().nudgesMuted).toBe(true);
+    together.table.sit('bcdefghijklmnopq', null);
+    expect(together.table.getState().nudgesMuted).toBe(false);
+  });
+
+  it('tells the table the thing is done, and nothing else about it', async () => {
+    const { net, together } = await seated();
+    expect(together.table.done()).toBe(true);
+    expect(net.frames().at(-1)).toBe('{"type":"done"}');
+  });
+});
+
+describe('a start carried to a table', () => {
+  it('reads a whole number of minutes from an address, and nothing else', () => {
+    expect(startMinutesFrom('25')).toBe(25);
+    expect(startMinutesFrom('5')).toBe(5);
+    expect(startMinutesFrom(undefined)).toBeNull();
+    for (const bad of ['0', '61', '100', '2.5', '-5', 'ten', '']) {
+      expect(startMinutesFrom(bad)).toBeNull();
+    }
+    expect(lobbyPath(25)).toBe('/table?minutes=25');
+    expect(seatPath(null)).toBe('/table/seat');
+  });
+
+  it('asks the table for the shortest shared timer that covers the person’s own', () => {
+    expect(tableLengthFor(5)).toBe(10);
+    expect(tableLengthFor(10)).toBe(10);
+    expect(tableLengthFor(15)).toBe(25);
+    expect(tableLengthFor(50)).toBe(50);
+    // Nothing covers an hour: the session runs beside a table whose timer was not started.
+    expect(tableLengthFor(60)).toBeNull();
+  });
+
+  it('starts for the length chosen before sitting down, and joins in for what the table has left', () => {
+    const idle = { endsAt: null, minutes: null, clockAhead: 0 };
+    const going = { endsAt: 61_000, minutes: 25 as const, clockAhead: 0 };
+    const mine = { taskSet: true, inSession: false, wanted: 15 };
+    expect(tableTimer(idle, mine, 1_000)).toEqual({ kind: 'start', minutes: 15 });
+    expect(tableTimer(going, mine, 1_000)).toEqual({ kind: 'join_in', minutes: 25, left: 1 });
+  });
+});
+
+describe('friends’ tables and a link’s landing', () => {
+  it('lists a friend’s open table with its free seats, and sits down with no link', async () => {
+    const web = fakeHttp({
+      'GET /v1/friends/tables': {
+        tables: [
+          {
+            tableId: TABLE,
+            capacity: 4,
+            seatsTaken: 2,
+            friends: [{ accountId: OTHER, displayName: 'Kofi' }],
+          },
+        ],
+      },
+      [`POST /v1/tables/${TABLE}/join`]: { tableId: TABLE, capacity: 4, madeFriends: false },
+    });
+    const api = createTogetherApi(web.http);
+    expect(await api.friendsTables()).toEqual([
+      { tableId: TABLE, openSeats: 2, friends: [{ accountId: OTHER, displayName: 'Kofi' }] },
+    ]);
+    expect(await api.joinFriendsTable(TABLE, 'free')).toBe(TABLE);
+    expect(web.sent.at(-1)).toEqual({
+      method: 'POST',
+      path: `/v1/tables/${TABLE}/join`,
+      body: { purchase: 'free' },
+    });
+  });
+
+  it('reads who saved the seat from the link alone, with the server’s word and never a task', async () => {
+    const web = fakeHttp({
+      'GET /v1/table-invite/abcdefghij': {
+        state: 'open',
+        hostName: 'Kofi',
+        closedAt: null,
+        seats: [
+          { name: 'Kofi', label: 'admin', workMode: 'paperwork' },
+          { name: null, label: null, workMode: null },
+        ],
+      },
+    });
+    expect(await createTogetherApi(web.http).tableInvitePage('abcdefghij')).toEqual({
+      state: 'open',
+      hostName: 'Kofi',
+      seats: [
+        { name: 'Kofi', label: 'admin' },
+        { name: null, label: '' },
+      ],
+    });
+    expect(web.sent[0]?.body).toBeNull();
   });
 });

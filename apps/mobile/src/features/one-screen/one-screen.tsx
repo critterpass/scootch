@@ -18,6 +18,7 @@ import { usePlus } from '../../state/keepsakes';
 import { lineWithNoTask } from '../../state/lines';
 import { showsSelling } from '../../state/shows-comedy';
 import { useSurfaceRequest } from '../../state/surface-requests';
+import { useTableState } from '../../state/together-context';
 import { touchHaptic } from '../../ui/motion/press-spring';
 import { useFeel } from '../../ui/motion/use-feel';
 import { useKeyboardOpen } from '../../ui/use-keyboard-open';
@@ -31,6 +32,9 @@ import { DrawerSheet } from '../drawer/drawer-sheet';
 import { HatchHauntLink } from '../haunt/hatch-haunt-link';
 import { wordsWhileUnscreened } from '../offline/waiting-words';
 import { PLUS_SHEET_ONE_MORE } from '../plus/routes';
+import type { Company } from '../table/company-control';
+import { FriendTablePill } from '../table/friend-table-pill';
+import { lobbyPath, seatPath } from '../table/table-rules';
 
 import { composerMood } from './composer-mood';
 import { composerWays } from './composer-ways';
@@ -97,6 +101,9 @@ function useOneScreenDrawn({
   const keyboardOpen = useKeyboardOpen();
   const [chosenMinutes, setMinutes] = useState<number | null>(null);
   const [treat, setTreat] = useState('');
+  // Alone or at a table, once chosen; until then someone with a seat starts at their table.
+  const [chosenCompany, setCompany] = useState<Company | null>(null);
+  const seated = useTableState().tableId !== null;
   const [revealedFor, setRevealedFor] = useState<string | null>(null);
   // The drawer was opened from the words that wait for tomorrow: they are marked out in it.
   const [waitingMarked, markWaiting] = useState(false);
@@ -213,6 +220,10 @@ function useOneScreenDrawn({
       treat,
       onTreat: setTreat,
       onMinutes: setMinutes,
+      company: chosenCompany ?? (seated ? 'table' : 'alone'),
+      onCompany: setCompany,
+      // A seat already held is gone back to; otherwise the lobby finds or opens one.
+      onTable: (minutes) => router.push((seated ? seatPath : lobbyPath)(minutes)),
       dispatch,
     });
     return <OneScreenView {...frame} {...drawn} />;
@@ -310,6 +321,8 @@ function useOneScreenDrawn({
               starts === 'locked'
                 ? t('plus.oneMore.freeDone', { count: FREE_STARTS_PER_DAY })
                 : null,
+            // Never beside something heavy: the pill leads to a table, and its lobby sells seats.
+            ...(showsSelling(day) ? { company: <FriendTablePill /> } : {}),
           },
         }),
     ...composerWays({ stage, t, language, today: localDate, sendChip }),

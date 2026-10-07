@@ -87,6 +87,7 @@ export function OneScreenView({
 
   let body: ReactNode = null;
   let footer: ReactNode = null;
+  let banner: ReactNode = null;
   if (shown.kind === 'composer') {
     const { composer, warmUp, home } = shown;
     const { state } = composer;
@@ -99,6 +100,9 @@ export function OneScreenView({
       state.phase === 'idle' && !typing && !composer.thinking && !composer.notUnderstood;
     const waiting = home && atRest ? home.waiting : null;
     const startsNote = home && atRest ? home.startsNote : null;
+    // Who is at a table sits under the header, and steps aside with the rest of home.
+    banner =
+      home?.company === undefined ? null : <FadeAway shown={atRest}>{home.company}</FadeAway>;
     const anything =
       heard ||
       ((warmUp ?? shown.ways) && !recording) ||
@@ -170,7 +174,9 @@ export function OneScreenView({
       onStart,
       label = null,
       startLabel,
+      startIcon,
       onDiscard,
+      company = null,
       extra = null,
       figure: _,
       ...choices
@@ -193,12 +199,14 @@ export function OneScreenView({
           </View>
         )}
         <TaskSetChoices {...choices} />
+        {company}
         {extra === null ? null : <View style={styles.inset}>{extra}</View>}
       </>
     );
     footer = (
       <TaskSetDock
         startLabel={startLabel}
+        startIcon={startIcon}
         minutes={choices.minutes}
         onStart={onStart}
         onDiscard={onDiscard}
@@ -234,6 +242,7 @@ export function OneScreenView({
             {...(onMore ? { onMore } : {})}
           />
           <StageScroll onPull={onPull}>
+            {banner}
             <OneScreenFigure
               frame={frame}
               mood={mood}

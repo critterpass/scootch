@@ -39,6 +39,56 @@ function account(json: unknown): AccountView {
 export type Friend = AccountView;
 
 const tableId = (json: unknown) => text(object(json)['tableId']);
+
+/** An open table a friend is seated at, with a seat free for the caller. */
+export interface FriendsTable {
+  readonly tableId: string;
+  readonly openSeats: number;
+  /** The caller's friends seated there, and nobody else. */
+  readonly friends: readonly { readonly accountId: string; readonly displayName: string | null }[];
+}
+function count(value: unknown): number {
+  if (typeof value !== 'number' || !Number.isInteger(value)) throw new Error('not a count');
+  return value;
+}
+function friendsTable(json: unknown): FriendsTable {
+  const row = object(json);
+  return {
+    tableId: text(row['tableId']),
+    openSeats: Math.max(0, count(row['capacity']) - count(row['seatsTaken'])),
+    friends: list(row['friends'], (one) => {
+      const friend = object(one);
+      return {
+        accountId: text(friend['accountId']),
+        displayName: textOrNull(friend['displayName']),
+      };
+    }),
+  };
+}
+
+/**
+ * What an invite link shows before anyone sits down: who made it and who is seated, each with the
+ * server's one or two words unless they hid them. A link that has run out is `closed`.
+ */
+export interface TableInviteView {
+  readonly state: 'open' | 'closed';
+  readonly hostName: string | null;
+  readonly seats: readonly { readonly name: string | null; readonly label: string }[];
+}
+function tableInvite(json: unknown): TableInviteView {
+  const row = object(json);
+  return {
+    state: row['state'] === 'open' ? 'open' : 'closed',
+    hostName: textOrNull(row['hostName'] ?? null),
+    seats: list(row['seats'], (one) => {
+      const seat = object(one);
+      return {
+        name: typeof seat['name'] === 'string' ? seat['name'] : null,
+        label: typeof seat['label'] === 'string' ? seat['label'] : '',
+      };
+    }),
+  };
+}
 function invite(json: unknown): { code: string; expiresAt: string } {
   const row = object(json);
   return { code: text(row['code']), expiresAt: text(row['expiresAt']) };
@@ -121,6 +171,12 @@ export interface TogetherApi {
   openTable(purchase: PurchaseState): Promise<string>;
   tableInvite(tableId: string): Promise<{ code: string; expiresAt: string }>;
   joinTable(code: string, purchase: PurchaseState): Promise<string>;
+  /** The open tables a friend is seated at that the caller may sit down at. */
+  friendsTables(): Promise<FriendsTable[]>;
+  /** Sits down at a table a friend is at, with no link. */
+  joinFriendsTable(tableId: string, purchase: PurchaseState): Promise<string>;
+  /** What an invite link shows before sitting down. The code is the only key. */
+  tableInvitePage(code: string): Promise<TableInviteView>;
   mute(accountId: string, muted: boolean): Promise<void>;
   block(accountId: string, blocked: boolean): Promise<void>;
   report(report: SeatReport): Promise<void>;
@@ -164,6 +220,12 @@ export function createTogetherApi(http: HttpClient): TogetherApi {
     openTable: (purchase) => http.post('/v1/tables', { purchase }, tableId),
     tableInvite: (id) => http.post(`/v1/tables/${id}/invites`, {}, invite),
     joinTable: (code, purchase) => http.post('/v1/tables/join', { code, purchase }, tableId),
+    friendsTables: () =>
+      http.request('GET', '/v1/friends/tables', null, (json) =>
+        list(object(json)['tables'], friendsTable),
+      ),
+    joinFriendsTable: (id, purchase) => http.post(`/v1/tables/${id}/join`, { purchase }, tableId),
+    tableInvitePage: (code) => http.request('GET', `/v1/table-invite/${code}`, null, tableInvite),
     mute: (accountId, muted) => http.post('/v1/seats/mute', { accountId, muted }, done),
     block: (accountId, blocked) => http.post('/v1/seats/block', { accountId, blocked }, done),
     report: (report) => http.post('/v1/seats/report', report, done),

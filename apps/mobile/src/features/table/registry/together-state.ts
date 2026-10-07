@@ -8,16 +8,16 @@ import {
 } from '../../../screens/registry/support/screen-state';
 import type { TogetherCapture } from '../captures';
 
-export const TABLES_ROOM = { board: 'Tables', section: '01 Room' } as const;
+export const TABLES_WAYS_IN = { board: 'Tables', section: '01 Ways in' } as const;
+export const TABLES_FIRST_TIME = { board: 'Tables', section: '02 First time at a table' } as const;
+export const TABLES_ROOM = { board: 'Tables', section: '03 Room' } as const;
+export const TABLES_AROUND = { board: 'Tables', section: '04 Around the table' } as const;
+export const TABLES_MANAGING = { board: 'Tables', section: '05 Managing tables' } as const;
 export const SEAT_CONTROLS = {
   board: 'Care and Edge States',
   section: '05 Strangers at tables',
 } as const;
 export const HAUNT_BOARD = { board: 'Growth', section: '02 Haunt a friend' } as const;
-export const FRIEND_PASS = {
-  board: 'Plus',
-  section: '04 Friends, gifts, lifetime, shelf and manage',
-} as const;
 
 export interface TogetherStateInput {
   readonly id: string;
