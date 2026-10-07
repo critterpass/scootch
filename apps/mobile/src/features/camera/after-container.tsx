@@ -56,10 +56,13 @@ export function AfterContainer() {
   }, [memory]);
   first.current = before?.uri ?? null;
 
-  // Closing this, however it closes, deletes both photos and forgets the first.
+  // Closing this always deletes the second photo. The first goes with it once it has been used
+  // or turned down ("Skip", or the card was made); closed before either, it waits for another go.
+  const settled = useRef(false);
   useEffect(
     () => () => {
       discardPhoto(taken.current);
+      if (!settled.current) return;
       discardPhoto(first.current);
       void memory.write('cameraBefore', null).catch(() => undefined);
     },
@@ -99,6 +102,7 @@ export function AfterContainer() {
       // Counted the way the first photo was: on a desk, only what could be moved.
       const thingsNow =
         before.mode === 'room' ? things.length : desk.kind === 'step' ? desk.others.length + 1 : 0;
+      settled.current = true;
       setShown({
         kind: 'card',
         beforeUri: before.uri,
@@ -155,7 +159,10 @@ export function AfterContainer() {
       askLine={noTaskLine(language, settings.attitude, 'cameraAfterAsk')}
       cardLine={noTaskLine(language, settings.attitude, 'cameraAfter')}
       onShutter={() => void shutter()}
-      onSkip={() => router.back()}
+      onSkip={() => {
+        settled.current = true;
+        router.back();
+      }}
       onKeep={() => void keep()}
       onShare={() => void share()}
       onDone={() => router.back()}
