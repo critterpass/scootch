@@ -1,21 +1,24 @@
-/** How often a moving character is looked at again. Its loops are drawn as a few frames a second. */
-export const TICK_HZ = 12;
+/** How often a moving character is looked at again unless it asks for another rate. */
+export const TICK_HZ = 24;
 
 export interface MotionRunner {
   /** Starts or stops the ticks. Stopped, nothing is scheduled and the time stands still. */
   setRunning(running: boolean): void;
+  /** Changes how often it ticks, without losing its place in time. */
+  setRate(hz: number): void;
   /** Stops for good. */
   dispose(): void;
 }
 
 /**
- * Calls `onTick` with the seconds of motion so far, a few times a second while running. The time
+ * Calls `onTick` with the seconds of motion so far, `hz` times a second while running. The time
  * only counts while it runs, so a character picks up where it stopped. One timer at most.
  */
 export function createMotionRunner(onTick: (seconds: number) => void, hz = TICK_HZ): MotionRunner {
   let timer: ReturnType<typeof setInterval> | null = null;
   let played = 0;
   let since = 0;
+  let rate = hz;
   let disposed = false;
 
   const stop = (): void => {
@@ -24,16 +27,23 @@ export function createMotionRunner(onTick: (seconds: number) => void, hz = TICK_
     timer = null;
     played += (Date.now() - since) / 1000;
   };
+  const start = (): void => {
+    since = Date.now();
+    timer = setInterval(() => onTick(played + (Date.now() - since) / 1000), 1000 / rate);
+  };
 
   return {
     setRunning(running) {
       if (disposed || running === (timer !== null)) return;
-      if (!running) {
-        stop();
-        return;
-      }
-      since = Date.now();
-      timer = setInterval(() => onTick(played + (Date.now() - since) / 1000), 1000 / hz);
+      if (running) start();
+      else stop();
+    },
+    setRate(next) {
+      if (disposed || next === rate || !(next > 0)) return;
+      rate = next;
+      if (timer === null) return;
+      stop();
+      start();
     },
     dispose() {
       stop();
@@ -44,14 +54,23 @@ export function createMotionRunner(onTick: (seconds: number) => void, hz = TICK_
 
 /** Where a character learns whether it can be seen. Each `on…` returns its own unsubscribe. */
 export interface VisibilitySource {
-  /** True while the app is in the foreground. */
+  /** True while the app is on the screen, a system alert or sheet over it included. */
   readonly appActive: () => boolean;
   readonly onAppActiveChange: (listener: (active: boolean) => void) => () => void;
 }
 
 /**
- * Runs `runner` only while the screen is focused, the app is in the foreground and something
- * moves. Returns the handle the screen reports its focus to, and the way to let go of it all.
+ * The app counts as on the screen in every state but the background. Under a system alert, a
+ * permission prompt or an Apple sheet iOS reports `inactive` while the app is still in view, and
+ * the first read at launch can be that or nothing at all; a character must not freeze for those.
+ */
+export function shownInAppState(state: string | null | undefined): boolean {
+  return state !== 'background';
+}
+
+/**
+ * Runs `runner` only while the screen is focused, the app is on the screen and something moves.
+ * Returns the handle the screen reports its focus to, and the way to let go of it all.
  */
 export function runWhileVisible(
   runner: MotionRunner,
@@ -78,32 +97,5 @@ export function runWhileVisible(
       unsubscribe();
       runner.dispose();
     },
-  };
-}
-
-/**
- * Runs `jobs` a few at a time, leaving the thread free in between, then hands over every result.
- * Returns a cancel that leaves nothing scheduled and never calls `onDone`.
- */
-export function runInSlices<T>(
-  jobs: readonly (() => T)[],
-  perSlice: number,
-  onDone: (results: T[]) => void,
-): () => void {
-  const results: T[] = [];
-  let timer: ReturnType<typeof setTimeout> | null = null;
-  const slice = (): void => {
-    const end = Math.min(jobs.length, results.length + perSlice);
-    for (const job of jobs.slice(results.length, end)) results.push(job());
-    if (results.length < jobs.length) timer = setTimeout(slice, 0);
-    else {
-      timer = null;
-      onDone(results);
-    }
-  };
-  timer = setTimeout(slice, 0);
-  return () => {
-    if (timer !== null) clearTimeout(timer);
-    timer = null;
   };
 }

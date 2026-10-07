@@ -19,6 +19,19 @@ export {
 } from './monster-idle';
 export { MOOD_LOOP_SECONDS, moodBeat } from './mood-loops';
 export {
+  easeGaze,
+  GAZE_AT_REST,
+  gazeTarget,
+  monsterTapMood,
+  MOOD_SQUASH_SECONDS,
+  moodSquash,
+  scootchTapMood,
+  TAP_REACTION_SECONDS,
+  tapReacting,
+  type Gaze,
+  type Squash,
+} from './reactions';
+export {
   BLINK_EVERY_S,
   BLINK_LENGTH_S,
   BREATH_RATE,

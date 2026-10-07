@@ -119,17 +119,37 @@ export function holdRisingAt(progress: number): Stereo {
   return scaled(raw, holdGain());
 }
 
-function holdHaptics(): HapticTap[] {
-  const taps = holdSteps(fullHold, HOLD_SECONDS).map(({ at, progress }) =>
+/** How far into a full hold the button shows `progress`: the eased fill, read backwards. */
+function secondsIntoHold(progress: number): number {
+  if (progress <= 0) return 0;
+  if (progress >= 1) return HOLD_SECONDS;
+  return HOLD_SECONDS * (0.5 - Math.sin(Math.asin(1 - 2 * progress) / 3));
+}
+
+function holdHaptics(progressAt: Progress, seconds: number): HapticTap[] {
+  const taps = holdSteps(progressAt, seconds).map(({ at, progress }) =>
     tap(at * 1000, 6 + progress * 18),
   );
-  return [...taps, tap(HOLD_SECONDS * 1000, 40)];
+  return [...taps, tap(seconds * 1000, 40)];
+}
+
+/**
+ * The rest of a hold for a button that is already `startProgress` full (0 to 1), ending in the pop:
+ * what to play when the button is pressed again while it drains. Time zero is the press, so the
+ * sound and its taps are shorter by the part of the hold already filled, and the first note is the
+ * one a full hold plays at that fill. From 0 it is the whole hold.
+ */
+export function holdRisingFrom(startProgress = 0): Cue {
+  const skipped = secondsIntoHold(startProgress);
+  const seconds = HOLD_SECONDS - skipped;
+  const progressAt: Progress = skipped === 0 ? fullHold : (t) => fullHold(skipped + t);
+  return {
+    name: 'hold-rising',
+    loudness: LOUDNESS,
+    haptics: holdHaptics(progressAt, seconds),
+    render: () => scaled(renderHold(progressAt, seconds, true), holdGain()),
+  };
 }
 
 /** The whole hold from empty to full, ending in the pop. */
-export const holdRising: Cue = {
-  name: 'hold-rising',
-  loudness: LOUDNESS,
-  haptics: holdHaptics(),
-  render: () => scaled(renderHold(fullHold, HOLD_SECONDS, true), holdGain()),
-};
+export const holdRising: Cue = holdRisingFrom();

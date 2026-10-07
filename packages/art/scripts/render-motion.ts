@@ -15,6 +15,12 @@ import { createCanvas, type SKRSContext2D } from '@napi-rs/canvas';
 import {
   boilFrame,
   buildMonster,
+  easeGaze,
+  GAZE_AT_REST,
+  gazeTarget,
+  MOOD_SQUASH_SECONDS,
+  moodSquash,
+  scootchTapMood,
   buildScootch,
   drawCommands,
   eggWobble,
@@ -204,6 +210,44 @@ strip('monster-caught-pot', 3.4, (ctx, t) => drawCommands(ctx, pot('caught', t))
   const file = path.join(folder, 'boil-frames-4x.png');
   writeFileSync(file, canvas.toBuffer('image/png'));
   console.log(file);
+}
+
+// A tap: the squash into a short celebration, as the app plays it.
+strip(
+  'reaction-tap',
+  0.9,
+  (ctx, t) => {
+    const squash = moodSquash(t);
+    about(ctx, alive(scootchTapMood('waiting', t), t), squash);
+  },
+  folder,
+);
+// A change of mood: the squash alone, over the new mood.
+strip(
+  'reaction-mood-change',
+  MOOD_SQUASH_SECONDS,
+  (ctx, t) => about(ctx, alive('pleased', t), moodSquash(t)),
+  folder,
+);
+// The eyes drawn to a point up and to the left, then let go.
+{
+  const target = gazeTarget(-200, -120);
+  strip(
+    'reaction-gaze',
+    2.4,
+    (ctx, t) => {
+      const look =
+        t < 1.2
+          ? easeGaze(GAZE_AT_REST, target, t)
+          : easeGaze(easeGaze(GAZE_AT_REST, target, 1.2), null, t - 1.2);
+      const motion = { ...scootchIdle(t, 'scootch'), beat: moodBeat('waiting', t), time: t, look };
+      drawCommands(
+        ctx,
+        buildScootch({ ...cheeky, mood: 'waiting' }, motion, { boil: boilFrame(t) }),
+      );
+    },
+    folder,
+  );
 }
 
 // The egg wobbles once, then the monster pops in.
