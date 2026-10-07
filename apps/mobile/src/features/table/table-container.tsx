@@ -15,6 +15,7 @@ import { SeatSheet } from './seat-sheet';
 import { tableEndsAt } from './table-clock';
 import { TablePage } from './table-page';
 import { TABLE_LOBBY, labelModeFor, tableTimer } from './table-rules';
+import { goHome } from '../navigation/go-home';
 
 /**
  * The table on the real phone. The session it starts is the day store's own: this screen sets and
@@ -105,7 +106,7 @@ export function TableContainer() {
         onShowLabel={(shown) => table.setMode({ hidden: !shown })}
         onDismiss={table.dismissNotice}
         onLeave={controls.leave}
-        onClose={() => router.replace('/')}
+        onClose={() => goHome(router)}
       />
       <SeatSheet
         seat={sheet}

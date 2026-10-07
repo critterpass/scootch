@@ -29,6 +29,8 @@ export interface WaveformProps {
   readonly startedAt: number;
   /** False under Reduce Motion: the bars hold one still shape and only the time changes. */
   readonly moving: boolean;
+  /** The cancel is armed: the bars lie flat. */
+  readonly flat?: boolean;
   readonly color: string;
   readonly allowFontScaling: boolean;
   readonly fontSize: number;
@@ -39,6 +41,7 @@ export function Waveform({
   level,
   startedAt,
   moving,
+  flat = false,
   color,
   allowFontScaling,
   fontSize,
@@ -60,9 +63,11 @@ export function Waveform({
               styles.bar,
               {
                 backgroundColor: color,
-                height: moving
-                  ? barHeight(index, Math.max(level, 0.12), elapsed / 1000)
-                  : barHeight(index, STILL_LEVEL, 0),
+                height: flat
+                  ? SHORTEST
+                  : moving
+                    ? barHeight(index, Math.max(level, 0.12), elapsed / 1000)
+                    : barHeight(index, STILL_LEVEL, 0),
               },
             ]}
           />
@@ -95,8 +100,9 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
   time: {
-    fontFamily: fonts.heading,
+    fontFamily: fonts.body,
     fontWeight: '600',
     fontVariant: ['tabular-nums'],
+    opacity: 0.9,
   },
 });

@@ -18,7 +18,7 @@ import { park } from './task-rows';
 /** A reminder is never set for sooner than this. */
 const REMINDER_LEAD_MS = 15 * MINUTE_MS;
 
-const NOTHING_SAID: SessionContext = { title: '', liveLine: '', lineFor: () => null };
+export const NOTHING_SAID: SessionContext = { title: '', liveLine: '', lineFor: () => null };
 
 /**
  * A crisis day begins: every task is hidden, and anything that was going on stops without a word.
@@ -29,6 +29,8 @@ export async function enterCrisis(ctx: DayContext): Promise<void> {
   const { days } = ctx.deps.repositories;
   const day = await days.get(ctx.memory.state.localDate);
   if (day) await days.put({ ...day, status: 'crisis' });
+  // Words kept for the model to sort may be the ones that caused it: none of them stay.
+  await ctx.deps.repositories.unsortedWords.clear();
   await stopWithoutAWord(ctx);
 }
 
@@ -45,7 +47,8 @@ export async function stopWithoutAWord(ctx: DayContext): Promise<void> {
 
   const row = ctx.memory.sessionRowId ? await sessions.get(ctx.memory.sessionRowId) : null;
   if (row && row.endedAt === null) {
-    await sessions.put({ ...row, endedAt: isoFromInstant(ctx.now()), outcome: 'left_early' });
+    const endedAt = isoFromInstant(Math.min(ctx.now(), Date.parse(row.endsAt)));
+    await sessions.put({ ...row, endedAt, outcome: 'left_early' });
   }
   ctx.memory.sessionRowId = null;
   ctx.memory.restPending = false;

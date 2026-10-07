@@ -335,3 +335,34 @@ describe('leaving, and the app going away', () => {
     expect(at(holding, 'killed', minutes(3)).effects).toEqual([]);
   });
 });
+
+describe('changing your mind after "not finished"', () => {
+  it('goes back to the running session when time is not up, with its timers', () => {
+    const early = at(started(), 'not_finished', minutes(3)).state as LiveSession;
+    const back = at(early, 'mind_changed', minutes(4));
+    expect(back.state).toMatchObject({ phase: 'running', endedAt: null, endsAt: END });
+    expect(back.effects).toEqual(
+      expect.arrayContaining([
+        { kind: 'start_timer', until: END },
+        { kind: 'start_live_activity', until: END },
+      ]),
+    );
+    // Finishing is possible from there, as if nothing had been tapped.
+    expect(at(back.state as LiveSession, 'double_tapped', minutes(5)).state.phase).toBe('finished');
+  });
+
+  it('goes back to time up when the time has run out, where the hold still finishes', () => {
+    const late = at(started(), 'not_finished', minutes(11)).state as LiveSession;
+    const back = at(late, 'mind_changed', minutes(12));
+    expect(back.state).toMatchObject({ phase: 'time_up', endedAt: null });
+    expect(back.effects.some((effect) => effect.kind === 'start_timer')).toBe(false);
+    expect(at(back.state as LiveSession, 'double_tapped', minutes(12)).state.phase).toBe(
+      'finished',
+    );
+  });
+
+  it('does nothing anywhere else', () => {
+    const running = started();
+    expect(at(running, 'mind_changed', minutes(1)).state).toEqual(running);
+  });
+});
