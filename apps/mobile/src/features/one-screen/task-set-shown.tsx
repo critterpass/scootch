@@ -8,6 +8,9 @@ import type { DayEvent } from '../../state/day-types';
 import { lineFor } from '../../state/lines';
 import { HatchFigure } from '../monster/hatch-figure';
 import { wordsWhileUnscreened, type Connection } from '../offline/waiting-words';
+import type { Company } from '../table/company-control';
+import { showsTableEntry } from '../table/table-rules';
+import { TaskSetCompany } from '../table/task-set-company';
 import { TogetherLinks } from '../table/together-links';
 
 import { FRAMES, TASK_SET_MONSTER } from './one-screen-frame';
@@ -27,6 +30,11 @@ export interface TaskSetEnv {
   readonly treat: string;
   readonly onTreat: (treat: string) => void;
   readonly onMinutes: (minutes: number) => void;
+  /** Alone or at a table, as the person last chose; unset, the task starts alone. */
+  readonly company?: Company;
+  readonly onCompany?: (company: Company) => void;
+  /** "Start at a table" was tapped: on to a seat, with the chosen length. */
+  readonly onTable?: (minutes: number) => void;
   readonly dispatch: (event: DayEvent) => Promise<void>;
 }
 
@@ -54,6 +62,13 @@ export function taskSetShown(
   };
   const mood: Mood = said === null ? 'serious' : 'waiting';
   const off = startRefused(day.today);
+  const { onCompany, onTable } = env;
+  // A table is a way to start only where the choice itself is drawn.
+  const atTable =
+    env.company === 'table' &&
+    onCompany !== undefined &&
+    onTable !== undefined &&
+    showsTableEntry(day);
   return {
     mood,
     line: said,
@@ -67,12 +82,31 @@ export function taskSetShown(
       onTreat: env.onTreat,
       onMinutes: env.onMinutes,
       // Start that would be refused is drawn off, with the reason, instead of doing nothing.
-      onStart: off ? null : () => void start().catch(() => undefined),
+      onStart: off
+        ? null
+        : atTable
+          ? () => onTable(minutes)
+          : () => void start().catch(() => undefined),
       // Put down, a task not yet started leaves its words in the drawer; one started and left is
       // parked whole, with its monster, and the start it used stays used.
       onDiscard: () =>
         send({ type: stage.task.status === 'started' ? 'started_task_parked' : 'task_set_aside' }),
-      ...(carried ? { startLabel: t('morning.start', { minutes }) } : {}),
+      ...(atTable
+        ? { startLabel: t('table.startAt'), startIcon: 'table' as const }
+        : carried
+          ? { startLabel: t('morning.start', { minutes }) }
+          : {}),
+      ...(onCompany === undefined
+        ? {}
+        : {
+            company: (
+              <TaskSetCompany
+                day={day}
+                company={atTable ? 'table' : 'alone'}
+                onCompany={onCompany}
+              />
+            ),
+          }),
       ...(monster
         ? {
             figure: (

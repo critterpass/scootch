@@ -46,8 +46,12 @@ export interface SettingsPageProps {
   readonly onMusicWhenSilent?: (on: boolean) => void;
   readonly onLanguage: (language: Language | null) => void;
   readonly onOpen: (
-    page: 'finish-with' | 'privacy' | 'helplines' | 'plus' | 'developer-tools',
+    page: 'finish-with' | 'privacy' | 'helplines' | 'plus' | 'tables' | 'developer-tools',
   ) => void;
+  /** The name the person's seat shows; `null` on a phone that is not signed in for tables. */
+  readonly tableName?: string | null;
+  /** Opens the share sheet with a friend link. Unset (a capture), the row does nothing. */
+  readonly onInvite?: () => void;
   readonly onClose: () => void;
 }
 
@@ -190,12 +194,19 @@ export function SettingsPage(props: SettingsPageProps) {
         />
       </Section>
 
-      <Section label={t('settings.people')}>
+      <Section label={t('settings.company')}>
         <Row
           first
-          inert
+          label={t('settings.tables')}
+          hint={t('settings.tables.hint')}
+          value={props.tableName ?? t('settings.tables.off')}
+          onPress={() => onOpen('tables')}
+          testID="settings-tables"
+        />
+        <Row
           label={t('settings.invite')}
-          hint={t('oneScreen.notOpenYet')}
+          hint={t('settings.invite.hint')}
+          {...(props.onInvite ? { onPress: props.onInvite } : {})}
           testID="settings-invite"
         />
       </Section>

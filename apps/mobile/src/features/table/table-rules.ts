@@ -1,6 +1,12 @@
 import type { Href } from 'expo-router';
 
-import type { SessionMinutes, TaskRow, WorkMode } from '@scootch/domain';
+import {
+  TABLE_FREE_SEATS,
+  TABLE_MAX_SEATS,
+  type SessionMinutes,
+  type TaskRow,
+  type WorkMode,
+} from '@scootch/domain';
 
 import { refusalOf } from '../../api/together-api';
 import { showsComedy, showsSelling, type SellingDay } from '../../state/shows-comedy';
@@ -14,6 +20,35 @@ export const ACCOUNT = '/account' as Href;
 /** Where an account is asked for, coming back to the path `next` afterwards. */
 export const accountThen = (next: string) => `/account?next=${encodeURIComponent(next)}` as Href;
 export const FRIENDS_ACCEPTED = '/friends?accepted=1' as Href;
+export const TABLE_SETTINGS = '/table-settings' as Href;
+
+/**
+ * A length carried in an address ("Start at a table" on the way to a seat): whole minutes a
+ * session may run for, or `null` when the address carries none.
+ */
+export function startMinutesFrom(param: string | undefined): number | null {
+  if (param === undefined || !/^\d{1,2}$/.test(param)) return null;
+  const minutes = Number(param);
+  return minutes >= 1 && minutes <= 60 ? minutes : null;
+}
+
+const carrying = (path: string, minutes: number | null) =>
+  minutes === null ? path : `${path}?minutes=${minutes}`;
+/** The lobby, and the seat, on the way to a start of `minutes`. */
+export const lobbyPath = (minutes: number | null) => carrying('/table', minutes);
+export const seatPath = (minutes: number | null) => carrying('/table/seat', minutes);
+
+/** The lengths a table's shared timer runs for. */
+const TABLE_LENGTHS = [10, 25, 50] as const satisfies readonly SessionMinutes[];
+
+/**
+ * The shared timer a start of `minutes` asks the table for: the shortest that covers it, so the
+ * person's own session is never cut short by the table's. `null` when none covers it: the session
+ * then runs beside a table whose timer was not started.
+ */
+export function tableLengthFor(minutes: number): SessionMinutes | null {
+  return TABLE_LENGTHS.find((length) => length >= minutes) ?? null;
+}
 
 const INVITE_HOST = 'https://scootch.app';
 const CODE = /^[a-z2-7]{10}$/;
@@ -35,18 +70,18 @@ export function inviteCodeFrom(pasted: string): string | null {
 /**
  * Whether "Sit with someone" is on the screen. It is offered beside an ordinary task and at no
  * other time: never on a crisis day, beside a serious task, or on a day that held one, because
- * its lobby holds a Plus control and nothing is sold near something heavy.
+ * its lobby holds a Plus control (four seats) and nothing is sold near something heavy.
  */
 export function showsTableEntry(day: SellingDay): boolean {
   return showsSelling(day) && 'task' in day.today;
 }
 
 /**
- * What a tap on "Open a table" does: it opens a table with Plus, and without it is the quiet
- * locked control whose tap opens the sheet. The sheet's route is named only where that tap is.
+ * How many a table opened from this phone seats: anyone may open one for two, and Plus seats
+ * four. The server fixes the number when the table opens; this is only what the lobby says.
  */
-export function openTableStep(plus: boolean): 'open' | 'locked' {
-  return plus ? 'open' : 'locked';
+export function seatsToOpen(plus: boolean): number {
+  return plus ? TABLE_MAX_SEATS : TABLE_FREE_SEATS;
 }
 
 /**
@@ -99,8 +134,8 @@ export function joinOutcomeOf(error: unknown): JoinOutcome {
  * joining in, it ends with the table's, `left` whole minutes from now.
  */
 export type TableTimer =
-  | { readonly kind: 'start'; readonly minutes: SessionMinutes }
-  | { readonly kind: 'join_in'; readonly minutes: SessionMinutes; readonly left: number }
+  | { readonly kind: 'start'; readonly minutes: number }
+  | { readonly kind: 'join_in'; readonly minutes: number; readonly left: number }
   | { readonly kind: 'running' }
   | { readonly kind: 'need_task' };
 
@@ -114,7 +149,12 @@ export function tableTimer(
     readonly minutes: SessionMinutes | null;
     readonly clockAhead: number;
   },
-  mine: { readonly taskSet: boolean; readonly inSession: boolean },
+  mine: {
+    readonly taskSet: boolean;
+    readonly inSession: boolean;
+    /** The length the person chose before sitting down; ten minutes when they chose none. */
+    readonly wanted?: number | null;
+  },
   now: number,
 ): TableTimer {
   if (mine.inSession) return { kind: 'running' };
@@ -122,6 +162,6 @@ export function tableTimer(
   // Joining in is for the time the table has left, not for a length of the person's own.
   const left = tableMinutesLeft(table, now);
   return left === null
-    ? { kind: 'start', minutes: 10 }
+    ? { kind: 'start', minutes: mine.wanted ?? 10 }
     : { kind: 'join_in', minutes: table.minutes ?? 10, left };
 }

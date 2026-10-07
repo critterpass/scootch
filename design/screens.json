@@ -1273,59 +1273,187 @@
   },
   {
     "board": "Tables",
-    "section": "01 Room",
+    "section": "01 Ways in",
+    "screen": "From a set task",
+    "path": "design/renders/tables/01-ways-in--from-a-set-task.png",
+    "width": 393,
+    "height": 930
+  },
+  {
+    "board": "Tables",
+    "section": "01 Ways in",
+    "screen": "From the waiting screen",
+    "path": "design/renders/tables/01-ways-in--from-the-waiting-screen.png",
+    "width": 393,
+    "height": 929
+  },
+  {
+    "board": "Tables",
+    "section": "01 Ways in",
+    "screen": "From a friend's link",
+    "path": "design/renders/tables/01-ways-in--from-a-friend-s-link.png",
+    "width": 393,
+    "height": 929
+  },
+  {
+    "board": "Tables",
+    "section": "01 Ways in",
+    "screen": "Every way in",
+    "path": "design/renders/tables/01-ways-in--every-way-in.png",
+    "width": 339,
+    "height": 473
+  },
+  {
+    "board": "Tables",
+    "section": "02 First time at a table",
+    "screen": "Tables need a name",
+    "path": "design/renders/tables/02-first-time-at-a-table--tables-need-a-name.png",
+    "width": 387,
+    "height": 916
+  },
+  {
+    "board": "Tables",
+    "section": "02 First time at a table",
+    "screen": "Apple's sheet",
+    "path": "design/renders/tables/02-first-time-at-a-table--apple-s-sheet.png",
+    "width": 387,
+    "height": 916
+  },
+  {
+    "board": "Tables",
+    "section": "02 First time at a table",
+    "screen": "What the table calls you",
+    "path": "design/renders/tables/02-first-time-at-a-table--what-the-table-calls-you.png",
+    "width": 387,
+    "height": 916
+  },
+  {
+    "board": "Tables",
+    "section": "02 First time at a table",
+    "screen": "Changed your mind",
+    "path": "design/renders/tables/02-first-time-at-a-table--changed-your-mind.png",
+    "width": 387,
+    "height": 916
+  },
+  {
+    "board": "Tables",
+    "section": "03 Room",
     "screen": "Finding a table",
-    "path": "design/renders/tables/01-room--finding-a-table.png",
-    "width": 393,
-    "height": 929
+    "path": "design/renders/tables/03-room--finding-a-table.png",
+    "width": 387,
+    "height": 916
   },
   {
     "board": "Tables",
-    "section": "01 Room",
+    "section": "03 Room",
     "screen": "Waiting alone",
-    "path": "design/renders/tables/01-room--waiting-alone.png",
-    "width": 393,
-    "height": 929
+    "path": "design/renders/tables/03-room--waiting-alone.png",
+    "width": 387,
+    "height": 916
   },
   {
     "board": "Tables",
-    "section": "01 Room",
+    "section": "03 Room",
     "screen": "Invite a friend",
-    "path": "design/renders/tables/01-room--invite-a-friend.png",
-    "width": 392,
-    "height": 929
+    "path": "design/renders/tables/03-room--invite-a-friend.png",
+    "width": 387,
+    "height": 916
   },
   {
     "board": "Tables",
-    "section": "01 Room",
+    "section": "03 Room",
     "screen": "Full table",
-    "path": "design/renders/tables/01-room--full-table.png",
-    "width": 392,
-    "height": 928
+    "path": "design/renders/tables/03-room--full-table.png",
+    "width": 387,
+    "height": 916
   },
   {
     "board": "Tables",
-    "section": "01 Room",
+    "section": "03 Room",
     "screen": "Nudge received",
-    "path": "design/renders/tables/01-room--nudge-received.png",
+    "path": "design/renders/tables/03-room--nudge-received.png",
     "width": 387,
     "height": 916
   },
   {
     "board": "Tables",
-    "section": "01 Room",
+    "section": "03 Room",
     "screen": "Someone leaves",
-    "path": "design/renders/tables/01-room--someone-leaves.png",
+    "path": "design/renders/tables/03-room--someone-leaves.png",
     "width": 387,
     "height": 916
   },
   {
     "board": "Tables",
-    "section": "01 Room",
+    "section": "03 Room",
     "screen": "Labels at tables",
-    "path": "design/renders/tables/01-room--labels-at-tables.png",
+    "path": "design/renders/tables/03-room--labels-at-tables.png",
     "width": 335,
     "height": 479
+  },
+  {
+    "board": "Tables",
+    "section": "04 Around the table",
+    "screen": "Table menu",
+    "path": "design/renders/tables/04-around-the-table--table-menu.png",
+    "width": 387,
+    "height": 916
+  },
+  {
+    "board": "Tables",
+    "section": "04 Around the table",
+    "screen": "A friend sits down",
+    "path": "design/renders/tables/04-around-the-table--a-friend-sits-down.png",
+    "width": 387,
+    "height": 916
+  },
+  {
+    "board": "Tables",
+    "section": "04 Around the table",
+    "screen": "Done at a table",
+    "path": "design/renders/tables/04-around-the-table--done-at-a-table.png",
+    "width": 387,
+    "height": 916
+  },
+  {
+    "board": "Tables",
+    "section": "04 Around the table",
+    "screen": "Tables are quiet",
+    "path": "design/renders/tables/04-around-the-table--tables-are-quiet.png",
+    "width": 387,
+    "height": 916
+  },
+  {
+    "board": "Tables",
+    "section": "05 Managing tables",
+    "screen": "Settings · Tables row",
+    "path": "design/renders/tables/05-managing-tables--settings-tables-row.png",
+    "width": 387,
+    "height": 916
+  },
+  {
+    "board": "Tables",
+    "section": "05 Managing tables",
+    "screen": "Tables",
+    "path": "design/renders/tables/05-managing-tables--tables.png",
+    "width": 387,
+    "height": 916
+  },
+  {
+    "board": "Tables",
+    "section": "05 Managing tables",
+    "screen": "Friends",
+    "path": "design/renders/tables/05-managing-tables--friends.png",
+    "width": 387,
+    "height": 916
+  },
+  {
+    "board": "Tables",
+    "section": "05 Managing tables",
+    "screen": "Delete table account",
+    "path": "design/renders/tables/05-managing-tables--delete-table-account.png",
+    "width": 387,
+    "height": 916
   },
   {
     "board": "Website",

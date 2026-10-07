@@ -35,6 +35,11 @@ export interface CapsuleButtonProps {
   readonly style?: StyleProp<ViewStyle>;
 }
 
+/** What is written or drawn on the filled action: white on the light page's ink, else the page. */
+export function onInkOf(palette: { readonly ink: string; readonly page: string }): string {
+  return palette.ink === INK ? '#FFFFFF' : palette.page;
+}
+
 /** A full capsule with one label. It grows taller instead of cutting its label short. */
 export function CapsuleButton({
   label,
@@ -50,7 +55,7 @@ export function CapsuleButton({
   const ink = tone === 'ink';
   // The board writes the filled action in white on ink; on the dark page the ink is light and the
   // label takes the page's colour.
-  const onInk = palette.ink === INK ? '#FFFFFF' : palette.page;
+  const onInk = onInkOf(palette);
   return (
     <PressSpring
       accessibilityRole="button"

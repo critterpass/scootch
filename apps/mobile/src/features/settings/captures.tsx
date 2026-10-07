@@ -13,7 +13,13 @@ import { SettingsPage } from './settings-page';
 
 const nothing = () => undefined;
 
-function Settings({ backupOff = false }: { readonly backupOff?: boolean }) {
+function Settings({
+  backupOff = false,
+  tableName = null,
+}: {
+  readonly backupOff?: boolean;
+  readonly tableName?: string | null;
+}) {
   const { language } = useLanguage();
   return (
     <SettingsPage
@@ -21,6 +27,8 @@ function Settings({ backupOff = false }: { readonly backupOff?: boolean }) {
       chosenLanguage={null}
       backupLine={backupOff ? lineWithNoTask('backupOff', { language, attitude: 'cheeky' }) : null}
       developerTools={false}
+      tableName={tableName}
+      onInvite={nothing}
       onChange={nothing}
       onLanguage={nothing}
       onOpen={nothing}
@@ -31,6 +39,11 @@ function Settings({ backupOff = false }: { readonly backupOff?: boolean }) {
 
 export function SettingsCapture() {
   return <Settings />;
+}
+
+/** Settings on a phone signed in for tables: the Tables row carries the seat's name. */
+export function SettingsSignedInForTables() {
+  return <Settings tableName="Priya" />;
 }
 
 export function SettingsBackupOff() {

@@ -9,6 +9,7 @@ import { colors, fonts } from '@scootch/tokens';
 
 import { DATABASE_NAME, prepareDatabase } from '../db/database';
 import { SoundMode } from '../effects/sound-mode';
+import { TableSeatKeeper } from '../features/table/table-prefs';
 import { I18nProvider } from '../i18n/i18n-provider';
 import { JsCommitMarker } from '../js-commit-marker';
 import { useAppearance } from '../screens/registry/support/forced-variant';
@@ -82,6 +83,7 @@ export default function RootLayout() {
         <I18nProvider>
           <DayStoreProvider>
             <SoundMode />
+            <TableSeatKeeper />
             <Feel>
               <Screens />
             </Feel>

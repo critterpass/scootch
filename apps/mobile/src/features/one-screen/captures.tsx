@@ -5,6 +5,9 @@ import { lineFor, lineWithNoTask } from '../../state/lines';
 import { initialComposer, type ComposerState } from '../composer/composer-machine';
 import type { ComposerViewProps } from '../composer/composer-view';
 
+import { FriendTablePillView } from '../table/friend-table-pill';
+import { TaskSetCompany } from '../table/task-set-company';
+
 import { OneScreenView, type OneScreenShown } from './one-screen-view';
 
 // The one screen's states as the screen registry shows them: the view with fixed state and no
@@ -165,10 +168,19 @@ export function OneScreenThinking() {
   );
 }
 
-function TaskSet({ offline }: { readonly offline: boolean }) {
-  const { voice, words } = useCapture();
+function TaskSet({
+  offline,
+  atTable = false,
+}: {
+  readonly offline: boolean;
+  readonly atTable?: boolean;
+}) {
+  const { voice, words, t } = useCapture();
   // With no connection the task is unscreened: plain company and its own words, no joke.
-  const said = lineFor('hatch', capturedTask(words, offline ? 'unscreened' : 'pass'), voice);
+  const task = capturedTask(words, offline ? 'unscreened' : 'pass');
+  const said = lineFor('hatch', task, voice);
+  // An ordinary day with this task set: the day the company choice is drawn on.
+  const day = { today: { kind: 'task_set' as const, task }, heavyToday: false };
   return (
     <OneScreenView
       mood={said === null ? 'serious' : 'waiting'}
@@ -184,6 +196,10 @@ function TaskSet({ offline }: { readonly offline: boolean }) {
         onMinutes: nothing,
         onStart: nothing,
         onDiscard: nothing,
+        company: (
+          <TaskSetCompany day={day} company={atTable ? 'table' : 'alone'} onCompany={nothing} />
+        ),
+        ...(atTable ? { startLabel: t('table.startAt'), startIcon: 'table' as const } : {}),
       }}
     />
   );
@@ -191,6 +207,44 @@ function TaskSet({ offline }: { readonly offline: boolean }) {
 
 export function OneScreenTaskSet() {
   return <TaskSet offline={false} />;
+}
+
+/** The set task with company chosen: "At a table", and the one action starts there. */
+export function OneScreenTaskSetAtTable() {
+  return <TaskSet offline={false} atTable />;
+}
+
+/** Home while a friend is at a table: the pill under the header. */
+export function OneScreenFriendAtTable() {
+  const { voice, t } = useCapture();
+  return (
+    <OneScreenView
+      mood="waiting"
+      attitude={voice.attitude}
+      line={lineWithNoTask('waiting', voice)}
+      offline={false}
+      onWorld={nothing}
+      shown={composerShown(
+        {},
+        {
+          home: {
+            ...HOME,
+            company: (
+              <FriendTablePillView
+                seed="cccccccccccc"
+                title={t('table.pill.friend', { name: 'Kofi' })}
+                sub={t('table.openSeats', { count: 2 })}
+                action={t('table.pill.join')}
+                hint={t('table.pill.join.hint')}
+                busy={false}
+                onPress={nothing}
+              />
+            ),
+          },
+        },
+      )}
+    />
+  );
 }
 
 export function OneScreenOffline() {

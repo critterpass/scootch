@@ -1,10 +1,8 @@
-import { togetherState } from '../../features/table/registry/together-state';
+import { TABLES_FIRST_TIME, togetherState } from '../../features/table/registry/together-state';
 
-/** Choosing the name a seat shows. */
+/** Choosing the name a seat shows, with the seat drawn as the table will see it. */
 export const accountName = togetherState({
   id: 'account-name',
-  design: null,
-  undesignedReason:
-    'The board asks for an account but draws no screen for choosing the seat name the server screens',
+  design: { ...TABLES_FIRST_TIME, screen: 'What the table calls you' },
   capture: 'name',
 });

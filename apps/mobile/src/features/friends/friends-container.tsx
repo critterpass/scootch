@@ -15,6 +15,7 @@ import {
 
 import { FriendsPage } from './friends-page';
 import { goHome } from '../navigation/go-home';
+import { goBack } from '../../ui/motion/go-back';
 
 /** Friends on the real phone. A phone that has not signed in is sent to do that first. */
 export function FriendsContainer() {
@@ -24,16 +25,18 @@ export function FriendsContainer() {
   const { accepted } = useLocalSearchParams<{ accepted?: string }>();
   const [friends, setFriends] = useState<readonly Friend[]>([]);
   const [me, setMe] = useState<AccountView | null>(null);
+  const [atTable, setAtTable] = useState<readonly string[]>([]);
   const [notice, setNotice] = useState<'failed' | 'accepted' | null>(
     accepted === '1' ? 'accepted' : null,
   );
 
   const load = useCallback(() => {
-    void Promise.all([api.me(), api.friends().catch(() => [])])
-      .then(([account, all]) => {
+    void Promise.all([api.me(), api.friends().catch(() => []), api.friendsTables().catch(() => [])])
+      .then(([account, all, tables]) => {
         if (account === null) return router.replace(accountThen('/friends'));
         setMe(account);
         setFriends(all);
+        setAtTable(tables.flatMap((table) => table.friends.map((friend) => friend.accountId)));
       })
       .catch(() => setNotice('failed'));
   }, [api, router]);
@@ -46,6 +49,7 @@ export function FriendsContainer() {
   return (
     <FriendsPage
       friends={friends}
+      atTable={atTable}
       canBeHaunted={me?.canBeHaunted ?? null}
       notice={notice}
       onCanBeHaunted={(on) => act(api.setCanBeHaunted(on))}
@@ -60,7 +64,7 @@ export function FriendsContainer() {
       }
       onRemove={(accountId) => act(api.removeFriend(accountId))}
       onBlock={(accountId) => act(api.block(accountId, true))}
-      onClose={() => router.replace('/table')}
+      onClose={() => goBack(router, '/table')}
     />
   );
 }

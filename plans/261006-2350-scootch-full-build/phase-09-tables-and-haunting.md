@@ -80,6 +80,12 @@ a strangers option, leave it out and log it in `docs/undesigned-states.md`.
   told; "can be haunted" switch; never for a serious task.
 - Test: every haunting rule from the board.
 
+## The board as redrawn on 7 Oct 2026
+
+The Tables board grew from one section to five (ways in, first time, room,
+around the table, managing). What the app now does with it, and what still
+needs the server, is in `plans/261007-2126-tables-ways-in-and-settings/plan.md`.
+
 ## Exit
 
 - A device run with two phones at one table: start, nudge, one drops and

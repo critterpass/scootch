@@ -1,20 +1,27 @@
-import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useEffect, useRef, useState } from 'react';
 import { Share } from 'react-native';
 
-import type { TableSeat } from '@scootch/domain';
+import { MINUTE_MS, type TableSeat } from '@scootch/domain';
 
 import { siteBaseUrl } from '../../api/api-config';
 import { useLanguage, useT } from '../../i18n/i18n-provider';
-import { useDispatch, useToday } from '../../state/day-store-provider';
+import { useDispatch, useSession, useToday } from '../../state/day-store-provider';
 import { useTableState, useTogether } from '../../state/together-context';
 import { sharedPageLink } from '../share/share-links';
 
 import { seatControls } from './seat-controls';
 import { SeatSheet } from './seat-sheet';
 import { tableEndsAt } from './table-clock';
-import { TablePage } from './table-page';
-import { TABLE_LOBBY, labelModeFor, tableTimer } from './table-rules';
+import { TableMenuSheet } from './table-menu-sheet';
+import { TablePage, tableSummary } from './table-page';
+import {
+  TABLE_LOBBY,
+  labelModeFor,
+  startMinutesFrom,
+  tableLengthFor,
+  tableTimer,
+} from './table-rules';
 import { goHome } from '../navigation/go-home';
 
 /**
@@ -25,11 +32,14 @@ export function TableContainer() {
   const { api, table } = useTogether();
   const state = useTableState();
   const { today } = useToday();
+  const { session } = useSession();
   const dispatch = useDispatch();
   const router = useRouter();
+  const params = useLocalSearchParams<{ minutes?: string }>();
   const t = useT();
   const { language } = useLanguage();
   const [chosen, setChosen] = useState<string | null>(null);
+  const [menu, setMenu] = useState(false);
   const [sheet, setSheet] = useState<TableSeat | null>(null);
   const [muted, setMuted] = useState<readonly string[]>([]);
   const [result, setResult] = useState<'sent' | 'failed' | null>(null);
@@ -47,16 +57,35 @@ export function TableContainer() {
   const target = chosen ?? others[0]?.userId ?? null;
   const running =
     today.kind === 'in_session' || (today.kind === 'serious' && today.session !== null);
+  // The length chosen before sitting down ("Start at a table"), when the person came that way.
+  const wanted = startMinutesFrom(params.minutes);
   const timer = tableTimer(
     state,
-    { taskSet: task !== null && task.status === 'set', inSession: running },
+    { taskSet: task !== null && task.status === 'set', inSession: running, wanted },
     Date.now(),
   );
+  // Their thing is finished and they are still seated: the table says so, and how long they sat.
+  const mine = state.seats.find((seat) => seat.userId === state.you);
+  const done =
+    session !== null && session.phase === 'finished' && !running
+      ? {
+          minutes:
+            mine?.seatedAt === undefined
+              ? null
+              : // The table's own clock says when they sat down, so it is read on that clock.
+                Math.max(
+                  1,
+                  Math.round((Date.now() + state.clockAhead - mine.seatedAt) / MINUTE_MS),
+                ),
+        }
+      : null;
 
   const begin = () => {
     if (timer.kind !== 'start' && timer.kind !== 'join_in') return;
-    // The table is told when the line is up; the person's own session starts either way.
-    if (timer.kind === 'start') table.start(timer.minutes);
+    // The table is told when the line is up; the person's own session starts either way. Its
+    // shared timer runs for the shortest of its lengths that covers theirs.
+    const shared = timer.kind === 'start' ? tableLengthFor(timer.minutes) : null;
+    if (shared !== null) table.start(shared);
     // Joining in, the session ends when the table's does; the strip keeps it there afterwards.
     const end = timer.kind === 'join_in' ? tableEndsAt(table.getState(), Date.now()) : null;
     void dispatch({ type: 'session_set', minutes: timer.minutes, treat: null })
@@ -65,6 +94,16 @@ export function TableContainer() {
       .then(() => router.replace('/session'))
       .catch(() => undefined);
   };
+  // "Start at a table" was the tap: once the table has been read, sitting down is the start.
+  const started = useRef(false);
+  const seatedHere = state.you !== null;
+  useEffect(() => {
+    if (wanted === null || started.current || !seatedHere) return;
+    started.current = true;
+    begin();
+    // Once for an arrival: `begin` reads the table as it is at that moment.
+  }, [wanted, seatedHere]);
+
   const invite = () => {
     if (state.tableId === null) return;
     void api
@@ -103,10 +142,33 @@ export function TableContainer() {
         }}
         onInvite={invite}
         onTimer={begin}
-        onShowLabel={(shown) => table.setMode({ hidden: !shown })}
+        done={done}
+        onMenu={() => setMenu(true)}
+        onNext={() => goHome(router)}
         onDismiss={table.dismissNotice}
         onLeave={controls.leave}
         onClose={() => goHome(router)}
+      />
+      <TableMenuSheet
+        open={menu}
+        summary={tableSummary(state, t)}
+        hidden={state.hidden}
+        nudgesMuted={state.nudgesMuted}
+        onInvite={
+          state.seats.length < state.capacity
+            ? () => {
+                setMenu(false);
+                invite();
+              }
+            : undefined
+        }
+        onHidden={(hidden) => table.setMode({ hidden })}
+        onMuteNudges={table.muteNudges}
+        onLeave={() => {
+          setMenu(false);
+          controls.leave();
+        }}
+        onClose={() => setMenu(false)}
       />
       <SeatSheet
         seat={sheet}
