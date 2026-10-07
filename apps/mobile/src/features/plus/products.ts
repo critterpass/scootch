@@ -1,12 +1,26 @@
+import Constants from 'expo-constants';
+
 /** The three ways to hold Plus. */
 export const PLANS = ['monthly', 'yearly', 'lifetime'] as const;
 export type PlanId = (typeof PLANS)[number];
 
-/** The product identifiers as they are created in App Store Connect. */
+/**
+ * A product's identifier as it is created in App Store Connect. Apple keeps identifiers unique
+ * across the whole developer account, so the production app's carry a prefix and the dev app's
+ * do not.
+ */
+export function storeProductId(id: string, variant: unknown = appVariant()): string {
+  return variant === 'prd' ? `scootch_${id}` : id;
+}
+
+function appVariant(): unknown {
+  return Constants.expoConfig?.extra?.['appVariant'];
+}
+
 export const PLAN_PRODUCTS: Readonly<Record<PlanId, string>> = {
-  monthly: 'plus_monthly',
-  yearly: 'plus_yearly',
-  lifetime: 'plus_lifetime',
+  monthly: storeProductId('plus_monthly'),
+  yearly: storeProductId('plus_yearly'),
+  lifetime: storeProductId('plus_lifetime'),
 };
 
 /** The one entitlement every plan grants. */
