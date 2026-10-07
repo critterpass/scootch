@@ -87,6 +87,30 @@ export function Chevron({
   );
 }
 
+/** Two heads side by side: company. */
+export function TogetherIcon({ color }: IconProps) {
+  return (
+    <View style={styles.together}>
+      {[0, 1].map((one) => (
+        <View key={one} style={styles.person}>
+          <View style={[styles.personHead, { backgroundColor: color }]} />
+          <View style={[styles.personBody, { backgroundColor: color }]} />
+        </View>
+      ))}
+    </View>
+  );
+}
+
+/** A small ghost: a haunt. */
+export function GhostIcon({ color, eyes }: IconProps & { readonly eyes: string }) {
+  return (
+    <View style={[styles.ghost, { backgroundColor: color }]}>
+      <View style={[styles.ghostEye, { backgroundColor: eyes }]} />
+      <View style={[styles.ghostEye, { backgroundColor: eyes }]} />
+    </View>
+  );
+}
+
 /** A cross: close. */
 export function CloseIcon({ color }: IconProps) {
   return (
@@ -162,6 +186,23 @@ const styles = StyleSheet.create({
   },
   sendStem: { position: 'absolute', top: 2, width: 2.5, height: 17, borderRadius: 1 },
   chevron: { width: 8, height: 8, borderTopWidth: 2, borderRightWidth: 2 },
+  together: { flexDirection: 'row', alignItems: 'flex-end', gap: 2, height: 16 },
+  person: { alignItems: 'center', gap: 1 },
+  personHead: { width: 6, height: 6, borderRadius: 3 },
+  personBody: { width: 9, height: 7, borderTopLeftRadius: 5, borderTopRightRadius: 5 },
+  ghost: {
+    width: 14,
+    height: 16,
+    borderTopLeftRadius: 7,
+    borderTopRightRadius: 7,
+    borderBottomLeftRadius: 3,
+    borderBottomRightRadius: 3,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 2,
+    paddingTop: 5,
+  },
+  ghostEye: { width: 3, height: 3, borderRadius: 2 },
   close: { width: 16, height: 16, alignItems: 'center', justifyContent: 'center' },
   closeBar: { position: 'absolute', width: 16, height: 2.5, borderRadius: 1.5 },
   bin: { width: 18, height: 21, alignItems: 'center' },

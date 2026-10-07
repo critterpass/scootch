@@ -26,6 +26,7 @@ import { seriousShown } from '../care/serious-shown';
 import type { SpeechPort } from '../composer/speech';
 import { useComposerFeedback } from '../composer/composer-feedback';
 import { useComposer } from '../composer/use-composer';
+import { drawerRowEvents } from '../drawer/drawer-events';
 import { DrawerSheet } from '../drawer/drawer-sheet';
 import { HatchHauntLink } from '../haunt/hatch-haunt-link';
 import { wordsWhileUnscreened } from '../offline/waiting-words';
@@ -165,16 +166,14 @@ function useOneScreenDrawn({
         items={drawer.items}
         today={localDate}
         canSwap={task === null ? hasStartLeft(today) : task.status === 'set'}
-        waiting={day.waitingForTomorrow?.text ?? null}
+        waiting={day.waitingForTomorrow}
         waitingMarked={waitingMarked}
         capNote={
           task === null && !hasStartLeft(today) && today.kind === 'done_for_today'
             ? t('drawer.cap', { count: startsAllowed(plus) })
             : null
         }
-        onSwapIn={(itemId) => send({ type: 'drawer_item_swapped_in', itemId })}
-        onRemove={(itemId) => send({ type: 'drawer_item_removed', itemId })}
-        onEdit={(itemId, text) => send({ type: 'drawer_item_edited', itemId, text })}
+        {...drawerRowEvents(day.waitingForTomorrow?.id ?? null, send)}
         onClose={() => {
           markWaiting(false);
           send({ type: 'drawer', event: { type: 'closed' } });

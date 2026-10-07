@@ -111,20 +111,20 @@ export function OneScreenView({
         {waiting === null ? null : (
           <PressSpring
             accessibilityRole="button"
-            accessibilityLabel={`${t('done.waiting')}: ${waiting}`}
+            accessibilityLabel={t('done.tomorrow', { task: waiting })}
             accessibilityHint={t('done.waiting.hint')}
             disabled={home?.onWaiting === undefined}
             onPress={home?.onWaiting}
+            hitSlop={10}
             testID="done-waiting-row"
-            style={styles.waiting}
           >
-            {note(t('done.waiting'), 'done-waiting-label')}
             <Text
               testID="done-waiting"
+              numberOfLines={1}
               allowFontScaling={allowFontScaling}
-              style={[styles.heard, { color: palette.ink, fontSize: size(HEARD_SIZE) }]}
+              style={[styles.note, { color: palette.muted, fontSize: size(NOTE_SIZE) }]}
             >
-              {waiting}
+              {t('done.tomorrow', { task: waiting })}
             </Text>
           </PressSpring>
         )}
@@ -304,9 +304,6 @@ const styles = StyleSheet.create({
   footer: {
     paddingHorizontal: GUTTER.dock,
     gap: 18,
-  },
-  waiting: {
-    gap: 12,
   },
   heard: {
     fontFamily: fonts.body,

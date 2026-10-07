@@ -1,4 +1,4 @@
-/** A drawer row's swipe, in points and milliseconds. */
+/** A row's swipe to the left that takes it away, in points and milliseconds. */
 export const ROW = {
   /** A finger has to travel this far sideways before the row takes the drag. */
   takesAfter: 12,

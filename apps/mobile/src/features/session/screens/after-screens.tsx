@@ -77,7 +77,7 @@ export function TreatScreen({ model, actions, inks, t }: ScreenProps) {
       align="drawn"
       footerInset={14}
       over={<BurstMarks kind="confetti" inks={inks} reducedMotion={model.reducedMotion} />}
-      top={
+      corner={
         <RoundButton
           label={t('session.skip')}
           hint={t('session.skip.hint')}

@@ -17,7 +17,7 @@ export const enDayLoop = {
   'session.letGo.ask.sub': 'It leaves with its monster. Anything you parked stays.',
   'session.letGo.keep': 'Keep it',
   'session.letGo.keep.hint': 'Goes back to the three choices',
-  'done.waiting': 'Waiting for tomorrow',
+  'done.tomorrow': 'Tomorrow: {task}',
   'done.waiting.hint': 'Opens the drawer and shows it there.',
   'drawer.cap': "Today's {count} are started. These wait here until tomorrow.",
   'composer.cancelThinking': 'Cancel',

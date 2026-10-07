@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { removesOnRelease, ROW } from '../../features/drawer/drawer-row-motion';
+import { removesOnRelease, ROW } from '../motion/swipe-motion';
 
 import { closesOnRelease, rubberBand, SHEET } from './sheet-motion';
 

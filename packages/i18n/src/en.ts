@@ -22,6 +22,7 @@ export const en = {
 
   'session.pill': '{name} · {minutes} min',
   'session.pillPlain': '{minutes} min',
+  'session.pill.hint': 'Shows its whole name for a moment.',
   'session.minutesLeft': {
     one: '{count} min',
     other: '{count} min',
@@ -171,6 +172,7 @@ export const en = {
   'taskSet.treat.hint': 'Name something nice for afterwards. You can leave it empty.',
   'taskSet.minutes': '{minutes} min',
   'taskSet.minutes.hint': 'Sets how long the session runs.',
+  'taskSet.minutes.unit': 'min',
   'taskSet.start.hint': 'Starts a {minutes} minute session.',
 
   'keep.close': 'Close',
@@ -197,6 +199,8 @@ export const en = {
   'drawer.title': 'The drawer',
   'drawer.count': '{parked} parked · {dated} with dates',
   'drawer.empty': 'Nothing is parked.',
+  'drawer.empty.body':
+    'When you say more than one thing, the rest waits here. Pull the screen down any time to look.',
   'drawer.noDate': 'no date',
   'drawer.dated': 'due {due} · back on {back}',
   'drawer.swapIn': 'Swap in',

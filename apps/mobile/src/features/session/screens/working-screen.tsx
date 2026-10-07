@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -9,9 +9,10 @@ import {
 } from 'react-native';
 
 import { Scootch } from '../../../art/Scootch';
-import { GlassTag, RoundButton as GlassRound } from '../../../ui/buttons';
+import { GlassPill, RoundButton as GlassRound } from '../../../ui/buttons';
 import { MoreIcon } from '../../../ui/icons';
 import { useKeyboardOpen } from '../../../ui/use-keyboard-open';
+import { shortName } from '../../monster/monster-name';
 import { companyLine, scootchShare } from '../session-view';
 import { RoundButton } from '../ui/controls';
 import type { ParkComposerHandle } from '../ui/park-composer';
@@ -30,6 +31,8 @@ import { workingMenu } from './working-menu';
 const RING_MARGIN = 63;
 /** The most of the screen's height the ring may take, so the time and the task stay on it. */
 const RING_SHARE = 0.39;
+/** How long the pill shows the monster's whole name and title after a tap. */
+const FULL_NAME_MS = 4000;
 /** The ring while the keyboard is up under the park field. */
 const RING_BESIDE_KEYBOARD = 190;
 
@@ -43,6 +46,13 @@ export function WorkingScreen(props: ScreenProps) {
   const { model, actions, inks, t } = props;
   const { width, height } = useWindowDimensions();
   const [menuOpen, setMenuOpen] = useState(false);
+  // The pill carries the monster's short name; a tap spells it out in full for a few seconds.
+  const [named, setNamed] = useState(false);
+  useEffect(() => {
+    if (!named) return undefined;
+    const timer = setTimeout(() => setNamed(false), FULL_NAME_MS);
+    return () => clearTimeout(timer);
+  }, [named]);
   const keyboardOpen = useKeyboardOpen();
   const park = useRef<ParkComposerHandle | null>(null);
   if (model.view.kind !== 'working') return null;
@@ -130,38 +140,52 @@ export function WorkingScreen(props: ScreenProps) {
           </>
         }
         top={
-          <>
-            {quiet ? (
-              <View />
-            ) : (
-              <GlassTag testID="session-pill" style={styles.pill}>
-                <PillDot inks={inks} />
-                <SessionText face="pill" color={inks.ink} numberOfLines={1} style={styles.fit}>
-                  {name
-                    ? t('session.pill', { name, minutes: model.plannedMinutes })
-                    : t('session.pillPlain', { minutes: model.plannedMinutes })}
-                </SessionText>
-              </GlassTag>
-            )}
-            {menu ? (
-              <GlassRound
-                label={t('session.menu')}
-                hint={t('session.menu.hint')}
-                testID="session-menu"
-                onPress={() => setMenuOpen((open) => !open)}
+          quiet ? undefined : (
+            <GlassPill
+              label={name ?? t('session.pillPlain', { minutes: model.plannedMinutes })}
+              hint={t('session.pill.hint')}
+              testID="session-pill"
+              onPress={() => setNamed((shown) => !shown)}
+              style={styles.pill}
+            >
+              <PillDot inks={inks} />
+              <SessionText
+                face="pill"
+                color={inks.ink}
+                numberOfLines={named ? 2 : 1}
+                style={styles.fit}
               >
-                <MoreIcon color={inks.ink} />
-              </GlassRound>
-            ) : (
-              <RoundButton
-                label={t('session.leave')}
-                hint={t('session.leave.hint')}
-                testID="session-leave"
-                inks={inks}
-                onPress={actions.leave}
-              />
-            )}
-          </>
+                {named && name
+                  ? name
+                  : name
+                    ? t('session.pill', {
+                        name: shortName(name),
+                        minutes: model.plannedMinutes,
+                      })
+                    : t('session.pillPlain', { minutes: model.plannedMinutes })}
+              </SessionText>
+            </GlassPill>
+          )
+        }
+        corner={
+          menu ? (
+            <GlassRound
+              label={t('session.menu')}
+              hint={t('session.menu.hint')}
+              testID="session-menu"
+              onPress={() => setMenuOpen((open) => !open)}
+            >
+              <MoreIcon color={inks.ink} />
+            </GlassRound>
+          ) : (
+            <RoundButton
+              label={t('session.leave')}
+              hint={t('session.leave.hint')}
+              testID="session-leave"
+              inks={inks}
+              onPress={actions.leave}
+            />
+          )
         }
       >
         <View style={quiet ? styles.quietRing : stuck ? styles.stuckRing : styles.ring}>
@@ -260,7 +284,6 @@ const styles = StyleSheet.create({
   // The board's pill: 16 points in from each end, and it gives way before the corner control does.
   pill: {
     flexShrink: 1,
-    paddingHorizontal: 16,
   },
   fit: {
     flexShrink: 1,

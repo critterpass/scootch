@@ -10,6 +10,7 @@ import { Sheet, SheetScroll } from '../../ui/sheet/sheet';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
 import { dayWords } from './day-words';
+import { DrawerEmpty } from './drawer-empty';
 import { DrawerRow, type RowLeft } from './drawer-row';
 import { drawerStyles as styles } from './drawer-sheet-styles';
 
@@ -28,8 +29,11 @@ export interface DrawerSheetProps {
   readonly today: IsoDate;
   /** False once today's thing has been started: nothing can be swapped for it then. */
   readonly canSwap: boolean;
-  /** The task carried on to tomorrow: it is not parked, and is listed first so it can be found. */
-  readonly waiting?: string | null;
+  /**
+   * The task carried on to tomorrow. It is listed first, as a row like any other: it can be
+   * swapped in, reworded, ticked off and swiped away. Its id is the task's own.
+   */
+  readonly waiting?: { readonly id: Id; readonly text: string } | null;
   /** The drawer was opened from that task's words on home: it is marked out. */
   readonly waitingMarked?: boolean;
   /** Said in place of "Swap in" when today's starts are all used; `null` otherwise. */
@@ -107,7 +111,24 @@ export function DrawerSheet({
     [],
   );
 
-  const listed = items.filter((item) => item.id !== left?.id);
+  // The task waiting for tomorrow leads the list as a row of its own kind of "when".
+  const rows: readonly DrawerItemRow[] = waiting
+    ? [
+        {
+          id: waiting.id,
+          text: waiting.text,
+          screen: 'pass',
+          dueDate: null,
+          firstMentionedOn: today,
+          lastMentionedOn: today,
+          returnOn: null,
+          fadesOn: null,
+          createdAt: `${today}T00:00:00.000Z`,
+        },
+        ...items,
+      ]
+    : items;
+  const listed = rows.filter((item) => item.id !== left?.id);
   const dated = listed.filter((item) => item.dueDate !== null).length;
   const shown = all ? listed : listed.slice(0, PEEK_ROWS);
   const hidden = listed.length - shown.length;
@@ -142,9 +163,7 @@ export function DrawerSheet({
               allowFontScaling={allowFontScaling}
               style={[styles.body, type('500', COUNT_SIZE, palette.muted)]}
             >
-              {listed.length === 0
-                ? t(waiting === null ? 'drawer.empty' : 'drawer.waiting')
-                : t('drawer.count', { parked: listed.length, dated })}
+              {listed.length === 0 ? '' : t('drawer.count', { parked: listed.length, dated })}
             </Text>
           </View>
           <PressSpring
@@ -170,43 +189,7 @@ export function DrawerSheet({
           {capNote}
         </Text>
       )}
-      {waiting === null ? null : (
-        <View
-          testID="drawer-waiting"
-          accessible
-          accessibilityLabel={`${waiting}, ${t('drawer.waiting')}`}
-          style={[
-            styles.card,
-            styles.row,
-            styles.waiting,
-            {
-              backgroundColor: waitingMarked ? `${palette.tomato}1F` : palette.surface,
-              borderColor: waitingMarked ? palette.tomato : 'transparent',
-            },
-          ]}
-        >
-          <View style={[styles.marker, { backgroundColor: palette.ink }]}>
-            <View style={[styles.waitingDot, { backgroundColor: palette.page }]} />
-          </View>
-          <View style={styles.words}>
-            <Text
-              allowFontScaling={allowFontScaling}
-              style={[styles.body, type('500', 16, palette.ink)]}
-            >
-              {waiting}
-            </Text>
-            <Text
-              allowFontScaling={allowFontScaling}
-              style={[
-                styles.body,
-                type('400', 12.5, waitingMarked ? palette.tomato : palette.muted),
-              ]}
-            >
-              {t('drawer.waiting')}
-            </Text>
-          </View>
-        </View>
-      )}
+      {listed.length === 0 && left === null ? <DrawerEmpty /> : null}
       {listed.length === 0 ? null : (
         <SheetScroll style={styles.list} contentContainerStyle={styles.listContent}>
           <View style={[styles.card, { backgroundColor: palette.surface }]}>
@@ -216,13 +199,16 @@ export function DrawerSheet({
                 item={item}
                 index={index}
                 last={index === shown.length - 1}
+                marked={waitingMarked && item.id === waiting?.id}
                 when={
-                  item.dueDate === null
-                    ? t('drawer.noDate')
-                    : t('drawer.dated', {
-                        due: dayWords(item.dueDate, today, language),
-                        back: dayWords(item.returnOn ?? item.dueDate, today, language),
-                      })
+                  item.id === waiting?.id
+                    ? t('drawer.waiting')
+                    : item.dueDate === null
+                      ? t('drawer.noDate')
+                      : t('drawer.dated', {
+                          due: dayWords(item.dueDate, today, language),
+                          back: dayWords(item.returnOn ?? item.dueDate, today, language),
+                        })
                 }
                 canSwap={canSwap}
                 editing={editing === item.id}

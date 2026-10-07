@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, {
   cancelAnimation,
   Easing,
@@ -15,6 +15,7 @@ import type { WorkMode } from '@scootch/domain';
 import { fonts } from '@scootch/tokens';
 
 import { Scootch } from '../../../art/Scootch';
+import { Chevron } from '../../../ui/icons';
 import { useAppearance, useTextSizing } from '../../../screens/registry/support/forced-variant';
 import { SPRING_CURVE } from '../../../ui/motion/motion-tokens';
 import { useCharacterMotion, useMayMove } from '../../../ui/motion/use-feel';
@@ -89,6 +90,9 @@ export interface CreditRowProps {
    * picture empty, as for a day whose task asked for care.
    */
   readonly work?: WorkMode | null;
+  /** A tap on the row, with what it does for a screen reader. Unset, the row is only read. */
+  readonly onPress?: () => void;
+  readonly hint?: string;
   readonly testID: string;
 }
 
@@ -104,6 +108,8 @@ export function CreditRow({
   lit = false,
   waiting,
   work,
+  onPress,
+  hint,
   testID,
 }: CreditRowProps) {
   const { palette } = useScreenStyle();
@@ -124,50 +130,57 @@ export function CreditRow({
   }));
   const glow = useAnimatedStyle(() => ({ opacity: on.value }));
   return (
-    <Animated.View
-      accessible
-      accessibilityLabel={label}
-      testID={testID}
-      style={[styles.row, waiting ? styles.waiting : null, lighting]}
-    >
-      <Animated.View
-        pointerEvents="none"
-        style={[styles.light, { backgroundColor: LIT[appearance] }, glow]}
-      />
-      <View style={[styles.thumb, { backgroundColor: THUMB[appearance] }]}>
-        {work === undefined ? null : (
-          <Scootch
-            mood={work ? 'working' : 'pleased'}
-            workMode={work}
-            size={52}
-            {...character}
-            {...(lit ? {} : { ownLoop: false })}
-          />
-        )}
-      </View>
-      <View style={styles.words}>
-        <Text
-          allowFontScaling={allowFontScaling}
-          maxFontSizeMultiplier={1.8}
-          style={[
-            styles.title,
-            { color: palette.ink, fontSize: size(15), lineHeight: size(15) * 1.2 },
-          ]}
-        >
-          {title}
-        </Text>
-        <Text
-          allowFontScaling={allowFontScaling}
-          maxFontSizeMultiplier={1.8}
-          style={[
-            styles.detail,
-            { color: palette.muted, fontSize: size(13), lineHeight: size(13) * 1.25 },
-          ]}
-        >
-          {detail}
-        </Text>
-      </View>
-      {waiting ? null : <Eq shown={on} on={lit} />}
+    <Animated.View style={[waiting ? styles.waiting : null, lighting]}>
+      <Pressable
+        accessible
+        accessibilityRole={onPress ? 'button' : 'text'}
+        accessibilityLabel={label}
+        accessibilityHint={onPress ? hint : undefined}
+        disabled={onPress === undefined}
+        onPress={onPress}
+        testID={testID}
+        style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+      >
+        <Animated.View
+          pointerEvents="none"
+          style={[styles.light, { backgroundColor: LIT[appearance] }, glow]}
+        />
+        <View style={[styles.thumb, { backgroundColor: THUMB[appearance] }]}>
+          {work === undefined ? null : (
+            <Scootch
+              mood={work ? 'working' : 'pleased'}
+              workMode={work}
+              size={52}
+              {...character}
+              {...(lit ? {} : { ownLoop: false })}
+            />
+          )}
+        </View>
+        <View style={styles.words}>
+          <Text
+            allowFontScaling={allowFontScaling}
+            maxFontSizeMultiplier={1.8}
+            style={[
+              styles.title,
+              { color: palette.ink, fontSize: size(15), lineHeight: size(15) * 1.2 },
+            ]}
+          >
+            {title}
+          </Text>
+          <Text
+            allowFontScaling={allowFontScaling}
+            maxFontSizeMultiplier={1.8}
+            style={[
+              styles.detail,
+              { color: palette.muted, fontSize: size(13), lineHeight: size(13) * 1.25 },
+            ]}
+          >
+            {detail}
+          </Text>
+        </View>
+        {waiting ? null : <Eq shown={on} on={lit} />}
+        {onPress ? <Chevron color={palette.chevron} direction="right" /> : null}
+      </Pressable>
     </Animated.View>
   );
 }
@@ -184,6 +197,7 @@ const styles = StyleSheet.create({
   },
   light: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, borderRadius: 18 },
   waiting: { opacity: 0.38 },
+  pressed: { opacity: 0.6 },
   thumb: { width: 52, height: 52, borderRadius: 14, overflow: 'hidden' },
   words: { flex: 1, gap: 2, minWidth: 0 },
   title: { fontFamily: fonts.heading, fontWeight: '700' },

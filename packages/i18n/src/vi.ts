@@ -24,6 +24,7 @@ export const vi = {
 
   'session.pill': '{name} · {minutes} phút',
   'session.pillPlain': '{minutes} phút',
+  'session.pill.hint': 'Hiện cả tên của nó trong chốc lát.',
   'session.minutesLeft': {
     other: '{count} phút',
   },
@@ -169,6 +170,7 @@ export const vi = {
   'taskSet.treat.hint': 'Gọi tên một thứ dễ chịu cho lúc xong. Để trống cũng được.',
   'taskSet.minutes': '{minutes} phút',
   'taskSet.minutes.hint': 'Chọn thời lượng của phiên.',
+  'taskSet.minutes.unit': 'phút',
   'taskSet.start.hint': 'Bắt đầu một phiên {minutes} phút.',
 
   'keep.close': 'Đóng',
@@ -195,6 +197,8 @@ export const vi = {
   'drawer.title': 'Ngăn kéo',
   'drawer.count': '{parked} việc đang cất · {dated} việc có hạn',
   'drawer.empty': 'Chưa cất việc nào.',
+  'drawer.empty.body':
+    'Khi bạn nói nhiều hơn một việc, những việc còn lại chờ ở đây. Kéo màn hình xuống bất cứ lúc nào để xem.',
   'drawer.noDate': 'không có hạn',
   'drawer.dated': 'hạn {due} · quay lại {back}',
   'drawer.swapIn': 'Đổi vào',
