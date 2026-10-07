@@ -195,6 +195,8 @@ export const en = {
   },
   'zoo.empty': 'No monsters caught yet. Finish one thing and its monster lands here.',
   'zoo.card.hint': 'Opens the card at full size',
+  'zoo.card.turn': 'Turn it over',
+  'zoo.card.turn.hint': 'Shows the other side of the card',
   'zoo.openBinder': 'Open the binder',
   'zoo.sort': 'Sort',
   'zoo.sort.hint': 'Changes the order of the cards',

@@ -9,18 +9,23 @@ const MAX_WIDTH = 120;
 const CARD_RIGHT = 330;
 const OVERHANG = 14;
 
+const fitStamp = (label: string, measure: MeasureText) =>
+  fitText(label, STAMP, { maxWidth: MAX_WIDTH, minSize: 9, maxLines: () => 1 }, measure);
+
+/** The middle of the stamp, which it leans and lands about. */
+export function stampCentre(label: string, measure: MeasureText): { x: number; y: number } {
+  const stamp = fitStamp(label, measure);
+  const w = measure(stamp.lines[0] ?? '', stamp.style) + 24;
+  return { x: CARD_RIGHT + OVERHANG - w / 2, y: 108 + 31 / 2 };
+}
+
 /** The stamp struck across the top right corner of a caught card, leaning nine degrees. */
 export function buildStamp(
   label: string,
   inks: CardFinishInks,
   measure: MeasureText,
 ): DrawCommand[] {
-  const stamp = fitText(
-    label,
-    STAMP,
-    { maxWidth: MAX_WIDTH, minSize: 9, maxLines: () => 1 },
-    measure,
-  );
+  const stamp = fitStamp(label, measure);
   const text = stamp.lines[0] ?? '';
   const w = measure(text, stamp.style) + 24;
   const box: Box = { x: CARD_RIGHT + OVERHANG - w, y: 108, w, h: 31 };

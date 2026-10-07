@@ -1,15 +1,16 @@
 import { useRouter } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 
 import type { Id } from '@scootch/domain';
 
 import { useLanguage } from '../../i18n/i18n-provider';
 import { useToday } from '../../state/day-store-provider';
-import { useKeepsakes, usePlus } from '../../state/keepsakes';
 import { useScreenStyle } from '../../ui/use-screen-style';
-import { cardDataFor, zooCards } from '../zoo/zoo-cards';
-import { ZooScreen } from '../zoo/zoo-screen';
+import { PLUS_SHEET } from '../plus/routes';
+import { SharePanel } from '../share/share-panel';
+import { MonsterDetail } from '../zoo/monster-detail';
+import { useOpenedCard } from '../zoo/use-opened-card';
 
 import { useLighthouse } from './use-lighthouse';
 import { WorldScreen } from './world-screen';
@@ -17,7 +18,6 @@ import { arrivedToday } from './world-words';
 
 /** Pieces that have already landed in front of the person since the app was opened. */
 const landedBefore = new Set<Id>();
-const nothing = () => undefined;
 
 /** Scootch sleeps with everyone else from ten at night until six. */
 const isNight = (hour: number) => hour >= 22 || hour < 6;
@@ -27,12 +27,11 @@ export function WorldContainer() {
   const router = useRouter();
   const { language } = useLanguage();
   const { palette } = useScreenStyle();
-  const plus = usePlus();
   const { localDate, settings, heavyToday } = useToday();
   // Someone who owns lifetime finds the lighthouse here, landed before the world is read.
   const { landed } = useLighthouse();
-  const { keepsakes } = useKeepsakes(landed);
-  const [opened, setOpened] = useState<Id | null>(null);
+  const opened = useOpenedCard(landed);
+  const { keepsakes, plus, shown } = opened;
   const [landing, setLanding] = useState<Id | null>(null);
 
   // A piece that landed today pops in the first time the world is opened after it.
@@ -45,24 +44,19 @@ export function WorldContainer() {
     setLanding(arrival.id);
   }, [keepsakes, localDate]);
 
-  const card = useMemo(() => {
-    if (!keepsakes || opened === null) return null;
-    const monster = zooCards(keepsakes.monsters, plus).find((one) => one.id === opened);
-    return monster ? cardDataFor(monster, keepsakes.tasks.get(monster.taskId) ?? null) : null;
-  }, [keepsakes, opened, plus]);
-
   if (!keepsakes) return <View style={{ flex: 1, backgroundColor: palette.page }} />;
-  // A resident's card is the zoo's own card view, opened over the world and closed back to it.
-  if (card) {
+  if (opened.sharePanel) return <SharePanel {...opened.sharePanel} />;
+  // A resident's card is the same screen the zoo opens: the card to handle, its finishes and its
+  // sharing. It is opened over the world and closed back to it.
+  if (shown) {
     return (
-      <ZooScreen
-        model={{ cards: [], language, plus, sort: null, open: { card, shareOffered: false } }}
+      <MonsterDetail
+        model={{ card: shown.card, language, plus, shareOffered: shown.shareOffered }}
         actions={{
-          close: () => setOpened(null),
-          closeCard: () => setOpened(null),
-          openCard: nothing,
-          nextSort: nothing,
-          shareCard: nothing,
+          close: opened.close,
+          share: shown.share,
+          openPlus: () => router.push(PLUS_SHEET),
+          setFinish: shown.setFinish,
         }}
       />
     );
@@ -83,7 +77,7 @@ export function WorldContainer() {
         close: () => router.dismissTo('/'),
         openZoo: () => router.push('/zoo'),
         openRecord: () => router.push('/record'),
-        openMonster: setOpened,
+        openMonster: opened.open,
       }}
     />
   );

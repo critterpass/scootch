@@ -192,6 +192,8 @@ export const vi = {
   },
   'zoo.empty': 'Chưa bắt được con nào. Làm xong một việc là quái vật của việc đó về đây.',
   'zoo.card.hint': 'Mở thẻ cỡ lớn',
+  'zoo.card.turn': 'Lật thẻ',
+  'zoo.card.turn.hint': 'Xem mặt kia của thẻ',
   'zoo.openBinder': 'Mở bìa sưu tập',
   'zoo.sort': 'Sắp xếp',
   'zoo.sort.hint': 'Đổi thứ tự các thẻ',

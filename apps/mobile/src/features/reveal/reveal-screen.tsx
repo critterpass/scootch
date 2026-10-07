@@ -23,7 +23,9 @@ import {
   type RevealModel,
   type RevealStepProps,
 } from './reveal-model';
-import { CardView, TiltingCardView } from './ui/card-view';
+import { useCardMotion } from './ui/card-motion';
+import { cardCanvasSize, cardWidthIn } from './ui/card-size';
+import { HandledCard } from './ui/handled-card';
 import { CommandCanvas } from './ui/command-canvas';
 import { Dock, KeepFrame } from './ui/keep-frame';
 
@@ -36,7 +38,16 @@ const FLIP_MS = 700;
 function CardStep({ model, actions, t }: RevealStepProps) {
   const { palette } = useScreenStyle();
   const { width: screen } = useWindowDimensions();
-  const width = Math.min(330, screen - spacing.lg * 2);
+  // The board's card is 330 points wide; a narrower phone gets what fits beside the stamp.
+  const cardWidth = cardWidthIn({ width: screen, height: Number.POSITIVE_INFINITY });
+  const canvas = cardCanvasSize(cardWidth);
+  const width = canvas.width;
+  const motion = useCardMotion({
+    mayMove: model.tilting,
+    handled: true,
+    width: canvas.width,
+    height: canvas.height,
+  });
   const turned = useSharedValue(model.reducedMotion ? 1 : 0);
   useEffect(() => {
     if (!model.reducedMotion) turned.value = withTiming(1, { duration: FLIP_MS });
@@ -57,7 +68,6 @@ function CardStep({ model, actions, t }: RevealStepProps) {
   }));
   const glow = useAnimatedStyle(() => ({ opacity: turned.value * 0.22 }));
   if (!model.card) return null;
-  const Card = model.tilting ? TiltingCardView : CardView;
   return (
     <KeepFrame
       testID="reveal-card"
@@ -79,10 +89,11 @@ function CardStep({ model, actions, t }: RevealStepProps) {
           style={[styles.glow, { backgroundColor: palette.tomato, width, height: width }, glow]}
         />
         <Animated.View style={front}>
-          <Card
+          <HandledCard
             card={model.card}
             language={model.language}
-            width={width}
+            cardWidth={cardWidth}
+            motion={motion}
             testID="reveal-card-face"
           />
         </Animated.View>
@@ -198,7 +209,13 @@ export function RevealScreen({ model, actions }: RevealScreenProps) {
 }
 
 const styles = StyleSheet.create({
-  centre: { alignItems: 'center', justifyContent: 'center', paddingVertical: spacing.lg },
+  // The card's canvas is wider than the frame's margins leave: it runs to the screen's edges.
+  centre: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: spacing.lg,
+    marginHorizontal: -spacing.lg,
+  },
   glow: { position: 'absolute', borderRadius: 999 },
   back: {
     position: 'absolute',

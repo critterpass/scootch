@@ -144,6 +144,9 @@ describe('the house rules', () => {
         'features/plus/manage-container.tsx: seePlus: () => router.push(PLUS_SHEET),',
         'features/record/record-container.tsx: openPlus: () => router.push(PLUS_SHEET),',
         'features/table/lobby-containers.tsx: onLocked={() => router.push(PLUS_SHEET)}',
+        // A monster's card is one screen, opened from the zoo or the world: its locked finishes
+        // open the sheet from both.
+        'features/world/world-container.tsx: openPlus: () => router.push(PLUS_SHEET),',
         'features/zoo/zoo-container.tsx: openPlus: () => router.push(PLUS_SHEET),',
       ].sort(),
     );

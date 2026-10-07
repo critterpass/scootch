@@ -8,11 +8,10 @@ import { spacing } from '@scootch/tokens';
 import { Monster } from '../../art/Monster';
 import { useT } from '../../i18n/i18n-provider';
 import { useScreenStyle } from '../../ui/use-screen-style';
-import { FinishPicker } from '../plus/finish-picker';
-import { CardView } from '../reveal/ui/card-view';
 import { Dock, KeepFrame } from '../reveal/ui/keep-frame';
 import { SessionText } from '../session/ui/session-text';
 
+import { MonsterDetail } from './monster-detail';
 import { binderOpen, BINDER_SORTS, type BinderSort, type CaughtMonster } from './zoo-cards';
 import { PressSpring } from '../../ui/motion/press-spring';
 
@@ -46,51 +45,6 @@ export function sortAfter(sort: BinderSort | null): BinderSort | null {
   return BINDER_SORTS[BINDER_SORTS.indexOf(sort) + 1] ?? null;
 }
 
-/** One card at full size: the card itself carries its stats, and reads them out as one element. */
-function OpenCard({ model, actions }: { model: ZooModel; actions: ZooActions }) {
-  const t = useT();
-  const { width } = useWindowDimensions();
-  if (!model.open) return null;
-  return (
-    <KeepFrame
-      testID="zoo-card"
-      close={{ label: t('keep.close'), hint: t('keep.close.hint'), onPress: actions.closeCard }}
-      closeTestID="zoo-card-close"
-      {...(model.open.shareOffered
-        ? {
-            footer: (
-              <Dock
-                action={{
-                  label: t('zoo.shareCard'),
-                  hint: t('zoo.shareCard.hint'),
-                  testID: 'zoo-share-card',
-                  onPress: actions.shareCard,
-                }}
-              />
-            ),
-          }
-        : {})}
-    >
-      <View style={styles.centre}>
-        <CardView
-          card={model.open.card}
-          language={model.language}
-          width={Math.min(366, width - spacing.md * 2)}
-          testID="zoo-card-face"
-        />
-      </View>
-      {actions.setFinish ? (
-        <FinishPicker
-          worn={model.open.card.finish}
-          plus={model.plus}
-          onChoose={actions.setFinish}
-          onLocked={actions.openPlus ?? (() => undefined)}
-        />
-      ) : null}
-    </KeepFrame>
-  );
-}
-
 /**
  * The zoo: every caught monster, always, newest first. The binder's sorting is Plus; without it
  * the control is drawn locked and every card is still here.
@@ -99,7 +53,19 @@ export function ZooScreen({ model, actions }: { model: ZooModel; actions: ZooAct
   const t = useT();
   const { palette } = useScreenStyle();
   const { width } = useWindowDimensions();
-  if (model.open) return <OpenCard model={model} actions={actions} />;
+  if (model.open) {
+    return (
+      <MonsterDetail
+        model={{ ...model.open, language: model.language, plus: model.plus }}
+        actions={{
+          close: actions.closeCard,
+          share: actions.shareCard,
+          ...(actions.openPlus ? { openPlus: actions.openPlus } : {}),
+          ...(actions.setFinish ? { setFinish: actions.setFinish } : {}),
+        }}
+      />
+    );
+  }
 
   const labels = CARD_LABELS[model.language];
   const tile = (width - spacing.lg * 2 - spacing.sm * (COLUMNS - 1)) / COLUMNS;
@@ -183,7 +149,6 @@ export function ZooScreen({ model, actions }: { model: ZooModel; actions: ZooAct
 }
 
 const styles = StyleSheet.create({
-  centre: { alignItems: 'center' },
   grid: { paddingHorizontal: spacing.lg, paddingVertical: spacing.md, gap: spacing.md },
   gridRow: { gap: spacing.sm },
   tile: {
