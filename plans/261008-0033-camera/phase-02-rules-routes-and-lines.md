@@ -58,7 +58,7 @@ Goal: everything the camera decides and says, with no screen. Read
 - Test: doubles shaped like recorded answers at the provider boundary:
   ordering and unknown ids, the hard word, serious and crisis, unscreened
   words, an unknown pick, a silent writer, nothing logged.
-- Status: done — SHA
+- Status: done — ad6e744
 
 ### 5. The line routes
 - Owns: `apps/api/src/routes/camera-desk.ts`, `camera-room.ts`.
@@ -69,7 +69,7 @@ Goal: everything the camera decides and says, with no screen. Read
   even when no model does. The opening line is an offline line (no route).
   The before-and-after line is written with phase 05.
 - Test: the same doubles; a line with a number in it is refused.
-- Status: done — SHA
+- Status: done — ad6e744
 
 ### 6. Voice and catalogues
 - Owns: `packages/voice/src/offline/`, `packages/voice/evals/camera-*/`,
@@ -79,7 +79,7 @@ Goal: everything the camera decides and says, with no screen. Read
   written with the screens that use them (phases 03 to 05). Eval cases for
   each route in both languages need live calls with the dev key.
 - Test: the line rules pass over every offline line.
-- Status: partly done — SHA; evals not written
+- Status: partly done — ad6e744; evals not written
 
 ## Risks
 
