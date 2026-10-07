@@ -10,13 +10,13 @@ import Animated, {
 import { fonts } from '@scootch/tokens';
 
 import { Scootch, type ScootchProps } from '../../art/Scootch';
-import { useT } from '../../i18n/i18n-provider';
+import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { SPRING_CURVE } from '../../ui/motion/motion-tokens';
 import { useCharacterMotion, useMayMove } from '../../ui/motion/use-feel';
 import { useKeyboardOpen } from '../../ui/use-keyboard-open';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
-import { GUTTER, SENTENCE_LINE, type FigureFrame } from './one-screen-frame';
+import { figureIn, GUTTER, lineOf, SENTENCE_LINE, type FigureFrame } from './one-screen-frame';
 
 /** He is drawn once, at the largest size any board gives him, and scaled to each state's size. */
 const DRAWN = 300;
@@ -57,10 +57,10 @@ export function OneScreenFigure({
   const mayMove = useMayMove();
   const keyboardOpen = useKeyboardOpen();
   const t = useT();
-  const { width } = useWindowDimensions();
+  const { language } = useLanguage();
+  const { width, height } = useWindowDimensions();
 
-  const widest = width - GUTTER.words * 2;
-  const full = Math.min(largeText ? SIZE_LARGE_TEXT : frame.figure, widest);
+  const full = figureIn(largeText ? SIZE_LARGE_TEXT : frame.figure, width, height);
   const shown = keyboardOpen ? Math.min(full, SIZE_KEYBOARD) : full;
   // The space above his head is the board's; it goes with him when he is made small.
   const box = shown + (shown === frame.figure ? frame.box - frame.figure : 0);
@@ -88,7 +88,7 @@ export function OneScreenFigure({
           {
             color: palette.ink,
             fontSize: sentence,
-            lineHeight: sentence * SENTENCE_LINE,
+            lineHeight: sentence * lineOf(SENTENCE_LINE, language),
             letterSpacing: -0.02 * frame.sentence,
             marginTop: frame.textTop,
           },
@@ -99,9 +99,25 @@ export function OneScreenFigure({
     );
 
   if (figure !== undefined) {
+    // Scootch with a monster beside him is drawn by the state itself, at the board's sizes. With
+    // the keyboard up the pair is scaled down into a small space, so a field under them is not
+    // pushed beneath the keys.
+    const pairBox = largeText ? undefined : frame.box;
+    const small = keyboardOpen && pairBox !== undefined;
     return (
       <View style={{ marginTop: frame.top }}>
-        <View style={[styles.box, { minHeight: largeText ? undefined : frame.box }]}>{figure}</View>
+        <View style={[styles.box, small ? { height: SIZE_KEYBOARD } : { minHeight: pairBox }]}>
+          <View
+            style={
+              small && {
+                transform: [{ scale: SIZE_KEYBOARD / pairBox }],
+                transformOrigin: 'bottom',
+              }
+            }
+          >
+            {figure}
+          </View>
+        </View>
         {line === null ? null : (
           <View testID="one-sentence" style={styles.words}>
             {words}

@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import type { Energy } from '@scootch/domain';
 import { fonts, radius, spacing } from '@scootch/tokens';
 
-import { useT } from '../../i18n/i18n-provider';
+import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { CapsuleButton, type CapsuleButtonProps } from '../../ui/buttons';
 import { GlassSurface } from '../../ui/glass-surface';
 import { useScreenStyle } from '../../ui/use-screen-style';
@@ -31,6 +31,9 @@ export interface HeadedProps {
 /** A small label, the task as a heading, and Scootch's sentence under it. */
 export function Headed({ label, heading, said = null, testID }: HeadedProps) {
   const { palette, allowFontScaling, size } = useScreenStyle();
+  const { language } = useLanguage();
+  // Vietnamese stacks its marks: its headline gets a line of at least 1.2.
+  const headingLine = language === 'vi' ? Math.max(HEADING_LINE, 1.2) : HEADING_LINE;
   return (
     <View testID={testID} style={styles.headed}>
       <Text
@@ -48,7 +51,7 @@ export function Headed({ label, heading, said = null, testID }: HeadedProps) {
             {
               color: palette.ink,
               fontSize: size(HEADING_SIZE),
-              lineHeight: size(HEADING_SIZE) * HEADING_LINE,
+              lineHeight: size(HEADING_SIZE) * headingLine,
             },
           ]}
         >

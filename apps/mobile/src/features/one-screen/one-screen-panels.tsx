@@ -152,7 +152,13 @@ export function Chips({ chips, disabled, onChip, hint, testPrefix = 'warm-up-chi
               allowFontScaling={allowFontScaling}
               style={[
                 styles.chipLabel,
-                { color: palette.ink, fontSize: size(SMALL_SIZE), lineHeight: size(SMALL_SIZE) },
+                // A line of 1.3 keeps stacked Vietnamese marks whole; the padding makes up the
+                // board's 37 point pill.
+                {
+                  color: palette.ink,
+                  fontSize: size(SMALL_SIZE),
+                  lineHeight: size(SMALL_SIZE) * 1.3,
+                },
               ]}
             >
               {chip}
@@ -203,7 +209,7 @@ const styles = StyleSheet.create({
   chip: {
     borderRadius: 999,
     paddingHorizontal: 14,
-    paddingVertical: 11,
+    paddingVertical: 8.75,
     overflow: 'hidden',
   },
   chipLabel: {

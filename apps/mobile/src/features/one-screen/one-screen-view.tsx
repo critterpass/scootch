@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { Attitude } from '@scootch/domain';
-import { fonts, spacing } from '@scootch/tokens';
+import { fonts } from '@scootch/tokens';
 
 import type { ScootchProps } from '../../art/Scootch';
 import { useT } from '../../i18n/i18n-provider';
@@ -19,10 +19,11 @@ import { ChargeNote } from '../plus/charge-note';
 import { HeardWords } from './heard-words';
 import { Corners } from './one-screen-corners';
 import { OneScreenFigure } from './one-screen-figure';
-import { DOCK_BOTTOM, frameOfShown, GUTTER } from './one-screen-frame';
+import { dockGap, frameOfShown, GUTTER } from './one-screen-frame';
 import { chargeNoteShows } from './one-screen-stage';
 import { Chips, TaskSetChoices, WorldRow } from './one-screen-panels';
 import type { OneScreenShown } from './one-screen-shown';
+import { StageScroll } from './stage-scroll';
 
 export type { OneScreenShown } from './one-screen-shown';
 import { SafeFrame } from '../../ui/safe-frame';
@@ -52,9 +53,6 @@ export interface OneScreenViewProps {
   /** The last thing asked of the app went wrong: said in one plain line. */
   readonly failed?: boolean;
 }
-
-/** How far the screen must be pulled down before it counts as meant. */
-const PULL_POINTS = 90;
 
 /** The one screen: one critter, one sentence, one action, with a quiet button in each top corner. */
 export function OneScreenView({
@@ -197,9 +195,9 @@ export function OneScreenView({
 
   // A heavy task gets no squeak: nothing plays around it.
   const squeak = mood === 'serious' ? undefined : onSqueak;
-  // The dock stands 30 points off the bottom of the screen, as the boards draw it, whatever the
-  // home bar takes; over the keyboard it sits just above the keys.
-  const dockBottom = keyboardOpen ? DOCK_OVER_KEYBOARD : DOCK_BOTTOM - insets.bottom;
+  // The board's 30 points under the dock, never less than the home bar's own clear space; over
+  // the keyboard the dock sits just above the keys.
+  const dockBottom = keyboardOpen ? DOCK_OVER_KEYBOARD : dockGap(insets.bottom);
   return (
     <SafeFrame
       testID={`one-screen-${testName}`}
@@ -214,13 +212,7 @@ export function OneScreenView({
           {...(onWorld ? { onWorld } : {})}
           {...(onMore ? { onMore } : {})}
         />
-        <ScrollView
-          contentContainerStyle={styles.content}
-          keyboardShouldPersistTaps="handled"
-          onScrollEndDrag={(event) => {
-            if (event.nativeEvent.contentOffset.y <= -PULL_POINTS) onPull?.();
-          }}
-        >
+        <StageScroll onPull={onPull}>
           <OneScreenFigure
             frame={frame}
             mood={mood}
@@ -253,7 +245,7 @@ export function OneScreenView({
               <ChargeNote />
             </View>
           ) : null}
-        </ScrollView>
+        </StageScroll>
         {footer === null ? null : (
           <RiseIn
             key={testName}
@@ -276,10 +268,6 @@ export function OneScreenView({
 const styles = StyleSheet.create({
   page: {
     flex: 1,
-  },
-  content: {
-    flexGrow: 1,
-    paddingBottom: spacing.md,
   },
   words: {
     paddingHorizontal: GUTTER.words,

@@ -16,8 +16,8 @@ import {
   ANSWER_FADE_MS,
   ANSWER_RISE,
   ANSWER_RISE_MS,
-  choosingTimeline,
   LIGHT_MS,
+  timelineOf,
   WORDS_OUT_MS,
   type ChoosingScript,
 } from './choosing-script';
@@ -52,8 +52,7 @@ export function Choosing({ script: given, playing, onDone, children }: ChoosingP
   const [plays] = useState(script !== null && !reducedMotion && !captured);
   // A capture holds the lit beat, so it looks the same every time.
   const holds = script !== null && captured;
-  const count = script?.words.length ?? 0;
-  const timeline = choosingTimeline(count, script !== null && script.to - script.from < count);
+  const timeline = timelineOf(script);
   const { answerAt, endAt, lightAt } = timeline;
 
   const clock = useSharedValue(plays ? 0 : holds ? lightAt + LIGHT_MS : endAt);
@@ -72,33 +71,41 @@ export function Choosing({ script: given, playing, onDone, children }: ChoosingP
     done.current();
   };
 
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const stop = () => {
+    timers.current.forEach(clearTimeout);
+    timers.current = [];
+    cancelAnimation(clock);
+  };
+
   useEffect(() => {
-    if (holds) return undefined;
-    if (!plays) {
-      // Nothing may move, or there is nothing to play: the one thing is simply there.
-      if (playing) tell();
-      return undefined;
-    }
+    if (!plays) return undefined;
     clock.value = withTiming(endAt, {
       duration: endAt,
       easing: Easing.linear,
       reduceMotion: ReduceMotion.Never,
     });
-    const answer = setTimeout(() => {
-      setBeat('answer');
-      tell();
-    }, answerAt);
-    const end = setTimeout(() => setBeat('rest'), endAt);
-    return () => {
-      clearTimeout(answer);
-      clearTimeout(end);
-      cancelAnimation(clock);
-    };
+    timers.current = [
+      setTimeout(() => {
+        setBeat('answer');
+        tell();
+      }, answerAt),
+      setTimeout(() => setBeat('rest'), endAt),
+    ];
+    return stop;
     // Played once per mount.
   }, []);
 
+  // Whenever the screen believes a reveal is playing and this one is not showing its words
+  // (nothing may move, there was nothing to play, or it turned true after this appeared), it is
+  // told at once that the reveal is over. The two can never disagree for longer than a frame.
+  const idle = beat !== 'words' && !holds;
+  useEffect(() => {
+    if (playing && idle) done.current();
+  }, [playing, idle]);
+
   const skip = () => {
-    cancelAnimation(clock);
+    stop();
     clock.value = endAt;
     setBeat('rest');
     tell();
@@ -117,6 +124,7 @@ export function Choosing({ script: given, playing, onDone, children }: ChoosingP
   });
 
   const shown = script !== null && (holds || beat !== 'rest');
+  const hidden = shown && (holds || beat === 'words');
   const { words, from, to } = script ?? { words: [], from: 0, to: 0 };
   const fontSize = size(WORD_SIZE);
   // Where the lit run breaks across lines, each line's piece gets its own rounded ends.
@@ -126,7 +134,10 @@ export function Choosing({ script: given, playing, onDone, children }: ChoosingP
   return (
     <View style={{ minHeight: height }}>
       <Animated.View
-        pointerEvents={beat === 'words' && !holds ? 'none' : 'auto'}
+        pointerEvents={hidden ? 'none' : 'auto'}
+        // Invisible until it rises: a screen reader does not find it under the words.
+        accessibilityElementsHidden={hidden}
+        importantForAccessibility={hidden ? 'no-hide-descendants' : 'auto'}
         style={answerStyle}
       >
         {children}

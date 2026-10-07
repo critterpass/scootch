@@ -17,8 +17,9 @@ import {
   Stack,
 } from '../dump/dump-panels';
 import { Choosing } from '../dump/choosing';
-import { choosingScript } from '../dump/choosing-script';
+import { choosingScript, revealCapMs } from '../dump/choosing-script';
 import { restInDrawerLine } from '../dump/rest-in-drawer';
+import { RevealGate } from '../dump/reveal-gate';
 import { HatchFigure } from '../monster/hatch-figure';
 
 import type { Stage } from './one-screen-stage';
@@ -195,22 +196,26 @@ export function stageShown(stage: Drawable, env: StageEnv): StageDrawn {
             </Stack>
           </Choosing>
         ),
-        footer: playing ? null : (
-          <ChoiceDock
-            quiet={{
-              label: t('dump.another'),
-              hint: t('dump.another.hint'),
-              onPress: actions.another,
-              disabled: !stage.another,
-              testID: 'one-thing-another',
-            }}
-            action={{
-              label: t('dump.accept'),
-              hint: t('dump.accept.hint'),
-              onPress: actions.accept,
-              testID: 'one-thing-accept',
-            }}
-          />
+        // The dock waits for the reveal, and never longer than the reveal's own length and a
+        // margin: the gate ends a reveal that has not reported its end.
+        footer: (
+          <RevealGate playing={playing} capMs={revealCapMs(script)} onCap={actions.revealDone}>
+            <ChoiceDock
+              quiet={{
+                label: t('dump.another'),
+                hint: t('dump.another.hint'),
+                onPress: actions.another,
+                disabled: !stage.another,
+                testID: 'one-thing-another',
+              }}
+              action={{
+                label: t('dump.accept'),
+                hint: t('dump.accept.hint'),
+                onPress: actions.accept,
+                testID: 'one-thing-accept',
+              }}
+            />
+          </RevealGate>
         ),
       },
     };

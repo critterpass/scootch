@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { StyleSheet, Text, TextInput } from 'react-native';
+import { useRef, useState, type ComponentRef } from 'react';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { fonts, shadows } from '@scootch/tokens';
 
@@ -7,6 +7,8 @@ import { useT } from '../../i18n/i18n-provider';
 import { Chevron } from '../../ui/icons';
 import { PressSpring } from '../../ui/motion/press-spring';
 import { useScreenStyle } from '../../ui/use-screen-style';
+
+import { useBringIntoView } from './stage-scroll';
 
 const ROW_SIZE = 17;
 
@@ -23,52 +25,58 @@ export function TreatRow({ treat, onTreat }: TreatRowProps) {
   const { palette, allowFontScaling, size, largeText } = useScreenStyle();
   const t = useT();
   const [editing, setEditing] = useState(false);
+  const row = useRef<ComponentRef<typeof View>>(null);
+  const bringIntoView = useBringIntoView();
   const named = treat.trim();
   const type = { fontSize: size(ROW_SIZE) };
 
   return (
-    <PressSpring
-      accessibilityRole="button"
-      accessibilityLabel={named ? `${t('taskSet.treat')}, ${named}` : t('taskSet.treat')}
-      accessibilityHint={t('taskSet.treat.hint')}
-      onPress={() => setEditing(true)}
-      feedback="choice"
-      testID="task-set-treat"
-      style={[styles.row, largeText && styles.stacked, { backgroundColor: palette.surface }]}
-    >
-      <Text
-        allowFontScaling={allowFontScaling}
-        style={[styles.label, type, { color: palette.ink, lineHeight: type.fontSize * 1.3 }]}
+    <View ref={row}>
+      <PressSpring
+        accessibilityRole="button"
+        accessibilityLabel={named ? `${t('taskSet.treat')}, ${named}` : t('taskSet.treat')}
+        accessibilityHint={t('taskSet.treat.hint')}
+        onPress={() => setEditing(true)}
+        feedback="choice"
+        testID="task-set-treat"
+        style={[styles.row, largeText && styles.stacked, { backgroundColor: palette.surface }]}
       >
-        {t('taskSet.treat')}
-      </Text>
-      {editing ? (
-        <TextInput
-          value={treat}
-          onChangeText={onTreat}
-          onBlur={() => setEditing(false)}
-          onSubmitEditing={() => setEditing(false)}
-          placeholder={t('taskSet.treat.placeholder')}
-          placeholderTextColor={palette.faint}
-          accessibilityLabel={t('taskSet.treat')}
-          allowFontScaling={allowFontScaling}
-          autoFocus
-          maxLength={80}
-          returnKeyType="done"
-          testID="task-set-treat-input"
-          style={[styles.value, styles.input, type, { color: palette.ink }]}
-        />
-      ) : (
         <Text
           allowFontScaling={allowFontScaling}
-          numberOfLines={largeText ? 3 : 1}
-          style={[styles.value, type, { color: named ? palette.muted : palette.faint }]}
+          style={[styles.label, type, { color: palette.ink, lineHeight: type.fontSize * 1.3 }]}
         >
-          {named || t('taskSet.treat.placeholder')}
+          {t('taskSet.treat')}
         </Text>
-      )}
-      <Chevron color={palette.chevron} direction="right" />
-    </PressSpring>
+        {editing ? (
+          <TextInput
+            value={treat}
+            onChangeText={onTreat}
+            // Once the keyboard is up the row is brought above the dock, on any size of phone.
+            onFocus={() => bringIntoView(row.current)}
+            onBlur={() => setEditing(false)}
+            onSubmitEditing={() => setEditing(false)}
+            placeholder={t('taskSet.treat.placeholder')}
+            placeholderTextColor={palette.faint}
+            accessibilityLabel={t('taskSet.treat')}
+            allowFontScaling={allowFontScaling}
+            autoFocus
+            maxLength={80}
+            returnKeyType="done"
+            testID="task-set-treat-input"
+            style={[styles.value, styles.input, type, { color: palette.ink }]}
+          />
+        ) : (
+          <Text
+            allowFontScaling={allowFontScaling}
+            numberOfLines={largeText ? 3 : 1}
+            style={[styles.value, type, { color: named ? palette.muted : palette.faint }]}
+          >
+            {named || t('taskSet.treat.placeholder')}
+          </Text>
+        )}
+        <Chevron color={palette.chevron} direction="right" />
+      </PressSpring>
+    </View>
   );
 }
 

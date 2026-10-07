@@ -20,8 +20,11 @@ import {
 
 export const WORD_SIZE = 22;
 const LINE = 1.36;
-/** How soft a falling word gets. A text shadow in the word's own ink stands in for a 3 px blur. */
-const SOFT_RADIUS = 6;
+/**
+ * A falling word goes out of focus by swelling a little as it fades: opacity and a transform, so
+ * no text is laid out again on any frame. It stands in for the board's 3 px blur.
+ */
+const SOFT_SWELL = 0.14;
 const HIGHLIGHT_RADIUS = 7;
 const HIGHLIGHT_PAD = 5;
 
@@ -64,22 +67,18 @@ export function FallingWord({
     const fallen = FALL(part(now, leaving, FALL_MS));
     return {
       opacity: EASE(part(now, index * step, ARRIVE_FADE_MS)) * (1 - gone),
-      textShadowRadius: SOFT_RADIUS * gone,
       transform: [
         { translateX: dx * fallen },
         { translateY: dy * fallen },
         { rotate: `${turn * fallen}deg` },
+        { scale: 1 + SOFT_SWELL * gone },
       ],
     };
   });
   return (
     <Animated.Text
       allowFontScaling={allowFontScaling}
-      style={[
-        styles.word,
-        { color: ink, textShadowColor: ink, fontSize, lineHeight: fontSize * LINE },
-        style,
-      ]}
+      style={[styles.word, { color: ink, fontSize, lineHeight: fontSize * LINE }, style]}
     >
       {`${text} `}
     </Animated.Text>
@@ -142,7 +141,6 @@ const styles = StyleSheet.create({
     fontFamily: fonts.heading,
     fontWeight: '500',
     letterSpacing: -0.22,
-    textShadowOffset: { width: 0, height: 0 },
   },
   lit: {
     paddingVertical: 1,

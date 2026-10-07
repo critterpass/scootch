@@ -1,6 +1,13 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { choosingScript, choosingTimeline, MOST_WORDS, wordFall } from './choosing-script';
+import {
+  choosingScript,
+  choosingTimeline,
+  dockShows,
+  MOST_WORDS,
+  revealCapMs,
+  wordFall,
+} from './choosing-script';
 
 const chosen = (script: ReturnType<typeof choosingScript>) =>
   script === null ? null : script.words.slice(script.from, script.to).join(' ');
@@ -38,6 +45,16 @@ describe('what the choosing reveal plays', () => {
     });
     expect(script?.words.join(' ')).toBe('Do the taxes, Email the dentist Call mum');
     expect(chosen(script)).toBe('Email the dentist');
+  });
+
+  it('is not thrown by a dash or an emoji among the words, on either side', () => {
+    const script = choosingScript({
+      sent: 'ugh 😩 call – the bank 🏦 today',
+      heard: null,
+      oneThing: 'Call the bank —',
+    });
+    expect(chosen(script)).toBe('call – the bank');
+    expect(choosingScript({ sent: '🙂', heard: null, oneThing: '🙂' })).toBeNull();
   });
 
   it('plays nothing over a task that has none of the last words in it', () => {
@@ -97,5 +114,28 @@ describe('when each beat of the reveal happens', () => {
       expect(Math.abs(fall.turn)).toBeLessThanOrEqual(20);
       expect(fall.delay).toBeLessThanOrEqual(380);
     }
+  });
+});
+
+describe('the dock under the one thing', () => {
+  const script = choosingScript({
+    sent: 'taxes and email the dentist and the car',
+    heard: null,
+    oneThing: 'email the dentist',
+  });
+
+  it('is there as soon as the reveal is over', () => {
+    expect(dockShows(false, 0, revealCapMs(script))).toBe(true);
+  });
+
+  it('stays away while the reveal plays, and never longer than the reveal plus a margin', () => {
+    const cap = revealCapMs(script);
+    expect(cap).toBe(choosingTimeline(8).endAt + 1500);
+    expect(dockShows(true, cap - 1, cap)).toBe(false);
+    expect(dockShows(true, cap, cap)).toBe(true);
+  });
+
+  it('is never held back when there is nothing to play', () => {
+    expect(dockShows(true, 0, revealCapMs(null))).toBe(true);
   });
 });

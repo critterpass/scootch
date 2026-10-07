@@ -41,6 +41,7 @@ import { stageShown } from './stage-shown';
 import { taskSetShown } from './task-set-shown';
 import { useHeldWords } from './use-held-words';
 import { useReturnedText } from './use-returned-text';
+import { sentWordsAreStale, useForgetSentWords } from './use-sent-words';
 
 export interface OneScreenProps {
   readonly speech: SpeechPort;
@@ -125,6 +126,16 @@ function useOneScreenDrawn({
     ),
   );
   useReturnedText(day.returnedText, sendComposer, dispatch);
+  useForgetSentWords(
+    sentWordsAreStale(
+      stage.kind,
+      day.returnedText !== null,
+      // A retry in flight keeps its words even while the earlier refusal is still on the screen.
+      notice === 'say_it_another_way' && composer.state.phase === 'idle',
+    ),
+    composer.lastSent,
+    composer.forgetSent,
+  );
   const care = stage.kind === 'care';
   useEffect(() => {
     // A crisis day shows nothing of this screen: the care screens take over.

@@ -40,7 +40,8 @@ export function MinutesControl({ minutes, options, onMinutes }: MinutesControlPr
   const { palette, allowFontScaling, size, largeText, reducedMotion } = useScreenStyle();
   const appearance = useAppearance();
   const t = useT();
-  const chosenIndex = Math.max(0, options.indexOf(minutes));
+  // -1 when the length in force is not one of those on offer: then no segment is chosen.
+  const chosenIndex = options.indexOf(minutes);
   const count = options.length;
 
   // The track is measured once, in React: the pill's width is plain layout, and only its place
@@ -67,7 +68,7 @@ export function MinutesControl({ minutes, options, onMinutes }: MinutesControlPr
       onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
       style={[styles.track, largeText && styles.stacked, { backgroundColor: TRACK[appearance] }]}
     >
-      {largeText || pillWidth === 0 ? null : (
+      {largeText || pillWidth === 0 || chosenIndex < 0 ? null : (
         <Animated.View
           pointerEvents="none"
           style={[styles.pill, { width: pillWidth, backgroundColor: PILL[appearance] }, pill]}

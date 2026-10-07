@@ -26,15 +26,26 @@ const bare = (word: string): string =>
     .toLocaleLowerCase()
     .replace(/[^\p{L}\p{N}]+/gu, '');
 
-/** Where the one thing's words run, in order and unbroken, among what was sent; -1 when they do not. */
-function runOf(words: readonly string[], thing: readonly string[]): number {
+/**
+ * Where the one thing's words run, in order and unbroken, among what was sent: the first and the
+ * last word of the run (`to` is one past it), or `null` when they do not. Tokens with no letter or
+ * digit in them (a dash, an emoji) are skipped on both sides, so they never break a match.
+ */
+function runOf(
+  words: readonly string[],
+  thing: readonly string[],
+): { readonly from: number; readonly to: number } | null {
   const want = thing.map(bare).filter(Boolean);
-  if (want.length === 0) return -1;
-  const have = words.map(bare);
+  if (want.length === 0) return null;
+  const have = words.map((word, index) => ({ word: bare(word), index })).filter((it) => it.word);
   for (let start = 0; start + want.length <= have.length; start += 1) {
-    if (want.every((word, offset) => have[start + offset] === word)) return start;
+    if (want.every((word, offset) => have[start + offset]?.word === word)) {
+      const first = have[start];
+      const last = have[start + want.length - 1];
+      if (first && last) return { from: first.index, to: last.index + 1 };
+    }
   }
-  return -1;
+  return null;
 }
 
 /** Keeps at most `MOST_WORDS`, with the one thing in the middle of what is kept. */
@@ -58,8 +69,8 @@ function around(words: readonly string[], from: number, to: number): ChoosingScr
 export function choosingScript({ sent, heard, oneThing }: ChoosingSource): ChoosingScript | null {
   const thing = split(oneThing);
   const words = sent === null ? [] : split(sent);
-  const start = runOf(words, thing);
-  if (start >= 0) return around(words, start, start + thing.map(bare).filter(Boolean).length);
+  const run = runOf(words, thing);
+  if (run !== null) return around(words, run.from, run.to);
 
   if (heard !== null && heard.phrases.length > 0) {
     const flat: string[] = [];
@@ -79,9 +90,10 @@ export function choosingScript({ sent, heard, oneThing }: ChoosingSource): Choos
   }
 
   if (words.length === 0 || words.length > SHORT_THING_WORDS) return null;
-  const kept = new Set(thing.map(bare));
-  const shared = words.filter((word) => kept.has(bare(word))).length;
-  return shared * 2 >= words.length ? { words, from: 0, to: words.length } : null;
+  const kept = new Set(thing.map(bare).filter(Boolean));
+  const said = words.map(bare).filter(Boolean);
+  const shared = said.filter((word) => kept.has(word)).length;
+  return said.length > 0 && shared * 2 >= said.length ? { words, from: 0, to: words.length } : null;
 }
 
 /** The board's timing, in milliseconds from the first word. */
@@ -122,6 +134,28 @@ export function choosingTimeline(words: number, others = true): ChoosingTimeline
   const fallAt = lightAt + (others ? 900 : LIGHT_MS);
   const answerAt = fallAt + (others ? 1500 : NOTHING_FALLS_MS);
   return { step, lightAt, fallAt, answerAt, endAt: answerAt + ANSWER_RISE_MS };
+}
+
+/** The beats for one script: whether anything falls is read from the script itself. */
+export function timelineOf(script: ChoosingScript | null): ChoosingTimeline {
+  const count = script?.words.length ?? 0;
+  return choosingTimeline(count, script !== null && script.to - script.from < count);
+}
+
+/** How long past the reveal's own end the dock may stay away before it shows regardless. */
+const CAP_MARGIN_MS = 1500;
+
+/**
+ * The longest the one thing may be left without its dock. The reveal says when it is done; this
+ * is the limit that holds even if it never does, so the dock can not stay hidden.
+ */
+export function revealCapMs(script: ChoosingScript | null): number {
+  return script === null ? 0 : timelineOf(script).endAt + CAP_MARGIN_MS;
+}
+
+/** Whether the dock under the one thing shows: once the reveal is over, or the cap has passed. */
+export function dockShows(playing: boolean, waitedMs: number, capMs: number): boolean {
+  return !playing || waitedMs >= capMs;
 }
 
 /** How one word leaves: the same every time for the same place in the sentence. */
