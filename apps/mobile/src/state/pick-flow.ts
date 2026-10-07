@@ -1,5 +1,6 @@
 import {
   drawerViewReducer,
+  hasStartLeft,
   sameThing,
   swapIn,
   type Ask,
@@ -35,6 +36,8 @@ export function drawerEvent(ctx: DayContext, event: DrawerEvent): void {
  */
 export async function swapItemIn(ctx: DayContext, itemId: Id): Promise<boolean> {
   const { repositories } = ctx.deps;
+  // Taking a thing on with nothing set uses one of the day's starts; swapping one for another does not.
+  if (setTask(ctx) === null && !hasStartLeft(ctx.memory.state.today)) return false;
   const before = await repositories.drawerItems.all();
   const result = swapIn({
     drawer: before,
@@ -50,11 +53,17 @@ export async function swapItemIn(ctx: DayContext, itemId: Id): Promise<boolean> 
   for (const item of result.drawer) await repositories.drawerItems.put(item);
   if (result.replacedTaskId !== null) await repositories.forgetTask(result.replacedTaskId);
   const { oneThing } = result;
-  await repositories.tasks.put({
-    ...newTask(ctx, oneThing.text, oneThing.source, oneThing.screen),
-    firstMentionedOn: oneThing.firstMentionedOn,
-    dueDate: oneThing.dueDate,
-  });
+  // A task that was parked whole comes back as itself, with its monster and its lines.
+  const whole = await repositories.tasks.get(itemId);
+  await repositories.tasks.put(
+    whole && whole.status !== 'finished'
+      ? { ...whole, localDate: oneThing.localDate, carriedOver: false, status: 'set' }
+      : {
+          ...newTask(ctx, oneThing.text, oneThing.source, oneThing.screen),
+          firstMentionedOn: oneThing.firstMentionedOn,
+          dueDate: oneThing.dueDate,
+        },
+  );
   ctx.memory.restPending = false;
   ctx.memory.turnedDown = [];
   drawerEvent(ctx, { type: 'swapped_in' });
@@ -81,7 +90,11 @@ export function deadlineAnswered(ctx: DayContext, text: string): void {
 export function pickForMe(ctx: DayContext): void {
   const { pick, drawer } = ctx.memory.state;
   if (drawer.items.length === 0) return;
-  if (pick.kind === 'picked_for_me') ctx.memory.turnedDown.push(pick.itemId);
+  if (pick.kind === 'picked_for_me') {
+    // The only thing parked cannot be turned down for another: there is no other.
+    if (drawer.items.length === 1) return;
+    ctx.memory.turnedDown.push(pick.itemId);
+  }
   let open = drawer.items.filter((item) => !ctx.memory.turnedDown.includes(item.id));
   if (open.length === 0) {
     ctx.memory.turnedDown = [];

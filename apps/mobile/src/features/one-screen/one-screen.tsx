@@ -4,7 +4,7 @@ import { Redirect, useRouter, type Href } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Linking } from 'react-native';
 
-import type { Attitude, Energy } from '@scootch/domain';
+import { hasStartLeft, startsAllowed, type Attitude, type Energy } from '@scootch/domain';
 
 import type { ScootchProps } from '../../art/Scootch';
 import { useLanguage, useT } from '../../i18n/i18n-provider';
@@ -107,6 +107,13 @@ export function OneScreen({ speech, warmUp, notificationsRefused }: OneScreenPro
       request.listening ? { type: 'toggled', at: Date.now() } : { type: 'keyboard_tapped' },
     ),
   );
+  // A cancelled wait hands the words back: they go into the field, to edit or send again.
+  const { returnedText } = day;
+  useEffect(() => {
+    if (returnedText === null) return;
+    sendComposer({ type: 'text_returned', text: returnedText });
+    void dispatch({ type: 'returned_text_taken' }).catch(() => undefined);
+  }, [returnedText, sendComposer, dispatch]);
   const care = stage.kind === 'care';
   useEffect(() => {
     // A crisis day shows nothing of this screen: the care screens take over.
@@ -126,7 +133,12 @@ export function OneScreen({ speech, warmUp, notificationsRefused }: OneScreenPro
         open={drawer.open}
         items={drawer.items}
         today={localDate}
-        canSwap={task === null || task.status === 'set'}
+        canSwap={task === null ? hasStartLeft(today) : task.status === 'set'}
+        capNote={
+          task === null && !hasStartLeft(today) && today.kind === 'done_for_today'
+            ? t('drawer.cap', { count: startsAllowed(plus) })
+            : null
+        }
         onSwapIn={(itemId) => send({ type: 'drawer_item_swapped_in', itemId })}
         onClose={() => send({ type: 'drawer', event: { type: 'closed' } })}
       />
@@ -153,7 +165,14 @@ export function OneScreen({ speech, warmUp, notificationsRefused }: OneScreenPro
         onMore={() => send({ type: 'one_more_asked' })}
       />
     );
-    return <OneScreenView {...frame} mood="asleep" line={said} shown={{ kind: 'done', under }} />;
+    return (
+      <OneScreenView
+        {...frame}
+        mood="asleep"
+        line={said}
+        shown={{ kind: 'done', under, waiting: stage.waiting?.text ?? null }}
+      />
+    );
   }
 
   const connection = { offline, modelDown: day.modelDown };
@@ -220,6 +239,12 @@ export function OneScreen({ speech, warmUp, notificationsRefused }: OneScreenPro
                 />
               ) : null}
               <NotNow onExcuse={(text) => send({ type: 'excuse_given', text })} />
+              <QuietLink
+                label={t('taskSet.rest')}
+                hint={t('taskSet.rest.hint')}
+                onPress={() => send({ type: 'done_for_today' })}
+                testID="rest-today"
+              />
               <TogetherLinks day={day} task={stage.task} monster={day.monster} />
             </Stack>
           ),
@@ -244,6 +269,7 @@ export function OneScreen({ speech, warmUp, notificationsRefused }: OneScreenPro
         answerDeadline: (text, choice) => send({ type: 'deadline_answered', text, choice }),
         pickAgain: () => send({ type: 'pick_for_me' }),
         takePick: (itemId) => send({ type: 'drawer_item_swapped_in', itemId }),
+        dropPick: () => send({ type: 'pick_dropped' }),
         smaller: () => send({ type: 'smaller_asked' }),
         deal: () => {
           void dispatch({ type: 'deal_struck', treat: treat.trim() || null })
@@ -281,6 +307,7 @@ export function OneScreen({ speech, warmUp, notificationsRefused }: OneScreenPro
       notUnderstood: notice === 'say_it_another_way',
       screenReader,
       onOpenSettings: () => void Linking.openSettings().catch(() => undefined),
+      onCancelThinking: () => send({ type: 'task_call_cancelled' }),
     },
     warmUp: warmUp
       ? {

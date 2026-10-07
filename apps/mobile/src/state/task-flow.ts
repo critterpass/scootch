@@ -1,6 +1,7 @@
-import { MINUTE_MS, type TaskCreateRequest, type TaskRow } from '@scootch/domain';
+import { MINUTE_MS, hasStartLeft, type TaskCreateRequest, type TaskRow } from '@scootch/domain';
 
 import { careGate } from '../api/care-gate';
+import type { TaskCall } from '../api/task-client';
 
 import { enterCrisis } from './care-flow';
 import type { DayContext, Offer } from './day-types';
@@ -28,13 +29,18 @@ function requestFor(ctx: DayContext, offer: Offer): TaskCreateRequest {
 
 const isOnline = (ctx: DayContext) => ctx.deps.online().catch(() => false);
 
+/** How long the person is kept waiting for the model before the day starts without it. */
+export const TASK_PATIENCE_MS = 8_000;
+
 /**
- * A ramble or a typed task. The phone's gate runs before anything is sent or written. With no
- * answer from the server, the text becomes the one thing as it is, unscreened: plain company and
- * no monster until the connection returns.
+ * A ramble or a typed task. The phone's gate runs before anything is sent or written; the call
+ * itself is not waited for here.
  */
 export async function submitText(ctx: DayContext, offer: Offer): Promise<void> {
-  if (ctx.memory.state.today.kind === 'crisis') return;
+  const { today } = ctx.memory.state;
+  if (today.kind === 'crisis') return;
+  // Another thing is taken on only while the day has a start left for it.
+  if (!('task' in today) && !hasStartLeft(today)) return;
   const gate = careGate(offer.text);
   if (gate === 'crisis') {
     await enterCrisis(ctx);
@@ -54,11 +60,47 @@ export async function submitText(ctx: DayContext, offer: Offer): Promise<void> {
     const day = await days.get(ctx.memory.state.localDate);
     if (day) await days.put({ ...day, energy: offer.energy });
   }
-  const online = await isOnline(ctx);
-  const call = online
-    ? await ctx.deps.tasks.createTask(requestFor(ctx, offer), treatNamed(ctx)).catch(() => null)
-    : null;
+  const request = requestFor(ctx, offer);
+  // The answer is waited for outside the queue of events: the drawer, settings and every other
+  // tap go on working meanwhile. It comes back as a step of its own, in its turn.
+  ctx.later(askWithPatience(ctx, request), ({ online, call }) =>
+    applyAnswer(ctx, offer, online, call),
+  );
+}
 
+/**
+ * Asks for the task, for no longer than a person will wait. No connection, an error, the wait
+ * running out or the person's cancel all answer `null`.
+ */
+async function askWithPatience(
+  ctx: DayContext,
+  request: TaskCreateRequest,
+): Promise<{ readonly online: boolean; readonly call: TaskCall | null }> {
+  const online = await isOnline(ctx);
+  if (!online) return { online, call: null };
+  let giveUp: () => void = () => undefined;
+  const gaveUp = new Promise<null>((done) => (giveUp = () => done(null)));
+  const stopTimer = ctx.deps.timers.set(TASK_PATIENCE_MS, giveUp);
+  ctx.memory.stopWaiting = giveUp;
+  const asked = ctx.deps.tasks.createTask(request, treatNamed(ctx)).catch(() => null);
+  const call = await Promise.race([asked, gaveUp]);
+  stopTimer();
+  if (ctx.memory.stopWaiting === giveUp) ctx.memory.stopWaiting = null;
+  return { online, call };
+}
+
+/**
+ * The answer to a sent text, in its turn. An answer for words the person has since cancelled, or
+ * moved on from by taking something else, is dropped unread. With none, the text becomes the one
+ * thing as it is, unscreened: plain company and no monster until the connection returns.
+ */
+async function applyAnswer(
+  ctx: DayContext,
+  offer: Offer,
+  online: boolean,
+  call: TaskCall | null,
+): Promise<void> {
+  if (ctx.memory.offer !== offer || ctx.memory.state.taskCall === 'idle') return;
   if (call !== null) {
     await applyCall(ctx, call, null);
   } else {
@@ -72,6 +114,25 @@ export async function submitText(ctx: DayContext, offer: Offer): Promise<void> {
   // Today is read back before the waiting ends, so the composer never shows again in between.
   await ctx.refresh();
   ctx.set({ taskCall: 'idle' });
+}
+
+/** Whatever was being waited for is no longer wanted: its answer will be dropped when it comes. */
+export function dropTaskCall(ctx: DayContext): void {
+  ctx.memory.stopWaiting?.();
+  ctx.memory.stopWaiting = null;
+  if (ctx.memory.state.taskCall !== 'idle') ctx.memory.offer = null;
+  ctx.set({ taskCall: 'idle' });
+}
+
+/**
+ * "Cancel", while Scootch is thinking: nothing is set, and the words go back to the composer so
+ * they are not typed twice.
+ */
+export function cancelTaskCall(ctx: DayContext): void {
+  const { offer } = ctx.memory;
+  if (ctx.memory.state.taskCall === 'idle' || offer === null) return;
+  dropTaskCall(ctx);
+  ctx.set({ returnedText: offer.text, notice: null });
 }
 
 /**
@@ -94,6 +155,10 @@ export async function askAnother(ctx: DayContext): Promise<void> {
     }
   }
   await ctx.deps.repositories.forgetTask(today.task.id);
+  // The turned-down thing leaves the screen while the next is asked for: nothing on it can be
+  // tapped for a task that is no longer there.
+  ctx.set({ pick: { kind: 'none' }, heardDeadlines: [] });
+  await ctx.refresh();
   await submitText(ctx, {
     ...offer,
     candidates: [],
@@ -126,7 +191,7 @@ function needsScreen(ctx: DayContext, task: TaskRow): boolean {
  */
 export async function fetchPending(ctx: DayContext): Promise<void> {
   const { today, settings, localDate, monster } = ctx.memory.state;
-  if (!('task' in today) || ctx.memory.restPending) return;
+  if (!('task' in today) || ctx.memory.restPending || ctx.memory.askingPending) return;
   const { task } = today;
   const screening = needsScreen(ctx, task);
   const waiting =
@@ -141,7 +206,8 @@ export async function fetchPending(ctx: DayContext): Promise<void> {
     ctx.memory.screenAskedAt = ctx.now();
   }
 
-  const call = await ctx.deps.tasks
+  ctx.memory.askingPending = true;
+  const asked = ctx.deps.tasks
     .createTask(
       {
         language: settings.language,
@@ -156,10 +222,16 @@ export async function fetchPending(ctx: DayContext): Promise<void> {
       treatNamed(ctx),
     )
     .catch(() => null);
-  if (call === null) return;
-  ctx.set({ modelDown: false });
-  await applyCall(ctx, call, task);
-  await ctx.refresh();
+  // Not waited for in the queue of events: the answer is its own step when it comes.
+  ctx.later(asked, async (call) => {
+    ctx.memory.askingPending = false;
+    const waiting = await ctx.deps.repositories.tasks.get(task.id);
+    // A task swapped out, let go or moved to another day in the meantime gets nothing.
+    if (call === null || !waiting || waiting.localDate !== ctx.memory.state.localDate) return;
+    ctx.set({ modelDown: false });
+    await applyCall(ctx, call, waiting);
+    await ctx.refresh();
+  });
 }
 
 /**

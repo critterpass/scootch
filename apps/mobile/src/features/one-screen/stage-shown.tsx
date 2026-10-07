@@ -31,6 +31,8 @@ export interface StageActions {
   readonly answerDeadline: (text: string, choice: 'park' | 'today') => void;
   readonly pickAgain: () => void;
   readonly takePick: (itemId: Id) => void;
+  /** The way back from Scootch's pick, or from a counter-offer, to where it was asked for. */
+  readonly dropPick: () => void;
   readonly smaller: () => void;
   readonly deal: () => void;
   readonly tooBig: () => void;
@@ -90,21 +92,37 @@ export function stageShown(stage: Drawable, env: StageEnv): StageDrawn {
 
   if (stage.kind === 'picked_for_me') {
     const { item } = stage;
+    const back = {
+      label: t('pick.back'),
+      hint: t('pick.back.hint'),
+      onPress: actions.dropPick,
+      testID: 'pick-back',
+    };
     return {
       mood: 'pleased',
       line: null,
       shown: {
         kind: 'panel',
         name: 'picked',
-        body: <Headed label={t('pick.picked')} heading={item.text} testID="picked-thing" />,
+        body: (
+          <Stack>
+            <Headed label={t('pick.picked')} heading={item.text} testID="picked-thing" />
+            {stage.canPickAgain ? <QuietLink {...back} /> : null}
+          </Stack>
+        ),
         footer: (
           <ChoiceDock
-            quiet={{
-              label: t('pick.again'),
-              hint: t('pick.again.hint'),
-              onPress: actions.pickAgain,
-              testID: 'pick-again',
-            }}
+            // With one thing parked there is nothing else to pick: the quiet side is the way back.
+            quiet={
+              stage.canPickAgain
+                ? {
+                    label: t('pick.again'),
+                    hint: t('pick.again.hint'),
+                    onPress: actions.pickAgain,
+                    testID: 'pick-again',
+                  }
+                : back
+            }
             action={{
               label: t('pick.accept'),
               hint: t('pick.accept.hint'),

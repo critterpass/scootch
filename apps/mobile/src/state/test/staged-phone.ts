@@ -24,6 +24,8 @@ export const ramble = startFixture.request.text;
 export interface StagedServer {
   online: boolean;
   start: TaskCreateStartResponse & Judged;
+  /** Stage one, when the test decides when it answers; `start` at once when unset. */
+  startStage?: () => Promise<TaskCreateStartResponse & Judged>;
   /** Stage two: answers when the test lets it, or fails. */
   lines: () => Promise<TaskLinesAnswer>;
   /** Stage two, name first. A server without the route fails it, which is the default here. */
@@ -51,7 +53,12 @@ export function stagedServer(changes: Partial<StagedServer> = {}): StagedServer 
 }
 
 /** A phone on fakes whose task call is the staged one: a real database, a clock moved by hand. */
-export async function stagedPhone(server: StagedServer, database?: TestDatabase, at = MORNING) {
+export async function stagedPhone(
+  server: StagedServer,
+  database?: TestDatabase,
+  at = MORNING,
+  phone: { readonly timeZone?: string; readonly plus?: boolean } = {},
+) {
   const data = database ?? (await openTestDatabase());
   const time = fakeTime(at);
   const device = fakeDevice();
@@ -75,12 +82,12 @@ export async function stagedPhone(server: StagedServer, database?: TestDatabase,
   const store: DayStore = createDayStore({
     repositories: openRepositories(data.db),
     clock: time.clock,
-    timeZone: () => 'Europe/London',
+    timeZone: () => phone.timeZone ?? 'Europe/London',
     nextId: () => `id-${at}-${(ids += 1)}`,
     tasks: createStagedTaskClient({
       taskCreateStart: () => {
         server.startCalls += 1;
-        return Promise.resolve(server.start);
+        return server.startStage ? server.startStage() : Promise.resolve(server.start);
       },
       taskCreateLines: () => {
         server.lineCalls += 1;
@@ -98,7 +105,8 @@ export async function stagedPhone(server: StagedServer, database?: TestDatabase,
     online: () => Promise.resolve(server.online),
     runner,
     phoneLanguage: () => 'en',
-    plus: () => false,
+    plus: () => phone.plus ?? false,
+    timers: time.timers,
   });
   await store.start();
   const say = (text = ramble, source: 'ramble' | 'typed' = 'ramble') =>

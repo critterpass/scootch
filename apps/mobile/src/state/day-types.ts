@@ -14,12 +14,13 @@ import type {
   SessionLine,
   SessionState,
   SettingsRow,
+  TaskRow,
   TodayState,
 } from '@scootch/domain';
 
 import type { TaskClient } from '../api/task-client';
 import type { Repositories } from '../data/repositories';
-import type { Clock } from '../effects/adapters';
+import type { Clock, Timers } from '../effects/adapters';
 import type { EffectsRunner } from '../effects/effects-runner';
 
 import type { AfterLines } from './lines';
@@ -34,6 +35,10 @@ export type DayEvent =
     }
   /** "Another": the offered one thing is turned down and a different one is asked for. */
   | { readonly type: 'another_asked' }
+  /** "Cancel", while Scootch is thinking: the words go back to the composer and nothing is set. */
+  | { readonly type: 'task_call_cancelled' }
+  /** The composer has taken back the words a cancel returned. */
+  | { readonly type: 'returned_text_taken' }
   /** "That's the one". The ramble's transcript goes unless the person keeps transcripts. */
   | { readonly type: 'one_thing_picked' }
   /** A heard date is answered: it stays parked for its day, or is swapped in for today. */
@@ -42,6 +47,8 @@ export type DayEvent =
   | { readonly type: 'drawer_item_swapped_in'; readonly itemId: Id }
   /** "Pick for me", and "Pick again": Scootch offers one thing from the drawer. */
   | { readonly type: 'pick_for_me' }
+  /** "Back", on Scootch's pick or on a counter-offer: it is dropped and nothing else changes. */
+  | { readonly type: 'pick_dropped' }
   /** "Not now", with the person's reason: Scootch counters with a smaller ask. */
   | { readonly type: 'excuse_given'; readonly text: string }
   /** "Smaller", on the counter-offer. */
@@ -127,6 +134,7 @@ const PICK_EVENTS = [
   'deadline_answered',
   'drawer_item_swapped_in',
   'pick_for_me',
+  'pick_dropped',
   'excuse_given',
   'smaller_asked',
   'deal_struck',
@@ -164,12 +172,16 @@ export interface DayState {
   readonly monsterPending: boolean;
   /** `held`: the phone's gate saw a dark or heavy word, so nothing funny shows while waiting. */
   readonly taskCall: 'idle' | 'waiting' | 'held';
+  /** The words of a task call the person cancelled, on their way back to the composer. */
+  readonly returnedText: string | null;
   /** The server would not take the text: the person is asked to say it another way. */
   readonly notice: 'say_it_another_way' | null;
   /** The last task call failed with a connection up: Scootch says so and the pick is the person's. */
   readonly modelDown: boolean;
   /** When the reminder asked for on today's serious task goes off; `null` when none was asked. */
   readonly reminderAt: Instant | null;
+  /** The task carried on to tomorrow, while today rests; `null` when none is. */
+  readonly waitingForTomorrow: TaskRow | null;
   /** Dates heard in the last ramble, each with the line that says it out loud. */
   readonly heardDeadlines: readonly HeardDeadline[];
   readonly line: ShownLine | null;
@@ -199,6 +211,8 @@ export interface DayStoreDeps {
   readonly phoneLanguage: () => SettingsRow['language'];
   /** Whether Plus is active. */
   readonly plus: () => boolean;
+  /** Bounds how long the person waits for the model before the day starts without it. */
+  readonly timers: Timers;
   /** Called once a finish has been written, so the backup can follow it. */
   readonly onFinished?: () => void;
 }
@@ -229,6 +243,10 @@ export interface DayMemory {
   untrustedTaskId: Id | null;
   /** When a task waiting for a trusted screen was last asked about. */
   screenAskedAt: Instant | null;
+  /** Ends the wait for the task call under way at once; `null` when none is. */
+  stopWaiting: (() => void) | null;
+  /** A waiting task is being asked about right now, so it is not asked about twice. */
+  askingPending: boolean;
 }
 
 export interface DayContext {
@@ -251,6 +269,7 @@ export const PASSIVE_EVENTS: readonly DayEvent['type'][] = [
   'settings_changed',
   'storage_replaced',
   'connection_returned',
+  'returned_text_taken',
   'app_foregrounded',
   'app_backgrounded',
   'session_closed',

@@ -69,6 +69,8 @@ export type OneScreenShown =
     }
   | {
       readonly kind: 'done';
+      /** The task carried on to tomorrow, said plainly while the day rests. */
+      readonly waiting?: string | null;
       /** Drawn under the world row: "One more". */
       readonly under?: ReactNode;
     }
@@ -203,6 +205,21 @@ export function OneScreenView({
       </GlassSurface>
     );
   } else if (shown.kind === 'done') {
+    const waiting = shown.waiting ?? null;
+    body =
+      waiting === null ? null : (
+        <>
+          {note(t('done.waiting'), 'done-waiting-label')}
+          <Text
+            testID="done-waiting"
+            accessibilityLabel={`${t('done.waiting')}: ${waiting}`}
+            allowFontScaling={allowFontScaling}
+            style={[styles.heard, { color: palette.ink, fontSize: size(HEARD_SIZE) }]}
+          >
+            {waiting}
+          </Text>
+        </>
+      );
     footer = onWorld ? (
       <>
         <WorldRow onPress={onWorld} />

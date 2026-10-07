@@ -68,6 +68,7 @@ export async function carePhone(server: CareServer) {
     runner,
     phoneLanguage: () => 'en',
     plus: () => false,
+    timers: time.timers,
     onFinished: () => {
       finishes += 1;
     },

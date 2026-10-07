@@ -66,6 +66,7 @@ export async function plusPhone(
     runner,
     phoneLanguage: () => 'en',
     plus: () => plus.getState().unlocked.plus,
+    timers: time.timers,
   });
   plus.subscribe(() => void store.dispatch({ type: 'entitlement_changed' }));
   await store.start();

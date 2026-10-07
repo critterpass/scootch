@@ -20,6 +20,8 @@ export interface ComposerHintsProps {
   readonly notUnderstood: boolean;
   readonly screenReader: boolean;
   readonly onOpenSettings: () => void;
+  /** Stops waiting for Scootch and takes the words back. Unset, the wait has no way out. */
+  readonly onCancelThinking?: () => void;
 }
 
 type Hint = { readonly text: string; readonly mark: 'slide' | 'dot' | null };
@@ -34,6 +36,7 @@ export function ComposerHints({
   notUnderstood,
   screenReader,
   onOpenSettings,
+  onCancelThinking,
 }: ComposerHintsProps) {
   const { palette, allowFontScaling, size } = useScreenStyle();
   const { language } = useLanguage();
@@ -106,6 +109,24 @@ export function ComposerHints({
             >
               {hint.text}
             </Text>
+            {thinking && onCancelThinking ? (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={t('composer.cancelThinking')}
+                accessibilityHint={t('composer.cancelThinking.hint')}
+                onPress={onCancelThinking}
+                testID="composer-cancel-thinking"
+                hitSlop={spacing.sm}
+                style={styles.cancel}
+              >
+                <Text
+                  allowFontScaling={allowFontScaling}
+                  style={[styles.settingsLabel, { color: palette.ink, fontSize: size(HINT_SIZE) }]}
+                >
+                  {t('composer.cancelThinking')}
+                </Text>
+              </Pressable>
+            ) : null}
           </View>
         </GlassSurface>
       )}
@@ -149,6 +170,10 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
     fontWeight: '500',
     flexShrink: 1,
+  },
+  cancel: {
+    minHeight: 36,
+    justifyContent: 'center',
   },
   dot: {
     width: 8,

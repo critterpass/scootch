@@ -38,6 +38,8 @@ export interface DrawerSheetProps {
   readonly today: IsoDate;
   /** False once today's thing has been started: nothing can be swapped for it then. */
   readonly canSwap: boolean;
+  /** Said in place of "Swap in" when today's starts are all used; `null` otherwise. */
+  readonly capNote?: string | null;
   readonly onSwapIn: (itemId: Id) => void;
   readonly onClose: () => void;
 }
@@ -48,7 +50,15 @@ export interface DrawerSheetProps {
  * circle for a dated thing, an empty ring for the rest) and a quiet way out. It lists six things
  * and says how many more there are; tapping that shows them all, and the list scrolls.
  */
-export function DrawerSheet({ open, items, today, canSwap, onSwapIn, onClose }: DrawerSheetProps) {
+export function DrawerSheet({
+  open,
+  items,
+  today,
+  canSwap,
+  capNote = null,
+  onSwapIn,
+  onClose,
+}: DrawerSheetProps) {
   const { palette, allowFontScaling, size, reducedMotion, largeText } = useScreenStyle();
   const { language } = useLanguage();
   const t = useT();
@@ -118,6 +128,15 @@ export function DrawerSheet({ open, items, today, canSwap, onSwapIn, onClose }: 
                 : t('drawer.count', { parked: items.length, dated })}
             </Text>
           </View>
+          {capNote === null || items.length === 0 ? null : (
+            <Text
+              testID="drawer-cap"
+              allowFontScaling={allowFontScaling}
+              style={[styles.body, styles.note, type('500', NOTE_SIZE, palette.ink)]}
+            >
+              {capNote}
+            </Text>
+          )}
           {items.length === 0 ? null : (
             <ScrollView
               style={styles.list}

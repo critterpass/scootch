@@ -25,7 +25,8 @@ export type Stage =
   /** A crisis day: nothing of this screen is shown and the care screens take over. */
   | { readonly kind: 'care' }
   | { readonly kind: 'session' }
-  | { readonly kind: 'done' }
+  /** The day is resting. `waiting` is the task carried on to tomorrow, when there is one. */
+  | { readonly kind: 'done'; readonly waiting: TaskRow | null }
   /** The battery question, asked while the person's words wait to be sent. */
   | { readonly kind: 'energy' }
   | {
@@ -36,7 +37,12 @@ export type Stage =
       readonly note: { readonly item: DrawerItemRow; readonly dueDate: string } | null;
       readonly canPickForMe: boolean;
     }
-  | { readonly kind: 'picked_for_me'; readonly item: DrawerItemRow }
+  | {
+      readonly kind: 'picked_for_me';
+      readonly item: DrawerItemRow;
+      /** False when it is the only thing parked: there is nothing else to pick. */
+      readonly canPickAgain: boolean;
+    }
   | {
       readonly kind: 'one_thing';
       readonly task: TaskRow;
@@ -67,7 +73,14 @@ export type Stage =
 
 export type StageInput = Pick<
   DayState,
-  'today' | 'pick' | 'morning' | 'monster' | 'heardDeadlines' | 'drawer' | 'oneMore'
+  | 'today'
+  | 'pick'
+  | 'morning'
+  | 'monster'
+  | 'heardDeadlines'
+  | 'drawer'
+  | 'oneMore'
+  | 'waitingForTomorrow'
 > & {
   /** The person's words are held back until the battery question is answered. */
   readonly energyAsked: boolean;
@@ -89,22 +102,21 @@ export function stageOf(input: StageInput): Stage {
   if (today.kind === 'in_session' || (today.kind === 'serious' && today.session !== null)) {
     return { kind: 'session' };
   }
-  if (today.kind === 'done_for_today') {
+  const asking =
+    today.kind === 'nothing_yet' ||
     // "One more" was tapped and the daily limit has a start left: the plain ask comes back.
-    if (input.oneMore && today.startsLeft > 0) {
-      return {
-        kind: 'composer',
-        returning: false,
-        note: null,
-        canPickForMe: drawer.items.length > 0,
-      };
-    }
-    return { kind: 'done' };
+    (today.kind === 'done_for_today' && input.oneMore && today.startsLeft > 0);
+  if (today.kind === 'done_for_today' && !asking) {
+    return { kind: 'done', waiting: input.waitingForTomorrow };
   }
 
-  if (pick.kind === 'picked_for_me') {
+  // Scootch's pick is shown wherever it was asked for, the ask after "One more" included.
+  if (pick.kind === 'picked_for_me' && (asking || today.kind === 'task_set')) {
     const item = drawer.items.find((one) => one.id === pick.itemId);
-    if (item) return { kind: 'picked_for_me', item };
+    if (item) return { kind: 'picked_for_me', item, canPickAgain: drawer.items.length > 1 };
+  }
+  if (today.kind === 'done_for_today') {
+    return { kind: 'composer', returning: false, note: null, canPickForMe: drawer.items.length > 0 };
   }
 
   if (today.kind === 'nothing_yet') {
