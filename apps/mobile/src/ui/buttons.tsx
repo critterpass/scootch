@@ -1,11 +1,20 @@
+import type { Href } from 'expo-router';
 import type { ReactNode } from 'react';
-import { StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  type StyleProp,
+  type ViewProps,
+  type ViewStyle,
+} from 'react-native';
 
 import { fonts, spacing } from '@scootch/tokens';
 
-import { GlassSurface } from './glass-surface';
+import { GlassSurface, glassPressOwner } from './glass-surface';
 import { useScreenStyle } from './use-screen-style';
-import { PressSpring } from './motion/press-spring';
+import { PressSpring, type PressSpringProps } from './motion/press-spring';
+import { ZoomLink } from './zoom-link';
 
 /** The height of every capsule and round control in the dock, as the design draws them. */
 export const CONTROL_HEIGHT = 54;
@@ -70,38 +79,147 @@ export interface RoundButtonProps {
   readonly onPress?: () => void;
   /** An inert button is drawn and read out, and says it does nothing yet. */
   readonly inert?: boolean;
+  /**
+   * The screen this button opens, when that screen should grow out of the button with the system's
+   * zoom. The press then goes through the router's link to it; `onPress` opens it everywhere else.
+   */
+  readonly zoomTo?: Href;
   readonly testID?: string;
   readonly children: ReactNode;
 }
 
-/** A round glass control for a corner of the screen. */
+/**
+ * A round glass control for a corner of the screen. On the system's glass the surface itself
+ * answers the finger; what is drawn on it takes no touch, so the touch reaches the glass.
+ */
 export function RoundButton({
   label,
   hint,
   onPress,
   inert = false,
+  zoomTo,
   testID,
   children,
 }: RoundButtonProps) {
-  return (
+  const button = (press: PressSpringProps['onPress']) => (
     <PressSpring
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityHint={hint}
       accessibilityState={{ disabled: inert }}
       disabled={inert}
-      onPress={onPress}
+      onPress={press}
       testID={testID}
       hitSlop={spacing.sm}
+      answeredBy={glassPressOwner(true)}
     >
-      <GlassSurface style={styles.round}>
-        <View style={styles.roundInner}>{children}</View>
+      <GlassSurface interactive style={styles.round}>
+        <View pointerEvents="none" style={styles.roundInner}>
+          {children}
+        </View>
+      </GlassSurface>
+    </PressSpring>
+  );
+  if (zoomTo === undefined || inert) return button(onPress);
+  return (
+    <ZoomLink to={zoomTo} onPress={onPress}>
+      {button}
+    </ZoomLink>
+  );
+}
+
+/** The space between a dock's edge and the controls in it, as the design draws it. */
+export const DOCK_PADDING = 7;
+
+export interface GlassDockProps {
+  readonly children: ReactNode;
+  readonly style?: ViewProps['style'];
+  readonly testID?: string;
+}
+
+/**
+ * The bottom dock: one glass capsule that floats above the page and holds a screen's actions. The
+ * buttons in it are tinted fills, never glass on glass, and its corners are concentric with theirs.
+ */
+export function GlassDock({ children, style, testID }: GlassDockProps) {
+  return (
+    <GlassSurface style={[styles.dock, style]} {...(testID ? { testID } : {})}>
+      {children}
+    </GlassSurface>
+  );
+}
+
+export interface GlassTagProps {
+  readonly children: ReactNode;
+  readonly style?: ViewProps['style'];
+  readonly testID?: string;
+}
+
+/** A glass pill that is only read: a name, a state. */
+export function GlassTag({ children, style, testID }: GlassTagProps) {
+  return (
+    <GlassSurface style={[styles.pill, style]} {...(testID ? { testID } : {})}>
+      {children}
+    </GlassSurface>
+  );
+}
+
+export interface GlassPillProps {
+  readonly children: ReactNode;
+  readonly onPress: () => void;
+  readonly label: string;
+  readonly hint: string;
+  readonly testID?: string;
+  readonly style?: StyleProp<ViewStyle>;
+}
+
+/**
+ * A glass pill that is pressed: a small control floating over the screen. On the system's glass
+ * the pill answers the finger itself; what is written on it takes no touch.
+ */
+export function GlassPill({ children, onPress, label, hint, testID, style }: GlassPillProps) {
+  return (
+    <PressSpring
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityHint={hint}
+      onPress={onPress}
+      testID={testID}
+      answeredBy={glassPressOwner(true)}
+      {...(style === undefined ? {} : { style })}
+    >
+      <GlassSurface interactive style={styles.pill}>
+        <View pointerEvents="none" style={styles.pillInner}>
+          {children}
+        </View>
       </GlassSurface>
     </PressSpring>
   );
 }
 
 const styles = StyleSheet.create({
+  dock: {
+    borderRadius: CONTROL_HEIGHT / 2 + DOCK_PADDING,
+    padding: DOCK_PADDING,
+    overflow: 'hidden',
+  },
+  pill: {
+    minHeight: 44,
+    borderRadius: 22,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    overflow: 'hidden',
+  },
+  pillInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
+  },
   capsule: {
     minHeight: CONTROL_HEIGHT,
     borderRadius: CONTROL_HEIGHT / 2,
