@@ -22,8 +22,9 @@ export interface CardFoilProps {
   /** The card's lean, in degrees. */
   readonly rx: SharedValue<number>;
   readonly ry: SharedValue<number>;
-  /** Seconds, for a rare card's own shimmer. */
+  /** Seconds, for a rare card's own shimmer, and how lively the card is (0 at rest). */
   readonly clock: SharedValue<number>;
+  readonly lively: SharedValue<number>;
 }
 
 /**
@@ -33,7 +34,7 @@ export interface CardFoilProps {
  * a lean costs no React render and nothing on the JS thread.
  */
 export const CardFoil = memo(function CardFoil(props: CardFoilProps) {
-  const { face, radius, inks, strength, rx, ry, clock } = props;
+  const { face, radius, inks, strength, rx, ry, clock, lively } = props;
   const clip = useMemo(
     () => rrect(rect(face.x, face.y, face.w, face.h), radius, radius),
     [face, radius],
@@ -55,8 +56,8 @@ export const CardFoil = memo(function CardFoil(props: CardFoilProps) {
   );
   const shimmer = strength.shimmer;
   const band = useDerivedValue(() => {
-    // A rare card's band never rests: it drifts a little by itself on top of the lean.
-    const drift = shimmer ? Math.sin(clock.value * 0.8) * 12 : 0;
+    // A rare card's band drifts a little by itself on top of the lean, while the card is lively.
+    const drift = shimmer ? Math.sin(clock.value * 0.8) * 12 * lively.value : 0;
     const px = 50 + ry.value * FOIL_LIGHT.perDegree + drift;
     const py = 50 - rx.value * FOIL_LIGHT.perDegree;
     return gradientEnds(slidBox(face, FOIL_LIGHT.size, px, py), FOIL_LIGHT.angle);

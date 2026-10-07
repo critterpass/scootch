@@ -17,7 +17,7 @@ export function ZooContainer() {
   const router = useRouter();
   const { language } = useLanguage();
   const { palette } = useScreenStyle();
-  const { localDate } = useToday();
+  const { localDate, heavyToday } = useToday();
   const opened = useOpenedCard();
   const { keepsakes, plus, shown } = opened;
   const [sort, setSort] = useState<BinderSort | null>(null);
@@ -26,6 +26,9 @@ export function ZooContainer() {
     [keepsakes, plus, sort],
   );
 
+  const plusDoor = {
+    openPlus: () => router.push(PLUS_SHEET),
+  };
   if (!keepsakes) return <View style={{ flex: 1, backgroundColor: palette.page }} />;
   if (opened.sharePanel) return <SharePanel {...opened.sharePanel} />;
   return (
@@ -43,7 +46,8 @@ export function ZooContainer() {
         openCard: (monster) => opened.open(monster.id),
         closeCard: opened.close,
         nextSort: () => setSort(sortAfter),
-        openPlus: () => router.push(PLUS_SHEET),
+        // Nothing sells near something heavy: on such a day the locked controls do nothing.
+        ...(heavyToday ? {} : plusDoor),
         setFinish: (finish) => shown?.setFinish(finish),
         shareCard: () => shown?.share(),
         shareMonster: (monster) => {

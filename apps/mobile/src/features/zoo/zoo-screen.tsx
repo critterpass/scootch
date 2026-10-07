@@ -11,6 +11,7 @@ import { useT } from '../../i18n/i18n-provider';
 import { useMayMove } from '../../ui/motion/use-feel';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { Dock, KeepFrame, type DockAction } from '../reveal/ui/keep-frame';
+import { useAppActive } from '../reveal/ui/use-app-active';
 import { SessionText } from '../session/ui/session-text';
 
 import { MonsterDetail } from './monster-detail';
@@ -81,6 +82,7 @@ export function ZooScreen({ model, actions }: { model: ZooModel; actions: ZooAct
   const { width } = useWindowDimensions();
   const mayMove = useMayMove();
   const focused = useIsFocused();
+  const appActive = useAppActive();
   const [filter, setFilter] = useState<ZooFilter>('all');
   const [picking, setPicking] = useState(false);
 
@@ -96,8 +98,9 @@ export function ZooScreen({ model, actions }: { model: ZooModel; actions: ZooAct
   );
   const rare = rareCount(model.cards);
   const shimmering =
-    mayMove && focused && !model.open && shown.some((card) => card.rarity === 'rare');
-  // One clock for every rare tile's shimmer, on the UI thread, and only while one is on screen.
+    mayMove && focused && appActive && !model.open && shown.some((card) => card.rarity === 'rare');
+  // One clock for every rare tile's shimmer, on the UI thread, and only while one is on screen
+  // and the app is in front.
   const clock = useSharedValue(0);
   const ticking = useFrameCallback((frame) => {
     'worklet';

@@ -1,3 +1,4 @@
+import { usePreventRemove } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
 
@@ -57,6 +58,13 @@ export function useOpenedCard(reread?: unknown): OpenedCard {
       : null;
   const task: TaskRow | null = monster ? (keepsakes?.tasks.get(monster.taskId) ?? null) : null;
   const card = monster ? cardDataFor(monster, task) : null;
+  // The card is drawn over its screen, not pushed onto the stack: a swipe back, or anything else
+  // that would leave the screen, closes what is open on top first (the share panel, then the card).
+  const panel = share.panel;
+  usePreventRemove(opened !== null || panel !== null, () => {
+    if (panel) panel.actions.close();
+    else setOpened(null);
+  });
   return {
     keepsakes,
     plus,

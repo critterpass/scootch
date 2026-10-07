@@ -166,3 +166,8 @@ state is designed or removed.
 | Zoo | A tile's ink edge, panel and RARE tag take the colours of the finish the card wears | The board's tiles are all the standard finish |
 | Record | A credit row shows Scootch at the task's kind of work, and plain pleased when the kind is not known; a day whose task asked for care keeps an empty picture | The board always has a work mode to draw |
 | Record | Scootch's note under the record is shown only when the week has one stored, and the title stays "Week N" | Nothing writes the week's name or note yet |
+| Monster's card | Left alone for six seconds the card's sway fades out over two more and it lies still; a touch or a tilt of the phone wakes it | The board's card sways for ever. On a phone that is a screen redrawn at full rate for as long as the card is open |
+| Monster's card | A swipe back from the screen's edge closes the open card (or the share panel over it) and stays on the screen; the card answers no touch within 20 points of either side, and takes a drag only after 8 points of travel | The card is drawn over the zoo or the world, not pushed: without this the swipe left the whole screen, and the card's drag fought the swipe |
+| Reveal | On the reveal the card takes sideways drags only; a drag up or down scrolls the page | The step scrolls on a small phone and at large text, and the card covers most of it |
+| Reveal | A catch whose card cannot be drawn shows the step's frame with Skip and Next and no card | No board draws it; it must never be a blank screen |
+| Keeping screens | On a day with something heavy in it the locked finishes, "Open the binder" and "Keep this record" are drawn and do nothing | Nothing sells near something heavy |

@@ -5,8 +5,6 @@ import type { CardData, CardFinish } from '@scootch/domain';
 import type { Language } from '@scootch/i18n';
 import { spacing } from '@scootch/tokens';
 
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
 import { useT } from '../../i18n/i18n-provider';
 import { useMayMove } from '../../ui/motion/use-feel';
 import { useCardMotion } from '../reveal/ui/card-motion';
@@ -33,9 +31,6 @@ export interface MonsterDetailActions {
   readonly setFinish?: (finish: CardFinish) => void;
 }
 
-/** The corner bar (48), the finishes (80) and the dock (78), at the ordinary text size. */
-const AROUND_THE_CARD = 206;
-
 /**
  * A monster's own screen, the same wherever it is opened from: its card at the board's size, to
  * lean, turn over and look at the foil of; the finishes it can be printed in; and the dock, which
@@ -51,14 +46,11 @@ export function MonsterDetail({
   const t = useT();
   const mayMove = useMayMove();
   const window = useWindowDimensions();
-  const insets = useSafeAreaInsets();
-  // Until the middle has been measured, the card is sized for the room the frame should leave:
-  // the screen less the corner bar, the finishes and the dock.
-  const [room, setRoom] = useState({
-    width: window.width,
-    height: window.height - insets.top - insets.bottom - AROUND_THE_CARD,
-  });
-  const cardWidth = cardWidthIn(room);
+  // The card is sized from the room the frame really leaves it, whatever bar the screen wears and
+  // whatever the text size makes of the finishes and the dock: it is drawn once that is known, so
+  // it never changes size after it first appears.
+  const [room, setRoom] = useState<{ width: number; height: number } | null>(null);
+  const cardWidth = cardWidthIn(room ?? { width: window.width, height: window.height / 2 });
   const canvas = cardCanvasSize(cardWidth);
   const motion = useCardMotion({
     mayMove,
@@ -68,7 +60,7 @@ export function MonsterDetail({
   });
   const measured = (event: LayoutChangeEvent) => {
     const { width, height } = event.nativeEvent.layout;
-    if (Math.abs(width - room.width) > 1 || Math.abs(height - room.height) > 1) {
+    if (!room || Math.abs(width - room.width) > 1 || Math.abs(height - room.height) > 1) {
       setRoom({ width, height });
     }
   };
@@ -100,13 +92,15 @@ export function MonsterDetail({
       }
     >
       <View style={styles.room} onLayout={measured}>
-        <HandledCard
-          card={model.card}
-          language={model.language}
-          cardWidth={cardWidth}
-          motion={motion}
-          testID="zoo-card-face"
-        />
+        {room ? (
+          <HandledCard
+            card={model.card}
+            language={model.language}
+            cardWidth={cardWidth}
+            motion={motion}
+            testID="zoo-card-face"
+          />
+        ) : null}
       </View>
       {actions.setFinish ? (
         <View style={styles.finishes}>

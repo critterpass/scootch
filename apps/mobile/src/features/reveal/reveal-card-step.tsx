@@ -89,17 +89,30 @@ export function CardStep({ model, actions, t }: RevealStepProps) {
   const { width: screen } = useWindowDimensions();
   const feel = useFeel();
   const playCue = useCue();
-  const moving = !model.reducedMotion;
+  // One answer to "does this move": the model's, which the card and its sensor follow too. With no
+  // card to show there is nothing to turn and nothing to sound.
+  const moving = model.tilting && model.card !== null;
+  // A cue that cannot play must never take the reveal down with it.
+  const sound = (cue: string) => {
+    try {
+      playCue(cue);
+    } catch {
+      // The reveal goes on without the sound.
+    }
+  };
   // The board's card is 330 points wide; a narrower phone gets what fits beside the stamp.
   const cardWidth = cardWidthIn({ width: screen, height: Number.POSITIVE_INFINITY });
   const canvas = cardCanvasSize(cardWidth);
   // Once it has landed the card is the person's to handle.
   const [landed, setLanded] = useState(!moving);
   const motion = useCardMotion({
-    mayMove: model.tilting && landed,
+    mayMove: moving && landed,
     handled: landed,
     width: canvas.width,
     height: canvas.height,
+    // The step is a page that scrolls on a small phone or at a large text size: a drag up or
+    // down stays the page's, and the card takes sideways ones.
+    besideScroll: true,
     ...(moving ? { startsAt: { flip: FLIP.degrees[0], scale: FLIP.scales[0] } } : {}),
   });
   const { flip, scale } = motion;
@@ -114,11 +127,11 @@ export function CardStep({ model, actions, t }: RevealStepProps) {
       reduceMotion: ReduceMotion.Never,
     });
     const timers = [
-      setTimeout(() => playCue('send'), FLIP.startsMs - JOINS_AT_MS),
+      setTimeout(() => sound('send'), FLIP.startsMs - JOINS_AT_MS),
       setTimeout(() => setLanded(true), FLIP.endsMs - JOINS_AT_MS + 40),
       setTimeout(
         () => {
-          playCue('tick');
+          sound('tick');
           if (feel.haptics) {
             void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy).catch(() => undefined);
           }
@@ -148,7 +161,6 @@ export function CardStep({ model, actions, t }: RevealStepProps) {
   }));
   const stampSince = useDerivedValue(() => clock.value - STAMP_AT_MS);
 
-  if (!model.card) return null;
   return (
     <KeepFrame
       testID="reveal-card"
@@ -165,6 +177,7 @@ export function CardStep({ model, actions, t }: RevealStepProps) {
         />
       }
     >
+      {/* A catch whose card cannot be drawn still has its frame: Skip and Next are always there. */}
       <View style={styles.centre}>
         <Animated.View pointerEvents="none" style={[styles.glow, glow]}>
           <Canvas style={styles.glowCanvas}>
@@ -178,26 +191,28 @@ export function CardStep({ model, actions, t }: RevealStepProps) {
             </Circle>
           </Canvas>
         </Animated.View>
-        <HandledCard
-          card={model.card}
-          language={model.language}
-          cardWidth={cardWidth}
-          motion={motion}
-          stamped={!moving}
-          testID="reveal-card-face"
-          {...(moving
-            ? {
-                overFront: (
-                  <CardStamp
-                    card={model.card}
-                    language={model.language}
-                    cardWidth={cardWidth}
-                    sinceMs={stampSince}
-                  />
-                ),
-              }
-            : {})}
-        />
+        {model.card ? (
+          <HandledCard
+            card={model.card}
+            language={model.language}
+            cardWidth={cardWidth}
+            motion={motion}
+            stamped={!moving}
+            testID="reveal-card-face"
+            {...(moving
+              ? {
+                  overFront: (
+                    <CardStamp
+                      card={model.card}
+                      language={model.language}
+                      cardWidth={cardWidth}
+                      sinceMs={stampSince}
+                    />
+                  ),
+                }
+              : {})}
+          />
+        ) : null}
       </View>
       {model.line && landed ? (
         <RiseIn>

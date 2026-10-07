@@ -1,5 +1,4 @@
 import { Canvas, Group, rect, rrect } from '@shopify/react-native-skia';
-import { useIsFocused } from 'expo-router';
 import { useMemo, useState, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
@@ -28,12 +27,13 @@ import type { Language } from '@scootch/i18n';
 import { Scootch } from '../../../art/Scootch';
 import { CommandLayer } from '../../../art/skia-commands';
 import { useT } from '../../../i18n/i18n-provider';
-import { useCharacterMotion, useMayMove } from '../../../ui/motion/use-feel';
+import { useCharacterMotion } from '../../../ui/motion/use-feel';
 import { cardSpokenLabel } from '../../zoo/zoo-cards';
 
 import { CardFoil } from './card-foil';
 import type { CardMotion } from './card-motion';
 import { cardCanvasSize } from './card-size';
+import { facesFront } from './card-turn';
 import { LiveMonsterLayer } from './live-monster';
 import { TiltSensor } from './tilt-sensor';
 
@@ -65,9 +65,7 @@ export interface HandledCardProps {
 export function HandledCard(props: HandledCardProps) {
   const { card, language, cardWidth, motion, hideTask = false, stamped = true, testID } = props;
   const t = useT();
-  const mayMove = useMayMove();
   const character = useCharacterMotion();
-  const focused = useIsFocused();
   const scale = cardWidth / CARD_WIDTH;
   const size = cardCanvasSize(cardWidth);
 
@@ -92,10 +90,10 @@ export function HandledCard(props: HandledCardProps) {
     ],
   }));
   const frontStyle = useAnimatedStyle(() => ({
-    opacity: Math.cos(((ry.value + flip.value) * Math.PI) / 180) >= 0 ? 1 : 0,
+    opacity: facesFront(ry.value + flip.value) ? 1 : 0,
   }));
   const backStyle = useAnimatedStyle(() => ({
-    opacity: Math.cos(((ry.value + flip.value) * Math.PI) / 180) >= 0 ? 0 : 1,
+    opacity: facesFront(ry.value + flip.value) ? 0 : 1,
   }));
   const parallax = useDerivedValue(() => [
     { translateX: ry.value * PARALLAX },
@@ -121,7 +119,7 @@ export function HandledCard(props: HandledCardProps) {
         accessibilityLabel={cardSpokenLabel(card, language)}
         style={[size, tilt]}
       >
-        {mayMove && focused ? <TiltSensor into={motion.phone} /> : null}
+        {motion.sensing ? <TiltSensor into={motion.phone} /> : null}
         <View
           pointerEvents="none"
           style={[
@@ -162,6 +160,7 @@ export function HandledCard(props: HandledCardProps) {
                 rx={rx}
                 ry={ry}
                 clock={motion.clock}
+                lively={motion.lively}
               />
               {stamped ? <CommandLayer commands={layers.stamp} /> : null}
             </Group>

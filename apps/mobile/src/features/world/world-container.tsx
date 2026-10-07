@@ -44,6 +44,9 @@ export function WorldContainer() {
     setLanding(arrival.id);
   }, [keepsakes, localDate]);
 
+  const plusDoor = {
+    openPlus: () => router.push(PLUS_SHEET),
+  };
   if (!keepsakes) return <View style={{ flex: 1, backgroundColor: palette.page }} />;
   if (opened.sharePanel) return <SharePanel {...opened.sharePanel} />;
   // A resident's card is the same screen the zoo opens: the card to handle, its finishes and its
@@ -55,7 +58,8 @@ export function WorldContainer() {
         actions={{
           close: opened.close,
           share: shown.share,
-          openPlus: () => router.push(PLUS_SHEET),
+          // Nothing sells near something heavy: on such a day a locked finish does nothing.
+          ...(heavyToday ? {} : plusDoor),
           setFinish: shown.setFinish,
         }}
       />
