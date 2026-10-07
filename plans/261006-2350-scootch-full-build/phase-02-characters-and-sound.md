@@ -1,6 +1,6 @@
 # Phase 02: characters and sound
 
-Status: not started · Tasks: 8 · Needs: 01 · Owns: `packages/art`, `packages/sound`
+Status: built, unproven on a device: 1 done, 5 partly · Tasks: 8 · Needs: 01 · Owns: `packages/art`, `packages/sound`
 
 Goal: Scootch, every monster and every sound exist as components other lanes
 drop in. Board: Characters; the card on App flows.

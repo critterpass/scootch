@@ -1,6 +1,6 @@
 # Phase 04: the day loop
 
-Status: not started · Tasks: 10 · Needs: 01 (art from 02 and routes from 03
+Status: built, unproven on a device: 10 partly · Tasks: 10 · Needs: 01 (art from 02 and routes from 03
 replace placeholders and fixtures as they merge)
 Owns: `apps/mobile/src/features/{launch,one-screen,dump,monster,session}`,
 `packages/domain/src/{session,drawer,day}`
