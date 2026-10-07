@@ -41,6 +41,7 @@ import { stageShown } from './stage-shown';
 import { taskSetShown } from './task-set-shown';
 import { useHeldWords } from './use-held-words';
 import { useReturnedText } from './use-returned-text';
+import { sentWordsAreStale, useForgetSentWords } from './use-sent-words';
 
 export interface OneScreenProps {
   readonly speech: SpeechPort;
@@ -125,6 +126,16 @@ function useOneScreenDrawn({
     ),
   );
   useReturnedText(day.returnedText, sendComposer, dispatch);
+  useForgetSentWords(
+    sentWordsAreStale(
+      stage.kind,
+      day.returnedText !== null,
+      // A retry in flight keeps its words even while the earlier refusal is still on the screen.
+      notice === 'say_it_another_way' && composer.state.phase === 'idle',
+    ),
+    composer.lastSent,
+    composer.forgetSent,
+  );
   const care = stage.kind === 'care';
   useEffect(() => {
     // A crisis day shows nothing of this screen: the care screens take over.
@@ -243,6 +254,8 @@ function useOneScreenDrawn({
       attitude,
       today: localDate,
       revealed: stage.kind === 'one_thing' && revealedFor === stage.task.id,
+      sentWords: composer.lastSent,
+      parked: drawer.items.length,
       hatchExtra: <HatchHauntLink />,
       cue: playCue,
       actions: {
@@ -263,7 +276,10 @@ function useOneScreenDrawn({
         },
         tooBig: () => send({ type: 'too_big' }),
         catchIt: () => send({ type: 'monster_met' }),
-        revealDone: () => setRevealedFor(task?.id ?? null),
+        revealDone: () => {
+          setRevealedFor(task?.id ?? null);
+          composer.forgetSent();
+        },
       },
     });
     const waiting =

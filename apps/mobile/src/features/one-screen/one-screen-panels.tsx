@@ -1,12 +1,16 @@
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
-import { fonts, radius, spacing } from '@scootch/tokens';
+import { fonts, shadows } from '@scootch/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
 import { Chevron } from '../../ui/icons';
 import { PressSpring } from '../../ui/motion/press-spring';
+import { glassPressOwner, GlassSurface } from '../../ui/glass-surface';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { WorldGlance } from '../world/world-thumbnail';
+
+import { MinutesControl } from './minutes-control';
+import { TreatRow } from './treat-row';
 
 /** The session lengths on offer, in minutes. */
 export const SESSION_MINUTES = [10, 25, 50] as const;
@@ -38,73 +42,10 @@ export function TaskSetChoices({
   onMinutes,
   options = SESSION_MINUTES,
 }: TaskSetChoicesProps) {
-  const { palette, allowFontScaling, size, largeText } = useScreenStyle();
-  const t = useT();
   return (
     <View style={styles.choices}>
-      <View
-        style={[styles.treat, largeText && styles.stacked, { backgroundColor: palette.surface }]}
-      >
-        <Text
-          allowFontScaling={allowFontScaling}
-          style={[styles.rowLabel, { color: palette.ink, fontSize: size(ROW_SIZE) }]}
-        >
-          {t('taskSet.treat')}
-        </Text>
-        <TextInput
-          value={treat}
-          onChangeText={onTreat}
-          placeholder={t('taskSet.treat.placeholder')}
-          placeholderTextColor={palette.muted}
-          accessibilityLabel={t('taskSet.treat')}
-          accessibilityHint={t('taskSet.treat.hint')}
-          allowFontScaling={allowFontScaling}
-          maxLength={80}
-          returnKeyType="done"
-          testID="task-set-treat"
-          style={[
-            styles.treatInput,
-            largeText && styles.treatInputStacked,
-            { color: palette.ink, fontSize: size(ROW_SIZE) },
-          ]}
-        />
-      </View>
-      <View
-        accessibilityRole="radiogroup"
-        style={[
-          styles.minutes,
-          largeText && styles.stacked,
-          { backgroundColor: `${palette.ink}0F` },
-        ]}
-      >
-        {options.map((option) => {
-          const chosen = option === minutes;
-          return (
-            <PressSpring
-              key={option}
-              accessibilityRole="radio"
-              accessibilityState={{ selected: chosen, checked: chosen }}
-              accessibilityLabel={t('taskSet.minutes', { minutes: option })}
-              accessibilityHint={t('taskSet.minutes.hint')}
-              onPress={() => onMinutes(option)}
-              feedback="choice"
-              testID={`task-set-minutes-${option}`}
-              style={[styles.minute, chosen && { backgroundColor: palette.surface }]}
-            >
-              <Text
-                allowFontScaling={allowFontScaling}
-                style={[
-                  styles.minuteLabel,
-                  { color: palette.ink, fontSize: size(SMALL_SIZE) },
-                  chosen && styles.minuteChosen,
-                ]}
-              >
-                {t('taskSet.minutes', { minutes: option })}
-              </Text>
-            </PressSpring>
-          );
-        })}
-      </View>
+      <TreatRow treat={treat} onTreat={onTreat} />
+      <MinutesControl minutes={minutes} options={options} onMinutes={onMinutes} />
     </View>
   );
 }
@@ -129,7 +70,7 @@ export function WorldRow({ onPress }: { readonly onPress: () => void }) {
               ? t('world.row.empty')
               : t('world.row.count', { count });
         return (
-          <Pressable
+          <PressSpring
             accessibilityRole="button"
             accessibilityLabel={
               living ? `${t('oneScreen.world')}, ${living}` : t('oneScreen.world')
@@ -137,10 +78,7 @@ export function WorldRow({ onPress }: { readonly onPress: () => void }) {
             accessibilityHint={t('oneScreen.world.hint')}
             onPress={onPress}
             testID="world-row"
-            style={({ pressed }) => [
-              styles.world,
-              { backgroundColor: palette.surface, opacity: pressed ? 0.8 : 1 },
-            ]}
+            style={[styles.world, { backgroundColor: palette.surface }]}
           >
             <View style={styles.worldThumbnail} pointerEvents="none">
               {thumbnail(WORLD_THUMBNAIL)}
@@ -148,7 +86,14 @@ export function WorldRow({ onPress }: { readonly onPress: () => void }) {
             <View style={styles.worldWords}>
               <Text
                 allowFontScaling={allowFontScaling}
-                style={[styles.worldTitle, { color: palette.ink, fontSize: size(ROW_SIZE) }]}
+                style={[
+                  styles.worldTitle,
+                  {
+                    color: palette.ink,
+                    fontSize: size(ROW_SIZE),
+                    lineHeight: size(ROW_SIZE) * 1.2,
+                  },
+                ]}
               >
                 {t('oneScreen.world')}
               </Text>
@@ -156,14 +101,17 @@ export function WorldRow({ onPress }: { readonly onPress: () => void }) {
                 <Text
                   allowFontScaling={allowFontScaling}
                   testID="world-row-count"
-                  style={[styles.worldCount, { color: palette.muted, fontSize: size(14) }]}
+                  style={[
+                    styles.worldCount,
+                    { color: palette.muted, fontSize: size(14), lineHeight: size(14) * 1.3 },
+                  ]}
                 >
                   {living}
                 </Text>
               ) : null}
             </View>
-            <Chevron color={palette.muted} direction="right" />
-          </Pressable>
+            <Chevron color={palette.chevron} direction="right" />
+          </PressSpring>
         );
       }}
     </WorldGlance>
@@ -194,18 +142,28 @@ export function Chips({ chips, disabled, onChip, hint, testPrefix = 'warm-up-chi
           disabled={disabled}
           onPress={() => onChip(chip)}
           feedback="choice"
+          hitSlop={4}
           testID={`${testPrefix}-${index}`}
-          style={[
-            styles.chip,
-            { backgroundColor: palette.surface, borderColor: `${palette.ink}14` },
-          ]}
+          answeredBy={glassPressOwner(true)}
         >
-          <Text
-            allowFontScaling={allowFontScaling}
-            style={[styles.rowLabel, { color: palette.ink, fontSize: size(SMALL_SIZE) }]}
-          >
-            {chip}
-          </Text>
+          <GlassSurface interactive style={styles.chip}>
+            <Text
+              pointerEvents="none"
+              allowFontScaling={allowFontScaling}
+              style={[
+                styles.chipLabel,
+                // A line of 1.3 keeps stacked Vietnamese marks whole; the padding makes up the
+                // board's 37 point pill.
+                {
+                  color: palette.ink,
+                  fontSize: size(SMALL_SIZE),
+                  lineHeight: size(SMALL_SIZE) * 1.3,
+                },
+              ]}
+            >
+              {chip}
+            </Text>
+          </GlassSurface>
         </PressSpring>
       ))}
     </View>
@@ -214,53 +172,7 @@ export function Chips({ chips, disabled, onChip, hint, testPrefix = 'warm-up-chi
 
 const styles = StyleSheet.create({
   choices: {
-    gap: spacing.sm + 2,
-  },
-  stacked: {
-    flexDirection: 'column',
-    alignItems: 'stretch',
-  },
-  treat: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    borderRadius: radius.lg,
-    paddingHorizontal: spacing.md,
-    minHeight: 52,
-    paddingVertical: spacing.xs,
-  },
-  rowLabel: {
-    fontFamily: fonts.body,
-  },
-  treatInput: {
-    flex: 1,
-    minHeight: 44,
-    textAlign: 'right',
-    fontFamily: fonts.body,
-  },
-  treatInputStacked: {
-    flex: 0,
-    textAlign: 'left',
-  },
-  minutes: {
-    flexDirection: 'row',
-    borderRadius: radius.md + 2,
-    padding: 2,
-  },
-  minute: {
-    flexGrow: 1,
-    flexBasis: 0,
-    minHeight: 44,
-    borderRadius: radius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.xs,
-  },
-  minuteLabel: {
-    fontFamily: fonts.body,
-  },
-  minuteChosen: {
-    fontWeight: '700',
+    gap: 10,
   },
   world: {
     flexDirection: 'row',
@@ -271,6 +183,7 @@ const styles = StyleSheet.create({
     paddingRight: 18,
     paddingVertical: 6,
     minHeight: WORLD_THUMBNAIL + 12,
+    boxShadow: shadows.card,
   },
   worldThumbnail: {
     width: WORLD_THUMBNAIL,
@@ -284,19 +197,23 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   worldTitle: {
-    fontFamily: fonts.heading,
-    fontWeight: '700',
+    fontFamily: fonts.body,
+    fontWeight: '600',
   },
   chips: {
-    alignItems: 'flex-start',
-    gap: spacing.sm,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 4,
   },
   chip: {
-    minHeight: 40,
-    justifyContent: 'center',
-    borderRadius: 20,
-    borderWidth: StyleSheet.hairlineWidth,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    borderRadius: 999,
+    paddingHorizontal: 14,
+    paddingVertical: 8.75,
+    overflow: 'hidden',
+  },
+  chipLabel: {
+    fontFamily: fonts.body,
+    fontWeight: '500',
   },
 });

@@ -42,6 +42,11 @@ export interface HatchFigureProps {
   readonly hatches?: boolean;
   /** The moment the monster breaks out, for its sound. */
   readonly onHatch?: () => void;
+  /** Scootch's size and the monster's, where a board draws them other than side by side at 150. */
+  readonly scootchSize?: number;
+  readonly monsterSize?: number;
+  /** How far the monster tucks in behind Scootch. */
+  readonly overlap?: number;
   /** A tap on Scootch, and a tap on the monster. Each answers with its own small reaction. */
   readonly onSqueak?: () => void;
   readonly onGrumble?: () => void;
@@ -55,6 +60,9 @@ export function HatchFigure({
   sizeFactor = 1,
   monsterMood = 'idle',
   hatches = false,
+  scootchSize = FIGURE_SIZE,
+  monsterSize = FIGURE_SIZE,
+  overlap = 0,
   onHatch,
   onSqueak,
   onGrumble,
@@ -62,7 +70,11 @@ export function HatchFigure({
   const { palette, largeText, reducedMotion } = useScreenStyle();
   const character = useCharacterMotion();
   const t = useT();
-  const size = largeText ? FIGURE_SIZE_LARGE_TEXT : FIGURE_SIZE;
+  // At the large text sizes both are small, so the words keep the screen.
+  const shrink = largeText ? FIGURE_SIZE_LARGE_TEXT / Math.max(scootchSize, monsterSize) : 1;
+  const scootch = Math.round(scootchSize * shrink);
+  const size = Math.round(monsterSize * shrink);
+  const tuck = { marginLeft: -Math.round(overlap * shrink) };
   const seed = monster?.spec.seed ?? null;
   // A monster met for the first time on its hatch starts as its egg, unless nothing may move.
   const [inEgg, setInEgg] = useState(
@@ -120,13 +132,13 @@ export function HatchFigure({
       <Scootch
         mood={mood}
         attitude={attitude}
-        size={size}
+        size={scootch}
         squashOnChange
         {...(onSqueak ? { onPress: onSqueak } : {})}
         {...character}
       />
       {monster && !inEgg ? (
-        <View accessible accessibilityRole="image" accessibilityLabel={monster.name}>
+        <View accessible accessibilityRole="image" accessibilityLabel={monster.name} style={tuck}>
           <Monster
             spec={monster.spec}
             sizeFactor={sizeFactor}

@@ -6,7 +6,9 @@
     "muted": "#6F6A62",
     "tomato": "#F0562E",
     "onTomato": "#1C1A17",
-    "risoBlob": "#F3E6D3"
+    "risoBlob": "#F3E6D3",
+    "faint": "#A29B91",
+    "chevron": "#B5AEA4"
   },
   "dark": {
     "page": "#171513",
@@ -15,6 +17,8 @@
     "muted": "#A99F93",
     "tomato": "#F0562E",
     "onTomato": "#1C1A17",
-    "risoBlob": "#2E2925"
+    "risoBlob": "#2E2925",
+    "faint": "#7A7268",
+    "chevron": "#5F5952"
   }
 }
