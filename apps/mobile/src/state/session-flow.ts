@@ -1,14 +1,9 @@
 import {
-  addDays,
-  checkInAt,
-  hasStartLeft,
-  instantFromIso,
   isoFromInstant,
-  parkThings,
   sessionReducer,
+  startRefused,
   sessionSet,
   type LiveSession,
-  type ParkedThought,
   type SessionEffect,
   type SessionEvent,
   type SessionRow,
@@ -20,8 +15,19 @@ import type { SessionContext } from '../effects/adapters';
 
 import type { DayContext } from './day-types';
 import { persistFinishEarnings } from './finish-earnings';
+import { unansweredThoughts } from './parked-thoughts';
+import { carryToTomorrow } from './rest-flow';
 import { shrinkTask } from './smaller';
 import { NO_AFTER_LINES, afterLinesFor, lineFor, toneFor } from './lines';
+
+/** A session that has started and not yet ended. */
+export const UNDER_WAY: readonly string[] = [
+  'running',
+  'stuck',
+  'holding',
+  'time_up',
+  'not_finished',
+];
 
 const TEXT_MAX = 280;
 const TREAT_MAX = 80;
@@ -63,6 +69,14 @@ async function persist(
   for (const effect of effects) {
     if (effect.kind === 'grant_start_reward') {
       if (!session || session.startedAt === null || session.endsAt === null) continue;
+      // One open session per task: a start that finds one already open carries on with it.
+      const open = (await repositories.sessions.where('taskId', task.id)).find(
+        (one) => one.endedAt === null,
+      );
+      if (open) {
+        ctx.memory.sessionRowId = open.id;
+        continue;
+      }
       const row: SessionRow = {
         id: nextId(),
         taskId: task.id,
@@ -96,7 +110,8 @@ async function persist(
       if (!row) continue;
       await repositories.sessions.put({
         ...row,
-        endedAt: isoFromInstant(effect.endedAt),
+        // The session ended when the person ended it, and no later than its planned end.
+        endedAt: isoFromInstant(Math.min(effect.endedAt, Date.parse(row.endsAt))),
         outcome: effect.outcome,
         finishMethod: effect.finishMethod,
         notFinishedChoice: effect.notFinishedChoice,
@@ -113,40 +128,23 @@ async function persist(
       await carryToTomorrow(ctx, current);
       current = (await repositories.tasks.get(current.id)) ?? current;
     } else if (effect.kind === 'forget_task') {
+      // The thoughts parked on the way are the person's own, not the task's: they stay.
+      const thoughts = await unansweredThoughts(ctx, effect.taskId);
+      // A session ran for it today: that start stays used, though nothing else of it is kept.
+      const { localDate } = ctx.memory.state;
+      const ran = (await repositories.sessions.where('taskId', effect.taskId)).some(
+        (one) => one.localDate === localDate,
+      );
       await repositories.forgetTask(effect.taskId);
+      if (ran) {
+        const notes = await repositories.dayNotes.read(localDate);
+        await repositories.dayNotes.write({ ...notes, startsLetGo: notes.startsLetGo + 1 });
+      }
+      for (const thought of thoughts) await repositories.parkedThoughts.put(thought);
       ctx.memory.sessionRowId = null;
     }
     // Every other effect is the runner's to perform.
   }
-}
-
-/**
- * The task waits for tomorrow and today rests. The start it used today stays counted: its
- * session keeps today's date.
- */
-async function carryToTomorrow(ctx: DayContext, task: TaskRow): Promise<void> {
-  const { tasks, days } = ctx.deps.repositories;
-  const { localDate } = ctx.memory.state;
-  await tasks.put({ ...task, localDate: addDays(localDate, 1), carriedOver: true, status: 'set' });
-  const day = await days.get(localDate);
-  if (day && day.status === 'open') await days.put({ ...day, status: 'done' });
-}
-
-/**
- * "That's it for today": the day rests without a finish. A task that is set, or was started and
- * left, waits for tomorrow; nothing is dropped. A serious task has its own "Not today".
- */
-export async function restForToday(ctx: DayContext): Promise<void> {
-  const { today, localDate } = ctx.memory.state;
-  if (today.kind === 'task_set') {
-    await carryToTomorrow(ctx, today.task);
-    ctx.set({ pick: { kind: 'none' }, session: null, line: null });
-  } else if (today.kind === 'nothing_yet') {
-    const day = await ctx.deps.repositories.days.get(localDate);
-    if (day && day.status === 'open')
-      await ctx.deps.repositories.days.put({ ...day, status: 'done' });
-  }
-  await ctx.refresh();
 }
 
 export function currentTask(ctx: DayContext): TaskRow | null {
@@ -158,6 +156,10 @@ export function currentTask(ctx: DayContext): TaskRow | null {
 export function setSession(ctx: DayContext, minutes: number, treat: string | null): void {
   const task = currentTask(ctx);
   if (!task) return;
+  // A second tap on Start arrives while the first one's session is already going: it changes
+  // nothing. Only a session that has not started, or is over, makes way for a new one.
+  const { session } = ctx.memory.state;
+  if (session && session.phase !== 'let_go' && UNDER_WAY.includes(session.phase)) return;
   ctx.memory.workingTurn = 0;
   ctx.set({
     session: sessionSet({
@@ -182,16 +184,17 @@ export async function applySession(ctx: DayContext, event: SessionEvent): Promis
   // A start goes through the day's limit like everything else. A task already started today has
   // used its start and may be picked up again.
   const { today } = ctx.memory.state;
-  if (event.type === 'started' && today.kind === 'task_set' && task.status === 'set') {
-    if (!hasStartLeft(today)) return;
-  }
+  if (event.type === 'started' && startRefused(today)) return;
 
   const step = sessionReducer(session, event, ctx.now());
-  ctx.set({ session: step.state });
-  if (step.state.phase === 'not_finished' && session.phase !== 'not_finished') {
-    await markNotFinished(ctx);
+  if ((step.state.phase === 'not_finished') !== (session.phase === 'not_finished')) {
+    // Tapped, or taken back before any of the three choices: the stored session says which.
+    const back = step.state.phase === 'running' || step.state.phase === 'time_up';
+    if (step.state.phase === 'not_finished' || back) await markNotFinished(ctx, !back);
   }
   await persist(ctx, step.state.phase === 'let_go' ? null : step.state, task, step.effects);
+  // Shown only once it is stored: a write that fails leaves the screen where storage is.
+  ctx.set({ session: step.state });
   ctx.deps.runner.run(step.effects, contextFor(ctx, task));
   const handedOver = step.effects.some(
     (effect) => effect.kind === 'hand_over_treat' || effect.kind === 'show_parked_thoughts',
@@ -206,92 +209,8 @@ export async function applySession(ctx: DayContext, event: SessionEvent): Promis
  * "Not finished" was tapped: the stored session says so at once, before any of the three choices,
  * so the tap is still there after the app is killed. The row keeps no end until a choice is made.
  */
-async function markNotFinished(ctx: DayContext): Promise<void> {
+async function markNotFinished(ctx: DayContext, tapped: boolean): Promise<void> {
   const { sessions } = ctx.deps.repositories;
   const row = ctx.memory.sessionRowId ? await sessions.get(ctx.memory.sessionRowId) : null;
-  if (row) await sessions.put({ ...row, outcome: 'not_finished' });
-}
-
-/**
- * The running session as it is stored, brought back after the app was killed: the timer is the
- * stored end time, and the relaunch re-arms the timers without starting or granting anything.
- */
-export async function restoreSession(ctx: DayContext, tasks: readonly TaskRow[]): Promise<void> {
-  const { repositories } = ctx.deps;
-  for (const task of tasks) {
-    const row = (await repositories.sessions.where('taskId', task.id)).find(
-      (one) => one.endedAt === null,
-    );
-    if (!row) continue;
-    const thoughts: ParkedThought[] = (await repositories.parkedThoughts.where('sessionId', row.id))
-      .map((one) => ({ text: one.text, parkedAt: instantFromIso(one.parkedAt) }))
-      .sort((a, b) => a.parkedAt - b.parkedAt);
-    const startedAt = instantFromIso(row.startedAt);
-    const endsAt = instantFromIso(row.endsAt);
-    const base: LiveSession = {
-      ...sessionSet({
-        taskId: task.id,
-        tone: toneFor(task),
-        minutes: row.plannedMinutes,
-        shrinkCount: task.shrinkCount,
-        treat: row.treat,
-      }),
-      startedAt,
-      endsAt,
-      thoughts,
-    };
-    ctx.memory.sessionRowId = row.id;
-    if (row.outcome === 'not_finished') {
-      // The three choices are still waiting. The tap's own moment is not stored, and it may have
-      // come before time was up: never later than now.
-      const endedAt = Math.min(endsAt, ctx.now());
-      ctx.set({
-        session: { ...base, phase: 'not_finished', endedAt, warned: true, checkedIn: true },
-      });
-      ctx.deps.runner.run([{ kind: 'show_line', line: 'notFinished' }], contextFor(ctx, task));
-      return;
-    }
-    // A check-in whose moment has passed was offered while the app was open, or belongs to a
-    // stretch nobody was looking at: either way it is not offered now. "I'm stuck" is still there.
-    const checkAt = checkInAt({ ...base, phase: 'running' });
-    const stored: LiveSession = {
-      ...base,
-      phase: 'running',
-      inForeground: false,
-      checkedIn: checkAt !== null && ctx.now() >= checkAt,
-    };
-    const step = sessionReducer(stored, { type: 'relaunched' }, ctx.now());
-    ctx.set({ session: step.state });
-    ctx.deps.runner.run(step.effects, contextFor(ctx, task));
-    return;
-  }
-}
-
-/** Keep copies a handed-over thought into the drawer; discard lets it go. */
-export async function resolveThought(
-  ctx: DayContext,
-  thought: ParkedThought,
-  resolution: 'keep' | 'discard',
-): Promise<void> {
-  const { repositories, nextId } = ctx.deps;
-  const { localDate, parkedThoughts } = ctx.memory.state;
-  if (resolution === 'keep') {
-    const drawer = parkThings({
-      drawer: await repositories.drawerItems.all(),
-      things: [{ text: thought.text.slice(0, TEXT_MAX) }],
-      screen: 'unscreened',
-      today: localDate,
-      now: ctx.now(),
-      nextId,
-    });
-    for (const item of drawer) await repositories.drawerItems.put(item);
-  }
-  const parkedAt = isoFromInstant(thought.parkedAt);
-  for (const row of await repositories.parkedThoughts.all()) {
-    if (row.resolution === null && row.text === thought.text && row.parkedAt === parkedAt) {
-      await repositories.parkedThoughts.put({ ...row, resolution });
-    }
-  }
-  ctx.set({ parkedThoughts: parkedThoughts.filter((one) => one !== thought) });
-  await ctx.refresh();
+  if (row) await sessions.put({ ...row, outcome: tapped ? 'not_finished' : null });
 }

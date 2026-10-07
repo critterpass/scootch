@@ -20,6 +20,7 @@ import { LifetimeMoment } from './lifetime-moment';
 import { LastDay, RenewalOff, TrialStarted } from './moments';
 import { RecordShelf } from './record-shelf';
 import { PLUS_RENEWAL_OFF } from './routes';
+import { goHome } from '../navigation/go-home';
 
 function useMoment() {
   const router = useRouter();
@@ -37,7 +38,7 @@ function useMoment() {
     /** The moment's spoken line; none on a day with something heavy in it. */
     said: (slot: NoTaskSlot) => plusLine(slot, { language, attitude: settings.attitude }, day),
     timeZone: runtime.timeZone(),
-    close: () => router.replace('/'),
+    close: () => goHome(router),
   };
 }
 

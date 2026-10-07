@@ -3,11 +3,10 @@ import { useEffect, useRef } from 'react';
 
 import type { DayStore } from './day-store';
 import type { DayState } from './day-types';
+import { UNDER_WAY } from './session-flow';
 
 /** The session screens' route. The one screen sends the person here when Start is tapped. */
 export const SESSION_ROUTE = '/session' as Href;
-
-const UNDER_WAY: readonly string[] = ['running', 'stuck', 'holding', 'time_up', 'not_finished'];
 
 /** True when today, as rebuilt from storage, has a session that is under way or waiting for its end. */
 export function opensOnSession(state: Pick<DayState, 'ready' | 'session'>): boolean {

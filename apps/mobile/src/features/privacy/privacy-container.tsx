@@ -8,6 +8,7 @@ import { useTogether } from '../../state/together-context';
 import { goBack } from '../../ui/motion/go-back';
 
 import { DeleteSheet, PrivacyPage } from './privacy-page';
+import { goHome } from '../navigation/go-home';
 
 /**
  * Privacy and data on the real phone. Export writes one file and opens the share sheet. Delete
@@ -80,7 +81,7 @@ export function PrivacyContainer() {
       await tools.deleteEverything();
       await choose(null);
       await dispatch({ type: 'storage_replaced' });
-      router.replace('/');
+      goHome(router);
     } catch {
       setNotice('privacy.delete.failed');
     }
