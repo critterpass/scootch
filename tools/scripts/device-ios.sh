@@ -33,6 +33,9 @@ done < <(find "$work/app" -maxdepth 3 -name '*.app' -type d | sort)
 
 evidence="$here/device-ios-evidence.sh"
 "$evidence" signing "$app" "$out_dir/evidence" as-built || true
+# An app that dyld cannot link never reaches JavaScript: say so now, not after a 90 s wait.
+"$evidence" symbols "$app" "$out_dir/evidence" ||
+  { echo "::error::The e2e-test build cannot launch: it needs a new native build"; exit 1; }
 
 cp "$bundle_dir/main.jsbundle" "$app/main.jsbundle"
 if [ -d "$bundle_dir/assets" ]; then cp -R "$bundle_dir/assets" "$app/"; fi

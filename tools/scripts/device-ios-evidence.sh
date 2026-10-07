@@ -4,6 +4,7 @@
 # stays readable.
 #
 #   tools/scripts/device-ios-evidence.sh signing <app> <out dir> <label>
+#   tools/scripts/device-ios-evidence.sh symbols <app> <out dir>      (exits 1 when the app cannot link)
 #   tools/scripts/device-ios-evidence.sh launch <udid> <bundle id> <out dir>
 #   tools/scripts/device-ios-evidence.sh crashes <udid> <bundle id> <out dir>
 set -uo pipefail
@@ -42,6 +43,36 @@ signing() {
     echo "=== Expo.plist"
     plutil -p "$app/Expo.plist" 2>&1 | head -30
   } >>"$file" 2>&1
+}
+
+# Swift symbols of the app's own and Expo's code that one binary needs and no binary of the app
+# provides. dyld refuses to start the app for the first of them, before any JavaScript runs: Expo
+# ships some modules as prebuilt frameworks, and a prebuilt one built against another version of a
+# module it calls into shows up here.
+symbols() {
+  local app=$1 out=$2 file bin
+  file=$out/missing-symbols.txt
+  local -a bins=()
+  while IFS= read -r bin; do
+    bins+=("$bin")
+  done < <(find "$app" -type f -perm -u+x -not -name '*.sh' -not -path '*/_CodeSignature/*' \
+    \( -path '*/Frameworks/*.framework/*' -o -path "$app/$(plutil -extract CFBundleExecutable raw "$app/Info.plist")" \
+    -o -path '*.appex/*' -o -path '*/AppClips/*' \) | sort)
+  local exports
+  exports=$(mktemp)
+  for bin in "${bins[@]}"; do nm -arch arm64 -gU "$bin" 2>/dev/null | awk '{print $NF}'; done | sort -u >"$exports"
+  : >"$file"
+  for bin in "${bins[@]}"; do
+    nm -arch arm64 -u "$bin" 2>/dev/null | awk '{print $NF}' | grep -E '^_\$s[0-9]+(Expo|Scootch)' | sort -u |
+      comm -23 - "$exports" | sed "s#^#${bin#"$app"/} needs #" >>"$file"
+  done
+  rm -f "$exports"
+  if [ -s "$file" ]; then
+    echo "::error title=The app cannot link::$(wc -l <"$file" | tr -d ' ') symbol(s) are missing; see evidence/missing-symbols.txt"
+    head -5 "$file"
+    return 1
+  fi
+  echo "No missing Expo or Scootch symbols in ${#bins[@]} binaries"
 }
 
 # One direct launch with the console attached: prints what the process writes, or why it was refused.
@@ -83,6 +114,7 @@ crashes() {
 
 case "$step" in
   signing) signing "$2" "$3" "$4" ;;
+  symbols) symbols "$2" "$3" ;;
   launch) launch "$2" "$3" "$4" ;;
   crashes) crashes "$2" "$3" "$4" ;;
   *) echo "unknown step $step"; exit 1 ;;

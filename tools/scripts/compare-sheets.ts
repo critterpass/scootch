@@ -4,6 +4,8 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
 
+import { stubNativeModules } from './native-module-stubs';
+
 /**
  * Design-beside-device sheets: one image per registered screen state, with the design render on
  * the left and every captured variant beside it, each under its name.
@@ -252,6 +254,7 @@ export async function compareSheets(input: CompareInput): Promise<CompareResult>
 
 /** The app's registry, read from its source: the entries name their screens without loading them. */
 async function registeredStates(): Promise<SheetState[]> {
+  stubNativeModules();
   const load = (file: string) => import(pathToFileURL(path.join(registryDir, file)).href);
   const entries = (await load('index.generated.ts')) as Record<string, unknown>;
   const { variantName } = (await load('support/screen-state.ts')) as {
