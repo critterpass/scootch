@@ -1,6 +1,6 @@
 # Phase 02: Rules, routes and lines
 
-Status: not started · Tasks: 6 · Needs: —
+Status: tasks 1 to 3 done; routes and lines not started · Tasks: 6 · Needs: —
 Owns: `packages/domain/src/camera/`, `packages/domain/src/entitlements/`,
 `apps/api/src/routes/camera-*.ts`, `apps/api/src/ai/camera/`,
 `apps/api/src/ai/deepseek.ts`, `apps/api/src/contracts.ts`,
@@ -15,13 +15,12 @@ Goal: everything the camera decides and says, with no screen. Read
 - Do: pure functions over what the phone recognised.
   Desk: from the things found, the one that leaves fastest (small, single,
   portable label family first; ties go to the nearest the frame's edge).
-  Room: split the frame into up to four zones from where the things sit,
-  score each by how much is in it, hand over the smallest non-empty one;
+  Room: the four corners of the photo; hand over the non-empty one with the least in it;
   "Bigger zone" steps to the next. Nothing found, too dark and one thing only
   are outcomes, not errors.
 - Test: fixed inputs for each rule; a property test that the pick is always
   one of the things given and a zone always lies inside the frame.
-- Status: not started
+- Status: done — b7ecf13
 
 ### 2. Plus and the free try
 - Owns: `packages/domain/src/entitlements/`, `packages/domain/src/camera/`.
@@ -31,16 +30,17 @@ Goal: everything the camera decides and says, with no screen. Read
   opens, and not when the scan failed or was refused consent.
 - Test: every purchase state by every mode by tries used; a failed scan and
   a declined consent spend nothing; Desk and Room are open in every state.
-- Status: not started
+- Status: done — b7ecf13
 
 ### 3. Consent
 - Owns: `packages/domain/src/camera/`.
-- Do: a small state machine for sending words out: never asked, allowed,
-  declined. Paper and Screen cannot call a route until it is `allowed`;
-  "Not now" leaves it `never asked` so the sheet returns next time; Settings
-  can switch it off again. Desk and Room never need it.
-- Test: no path reaches `send` without `allowed`.
-- Status: not started
+- Do: consent to send words out is given or not given. Paper and Screen
+  cannot call a route until it is given; "Not now" changes nothing, so the
+  sheet returns next time; Settings can take it away again. Desk and Room
+  never need it.
+- Test: no history of answers lets words be sent unless the last answer was
+  a yes.
+- Status: done — b7ecf13
 
 ### 4. The reading routes
 - Owns: `apps/api/src/routes/camera-paper.ts`, `camera-screen.ts`,
