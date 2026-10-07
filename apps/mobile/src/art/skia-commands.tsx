@@ -38,7 +38,8 @@ function fontFor(node: TextNode) {
   // A family the system does not know gives a font with no glyphs; the next one is used instead.
   for (const family of families) {
     const font = make(family);
-    if (font.getGlyphIDs('Hg').every((id) => id !== 0)) return font;
+    // The line itself is tried, not a sample: a face may lack the marks of Vietnamese.
+    if (font.getGlyphIDs(node.text).every((id) => id !== 0)) return font;
   }
   return make(families[families.length - 1] ?? 'Helvetica Neue');
 }
