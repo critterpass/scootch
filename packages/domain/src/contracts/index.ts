@@ -1,5 +1,6 @@
 export * from './ai-routes';
 export * from './art';
+export * from './camera';
 export * from './common';
 export * from './haunt';
 export * from './local-db';

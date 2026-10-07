@@ -130,6 +130,9 @@ export const enOffline: OfflinePack = {
       backupOff:
         "I can't keep a spare copy while iCloud is off, so your world lives on this phone only.",
       restoreOffer: 'I found the world you made before. Shall I bring it over?',
+      cameraOpen: "Words not coming? Show me a photo. I'll find one small place to start.",
+      cameraDesk: 'Start with the one in the ring. Only that one.',
+      cameraRoom: 'Only the lit corner. The rest of the room can wait.',
     },
     cheeky: {
       hello: "Oh! You're here. I'm Scootch. I've been waiting for you specifically.",
@@ -164,6 +167,9 @@ export const enOffline: OfflinePack = {
       backupOff:
         "iCloud is off, so I can't keep a spare copy. Your world lives on this phone only.",
       restoreOffer: 'I found your old world in my pocket. Want it on this phone?',
+      cameraOpen: "Can't explain the mess? Show me. I'm very nosy.",
+      cameraDesk: 'Start with the one in the ring. Just that. The rest can watch.',
+      cameraRoom: 'Just the lit corner. The other corners can gossip.',
     },
     unhinged: {
       hello: "YOU'RE HERE. I'm Scootch. I have been rehearsing this moment in a mirror.",
@@ -202,6 +208,9 @@ export const enOffline: OfflinePack = {
       hatchesWhenBack: "YOUR MONSTER WILL HATCH when we're back online. I am guarding the egg.",
       backupOff: "ICLOUD IS OFF. I can't keep a spare copy. Your world lives on this phone only.",
       restoreOffer: 'I FOUND YOUR OLD WORLD IN MY POCKET. Want it on this phone?',
+      cameraOpen: "CAN'T EXPLAIN THE MESS? Show me. I am extremely nosy.",
+      cameraDesk: 'THE ONE IN THE RING. Only that. Everything else can watch and learn.',
+      cameraRoom: 'THE LIT CORNER. Nothing else exists. The other corners are a rumour.',
     },
   },
   monsterNames: [
