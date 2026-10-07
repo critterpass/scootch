@@ -24,7 +24,7 @@ export async function applyPickEvent(ctx: DayContext, event: PickEvent): Promise
       deadlineAnswered(ctx, event.text);
       const itemId = event.choice === 'today' ? await deadlineItem(ctx, event.text) : null;
       if (itemId !== null && (await swapItemIn(ctx, itemId))) {
-        ctx.set({ pick: { kind: 'offered', reveal: null, another: false }, line: null });
+        ctx.set({ pick: { kind: 'offered', reveal: null }, line: null });
       }
       return;
     }

@@ -38,7 +38,7 @@ describe('the one screen, from the day', () => {
 
     await app.say();
     expect(app.store.getState().energyNeeded).toBe(false);
-    expect(stage(app.store)).toMatchObject({ kind: 'one_thing', quiet: false, another: true });
+    expect(stage(app.store)).toMatchObject({ kind: 'one_thing', quiet: false });
     await app.store.dispatch({ type: 'one_thing_picked' });
     expect(stage(app.store)).toMatchObject({ kind: 'hatch', shrunk: false, canShrink: true });
     await app.store.dispatch({ type: 'monster_met' });

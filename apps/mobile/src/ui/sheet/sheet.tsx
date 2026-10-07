@@ -197,7 +197,7 @@ export function SheetScroll({ onScrollEndDrag, ...rest }: ComponentProps<typeof 
 
 const styles = StyleSheet.create({
   fill: { flex: 1 },
-  shade: { backgroundColor: 'rgba(28,26,23,0.32)' },
+  shade: { backgroundColor: 'rgba(28,26,23,0.55)' },
   place: { flex: 1, justifyContent: 'flex-end' },
   sheet: {
     flexShrink: 1,

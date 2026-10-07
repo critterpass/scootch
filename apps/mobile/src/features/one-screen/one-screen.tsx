@@ -97,6 +97,8 @@ function useOneScreenDrawn({
   const [chosenMinutes, setMinutes] = useState<number | null>(null);
   const [treat, setTreat] = useState('');
   const [revealedFor, setRevealedFor] = useState<string | null>(null);
+  // The drawer was opened from the words that wait for tomorrow: they are marked out in it.
+  const [waitingMarked, markWaiting] = useState(false);
   // The first words of the day wait for the battery question; after that they go straight on.
   const heldWords = useHeldWords({ energyNeeded: day.energyNeeded, dispatch });
 
@@ -155,7 +157,7 @@ function useOneScreenDrawn({
     attitude,
     offline,
     onWorld: () => router.push(WORLD),
-    // The drawer opens on the person's own pull or their tap on "Peek", and on nothing else.
+    // The drawer opens on the person's own pull, or their tap on what waits for tomorrow.
     onPull: () => send({ type: 'drawer', event: { type: 'pulled' } }),
     overlay: (
       <DrawerSheet
@@ -163,6 +165,8 @@ function useOneScreenDrawn({
         items={drawer.items}
         today={localDate}
         canSwap={task === null ? hasStartLeft(today) : task.status === 'set'}
+        waiting={day.waitingForTomorrow?.text ?? null}
+        waitingMarked={waitingMarked}
         capNote={
           task === null && !hasStartLeft(today) && today.kind === 'done_for_today'
             ? t('drawer.cap', { count: startsAllowed(plus) })
@@ -171,7 +175,10 @@ function useOneScreenDrawn({
         onSwapIn={(itemId) => send({ type: 'drawer_item_swapped_in', itemId })}
         onRemove={(itemId) => send({ type: 'drawer_item_removed', itemId })}
         onEdit={(itemId, text) => send({ type: 'drawer_item_edited', itemId, text })}
-        onClose={() => send({ type: 'drawer', event: { type: 'closed' } })}
+        onClose={() => {
+          markWaiting(false);
+          send({ type: 'drawer', event: { type: 'closed' } });
+        }}
       />
     ),
     onMore: () => router.push(SETTINGS),
@@ -225,10 +232,8 @@ function useOneScreenDrawn({
       cue: playCue,
       actions: {
         answerEnergy: heldWords.answer,
-        another: () => send({ type: 'another_asked' }),
+        cancel: () => send({ type: 'one_thing_cancelled' }),
         accept: () => send({ type: 'one_thing_picked' }),
-        edit: () => send({ type: 'one_thing_returned' }),
-        peek: () => send({ type: 'drawer', event: { type: 'pulled' } }),
         answerDeadline: (text, choice) => send({ type: 'deadline_answered', text, choice }),
         pickAgain: () => send({ type: 'pick_for_me' }),
         takePick: (itemId) => send({ type: 'drawer_item_swapped_in', itemId }),
@@ -298,6 +303,10 @@ function useOneScreenDrawn({
       : {
           home: {
             waiting: stage.waiting?.text ?? null,
+            onWaiting: () => {
+              markWaiting(true);
+              send({ type: 'drawer', event: { type: 'pulled' } });
+            },
             startsNote:
               starts === 'locked'
                 ? t('plus.oneMore.freeDone', { count: FREE_STARTS_PER_DAY })

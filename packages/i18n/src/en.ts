@@ -181,10 +181,10 @@ export const en = {
   'dump.justThis': 'Just this, today',
   'dump.heard': 'What you said',
   'dump.skip.hint': 'Skips to your one thing.',
-  'dump.another': 'Another',
-  'dump.another.hint': 'Offers a different thing from what you said.',
   'dump.accept': "That's the one",
   'dump.accept.hint': "Sets this as today's one thing.",
+  'dump.cancel': 'Cancel',
+  'dump.cancel.hint': 'Drops this one and goes back. Nothing is set.',
 
   'deadline.mark': 'Deadline',
   'deadline.back': 'Parked until {day}, when it comes back as the one thing.',
@@ -193,8 +193,6 @@ export const en = {
   'deadline.today': 'Do it today',
   'deadline.today.hint': "Swaps it in as today's one thing.",
 
-  'drawer.peek': 'Peek in the drawer',
-  'drawer.peek.hint': 'Shows what is parked. Nothing changes until you choose.',
   'drawer.title': 'The drawer',
   'drawer.count': '{parked} parked · {dated} with dates',
   'drawer.empty': 'Nothing is parked.',
@@ -220,6 +218,7 @@ export const en = {
   'drawer.undo.hint': 'Brings it back into the drawer.',
   'drawer.pull': 'Pull to open the drawer',
   'drawer.pull.ready': 'Let go to open',
+  'drawer.waiting': 'Back tomorrow morning',
 
   'energy.ask': "Before I pick: how's the battery?",
   'energy.low': 'Low',

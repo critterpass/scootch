@@ -32,8 +32,6 @@ export type DayEvent =
       readonly source: 'ramble' | 'typed';
       readonly energy: Energy | 'guess';
     }
-  /** "Another": the offered one thing is turned down and a different one is asked for. */
-  | { readonly type: 'another_asked' }
   /** "Cancel", while Scootch is thinking: the words go back to the composer and nothing is set. */
   | { readonly type: 'task_call_cancelled' }
   /** The composer has taken back the words a cancel returned. */
@@ -68,8 +66,8 @@ export type DayEvent =
     }
   /** A task that was started and left goes to the drawer whole; its start stays used. */
   | { readonly type: 'started_task_parked' }
-  /** "Fix the words" on the offered one thing: the words go back to the composer. */
-  | { readonly type: 'one_thing_returned' }
+  /** "Cancel" on the offered one thing: it is dropped, nothing is set, and home is back. */
+  | { readonly type: 'one_thing_cancelled' }
   /** The store reported a change to Plus: today is worked out again. */
   | { readonly type: 'entitlement_changed' }
   /** "It's fine, be funny" on a serious task. It never does anything on a crisis day. */
@@ -123,7 +121,7 @@ export interface Reveal {
 export type PickStep =
   | { readonly kind: 'none' }
   /** "Today's one thing". `reveal` is `null` for a single typed task, which has nothing to fall away. */
-  | { readonly kind: 'offered'; readonly reveal: Reveal | null; readonly another: boolean }
+  | { readonly kind: 'offered'; readonly reveal: Reveal | null }
   | { readonly kind: 'picked_for_me'; readonly itemId: Id }
   | { readonly kind: 'hatching'; readonly shrunk: boolean };
 
@@ -218,12 +216,7 @@ export interface Offer {
   readonly text: string;
   readonly source: 'ramble' | 'typed';
   readonly energy: Energy | 'guess';
-  readonly declined: readonly string[];
   readonly transcriptId: Id | null;
-  /** Drawer items parked from this text and not yet offered: "Another" takes the next of them. */
-  readonly candidates: readonly Id[];
-  /** The thing "Another" turned down, put back as it was when no answer comes for the next. */
-  readonly turnedDown?: { readonly task: TaskRow; readonly monster: MonsterRow | null };
 }
 
 /** The store's working memory between events. */

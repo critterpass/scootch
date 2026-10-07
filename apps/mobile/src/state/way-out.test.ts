@@ -4,7 +4,7 @@ import { DAY_MS, FREE_STARTS_PER_DAY } from '@scootch/domain';
 
 import { stageOf } from '../features/one-screen/one-screen-stage';
 
-import { MORNING, ramble, stagedPhone, stagedServer } from './test/staged-phone';
+import { MORNING, stagedPhone, stagedServer } from './test/staged-phone';
 
 describe('a task that was started and left', () => {
   it('can be put in the drawer with its monster, and its start stays used', async () => {
@@ -64,16 +64,17 @@ describe('a task that was started and left', () => {
   });
 });
 
-describe('"Today\'s one thing", when the words came out wrong', () => {
-  it('goes back to the composer with everything that was said, and no start is used', async () => {
+describe('"Cancel" on today\'s one thing', () => {
+  it('drops the thing and its monster, sets nothing, uses no start and is home again', async () => {
     const app = await stagedPhone(stagedServer());
     await app.say();
     expect(app.store.getState().pick.kind).toBe('offered');
 
-    await app.store.dispatch({ type: 'one_thing_returned' });
+    const parked = app.store.getState().drawer.items.length;
+    await app.store.dispatch({ type: 'one_thing_cancelled' });
     const state = app.store.getState();
     expect(state).toMatchObject({
-      returnedText: ramble,
+      returnedText: null,
       today: { kind: 'nothing_yet', startsLeft: FREE_STARTS_PER_DAY },
       pick: { kind: 'none' },
       heardDeadlines: [],
@@ -81,14 +82,15 @@ describe('"Today\'s one thing", when the words came out wrong', () => {
     expect(stageOf({ ...state, energyAsked: false }).kind).toBe('home');
     expect(app.data.count('tasks') + app.data.count('monsters')).toBe(0);
     expect(app.data.count('ramble_transcripts')).toBe(0);
+    // What the same words parked stays parked.
+    expect(state.drawer.items).toHaveLength(parked);
   });
 
   it('does nothing once the thing has been picked', async () => {
     const app = await stagedPhone(stagedServer());
     await app.say();
     await app.store.dispatch({ type: 'one_thing_picked' });
-    await app.store.dispatch({ type: 'one_thing_returned' });
+    await app.store.dispatch({ type: 'one_thing_cancelled' });
     expect(app.store.getState().today.kind).toBe('task_set');
-    expect(app.store.getState().returnedText).toBeNull();
   });
 });

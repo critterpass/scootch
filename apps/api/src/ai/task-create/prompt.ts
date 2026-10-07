@@ -13,12 +13,14 @@ function things(language: Language): string {
         "2. parked: every OTHER thing the note names that has no date, each as a short plain phrase in the person's words. Nothing the note does not name. No duplicates, no jokes.",
         '3. dated: every OTHER thing the note gives a day or a date for. `text` is the thing. `heardAs` is the person\'s exact words for the date, copied letter for letter from the note ("due on Friday"). `date` is your reading of it as YYYY-MM-DD; code checks it. If the note gives no day or date, `dated` is empty. Never invent or assume a date, and never turn "soon" or "this week" into one.',
         '4. oneThingDue: only when the note gives a day or a date for the one thing itself: {heardAs, date} as above. Otherwise null.',
+        'Spelling, in every thing you write: fix plain typos, and when the note is Vietnamese typed without its tone marks, write it with them ("viet bai luan" becomes "Viết bài luận"). Never change which thing it is, and never translate it. `heardAs` alone stays letter for letter.',
       ].join('\n')
     : [
         '1. oneThing: ĐÚNG MỘT việc để bắt đầu hôm nay, viết thành một câu ngắn, nói thường, dùng chính danh từ của người viết ("Gọi thợ sửa cái máy giặt."). Chỉ một hành động: không nối hai việc bằng "và" hay "rồi". Phải là việc có thật trong ghi chú. Ưu tiên việc bắt đầu được trong mười phút; năng lượng thấp thì chọn việc nhỏ nhất; có việc tới hạn hôm nay hoặc ngày mai thì chọn việc đó. Không chọn việc nằm trong danh sách đã từ chối. Không đùa trong câu này.',
         '2. parked: mọi việc KHÁC có trong ghi chú mà không kèm ngày, mỗi việc một cụm ngắn bằng lời của người viết. Không thêm việc ghi chú không nhắc. Không trùng, không đùa.',
         '3. dated: mọi việc KHÁC mà ghi chú có nói ngày hay hạn. `text` là cái việc. `heardAs` là đúng lời người viết nói về ngày đó, chép nguyên từng chữ từ ghi chú ("trước thứ sáu"). `date` là ngày bạn hiểu, dạng YYYY-MM-DD; code sẽ kiểm tra lại. Ghi chú không nói ngày nào thì `dated` để rỗng. Không bịa, không đoán ngày, không biến "sớm" hay "tuần này" thành một ngày.',
         '4. oneThingDue: chỉ khi ghi chú nói ngày hay hạn cho chính việc được chọn: {heardAs, date} như trên. Không thì null.',
+        'Chính tả, trong mọi việc bạn viết: sửa lỗi gõ rõ ràng, và khi ghi chú là tiếng Việt gõ không dấu thì viết lại cho đủ dấu ("viet bai luan" thành "Viết bài luận"). Không đổi sang việc khác, không dịch. Riêng `heardAs` giữ nguyên từng chữ.',
       ].join('\n');
 }
 

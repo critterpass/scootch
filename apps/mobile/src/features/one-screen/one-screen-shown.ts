@@ -24,6 +24,8 @@ export type OneScreenShown =
       readonly home?: {
         /** The task carried on to tomorrow, said plainly while nothing else is going on. */
         readonly waiting: string | null;
+        /** A tap on those words: the drawer opens with them marked out. */
+        readonly onWaiting?: () => void;
         /** Said under it when the day's free starts are used and the capsule is locked. */
         readonly startsNote: string | null;
       };

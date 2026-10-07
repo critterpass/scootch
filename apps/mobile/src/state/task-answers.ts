@@ -197,20 +197,16 @@ export async function applyCall(ctx: DayContext, call: TaskCall, existing: TaskR
     // The verdict is for the text as a whole, and the one thing carries it. The other things in
     // it were not judged one by one: a heavy ramble leaves them unscreened, never serious.
     const beside: TaskScreen = screen === 'serious' ? 'unscreened' : screen;
-    const parked = await park(ctx, first.parked, beside);
+    await park(ctx, first.parked, beside);
     // A heard date is stored at once, so closing the app cannot lose it; it is still said out
     // loud before the person sees anything parked.
     await park(ctx, first.deadlines, beside);
     const day = await repositories.days.get(task.localDate);
     if (day) await repositories.days.put({ ...day, energy: first.energy });
-    if (offer) {
-      await keepTranscript(ctx, offer);
-      const kept = ctx.memory.offer ?? offer;
-      ctx.memory.offer = { ...kept, candidates: parked.map((item) => item.id) };
-    }
+    if (offer) await keepTranscript(ctx, offer);
     ctx.set({
       heardDeadlines: first.deadlines,
-      pick: { kind: 'offered', reveal: revealFor(offer, call), another: true },
+      pick: { kind: 'offered', reveal: revealFor(offer, call) },
     });
   }
   // The first stage is on the screen while the rest is on its way.

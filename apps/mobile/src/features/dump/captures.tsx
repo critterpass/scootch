@@ -18,10 +18,8 @@ const TODAY = '2026-10-06';
 const nothing = () => undefined;
 const NO_ACTIONS: StageActions = {
   answerEnergy: nothing,
-  another: nothing,
+  cancel: nothing,
   accept: nothing,
-  edit: nothing,
-  peek: nothing,
   answerDeadline: nothing,
   pickAgain: nothing,
   takePick: nothing,
@@ -226,7 +224,6 @@ const oneThing = (data: Fixtures, changes: Partial<Extract<Stage, { kind: 'one_t
     quiet: false,
     reveal: null,
     deadline: null,
-    another: true,
     ...changes,
   }) as const;
 

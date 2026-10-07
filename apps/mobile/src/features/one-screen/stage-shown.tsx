@@ -27,11 +27,9 @@ import type { OneScreenShown } from './one-screen-view';
 /** What a tap on each control of these states does. The store decides what it means. */
 export interface StageActions {
   readonly answerEnergy: (energy: Energy | 'guess') => void;
-  readonly another: () => void;
+  /** The offered one thing is dropped: nothing is set, and home is back. */
+  readonly cancel: () => void;
   readonly accept: () => void;
-  /** The offered words came out wrong: back to the composer with what was said. */
-  readonly edit: () => void;
-  readonly peek: () => void;
   readonly answerDeadline: (text: string, choice: 'park' | 'today') => void;
   readonly pickAgain: () => void;
   readonly takePick: (itemId: Id) => void;
@@ -73,15 +71,6 @@ type Drawable = Extract<Stage, { kind: 'energy' | 'one_thing' | 'picked_for_me' 
 export function stageShown(stage: Drawable, env: StageEnv): StageDrawn {
   const { t, language, attitude, actions } = env;
   const voice = { language, attitude };
-  const peek = (
-    <QuietLink
-      label={t('drawer.peek')}
-      hint={t('drawer.peek.hint')}
-      onPress={actions.peek}
-      testID="drawer-peek"
-    />
-  );
-
   if (stage.kind === 'energy') {
     return {
       mood: 'thinking',
@@ -180,13 +169,6 @@ export function stageShown(stage: Drawable, env: StageEnv): StageDrawn {
                   onToday={() => actions.answerDeadline(deadline.text, 'today')}
                 />
               ) : null}
-              {peek}
-              <QuietLink
-                label={t('dump.edit')}
-                hint={t('dump.edit.hint')}
-                onPress={actions.edit}
-                testID="one-thing-edit"
-              />
             </Stack>
           </Choosing>
         ),
@@ -196,11 +178,10 @@ export function stageShown(stage: Drawable, env: StageEnv): StageDrawn {
           <RevealGate playing={playing} capMs={revealCapMs(script)} onCap={actions.revealDone}>
             <ChoiceDock
               quiet={{
-                label: t('dump.another'),
-                hint: t('dump.another.hint'),
-                onPress: actions.another,
-                disabled: !stage.another,
-                testID: 'one-thing-another',
+                label: t('dump.cancel'),
+                hint: t('dump.cancel.hint'),
+                onPress: actions.cancel,
+                testID: 'one-thing-cancel',
               }}
               action={{
                 label: t('dump.accept'),
