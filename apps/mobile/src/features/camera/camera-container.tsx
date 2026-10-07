@@ -159,10 +159,14 @@ export function CameraContainer() {
     else look();
   };
 
+  // The one way from the camera to the sheet: a tap on a locked chip.
+  const lock = {
+    openPlus: () => router.push(PLUS_SHEET),
+  };
   const chooseMode = (next: CameraMode) => {
     if (access[next] === 'locked') {
       // The quiet lock leads to the sheet only on a day with nothing heavy in it.
-      if (showsSelling(day)) router.push(PLUS_SHEET);
+      if (showsSelling(day)) lock.openPlus();
       return;
     }
     setMode(next);
