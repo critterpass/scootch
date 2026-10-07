@@ -7,7 +7,7 @@ import {
 import type { ReactNode } from 'react';
 import { StyleSheet, View, type ViewProps } from 'react-native';
 
-import { colors } from '@scootch/tokens';
+import { colors, shadows } from '@scootch/tokens';
 
 import { useAppearance } from '../screens/registry/support/forced-variant';
 
@@ -97,7 +97,6 @@ export function GlassSurface({
         styles.fallback,
         {
           backgroundColor: tint ?? `${palette.surface}${FALLBACK_ALPHA}`,
-          borderColor: `${palette.ink}14`,
         },
         style,
       ]}
@@ -134,12 +133,6 @@ export function GlassGroup({ style, children, spacing = 0 }: GlassGroupProps) {
 }
 
 const styles = StyleSheet.create({
-  fallback: {
-    borderWidth: StyleSheet.hairlineWidth,
-    shadowColor: '#1C1A17',
-    shadowOpacity: 0.12,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 3,
-  },
+  // The board's glass recipe without its blur: the lit edge, the hairline and the soft drop.
+  fallback: { boxShadow: shadows.glass },
 });

@@ -9,7 +9,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 
-import { fonts, spacing } from '@scootch/tokens';
+import { fonts, shadows, spacing, tracking } from '@scootch/tokens';
 
 import { GlassSurface, glassPressOwner } from './glass-surface';
 import { useScreenStyle } from './use-screen-style';
@@ -20,6 +20,8 @@ import { ZoomLink } from './zoom-link';
 export const CONTROL_HEIGHT = 54;
 const ROUND_SIZE = 44;
 const LABEL_SIZE = 17;
+/** The light palette's ink, which the board's white label is written on. */
+const INK = '#1C1A17';
 
 export interface CapsuleButtonProps {
   readonly label: string;
@@ -46,6 +48,9 @@ export function CapsuleButton({
 }: CapsuleButtonProps) {
   const { palette, allowFontScaling, size } = useScreenStyle();
   const ink = tone === 'ink';
+  // The board writes the filled action in white on ink; on the dark page the ink is light and the
+  // label takes the page's colour.
+  const onInk = palette.ink === INK ? '#FFFFFF' : palette.page;
   return (
     <PressSpring
       accessibilityRole="button"
@@ -57,14 +62,23 @@ export function CapsuleButton({
       testID={testID}
       feedback={ink ? 'primary' : 'choice'}
       restOpacity={disabled ? 0.45 : 1}
-      style={[styles.capsule, { backgroundColor: ink ? palette.ink : `${palette.ink}0F` }, style]}
+      style={[
+        styles.capsule,
+        { backgroundColor: ink ? palette.ink : `${palette.ink}0F` },
+        ink && styles.lifted,
+        style,
+      ]}
     >
       {icon}
       <Text
         allowFontScaling={allowFontScaling}
         style={[
           styles.label,
-          { color: ink ? palette.page : palette.ink, fontSize: size(LABEL_SIZE) },
+          {
+            color: ink ? onInk : palette.ink,
+            fontSize: size(LABEL_SIZE),
+            letterSpacing: size(LABEL_SIZE) * tracking.action,
+          },
         ]}
       >
         {label}
@@ -226,12 +240,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 11,
+    gap: 10,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
   },
+  lifted: { boxShadow: shadows.inkButton },
   label: {
-    fontFamily: fonts.heading,
+    fontFamily: fonts.body,
     fontWeight: '600',
     textAlign: 'center',
     flexShrink: 1,
