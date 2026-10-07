@@ -4,7 +4,8 @@ import { fonts, fontSizes, spacing } from '@scootch/tokens';
 
 import { Scootch } from '../../art/Scootch';
 import { useLanguage, useT } from '../../i18n/i18n-provider';
-import { CapsuleButton } from '../../ui/buttons';
+import { CapsuleButton, RoundButton } from '../../ui/buttons';
+import { MoreIcon } from '../../ui/icons';
 import { SafeFrame } from '../../ui/safe-frame';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { QuietLink } from '../dump/dump-panels';
@@ -30,6 +31,8 @@ export interface CrisisViewProps {
   readonly onDirectory: () => void;
   readonly onText: () => void;
   readonly onSit: () => void;
+  /** Opens Settings, where the helplines page and everything else about the app live. */
+  readonly onMore?: () => void;
 }
 
 /**
@@ -48,12 +51,25 @@ export function CrisisView({
   onDirectory,
   onText,
   onSit,
+  onMore,
 }: CrisisViewProps) {
   const { palette, allowFontScaling, size, largeText } = useScreenStyle();
   const t = useT();
   const { language } = useLanguage();
   return (
     <SafeFrame style={[styles.screen, { backgroundColor: palette.page }]} testID="care-screen">
+      {onMore ? (
+        <View style={styles.corner}>
+          <RoundButton
+            label={t('oneScreen.more')}
+            hint={t('oneScreen.more.hint')}
+            onPress={onMore}
+            testID="care-more"
+          >
+            <MoreIcon color={palette.ink} />
+          </RoundButton>
+        </View>
+      ) : null}
       <ScrollView contentContainerStyle={styles.content}>
         <View
           style={styles.figure}
@@ -152,6 +168,12 @@ export function CrisisView({
 }
 
 const styles = StyleSheet.create({
+  corner: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.xs,
+  },
   screen: { flex: 1 },
   content: { flexGrow: 1, justifyContent: 'center', padding: spacing.lg, gap: spacing.md },
   figure: { alignItems: 'center' },

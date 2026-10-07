@@ -117,11 +117,14 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
     queue = run.catch(() => undefined);
     return run;
   };
+  /** A failure is never silent: it goes to the crash reporter, and the screen says so plainly. */
+  const failed = (error: unknown) => {
+    deps.onFailure?.(error);
+    if (memory.state.ready) set({ notice: 'failed', taskCall: 'idle' });
+  };
   const later: DayContext['later'] = (arrives, work) => {
     const arriving = leftArriving;
-    arriving.push(
-      arrives.then((value) => enqueue(() => work(value), arriving)).catch(() => undefined),
-    );
+    arriving.push(arrives.then((value) => enqueue(() => work(value), arriving)).catch(failed));
   };
   /** Runs one step, then waits for everything it left arriving, and what that left in turn. */
   const run = async (work: () => Promise<void>) => {
@@ -183,6 +186,9 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
   async function handle(event: DayEvent): Promise<void> {
     // A crisis day takes no events but the app's own comings and goings; nothing overrides it.
     if (memory.state.today.kind === 'crisis' && !PASSIVE_EVENTS.includes(event.type)) return;
+    if (memory.state.notice === 'failed' && !PASSIVE_EVENTS.includes(event.type)) {
+      set({ notice: null });
+    }
     if (await crisisInWords(ctx, event)) return;
     if (isPickEvent(event)) return applyPickEvent(ctx, event);
     switch (event.type) {
@@ -246,6 +252,16 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
         return noticePickUp(ctx);
       case 'app_backgrounded':
         return applySession(ctx, { type: 'backgrounded' });
+      case 'day_turned': {
+        // A day left open overnight ends at its boundary, a crisis day included. A session that
+        // is running is left alone: the day turns when the app next comes forward.
+        const { today, localDate: latestDay } = memory.state;
+        if (today.kind === 'in_session' || (today.kind === 'serious' && today.session !== null)) {
+          return;
+        }
+        const now = currentScootchDay({ now: ctx.now(), timeZone: deps.timeZone(), latestDay });
+        return now === latestDay ? undefined : rebuild();
+      }
       case 'app_foregrounded': {
         const latestDay = memory.state.localDate;
         const today = currentScootchDay({ now: ctx.now(), timeZone: deps.timeZone(), latestDay });
@@ -263,7 +279,11 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
       listeners.add(listener);
       return () => void listeners.delete(listener);
     },
-    dispatch: (event) => run(() => handle(event)),
+    dispatch: (event) =>
+      run(() => handle(event)).catch((error: unknown) => {
+        failed(error);
+        throw error;
+      }),
     start: () => run(rebuild),
     screen: {
       showLine: (slot, text) => set({ line: { slot, text } }),

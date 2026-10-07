@@ -36,6 +36,16 @@ export function currentScootchDay(input: CurrentDayInput): IsoDate {
   return input.latestDay !== null && input.latestDay > here ? input.latestDay : here;
 }
 
+/** The instant the Scootch day after the one `now` belongs to starts, in one time zone. */
+export function nextScootchDayStart(
+  now: Instant,
+  timeZone: string,
+  rolloverHour: number = DAY_ROLLOVER_HOUR,
+): Instant {
+  const today = scootchDayOf(now, timeZone, rolloverHour);
+  return scootchDayStart(addDays(today, 1), timeZone, rolloverHour);
+}
+
 /** The instant a Scootch day starts in one time zone. */
 export function scootchDayStart(
   day: IsoDate,

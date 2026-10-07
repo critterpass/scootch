@@ -1,5 +1,5 @@
 import { useLocales } from 'expo-localization';
-import { Redirect } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Linking, View } from 'react-native';
 
@@ -27,6 +27,7 @@ export function CrisisScreen() {
   const region = useLocales()[0]?.regionCode ?? null;
   const [sitting, setSitting] = useState(false);
   const now = useNow(systemClock);
+  const router = useRouter();
 
   if (!ready) return <View style={{ flex: 1, backgroundColor: palette.page }} />;
   if (today.kind !== 'crisis') return <Redirect href="/" />;
@@ -40,6 +41,7 @@ export function CrisisScreen() {
       onDirectory={() => openLink(HELPLINE_DIRECTORY)}
       onText={() => openLink('sms:')}
       onSit={() => setSitting(true)}
+      onMore={() => router.push('/settings')}
     />
   );
 }

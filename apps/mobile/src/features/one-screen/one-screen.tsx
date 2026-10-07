@@ -101,14 +101,13 @@ export function OneScreen({ speech, warmUp, notificationsRefused }: OneScreenPro
   };
 
   const stage = stageOf({ ...day, drawer, energyAsked: held !== null });
-  const sendComposer = composer.send;
   // A control or a widget asked for the composer: it opens for typing, or starts listening.
   useSurfaceRequest('composer', stage.kind === 'composer' && taskCall === 'idle', (request) =>
-    sendComposer(
+    composer.send(
       request.listening ? { type: 'toggled', at: Date.now() } : { type: 'keyboard_tapped' },
     ),
   );
-  useReturnedText(day.returnedText, sendComposer, dispatch);
+  useReturnedText(day.returnedText, composer.send, dispatch);
   const care = stage.kind === 'care';
   useEffect(() => {
     // A crisis day shows nothing of this screen: the care screens take over.
@@ -139,6 +138,7 @@ export function OneScreen({ speech, warmUp, notificationsRefused }: OneScreenPro
       />
     ),
     onMore: () => router.push(SETTINGS),
+    failed: notice === 'failed',
   };
 
   if (care) return null;
