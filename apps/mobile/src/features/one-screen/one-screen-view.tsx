@@ -242,6 +242,8 @@ export function OneScreenView({
   const figure = 'figure' in shown ? shown.figure : undefined;
   const testName = shown.kind === 'panel' ? shown.name : shown.kind;
 
+  // A heavy task gets no squeak: nothing plays around it.
+  const squeak = mood === 'serious' ? undefined : onSqueak;
   return (
     <SafeFrame
       testID={`one-screen-${testName}`}
@@ -264,7 +266,7 @@ export function OneScreenView({
           }}
         >
           {figure === undefined ? (
-            <ScootchSays mood={mood} attitude={attitude} line={line} onPress={onSqueak} />
+            <ScootchSays mood={mood} attitude={attitude} line={line} onPress={squeak} />
           ) : (
             <>
               {figure}

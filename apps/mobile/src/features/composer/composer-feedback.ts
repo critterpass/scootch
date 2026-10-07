@@ -37,20 +37,22 @@ export function useComposerFeedback(
 ): { readonly nudging: boolean } {
   const before = useRef(state);
   const [nudging, setNudging] = useState(false);
+  // Kept across state changes: a hold straight after a cancel must not leave the nudge on.
+  const nudgeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   useEffect(() => {
     const feedback = composerFeedback(before.current, state);
     before.current = state;
-    let timer: ReturnType<typeof setTimeout> | undefined;
     for (const one of feedback) {
       if (one === 'arm') tap();
       else play(one);
       if (one === 'cancel') {
+        clearTimeout(nudgeTimer.current);
         setNudging(true);
-        timer = setTimeout(() => setNudging(false), NUDGE_MS);
+        nudgeTimer.current = setTimeout(() => setNudging(false), NUDGE_MS);
       }
     }
-    return timer === undefined ? undefined : () => clearTimeout(timer);
     // The players are stable for the life of the screen.
   }, [state]);
+  useEffect(() => () => clearTimeout(nudgeTimer.current), []);
   return { nudging };
 }

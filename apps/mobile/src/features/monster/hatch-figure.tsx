@@ -76,7 +76,11 @@ export function HatchFigure({
   hatchNow.current = onHatch;
 
   useEffect(() => {
-    if (!hatches || seed === null || hatched.has(seed)) return undefined;
+    if (!hatches || seed === null || hatched.has(seed)) {
+      // Nothing is left to hatch (a shrink took over, or it is out already): no egg stays behind.
+      if (inEgg) setInEgg(false);
+      return undefined;
+    }
     const out = () => {
       hatched.add(seed);
       setInEgg(false);
