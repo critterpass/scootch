@@ -9,6 +9,7 @@ import {
 
 import { dayNotifications } from './day-notifications';
 import type { DayContext } from './day-types';
+import { restCanBeUndone } from './rest-flow';
 
 /**
  * Reads today back from storage, publishes it and brings the notifications in line. Storage is
@@ -39,6 +40,7 @@ export async function readToday(
     tasks,
     sessions: [...sessions.values()],
     plus: deps.plus(),
+    spent: (await repositories.dayNotes.read(localDate)).startsLetGo,
   });
   const task = 'task' in today ? today.task : null;
   const monster = task ? ((await repositories.monsters.where('taskId', task.id))[0] ?? null) : null;
@@ -61,6 +63,7 @@ export async function readToday(
   set({
     heavyToday,
     today,
+    restUndo: today.kind === 'done_for_today' && (await restCanBeUndone(ctx)),
     reminderAt,
     waitingForTomorrow:
       tomorrow.find((one) => one.carriedOver && one.status !== 'finished') ?? null,

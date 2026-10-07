@@ -4,6 +4,8 @@ import type { TaskCall, TaskCallOptions, TaskName, TaskRest } from '../api/task-
 
 import { enterCrisis, stopWithoutAWord } from './care-flow';
 import type { DayContext, Offer, Reveal } from './day-types';
+import { catchLateMonster } from './late-catch';
+import { sortKeptWords } from './late-words';
 import { fallbackCopy, monsterFor, newTask, park } from './task-rows';
 
 /** A ramble's words are kept while its one thing is being picked, once they are known to be safe to keep. */
@@ -43,7 +45,9 @@ async function applyName(
   if (!task || task.screen !== 'pass') return;
   if ((await monsters.where('taskId', task.id)).length > 0) return;
   await monsters.put(monsterFor(ctx, task, labels, name.monster));
-  ctx.set({ line: { slot: 'hatch', text: name.hatch } });
+  // A task finished meanwhile has nothing left to hatch on the screen: its monster is caught.
+  if (task.status === 'finished') await catchLateMonster(ctx, task);
+  else ctx.set({ line: { slot: 'hatch', text: name.hatch } });
   await ctx.refresh();
 }
 
@@ -91,7 +95,8 @@ async function applyRest(
     await repositories.monsters.put(monsterFor(ctx, written, known, copy));
   }
   // The hatch line the name brought stays; otherwise the pack's own is said now.
-  if (pass?.lines && !named) ctx.set({ line: { slot: 'hatch', text: pass.lines.hatch } });
+  if (written.status === 'finished') await catchLateMonster(ctx, written);
+  else if (pass?.lines && !named) ctx.set({ line: { slot: 'hatch', text: pass.lines.hatch } });
   await ctx.refresh();
 }
 
@@ -122,6 +127,7 @@ async function dropRejected(ctx: DayContext, existing: TaskRow | null): Promise<
       await transcripts.remove(one.id);
     }
     await stopWithoutAWord(ctx);
+    await ctx.deps.repositories.unsortedWords.remove(existing.id);
     await forgetTask(existing.id);
   } else {
     const transcriptId = ctx.memory.offer?.transcriptId;
@@ -152,8 +158,14 @@ export async function applyCall(ctx: DayContext, call: TaskCall, existing: TaskR
   // path, and a serious one stays serious; either way the task is screened again.
   const trusted = first.trusted !== false;
   const screen: TaskScreen = trusted || first.verdict === 'serious' ? first.verdict : 'unscreened';
-  const task: TaskRow = existing
-    ? { ...existing, screen, seriousOverridden: first.seriousOverridden }
+  const waited: TaskRow | null = existing && {
+    ...existing,
+    screen,
+    seriousOverridden: first.seriousOverridden,
+  };
+  if (waited) await repositories.tasks.put(waited);
+  const task: TaskRow = waited
+    ? await sortKeptWords(ctx, waited, first)
     : {
         ...newTask(ctx, first.oneThing.text, offer?.source ?? 'typed', screen),
         seriousOverridden: first.seriousOverridden,
@@ -163,10 +175,13 @@ export async function applyCall(ctx: DayContext, call: TaskCall, existing: TaskR
   ctx.memory.untrustedTaskId = trusted ? null : task.id;
   if (!trusted) ctx.memory.screenAskedAt = ctx.now();
   if (!existing) {
-    const parked = await park(ctx, first.parked, screen);
+    // The verdict is for the text as a whole, and the one thing carries it. The other things in
+    // it were not judged one by one: a heavy ramble leaves them unscreened, never serious.
+    const beside: TaskScreen = screen === 'serious' ? 'unscreened' : screen;
+    const parked = await park(ctx, first.parked, beside);
     // A heard date is stored at once, so closing the app cannot lose it; it is still said out
     // loud before the person sees anything parked.
-    await park(ctx, first.deadlines, screen);
+    await park(ctx, first.deadlines, beside);
     const day = await repositories.days.get(task.localDate);
     if (day) await repositories.days.put({ ...day, energy: first.energy });
     if (offer) {

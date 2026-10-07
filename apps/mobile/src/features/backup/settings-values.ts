@@ -9,6 +9,14 @@ export const SERVER_DELETE_PENDING_KEY = 'serverDeletePending';
 export const BACKUP_TOO_LARGE_KEY = 'backupTooLarge';
 
 /**
+ * Left as `1` once this phone and the server copy are known to be the same world: the phone
+ * restored it, the person chose to start fresh, the server held nothing, or the phone has already
+ * uploaded. Until then nothing is uploaded, so a new phone never replaces a world it could have
+ * brought back.
+ */
+export const BACKUP_SETTLED_KEY = 'backupSettled';
+
+/**
  * Small values of this feature's own, kept in the settings key and value table beside the
  * settings fields. The settings repository skips keys it does not know, so these never show up
  * as a setting, in a snapshot or in an export.

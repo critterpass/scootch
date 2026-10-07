@@ -167,4 +167,13 @@ describe('crisis', { timeout: 60_000 }, () => {
       ),
     );
   });
+
+  it('keeps a start used by a thing that was let go after a session ran', () => {
+    const base = { localDate: TODAY, tasks: [], sessions: [], plus: false };
+    expect(startsLeft({ ...base, spent: 1 })).toBe(startsAllowed(false) - 1);
+    expect(todayState({ ...base, day: null, spent: startsAllowed(false) })).toEqual({
+      kind: 'nothing_yet',
+      startsLeft: 0,
+    });
+  });
 });

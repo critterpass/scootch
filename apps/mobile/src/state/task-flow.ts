@@ -7,7 +7,8 @@ import { enterCrisis } from './care-flow';
 import type { DayContext, Offer } from './day-types';
 import { swapItemIn } from './pick-flow';
 import { applyCall, keepTranscript, treatNamed } from './task-answers';
-import { TASK_TEXT_MAX, newTask } from './task-rows';
+import { askForFinished } from './late-catch';
+import { setWithoutAnswer, sortOrphanWords, wordsToAsk } from './late-words';
 
 /** A task waiting for a trusted screen is asked about at most this often. */
 export const RESCREEN_EVERY_MS = MINUTE_MS;
@@ -104,9 +105,15 @@ async function applyAnswer(
   if (call !== null) {
     await applyCall(ctx, call, null);
   } else {
-    const text = offer.text.trim().slice(0, TASK_TEXT_MAX);
-    await ctx.deps.repositories.tasks.put(newTask(ctx, text, offer.source, 'unscreened'));
-    await keepTranscript(ctx, offer);
+    const { tasks, monsters } = ctx.deps.repositories;
+    if (offer.turnedDown) {
+      // Nothing came for "Another": the thing it turned down is back exactly as it was.
+      await tasks.put(offer.turnedDown.task);
+      if (offer.turnedDown.monster) await monsters.put(offer.turnedDown.monster);
+    } else {
+      await setWithoutAnswer(ctx, offer);
+      await keepTranscript(ctx, offer);
+    }
     // Nothing else was heard, so there is nothing else to offer. With a connection up, it was
     // the model that did not answer, and Scootch says so.
     ctx.set({ pick: { kind: 'offered', reveal: null, another: false }, modelDown: online });
@@ -154,7 +161,14 @@ export async function askAnother(ctx: DayContext): Promise<void> {
       return ctx.refresh();
     }
   }
-  await ctx.deps.repositories.forgetTask(today.task.id);
+  // With no connection there is nothing else to offer: the offered thing stays where it is.
+  if (!(await isOnline(ctx))) {
+    ctx.set({ pick: { kind: 'offered', reveal: null, another: false } });
+    return;
+  }
+  const { monsters, forgetTask } = ctx.deps.repositories;
+  const monster = (await monsters.where('taskId', today.task.id))[0] ?? null;
+  await forgetTask(today.task.id);
   // The turned-down thing leaves the screen while the next is asked for: nothing on it can be
   // tapped for a task that is no longer there.
   ctx.set({ pick: { kind: 'none' }, heardDeadlines: [] });
@@ -163,6 +177,7 @@ export async function askAnother(ctx: DayContext): Promise<void> {
     ...offer,
     candidates: [],
     declined: [...offer.declined, today.task.text],
+    turnedDown: { task: today.task, monster },
   });
 }
 
@@ -191,6 +206,9 @@ function needsScreen(ctx: DayContext, task: TaskRow): boolean {
  */
 export async function fetchPending(ctx: DayContext): Promise<void> {
   const { today, settings, localDate, monster } = ctx.memory.state;
+  await sortOrphanWords(ctx);
+  if (ctx.memory.restPending || ctx.memory.askingPending) return;
+  if (await askForFinished(ctx)) return;
   if (!('task' in today) || ctx.memory.restPending || ctx.memory.askingPending) return;
   const { task } = today;
   const screening = needsScreen(ctx, task);
@@ -207,13 +225,14 @@ export async function fetchPending(ctx: DayContext): Promise<void> {
   }
 
   ctx.memory.askingPending = true;
+  const text = await wordsToAsk(ctx, task);
   const asked = ctx.deps.tasks
     .createTask(
       {
         language: settings.language,
         attitude: settings.attitude,
         energy: 'guess',
-        text: task.originalText,
+        text,
         source: task.source === 'ramble' || task.source === 'drawer' ? task.source : 'typed',
         localDate,
         timeZone: ctx.deps.timeZone(),
