@@ -1,5 +1,6 @@
 /** English interface strings for resting the day, the ways back and the wait for Scootch. */
 export const enDayLoop = {
+  'oneScreen.failed': 'That did not go through. Nothing is lost. Try it once more.',
   'pick.picked': 'Scootch picked',
   'pick.again': 'Pick again',
   'pick.again.hint': 'Scootch offers a different one.',

@@ -48,9 +48,7 @@ type Mood = ScootchProps['mood'];
 type Held = { text: string; source: 'ramble' | 'typed'; sent: () => void };
 
 /** The routes other parts of the app provide, reached by name. */
-const WORLD = '/world' as Href;
-const CARE = '/care' as Href;
-const SETTINGS = '/settings' as Href;
+const [WORLD, CARE, SETTINGS] = ['/world', '/care', '/settings'] as [Href, Href, Href];
 
 /**
  * The one screen, driven by the day store: the composer, the one thing that comes back, its
@@ -139,6 +137,7 @@ export function OneScreen({ speech, warmUp, notificationsRefused }: OneScreenPro
       />
     ),
     onMore: () => router.push(SETTINGS),
+    failed: notice === 'failed',
   };
 
   if (care) return null;

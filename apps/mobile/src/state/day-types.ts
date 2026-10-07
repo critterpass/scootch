@@ -93,6 +93,8 @@ export type DayEvent =
   | { readonly type: 'storage_replaced' }
   | { readonly type: 'connection_returned' }
   | { readonly type: 'app_foregrounded' }
+  /** The clock passed the start of a new day with the app open. */
+  | { readonly type: 'day_turned' }
   | { readonly type: 'app_backgrounded' }
   /** A control, the Action button or a Live Activity button asked for something. */
   | { readonly type: 'surface_action'; readonly action: SurfaceActionKind }
@@ -175,7 +177,8 @@ export interface DayState {
   /** The words of a task call the person cancelled, on their way back to the composer. */
   readonly returnedText: string | null;
   /** The server would not take the text: the person is asked to say it another way. */
-  readonly notice: 'say_it_another_way' | null;
+  /** `failed`: the last thing asked of the app went wrong; it says so in one plain line. */
+  readonly notice: 'say_it_another_way' | 'failed' | null;
   /** The last task call failed with a connection up: Scootch says so and the pick is the person's. */
   readonly modelDown: boolean;
   /** When the reminder asked for on today's serious task goes off; `null` when none was asked. */
@@ -213,6 +216,8 @@ export interface DayStoreDeps {
   readonly plus: () => boolean;
   /** Bounds how long the person waits for the model before the day starts without it. */
   readonly timers: Timers;
+  /** Told of every failure inside the store, for the crash reporter. */
+  readonly onFailure?: (error: unknown) => void;
   /** Called once a finish has been written, so the backup can follow it. */
   readonly onFinished?: () => void;
 }
@@ -270,6 +275,7 @@ export const PASSIVE_EVENTS: readonly DayEvent['type'][] = [
   'storage_replaced',
   'connection_returned',
   'returned_text_taken',
+  'day_turned',
   'app_foregrounded',
   'app_backgrounded',
   'session_closed',
