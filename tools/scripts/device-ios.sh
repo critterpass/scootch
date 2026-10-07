@@ -22,7 +22,12 @@ mkdir -p "$work/app" "$out_dir"
 
 curl -fsSL --retry 3 -o "$work/app.tar.gz" "$build_url"
 tar -xzf "$work/app.tar.gz" -C "$work/app" && rm "$work/app.tar.gz"
-app=$(find "$work/app" -maxdepth 3 -name '*.app' -type d | head -1)
+# The archive holds the App Clip beside the app: take the app itself, never the first one found.
+app=""
+while IFS= read -r candidate; do
+  id=$(plutil -extract CFBundleIdentifier raw "$candidate/Info.plist" 2>/dev/null || true)
+  case "$id" in '' | *.Clip) ;; *) app=$candidate; break ;; esac
+done < <(find "$work/app" -maxdepth 3 -name '*.app' -type d | sort)
 [ -n "$app" ] || { echo "::error::No .app in the archive at build_url (iOS needs the simulator .tar.gz)"; exit 1; }
 [ -f "$bundle_dir/main.jsbundle" ] || { echo "::error::No main.jsbundle in $bundle_dir"; exit 1; }
 
@@ -44,6 +49,7 @@ xcrun simctl boot "$udid"
 xcrun simctl bootstatus "$udid" -b >/dev/null
 xcrun simctl status_bar "$udid" override --time 9:41 --batteryState charged --batteryLevel 100 \
   --cellularMode active --cellularBars 4 --wifiMode active --wifiBars 3 --dataNetwork wifi
+echo "Installing $(basename "$app") ($id)"
 xcrun simctl install "$udid" "$app"
 
 "$here/device-run-flows.sh" ios "$udid" "$out_dir" "$flows"
