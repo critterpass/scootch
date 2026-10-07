@@ -15,6 +15,7 @@ export const viDayLoop = {
   'taskSet.park': 'Cất vào ngăn kéo',
   'taskSet.park.hint':
     'Việc này chờ ở đó cùng quái vật của nó. Lượt bắt đầu hôm nay vẫn tính là đã dùng.',
+  'taskSet.noStart': 'Hôm nay đã dùng hết lượt bắt đầu. Việc này chờ đến mai.',
   'session.notFinished.back': 'Mình đổi ý rồi',
   'session.notFinished.back.hint': 'Quay lại phiên làm việc, bạn vẫn có thể hoàn thành',
   'session.letGo.ask': 'Bỏ hẳn việc này nhé?',

@@ -3,7 +3,7 @@ import path from 'node:path';
 
 import { describe, expect, it } from '@jest/globals';
 
-import { DAY_MS, type TaskCreateStartResponse } from '@scootch/domain';
+import { DAY_MS, startRefused, type TaskCreateStartResponse } from '@scootch/domain';
 import { languages, t } from '@scootch/i18n';
 import { noTaskLine } from '@scootch/voice';
 
@@ -151,5 +151,21 @@ describe('the trial-ends-tomorrow note', () => {
       .map((file) => readFileSync(path.resolve(__dirname, '../session', file), 'utf8'));
     expect(session.length).toBeGreaterThan(8);
     expect(session.filter((source) => /ChargeNote|trialEndsTomorrow/.test(source))).toEqual([]);
+  });
+});
+
+describe('Start, with no start left today', () => {
+  it('is refused for a task that has not been started, and for nothing else', async () => {
+    const app = await stagedPhone(stagedServer());
+    await app.say('ring the bank', 'typed');
+    await app.store.dispatch({ type: 'one_thing_picked' });
+    const { today } = app.store.getState();
+    if (today.kind !== 'task_set') throw new Error('a task is set');
+    expect(startRefused(today)).toBe(false);
+    expect(startRefused({ ...today, startsLeft: 0 })).toBe(true);
+    // A task already started today has used its start and may be picked up.
+    const started = { ...today.task, status: 'started' as const };
+    expect(startRefused({ ...today, task: started, startsLeft: 0 })).toBe(false);
+    expect(startRefused({ kind: 'nothing_yet', startsLeft: 0 })).toBe(false);
   });
 });

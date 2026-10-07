@@ -111,3 +111,21 @@ describe('starting a session', () => {
     });
   });
 });
+
+describe('a session event whose write fails', () => {
+  it('leaves the session on the screen as it is stored, not as if it had been written', async () => {
+    const reported: unknown[] = [];
+    const app = await stagedPhone(stagedServer(), undefined, MORNING, {
+      onFailure: (error) => reported.push(error),
+    });
+    await taskSet(app);
+    await app.store.dispatch(SET);
+    await app.store.dispatch(STARTED);
+    // The storage under the app breaks: the finish cannot be written.
+    await app.data.db.runAsync('ALTER TABLE sessions RENAME TO sessions_gone', []);
+    const finish = app.store.dispatch({ type: 'session', event: { type: 'double_tapped' } });
+    await expect(finish).rejects.toBeDefined();
+    expect(reported).toHaveLength(1);
+    expect(app.store.getState().session).toMatchObject({ phase: 'running' });
+  });
+});

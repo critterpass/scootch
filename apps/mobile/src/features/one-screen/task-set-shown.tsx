@@ -1,4 +1,4 @@
-import type { Attitude } from '@scootch/domain';
+import { startRefused, type Attitude } from '@scootch/domain';
 import type { Language } from '@scootch/i18n';
 
 import type { ScootchProps } from '../../art/Scootch';
@@ -54,19 +54,21 @@ export function taskSetShown(
     await dispatch({ type: 'session', event: { type: 'started' } });
   };
   const mood: Mood = said === null ? 'serious' : 'waiting';
+  const off = startRefused(day.today);
   return {
     mood,
     line: said,
     shown: {
       kind: 'task_set',
-      label: carried ? t('morning.fromYesterday') : null,
+      label: off ? t('taskSet.noStart') : carried ? t('morning.fromYesterday') : null,
       taskText: own === null || carried ? stage.task.text : null,
       treat,
       minutes,
       options: minuteOptions(smallest),
       onTreat: env.onTreat,
       onMinutes: env.onMinutes,
-      onStart: () => void start().catch(() => undefined),
+      // Start that would be refused is drawn off, with the reason, instead of doing nothing.
+      onStart: off ? null : () => void start().catch(() => undefined),
       ...(carried ? { startLabel: t('morning.start', { minutes }) } : {}),
       ...(monster
         ? {

@@ -1,7 +1,7 @@
 import {
-  hasStartLeft,
   isoFromInstant,
   sessionReducer,
+  startRefused,
   sessionSet,
   type LiveSession,
   type SessionEffect,
@@ -183,18 +183,17 @@ export async function applySession(ctx: DayContext, event: SessionEvent): Promis
   // A start goes through the day's limit like everything else. A task already started today has
   // used its start and may be picked up again.
   const { today } = ctx.memory.state;
-  if (event.type === 'started' && today.kind === 'task_set' && task.status === 'set') {
-    if (!hasStartLeft(today)) return;
-  }
+  if (event.type === 'started' && startRefused(today)) return;
 
   const step = sessionReducer(session, event, ctx.now());
-  ctx.set({ session: step.state });
   if ((step.state.phase === 'not_finished') !== (session.phase === 'not_finished')) {
     // Tapped, or taken back before any of the three choices: the stored session says which.
     const back = step.state.phase === 'running' || step.state.phase === 'time_up';
     if (step.state.phase === 'not_finished' || back) await markNotFinished(ctx, !back);
   }
   await persist(ctx, step.state.phase === 'let_go' ? null : step.state, task, step.effects);
+  // Shown only once it is stored: a write that fails leaves the screen where storage is.
+  ctx.set({ session: step.state });
   ctx.deps.runner.run(step.effects, contextFor(ctx, task));
   const handedOver = step.effects.some(
     (effect) => effect.kind === 'hand_over_treat' || effect.kind === 'show_parked_thoughts',

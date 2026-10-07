@@ -43,7 +43,7 @@ export function FinishScreen({ model, actions, inks, t }: ScreenProps) {
   const { view } = model;
   const control = view.kind === 'finish' ? view.control : 'hold';
   const timeUp = view.kind === 'finish' && view.timeUp;
-  const hold = useHoldControl(control, actions.send, model.holdStartsAt);
+  const hold = useHoldControl(control, actions.sendFinish, model.holdStartsAt);
   const screenReader = useScreenReader();
   // Letting go too soon is answered with a small falling "aww", as the design's hold does.
   const playCue = useCue();

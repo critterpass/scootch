@@ -64,6 +64,11 @@ export function hasStartLeft(today: TodayState): boolean {
   return 'startsLeft' in today && today.startsLeft > 0;
 }
 
+/** Start would be refused: the task has not been started and today has no start left for it. */
+export function startRefused(today: TodayState): boolean {
+  return today.kind === 'task_set' && today.task.status === 'set' && today.startsLeft <= 0;
+}
+
 export function todayState(input: TodayInput): TodayState {
   if (input.day?.status === 'crisis') return { kind: 'crisis' };
 

@@ -14,6 +14,7 @@ export const enDayLoop = {
   'taskSet.rest.undo.hint': 'Opens today and brings its one thing back',
   'taskSet.park': 'Put it in the drawer',
   'taskSet.park.hint': 'It waits there with its monster. The start it used today stays used.',
+  'taskSet.noStart': "Today's starts are all used. This one waits until tomorrow.",
   'session.notFinished.back': 'Changed my mind',
   'session.notFinished.back.hint': 'Goes back to the session, where you can still finish',
   'session.letGo.ask': 'Let it go for good?',
