@@ -83,12 +83,14 @@ export async function stopWithoutAWord(ctx: DayContext): Promise<void> {
 /** The words a person typed into an event, wherever the app lets them type. */
 function typedWords(event: DayEvent): string | null {
   if (event.type === 'session_set') return event.treat ?? null;
+  if (event.type === 'drawer_item_edited') return event.text;
   if (event.type === 'session' && event.event.type === 'thought_parked') return event.event.text;
   return null;
 }
 
 /**
- * An explicit phrase typed anywhere (a treat, a thought parked mid-session) is a crisis
+ * An explicit phrase typed anywhere (a treat, a thought parked mid-session, a reworded parked
+ * thing) is a crisis
  * at once, exactly as it is in a ramble. True when the event was taken over by the crisis.
  */
 export async function crisisInWords(ctx: DayContext, event: DayEvent): Promise<boolean> {

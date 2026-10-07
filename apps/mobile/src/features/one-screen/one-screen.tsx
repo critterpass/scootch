@@ -169,6 +169,8 @@ function useOneScreenDrawn({
             : null
         }
         onSwapIn={(itemId) => send({ type: 'drawer_item_swapped_in', itemId })}
+        onRemove={(itemId) => send({ type: 'drawer_item_removed', itemId })}
+        onEdit={(itemId, text) => send({ type: 'drawer_item_edited', itemId, text })}
         onClose={() => send({ type: 'drawer', event: { type: 'closed' } })}
       />
     ),

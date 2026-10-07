@@ -5,6 +5,7 @@ import type { EffectSwitches, ScreenSink } from '../effects/adapters';
 
 import { NOTHING_SAID, askReminder, crisisInWords, setSeriousAside } from './care-flow';
 import { DEFAULT_USUAL_START, usualStart } from './day-notifications';
+import { editDrawerItem, removeDrawerItem } from './drawer-flow';
 import { readToday } from './day-refresh';
 import { openDay } from './day-rollover';
 import {
@@ -250,6 +251,10 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
         return applySession(ctx, event.event);
       case 'drawer':
         return drawerEvent(ctx, event.event);
+      case 'drawer_item_removed':
+        return removeDrawerItem(ctx, event.itemId);
+      case 'drawer_item_edited':
+        return editDrawerItem(ctx, event.itemId, event.text);
       case 'thought_resolved':
         return resolveThought(ctx, event.thought, event.resolution);
       case 'working_line_turned':

@@ -7,9 +7,17 @@ import {
   type ComponentRef,
   type ReactNode,
 } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import Animated, {
+  useAnimatedRef,
+  useAnimatedScrollHandler,
+  useSharedValue,
+} from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 
 import { spacing } from '@scootch/tokens';
+
+import { PullHint } from '../drawer/pull-hint';
 
 /** How far the screen must be pulled down before it counts as meant. */
 const PULL_POINTS = 90;
@@ -36,13 +44,28 @@ export interface StageScrollProps {
 
 /**
  * What the one screen shows between the corners and the dock. It scrolls when there is more than
- * fits, answers the pull that opens the drawer, and brings a field that takes the keyboard up
+ * fits, answers the pull that opens the drawer (showing the drawer coming out as it is pulled), and
+ * brings a field that takes the keyboard up
  * above the dock once the keyboard has risen.
  */
 export function StageScroll({ onPull, children }: StageScrollProps) {
   const frame = useRef<ComponentRef<typeof View>>(null);
-  const scroll = useRef<ComponentRef<typeof ScrollView>>(null);
-  const offset = useRef(0);
+  const scroll = useAnimatedRef<Animated.ScrollView>();
+  const offset = useSharedValue(0);
+  /** How far the screen is pulled down past its top. */
+  const pull = useSharedValue(0);
+  const latestPull = useRef(onPull);
+  latestPull.current = onPull;
+  const pulled = useCallback(() => latestPull.current?.(), []);
+  const follow = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      offset.value = event.contentOffset.y;
+      pull.value = Math.max(0, -event.contentOffset.y);
+    },
+    onEndDrag: (event) => {
+      if (event.contentOffset.y <= -PULL_POINTS) scheduleOnRN(pulled);
+    },
+  });
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(
     () => () => {
@@ -51,32 +74,32 @@ export function StageScroll({ onPull, children }: StageScrollProps) {
     [],
   );
 
-  const bring = useCallback<BringIntoView>((element) => {
-    if (timer.current) clearTimeout(timer.current);
-    timer.current = setTimeout(() => {
-      const seen = frame.current?.getBoundingClientRect();
-      if (!element || !seen) return;
-      const under = element.getBoundingClientRect().bottom + CLEAR - seen.bottom;
-      if (under > 0) scroll.current?.scrollTo({ y: offset.current + under, animated: true });
-    }, AFTER_KEYBOARD_MS);
-  }, []);
+  const bring = useCallback<BringIntoView>(
+    (element) => {
+      if (timer.current) clearTimeout(timer.current);
+      timer.current = setTimeout(() => {
+        const seen = frame.current?.getBoundingClientRect();
+        if (!element || !seen) return;
+        const under = element.getBoundingClientRect().bottom + CLEAR - seen.bottom;
+        if (under > 0) scroll.current?.scrollTo({ y: offset.value + under, animated: true });
+      }, AFTER_KEYBOARD_MS);
+      // The refs are stable for the life of the screen.
+    },
+    [scroll, offset],
+  );
 
   return (
     <View ref={frame} style={styles.frame}>
-      <ScrollView
+      {onPull ? <PullHint pull={pull} opensAt={PULL_POINTS} /> : null}
+      <Animated.ScrollView
         ref={scroll}
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
-        scrollEventThrottle={32}
-        onScroll={(event) => {
-          offset.current = event.nativeEvent.contentOffset.y;
-        }}
-        onScrollEndDrag={(event) => {
-          if (event.nativeEvent.contentOffset.y <= -PULL_POINTS) onPull?.();
-        }}
+        scrollEventThrottle={16}
+        onScroll={follow}
       >
         <BringIntoViewContext.Provider value={bring}>{children}</BringIntoViewContext.Provider>
-      </ScrollView>
+      </Animated.ScrollView>
     </View>
   );
 }

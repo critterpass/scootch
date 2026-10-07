@@ -13,6 +13,7 @@ export * from './composer-empty-recording';
 export * from './composer-microphone-refused';
 export * from './composer-not-understood';
 export * from './composer-speech-unavailable';
+export * from './drawer-editing';
 export * from './drawer-empty';
 export * from './drawer-three';
 export * from './drawer-twelve';

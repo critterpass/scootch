@@ -44,6 +44,10 @@ export type DayEvent =
   | { readonly type: 'deadline_answered'; readonly text: string; readonly choice: 'park' | 'today' }
   /** "Swap in" on a drawer item, or "Fine, that one": it becomes today's one thing. */
   | { readonly type: 'drawer_item_swapped_in'; readonly itemId: Id }
+  /** A parked thing swiped away or ticked off in the drawer: it leaves with no trace. */
+  | { readonly type: 'drawer_item_removed'; readonly itemId: Id }
+  /** A parked thing reworded in the drawer. */
+  | { readonly type: 'drawer_item_edited'; readonly itemId: Id; readonly text: string }
   /** "Pick for me", and "Pick again": Scootch offers one thing from the drawer. */
   | { readonly type: 'pick_for_me' }
   /** "Back", on Scootch's pick: it is dropped and nothing else changes. */

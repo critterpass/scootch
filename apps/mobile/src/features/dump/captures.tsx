@@ -168,7 +168,13 @@ type Drawable = Parameters<typeof stageShown>[0];
 /** One state, drawn from the fixtures of the capture's language. */
 function captured(
   stage: (data: Fixtures) => Drawable,
-  more: { drawerOpen?: boolean; revealed?: boolean; drawerCount?: number; heavy?: boolean } = {},
+  more: {
+    drawerOpen?: boolean;
+    revealed?: boolean;
+    drawerCount?: number;
+    heavy?: boolean;
+    editing?: boolean;
+  } = {},
 ) {
   return function Captured() {
     const { language } = useLanguage();
@@ -200,6 +206,9 @@ function captured(
               today={TODAY}
               canSwap
               onSwapIn={nothing}
+              onRemove={nothing}
+              onEdit={nothing}
+              {...(more.editing ? { startEditing: 'capture-drawer-1' } : {})}
               // The sheet is a window of its own over the registry's way back: it closes the state.
               onClose={() => router.back()}
             />
@@ -232,6 +241,11 @@ export const DrawerThree = captured((data) => oneThing(data), {
   drawerOpen: true,
   drawerCount: 3,
   heavy: true,
+});
+export const DrawerEditing = captured((data) => oneThing(data), {
+  drawerOpen: true,
+  drawerCount: 3,
+  editing: true,
 });
 export const DrawerTwelve = captured((data) => oneThing(data), {
   drawerOpen: true,

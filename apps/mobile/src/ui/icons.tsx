@@ -87,6 +87,20 @@ export function Chevron({
   );
 }
 
+/** A cross: close. */
+export function CloseIcon({ color }: IconProps) {
+  return (
+    <View style={styles.close}>
+      <View
+        style={[styles.closeBar, { backgroundColor: color, transform: [{ rotate: '45deg' }] }]}
+      />
+      <View
+        style={[styles.closeBar, { backgroundColor: color, transform: [{ rotate: '-45deg' }] }]}
+      />
+    </View>
+  );
+}
+
 /** A small bin: put this down. */
 export function BinIcon({ color }: IconProps) {
   return (
@@ -148,6 +162,8 @@ const styles = StyleSheet.create({
   },
   sendStem: { position: 'absolute', top: 2, width: 2.5, height: 17, borderRadius: 1 },
   chevron: { width: 8, height: 8, borderTopWidth: 2, borderRightWidth: 2 },
+  close: { width: 16, height: 16, alignItems: 'center', justifyContent: 'center' },
+  closeBar: { position: 'absolute', width: 16, height: 2.5, borderRadius: 1.5 },
   bin: { width: 18, height: 21, alignItems: 'center' },
   binHandle: {
     width: 8,
