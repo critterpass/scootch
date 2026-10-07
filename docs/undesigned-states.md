@@ -201,5 +201,4 @@ state is designed or removed.
 | Session, parked thoughts | A thought's card swipes away to the left, which lets it go as "Let go" does | Founder, 7 Oct. The board has the two buttons only |
 | Drawer | The task waiting for tomorrow is the first row, "Back tomorrow morning", and is a row like any other: swap in, reword, tick, swipe away. Swapped in, it is today's thing again with its monster; reworded, it still comes back in the morning in the new words | Founder, 7 Oct. It is a task carried to tomorrow, shown among the parked things |
 | One screen, home | The waiting task is one small grey line, "Tomorrow: …", and a tap on it opens the drawer with its row marked | Founder, 7 Oct: the label and large words took too much of home |
-| Drawer | The task waiting for tomorrow swipes away like a parked row, with the same "Put it back" | Founder, 7 Oct: it could not be deleted |
 | Record | A day's line in the liner notes opens a sheet: the day, the instrument it brought in, and every task caught on it with its monster's name | Founder, 7 Oct: the lines could not be tapped. The board's notes are read only. A task that asked for care has no monster and is not listed |
