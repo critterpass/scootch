@@ -15,6 +15,8 @@ import {
   TOKEN,
 } from '../../backup/test/sample-world';
 
+import { memoryKeptShares, type KeptShare } from '../../share/kept-shares';
+
 import { deleteEverything, retryServerDelete } from './delete-everything';
 import { buildExport, exportMyData } from './export-data';
 
@@ -56,6 +58,28 @@ describe('delete everything', () => {
     expect(cloud.value).toBeNull();
     expect(await retryServerDelete({ db: data.db, tokens, server })).toBe('nothing_pending');
     expect(server.calls).toHaveLength(1);
+  });
+
+  it('takes down the pages this phone shared, forgets them, and cancels the charge reminders', async () => {
+    const { data, tokens, server } = await phone();
+    const kept = memoryKeptShares([
+      { key: 'card:a:1', id: 'page-1', unshareToken: 'u1', language: 'en', taskShown: true },
+      { key: 'monster:b', id: 'page-2', unshareToken: 'u2', language: 'en', taskShown: false },
+    ]);
+    const done: string[] = [];
+    const leftovers = {
+      kept,
+      // The second page cannot be reached: the delete goes on, and nothing of it stays here.
+      unshare: (share: KeptShare) => {
+        done.push(`unshare ${share.id}`);
+        return share.id === 'page-2' ? Promise.reject(new Error('offline')) : Promise.resolve();
+      },
+      cancelChargeReminders: () => Promise.resolve(void done.push('reminders cancelled')),
+    };
+
+    expect(await deleteEverything({ db: data.db, tokens, server, leftovers })).toBe('deleted');
+    expect(done).toEqual(['unshare page-1', 'unshare page-2', 'reminders cancelled']);
+    expect(await kept.read()).toEqual([]);
   });
 
   it('still empties the phone when the server cannot be reached, and finishes on a retry', async () => {

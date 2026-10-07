@@ -14,6 +14,7 @@ import {
 } from '../table/table-rules';
 
 import { FriendsPage } from './friends-page';
+import { goHome } from '../navigation/go-home';
 
 /** Friends on the real phone. A phone that has not signed in is sent to do that first. */
 export function FriendsContainer() {
@@ -86,5 +87,5 @@ export function FriendLinkContainer() {
   }, [api, code, router]);
   useEffect(ask, [ask]);
 
-  return <JoinPage problem={problem} onAgain={ask} onClose={() => router.replace('/')} />;
+  return <JoinPage problem={problem} onAgain={ask} onClose={() => goHome(router)} />;
 }

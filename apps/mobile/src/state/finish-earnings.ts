@@ -1,13 +1,7 @@
-import {
-  instantFromIso,
-  isoFromInstant,
-  sessionEarnings,
-  type SessionTone,
-  type Sitting,
-  type TaskRow,
-} from '@scootch/domain';
+import { isoFromInstant, sessionEarnings, type SessionTone, type TaskRow } from '@scootch/domain';
 
 import type { DayContext } from './day-types';
+import { sittingsOf } from './late-catch';
 import { showsComedy } from './shows-comedy';
 
 /** A number from 0 up to 1 that depends on every character of `text` and on nothing else. */
@@ -35,12 +29,7 @@ export async function persistFinishEarnings(
 ): Promise<void> {
   const { repositories, nextId } = ctx.deps;
   const caughtOn = ctx.memory.state.localDate;
-  const sittings: Sitting[] = (await repositories.sessions.where('taskId', task.id)).flatMap(
-    (row) =>
-      row.endedAt === null
-        ? []
-        : [{ startedAt: instantFromIso(row.startedAt), endedAt: instantFromIso(row.endedAt) }],
-  );
+  const sittings = await sittingsOf(ctx, task);
   const monster = (await repositories.monsters.where('taskId', task.id))[0] ?? null;
   const caughtBefore = (await repositories.monsters.all()).filter(
     (one) => one.number !== null,

@@ -170,6 +170,22 @@ function act(state: LiveSession, event: SessionEvent, now: Instant): SessionStep
       // Once time is up, or earlier when the person says they are stopping: either way it leads
       // to the same choices, and never to a session that simply vanishes.
       return canFinish ? notFinished(state, now) : unchanged(state);
+    case 'mind_changed': {
+      if (phase !== 'not_finished') return unchanged(state);
+      const open = { ...state, endedAt: null };
+      // Out of time, it is the time-up screen, where finishing is still there.
+      if (state.endsAt === null || now >= state.endsAt) {
+        return unchanged({ ...open, phase: 'time_up', warned: true, checkedIn: true });
+      }
+      const running: LiveSession = { ...open, phase: 'running' };
+      return {
+        state: running,
+        effects: [
+          ...timerEffects(running, now),
+          { kind: 'start_live_activity', until: state.endsAt },
+        ],
+      };
+    }
     case 'chose_carry_on':
       return phase === 'not_finished'
         ? chooseAfterNotFinished(state, 'carry_on', now)

@@ -84,6 +84,8 @@ export type SessionEvent =
   /** The plain finish button of a serious task. */
   | { readonly type: 'finish_tapped' }
   | { readonly type: 'not_finished' }
+  /** "Changed my mind", before any of the three choices: back to the session as it was. */
+  | { readonly type: 'mind_changed' }
   | { readonly type: 'chose_carry_on' }
   | { readonly type: 'chose_make_smaller' }
   | { readonly type: 'chose_let_go' }

@@ -24,7 +24,7 @@ export interface HoldControlHandle {
  */
 export function useHoldControl(
   control: FinishControl,
-  send: (event: SessionEvent) => void,
+  send: (event: SessionEvent) => void | Promise<void>,
   startAt = 0,
 ): HoldControlHandle {
   const state = useRef<HoldControl>({ ...holdControl(control), progress: startAt });
@@ -34,6 +34,7 @@ export function useHoldControl(
   const last = useRef(0);
   const sender = useRef(send);
   sender.current = send;
+  const mounted = useRef(true);
 
   const apply = useCallback(
     (input: HoldInput) => {
@@ -41,7 +42,18 @@ export function useHoldControl(
       state.current = step.control;
       progress.value = step.control.progress;
       setCaption(step.control.caption);
-      for (const event of step.send) sender.current(event);
+      for (const event of step.send) {
+        const sent = sender.current(event);
+        if (!step.control.finished) continue;
+        // Once the store has answered, a control still on the screen was not taken: it resets.
+        void Promise.resolve(sent).then(() => {
+          if (!mounted.current) return;
+          const settled = holdReducer(state.current, { type: 'settled' });
+          state.current = settled.control;
+          progress.value = settled.control.progress;
+          setCaption(settled.control.caption);
+        });
+      }
     },
     [progress],
   );
@@ -62,6 +74,7 @@ export function useHoldControl(
 
   useEffect(
     () => () => {
+      mounted.current = false;
       if (frame.current !== null) cancelAnimationFrame(frame.current);
     },
     [],

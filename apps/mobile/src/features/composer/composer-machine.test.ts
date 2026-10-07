@@ -232,3 +232,62 @@ describe('without a microphone', () => {
     expect(state).toMatchObject({ mode: 'typing', phase: 'idle', voice: 'unavailable' });
   });
 });
+
+describe('a recogniser that stops by itself', () => {
+  const heardSoFar: ComposerEvent[] = [
+    { type: 'hold_started', at: 1000 },
+    { type: 'heard', transcript: 'ring the dentist and also' },
+  ];
+
+  it.each(['nothing', 'unavailable', 'refused'] as const)(
+    'keeps what was heard when it fails mid-ramble (%s): the words are in the field',
+    (reason) => {
+      const { state, sent } = run(ready, [...heardSoFar, { type: 'recognition_failed', reason }]);
+      expect(sent).toEqual([]);
+      expect(state).toMatchObject({
+        phase: 'idle',
+        mode: 'typing',
+        text: 'ring the dentist and also',
+        transcript: '',
+      });
+      // From there they can be sent, edited or cleared like anything typed.
+      expect(run(state, [{ type: 'send_tapped' }]).sent).toEqual([
+        { kind: 'send', text: 'ring the dentist and also', source: 'typed' },
+      ]);
+    },
+  );
+
+  it('keeps what was heard when it fails after the finger lifted', () => {
+    const { state, sent } = run(ready, [
+      ...heardSoFar,
+      { type: 'released', at: 5000 },
+      { type: 'recognition_failed', reason: 'nothing' },
+    ]);
+    expect(sent).toEqual([]);
+    expect(state).toMatchObject({ mode: 'typing', text: 'ring the dentist and also' });
+  });
+
+  it('does not send while the finger is still down: the words wait in the field', () => {
+    const { state, sent } = run(ready, [
+      ...heardSoFar,
+      { type: 'recognition_ended', transcript: 'ring the dentist and also' },
+    ]);
+    expect(sent).toEqual([]);
+    expect(state).toMatchObject({
+      phase: 'idle',
+      mode: 'typing',
+      text: 'ring the dentist and also',
+    });
+    // Letting go afterwards sends nothing either.
+    expect(run(state, [{ type: 'released', at: 9000 }]).sent).toEqual([]);
+  });
+
+  it('adds what was heard after anything already typed', () => {
+    const typed = { ...ready, text: 'first this' };
+    const { state } = run(typed, [
+      ...heardSoFar,
+      { type: 'recognition_failed', reason: 'nothing' },
+    ]);
+    expect(state.text).toBe('first this ring the dentist and also');
+  });
+});

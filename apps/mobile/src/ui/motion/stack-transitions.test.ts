@@ -4,7 +4,15 @@ import { join, relative } from 'node:path';
 import { describe, expect, it } from '@jest/globals';
 
 import { goBack } from './go-back';
-import { ROUTE_MOTION, routeMotion, stackMotion } from './stack-transitions';
+import { feelFor } from './may-move';
+import {
+  ROUTE_MOTION,
+  routeBar,
+  routeMotion,
+  stackBar,
+  stackMotion,
+  systemZoom,
+} from './stack-transitions';
 
 const APP = join(__dirname, '..', '..', 'app');
 
@@ -50,11 +58,25 @@ describe('how each route arrives and leaves', () => {
     }
   });
 
-  it('presents the Plus sheet as a sheet that is pulled down to close', () => {
-    expect(stackMotion('plus/index', true)).toMatchObject({
-      presentation: 'modal',
-      gestureEnabled: true,
-    });
+  it('lets a page of rows be swiped back from anywhere, and a picture only from its edge', () => {
+    for (const route of ['settings', 'privacy', 'helplines', 'finish-with']) {
+      expect(stackMotion(route, true).fullScreenGestureEnabled).toBe(true);
+    }
+    // The island, the binder and the disc are dragged sideways themselves.
+    for (const route of ['world', 'zoo', 'record']) {
+      expect(stackMotion(route, true).fullScreenGestureEnabled).toBe(false);
+    }
+  });
+
+  it('presents the Plus sheet and a haunt as system sheets with a grabber, pulled down to close', () => {
+    for (const route of ['plus/index', 'haunt/send', 'haunt/received']) {
+      expect(stackMotion(route, true)).toMatchObject({
+        presentation: 'formSheet',
+        gestureEnabled: true,
+        sheetGrabberVisible: true,
+        sheetAllowedDetents: [1],
+      });
+    }
   });
 
   it('fades into the session and the reveal, which cannot be swiped away', () => {
@@ -66,6 +88,21 @@ describe('how each route arrives and leaves', () => {
   it('cannot be swiped out of mid-session: leaving goes through the close control and its question', () => {
     expect(stackMotion('session', true).gestureEnabled).toBe(false);
     expect(stackMotion('session', false).gestureEnabled).toBe(false);
+  });
+
+  it('never lets a session, the reveal, a purchase moment or care be swiped away, moving or not', () => {
+    const held = Object.keys(ROUTE_MOTION).filter((route) =>
+      ['fade', 'none'].includes(routeMotion(route)),
+    );
+    expect(held).toEqual(expect.arrayContaining(['session', 'reveal', 'care']));
+    for (const route of held) {
+      for (const mayMove of [true, false]) {
+        const options = stackMotion(route, mayMove);
+        expect(options.gestureEnabled).toBe(false);
+        expect(options.fullScreenGestureEnabled).toBe(false);
+        expect(options.presentation).toBe('card');
+      }
+    }
   });
 
   it('plays nothing on the way into care', () => {
@@ -85,6 +122,101 @@ describe('how each route arrives and leaves', () => {
     expect(stackMotion('index', true).animationTypeForReplace).toBe('pop');
     expect(stackMotion('world', true).animationTypeForReplace).toBe('pop');
     expect(stackMotion('zoo', true).animationTypeForReplace).toBe('push');
+  });
+});
+
+describe("which screens wear the system's bar", () => {
+  const inks = { page: '#EEE', ink: '#111', appearance: 'dark', titleFont: 'ui-rounded' } as const;
+
+  it('gives settings and its pages a see-through bar that the list scrolls under', () => {
+    for (const route of ['settings', 'privacy', 'helplines', 'finish-with', 'account']) {
+      expect(routeBar(route, true)).toBe('page');
+      expect(stackBar(route, true, inks)).toMatchObject({
+        headerShown: true,
+        headerTransparent: true,
+        headerBackVisible: false,
+        headerUserInterfaceStyle: 'dark',
+      });
+    }
+  });
+
+  it('collapses a large title on the pages the boards draw with one', () => {
+    expect(stackBar('privacy', true, inks).headerLargeTitle).toBe(true);
+    expect(stackBar('settings', true, inks).headerLargeTitle).toBe(false);
+  });
+
+  it("gives the world, the zoo and the record a bar in the page's colour", () => {
+    for (const route of ['world', 'zoo', 'record', 'shelf', 'plus/manage']) {
+      expect(stackBar(route, true, inks)).toMatchObject({
+        headerShown: true,
+        headerTransparent: false,
+        headerStyle: { backgroundColor: '#EEE' },
+      });
+    }
+  });
+
+  it('leaves the one screen, the session, the reveal, care and every sheet without a bar', () => {
+    const bare = Object.keys(ROUTE_MOTION).filter((route) => routeMotion(route) !== 'push');
+    expect(bare).toEqual(
+      expect.arrayContaining(['index', 'session', 'reveal', 'care', 'plus/index', 'haunt/send']),
+    );
+    for (const route of bare) {
+      expect(stackBar(route, true, inks)).toEqual({ headerShown: false });
+    }
+  });
+
+  it('only gives a bar to a screen that can also be swiped back, so no bar is the only way out', () => {
+    for (const route of Object.keys(ROUTE_MOTION)) {
+      if (routeBar(route, true) === 'none') continue;
+      expect(stackMotion(route, true).gestureEnabled).toBe(true);
+      expect(stackMotion(route, false).gestureEnabled).toBe(true);
+    }
+  });
+
+  it('draws every corner itself where there is no system bar', () => {
+    for (const route of Object.keys(ROUTE_MOTION)) {
+      expect(stackBar(route, false, inks)).toEqual({ headerShown: false });
+    }
+  });
+});
+
+describe('the Motion switch and the stack', () => {
+  const facts = { systemReducedMotion: false, captured: false, care: 'none' } as const;
+
+  it('calms every transition and the zoom when the switch is set to calm', () => {
+    const { mayMove } = feelFor({ ...facts, motion: 'calm' });
+    for (const route of Object.keys(ROUTE_MOTION)) {
+      expect(['fade', 'none']).toContain(stackMotion(route, mayMove).animation);
+    }
+    expect(systemZoom('ios', '27.0', mayMove)).toBe(false);
+  });
+
+  it("lets the system's push and zoom play when the switch is set to full", () => {
+    const { mayMove } = feelFor({ ...facts, motion: 'full' });
+    expect(stackMotion('settings', mayMove).animation).toBe('default');
+    expect(systemZoom('ios', '27.0', mayMove)).toBe(true);
+  });
+
+  it('holds the stack still around a serious task and on a crisis day', () => {
+    for (const care of ['serious', 'crisis'] as const) {
+      const { mayMove } = feelFor({ ...facts, motion: 'full', care });
+      expect(stackMotion('world', mayMove).animation).toBe('fade');
+      expect(systemZoom('ios', '27.0', mayMove)).toBe(false);
+    }
+  });
+});
+
+describe('opening a screen out of the control that was tapped', () => {
+  it('zooms from iOS 18 on', () => {
+    expect(systemZoom('ios', '27.0', true)).toBe(true);
+    expect(systemZoom('ios', '18.2', true)).toBe(true);
+    expect(systemZoom('ios', '17.6', true)).toBe(false);
+    expect(systemZoom('ios', '16.4', true)).toBe(false);
+    expect(systemZoom('android', 36, true)).toBe(false);
+  });
+
+  it('does not zoom where nothing may move', () => {
+    expect(systemZoom('ios', '27.0', false)).toBe(false);
   });
 });
 

@@ -27,6 +27,8 @@ export interface StageActions {
   readonly answerEnergy: (energy: Energy | 'guess') => void;
   readonly another: () => void;
   readonly accept: () => void;
+  /** The offered words came out wrong: back to the composer with what was said. */
+  readonly edit: () => void;
   readonly peek: () => void;
   readonly answerDeadline: (text: string, choice: 'park' | 'today') => void;
   readonly pickAgain: () => void;
@@ -170,6 +172,12 @@ export function stageShown(stage: Drawable, env: StageEnv): StageDrawn {
                 />
               ) : null}
               {peek}
+              <QuietLink
+                label={t('dump.edit')}
+                hint={t('dump.edit.hint')}
+                onPress={actions.edit}
+                testID="one-thing-edit"
+              />
             </Stack>
           ),
         footer: playing ? null : (
