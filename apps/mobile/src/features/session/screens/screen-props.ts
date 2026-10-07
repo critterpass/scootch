@@ -45,7 +45,7 @@ export interface SessionActions {
   readonly leave: () => void;
   /** "Keep going": the question goes away and nothing has changed. */
   readonly stay: () => void;
-  /** Leaving, said on purpose. */
+  /** "I'm not finished", said on purpose: on to the calm choices. */
   readonly leaveNow: () => void;
   readonly openPark: () => void;
   readonly closePark: () => void;

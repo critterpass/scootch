@@ -13,14 +13,16 @@ export interface LeaveAskProps {
   readonly inks: SessionInks;
   readonly t: Translate;
   readonly onStay: () => void;
-  readonly onLeave: () => void;
+  /** "I'm not finished": on to the calm choices (tomorrow, smaller, let it go). */
+  readonly onNotFinished: () => void;
 }
 
 /**
- * The close control, pressed while the session runs: leaving is asked about before anything
- * changes. The timer keeps running behind the question, and "Keep going" is the filled action.
+ * The close control, pressed while the session runs: nothing ends by itself. The timer keeps
+ * running behind the question, "Keep going" is the filled action and costs nothing, and "Not
+ * finished" leads to the same calm choices as when time is up.
  */
-export function LeaveAsk({ inks, t, onStay, onLeave }: LeaveAskProps) {
+export function LeaveAsk({ inks, t, onStay, onNotFinished }: LeaveAskProps) {
   return (
     <RiseIn style={[styles.card, { backgroundColor: inks.surface }]} testID="session-leave-ask">
       <View style={styles.words}>
@@ -39,11 +41,11 @@ export function LeaveAsk({ inks, t, onStay, onLeave }: LeaveAskProps) {
         onPress={onStay}
       />
       <TextButton
-        label={t('session.leaveAsk.leave')}
-        hint={t('session.leaveAsk.leave.hint')}
-        testID="session-leave-now"
+        label={t('session.notFinished')}
+        hint={t('session.notFinished.hint')}
+        testID="session-leave-not-finished"
         inks={inks}
-        onPress={onLeave}
+        onPress={onNotFinished}
       />
     </RiseIn>
   );

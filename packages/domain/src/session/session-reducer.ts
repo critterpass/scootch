@@ -167,7 +167,9 @@ function act(state: LiveSession, event: SessionEvent, now: Instant): SessionStep
     case 'finish_tapped':
       return canFinish && !full ? finish(state, 'tap', now) : unchanged(state);
     case 'not_finished':
-      return phase === 'time_up' ? notFinished(state, now) : unchanged(state);
+      // Once time is up, or earlier when the person says they are stopping: either way it leads
+      // to the same choices, and never to a session that simply vanishes.
+      return canFinish ? notFinished(state, now) : unchanged(state);
     case 'chose_carry_on':
       return phase === 'not_finished'
         ? chooseAfterNotFinished(state, 'carry_on', now)

@@ -30,7 +30,7 @@ function Footer({ model, actions, inks, t }: ScreenProps) {
   const { view } = model;
   if (view.kind !== 'working') return null;
   if (model.leaveAsked) {
-    return <LeaveAsk inks={inks} t={t} onStay={actions.stay} onLeave={actions.leaveNow} />;
+    return <LeaveAsk inks={inks} t={t} onStay={actions.stay} onNotFinished={actions.leaveNow} />;
   }
   if (model.parkOpen) {
     return <ParkComposer inks={inks} t={t} onPark={actions.park} onCancel={actions.closePark} />;
