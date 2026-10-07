@@ -243,6 +243,8 @@ function useOneScreenDrawn({
       attitude,
       today: localDate,
       revealed: stage.kind === 'one_thing' && revealedFor === stage.task.id,
+      sentWords: composer.lastSent,
+      parked: drawer.items.length,
       hatchExtra: <HatchHauntLink />,
       cue: playCue,
       actions: {
@@ -263,7 +265,10 @@ function useOneScreenDrawn({
         },
         tooBig: () => send({ type: 'too_big' }),
         catchIt: () => send({ type: 'monster_met' }),
-        revealDone: () => setRevealedFor(task?.id ?? null),
+        revealDone: () => {
+          setRevealedFor(task?.id ?? null);
+          composer.forgetSent();
+        },
       },
     });
     const waiting =

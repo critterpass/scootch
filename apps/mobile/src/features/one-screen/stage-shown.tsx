@@ -16,7 +16,9 @@ import {
   QuietLink,
   Stack,
 } from '../dump/dump-panels';
-import { RevealView } from '../dump/reveal';
+import { Choosing } from '../dump/choosing';
+import { choosingScript } from '../dump/choosing-script';
+import { restInDrawerLine } from '../dump/rest-in-drawer';
 import { HatchFigure } from '../monster/hatch-figure';
 
 import type { Stage } from './one-screen-stage';
@@ -49,6 +51,10 @@ export interface StageEnv {
   readonly today: IsoDate;
   /** The reveal has played for this one thing. */
   readonly revealed: boolean;
+  /** The words last sent from the composer, which the reveal plays back; `null` once played. */
+  readonly sentWords?: string | null;
+  /** How many things are parked in the drawer. */
+  readonly parked?: number;
   /** Plays one named cue with its haptics, under the person's switches. */
   readonly cue?: (name: string) => void;
   /** A quiet control under the hatched monster's words: "Haunt a friend", when it is offered. */
@@ -142,24 +148,32 @@ export function stageShown(stage: Drawable, env: StageEnv): StageDrawn {
 
   if (stage.kind === 'one_thing') {
     const { task, quiet, deadline } = stage;
-    const playing = stage.reveal !== null && !env.revealed;
+    // A serious task gets its plain words and no reveal.
+    const script = quiet
+      ? null
+      : choosingScript({
+          sent: env.sentWords ?? null,
+          heard: stage.reveal,
+          oneThing: task.text,
+        });
+    const playing = script !== null && !env.revealed;
     const back = deadline ? dayWords(deadline.dueDate, env.today, language) : null;
+    // What this ramble parked, when it is known; otherwise what the drawer holds.
+    const parked = stage.reveal ? stage.reveal.phrases.length - 1 : (env.parked ?? 0);
     return {
       mood: quiet ? 'serious' : playing ? 'thinking' : 'celebrating',
       line: null,
       shown: {
         kind: 'panel',
         name: 'one-thing',
-        body:
-          playing && stage.reveal ? (
-            <RevealView reveal={stage.reveal} onDone={actions.revealDone} />
-          ) : (
+        body: (
+          <Choosing key={task.id} script={script} playing={playing} onDone={actions.revealDone}>
             <Stack>
               <Headed
                 label={t(quiet ? 'dump.justThis' : 'dump.oneThing')}
                 heading={task.text}
                 // A serious task gets its plain words; nothing playful is said about it.
-                said={quiet ? lineFor('acknowledge', task, voice) : null}
+                said={quiet ? lineFor('acknowledge', task, voice) : restInDrawerLine(parked, voice)}
                 testID="one-thing"
               />
               {deadline && back !== null ? (
@@ -179,7 +193,8 @@ export function stageShown(stage: Drawable, env: StageEnv): StageDrawn {
                 testID="one-thing-edit"
               />
             </Stack>
-          ),
+          </Choosing>
+        ),
         footer: playing ? null : (
           <ChoiceDock
             quiet={{
