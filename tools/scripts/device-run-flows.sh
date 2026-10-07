@@ -94,7 +94,10 @@ for flow in $proof $list; do
   echo "::group::$flow"
   recorder=""
   if [ "$records" = true ]; then
-    xcrun simctl io "$device" recordVideo --codec h264 --force "$out_dir/video/$slug.mp4" \
+    # A background job of a script ignores the interrupt that ends a recording, so the recorder
+    # is started through a launcher that listens for it again.
+    python3 -c 'import os, signal, sys; signal.signal(signal.SIGINT, signal.SIG_DFL); os.execvp(sys.argv[1], sys.argv[1:])' \
+      xcrun simctl io "$device" recordVideo --codec h264 --force "$out_dir/video/$slug.mp4" \
       >/dev/null 2>&1 &
     recorder=$!
   fi
@@ -108,6 +111,12 @@ for flow in $proof $list; do
   # An interrupt lets the recorder finish its file.
   if [ -n "$recorder" ]; then
     kill -INT "$recorder" 2>/dev/null || true
+    # A recorder that does not finish within ten seconds is ended, so a run never waits on it.
+    for _ in 1 2 3 4 5 6 7 8 9 10; do
+      kill -0 "$recorder" 2>/dev/null || break
+      sleep 1
+    done
+    kill -KILL "$recorder" 2>/dev/null || true
     wait "$recorder" 2>/dev/null || true
   fi
   echo "::endgroup::"
