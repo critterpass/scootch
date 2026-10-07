@@ -49,15 +49,15 @@ Feature flags keep unfinished work dark in prd.
 
 The founder's CritterPass keys are reused for Scootch: Jev (TypeSafe),
 DeepSeek and ElevenLabs. They live in Wrangler secrets and GitHub secrets for
-Scootch, never in the repository. Nothing in the launch scope uses ElevenLabs
-yet. Usage is tagged per project in the cost ledger so the two apps' spend can
+Scootch, never in the repository. ElevenLabs turns speech into text while the
+phone is online (`ELEVENLABS_API_KEY`). Usage is tagged per project in the cost ledger so the two apps' spend can
 be told apart.
 
 ## 2. AI: who does what
 
 | Job | Runs on | Notes |
 |---|---|---|
-| Voice to text | The phone (Apple speech) | Audio never leaves; typing is always available |
+| Voice to text | ElevenLabs Scribe realtime when online; the phone (Apple speech) when offline or when ElevenLabs cannot be reached | Online, the audio streams from the phone straight to ElevenLabs on a single-use pass from the API, which sees neither audio nor words; the language is detected, not set. Offline, audio never leaves and the app language is used. Typing is always available |
 | Serious-mode and crisis screen | The phone first, then Jev | The on-device check runs before anything is sent |
 | Typed decisions | Jev, with a small generation model as fallback | Closed labels, yes/no and scores only |
 | Picking the one thing, shrinking, bargaining, stuck help | A generation model | Structured output |
@@ -223,7 +223,7 @@ The website's privacy table is a commitment the build must match:
 
 | Data | Kept |
 |---|---|
-| Ramble audio | Never; transcribed on the phone where possible |
+| Ramble audio | Never kept by Scootch. Online it goes to ElevenLabs to be turned into text; offline the phone does it |
 | Ramble transcript | Until the one thing is picked (or seven days if the user turns that on) |
 | Typed tasks | Until the user deletes them |
 | Web monster-maker input | 24 hours, unless the card is shared |

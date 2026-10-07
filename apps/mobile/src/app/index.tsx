@@ -1,14 +1,16 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { View } from 'react-native';
 
 import { colors } from '@scootch/tokens';
 
 import { RestoreGate } from '../features/backup/restore-offer';
+import { phoneSpeech } from '../features/composer/phone-speech';
 import { nativeSpeech } from '../features/composer/speech';
 import { HauntArrival } from '../features/haunt/haunt-containers';
 import { FirstLaunch } from '../features/launch/first-launch';
 import { firstLaunchPending, type LaunchOutcome } from '../features/launch/launch-machine';
 import { OneScreen } from '../features/one-screen/one-screen';
+import { useLanguage } from '../i18n/i18n-provider';
 import { useAppearance } from '../screens/registry/support/forced-variant';
 import { useToday } from '../state/day-store-provider';
 
@@ -19,7 +21,13 @@ import { useToday } from '../state/day-store-provider';
 export default function Home() {
   const { ready, settings } = useToday();
   const palette = colors[useAppearance()];
-  const speech = useMemo(() => nativeSpeech(), []);
+  const { language } = useLanguage();
+  const spoken = useRef(language);
+  spoken.current = language;
+  const speech = useMemo(
+    () => phoneSpeech({ onDevice: nativeSpeech(), language: () => spoken.current }),
+    [],
+  );
   // Set as first launch finishes, and gone with the next start of the app.
   const [arrival, setArrival] = useState<LaunchOutcome | null>(null);
 

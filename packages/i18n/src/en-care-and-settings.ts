@@ -71,7 +71,8 @@ export const enCareAndSettings = {
   'finishWith.preview.hint': 'Only a preview. It finishes nothing.',
   'privacy.voice': 'Voice',
   'privacy.transcribed': 'Rambles are transcribed',
-  'privacy.transcribed.sub': 'On this phone where possible. The audio is deleted right after.',
+  'privacy.transcribed.sub':
+    'By ElevenLabs when you are online, on this phone when you are not. Scootch never keeps the audio.',
   'privacy.keepTranscripts': 'Keep transcripts for 7 days',
   'privacy.keepTranscripts.off': 'Off: the text goes once the one thing is picked',
   'privacy.keepTranscripts.on': 'On: the text is kept for seven days, then deleted',

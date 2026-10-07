@@ -10,6 +10,8 @@ import type { TableObject } from './tables/table-object';
 export const secretNames = [
   'DEEPSEEK_API_KEY',
   'TYPESAFE_API_KEY',
+  // Turns speech into text while the phone is online. Absent, the phone transcribes by itself.
+  'ELEVENLABS_API_KEY',
   // Signs task continuations. Absent, the key is derived from DEEPSEEK_API_KEY.
   'TASK_CONTINUATION_SECRET',
   // Signs the monster words the server writes, for sharing. Absent, derived from DEEPSEEK_API_KEY.

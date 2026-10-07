@@ -10,7 +10,10 @@ export const plainEn = {
     intro: 'What gets kept and for how long. Nothing you say or type is ever used to train models.',
     columns: ['Data', 'Kept'],
     rows: [
-      ['Ramble audio', 'Never; transcribed on the phone where possible'],
+      [
+        'Ramble audio',
+        'Never kept by Scootch. Online it goes to ElevenLabs to be turned into text; offline your phone does it',
+      ],
       ['Ramble transcript', 'Until the one thing is picked (or seven days if you turn that on)'],
       ['Typed tasks', 'Until you delete them'],
       ['Web monster-maker input', '24 hours, unless you share the card'],
@@ -145,7 +148,7 @@ export const plainEn = {
       },
       {
         q: 'What happens to what I say?',
-        a: 'Your voice is turned into text on your phone where possible, and the audio is never kept. The text is kept until your one thing is picked. None of it is ever used to train models. The privacy page has the whole table.',
+        a: 'Your voice is turned into text by ElevenLabs when you are online, and on your phone when you are not. Scootch never keeps the audio. The text is kept until your one thing is picked. None of it is ever used to train models. The privacy page has the whole table.',
       },
       {
         q: 'Why one thing at a time?',

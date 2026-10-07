@@ -11,7 +11,10 @@ export const plainVi = {
       'Cái gì được giữ lại và giữ bao lâu. Những gì bạn nói hay gõ không bao giờ được dùng để huấn luyện mô hình AI.',
     columns: ['Dữ liệu', 'Giữ bao lâu'],
     rows: [
-      ['Âm thanh khi bạn nói', 'Không bao giờ; chuyển thành chữ ngay trên điện thoại khi có thể'],
+      [
+        'Âm thanh khi bạn nói',
+        'Scootch không bao giờ giữ. Khi có mạng, âm thanh được gửi tới ElevenLabs để chuyển thành chữ; khi không có mạng, điện thoại tự làm',
+      ],
       [
         'Bản chữ của lời bạn nói',
         'Tới khi chọn xong một việc (hoặc bảy ngày nếu bạn bật tùy chọn đó)',
@@ -149,7 +152,7 @@ export const plainVi = {
       },
       {
         q: 'Những gì tôi nói sẽ đi đâu?',
-        a: 'Giọng nói của bạn được chuyển thành chữ ngay trên điện thoại khi có thể, và âm thanh không bao giờ được giữ lại. Phần chữ được giữ tới khi chọn xong một việc của bạn. Không gì trong đó được dùng để huấn luyện mô hình AI. Trang quyền riêng tư có đủ cả bảng.',
+        a: 'Giọng nói của bạn được ElevenLabs chuyển thành chữ khi có mạng, và ngay trên điện thoại khi không có. Scootch không bao giờ giữ âm thanh. Phần chữ được giữ tới khi chọn xong một việc của bạn. Không gì trong đó được dùng để huấn luyện mô hình AI. Trang quyền riêng tư có đủ cả bảng.',
       },
       {
         q: 'Sao mỗi lần chỉ một việc?',

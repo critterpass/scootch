@@ -1,6 +1,9 @@
 import { AVAudioSessionCategory, AVAudioSessionCategoryOptions } from 'expo-speech-recognition';
 
+import type { Language } from '@scootch/i18n';
+
 import { soundMode } from '../../../effects/sound-mode';
+import { phoneSpeech } from '../../composer/phone-speech';
 import { nativeSpeech, type SpeechPort } from '../../composer/speech';
 
 /**
@@ -8,16 +11,20 @@ import { nativeSpeech, type SpeechPort } from '../../composer/speech';
  * follow the ringer switch: so the recording mixes with whatever is playing instead of stopping
  * it, and when it ends, however it ends, the app's audio session is put back on its rule.
  */
-export function parkSpeech(): SpeechPort {
-  const speech = nativeSpeech({
-    iosCategory: {
-      category: AVAudioSessionCategory.playAndRecord,
-      categoryOptions: [
-        AVAudioSessionCategoryOptions.mixWithOthers,
-        AVAudioSessionCategoryOptions.defaultToSpeaker,
-        AVAudioSessionCategoryOptions.allowBluetooth,
-      ],
-    },
+export function parkSpeech(language: () => Language): SpeechPort {
+  const speech = phoneSpeech({
+    language,
+    mixes: true,
+    onDevice: nativeSpeech({
+      iosCategory: {
+        category: AVAudioSessionCategory.playAndRecord,
+        categoryOptions: [
+          AVAudioSessionCategoryOptions.mixWithOthers,
+          AVAudioSessionCategoryOptions.defaultToSpeaker,
+          AVAudioSessionCategoryOptions.allowBluetooth,
+        ],
+      },
+    }),
   });
   let recording = false;
   const over = () => {

@@ -13,6 +13,10 @@ export {
   type ScreenInputResponse,
 } from '../../../packages/domain/src/contracts/ai-labels';
 export {
+  speechTokenResponseSchema,
+  type SpeechTokenResponse,
+} from '../../../packages/domain/src/contracts/speech';
+export {
   hauntPageIdPattern,
   hauntPageSchema,
   hauntPageShooResponseSchema,

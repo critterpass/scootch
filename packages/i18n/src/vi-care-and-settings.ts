@@ -69,7 +69,8 @@ export const viCareAndSettings = {
   'finishWith.preview.hint': 'Chỉ để xem thử, không kết thúc gì cả.',
   'privacy.voice': 'Giọng nói',
   'privacy.transcribed': 'Lời bạn nói được chuyển thành chữ',
-  'privacy.transcribed.sub': 'Ngay trên máy này khi có thể. Bản ghi âm bị xoá ngay sau đó.',
+  'privacy.transcribed.sub':
+    'Bởi ElevenLabs khi có mạng, ngay trên máy này khi không có. Scootch không bao giờ giữ bản ghi âm.',
   'privacy.keepTranscripts': 'Giữ bản chữ trong 7 ngày',
   'privacy.keepTranscripts.off': 'Tắt: chọn xong một việc là phần chữ biến mất',
   'privacy.keepTranscripts.on': 'Bật: phần chữ được giữ bảy ngày rồi xoá',

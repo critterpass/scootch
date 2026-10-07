@@ -20,7 +20,7 @@ import type { Language } from '@scootch/domain';
 import { CUES } from '@scootch/sound';
 
 import { apiBaseUrl, keychainTokenStore } from '../api/api-config';
-import { createHttpClient } from '../api/http-client';
+import { appHttp } from '../api/app-http';
 import { createScootchApi } from '../api/scootch-api';
 import { createStagedTaskClient } from '../api/staged-task-client';
 import { openRepositories } from '../data/repositories';
@@ -61,12 +61,7 @@ export { useDataTools } from './data-tools';
 function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
   const motion = { reduced: false };
   const cues = nativeCuePlayer();
-  const http = createHttpClient({
-    baseUrl: apiBaseUrl(),
-    fetch: (input, init) => fetch(input, init),
-    tokens: keychainTokenStore,
-    language,
-  });
+  const http = appHttp(language);
   const runner = createEffectsRunner({
     clock: systemClock,
     timers: systemTimers,

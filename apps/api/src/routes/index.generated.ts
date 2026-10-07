@@ -30,6 +30,7 @@ export * from './screen-input';
 export * from './seats-block';
 export * from './seats-mute';
 export * from './seats-report';
+export * from './speech-token';
 export * from './table-invite-page';
 export * from './tables-invites';
 export * from './tables-join';
