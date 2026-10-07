@@ -13,27 +13,57 @@ import {
   reasonOf,
   until,
 } from './table-support';
+import { wireErrorSchema } from '../src/contracts';
 
 const day = 24 * 60 * 60 * 1000;
 
-afterEach(async () => {
+afterEach(() => {
   vi.useRealTimers();
-  await env.DB.prepare('DELETE FROM flags').run();
 });
 
 describe('opening a table', () => {
-  it('is Plus only while tables.requirePlus is on, judged from the purchase state the phone reports', async () => {
+  it('is open to anyone signed in: two seats without Plus, four with it, judged from the purchase state the phone reports', async () => {
     const host = await person('Mai');
 
     for (const purchase of ['free', 'expired', 'refunded', 'friend_pass_guest']) {
-      expect(await reasonOf(as(host, 'POST', '/v1/tables', { purchase }))).toBe('plus_required');
+      const opened = await ok<{ tableId: string; capacity: number }>(
+        as(host, 'POST', '/v1/tables', { purchase }),
+      );
+      expect(opened.capacity).toBe(2);
+      expect(await count('tables WHERE id = ? AND capacity = 2', opened.tableId)).toBe(1);
     }
-    expect((await as(host, 'POST', '/v1/tables', { purchase: 'trial' })).status).toBe(200);
+    expect(await ok(as(host, 'POST', '/v1/tables', { purchase: 'trial' }))).toMatchObject({
+      capacity: 4,
+    });
+  });
 
-    await env.DB.prepare('INSERT INTO flags (name, "on") VALUES (?, 0)')
-      .bind('tables.requirePlus')
-      .run();
-    expect((await as(host, 'POST', '/v1/tables', { purchase: 'free' })).status).toBe(200);
+  it('seats one friend at a table opened without Plus, refuses a third person, and tells every seat the capacity', async () => {
+    const [host, friend, third] = await Promise.all(['Mai', 'Bo', 'Cy'].map((n) => person(n)));
+    if (!host || !friend || !third) throw new Error('no people');
+    await befriend(host, friend);
+    await befriend(host, third);
+    const { tableId } = await ok<{ tableId: string }>(
+      as(host, 'POST', '/v1/tables', { purchase: 'free' }),
+    );
+    const seat = await connect(host, tableId);
+    const code = await inviteCode(host, tableId);
+
+    expect(await ok(as(friend, 'POST', '/v1/tables/join', { code, purchase: 'free' }))).toEqual({
+      tableId,
+      capacity: 2,
+      madeFriends: false,
+    });
+    // Plus of the joiner's own does not make the table bigger.
+    const refused = await as(third, 'POST', '/v1/tables/join', { code, purchase: 'yearly' });
+    expect(refused.status).toBe(400);
+    expect(wireErrorSchema.parse(await refused.json()).error).toMatchObject({
+      code: 'bad_request',
+      retryable: false,
+      detail: { reason: 'table_full' },
+    });
+    await until(() => seat.state.seats.length === 2, 'two seats');
+    expect(seat.state.capacity).toBe(2);
+    expect(await count('table_seats WHERE table_id = ?', tableId)).toBe(2);
   });
 
   it('needs an account with a name, and a device with no account is told to sign in', async () => {
@@ -55,7 +85,7 @@ describe('opening a table', () => {
 });
 
 describe('invite links', () => {
-  it('seat a friend, and a stranger the link was forwarded to', async () => {
+  it('seat a friend, and make a friend of someone the host gave the link to', async () => {
     const host = await person('Mai');
     const friend = await person('Bo');
     const stranger = await person('Cy');
@@ -63,8 +93,16 @@ describe('invite links', () => {
     const { tableId, seat } = await openTable(host);
     const code = await inviteCode(host, tableId);
 
-    await ok(as(friend, 'POST', '/v1/tables/join', { code, purchase: 'free' }));
-    await ok(as(stranger, 'POST', '/v1/tables/join', { code, purchase: 'free' }));
+    expect(
+      await ok(as(friend, 'POST', '/v1/tables/join', { code, purchase: 'free' })),
+    ).toMatchObject({ madeFriends: false });
+    // The link is the host's word for its holder: sitting down makes the two friends.
+    expect(
+      await ok(as(stranger, 'POST', '/v1/tables/join', { code, purchase: 'free' })),
+    ).toMatchObject({ madeFriends: true });
+    expect(await ok(as(stranger, 'GET', '/v1/friends'))).toEqual({
+      friends: [{ accountId: host.accountId, displayName: 'Mai', canBeHaunted: true }],
+    });
 
     const strangerSeat = await connect(stranger, tableId);
     await until(() => seat.state.seats.length === 3, 'three seats');
@@ -118,6 +156,8 @@ describe('invite links', () => {
     const guests = await Promise.all(['Bo', 'Cy', 'Di'].map((name) => person(name)));
     const fourthFree = await person('Eve');
     const withPlus = await person('Flo');
+    await befriend(host, fourthFree);
+    await befriend(host, withPlus);
     const { tableId, seat } = await openTable(host);
     const code = await inviteCode(host, tableId);
     for (const guest of guests)

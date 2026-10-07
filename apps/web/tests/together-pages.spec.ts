@@ -256,3 +256,107 @@ test.describe('addresses with and without a trailing slash', () => {
     });
   }
 });
+
+test.describe('the way into the app', () => {
+  test('the association file is JSON at Apple’s address, with no redirect, for both apps and every link path', async ({
+    request,
+  }) => {
+    const response = await request.get(`${workerUrl}/.well-known/apple-app-site-association`, {
+      maxRedirects: 0,
+    });
+
+    expect(response.status()).toBe(200);
+    expect(response.headers()['content-type']).toBe('application/json');
+    const file = (await response.json()) as {
+      applinks: { details: { appIDs: string[]; components: { '/': string }[] }[] };
+      appclips: { apps: string[] };
+    };
+    const [links] = file.applinks.details;
+    expect(links?.appIDs).toEqual(['YFND2EEW8S.app.scootch', 'YFND2EEW8S.app.scootch.dev']);
+    const paths = links?.components.map((component) => component['/']) ?? [];
+    for (const kind of ['t', 'f', 'h', 'm', 'c', 's', 'r']) {
+      expect(paths).toContain(`/${kind}/*`);
+      expect(paths).toContain(`/vi/${kind}/*`);
+    }
+    expect(file.appclips.apps).toEqual([
+      'YFND2EEW8S.app.scootch.Clip',
+      'YFND2EEW8S.app.scootch.dev.Clip',
+    ]);
+  });
+
+  test('an invite’s button opens the app with the code, and the code can be copied to paste by hand', async ({
+    page,
+    context,
+  }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await answerApi(page, 'table-invite/abcdefgh23', openInvite);
+    await page.goto('/t/abcdefgh23');
+
+    await expect(page.getByRole('link', { name: 'Sit down' })).toHaveAttribute(
+      'data-app-link',
+      'scootch-dev://t/abcdefgh23',
+    );
+    await expect(page.locator('[data-code]:visible')).toHaveText('abcdefgh23');
+    await expect(page.locator('main')).toContainText(
+      'paste it in Scootch, under “Sit with someone”',
+    );
+    await page.getByRole('button', { name: 'Copy code' }).click();
+    await expect(page.locator('[data-copied]:visible')).toHaveText('Copied.');
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('abcdefgh23');
+  });
+
+  test('a haunt’s catch button carries the haunt into the app', async ({ page }) => {
+    await answerApi(page, 'haunt-page/abcdefgh234567ab', waitingHaunt);
+    await page.goto('/h/abcdefgh234567ab');
+
+    await expect(page.getByRole('link', { name: 'Catch it · 10 min' })).toHaveAttribute(
+      'data-app-link',
+      'scootch-dev://h/abcdefgh234567ab',
+    );
+  });
+});
+
+test.describe('a friend link', () => {
+  const state = (page: Page) => page.locator('[data-friend-page]');
+
+  test('says who it is from and opens the app with the code, in both languages', async ({
+    page,
+  }) => {
+    await answerApi(page, 'friend-invite/abcdefgh23', { state: 'valid', fromName: 'Kofi' });
+    await page.goto('/f/abcdefgh23');
+
+    await expect(state(page)).toHaveAttribute('data-state', 'valid');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Kofi wants to sit with you.');
+    await expect(page.getByRole('link', { name: 'Be friends in Scootch' })).toHaveAttribute(
+      'data-app-link',
+      'scootch-dev://f/abcdefgh23',
+    );
+    await expect(page.locator('[data-code]:visible')).toHaveText('abcdefgh23');
+
+    await page.goto('/vi/f/abcdefgh23');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Kofi muốn ngồi cùng bạn.');
+    await expect(page.getByRole('link', { name: 'Kết bạn trong Scootch' })).toBeVisible();
+  });
+
+  test('one that was used or has run out says so and names nobody', async ({ page }) => {
+    await answerApi(page, 'friend-invite/abcdefgh23', { state: 'gone', fromName: null });
+    await page.goto('/f/abcdefgh23');
+
+    await expect(state(page)).toHaveAttribute('data-state', 'gone');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('This link has been used up.');
+    await expect(page.locator('[data-code]:visible')).toHaveCount(0);
+  });
+
+  test('an unknown code is the not-found page, and an API that is down says so', async ({
+    page,
+  }) => {
+    await answerApi(page, 'friend-invite/gone234567', notFound, 404);
+    await page.goto('/f/gone234567');
+    await expect(state(page)).toHaveAttribute('data-state', 'missing');
+
+    await answerApi(page, 'friend-invite/abcdefgh23', down, 503);
+    await page.goto('/f/abcdefgh23');
+    await expect(state(page)).toHaveAttribute('data-state', 'offline');
+  });
+});

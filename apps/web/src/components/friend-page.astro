@@ -1,0 +1,81 @@
+---
+import type { Language } from '@scootch/i18n';
+
+import { appStoreUrl, localPath, preLaunch, togetherFor } from '../copy';
+import { scootchSvg } from '../lib/drawings';
+import SiteLayout from '../layouts/site-layout.astro';
+import '../styles/together.css';
+
+import AppStoreBadge from './app-store-badge.astro';
+import NotFound from './not-found.astro';
+import OpenInApp from './open-in-app.astro';
+
+interface Props {
+  language: Language;
+}
+
+// A friend link. It names who it is from while it works and nobody once it is used or has run
+// out. Friends are made in the app: this page is the way there, with the code to paste.
+const { language } = Astro.props;
+const copy = togetherFor(language).friend;
+---
+
+<SiteLayout language={language} path="/f" title={copy.title} description={copy.description} social={false}>
+  <section
+    class="wrap shared-page"
+    data-friend-page
+    data-state="loading"
+    data-language={language}
+    data-lines={JSON.stringify(copy)}
+  >
+    <p class="lede" data-show="loading" aria-live="polite">{copy.loading}</p>
+
+    <div class="wandered" data-show="valid" hidden>
+      <span class="drawing" aria-hidden="true" set:html={scootchSvg('pleased')} />
+      <p class="eyebrow">{copy.eyebrow}</p>
+      <h1 tabindex="-1" data-headline></h1>
+      <p class="lede">{copy.body}</p>
+      {
+        preLaunch ? (
+          <AppStoreBadge language={language} />
+        ) : (
+          <OpenInApp language={language} kind="f" label={copy.accept} />
+        )
+      }
+    </div>
+
+    <div class="wandered" data-show="gone" hidden>
+      <span class="drawing" aria-hidden="true" set:html={scootchSvg('asleep')} />
+      <h1 tabindex="-1">{copy.goneTitle}</h1>
+      <p class="lede">{copy.goneBody}</p>
+      <div class="actions">
+        {
+          preLaunch ? (
+            <AppStoreBadge language={language} />
+          ) : (
+            <a class="button button-ink" href={appStoreUrl}>
+              {copy.getScootch}
+            </a>
+          )
+        }
+        <a class="button button-quiet" href={localPath(language, '/')}>{copy.makeMeanwhile}</a>
+      </div>
+    </div>
+
+    <div data-show="missing" hidden>
+      <NotFound language={language} focusable />
+    </div>
+    <div data-show="offline" hidden>
+      <h1 tabindex="-1">{copy.offlineTitle}</h1>
+      <p class="lede">{copy.offlineBody}</p>
+    </div>
+  </section>
+</SiteLayout>
+
+<script>
+  import { startFriendPage } from '../scripts/friend-page';
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-friend-page]')) {
+    void startFriendPage(root);
+  }
+</script>

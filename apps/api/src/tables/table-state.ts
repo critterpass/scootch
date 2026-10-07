@@ -31,11 +31,15 @@ export type StoredTable = {
   openerId: string;
   hostId: string | null;
   seats: StoredSeat[];
+  /** How many it seats, fixed when it opened. Absent on a table opened before seats were capped. */
+  capacity?: number;
   endsAt: number | null;
   minutes: SessionMinutes | null;
   /** Epoch ms since when nobody has been seated; null while someone is. */
   emptySince: number | null;
 };
+
+export const capacityOf = (table: StoredTable): number => table.capacity ?? TABLE_MAX_SEATS;
 
 export type Guest = {
   readonly accountId: string;
@@ -52,10 +56,12 @@ export type AdmitResult =
 export function newTable(
   id: string,
   opener: { accountId: string; name: string },
+  capacity: number,
   now: number,
 ): StoredTable {
   return {
     id,
+    capacity,
     openerId: opener.accountId,
     hostId: opener.accountId,
     seats: [newSeat(opener.accountId, opener.name, false, now)],
@@ -79,13 +85,13 @@ function newSeat(accountId: string, name: string, onPass: boolean, now: number):
 }
 
 /**
- * Seats a guest, or says why not. At most four seats; the opener's pass covers at most three
+ * Seats a guest, or says why not. At most the table's capacity; the opener's pass covers at most three
  * guests without Plus; nobody is seated with someone they have blocked or who has blocked them.
  */
 export function admit(table: StoredTable, guest: Guest, now: number): AdmitResult {
   if (table.seats.some((seat) => seat.accountId === guest.accountId)) return 'already_seated';
   if (table.seats.some((seat) => guest.blockedWith.includes(seat.accountId))) return 'blocked';
-  if (table.seats.length >= TABLE_MAX_SEATS) return 'table_full';
+  if (table.seats.length >= capacityOf(table)) return 'table_full';
   const onPass = !guest.hasPlus && guest.accountId !== table.openerId;
   if (onPass && table.seats.filter((seat) => seat.onPass).length >= FRIEND_PASS_SEATS) {
     return 'pass_full';
