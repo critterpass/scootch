@@ -57,6 +57,8 @@ export interface SessionActions {
   readonly finishEarly: () => void;
   readonly keepGoing: () => void;
   readonly passBurst: () => void;
+  /** A tap during the catch: the reveal takes over at once. */
+  readonly passCaught: () => void;
   readonly passMoment: () => void;
   readonly passTreat: () => void;
   readonly passThoughts: () => void;

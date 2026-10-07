@@ -37,6 +37,8 @@ export function SessionScreen({ model, actions }: SessionScreenProps) {
     case 'working':
       return <WorkingScreen {...props} />;
     case 'finish':
+    case 'caught':
+      // The catch plays on the finish screen itself, which stays mounted from the finish into it.
       return <FinishScreen key={model.view.control} {...props} />;
     case 'not_finished':
       return <NotFinishedScreen {...props} />;
