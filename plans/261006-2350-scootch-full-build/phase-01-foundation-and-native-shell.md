@@ -1,6 +1,6 @@
 # Phase 01: foundation and native shell
 
-Status: in progress · Tasks: 11 · Needs: 00
+Status: in progress: 5 done, 5 partly; the native build links but has not launched · Tasks: 11 · Needs: 00
 
 Goal: a repository where three lanes can work without colliding, a pipeline
 that proves work on devices without this Mac, and a first native build that

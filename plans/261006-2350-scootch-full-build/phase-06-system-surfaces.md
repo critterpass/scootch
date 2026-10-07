@@ -1,6 +1,6 @@
 # Phase 06: system surfaces
 
-Status: not started · Tasks: 7 · Needs: 02, 04
+Status: built, unproven on a device: 7 partly · Tasks: 7 · Needs: 02, 04
 Owns: `apps/mobile/targets/`, `apps/mobile/src/features/{notifications,live-activity,intents}`,
 `packages/domain/src/back-off`
 

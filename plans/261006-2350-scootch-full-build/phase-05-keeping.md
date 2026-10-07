@@ -1,6 +1,6 @@
 # Phase 05: keeping
 
-Status: not started · Tasks: 8 · Needs: 02, 04
+Status: built, unproven on a device: 7 partly · Tasks: 8 · Needs: 02, 04
 Owns: `apps/mobile/src/features/{world,zoo,record,share}`,
 `packages/domain/src/rarity`
 

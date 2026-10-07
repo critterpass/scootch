@@ -1,6 +1,6 @@
 # Phase 09: tables and haunting
 
-Status: not started · Tasks: 8 · Needs: 03, 04
+Status: built, unproven on a device: 8 partly; deployed on dev · Tasks: 8 · Needs: 03, 04
 Owns: `apps/api/src/tables`, `apps/mobile/src/features/{table,friends,haunt}`
 
 Goal: doing the one thing next to a friend. Boards: Tables; Care and Edge

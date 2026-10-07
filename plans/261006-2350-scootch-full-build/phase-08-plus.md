@@ -1,6 +1,6 @@
 # Phase 08: Plus
 
-Status: not started · Tasks: 8 · Needs: 05
+Status: built, unproven on a device: 8 partly · Tasks: 8 · Needs: 05
 Owns: `apps/mobile/src/features/{plus,shelf}`, `packages/domain/src/entitlements`
 
 Goal: Scootch can be paid for without ever interrupting. Board: Plus. Read
