@@ -376,7 +376,21 @@ describe('parking a thought at the very end', () => {
     expect(timeUp.phase).toBe('time_up');
     const step = park(timeUp, minutes(11));
     expect(step.state).toMatchObject({ phase: 'time_up', thoughts: [{ text: 'ring Mum' }] });
-    expect(step.effects.map((effect) => effect.kind)).toContain('save_parked_thought');
+    // Kept without a word: no cue over the moment, and the time-up line stays.
+    expect(step.effects.map((effect) => effect.kind)).toEqual(['save_parked_thought']);
+  });
+
+  it('is kept without a word while the finish is held, and still said while stuck help is up', () => {
+    const holding = at(started(), 'hold_started', minutes(3)).state as LiveSession;
+    expect(park(holding, minutes(3)).effects.map((effect) => effect.kind)).toEqual([
+      'save_parked_thought',
+    ]);
+    const stuck = at(started(), 'stuck_tapped', minutes(2)).state as LiveSession;
+    expect(park(stuck, minutes(3)).effects.map((effect) => effect.kind)).toEqual([
+      'save_parked_thought',
+      'play_cue',
+      'show_line',
+    ]);
   });
 
   it('is taken while the finish is being held, and the hold goes on', () => {

@@ -1,7 +1,5 @@
 import { StyleSheet, View } from 'react-native';
 
-import { radius, spacing } from '@scootch/tokens';
-
 import { GlassSurface } from '../../../ui/glass-surface';
 import { Tick } from '../../../ui/icons';
 import { IslandToast } from '../../../ui/motion/island-toast';
@@ -33,10 +31,10 @@ export function ParkedToast({ thought, title, detail, inks }: ParkedToastProps) 
           <Tick color={inks.onTomato} />
         </View>
         <View style={styles.words}>
-          <SessionText face="caption" color={inks.ink} style={styles.strong}>
+          <SessionText face="pill" color={inks.ink}>
             {title}
           </SessionText>
-          <SessionText face="caption" color={inks.muted} numberOfLines={2}>
+          <SessionText face="note" color={inks.muted} numberOfLines={2}>
             {detail}
           </SessionText>
         </View>
@@ -49,13 +47,12 @@ const styles = StyleSheet.create({
   toast: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
-    borderRadius: radius.pill,
-    paddingVertical: spacing.sm,
-    paddingLeft: spacing.sm,
-    paddingRight: spacing.lg,
+    alignSelf: 'stretch',
+    gap: 12,
+    borderRadius: 26,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
     overflow: 'hidden',
-    maxWidth: '100%',
   },
   check: {
     width: CHECK_SIZE,
@@ -66,9 +63,6 @@ const styles = StyleSheet.create({
   },
   words: {
     flexShrink: 1,
-    gap: 2,
-  },
-  strong: {
-    fontWeight: '600',
+    gap: 1,
   },
 });

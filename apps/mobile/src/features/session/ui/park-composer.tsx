@@ -41,8 +41,6 @@ export interface ParkComposerProps {
   readonly t: Translate;
   readonly onPark: (text: string) => void;
   readonly onCancel: () => void;
-  /** The session is in its last seconds: what the field holds is parked now, while it still can be. */
-  readonly closing: boolean;
   /** Lets the screen close the field from outside it (a touch above the dock). */
   readonly handle: RefObject<ParkComposerHandle | null>;
 }
@@ -53,16 +51,19 @@ export interface ParkComposerProps {
  * keyboard; either way the words become the parked thought through the same action. One line
  * above the dock says what parking does.
  */
-export function ParkComposer({ inks, t, onPark, onCancel, closing, handle }: ParkComposerProps) {
+export function ParkComposer({ inks, t, onPark, onCancel, handle }: ParkComposerProps) {
   const { language } = useLanguage();
   const { allowFontScaling, size } = useScreenStyle();
   const captured = useForcedVariant() !== undefined;
   const speech = useMemo(() => (captured ? NO_SPEECH : parkSpeech()), [captured]);
+  // True once the field has handed over or been dismissed, so it does so only once.
+  const closed = useRef(false);
   const composer = useComposer({
     speech,
     language,
     // Only a spoken thought comes this way: a typed one is parked by its own button.
     onSend: (text) => {
+      closed.current = true;
       onPark(text);
       return Promise.resolve();
     },
@@ -77,6 +78,8 @@ export function ParkComposer({ inks, t, onPark, onCancel, closing, handle }: Par
   });
 
   const close = () => {
+    if (closed.current) return;
+    closed.current = true;
     const draft = parkDraft(state);
     if (draft === '') onCancel();
     else onPark(draft);
@@ -89,9 +92,9 @@ export function ParkComposer({ inks, t, onPark, onCancel, closing, handle }: Par
       handle.current = null;
     };
   }, [handle]);
-  useEffect(() => {
-    if (closing) latest.current();
-  }, [closing]);
+  // Time running out takes the working screen away with the field on it: whatever it holds,
+  // typed or heard so far, is parked at that moment. Nothing written or said is lost.
+  useEffect(() => () => latest.current(), []);
 
   const listening = state.phase === 'listening' || state.phase === 'finishing';
   const typing = state.mode === 'typing';

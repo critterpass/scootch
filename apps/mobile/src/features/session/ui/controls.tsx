@@ -1,9 +1,7 @@
-import type { ReactNode } from 'react';
 import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 
 import { radius, spacing } from '@scootch/tokens';
 
-import { GlassPill } from '../../../ui/buttons';
 import { CloseButton } from '../../../ui/corner-bar';
 
 import type { SessionInks } from './session-inks';
@@ -18,26 +16,6 @@ export interface ControlProps {
   readonly inks: SessionInks;
   readonly onPress: () => void;
   readonly style?: StyleProp<ViewStyle>;
-}
-
-/** The glass capsule that floats over the session: "Park a thought". */
-export function Capsule({
-  label,
-  hint,
-  testID,
-  inks,
-  onPress,
-  style,
-  lead,
-}: ControlProps & { readonly lead?: ReactNode }) {
-  return (
-    <GlassPill label={label} hint={hint} testID={testID} onPress={onPress} style={style}>
-      {lead}
-      <SessionText face="action" color={inks.ink}>
-        {label}
-      </SessionText>
-    </GlassPill>
-  );
 }
 
 /** The round close button in a corner: the same control, in the same place, as on every screen. */

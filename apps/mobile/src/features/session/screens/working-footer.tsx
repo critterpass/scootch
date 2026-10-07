@@ -4,7 +4,6 @@ import { StyleSheet } from 'react-native';
 import { CapsuleButton, DOCK_PADDING, GlassDock, GlassPill } from '../../../ui/buttons';
 
 import { ParkComposer, type ParkComposerHandle } from '../ui/park-composer';
-import { sessionClosing } from '../ui/park-draft';
 import { PillPlus } from '../ui/pill-marks';
 import { SessionText } from '../ui/session-text';
 import { StuckCard } from '../ui/stuck-card';
@@ -32,7 +31,6 @@ export function WorkingFooter({
         t={t}
         onPark={actions.park}
         onCancel={actions.closePark}
-        closing={sessionClosing(model.secondsLeft)}
         handle={park}
       />
     );

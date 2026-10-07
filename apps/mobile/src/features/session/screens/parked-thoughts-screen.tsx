@@ -1,17 +1,18 @@
 import { StyleSheet, View } from 'react-native';
 
-import { radius, spacing } from '@scootch/tokens';
-
-import { Characters } from '../ui/characters';
-import { Capsule, FilledButton, RoundButton, TextButton } from '../ui/controls';
+import { Scootch } from '../../../art/Scootch';
+import { PressSpring } from '../../../ui/motion/press-spring';
+import { RoundButton } from '../ui/controls';
+import { InkDock, PaperCard, Stage, Words } from '../ui/drawn-parts';
 import { SessionFrame } from '../ui/session-frame';
 import { SessionText } from '../ui/session-text';
 
 import type { ScreenProps } from './screen-props';
 
 /**
- * The thoughts parked during the session, shown only now. Each can come back tomorrow or go; the
- * ones left untouched wait in the drawer. One tap moves on, and never drops one.
+ * The thoughts parked during the session, shown only now, as the board draws them: Scootch pleased
+ * with himself, his line, and one card for each thought with "Tomorrow" and "Let go" beside it.
+ * The ones left untouched wait in the drawer. One tap moves on, and never drops one.
  */
 export function ParkedThoughtsScreen({ model, actions, inks, t }: ScreenProps) {
   const thoughts = model.view.kind === 'thoughts' ? model.view.thoughts : [];
@@ -19,7 +20,8 @@ export function ParkedThoughtsScreen({ model, actions, inks, t }: ScreenProps) {
     <SessionFrame
       inks={inks}
       testID="session-parked-thoughts"
-      align="start"
+      align="drawn"
+      footerInset={14}
       top={
         <RoundButton
           label={t('session.skip')}
@@ -30,87 +32,115 @@ export function ParkedThoughtsScreen({ model, actions, inks, t }: ScreenProps) {
         />
       }
       footer={
-        <FilledButton
+        <InkDock
           label={t('session.finish.done')}
           hint={t('session.finish.done.hint')}
           testID="session-thoughts-done"
-          inks={inks}
           onPress={actions.passThoughts}
         />
       }
     >
-      <View style={styles.centre}>
-        <Characters
+      <Stage height={210} top={6}>
+        <Scootch
           mood={model.quiet ? 'serious' : 'pleased'}
           attitude={model.attitude}
-          monster={null}
           reducedMotion={model.reducedMotion}
-          size={140}
+          squashOnChange
+          size={200}
         />
-      </View>
-      <SessionText face="eyebrow" color={inks.muted} accessibilityRole="header">
-        {t('session.thoughts.title')}
-      </SessionText>
-      {model.thoughtsLine === null ? null : (
-        <SessionText face="body" color={inks.muted} testID="session-thoughts-line">
-          {model.thoughtsLine}
+      </Stage>
+      <Words top={6}>
+        <SessionText face="eyebrow" color={inks.muted} accessibilityRole="header">
+          {t('session.thoughts.title')}
         </SessionText>
-      )}
-      {thoughts.map((thought, index) => (
-        <View
-          key={`${thought.parkedAt}-${index}`}
-          testID={`session-thought-${index}`}
-          style={[styles.card, { backgroundColor: inks.surface }]}
-        >
-          <View style={styles.words}>
-            <SessionText face="body" color={inks.ink} style={styles.strong}>
-              {thought.text}
-            </SessionText>
-            <SessionText face="caption" color={inks.muted}>
-              {t('session.thoughts.parkedAt', { time: model.timeOf(thought) })}
-            </SessionText>
-          </View>
-          <View style={styles.choices}>
-            <Capsule
-              label={t('session.thoughts.tomorrow')}
-              hint={t('session.thoughts.tomorrow.hint')}
+        {model.thoughtsLine === null ? null : (
+          <SessionText face="line" color={inks.ink} testID="session-thoughts-line">
+            {model.thoughtsLine}
+          </SessionText>
+        )}
+      </Words>
+      <View style={styles.cards}>
+        {thoughts.map((thought, index) => (
+          <PaperCard
+            key={`${thought.parkedAt}-${index}`}
+            inks={inks}
+            radius={22}
+            testID={`session-thought-${index}`}
+            style={styles.card}
+          >
+            <View style={styles.words}>
+              <SessionText face="thought" color={inks.ink}>
+                {thought.text}
+              </SessionText>
+              <SessionText face="note" color={inks.muted}>
+                {t('session.thoughts.parkedAt', { time: model.timeOf(thought) })}
+              </SessionText>
+            </View>
+            <PressSpring
+              accessibilityRole="button"
+              accessibilityLabel={t('session.thoughts.tomorrow')}
+              accessibilityHint={t('session.thoughts.tomorrow.hint')}
               testID={`session-thought-${index}-tomorrow`}
-              inks={{ ...inks, surface: inks.page }}
+              feedback="choice"
+              hitSlop={6}
               onPress={() => actions.resolveThought(thought, 'keep')}
-            />
-            <TextButton
-              label={t('session.thoughts.letGo')}
-              hint={t('session.thoughts.letGo.hint')}
+              style={[styles.chip, { backgroundColor: `${inks.ink}0F` }]}
+            >
+              <SessionText face="chip" color={inks.ink}>
+                {t('session.thoughts.tomorrow')}
+              </SessionText>
+            </PressSpring>
+            <PressSpring
+              accessibilityRole="button"
+              accessibilityLabel={t('session.thoughts.letGo')}
+              accessibilityHint={t('session.thoughts.letGo.hint')}
               testID={`session-thought-${index}-let-go`}
-              inks={inks}
+              feedback="choice"
+              hitSlop={6}
               onPress={() => actions.resolveThought(thought, 'discard')}
-            />
-          </View>
-        </View>
-      ))}
+              style={styles.chip}
+            >
+              <SessionText face="chip" color={inks.muted}>
+                {t('session.thoughts.letGo')}
+              </SessionText>
+            </PressSpring>
+          </PaperCard>
+        ))}
+      </View>
     </SessionFrame>
   );
 }
 
 const styles = StyleSheet.create({
-  centre: {
-    alignSelf: 'center',
+  // The board's cards: 16 points in from the sides, 18 under the words, 10 apart.
+  cards: {
+    alignSelf: 'stretch',
+    paddingHorizontal: 16,
+    paddingTop: 18,
+    paddingBottom: 16,
+    gap: 10,
   },
   card: {
-    borderRadius: radius.lg,
-    padding: spacing.md,
-    gap: spacing.sm,
-  },
-  words: {
-    gap: 2,
-  },
-  strong: {
-    fontWeight: '600',
-  },
-  choices: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'center',
-    gap: spacing.sm,
+    gap: 12,
+    paddingVertical: 14,
+    paddingLeft: 18,
+    paddingRight: 14,
+  },
+  words: {
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: 120,
+    gap: 2,
+  },
+  chip: {
+    minHeight: 34,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

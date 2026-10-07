@@ -1,8 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 
 import type { MonsterRow } from '@scootch/domain';
-import { spacing } from '@scootch/tokens';
-
 import { Monster, type MonsterProps } from '../../../art/Monster';
 import { Scootch, type ScootchProps } from '../../../art/Scootch';
 
@@ -17,6 +15,10 @@ export interface CharactersProps {
   readonly size?: number;
 }
 
+/** The board stands a 150-point monster beside a 210-point Scootch, 34 points into his box. */
+const MONSTER_SHARE = 150 / 210;
+const OVERLAP_SHARE = 34 / 210;
+
 /** Scootch, with the task's monster beside him when there is one. */
 export function Characters({
   mood,
@@ -24,7 +26,7 @@ export function Characters({
   monster,
   reducedMotion,
   monsterMood = 'idle',
-  size = 200,
+  size = 210,
 }: CharactersProps) {
   return (
     <View style={styles.row}>
@@ -36,15 +38,17 @@ export function Characters({
         size={size}
       />
       {monster ? (
-        <Monster
-          spec={monster.spec}
-          idle
-          mood={monsterMood}
-          squashOnChange
-          reducedMotion={reducedMotion}
-          size={size * 0.6}
-          testID="session-monster"
-        />
+        <View style={{ marginLeft: -size * OVERLAP_SHARE }}>
+          <Monster
+            spec={monster.spec}
+            idle
+            mood={monsterMood}
+            squashOnChange
+            reducedMotion={reducedMotion}
+            size={size * MONSTER_SHARE}
+            testID="session-monster"
+          />
+        </View>
       ) : null}
     </View>
   );
@@ -55,6 +59,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-end',
     justifyContent: 'center',
-    gap: spacing.sm,
   },
 });

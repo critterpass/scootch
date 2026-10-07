@@ -16,6 +16,13 @@ const body: TextStyle = { fontFamily: fonts.body };
 
 const FACES = {
   headline: { base: fontSizes.sentence, cap: 1.5, style: heading },
+  // Scootch's line as the boards set it on each screen: 30, 28 and 34, tight.
+  line: { base: 30, cap: 1.5, style: { ...heading, letterSpacing: -0.6 } },
+  lineSmall: { base: 28, cap: 1.5, style: { ...heading, letterSpacing: -0.56 } },
+  lineLarge: { base: 34, cap: 1.4, style: { ...heading, letterSpacing: -0.68 } },
+  // A parked thought's words and its chips.
+  thought: { base: 17, cap: 2, style: { ...body, fontWeight: '600' } },
+  chip: { base: 14, cap: 1.6, style: { ...body, fontWeight: '600' } },
   minutes: { base: 44, cap: 1.5, style: heading },
   // The time under the ring: 700 40/1, tight, in figures that do not jiggle as they change.
   time: {

@@ -73,7 +73,9 @@ function Ring({ ring, clock }: { readonly ring: BurstRing; readonly clock: Share
 }
 
 export interface BurstMarksProps {
-  readonly kind: 'start' | 'confetti';
+  readonly kind: 'start' | 'confetti' | 'catch';
+  /** The centre of the control that set the burst off, in points from the screen's top left. */
+  readonly controlAt?: { readonly x: number; readonly y: number } | null;
   readonly inks: SessionInks;
   readonly reducedMotion: boolean;
 }
@@ -86,7 +88,7 @@ const at = ([across, down]: readonly [number, number]) =>
  * goes from the Start button and then from up the screen, as the board fires it). With Reduce
  * Motion nothing flies: a soft glow comes up and fades. It never takes a touch.
  */
-export function BurstMarks({ kind, inks, reducedMotion }: BurstMarksProps) {
+export function BurstMarks({ kind, inks, reducedMotion, controlAt }: BurstMarksProps) {
   const clock = useSharedValue(0);
   const glow = useSharedValue(0);
 
@@ -119,7 +121,15 @@ export function BurstMarks({ kind, inks, reducedMotion }: BurstMarksProps) {
         </View>
       ) : (
         sources.map((source) => (
-          <View key={source.id} style={[styles.origin, at(source.at)]}>
+          <View
+            key={source.id}
+            style={[
+              styles.origin,
+              source.fromControl && controlAt
+                ? { left: controlAt.x, top: controlAt.y }
+                : at(source.at),
+            ]}
+          >
             {source.rings.map((ring) => (
               <Ring key={ring.id} ring={ring} clock={clock} />
             ))}

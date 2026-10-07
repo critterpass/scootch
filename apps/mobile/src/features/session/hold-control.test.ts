@@ -9,6 +9,7 @@ import {
   HOLD_FILL_MS,
   holdControl,
   holdReducer,
+  startsOverAfterAnswer,
   type HoldControl,
   type HoldInput,
 } from './hold-control';
@@ -129,5 +130,20 @@ describe('a finish the store did not take', () => {
     state = holdReducer(state, { type: 'tapped', at: 500 }).control;
     expect(state.finished).toBe(true);
     expect(holdReducer(state, { type: 'settled' }).control).toEqual(holdControl('double_tap'));
+  });
+
+  it('keeps the ring full while the catch plays, and resets only a control left on the screen', () => {
+    let state = holdControl('hold');
+    state = holdReducer(state, { type: 'pressed' }).control;
+    state = holdReducer(state, { type: 'frame', elapsedMs: HOLD_FILL_MS }).control;
+    // Taken: the catch is playing on this screen, so nothing is settled and the ring stays full.
+    expect(startsOverAfterAnswer({ onScreen: true, taken: true })).toBe(false);
+    expect(state.progress).toBe(1);
+    expect(holdReducer(state, { type: 'frame', elapsedMs: 5000 }).control.progress).toBe(1);
+    expect(holdReducer(state, { type: 'released' }).control.progress).toBe(1);
+    // Refused: still on the screen and not taken, so it starts over.
+    expect(startsOverAfterAnswer({ onScreen: true, taken: false })).toBe(true);
+    // Gone: nothing to reset.
+    expect(startsOverAfterAnswer({ onScreen: false, taken: false })).toBe(false);
   });
 });

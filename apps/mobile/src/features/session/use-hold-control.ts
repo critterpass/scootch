@@ -6,6 +6,7 @@ import type { SessionEvent } from '@scootch/domain';
 import {
   holdControl,
   holdReducer,
+  startsOverAfterAnswer,
   type HoldCaption,
   type HoldControl,
   type HoldInput,
@@ -56,7 +57,9 @@ export function useHoldControl(
         // Looked at a moment later, once the screen has caught up with the store.
         void Promise.resolve(sent).then(() =>
           setTimeout(() => {
-            if (!mounted.current || wasTaken.current) return;
+            if (!startsOverAfterAnswer({ onScreen: mounted.current, taken: wasTaken.current })) {
+              return;
+            }
             const settled = holdReducer(state.current, { type: 'settled' });
             state.current = settled.control;
             progress.value = settled.control.progress;

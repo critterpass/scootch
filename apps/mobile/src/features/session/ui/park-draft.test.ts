@@ -2,7 +2,7 @@ import { describe, expect, it } from '@jest/globals';
 
 import { composerReducer, initialComposer } from '../../composer/composer-machine';
 
-import { parkDraft, sessionClosing } from './park-draft';
+import { parkDraft } from './park-draft';
 
 describe('what the park field holds', () => {
   it('is the typed words, trimmed', () => {
@@ -25,14 +25,5 @@ describe('what the park field holds', () => {
 
   it('is nothing when nothing was typed or heard', () => {
     expect(parkDraft(initialComposer('ready'))).toBe('');
-  });
-});
-
-describe('the last seconds of a session', () => {
-  it('hands the field over three seconds before the end and not before', () => {
-    expect(sessionClosing(3.5)).toBe(false);
-    expect(sessionClosing(3)).toBe(true);
-    expect(sessionClosing(0)).toBe(true);
-    expect(sessionClosing(420)).toBe(false);
   });
 });

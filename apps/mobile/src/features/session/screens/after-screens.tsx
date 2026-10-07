@@ -1,8 +1,10 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 
+import { Scootch } from '../../../art/Scootch';
 import { BurstMarks } from '../ui/burst-marks';
 import { Characters } from '../ui/characters';
 import { FilledButton, RoundButton } from '../ui/controls';
+import { InkDock, Stage, Words } from '../ui/drawn-parts';
 import { SessionFrame } from '../ui/session-frame';
 import { SessionText } from '../ui/session-text';
 
@@ -59,16 +61,21 @@ export function MomentScreen({ model, actions, inks, t }: ScreenProps) {
   );
 }
 
-/** The treat named before starting, handed over with ceremony. One tap claims it; one tap skips. */
+/**
+ * The treat named before starting, handed over with ceremony, as the board draws it: Scootch large
+ * and celebrating, his ceremony line as the headline, and the treat itself in the one action.
+ * One tap claims it; the corner skips.
+ */
 export function TreatScreen({ model, actions, inks, t }: ScreenProps) {
   const treat = model.view.kind === 'treat' ? model.view.treat : '';
-  // The task's own ceremony line when its pack has one; otherwise what was last said, as before.
+  // The task's own ceremony line when its pack has one; otherwise what was last said.
   const said = model.treatLine ?? model.line?.text ?? null;
   return (
     <SessionFrame
       inks={inks}
       testID="session-treat"
-      align="start"
+      align="drawn"
+      footerInset={14}
       over={<BurstMarks kind="confetti" inks={inks} reducedMotion={model.reducedMotion} />}
       top={
         <RoundButton
@@ -80,34 +87,37 @@ export function TreatScreen({ model, actions, inks, t }: ScreenProps) {
         />
       }
       footer={
-        <FilledButton
+        <InkDock
           label={t('session.treat.claim', { treat: treatName(treat) })}
           hint={t('session.treat.claim.hint')}
           testID="session-treat-claim"
-          inks={inks}
           onPress={actions.passTreat}
         />
       }
     >
-      <View style={styles.centre}>
-        <Characters
+      <Stage height={280} top={14}>
+        <Scootch
           mood="celebrating"
           attitude={model.attitude}
-          monster={null}
           reducedMotion={model.reducedMotion}
+          squashOnChange
+          size={260}
         />
-      </View>
-      <SessionText face="eyebrow" color={inks.muted} accessibilityRole="header">
-        {t('session.treat.title')}
-      </SessionText>
-      <SessionText face="headline" color={inks.ink} testID="session-treat-name">
-        {treat}
-      </SessionText>
-      {said === null ? null : (
-        <SessionText face="body" color={inks.muted} testID="session-treat-line">
-          {said}
+      </Stage>
+      <Words top={8}>
+        <SessionText face="eyebrow" color={inks.muted} accessibilityRole="header">
+          {t('session.treat.title')}
         </SessionText>
-      )}
+        {said === null ? (
+          <SessionText face="lineLarge" color={inks.ink} testID="session-treat-name">
+            {treat}
+          </SessionText>
+        ) : (
+          <SessionText face="lineLarge" color={inks.ink} testID="session-treat-line">
+            {said}
+          </SessionText>
+        )}
+      </Words>
     </SessionFrame>
   );
 }
@@ -115,8 +125,5 @@ export function TreatScreen({ model, actions, inks, t }: ScreenProps) {
 const styles = StyleSheet.create({
   stretch: {
     alignSelf: 'stretch',
-  },
-  centre: {
-    alignSelf: 'center',
   },
 });
