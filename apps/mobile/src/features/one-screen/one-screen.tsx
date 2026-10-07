@@ -145,14 +145,18 @@ export function OneScreen({ speech, warmUp, notificationsRefused }: OneScreenPro
         ? shownLine.text
         : lineWithNoTask('doneForToday', voice);
     // Nothing is sold near something heavy: on such a day the control is not drawn at all.
-    const under = !showsSelling(day) ? null : (
-      <OneMore
-        plus={plus}
-        left={today.kind === 'done_for_today' ? today.startsLeft : 0}
-        onLocked={() => router.push(PLUS_SHEET_ONE_MORE)}
-        onMore={() => send({ type: 'one_more_asked' })}
-      />
-    );
+    // A start still open today is offered on any day. Only the locked control, which leads to
+    // Plus, is held back on a heavy day.
+    const left = today.kind === 'done_for_today' ? today.startsLeft : 0;
+    const under =
+      left === 0 && !showsSelling(day) ? null : (
+        <OneMore
+          plus={plus}
+          left={left}
+          onLocked={() => router.push(PLUS_SHEET_ONE_MORE)}
+          onMore={() => send({ type: 'one_more_asked' })}
+        />
+      );
     return <OneScreenView {...frame} mood="asleep" line={said} shown={{ kind: 'done', under }} />;
   }
 
