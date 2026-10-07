@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import type { TaskCreateStartResponse } from '@scootch/domain';
+import { FREE_STARTS_PER_DAY, type TaskCreateStartResponse } from '@scootch/domain';
 
 import type { Judged } from '../api/scootch-api';
 import { composerReducer, initialComposer } from '../features/composer/composer-machine';
@@ -65,7 +65,7 @@ describe('waiting for the model', () => {
     expect(app.store.getState()).toMatchObject({
       taskCall: 'idle',
       returnedText: 'ring the dentist and also sort the tax',
-      today: { kind: 'nothing_yet', startsLeft: 3 },
+      today: { kind: 'nothing_yet', startsLeft: FREE_STARTS_PER_DAY },
     });
 
     answer();

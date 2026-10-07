@@ -2,6 +2,7 @@ import { describe, expect, it } from '@jest/globals';
 
 import {
   DAY_MS,
+  FREE_STARTS_PER_DAY,
   MINUTE_MS,
   type SessionEvent,
   type TaskCreatePass,
@@ -265,7 +266,10 @@ describe('the day store', () => {
     // The thought is the person's own, not the task's: it stays stored until they answer for it.
     expect(app.data.count('parked_thoughts')).toBe(1);
     expect(app.data.dump()).not.toContain('plumber about');
-    expect(app.store.getState().today).toEqual({ kind: 'nothing_yet', startsLeft: 3 });
+    expect(app.store.getState().today).toEqual({
+      kind: 'nothing_yet',
+      startsLeft: FREE_STARTS_PER_DAY,
+    });
     expect(app.store.getState().parkedThoughts.map((one) => one.text)).toEqual(['buy washers']);
   });
 
