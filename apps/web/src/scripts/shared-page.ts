@@ -41,7 +41,10 @@ export function showState(root: HTMLElement, state: string): void {
 }
 
 /** The language switch in the footer keeps the reader on the same shared thing. */
-export function keepLanguageSwitchHere(kind: 'm' | 'c' | 's' | 't' | 'h' | 'r', id: string): void {
+export function keepLanguageSwitchHere(
+  kind: 'm' | 'c' | 's' | 't' | 'f' | 'h' | 'r',
+  id: string,
+): void {
   const link = document.querySelector<HTMLAnchorElement>('.footer-end a[hreflang]');
   if (link) link.href = `${link.hreflang === 'vi' ? '/vi' : ''}/${kind}/${encodeURIComponent(id)}`;
 }

@@ -124,11 +124,11 @@ export const vi = {
   },
   prices: {
     freeEyebrow: 'Miễn phí mãi mãi',
-    freeHeadline: 'Có đủ hết, mỗi ngày một việc.',
+    freeHeadline: 'Có đủ hết, mỗi ngày tới ba việc.',
     free: [
-      'Mỗi ngày một việc, mãi mãi',
+      'Mỗi ngày tới ba việc, mãi mãi',
       'Con quái nào bắt được cũng giữ mãi',
-      'Ngồi bàn cùng bạn bè',
+      'Ngồi bàn cùng bạn bè, và tự mở bàn hai chỗ',
       'Đủ cả ba thái độ',
       'Bài hát hằng tuần, và chia sẻ nó',
     ],
@@ -141,7 +141,7 @@ export const vi = {
     ],
     plus: [
       'Việc thứ hai và thứ ba vào những ngày khoẻ',
-      'Tự mở bàn cho bạn bè',
+      'Mở bàn tới bốn chỗ',
       'Giữ mọi bản thu hằng tuần',
       'Cuốn sổ thẻ, có sắp xếp và thống kê',
       'Widget cỡ đại và StandBy',
