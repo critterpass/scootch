@@ -30,6 +30,7 @@ export function Corners({ offline, onWorld, onMore }: CornersProps) {
           label={t('oneScreen.world')}
           hint={onWorld ? t('oneScreen.world.hint') : t('oneScreen.notOpenYet')}
           inert={onWorld === undefined}
+          zoomTo="/world"
           testID="world-button"
           {...(onWorld ? { onPress: onWorld } : {})}
         >
