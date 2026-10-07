@@ -70,12 +70,17 @@ const PERMISSION_STRINGS = {
     NSSpeechRecognitionUsageDescription:
       'Scootch turns what you say into text so you do not have to type.',
     NSPhotoLibraryAddUsageDescription: 'Scootch saves a card to your photos when you tap Save.',
+    // Apple asks for this whenever a linked library can read photos. Scootch never does.
+    NSPhotoLibraryUsageDescription:
+      'Scootch only adds the cards you save to your photos. It never looks at the rest.',
   },
   vi: {
     NSMicrophoneUsageDescription: 'Scootch dùng micro để bạn có thể nói thay vì gõ.',
     NSSpeechRecognitionUsageDescription:
       'Scootch chuyển lời bạn nói thành chữ để bạn không phải gõ.',
     NSPhotoLibraryAddUsageDescription: 'Scootch lưu thẻ vào ảnh của bạn khi bạn chạm Lưu.',
+    NSPhotoLibraryUsageDescription:
+      'Scootch chỉ thêm những thẻ bạn lưu vào ảnh. Scootch không bao giờ xem các ảnh khác.',
   },
 };
 
@@ -191,9 +196,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     [
       'expo-media-library',
       {
-        // Saving a card only ever adds a picture; the app never reads the photo library, so
-        // there is no read string and no Android media-read permission.
-        photosPermission: false,
+        // Saving a card only ever adds a picture and the app never reads the photo library. The
+        // read string is still required: Apple refuses a binary whose linked library can read
+        // photos without one. No Android media-read permission.
+        photosPermission: PERMISSION_STRINGS.en.NSPhotoLibraryUsageDescription,
         savePhotosPermission: PERMISSION_STRINGS.en.NSPhotoLibraryAddUsageDescription,
         isAccessMediaLocationEnabled: false,
         granularPermissions: [],
