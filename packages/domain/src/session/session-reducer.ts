@@ -127,8 +127,12 @@ function act(state: LiveSession, event: SessionEvent, now: Instant): SessionStep
       if (!open || text === '') return unchanged(state);
       const thought: ParkedThought = { text, parkedAt: now };
       const effects: SessionEffect[] = [{ kind: 'save_parked_thought', thought }];
-      if (full) effects.push({ kind: 'play_cue', cue: 'park-a-thought' });
-      effects.push({ kind: 'show_line', line: 'thoughtParked' });
+      // Said and heard only while the work goes on. At the very end the thought is kept without
+      // a word: the time-up line and the finish keep the moment.
+      if (phase === 'running' || phase === 'stuck') {
+        if (full) effects.push({ kind: 'play_cue', cue: 'park-a-thought' });
+        effects.push({ kind: 'show_line', line: 'thoughtParked' });
+      }
       return { state: { ...state, thoughts: [...state.thoughts, thought] }, effects };
     }
     case 'stuck_tapped':
