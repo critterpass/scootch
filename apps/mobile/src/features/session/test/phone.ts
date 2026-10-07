@@ -49,6 +49,7 @@ export async function phone(answer: TaskCreateResponse, database?: TestDatabase,
     runner,
     phoneLanguage: () => 'en',
     plus: () => false,
+    timers: time.timers,
   });
   await store.start();
   const session = (event: SessionEvent) => store.dispatch({ type: 'session', event });

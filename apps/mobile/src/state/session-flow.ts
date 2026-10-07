@@ -1,6 +1,7 @@
 import {
   addDays,
   checkInAt,
+  hasStartLeft,
   instantFromIso,
   isoFromInstant,
   parkThings,
@@ -109,13 +110,43 @@ async function persist(
       await shrinkTask(ctx, current);
       current = (await repositories.tasks.get(current.id)) ?? current;
     } else if (effect.kind === 'carry_task_to_tomorrow') {
-      await save({ localDate: addDays(current.localDate, 1), carriedOver: true, status: 'set' });
+      await carryToTomorrow(ctx, current);
+      current = (await repositories.tasks.get(current.id)) ?? current;
     } else if (effect.kind === 'forget_task') {
       await repositories.forgetTask(effect.taskId);
       ctx.memory.sessionRowId = null;
     }
     // Every other effect is the runner's to perform.
   }
+}
+
+/**
+ * The task waits for tomorrow and today rests. The start it used today stays counted: its
+ * session keeps today's date.
+ */
+async function carryToTomorrow(ctx: DayContext, task: TaskRow): Promise<void> {
+  const { tasks, days } = ctx.deps.repositories;
+  const { localDate } = ctx.memory.state;
+  await tasks.put({ ...task, localDate: addDays(localDate, 1), carriedOver: true, status: 'set' });
+  const day = await days.get(localDate);
+  if (day && day.status === 'open') await days.put({ ...day, status: 'done' });
+}
+
+/**
+ * "That's it for today": the day rests without a finish. A task that is set, or was started and
+ * left, waits for tomorrow; nothing is dropped. A serious task has its own "Not today".
+ */
+export async function restForToday(ctx: DayContext): Promise<void> {
+  const { today, localDate } = ctx.memory.state;
+  if (today.kind === 'task_set') {
+    await carryToTomorrow(ctx, today.task);
+    ctx.set({ pick: { kind: 'none' }, session: null, line: null });
+  } else if (today.kind === 'nothing_yet') {
+    const day = await ctx.deps.repositories.days.get(localDate);
+    if (day && day.status === 'open')
+      await ctx.deps.repositories.days.put({ ...day, status: 'done' });
+  }
+  await ctx.refresh();
 }
 
 export function currentTask(ctx: DayContext): TaskRow | null {
@@ -148,6 +179,12 @@ export async function applySession(ctx: DayContext, event: SessionEvent): Promis
   const { session } = ctx.memory.state;
   const task = currentTask(ctx);
   if (!session || !task) return;
+  // A start goes through the day's limit like everything else. A task already started today has
+  // used its start and may be picked up again.
+  const { today } = ctx.memory.state;
+  if (event.type === 'started' && today.kind === 'task_set' && task.status === 'set') {
+    if (!hasStartLeft(today)) return;
+  }
 
   const step = sessionReducer(session, event, ctx.now());
   ctx.set({ session: step.state });

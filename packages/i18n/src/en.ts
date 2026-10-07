@@ -1,3 +1,4 @@
+import { enDayLoop } from './en-day-loop';
 import { enCareAndSettings } from './en-care-and-settings';
 import { enPlus } from './en-plus';
 import { enTogether } from './en-together';
@@ -287,12 +288,6 @@ export const en = {
   'energy.guess': 'Guess from how I wrote',
   'energy.hint': 'Scootch picks to match.',
 
-  'pick.picked': 'Scootch picked',
-  'pick.again': 'Pick again',
-  'pick.again.hint': 'Scootch offers a different one.',
-  'pick.accept': 'Fine, that one',
-  'pick.accept.hint': "Sets it as today's one thing.",
-
   'bargain.notNow.hint': 'Tell Scootch why, and it asks for less.',
   'bargain.reason': 'Why not now?',
   'bargain.reason.hint': 'A few words are enough.',
@@ -325,6 +320,7 @@ export const en = {
   'morning.note': '{thing} is due {day}.',
 
   ...enCareAndSettings,
+  ...enDayLoop,
   ...enPlus,
   ...enTogether,
 } as const;

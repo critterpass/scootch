@@ -11,12 +11,12 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { DrawerItemRow, Id, IsoDate } from '@scootch/domain';
-import { fonts, spacing } from '@scootch/tokens';
 
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
 import { dayWords } from './day-words';
+import { drawerStyles as styles } from './drawer-sheet-styles';
 
 const TITLE_SIZE = 22;
 const COUNT_SIZE = 13;
@@ -29,7 +29,6 @@ const CLOSE_SIZE = 16;
 const PEEK_ROWS = 6;
 /** The sheet starts this far under the top safe edge, as the design sets it. */
 const TOP_GAP = 106;
-const MARKER = 22;
 
 export interface DrawerSheetProps {
   /** From the day store, which opens it only on the person's own pull or their tap on "Peek". */
@@ -38,6 +37,8 @@ export interface DrawerSheetProps {
   readonly today: IsoDate;
   /** False once today's thing has been started: nothing can be swapped for it then. */
   readonly canSwap: boolean;
+  /** Said in place of "Swap in" when today's starts are all used; `null` otherwise. */
+  readonly capNote?: string | null;
   readonly onSwapIn: (itemId: Id) => void;
   readonly onClose: () => void;
 }
@@ -48,7 +49,15 @@ export interface DrawerSheetProps {
  * circle for a dated thing, an empty ring for the rest) and a quiet way out. It lists six things
  * and says how many more there are; tapping that shows them all, and the list scrolls.
  */
-export function DrawerSheet({ open, items, today, canSwap, onSwapIn, onClose }: DrawerSheetProps) {
+export function DrawerSheet({
+  open,
+  items,
+  today,
+  canSwap,
+  capNote = null,
+  onSwapIn,
+  onClose,
+}: DrawerSheetProps) {
   const { palette, allowFontScaling, size, reducedMotion, largeText } = useScreenStyle();
   const { language } = useLanguage();
   const t = useT();
@@ -118,6 +127,15 @@ export function DrawerSheet({ open, items, today, canSwap, onSwapIn, onClose }: 
                 : t('drawer.count', { parked: items.length, dated })}
             </Text>
           </View>
+          {capNote === null || items.length === 0 ? null : (
+            <Text
+              testID="drawer-cap"
+              allowFontScaling={allowFontScaling}
+              style={[styles.body, styles.note, type('500', NOTE_SIZE, palette.ink)]}
+            >
+              {capNote}
+            </Text>
+          )}
           {items.length === 0 ? null : (
             <ScrollView
               style={styles.list}
@@ -248,61 +266,3 @@ export function DrawerSheet({ open, items, today, canSwap, onSwapIn, onClose }: 
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  shade: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(28,26,23,0.25)' },
-  sheet: {
-    marginHorizontal: 8,
-    marginBottom: 8,
-    borderRadius: 44,
-    borderWidth: 0.5,
-    paddingTop: 12,
-    paddingHorizontal: 18,
-    gap: 12,
-    overflow: 'hidden',
-  },
-  grabber: { width: 36, height: 5, borderRadius: 3, alignSelf: 'center' },
-  head: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    alignItems: 'baseline',
-    columnGap: spacing.sm,
-    rowGap: 2,
-    paddingHorizontal: 4,
-  },
-  title: { fontFamily: fonts.heading },
-  body: { fontFamily: fonts.body },
-  wide: { flexBasis: '100%' },
-  strong: { fontFamily: fonts.heading },
-  list: { flexGrow: 0, flexShrink: 1 },
-  listContent: { gap: 12 },
-  card: { borderRadius: 22, overflow: 'hidden' },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    minHeight: 56,
-  },
-  marker: {
-    width: MARKER,
-    height: MARKER,
-    borderRadius: MARKER / 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  mark: { fontFamily: fonts.heading, fontWeight: '800', fontSize: 13, lineHeight: 15 },
-  words: { flex: 1, gap: 2 },
-  swap: {
-    minHeight: 30,
-    justifyContent: 'center',
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-  },
-  noteBox: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 10 },
-  note: { textAlign: 'center' },
-  close: { minHeight: 44, alignItems: 'center', justifyContent: 'center' },
-});

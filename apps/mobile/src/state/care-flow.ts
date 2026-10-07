@@ -49,6 +49,8 @@ export async function stopWithoutAWord(ctx: DayContext): Promise<void> {
   }
   ctx.memory.sessionRowId = null;
   ctx.memory.restPending = false;
+  ctx.memory.stopWaiting?.();
+  ctx.memory.stopWaiting = null;
   ctx.deps.runner.run(
     [
       { kind: 'cancel_timer' },
@@ -68,6 +70,8 @@ export async function stopWithoutAWord(ctx: DayContext): Promise<void> {
     afterLines: NO_AFTER_LINES,
     heardDeadlines: [],
     notice: null,
+    taskCall: 'idle',
+    returnedText: null,
     modelDown: false,
     reminderAt: null,
   });

@@ -70,6 +70,7 @@ async function phone(server: Server, database?: TestDatabase, at = MORNING) {
     runner,
     phoneLanguage: () => 'en',
     plus: () => false,
+    timers: time.timers,
   });
   await store.start();
   const session = (event: SessionEvent) => store.dispatch({ type: 'session', event });

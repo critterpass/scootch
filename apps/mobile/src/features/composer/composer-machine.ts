@@ -39,6 +39,8 @@ export type ComposerEvent =
   | { readonly type: 'text_changed'; readonly text: string }
   | { readonly type: 'send_tapped' }
   | { readonly type: 'sent' }
+  /** The day store handed the sent words back (the wait was cancelled): they are in the field again. */
+  | { readonly type: 'text_returned'; readonly text: string }
   | { readonly type: 'notice_cleared' };
 
 export type ComposerEffect =
@@ -178,6 +180,11 @@ export function composerReducer(state: ComposerState, event: ComposerEvent): Com
     }
     case 'sent':
       return state.phase === 'sending' ? stay({ ...state, phase: 'idle' }) : stay(state);
+    case 'text_returned':
+      // Spoken or typed, the words come back as text to edit or send again.
+      return recording
+        ? stay(state)
+        : stay({ ...state, ...RESTING, mode: 'typing', text: event.text, notice: null });
     case 'notice_cleared':
       return stay({ ...state, notice: null });
   }

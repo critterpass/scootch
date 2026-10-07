@@ -111,6 +111,7 @@ function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
     runner,
     phoneLanguage: language,
     plus: unlocked,
+    timers: systemTimers,
   });
   // The widgets, the Live Activity and the control read today from the App Group.
   const surfaces = createSurfaceSync({
@@ -247,7 +248,7 @@ export function useToday() {
   const state = useDayState();
   const { ready, localDate, today, morning, monster, monsterPending } = state;
   const { taskCall, notice, heardDeadlines, settings, pick, energyNeeded, oneMore } = state;
-  const { modelDown, reminderAt, heavyToday } = state;
+  const { modelDown, reminderAt, heavyToday, waitingForTomorrow, returnedText } = state;
   return useMemo(
     () => ({
       ready,
@@ -266,6 +267,8 @@ export function useToday() {
       modelDown,
       reminderAt,
       heavyToday,
+      waitingForTomorrow,
+      returnedText,
     }),
     [
       ready,
@@ -284,6 +287,8 @@ export function useToday() {
       modelDown,
       reminderAt,
       heavyToday,
+      waitingForTomorrow,
+      returnedText,
     ],
   );
 }

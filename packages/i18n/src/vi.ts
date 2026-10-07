@@ -1,3 +1,4 @@
+import { viDayLoop } from './vi-day-loop';
 import { viCareAndSettings } from './vi-care-and-settings';
 import type { Catalogue } from './catalogue-types';
 import { viPlus } from './vi-plus';
@@ -284,12 +285,6 @@ export const vi = {
   'energy.guess': 'Đoán theo cách mình viết',
   'energy.hint': 'Scootch sẽ chọn cho vừa sức.',
 
-  'pick.picked': 'Scootch chọn',
-  'pick.again': 'Chọn cái khác',
-  'pick.again.hint': 'Scootch đưa ra việc khác.',
-  'pick.accept': 'Ừ, việc đó',
-  'pick.accept.hint': 'Chọn nó làm một việc của hôm nay.',
-
   'bargain.notNow.hint': 'Nói cho Scootch biết lý do, nó sẽ xin ít hơn.',
   'bargain.reason': 'Sao chưa làm được?',
   'bargain.reason.hint': 'Vài chữ là đủ.',
@@ -322,6 +317,7 @@ export const vi = {
   'morning.note': '{thing} tới hạn {day}.',
 
   ...viCareAndSettings,
+  ...viDayLoop,
   ...viPlus,
   ...viTogether,
 } as const satisfies Catalogue;

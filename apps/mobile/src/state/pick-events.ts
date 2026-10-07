@@ -10,7 +10,7 @@ import {
   swapItemIn,
   tooBig,
 } from './pick-flow';
-import { afterPicked, resolveTranscript } from './task-flow';
+import { afterPicked, dropTaskCall, resolveTranscript } from './task-flow';
 
 /**
  * The events between a sent ramble and a set task: the pick, a heard date, the drawer's swap,
@@ -32,6 +32,8 @@ export async function applyPickEvent(ctx: DayContext, event: PickEvent): Promise
       return;
     }
     case 'drawer_item_swapped_in':
+      // Taking something from the drawer while Scootch is thinking is moving on from what was sent.
+      dropTaskCall(ctx);
       if (await swapItemIn(ctx, event.itemId)) {
         await resolveTranscript(ctx);
         ctx.set({ heardDeadlines: [], line: null });
@@ -41,6 +43,13 @@ export async function applyPickEvent(ctx: DayContext, event: PickEvent): Promise
     case 'pick_for_me':
       pickForMe(ctx);
       return;
+    case 'pick_dropped': {
+      const { kind } = ctx.memory.state.pick;
+      if (kind !== 'picked_for_me' && kind !== 'bargaining') return;
+      ctx.memory.turnedDown = [];
+      ctx.set({ pick: { kind: 'none' } });
+      return;
+    }
     case 'excuse_given':
       counterOffer(ctx, event.text);
       return;

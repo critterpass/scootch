@@ -1,19 +1,12 @@
-import {
-  DRAWER_CLOSED,
-  currentScootchDay,
-  fadeDrawer,
-  isoFromInstant,
-  morningOffer,
-  returningItem,
-  todayState,
-  type ClockTime,
-} from '@scootch/domain';
+import { DRAWER_CLOSED, currentScootchDay, isoFromInstant, type ClockTime } from '@scootch/domain';
 
 import { defaultSettings } from '../data/repositories/settings';
 import type { EffectSwitches, ScreenSink } from '../effects/adapters';
 
 import { askReminder, crisisInWords, setSeriousAside } from './care-flow';
-import { DEFAULT_USUAL_START, dayNotifications, usualStart } from './day-notifications';
+import { DEFAULT_USUAL_START, usualStart } from './day-notifications';
+import { readToday } from './day-refresh';
+import { openDay } from './day-rollover';
 import {
   PASSIVE_EVENTS,
   isPickEvent,
@@ -26,10 +19,17 @@ import {
 import { NO_AFTER_LINES } from './lines';
 import { applyPickEvent } from './pick-events';
 import { drawerEvent, setBargainedSession } from './pick-flow';
-import { applySession, resolveThought, restoreSession } from './session-flow';
+import { applySession, resolveThought, restForToday, restoreSession } from './session-flow';
 import { closeSession, followTableClock, shortenSession, turnWorkingLine } from './session-moments';
 import { applySurfaceAction, noticePickUp } from './surface-actions';
-import { askAnother, beFunny, fetchPending, resolveTranscript, submitText } from './task-flow';
+import {
+  askAnother,
+  beFunny,
+  cancelTaskCall,
+  fetchPending,
+  resolveTranscript,
+  submitText,
+} from './task-flow';
 
 export interface DayStore {
   readonly getState: () => DayState;
@@ -58,9 +58,11 @@ const NOT_READY: DayState = {
   monster: null,
   monsterPending: false,
   taskCall: 'idle',
+  returnedText: null,
   notice: null,
   modelDown: false,
   reminderAt: null,
+  waitingForTomorrow: null,
   heardDeadlines: [],
   line: null,
   burst: null,
@@ -99,26 +101,33 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
     turnedDown: [],
     untrustedTaskId: null,
     screenAskedAt: null,
+    stopWaiting: null,
+    askingPending: false,
   };
   let usual: ClockTime = DEFAULT_USUAL_START;
   let queue: Promise<void> = Promise.resolve();
-  let arriving: Promise<void> = Promise.resolve();
+  /** What the step now running has left arriving. Each dispatch waits for its own, not for others'. */
+  let leftArriving: Promise<void>[] = [];
 
-  const enqueue = (work: () => Promise<void>) => {
-    const run = queue.then(work);
+  const enqueue = (work: () => Promise<void>, arriving: Promise<void>[]) => {
+    const run = queue.then(() => {
+      leftArriving = arriving;
+      return work();
+    });
     queue = run.catch(() => undefined);
     return run;
   };
   const later: DayContext['later'] = (arrives, work) => {
-    const applied = arrives.then((value) => enqueue(() => work(value))).catch(() => undefined);
-    arriving = Promise.all([arriving, applied]).then(() => undefined);
+    const arriving = leftArriving;
+    arriving.push(
+      arrives.then((value) => enqueue(() => work(value), arriving)).catch(() => undefined),
+    );
   };
-  /** Waits for everything that is arriving, including what arrives while waiting. */
-  const settle = async () => {
-    for (let seen: Promise<void> | null = null; seen !== arriving;) {
-      seen = arriving;
-      await seen;
-    }
+  /** Runs one step, then waits for everything it left arriving, and what that left in turn. */
+  const run = async (work: () => Promise<void>) => {
+    const arriving: Promise<void>[] = [];
+    await enqueue(work, arriving);
+    for (let seen = 0; seen < arriving.length; seen += 1) await arriving[seen];
   };
 
   const set = (changes: Partial<DayState>) => {
@@ -126,66 +135,7 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
     for (const listener of listeners) listener();
   };
 
-  async function refresh(): Promise<void> {
-    const { localDate, settings } = memory.state;
-    const tasks = await repositories.tasks.where('localDate', localDate);
-    const sessions = (
-      await Promise.all(tasks.map((task) => repositories.sessions.where('taskId', task.id)))
-    ).flat();
-    const day = await repositories.days.get(localDate);
-    const today = todayState({ localDate, day, tasks, sessions, plus: deps.plus() });
-    const task = 'task' in today ? today.task : null;
-    const monster = task
-      ? ((await repositories.monsters.where('taskId', task.id))[0] ?? null)
-      : null;
-    const items = await repositories.drawerItems.all();
-    // The reminder belongs to today's serious task while it is still only set, and to nothing else.
-    const asked = await repositories.careReminder.read();
-    const reminderAt =
-      asked !== null &&
-      today.kind === 'serious' &&
-      today.session === null &&
-      asked.taskId === task?.id
-        ? asked.at
-        : null;
-    if (asked !== null && reminderAt === null) await repositories.careReminder.clear();
-    // Something heavy is around: a serious task today, or one waiting in the drawer.
-    const heavyToday =
-      tasks.some((one) => one.screen === 'serious') ||
-      items.some((one) => one.screen === 'serious');
-    set({
-      heavyToday,
-      today,
-      reminderAt,
-      // Asked once a day, before the first thing is picked.
-      energyNeeded: (day?.energy ?? null) === null && tasks.length === 0,
-      // The ask stays open only while the day is finished and the daily limit has a start left.
-      oneMore: memory.state.oneMore && today.kind === 'done_for_today' && today.startsLeft > 0,
-      monster,
-      monsterPending:
-        task !== null && (task.screen === 'unscreened' || (task.screen === 'pass' && !monster)),
-      morning: morningOffer({
-        today: localDate,
-        lastOpenedDay: memory.lastOpenedDay,
-        tasks,
-        returning: returningItem(items, localDate),
-        drawer: items,
-      }),
-      drawer: { open: memory.state.drawer.open, items },
-    });
-    await deps.runner.syncNotifications(
-      dayNotifications({
-        today,
-        settings,
-        localDate,
-        timeZone: deps.timeZone(),
-        usualStart: usual,
-        // Soft while something heavy is around.
-        heavyToday,
-        reminderAt,
-      }),
-    );
-  }
+  const refresh = () => readToday({ deps, memory, set }, usual);
 
   const ctx: DayContext = { deps, memory, set, refresh, later, now: () => deps.clock.now() };
 
@@ -202,7 +152,8 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
       latestDay: days.at(-1)?.localDate ?? null,
     });
     memory.lastOpenedDay = days.findLast((day) => day.localDate < localDate)?.localDate ?? null;
-    if (!days.some((day) => day.localDate === localDate)) {
+    const opened = days.map((day) => day.localDate);
+    if (!opened.includes(localDate)) {
       await repositories.days.put({
         localDate,
         status: 'open',
@@ -212,9 +163,7 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
       });
     }
 
-    // Undated things whose two weeks are up leave the drawer without a word.
-    const { fadedIds } = fadeDrawer(await repositories.drawerItems.all(), localDate);
-    for (const id of fadedIds) await repositories.drawerItems.remove(id);
+    await openDay(ctx, localDate, opened);
 
     usual = usualStart(await repositories.sessions.all(), timeZone);
     memory.offer = null;
@@ -241,6 +190,10 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
         return submitText(ctx, { ...event, declined: [], transcriptId: null, candidates: [] });
       case 'another_asked':
         return askAnother(ctx);
+      case 'task_call_cancelled':
+        return cancelTaskCall(ctx);
+      case 'returned_text_taken':
+        return set({ returnedText: null });
       case 'session_set':
         await resolveTranscript(ctx);
         return setBargainedSession(ctx, event.minutes, event.treat ?? null);
@@ -258,11 +211,8 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
         return followTableClock(ctx, event.endsAt);
       case 'developer_session_ends_in':
         return shortenSession(ctx, event.seconds);
-      case 'done_for_today': {
-        const day = await repositories.days.get(memory.state.localDate);
-        if (day && day.status === 'open') await repositories.days.put({ ...day, status: 'done' });
-        return refresh();
-      }
+      case 'done_for_today':
+        return restForToday(ctx);
       case 'one_more_asked': {
         const { today } = memory.state;
         // Not on a day with something heavy in it: nothing is sold, or asked for, beside it.
@@ -313,8 +263,8 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
       listeners.add(listener);
       return () => void listeners.delete(listener);
     },
-    dispatch: (event) => enqueue(() => handle(event)).then(settle),
-    start: () => enqueue(rebuild).then(settle),
+    dispatch: (event) => run(() => handle(event)),
+    start: () => run(rebuild),
     screen: {
       showLine: (slot, text) => set({ line: { slot, text } }),
       showBurst: (burst) => set({ burst }),
