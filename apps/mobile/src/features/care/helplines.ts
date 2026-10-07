@@ -1,97 +1,32 @@
 /**
- * Helplines by country, shown first on a crisis day and kept one tap from Settings.
- *
- * EVERY NUMBER HERE MUST BE VERIFIED AGAINST ITS SOURCE BEFORE LAUNCH, and again every month after.
- * `checkedOn` is the day a person last did that; `null` means nobody has yet, and the app must not
- * ship while any row says so. The rows are the ones the design's helplines page lists. Nothing in
- * this file is ever logged.
+ * The app's side of the helpline table. The rows, their hours and the rules for what is open live
+ * in `@scootch/i18n`, where the website reads the very same table; this file adds only the words
+ * on the app's buttons. Nothing here is ever logged.
  */
-export interface Helpline {
-  /** ISO 3166-1 alpha-2 codes of the regions this row is shown in. */
-  readonly regions: readonly string[];
-  /** The service's own name. Left as the service writes it, in every language. */
-  readonly name: string;
-  readonly number: string;
-  /** `emergency` is the country's emergency number, shown where no helpline has been verified. */
-  readonly reach: 'call' | 'call_or_text' | 'emergency';
-  /** Where the number comes from and where to check it. */
-  readonly source: string;
-  /** `YYYY-MM-DD`, or `null` while the row is unverified. */
-  readonly checkedOn: string | null;
+import type { Helpline } from '@scootch/i18n';
+
+import type { Translate } from '../../i18n/i18n-provider';
+
+export {
+  HELPLINES,
+  HELPLINE_DIRECTORY,
+  dialLink,
+  helplineDetail,
+  helplinesFor,
+  orderedAt,
+  textLink,
+} from '@scootch/i18n';
+export type { Helpline } from '@scootch/i18n';
+
+/** The words on a helpline's button: what to do, the number, and whose line it is. */
+export function helplineLabel(t: Translate, line: Helpline): string {
+  if (line.reach === 'emergency') return t('care.helpline.emergency', { number: line.number });
+  const key = line.reach === 'call_or_text' ? 'care.helpline.callOrText' : 'care.helpline.call';
+  return t(key, { number: line.number, name: line.name });
 }
 
-/** A directory of free, confidential helplines in every country: the safe default. */
-export const HELPLINE_DIRECTORY = 'https://findahelpline.com';
-
-export const HELPLINES: readonly Helpline[] = [
-  {
-    regions: ['US'],
-    name: 'Suicide & Crisis Lifeline',
-    number: '988',
-    reach: 'call_or_text',
-    source: 'https://988lifeline.org',
-    checkedOn: null,
-  },
-  {
-    regions: ['CA'],
-    name: '988 Suicide Crisis Helpline',
-    number: '988',
-    reach: 'call_or_text',
-    source: 'https://988.ca',
-    checkedOn: null,
-  },
-  {
-    regions: ['GB', 'IE'],
-    name: 'Samaritans',
-    number: '116 123',
-    reach: 'call',
-    source: 'https://www.samaritans.org',
-    checkedOn: null,
-  },
-  {
-    regions: ['AU'],
-    name: 'Lifeline',
-    number: '13 11 14',
-    reach: 'call',
-    source: 'https://www.lifeline.org.au',
-    checkedOn: null,
-  },
-  {
-    regions: ['NZ'],
-    name: 'Need to talk?',
-    number: '1737',
-    reach: 'call_or_text',
-    source: 'https://1737.org.nz',
-    checkedOn: null,
-  },
-  {
-    regions: ['IN'],
-    name: 'Tele-MANAS',
-    number: '14416',
-    reach: 'call',
-    source: 'https://telemanas.mohfw.gov.in',
-    checkedOn: null,
-  },
-  {
-    // No Vietnamese helpline has been verified yet. Until the founder supplies one, Vietnam shows
-    // the medical emergency number and the directory.
-    regions: ['VN'],
-    name: '',
-    number: '115',
-    reach: 'emergency',
-    source: 'https://findahelpline.com',
-    checkedOn: null,
-  },
-];
-
-/** The rows for a region code as the phone reports it. An unknown region has none: the directory. */
-export function helplinesFor(region: string | null | undefined): readonly Helpline[] {
-  const code = region?.trim().toUpperCase();
-  if (!code) return [];
-  return HELPLINES.filter((line) => line.regions.includes(code));
-}
-
-/** The link that dials a helpline. */
-export function dialLink(line: Pick<Helpline, 'number'>): string {
-  return `tel:${line.number.replaceAll(' ', '')}`;
+/** The words on the button for a line's own text number, or null when it has none. */
+export function textLabel(t: Translate, line: Helpline): string | null {
+  if (line.textNumber === undefined) return null;
+  return t('care.helpline.text', { number: line.textNumber, name: line.name });
 }

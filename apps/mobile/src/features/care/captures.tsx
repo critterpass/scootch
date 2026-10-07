@@ -30,8 +30,10 @@ function Crisis({
   return (
     <CrisisView
       helplines={helplinesFor(region)}
+      now={CAPTURE_NOW}
       sitting={sitting}
       onCall={nothing}
+      onTextLine={nothing}
       onDirectory={nothing}
       onText={nothing}
       onSit={nothing}
@@ -56,7 +58,16 @@ export function CareCrisisSitting() {
 }
 
 export function CareHelplines() {
-  return <HelplinesPage region="VN" onCall={nothing} onDirectory={nothing} onClose={nothing} />;
+  return (
+    <HelplinesPage
+      region="VN"
+      now={CAPTURE_NOW}
+      onCall={nothing}
+      onTextLine={nothing}
+      onDirectory={nothing}
+      onClose={nothing}
+    />
+  );
 }
 
 export function CareSerious() {

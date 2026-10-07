@@ -1,29 +1,24 @@
 ---
 import { languagePaths, plainFor } from '../../copy';
 import SiteLayout from '../../layouts/site-layout.astro';
-import { findAHelpline, helplines, vietnam } from '../../lib/helplines';
+import { VIETNAM, findAHelpline, helplineRows, type HelplineRow } from '../../lib/helplines';
 
 export const getStaticPaths = languagePaths;
 const language = Astro.params.lang === 'vi' ? 'vi' : 'en';
 const copy = plainFor(language).helplines;
 
-type Row = { country: string; name: string; links: { href: string; label: string }[] };
-
-// No critter and no joke on this page. Vietnam comes first for a reader in Vietnamese.
+// No critter and no joke on this page. Vietnam comes first for a reader in Vietnamese, and its
+// block ends with the directory: Vietnam has no line for adults that is open around the clock.
 const find = { href: findAHelpline.href, label: findAHelpline.label };
-const vietnamRow: Row = {
-  country: vietnam.country[language],
-  name: copy.emergency,
-  links: [{ href: vietnam.emergency.href, label: vietnam.emergency.action[language] }, find],
-};
-const others: Row[] = helplines.map((line) => ({
-  country: line.country[language],
-  name: line.name,
-  links: [{ href: line.href, label: line.action[language] }],
-}));
-const rows: Row[] = [
-  ...(language === 'vi' ? [vietnamRow, ...others] : [...others, vietnamRow]),
-  { country: copy.anywhere, name: findAHelpline.name, links: [find] },
+const all = helplineRows(language);
+const inVietnam = (row: HelplineRow) => row.region === VIETNAM;
+const vietnam = all.filter(inVietnam);
+const others = all.filter((row) => !inVietnam(row));
+const directory = (country: string) => ({ country, name: findAHelpline.name, links: [find] });
+const vietnamBlock = [...vietnam, directory(vietnam[0]?.country ?? '')];
+const rows = [
+  ...(language === 'vi' ? [...vietnamBlock, ...others] : [...others, ...vietnamBlock]),
+  directory(copy.anywhere),
 ];
 ---
 
@@ -31,19 +26,43 @@ const rows: Row[] = [
   <article class="wrap plain helplines">
     <h1>{copy.headline}</h1>
     <p class="lede">{copy.intro}</p>
-    <ul class="helpline-list">
+    <ul class="helpline-list" data-helplines>
       {
-        rows.map((row) => (
-          <li>
-            <span class="small">{row.country}</span>
-            <strong>{row.name}</strong>
-            {row.links.map((link) => (
-              <a href={link.href}>{link.label}</a>
-            ))}
-          </li>
-        ))
+        rows.map((row) =>
+          'line' in row ? (
+            <li
+              data-line={row.line}
+              data-country={row.region}
+              data-open-detail={row.openDetail}
+              data-closed-detail={row.closedDetail}
+            >
+              <span class="small">{row.country}</span>
+              <strong>{row.name === '' ? copy.emergency : row.name}</strong>
+              {row.links.map((link) => (
+                <a href={link.href}>{link.label}</a>
+              ))}
+              <span class="small" data-detail>
+                {row.openDetail}
+              </span>
+            </li>
+          ) : (
+            <li>
+              <span class="small">{row.country}</span>
+              <strong>{row.name}</strong>
+              {row.links.map((link) => (
+                <a href={link.href}>{link.label}</a>
+              ))}
+            </li>
+          ),
+        )
       }
     </ul>
     <p class="small">{copy.footnote}</p>
   </article>
 </SiteLayout>
+
+<script>
+  import { keepOpenNow } from '../../scripts/helplines-open-now';
+
+  for (const list of document.querySelectorAll<HTMLElement>('[data-helplines]')) keepOpenNow(list);
+</script>

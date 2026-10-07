@@ -64,7 +64,7 @@ friends"). The home strip of example monsters uses a fixed, hand-checked set.
 - Do: the home page with the maker as hero; the Plus page with prices and the
   house rules; privacy, terms, support, helplines by country, "what Scootch is
   and isn't", press kit, not found.
-- Status: partly done — 78eff49; the home page, the Plus page and the plain pages (privacy, terms, support, helplines, what Scootch is and isn't, press kit, not found) in both languages; every prebuilt page answers with and without a trailing slash — 6364d0e; helpline numbers are unverified and the press kit has no downloads, not deployed
+- Status: partly done — 78eff49; the home page, the Plus page and the plain pages (privacy, terms, support, helplines, what Scootch is and isn't, press kit, not found) in both languages; every prebuilt page answers with and without a trailing slash — 6364d0e; the helplines page reads the table the app reads, shows each line's hours and moves closed lines last by the reader's clock; its numbers were verified on 2026-10-07 except India and the opening hours of Hy Vọng Sống, and nothing yet stops the site being deployed with those unverified (the check is `tools/scripts/check-helplines-verified.ts`); the press kit has no downloads, not deployed
 
 ### 8. Pre-launch
 - Do: the home page variant where "Catch it" becomes "Tell me when it's out"
