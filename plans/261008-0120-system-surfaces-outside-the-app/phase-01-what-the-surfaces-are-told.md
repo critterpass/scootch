@@ -24,8 +24,7 @@ safe to show.
 
 ### 3. The snapshot, second version
 - Do: the snapshot gains the lurkers, the hunt (its times, pause, parked
-  receipt) under its own key, each task's lines by state, the look that is worn (finish and the
-  ink's colours), the shelf count, the latest catch and the bites. The Swift
+  receipt) under its own key, each task's lines by state, the finish that is worn, the shelf count, the latest catch and the bites. The Swift
   mirror follows field for field.
 - Test: the built snapshot for each day state; a fixture both languages decode.
 - Status: done — see the commit that adds `packages/domain/src/hunt`; the same fixture and the same hunt cases were run through the shared Swift with `swiftc` on this Mac, not in an iOS build

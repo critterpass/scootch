@@ -352,8 +352,8 @@ struct CaughtCard: View {
     let content: HuntContent
 
     var body: some View {
-        let look = content.snapshot.look
-        let dark = FinishFill.isDark(look.finish)
+        let finish = content.snapshot.finish
+        let dark = FinishFill.isDark(finish)
         VStack(alignment: .leading, spacing: 4) {
             HStack(alignment: .top) {
                 Text(caption)
@@ -368,10 +368,10 @@ struct CaughtCard: View {
             Text(content.title).font(.title3.weight(.heavy)).lineLimit(1)
             Text(content.line).font(.subheadline).lineLimit(2).opacity(0.8)
         }
-        .foregroundStyle(dark ? Color.white : look.inkColour)
+        .foregroundStyle(dark ? Color.white : SurfaceColor.ink)
         .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(FinishFill(finish: look.finish, paper: look.paper))
+        .background(FinishFill(finish: finish))
         .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 
@@ -456,8 +456,7 @@ struct HuntLockScreenView: View {
                     .padding(5)
                     .frame(width: 40, height: 52)
                     .background(
-                        FinishFill(
-                            finish: content.snapshot.look.finish, paper: content.snapshot.look.paper)
+                        FinishFill(finish: content.snapshot.finish)
                     )
                     .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
             }

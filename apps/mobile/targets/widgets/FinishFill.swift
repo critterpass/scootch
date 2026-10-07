@@ -1,25 +1,5 @@
 import SwiftUI
 
-extension Color {
-    /// A colour from "#RRGGBB", as the snapshot carries the ink's colours.
-    init?(hex: String) {
-        var text = hex.trimmingCharacters(in: .whitespaces)
-        if text.hasPrefix("#") { text.removeFirst() }
-        guard text.count == 6, let value = UInt32(text, radix: 16) else { return nil }
-        self.init(
-            red: Double((value >> 16) & 0xFF) / 255,
-            green: Double((value >> 8) & 0xFF) / 255,
-            blue: Double(value & 0xFF) / 255)
-    }
-}
-
-extension SurfaceSnapshot.Look {
-    var accent: Color { Color(hex: ink.accent) ?? SurfaceColor.accent }
-    var paper: Color { Color(hex: ink.paper) ?? SurfaceColor.page }
-    var inkColour: Color { Color(hex: ink.ink) ?? SurfaceColor.ink }
-    var deep: Color { Color(hex: ink.deep) ?? SurfaceColor.accent }
-}
-
 /// The material of the card the person wears, drawn from light as the app draws it, without the
 /// tilt: a surface outside the app cannot read motion, so the shine stays where it is.
 struct FinishFill: View {

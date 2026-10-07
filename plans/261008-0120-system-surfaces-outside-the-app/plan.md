@@ -52,12 +52,13 @@ any task here.
 | Back Tap, Focus on | A row in Settings that opens Shortcuts; a Focus filter with three switches | Both are set up in iOS, not in the app |
 | Which things lurk | Today's unfinished, hatched things. One carried to tomorrow lurks from tomorrow, when it is today's again | A hunt begun from a widget has to become a session the day's limit and tables allow; only today's thing can |
 | "Stopped early" from outside | The state is drawn and its two buttons work, but nothing outside the app stops a hunt yet; Siri's "Stop" does, in the ways-to-start phase | The board draws no stop button on the Lock Screen |
-| Native batch | One batch with Plus Materials phase 07 | A build takes a runner; one fingerprint change, not two |
+| Native batch | Its own batch, on top of the one that brought the turning card video and the worn ink to the widgets | That batch landed on main on 8 Oct while this was being built |
+| The worn look on the surfaces | The snapshot carries the worn finish beside the ink's accent main already sends. Its version stays where it is: every field here is an addition an older reader ignores | One accent, sent once |
 
 ## Phases
 
 Every phase is in the native batch branch `feat/system-surfaces-outside-the-app`,
-stacked on Plus Materials. One commit per phase. Nothing lands on main until
+off main. One commit per phase. Nothing lands on main until
 the batch's build is the installed one.
 
 | # | Phase | Needs |
