@@ -37,7 +37,29 @@ appId: app.scootch.dev
     visible:
       id: 'one-sentence'
     timeout: 15000
-- takeScreenshot: fresh-04-back-on-the-one-screen
+- takeScreenshot: one-screen-done-for-today--en-light-default
+# "Your world" on the finished day's home is pressed itself, the way the founder's phone does it,
+# and the record inside the world after it.
+- tapOn:
+    id: 'world-row'
+- extendedWaitUntil:
+    visible:
+      id: 'world'
+    timeout: 15000
+- tapOn:
+    id: 'world-open-record'
+- extendedWaitUntil:
+    visible:
+      id: 'record'
+    timeout: 15000
+- tapOn:
+    id: 'record-close'
+- tapOn:
+    id: 'world-close'
+- extendedWaitUntil:
+    visible:
+      id: 'world-row'
+    timeout: 15000
 # The world: one finished thing lives there.
 - tapOn:
     id: 'world-button'

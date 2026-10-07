@@ -45,16 +45,16 @@ describe('what each purchase state unlocks', () => {
 
   // Purchase state, has Plus, things a day, friends the pass seats.
   const states: readonly (readonly [PurchaseState, boolean, number, number])[] = [
-    ['free', false, 1, 0],
-    ['trial', true, 3, 3],
-    ['monthly', true, 3, 3],
-    ['yearly', true, 3, 3],
-    ['lifetime', true, 3, 3],
+    ['free', false, 3, 0],
+    ['trial', true, 6, 3],
+    ['monthly', true, 6, 3],
+    ['yearly', true, 6, 3],
+    ['lifetime', true, 6, 3],
     // A trial or subscription that lapsed, and a purchase Apple refunded, are free Scootch again.
-    ['expired', false, 1, 0],
-    ['refunded', false, 1, 0],
+    ['expired', false, 3, 0],
+    ['refunded', false, 3, 0],
     // A guest sits at the host's table on the host's pass; it gives the guest no Plus of their own.
-    ['friend_pass_guest', false, 1, 0],
+    ['friend_pass_guest', false, 3, 0],
   ];
 
   it('covers every purchase state', () => {

@@ -18,6 +18,15 @@ appId: app.scootch.dev
 - takeScreenshot: ${NAME}
 - tapOn:
     id: 'registry-state-close'
+# A state with a control of its own near the top can take the first press: press again if the list
+# has not come back.
+- runFlow:
+    when:
+      notVisible:
+        id: 'registry-filter'
+    commands:
+      - tapOn:
+          id: 'registry-state-close'
 - extendedWaitUntil:
     visible:
       id: 'registry-filter'

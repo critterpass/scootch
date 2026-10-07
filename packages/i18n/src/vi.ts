@@ -271,6 +271,8 @@ export const vi = {
   'drawer.dated': 'hạn {due} · quay lại {back}',
   'drawer.swapIn': 'Đổi vào',
   'drawer.swapIn.hint': 'Lấy việc này làm một việc của hôm nay. Việc hiện tại vào ngăn kéo.',
+  'drawer.more': 'Còn {count} việc nữa.',
+  'drawer.more.hint': 'Xem hết những việc đang cất.',
   'drawer.fades': 'Việc không có hạn sẽ tự mờ đi sau hai tuần, trừ khi bạn nhắc tới nó lần nữa.',
   'drawer.close': 'Đóng ngăn kéo',
   'drawer.close.hint': 'Quay về một việc của hôm nay.',

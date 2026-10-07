@@ -259,7 +259,7 @@ describe('the day store', () => {
       expect([table, app.data.count(table)]).toEqual([table, 0]);
     }
     expect(app.data.dump()).not.toContain('plumber about');
-    expect(app.store.getState().today).toEqual({ kind: 'nothing_yet', startsLeft: 1 });
+    expect(app.store.getState().today).toEqual({ kind: 'nothing_yet', startsLeft: 3 });
     expect(app.store.getState().parkedThoughts.map((one) => one.text)).toEqual(['buy washers']);
   });
 

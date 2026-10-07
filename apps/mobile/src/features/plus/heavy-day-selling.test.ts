@@ -49,7 +49,7 @@ describe('nothing is sold near something heavy', () => {
     const app = await heavyDay();
     await app.store.dispatch({ type: 'serious_set_aside' });
     const state = app.store.getState();
-    expect(state.today).toEqual({ kind: 'done_for_today', startsLeft: 3 });
+    expect(state.today).toEqual({ kind: 'done_for_today', startsLeft: 6 });
     expect(state.heavyToday).toBe(true);
     expect(showsSelling(state)).toBe(false);
 

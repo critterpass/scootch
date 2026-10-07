@@ -1,7 +1,8 @@
 import type { DayRow, IsoDate, SessionRow, TaskRow } from '../contracts';
 
-export const FREE_STARTS_PER_DAY = 1;
-export const PLUS_STARTS_PER_DAY = 3;
+export const FREE_STARTS_PER_DAY = 3;
+/** More than the free limit, so "One more" stays a perk of Plus. */
+export const PLUS_STARTS_PER_DAY = 6;
 
 /** How many things may be started in one day. */
 export function startsAllowed(plus: boolean): number {
