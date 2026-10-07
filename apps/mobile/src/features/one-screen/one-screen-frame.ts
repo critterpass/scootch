@@ -38,9 +38,11 @@ export const FRAMES = {
   oneThing: frame(250, 260, 24, 10),
   picked: frame(260, 270, 24, 10),
   bargain: frame(280, 280, 22, 10),
+  hatch: frame(190, 250, 16, 10),
 } as const satisfies Record<string, FigureFrame>;
 
-/** The monster beside Scootch on the task set: its size, and how far it tucks in behind him. */
+/** The monster beside Scootch as it hatches, and on the task set: its size, and how far it tucks in. */
+export const HATCH_MONSTER = { size: 180, overlap: 34 } as const;
 export const TASK_SET_MONSTER = { size: 150, overlap: 34 } as const;
 /** The line of Scootch's sentence, as a share of its size. */
 export const SENTENCE_LINE = 1.14;
@@ -91,6 +93,7 @@ export function frameFor(ask: FrameAsk): FigureFrame {
     if (ask.name === 'energy') return FRAMES.energy;
     if (ask.name === 'picked') return FRAMES.picked;
     if (ask.name === 'bargain') return FRAMES.bargain;
+    if (ask.name === 'hatch') return FRAMES.hatch;
     return ask.choosing ? FRAMES.choosing : FRAMES.oneThing;
   }
   if (ask.recording) return FRAMES.listening;

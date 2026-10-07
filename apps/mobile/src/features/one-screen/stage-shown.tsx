@@ -20,8 +20,8 @@ import { Choosing } from '../dump/choosing';
 import { choosingScript, revealCapMs } from '../dump/choosing-script';
 import { restInDrawerLine } from '../dump/rest-in-drawer';
 import { RevealGate } from '../dump/reveal-gate';
-import { HatchFigure } from '../monster/hatch-figure';
 
+import { hatchShown } from './hatch-shown';
 import type { Stage } from './one-screen-stage';
 import type { OneScreenShown } from './one-screen-view';
 
@@ -267,63 +267,5 @@ export function stageShown(stage: Drawable, env: StageEnv): StageDrawn {
     };
   }
 
-  const { task, monster, shrunk } = stage;
-  const cue = env.cue ?? (() => undefined);
-  // Hatched, Scootch is already bargaining for it; shrunk, he celebrates and the monster is not
-  // happy about its new size.
-  const mood = shrunk ? 'celebrating' : 'bargaining';
-  return {
-    mood,
-    line: null,
-    shown: {
-      kind: 'panel',
-      name: 'hatch',
-      figure: (
-        <HatchFigure
-          mood={mood}
-          attitude={attitude}
-          monster={monster}
-          monsterMood={shrunk ? 'nervous' : 'idle'}
-          hatches={!shrunk}
-          onHatch={() => cue('hatch')}
-          onSqueak={() => cue('squeak')}
-          onGrumble={() => cue('grumble')}
-        />
-      ),
-      body: (
-        <Stack>
-          <Headed
-            label={t(shrunk ? 'hatch.shrunk' : 'hatch.label')}
-            // Shrunk, the smaller task is the news; hatched, the monster's name is.
-            heading={shrunk ? task.text : (monster?.name ?? null)}
-            said={monster?.flavourText ?? null}
-            testID="hatch"
-          />
-          {/* Only a monster that has hatched can haunt anyone. */}
-          {monster ? env.hatchExtra : null}
-        </Stack>
-      ),
-      footer: (
-        <ChoiceDock
-          quiet={{
-            label: t(shrunk ? 'bargain.smaller' : 'hatch.tooBig'),
-            hint: t('hatch.tooBig.hint'),
-            onPress: () => {
-              // The shrink is heard and felt as the monster drops a size.
-              cue('shrink');
-              actions.tooBig();
-            },
-            disabled: !stage.canShrink,
-            testID: 'hatch-too-big',
-          }}
-          action={{
-            label: t('hatch.catch'),
-            hint: t('hatch.catch.hint'),
-            onPress: actions.catchIt,
-            testID: 'hatch-catch',
-          }}
-        />
-      ),
-    },
-  };
+  return hatchShown(stage, env);
 }

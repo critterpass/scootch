@@ -48,6 +48,8 @@ export const noTaskSlots = [
   'renewalOff',
   'plusCancelled',
   'lifetime',
+  /** The task was too big, so its monster was made smaller: said under the smaller task. */
+  'shrunk',
   /** No connection: said on the one screen in place of the usual ask. */
   'offline',
   /** The model is down or slow: Scootch admits it, and the pick is the person's. */
