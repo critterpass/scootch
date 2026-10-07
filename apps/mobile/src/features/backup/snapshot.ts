@@ -74,14 +74,38 @@ export async function readStoredSettings(repositories: Repositories): Promise<St
   return other.language === language ? { ...rest, language } : rest;
 }
 
-/** True while nothing has been made on this phone: no day, no task, no monster. */
+/**
+ * True while nothing has been made on this phone: no task, monster, drawer item, session or
+ * world piece. Day rows do not count: the app opens today as it starts, before any screen.
+ */
 export async function isFreshDatabase(repositories: Repositories): Promise<boolean> {
-  const [days, tasks, monsters] = await Promise.all([
-    repositories.days.all(),
+  const made = await Promise.all([
     repositories.tasks.all(),
     repositories.monsters.all(),
+    repositories.drawerItems.all(),
+    repositories.sessions.all(),
+    repositories.worldPieces.all(),
   ]);
-  return days.length === 0 && tasks.length === 0 && monsters.length === 0;
+  return made.every((rows) => rows.length === 0);
+}
+
+/** How much a phone or a snapshot holds, for telling a fuller one from an emptier one. */
+export interface Holdings {
+  readonly tasks: readonly unknown[];
+  readonly monsters: readonly unknown[];
+  readonly drawerItems: readonly unknown[];
+  readonly sessions: readonly unknown[];
+  readonly worldPieces: readonly unknown[];
+}
+
+export function weightOf(held: Holdings): number {
+  return (
+    held.tasks.length +
+    held.monsters.length +
+    held.drawerItems.length +
+    held.sessions.length +
+    held.worldPieces.length
+  );
 }
 
 export async function buildSnapshot(repositories: Repositories, now: Instant): Promise<Snapshot> {
@@ -169,29 +193,49 @@ export function isRestorableSnapshot(value: unknown): value is Snapshot {
   return parseSnapshot(value) !== null;
 }
 
+/** A day the app only opened: nothing was answered, finished or rested on it. */
+const untouched = (day: DayRow) =>
+  day.status === 'open' && day.energy === null && day.morningLine === null;
+
 /**
- * Writes a snapshot into an empty database, in one transaction. A snapshot of an unknown version,
- * a malformed one, or a database that already holds a day, task or monster is refused, and then
- * nothing is written.
+ * Writes a snapshot into the database, in one transaction. A snapshot of an unknown version or a
+ * malformed one is refused, and then nothing is written.
+ *
+ * On a phone with nothing made, the snapshot comes back whole, settings included. On a phone that
+ * already holds things, the snapshot is added to them: a row the phone already has stays as the
+ * phone has it, and the phone's settings stay. A day the app merely opened gives way to the
+ * snapshot's row for that day.
  */
 export async function restoreSnapshot(
   repositories: Repositories,
   snapshot: unknown,
 ): Promise<'restored' | 'refused'> {
   const parsed = parseSnapshot(snapshot);
-  if (parsed === null || !(await isFreshDatabase(repositories))) return 'refused';
+  if (parsed === null) return 'refused';
+  const fresh = await isFreshDatabase(repositories);
   await repositories.transaction(async () => {
-    for (const row of parsed.days) await repositories.days.put(row);
-    for (const row of parsed.tasks) await repositories.tasks.put(row);
-    for (const row of parsed.drawerItems) await repositories.drawerItems.put(row);
-    for (const row of parsed.monsters) await repositories.monsters.put(row);
-    for (const row of parsed.sessions) await repositories.sessions.put(row);
-    for (const row of parsed.parkedThoughts) await repositories.parkedThoughts.put(row);
-    for (const row of parsed.worldPieces) await repositories.worldPieces.put(row);
-    for (const row of parsed.recordBars) await repositories.recordBars.put(row);
-    for (const row of parsed.weekRecords) await repositories.weekRecords.put(row);
-    for (const row of parsed.surpriseDrops) await repositories.surpriseDrops.put(row);
-    await repositories.settings.write(parsed.settings);
+    for (const row of parsed.days) {
+      const local = await repositories.days.get(row.localDate);
+      if (!local || untouched(local)) await repositories.days.put(row);
+    }
+    const add = async <Row>(
+      table: { get(key: string): Promise<Row | null>; put(row: Row): Promise<void> },
+      rows: readonly Row[],
+      keyOf: (row: Row) => string,
+    ) => {
+      for (const row of rows) if (fresh || !(await table.get(keyOf(row)))) await table.put(row);
+    };
+    const byId = (row: { readonly id: string }) => row.id;
+    await add(repositories.tasks, parsed.tasks, byId);
+    await add(repositories.drawerItems, parsed.drawerItems, byId);
+    await add(repositories.monsters, parsed.monsters, byId);
+    await add(repositories.sessions, parsed.sessions, byId);
+    await add(repositories.parkedThoughts, parsed.parkedThoughts, byId);
+    await add(repositories.worldPieces, parsed.worldPieces, byId);
+    await add(repositories.recordBars, parsed.recordBars, (row) => row.localDate);
+    await add(repositories.weekRecords, parsed.weekRecords, (row) => row.week);
+    await add(repositories.surpriseDrops, parsed.surpriseDrops, byId);
+    if (fresh) await repositories.settings.write(parsed.settings);
   });
   return 'restored';
 }

@@ -254,6 +254,7 @@ export function useToday() {
   const { ready, localDate, today, morning, monster, monsterPending } = state;
   const { taskCall, notice, heardDeadlines, settings, pick, energyNeeded, oneMore } = state;
   const { modelDown, reminderAt, heavyToday, waitingForTomorrow, returnedText } = state;
+  const { restUndo } = state;
   return useMemo(
     () => ({
       ready,
@@ -274,6 +275,7 @@ export function useToday() {
       heavyToday,
       waitingForTomorrow,
       returnedText,
+      restUndo,
     }),
     [
       ready,
@@ -294,6 +296,7 @@ export function useToday() {
       heavyToday,
       waitingForTomorrow,
       returnedText,
+      restUndo,
     ],
   );
 }

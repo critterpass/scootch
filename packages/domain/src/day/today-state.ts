@@ -22,6 +22,8 @@ export interface TodayInput {
   /** The sessions of today's tasks, and every session started today. */
   readonly sessions: readonly SessionRow[];
   readonly plus: boolean;
+  /** Starts used today by things that are no longer stored: let go after a session ran. */
+  readonly spent?: number;
 }
 
 /**
@@ -40,10 +42,10 @@ export type TodayState =
 /**
  * Starts still open today. A start is used by a task that was started today, wherever that task is
  * now: one carried on to tomorrow still used its start. A task that was let go has no row and no
- * session left, so it gives its start back.
+ * session left; a start it really used is counted in `spent`, so letting go never makes a start.
  */
 export function startsLeft(
-  input: Pick<TodayInput, 'localDate' | 'tasks' | 'plus'> & {
+  input: Pick<TodayInput, 'localDate' | 'tasks' | 'plus' | 'spent'> & {
     readonly sessions?: readonly SessionRow[];
   },
 ): number {
@@ -54,12 +56,17 @@ export function startsLeft(
   for (const session of input.sessions ?? []) {
     if (session.localDate === input.localDate) used.add(session.taskId);
   }
-  return Math.max(0, startsAllowed(input.plus) - used.size);
+  return Math.max(0, startsAllowed(input.plus) - used.size - Math.max(0, input.spent ?? 0));
 }
 
 /** Whether one more thing may be taken on or started today. */
 export function hasStartLeft(today: TodayState): boolean {
   return 'startsLeft' in today && today.startsLeft > 0;
+}
+
+/** Start would be refused: the task has not been started and today has no start left for it. */
+export function startRefused(today: TodayState): boolean {
+  return today.kind === 'task_set' && today.task.status === 'set' && today.startsLeft <= 0;
 }
 
 export function todayState(input: TodayInput): TodayState {

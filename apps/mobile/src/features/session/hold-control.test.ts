@@ -107,3 +107,27 @@ describe('the finish control', () => {
     expect(sent).toEqual(['double_tapped']);
   });
 });
+
+describe('a finish the store did not take', () => {
+  it('leaves the control ready to be used again once the store has answered', () => {
+    let state = holdControl('hold');
+    state = holdReducer(state, { type: 'pressed' }).control;
+    state = holdReducer(state, { type: 'frame', elapsedMs: HOLD_FILL_MS }).control;
+    expect(state.finished).toBe(true);
+    // Latched while the answer is on its way: nothing is sent twice.
+    expect(holdReducer(state, { type: 'pressed' }).send).toEqual([]);
+
+    state = holdReducer(state, { type: 'settled' }).control;
+    expect(state).toEqual(holdControl('hold'));
+    expect(holdReducer(state, { type: 'pressed' }).send).toEqual([{ type: 'hold_started' }]);
+  });
+
+  it('does the same for tap twice, and changes nothing on a control that has not finished', () => {
+    let state = holdControl('double_tap');
+    state = holdReducer(state, { type: 'tapped', at: 0 }).control;
+    expect(holdReducer(state, { type: 'settled' }).control).toBe(state);
+    state = holdReducer(state, { type: 'tapped', at: 500 }).control;
+    expect(state.finished).toBe(true);
+    expect(holdReducer(state, { type: 'settled' }).control).toEqual(holdControl('double_tap'));
+  });
+});

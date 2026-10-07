@@ -111,6 +111,18 @@ function finish(state: ComposerState, transcript: string): ComposerStep {
 }
 
 /**
+ * The recording stopped without the person ending it (the recogniser failed, or ended while the
+ * finger was still down). What was heard is theirs: it goes into the field, to send, edit or clear.
+ * With nothing heard, the composer rests and says so.
+ */
+function keepHeard(state: ComposerState, transcript: string, rest: Partial<ComposerState>) {
+  const heard = (transcript.trim() || state.transcript).trim();
+  if (heard === '') return stay({ ...state, ...RESTING, ...rest });
+  const text = [state.text.trim(), heard].filter((part) => part !== '').join(' ');
+  return stay({ ...state, ...RESTING, ...rest, mode: 'typing', text, notice: null });
+}
+
+/**
  * The composer as a state machine: hold to talk, slide left to cancel, let go to send; or type and
  * send. It performs nothing itself: the effects say what the phone and the day store must do.
  */
@@ -152,13 +164,16 @@ export function composerReducer(state: ComposerState, event: ComposerEvent): Com
     case 'heard':
       return recording ? stay({ ...state, transcript: event.transcript }) : stay(state);
     case 'recognition_ended':
-      // After a cancel the recogniser still reports its end: there is nothing left to send.
-      return recording ? finish(state, event.transcript) : stay(state);
+      // After a cancel the recogniser still reports its end: there is nothing left to send. Only
+      // the person letting go sends; an end that comes while they are still holding does not.
+      if (state.phase === 'finishing') return finish(state, event.transcript);
+      return recording ? keepHeard(state, event.transcript, { notice: 'empty' }) : stay(state);
     case 'recognition_failed': {
       if (event.reason === 'nothing') {
-        return recording ? stay({ ...state, ...RESTING, notice: 'empty' }) : stay(state);
+        return recording ? keepHeard(state, '', { notice: 'empty' }) : stay(state);
       }
-      return stay({ ...state, ...RESTING, voice: event.reason, mode: 'typing' });
+      const off = { voice: event.reason, mode: 'typing' } as const;
+      return recording ? keepHeard(state, '', off) : stay({ ...state, ...RESTING, ...off });
     }
     case 'keyboard_tapped':
       return state.phase === 'idle'

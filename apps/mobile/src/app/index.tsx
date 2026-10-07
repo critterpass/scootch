@@ -32,14 +32,15 @@ export default function Home() {
       </RestoreGate>
     );
   }
+  // A phone that could not be asked at first launch is asked once the server can be reached.
   return (
-    <>
+    <RestoreGate late>
       <HauntArrival />
       <OneScreen
         speech={speech}
         warmUp={arrival !== null}
         notificationsRefused={arrival?.notifications === 'refused'}
       />
-    </>
+    </RestoreGate>
   );
 }
