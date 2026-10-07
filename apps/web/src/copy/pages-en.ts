@@ -91,7 +91,7 @@ export const pagesEn = {
       'Prices in USD. Your local App Store price may differ. Subscriptions renew until you cancel them in your Apple settings, under Subscriptions.',
     freeTitle: 'Free for ever',
     free: [
-      'Up to three things a day, for ever',
+      'Up to ten things a day, for ever',
       'Every monster you catch, for ever',
       'Tables with friends, and a table for two of your own',
       'All three attitudes',
@@ -99,7 +99,10 @@ export const pagesEn = {
     ],
     addsTitle: 'What Plus adds',
     adds: [
-      { title: 'One more, or two', body: 'A second and third thing on days you’ve got it in you.' },
+      {
+        title: 'More in a day',
+        body: 'Up to twenty-five things a day with Plus. Ten are free, for ever.',
+      },
       { title: 'Bigger tables', body: 'Open a table for four and bring three friends free.' },
       { title: 'A Scootch that learns you', body: 'It works out when and how you start best.' },
       { title: 'Keep every record', body: 'The full track, every week, to keep and export.' },
