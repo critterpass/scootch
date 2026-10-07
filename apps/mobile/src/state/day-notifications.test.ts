@@ -17,12 +17,14 @@ import { seriousTask, sessionRow, taskRow } from '../features/surfaces/test/rows
 import { PLAN_AHEAD_DAYS, dayNotifications } from './day-notifications';
 
 const TODAY: IsoDate = '2026-10-06';
+const LAUNCHED = '2026-10-01T09:00:00.000Z';
 const ZONE = 'Europe/London';
 const SET: TodayState = { kind: 'task_set', task: taskRow(), startsLeft: 1 };
 const OWN = taskRow().notifications.map((one) => one.text);
 
 function plan(today: TodayState, changes: Partial<SettingsRow> = {}, usualStart = '10:00') {
-  const settings = { ...defaultSettings('en'), ...changes };
+  // A phone in use: first launch is behind it.
+  const settings = { ...defaultSettings('en'), firstLaunchDoneAt: LAUNCHED, ...changes };
   return dayNotifications({ today, settings, localDate: TODAY, timeZone: ZONE, usualStart });
 }
 
@@ -121,7 +123,7 @@ describe('the notifications planned from today on', () => {
   it('keeps the days ahead soft once a serious task has been part of today', () => {
     const planned = dayNotifications({
       today: { kind: 'done_for_today' } as TodayState,
-      settings: { ...defaultSettings('en'), attitude: 'unhinged' },
+      settings: { ...defaultSettings('en'), firstLaunchDoneAt: LAUNCHED, attitude: 'unhinged' },
       localDate: TODAY,
       timeZone: ZONE,
       usualStart: '10:00',
@@ -170,6 +172,14 @@ describe('the notifications planned from today on', () => {
     ).toEqual(OWN);
     await runner.syncNotifications(plan({ kind: 'crisis' }, { attitude: 'unhinged' }));
     expect(device.scheduled()).toEqual([]);
+  });
+});
+
+describe('a phone that has not been set up', () => {
+  it('plans nothing: not before first launch, and not after everything was deleted', () => {
+    const nothing: TodayState = { kind: 'nothing_yet', startsLeft: 3 };
+    expect(plan(nothing).length).toBeGreaterThan(0);
+    expect(plan(nothing, { firstLaunchDoneAt: null })).toEqual([]);
   });
 });
 

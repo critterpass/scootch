@@ -25,6 +25,8 @@ export function careServer(answer: TaskCreateResponse | null, online = true): Ca
 /** A phone on fakes: a real in-memory database, a clock moved by hand, and recorded device calls. */
 export async function carePhone(server: CareServer) {
   const data = await openTestDatabase();
+  // A phone in use has first launch behind it.
+  await openRepositories(data.db).settings.write({ firstLaunchDoneAt: '2026-10-01T09:00:00.000Z' });
   const time = fakeTime(MORNING);
   const device = fakeDevice();
   let ids = 0;

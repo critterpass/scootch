@@ -91,6 +91,9 @@ function sessionEnd(input: DayNotificationsInput): PlannedText[] {
 export function dayNotifications(input: DayNotificationsInput): PlannedText[] {
   const { today, settings } = input;
   if (today.kind === 'crisis') return [];
+  // A phone that has not been through first launch, or has just had everything deleted, has
+  // nobody to nudge yet.
+  if (settings.firstLaunchDoneAt === null) return [];
   if (today.kind === 'serious') {
     // While a serious task is open nothing playful is planned at all, today or ahead: the only
     // thing sent is the reminder that was asked for, in plain words that do not name the task.

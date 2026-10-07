@@ -36,6 +36,12 @@ interface Server {
 /** A phone: one database that outlives the app, and an app process that can be started on it again. */
 async function phone(server: Server, database?: TestDatabase, at = MORNING) {
   const data = database ?? (await openTestDatabase());
+  // A phone in use has first launch behind it.
+  if (!database) {
+    await openRepositories(data.db).settings.write({
+      firstLaunchDoneAt: '2026-10-01T09:00:00.000Z',
+    });
+  }
   const time = fakeTime(at);
   const device = fakeDevice();
   let ids = 0;
