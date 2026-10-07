@@ -36,6 +36,9 @@ const FACES = {
   // The tiny next step: the rounded face at 24, tight.
   step: { base: 24, cap: 1.5, style: { ...heading, letterSpacing: -0.36 } },
   note: { base: 13, cap: 2, style: body },
+  // The composer's own faces: the capsule's label and the small pill above the dock.
+  capsule: { base: 17, cap: 1.6, style: { fontFamily: fonts.heading, fontWeight: '600' } },
+  hint: { base: 15, cap: 1.8, style: { ...body, fontWeight: '500' } },
   action: { base: fontSizes.action, cap: 1.6, style: heading },
   body: { base: fontSizes.body, cap: 2.2, style: body },
   caption: { base: 15, cap: 2.2, style: body },

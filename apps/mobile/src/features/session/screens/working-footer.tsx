@@ -1,9 +1,11 @@
+import type { RefObject } from 'react';
 import { StyleSheet } from 'react-native';
 
 import { Dock, DockButton } from '../ui/dock';
 import { GlassPill, PillPlus } from '../ui/glass-pill';
 import { LeaveAsk } from '../ui/leave-ask';
-import { ParkComposer } from '../ui/park-composer';
+import { ParkComposer, type ParkComposerHandle } from '../ui/park-composer';
+import { sessionClosing } from '../ui/park-draft';
 import { StuckCard } from '../ui/stuck-card';
 
 import type { ScreenProps } from './screen-props';
@@ -13,14 +15,29 @@ import type { ScreenProps } from './screen-props';
  * thought", and for the last two minutes nothing at all; the stuck card and the park field take
  * its place when they are up. A serious task has its plain dock: stop, and done.
  */
-export function WorkingFooter({ model, actions, inks, t }: ScreenProps) {
+export function WorkingFooter({
+  model,
+  actions,
+  inks,
+  t,
+  park,
+}: ScreenProps & { readonly park: RefObject<ParkComposerHandle | null> }) {
   const { view } = model;
   if (view.kind !== 'working') return null;
   if (model.leaveAsked) {
     return <LeaveAsk inks={inks} t={t} onStay={actions.stay} onNotFinished={actions.leaveNow} />;
   }
   if (model.parkOpen) {
-    return <ParkComposer inks={inks} t={t} onPark={actions.park} onCancel={actions.closePark} />;
+    return (
+      <ParkComposer
+        inks={inks}
+        t={t}
+        onPark={actions.park}
+        onCancel={actions.closePark}
+        closing={sessionClosing(model.fraction, model.plannedMinutes)}
+        handle={park}
+      />
+    );
   }
   if (view.stuck) {
     return (

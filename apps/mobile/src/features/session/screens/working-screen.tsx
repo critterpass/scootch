@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   StyleSheet,
   useWindowDimensions,
   View,
@@ -10,9 +11,11 @@ import {
 import { Scootch } from '../../../art/Scootch';
 import { RoundButton as GlassRound } from '../../../ui/buttons';
 import { MoreIcon } from '../../../ui/icons';
+import { useKeyboardOpen } from '../../../ui/use-keyboard-open';
 import { companyLine, scootchShare } from '../session-view';
 import { RoundButton } from '../ui/controls';
 import { GlassPill, PillDot } from '../ui/glass-pill';
+import type { ParkComposerHandle } from '../ui/park-composer';
 import { ParkedToast } from '../ui/parked-toast';
 import { SessionFrame } from '../ui/session-frame';
 import { SessionMenu } from '../ui/session-menu';
@@ -27,7 +30,7 @@ import { workingMenu } from './working-menu';
 const RING_MARGIN = 63;
 /** The most of the screen's height the ring may take, so the time and the task stay on it. */
 const RING_SHARE = 0.39;
-/** The ring while the park field and the keyboard are up. */
+/** The ring while the keyboard is up under the park field. */
 const RING_BESIDE_KEYBOARD = 190;
 
 /**
@@ -40,13 +43,15 @@ export function WorkingScreen(props: ScreenProps) {
   const { model, actions, inks, t } = props;
   const { width, height } = useWindowDimensions();
   const [menuOpen, setMenuOpen] = useState(false);
+  const keyboardOpen = useKeyboardOpen();
+  const park = useRef<ParkComposerHandle | null>(null);
   if (model.view.kind !== 'working') return null;
   const { quiet, stuck, timeUp, twoMinutesLeft } = model.view;
 
   // The board's ring is 330 across, and 280 for a serious task and beside the stuck card.
   const drawnRing = quiet || stuck ? SMALL_RING_SIZE : RING_SIZE;
   const ring = Math.min(
-    model.parkOpen ? RING_BESIDE_KEYBOARD : drawnRing,
+    model.parkOpen && keyboardOpen ? RING_BESIDE_KEYBOARD : drawnRing,
     width - RING_MARGIN,
     height * RING_SHARE,
   );
@@ -87,7 +92,20 @@ export function WorkingScreen(props: ScreenProps) {
         align="drawn"
         footerInset={quiet || stuck || model.parkOpen || model.leaveAsked ? 14 : 0}
         testID={quiet ? 'session-quiet' : 'session-running'}
-        footer={<WorkingFooter {...props} />}
+        footer={<WorkingFooter {...props} park={park} />}
+        behindFooter={
+          model.parkOpen ? (
+            // A touch anywhere above the dock closes it. Words already there are parked.
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('session.park.cancel')}
+              accessibilityHint={t('session.park.close.hint')}
+              testID="session-park-cancel"
+              onPress={() => (park.current ? park.current.close() : actions.closePark())}
+              style={StyleSheet.absoluteFill}
+            />
+          ) : null
+        }
         over={
           <>
             {model.parkedNote ? (

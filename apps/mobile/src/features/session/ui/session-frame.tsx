@@ -18,6 +18,8 @@ export interface SessionFrameProps {
   readonly footer?: ReactNode;
   /** Drawn over everything, untouchable: the burst. */
   readonly over?: ReactNode;
+  /** Drawn over the corners and the middle but under the footer: what a touch outside it does. */
+  readonly behindFooter?: ReactNode;
   /**
    * `drawn` is a screen laid out to its board frame: the middle starts under the corners with no
    * padding of its own, and the footer sits where the board puts it.
@@ -45,6 +47,7 @@ export function SessionFrame({
   top,
   footer,
   over,
+  behindFooter,
   align = 'center',
   footerInset = 0,
   page,
@@ -69,6 +72,7 @@ export function SessionFrame({
         >
           {children}
         </ScrollView>
+        {behindFooter}
         {footer ? (
           <View
             style={
