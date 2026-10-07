@@ -1,8 +1,6 @@
 import {
   addDays,
-  checkInAt,
   hasStartLeft,
-  instantFromIso,
   isoFromInstant,
   parkThings,
   sessionReducer,
@@ -22,6 +20,15 @@ import type { DayContext } from './day-types';
 import { persistFinishEarnings } from './finish-earnings';
 import { shrinkTask } from './smaller';
 import { NO_AFTER_LINES, afterLinesFor, lineFor, toneFor } from './lines';
+
+/** A session that has started and not yet ended. */
+export const UNDER_WAY: readonly string[] = [
+  'running',
+  'stuck',
+  'holding',
+  'time_up',
+  'not_finished',
+];
 
 const TEXT_MAX = 280;
 const TREAT_MAX = 80;
@@ -63,6 +70,14 @@ async function persist(
   for (const effect of effects) {
     if (effect.kind === 'grant_start_reward') {
       if (!session || session.startedAt === null || session.endsAt === null) continue;
+      // One open session per task: a start that finds one already open carries on with it.
+      const open = (await repositories.sessions.where('taskId', task.id)).find(
+        (one) => one.endedAt === null,
+      );
+      if (open) {
+        ctx.memory.sessionRowId = open.id;
+        continue;
+      }
       const row: SessionRow = {
         id: nextId(),
         taskId: task.id,
@@ -158,6 +173,10 @@ export function currentTask(ctx: DayContext): TaskRow | null {
 export function setSession(ctx: DayContext, minutes: number, treat: string | null): void {
   const task = currentTask(ctx);
   if (!task) return;
+  // A second tap on Start arrives while the first one's session is already going: it changes
+  // nothing. Only a session that has not started, or is over, makes way for a new one.
+  const { session } = ctx.memory.state;
+  if (session && session.phase !== 'let_go' && UNDER_WAY.includes(session.phase)) return;
   ctx.memory.workingTurn = 0;
   ctx.set({
     session: sessionSet({
@@ -210,61 +229,6 @@ async function markNotFinished(ctx: DayContext): Promise<void> {
   const { sessions } = ctx.deps.repositories;
   const row = ctx.memory.sessionRowId ? await sessions.get(ctx.memory.sessionRowId) : null;
   if (row) await sessions.put({ ...row, outcome: 'not_finished' });
-}
-
-/**
- * The running session as it is stored, brought back after the app was killed: the timer is the
- * stored end time, and the relaunch re-arms the timers without starting or granting anything.
- */
-export async function restoreSession(ctx: DayContext, tasks: readonly TaskRow[]): Promise<void> {
-  const { repositories } = ctx.deps;
-  for (const task of tasks) {
-    const row = (await repositories.sessions.where('taskId', task.id)).find(
-      (one) => one.endedAt === null,
-    );
-    if (!row) continue;
-    const thoughts: ParkedThought[] = (await repositories.parkedThoughts.where('sessionId', row.id))
-      .map((one) => ({ text: one.text, parkedAt: instantFromIso(one.parkedAt) }))
-      .sort((a, b) => a.parkedAt - b.parkedAt);
-    const startedAt = instantFromIso(row.startedAt);
-    const endsAt = instantFromIso(row.endsAt);
-    const base: LiveSession = {
-      ...sessionSet({
-        taskId: task.id,
-        tone: toneFor(task),
-        minutes: row.plannedMinutes,
-        shrinkCount: task.shrinkCount,
-        treat: row.treat,
-      }),
-      startedAt,
-      endsAt,
-      thoughts,
-    };
-    ctx.memory.sessionRowId = row.id;
-    if (row.outcome === 'not_finished') {
-      // The three choices are still waiting. The tap's own moment is not stored, and it may have
-      // come before time was up: never later than now.
-      const endedAt = Math.min(endsAt, ctx.now());
-      ctx.set({
-        session: { ...base, phase: 'not_finished', endedAt, warned: true, checkedIn: true },
-      });
-      ctx.deps.runner.run([{ kind: 'show_line', line: 'notFinished' }], contextFor(ctx, task));
-      return;
-    }
-    // A check-in whose moment has passed was offered while the app was open, or belongs to a
-    // stretch nobody was looking at: either way it is not offered now. "I'm stuck" is still there.
-    const checkAt = checkInAt({ ...base, phase: 'running' });
-    const stored: LiveSession = {
-      ...base,
-      phase: 'running',
-      inForeground: false,
-      checkedIn: checkAt !== null && ctx.now() >= checkAt,
-    };
-    const step = sessionReducer(stored, { type: 'relaunched' }, ctx.now());
-    ctx.set({ session: step.state });
-    ctx.deps.runner.run(step.effects, contextFor(ctx, task));
-    return;
-  }
 }
 
 /** Keep copies a handed-over thought into the drawer; discard lets it go. */

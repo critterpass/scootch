@@ -19,7 +19,8 @@ import {
 import { NO_AFTER_LINES } from './lines';
 import { applyPickEvent } from './pick-events';
 import { drawerEvent, setBargainedSession } from './pick-flow';
-import { applySession, resolveThought, restForToday, restoreSession } from './session-flow';
+import { applySession, resolveThought, restForToday } from './session-flow';
+import { closeStraySessions, restoreSession } from './session-restore';
 import { closeSession, followTableClock, shortenSession, turnWorkingLine } from './session-moments';
 import { applySurfaceAction, noticePickUp } from './surface-actions';
 import {
@@ -166,6 +167,7 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
       });
     }
 
+    await closeStraySessions(ctx);
     await openDay(ctx, localDate, opened);
 
     usual = usualStart(await repositories.sessions.all(), timeZone);

@@ -1,7 +1,7 @@
 import { useNetworkState } from 'expo-network';
 import { useIsFocused, useRouter, type Href } from 'expo-router';
 import { useEffect, useRef, useState, type ReactElement } from 'react';
-import { Linking } from 'react-native';
+import { Linking, View } from 'react-native';
 
 import { hasStartLeft, startsAllowed, type Attitude } from '@scootch/domain';
 
@@ -66,8 +66,14 @@ export function OneScreen(props: OneScreenProps) {
   // The session fades in over the one screen. Until it covers it, the one screen stays exactly as
   // it was when Start was tapped, so there is never an empty frame between the two.
   const last = useRef<ReactElement | null>(null);
-  if (drawn !== COVERED) last.current = drawn;
-  return last.current;
+  const covered = drawn === COVERED;
+  if (!covered) last.current = drawn;
+  // What stays drawn under the arriving session takes no taps: Start cannot be pressed twice.
+  return (
+    <View style={{ flex: 1 }} pointerEvents={covered ? 'none' : 'auto'}>
+      {last.current}
+    </View>
+  );
 }
 
 function useOneScreenDrawn({
