@@ -1,4 +1,5 @@
 import { Stack, useRoute } from 'expo-router';
+import { useMemo, useRef } from 'react';
 import { Platform } from 'react-native';
 
 import { CloseButton, type CloseButtonProps } from './corner-bar';
@@ -28,14 +29,30 @@ export interface NativeBarProps {
  * is never drawn on glass.
  */
 export function NativeBar({ title, close }: NativeBarProps) {
+  const { label, hint, testID } = close;
+  const latestPress = useRef(close.onPress);
+  latestPress.current = close.onPress;
+  // The toolbar writes its item into the stack's options whenever the item is a new element. A
+  // screen that reads those options (the world does, for its swipe back) is drawn again by that
+  // write, so an item made on every draw never settles. It is made again only when it differs.
+  const item = useMemo(
+    () => (
+      <Stack.Toolbar.View hidesSharedBackground>
+        <CloseButton
+          label={label}
+          hint={hint}
+          testID={testID}
+          onPress={() => latestPress.current()}
+        />
+      </Stack.Toolbar.View>
+    ),
+    [label, hint, testID],
+  );
+  const options = useMemo(() => ({ title: title ?? '' }), [title]);
   return (
     <>
-      <Stack.Screen options={{ title: title ?? '' }} />
-      <Stack.Toolbar placement="right">
-        <Stack.Toolbar.View hidesSharedBackground>
-          <CloseButton {...close} />
-        </Stack.Toolbar.View>
-      </Stack.Toolbar>
+      <Stack.Screen options={options} />
+      <Stack.Toolbar placement="right">{item}</Stack.Toolbar>
     </>
   );
 }
