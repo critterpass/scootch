@@ -14,6 +14,17 @@ struct SessionActivityAttributes: ActivityAttributes, Sendable {
         var hunt: HuntRecord? = nil
         /// True while the phone has no connection: the session runs on, and says so.
         var offline: Bool? = nil
+        /// The card of a hunt that was caught. It is carried here because the shared snapshot
+        /// has moved on to the rest of the day by the time the card is looked at.
+        var caught: CaughtCard? = nil
+    }
+
+    struct CaughtCard: Codable, Hashable, Sendable {
+        let name: String
+        /// The monster's picture in the App Group container.
+        let image: String?
+        /// Its place on the shelf.
+        let number: Int
     }
 
     let taskTitle: String

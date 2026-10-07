@@ -28,11 +28,13 @@ enum HuntActivity {
     }
 
     private static func content(
-        _ record: HuntRecord, line: String, offline: Bool?, at now: Double
+        _ record: HuntRecord, line: String, offline: Bool?,
+        caught: SessionActivityAttributes.CaughtCard? = nil, at now: Double
     ) -> ActivityContent<SessionActivityAttributes.ContentState> {
         ActivityContent(
             state: SessionActivityAttributes.ContentState(
-                endDate: date(record.endsAt), line: line, hunt: record, offline: offline),
+                endDate: date(record.endsAt), line: line, hunt: record, offline: offline,
+                caught: caught),
             staleDate: record.nextChange(after: now).map(date))
     }
 
@@ -43,7 +45,7 @@ enum HuntActivity {
     static func begin(taskId: String, minutes: Double = 10) async -> Bool {
         let snapshot = SurfaceSnapshot.load()
         let shown = snapshot.shown(at: Date())
-        guard shown.state != .crisis, current == nil, HuntStore.load() == nil,
+        guard shown.state != .crisis, current == nil, !isLive(HuntStore.load()),
             let lines = shown.huntLines(for: taskId)
         else { return false }
         let title = shown.lurker(for: taskId)?.task ?? shown.task ?? ""
@@ -65,12 +67,22 @@ enum HuntActivity {
         return true
     }
 
+    /// Whether a stored record still stands for a hunt that is on. One that is over, or whose
+    /// time ran out with nothing on the Lock Screen to show for it, was left behind and is
+    /// written over.
+    private static func isLive(_ record: HuntRecord?) -> Bool {
+        guard let record, record.caughtAt == nil, record.stoppedAt == nil else { return false }
+        return record.pausedAt != nil || nowMs() < record.endsAt
+    }
+
     /// Draws the record as it now stands. `line` replaces what Scootch says; nil keeps it.
     static func show(_ record: HuntRecord, line: String? = nil) async {
         guard let activity = activity(for: record.taskId) ?? current else { return }
         let state = activity.content.state
         await activity.update(
-            content(record, line: line ?? state.line, offline: state.offline, at: nowMs()))
+            content(
+                record, line: line ?? state.line, offline: state.offline, caught: state.caught,
+                at: nowMs()))
     }
 
     /// Changes the stored record and draws the result. Does nothing when no hunt is on.

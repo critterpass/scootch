@@ -36,6 +36,16 @@ export interface SessionActivityState {
   hunt?: SessionActivityHunt | null;
   /** True while the phone has no connection. */
   offline?: boolean | null;
+  /** The card of a hunt that was caught, which the Lock Screen then shows in the worn finish. */
+  caught?: SessionActivityCaughtCard | null;
+}
+
+export interface SessionActivityCaughtCard {
+  name: string;
+  /** The monster's picture in the App Group container. */
+  image: string | null;
+  /** Its place on the shelf. */
+  number: number;
 }
 
 export interface SessionActivityUpdateOptions {

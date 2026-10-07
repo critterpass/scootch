@@ -127,6 +127,45 @@ describe('a hunt begun outside the app', () => {
   });
 });
 
+describe('a session whose time was called here', () => {
+  it('runs again after "5 more" on the Lock Screen', async () => {
+    const { store, task, now, time, repositories } = await withTaskSet();
+    await store.dispatch({ type: 'surface_action', action: 'start_session' });
+    const session = store.getState().session;
+    if (session?.phase !== 'running' || session.endsAt === null) throw new Error('not running');
+    time.advanceTo(session.endsAt + MINUTE_MS);
+    await store.dispatch({ type: 'session', event: { type: 'clock' } });
+    expect(store.getState().session?.phase).toBe('time_up');
+
+    const called = { ...beginHunt(task.id, 10, now()), beginsAt: now(), endsAt: session.endsAt };
+    const more = moreHunt(called, now());
+    await store.dispatch({ type: 'hunt_adopted', hunt: more });
+
+    expect(store.getState().session).toMatchObject({ phase: 'running', endsAt: more.endsAt });
+    const rows = await repositories.sessions.where('taskId', task.id);
+    expect(rows).toHaveLength(1);
+    expect(Date.parse(rows[0]?.endsAt ?? '')).toBe(more.endsAt);
+  });
+
+  it('stays called when the record has no more time either', async () => {
+    const { store, task, now, time } = await withTaskSet();
+    await store.dispatch({ type: 'surface_action', action: 'start_session' });
+    const session = store.getState().session;
+    if (session?.phase !== 'running' || session.endsAt === null) throw new Error('not running');
+    time.advanceTo(session.endsAt + MINUTE_MS);
+    await store.dispatch({ type: 'session', event: { type: 'clock' } });
+
+    const called = {
+      ...beginHunt(task.id, 10, now()),
+      beginsAt: now() - 1,
+      endsAt: session.endsAt,
+    };
+    await store.dispatch({ type: 'hunt_adopted', hunt: called });
+
+    expect(store.getState().session?.phase).toBe('time_up');
+  });
+});
+
 describe('a session running here, moved on the Lock Screen', () => {
   it('follows "5 more"', async () => {
     const { store, task, now, time } = await withTaskSet();

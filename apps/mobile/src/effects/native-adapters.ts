@@ -18,6 +18,7 @@ import { CUES, encodeWav, type HapticTap } from '@scootch/sound';
 import * as LiveActivity from '../../modules/scootch-live-activity';
 import { nativeSharedStore } from '../features/surfaces/native-surface-ports';
 import { SHARED_KEYS } from '../features/surfaces/surface-ports';
+import type { SurfaceSnapshot } from '../features/surfaces/surface-snapshot';
 import { readHunt } from '../features/surfaces/hunt-store';
 
 import { nextLiveLineTurn } from './live-line-turns';
@@ -158,6 +159,35 @@ function keepHunt(hunt: HuntRecord | null): void {
   }
 }
 
+/** Two ends closer than this are the same end, read at two moments. */
+const SAME_END_MS = 5_000;
+
+/**
+ * The card of the hunt that was just caught, and its caught line, from the snapshot as it stood
+ * while the session ran: by the time the Lock Screen is looked at, the snapshot is about the rest
+ * of the day. A task with no monster there (a serious one) has no card.
+ */
+function caughtCard(taskId: string): {
+  line: string | null;
+  caught: LiveActivity.SessionActivityCaughtCard | null;
+} {
+  try {
+    const stored = nativeSharedStore().get(SHARED_KEYS.snapshot);
+    const snapshot = stored === null ? null : (JSON.parse(stored) as Partial<SurfaceSnapshot>);
+    if (snapshot?.taskId !== taskId) return { line: null, caught: null };
+    const name = snapshot.monsterName ?? null;
+    return {
+      line: snapshot.taskLines?.caught ?? null,
+      caught:
+        name === null
+          ? null
+          : { name, image: snapshot.monsterImage ?? null, number: (snapshot.shelf ?? 0) + 1 },
+    };
+  } catch {
+    return { line: null, caught: null };
+  }
+}
+
 async function isOffline(): Promise<boolean> {
   try {
     const network = await getNetworkStateAsync();
@@ -186,16 +216,20 @@ export const nativeLiveActivity: LiveActivityPort = {
     await endAll();
     const now = Date.now();
     const stored = storedHunt();
-    // A hunt begun outside the app keeps the moment its clock started.
-    const same =
+    // A hunt begun or moved outside the app keeps the moment its clock started. It is this
+    // session's only when it ends where the session does; anything else was left behind.
+    const resumed =
       stored !== null &&
       stored.taskId === taskId &&
       stored.caughtAt === null &&
-      stored.stoppedAt === null;
+      stored.stoppedAt === null
+        ? resumeHunt(stored, now)
+        : null;
+    const same = resumed !== null && Math.abs(resumed.endsAt - endsAt) < SAME_END_MS;
     const hunt: HuntRecord | null =
       taskId === undefined
         ? null
-        : { ...(same ? resumeHunt(stored, now) : huntOfSession(taskId, now, endsAt)), endsAt };
+        : { ...(same ? resumed : huntOfSession(taskId, now, endsAt)), endsAt };
     keepHunt(hunt);
     await LiveActivity.start(
       { taskTitle: title, taskId: taskId ?? null },
@@ -233,11 +267,18 @@ export const nativeLiveActivity: LiveActivityPort = {
     if (!caught || stored === null) return endAll();
     const now = Date.now();
     const hunt = catchHunt(stored, now);
+    const card = caughtCard(stored.taskId);
     // The caught card stays until the top of the hour after it would have folded.
     const leaves = (Math.floor((now + HUNT_CAUGHT_CARD_MS) / HOUR_MS) + 1) * HOUR_MS;
     for (const activity of await LiveActivity.listActive()) {
       if (activity.status !== 'active' && activity.status !== 'stale') continue;
-      await LiveActivity.end(activity.id, { ...activity.state, hunt }, (leaves - now) / 1000);
+      const final = {
+        ...activity.state,
+        hunt,
+        line: card.line ?? activity.state.line,
+        caught: card.caught,
+      };
+      await LiveActivity.end(activity.id, final, (leaves - now) / 1000);
     }
   },
 };

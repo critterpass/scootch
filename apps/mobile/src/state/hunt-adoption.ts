@@ -27,8 +27,8 @@ function endOf(record: HuntRecord, now: number): number {
  * screens can: a crisis day ignores it, it is only ever about today's one thing, a start goes
  * through the day's limit, and a hunt that is over is left to its own ending.
  *
- * - A session already running here follows the record's clock ("5 more", a clock held and
- *   released on the Lock Screen).
+ * - A session already running here follows the record's clock (a clock held and released on the
+ *   Lock Screen), and one whose time was called runs again after "5 more".
  * - A hunt begun outside becomes the session: its stored row starts when the clock started, and
  *   it is brought up as a relaunch brings one up, so nothing is started or granted twice.
  */
@@ -45,10 +45,20 @@ export async function adoptHunt(ctx: DayContext, record: HuntRecord): Promise<vo
   if (session && TIMED.includes(session.phase)) {
     return followTableClock(ctx, endOf(record, now));
   }
+  const { sessions, tasks } = ctx.deps.repositories;
+  if (session?.phase === 'time_up') {
+    // "5 more" was asked for on the Lock Screen after time was called here: the clock runs again.
+    const rowId = ctx.memory.sessionRowId;
+    const row = rowId === null ? null : await sessions.get(rowId);
+    const until = endOf(record, now);
+    if (!row || row.endedAt !== null || until <= now) return;
+    await sessions.put({ ...row, endsAt: isoFromInstant(until) });
+    await restoreSession(ctx, [task]);
+    return ctx.refresh();
+  }
   if (session && session.phase !== 'set') return;
   if (startRefused(today)) return;
 
-  const { sessions, tasks } = ctx.deps.repositories;
   const open = (await sessions.where('taskId', task.id)).some((row) => row.endedAt === null);
   if (!open) {
     const minutes = Math.round((record.endsAt - record.beginsAt) / MINUTE_MS);

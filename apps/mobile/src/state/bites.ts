@@ -52,5 +52,7 @@ export async function biteTicked(ctx: DayContext, taskId: string, place: number)
   if (after === null) return false;
   await tasks.put(after.task);
   if (after.monster) await monsters.put(after.monster);
+  // Today is read again, so the screens and the surfaces see the bite gone.
+  await ctx.refresh();
   return after.last;
 }

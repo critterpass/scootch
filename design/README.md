@@ -6,7 +6,7 @@ The designs live in Claude Design, project
 
 ## Boards (exported 7 Oct 2026 from the founder's archive)
 
-All twelve boards are in this folder as `<board>.dc.html`, with the three
+All thirteen boards are in this folder as `<board>.dc.html`, with the three
 scripts they load (`support.js`, `critters.js`, `fx.js`), so each opens in a
 browser as designed.
 

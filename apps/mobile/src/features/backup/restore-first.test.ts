@@ -62,6 +62,7 @@ describe('a reinstalled phone', () => {
       ...task,
       id: 'task-new',
       status: 'set',
+      bitesCaught: null,
       finishedAt: null,
     });
 
@@ -101,6 +102,7 @@ describe('settling which world the server copy is', () => {
       ...task,
       id: 'task-new',
       status: 'set',
+      bitesCaught: null,
       finishedAt: null,
     });
     fresh.keychain.off = true;
@@ -165,6 +167,7 @@ describe('adding a restored world to a phone in use', () => {
       text: 'Old open thing',
       localDate: TODAY,
       status: 'started',
+      bitesCaught: null,
       finishedAt: null,
     });
     await old.open().afterFinish();
@@ -176,6 +179,7 @@ describe('adding a restored world to a phone in use', () => {
       text: 'My open thing',
       localDate: TODAY,
       status: 'set',
+      bitesCaught: null,
       finishedAt: null,
     });
     await mine.repositories.monsters.put({

@@ -20,6 +20,7 @@ struct HuntContent {
     private let lines: SurfaceSnapshot.HuntLines?
     private let lurker: SurfaceSnapshot.Lurker?
     private let isToday: Bool
+    private let caught: SessionActivityAttributes.CaughtCard?
 
     init(context: ActivityViewContext<SessionActivityAttributes>, now: Date = Date()) {
         let state = context.state
@@ -48,6 +49,7 @@ struct HuntContent {
         lines = stored.huntLines(for: taskId)
         lurker = stored.lurker(for: taskId)
         isToday = stored.taskId == taskId
+        caught = state.caught
         // The app's last update is the line. Once that has gone stale, the line planned for this
         // moment is, when the snapshot still describes this session.
         let planned = context.isStale && isToday ? stored.sessionLine(at: now) : nil
@@ -59,14 +61,15 @@ struct HuntContent {
     /// A serious task has no monster, no race joke and only its plain words.
     var serious: Bool { isToday && snapshot.state == .serious }
 
+    /// A caught hunt carries its own card; before that the snapshot knows the monster.
     var monsterName: String? {
-        serious ? nil : (lurker?.name ?? (isToday ? snapshot.monsterName : nil))
+        if let caught { return caught.name }
+        return serious ? nil : (lurker?.name ?? (isToday ? snapshot.monsterName : nil))
     }
 
     var monsterPicture: UIImage? {
-        guard !serious, let name = lurker?.image ?? (isToday ? snapshot.monsterImage : nil),
-            let folder = AppGroup.containerURL
-        else { return nil }
+        let known = caught.map(\.image) ?? lurker?.image ?? (isToday ? snapshot.monsterImage : nil)
+        guard !serious, let name = known, let folder = AppGroup.containerURL else { return nil }
         return UIImage(contentsOfFile: folder.appendingPathComponent(name).path)
     }
 
@@ -87,7 +90,9 @@ struct HuntContent {
 
     var title: String {
         switch phase {
-        case .stoppedEarly: return text("Stopped at %lld minutes", minutesRun)
+        case .stoppedEarly:
+            return minutesRun == 1
+                ? text("Stopped at 1 minute") : text("Stopped at %lld minutes", minutesRun)
         case .caught: return monsterName ?? taskTitle
         case .caughtCollapsed:
             return monsterName.map { text("%@ is on your shelf", $0) } ?? taskTitle
@@ -101,7 +106,8 @@ struct HuntContent {
         case .starting: own = lines?.start
         case .lastMinutes: own = lines?.lastMinutes
         case .overtime: own = lines?.overtime
-        case .caught, .caughtCollapsed: own = lines?.caught
+        // The app sends the caught line with the card; a hunt nobody sent one for has the task's.
+        case .caught, .caughtCollapsed: own = caught == nil ? lines?.caught : nil
         case .stoppedEarly: own = lines?.stoppedEarly
         case .running, .parked, .stuck: own = nil
         }
@@ -109,7 +115,7 @@ struct HuntContent {
     }
 
     /// The card's number as the shelf counts it, "0043".
-    var cardNumber: String { String(format: "%04d", snapshot.shelf) }
+    var cardNumber: String { String(format: "%04d", caught?.number ?? snapshot.shelf) }
 
     var caughtClock: String {
         guard let caughtAt = record.caughtAt else { return "" }
@@ -298,8 +304,8 @@ struct HuntButtons: View {
                 Button(intent: FinishIntent()) { HuntPill(label: content.text("Finish"), primary: true) }
                 Button(intent: FiveMoreIntent()) { HuntPill(label: content.text("5 more")) }
             case .caught:
-                // A serious task has no card, so there is nothing to share.
-                if !content.serious {
+                // No monster, no card: a serious task has nothing to share.
+                if !content.serious && content.monsterName != nil {
                     Link(destination: SurfaceLinks.cards) {
                         HuntPill(label: content.text("Share card"), primary: true)
                     }

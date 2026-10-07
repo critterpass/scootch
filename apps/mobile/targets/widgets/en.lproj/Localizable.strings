@@ -43,6 +43,7 @@
 "No. %@" = "No. %@";
 "%@ is on your shelf" = "%@ is on your shelf";
 "caught %@" = "caught %@";
+"Stopped at 1 minute" = "Stopped at 1 minute";
 "Stopped at %lld minutes" = "Stopped at %lld minutes";
 "Parked: “%@”. It's in the drawer." = "Parked: “%@”. It's in the drawer.";
 "Parked. It's in the drawer." = "Parked. It's in the drawer.";

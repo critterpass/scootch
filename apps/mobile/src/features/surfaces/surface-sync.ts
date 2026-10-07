@@ -40,6 +40,8 @@ export interface SurfaceSyncDeps {
 }
 
 const TIMED: readonly string[] = ['running', 'stuck', 'holding'];
+/** The phases of a session a hunt record can still be about. */
+const HOLDS_HUNT: readonly string[] = [...TIMED, 'time_up', 'not_finished'];
 /** The actions today's store acts on. The others are about a hunt begun outside the app. */
 const DAY_ACTIONS = ['start_session', 'brain_dump', 'park_thought', 'stuck'] as const;
 type DayAction = (typeof DAY_ACTIONS)[number];
@@ -107,14 +109,19 @@ export function createSurfaceSync(deps: SurfaceSyncDeps) {
       const its = monsters.find((one) => one.taskId === task.id && one.caughtAt === null);
       return its ? [{ task, monster: its }] : [];
     });
-    const images = await shareMonsterImages(
-      [...(monster ? [monster] : []), ...waiting.map((one) => one.monster)],
-      deps.painter,
-      deps.files,
-    );
     const latest = caught.reduce<(typeof caught)[number] | null>(
       (last, one) => (last === null || (one.caughtAt ?? '') > (last.caughtAt ?? '') ? one : last),
       null,
+    );
+    // The last catch keeps its picture: its card may still be on the Lock Screen.
+    const images = await shareMonsterImages(
+      [
+        ...(monster ? [monster] : []),
+        ...waiting.map((one) => one.monster),
+        ...(latest && today.kind !== 'crisis' ? [latest] : []),
+      ],
+      deps.painter,
+      deps.files,
     );
     const live = state.session !== null && TIMED.includes(state.session.phase);
     const snapshot = buildSurfaceSnapshot({
@@ -189,7 +196,26 @@ export function createSurfaceSync(deps: SurfaceSyncDeps) {
       }
       // A hunt begun or moved outside the app is taken up before anything else is noticed.
       const hunt = storedHunt();
-      if (hunt !== null) await store.dispatch({ type: 'hunt_adopted', hunt });
+      if (hunt !== null) {
+        await store.dispatch({ type: 'hunt_adopted', hunt });
+        // A record nothing took up, with its clock started and no ending waiting on the Lock
+        // Screen, was left behind (the app was killed mid-session, the day turned): it goes, so
+        // it cannot be mistaken for a hunt that is on.
+        const { session, today } = store.getState();
+        const taken =
+          session !== null &&
+          HOLDS_HUNT.includes(session.phase) &&
+          'task' in today &&
+          today.task.id === hunt.taskId;
+        const waiting = hunt.stoppedAt !== null || deps.now() < hunt.beginsAt;
+        if (!taken && !waiting) {
+          try {
+            shared.remove(SHARED_KEYS.hunt);
+          } catch {
+            // Cleared the next time the app comes to the front.
+          }
+        }
+      }
       if (actions.length === 0) await store.dispatch({ type: 'opened_mid_session' });
       return actions;
     },

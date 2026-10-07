@@ -43,6 +43,7 @@
 "No. %@" = "Số %@";
 "%@ is on your shelf" = "%@ đã lên kệ của bạn";
 "caught %@" = "tóm lúc %@";
+"Stopped at 1 minute" = "Dừng ở phút đầu tiên";
 "Stopped at %lld minutes" = "Dừng ở phút thứ %lld";
 "Parked: “%@”. It's in the drawer." = "Đã gửi tạm: “%@”. Nó nằm trong ngăn kéo.";
 "Parked. It's in the drawer." = "Đã gửi tạm. Nó nằm trong ngăn kéo.";

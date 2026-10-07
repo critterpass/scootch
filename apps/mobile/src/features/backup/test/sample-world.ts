@@ -57,6 +57,7 @@ export const task: TaskRow = {
   lines: null,
   notifications: [{ text: 'One small start?' }],
   createdAt: '2026-10-06T09:01:00.000Z',
+  bitesCaught: null,
   finishedAt: '2026-10-06T09:28:00.000Z',
 };
 
@@ -68,6 +69,7 @@ export const crisisDayTask: TaskRow = {
   originalText: CRISIS_DAY_TASK_TEXT,
   status: 'set',
   createdAt: '2026-10-05T08:31:00.000Z',
+  bitesCaught: null,
   finishedAt: null,
 };
 
