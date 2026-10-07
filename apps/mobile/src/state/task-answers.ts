@@ -175,10 +175,13 @@ export async function applyCall(ctx: DayContext, call: TaskCall, existing: TaskR
   ctx.memory.untrustedTaskId = trusted ? null : task.id;
   if (!trusted) ctx.memory.screenAskedAt = ctx.now();
   if (!existing) {
-    const parked = await park(ctx, first.parked, screen);
+    // The verdict is for the text as a whole, and the one thing carries it. The other things in
+    // it were not judged one by one: a heavy ramble leaves them unscreened, never serious.
+    const beside: TaskScreen = screen === 'serious' ? 'unscreened' : screen;
+    const parked = await park(ctx, first.parked, beside);
     // A heard date is stored at once, so closing the app cannot lose it; it is still said out
     // loud before the person sees anything parked.
-    await park(ctx, first.deadlines, screen);
+    await park(ctx, first.deadlines, beside);
     const day = await repositories.days.get(task.localDate);
     if (day) await repositories.days.put({ ...day, energy: first.energy });
     if (offer) {
