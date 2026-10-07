@@ -1,6 +1,6 @@
 // Serves the bundled site's static files for the browser tests. The routes that run in the Worker
 // are not served here: the tests answer the API at the network boundary, and the page of a shared
-// thing (`/m/<id>`, `/c/<id>`, `/s/<id>`, `/t/<code>`, `/h/<id>`, `/r/<id>`) is served as its
+// thing (`/m/<id>`, `/c/<id>`, `/s/<id>`, `/t/<code>`, `/f/<code>`, `/h/<id>`, `/r/<id>`) is served as its
 // prebuilt page, as the Worker does.
 import { readFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
@@ -18,7 +18,7 @@ const types = {
 
 /** The file an address stands for: a shared thing's page, a folder's index, or the file itself. */
 function fileFor(pathname) {
-  const shared = pathname.match(/^(\/vi)?\/([mcsthr])\/[a-z0-9-]+\/?$/);
+  const shared = pathname.match(/^(\/vi)?\/([mcstfhr])\/[a-z0-9-]+\/?$/);
   if (shared) return `${shared[1] ?? ''}/${shared[2]}/shell/index.html`;
   if (pathname.endsWith('/')) return `${pathname}index.html`;
   return path.extname(pathname) === '' ? `${pathname}/index.html` : pathname;

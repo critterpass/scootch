@@ -2,13 +2,14 @@
 import { t, type Language } from '@scootch/i18n';
 import { colors } from '@scootch/tokens';
 
-import { appStoreUrl, localPath, preLaunch, togetherFor } from '../copy';
+import { localPath, preLaunch, togetherFor } from '../copy';
 import { scootchSvg } from '../lib/drawings';
 import SiteLayout from '../layouts/site-layout.astro';
 import '../styles/together.css';
 
 import AppStoreBadge from './app-store-badge.astro';
 import NotFound from './not-found.astro';
+import OpenInApp from './open-in-app.astro';
 
 interface Props {
   language: Language;
@@ -53,18 +54,22 @@ const night = `:root:has([data-haunt-page]){color-scheme:dark;--page:${dark.page
         <p class="eyebrow tomato-text">{copy.eyebrow}</p>
         <h1 tabindex="-1" data-headline></h1>
         <p class="dare" data-dare></p>
-        <div class="actions">
-          <button type="button" class="button button-quiet" data-shoo>{copy.shoo}</button>
-          {
-            preLaunch ? (
+        {
+          preLaunch ? (
+            <div class="actions">
+              <button type="button" class="button button-quiet" data-shoo>
+                {copy.shoo}
+              </button>
               <AppStoreBadge language={language} />
-            ) : (
-              <a class="button button-tomato" href={appStoreUrl} data-catch>
-                {copy.catchIt}
-              </a>
-            )
-          }
-        </div>
+            </div>
+          ) : (
+            <OpenInApp language={language} kind="h" label={copy.catchIt} tone="button-tomato">
+              <button type="button" class="button button-quiet" data-shoo>
+                {copy.shoo}
+              </button>
+            </OpenInApp>
+          )
+        }
         <p class="small" role="status" data-shoo-failed hidden>{copy.shooFailed}</p>
       </div>
     </div>
