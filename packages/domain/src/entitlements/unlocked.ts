@@ -51,6 +51,8 @@ export const PLUS_ONLY = [
   'extra_large_widget',
   'stand_by',
   'learning',
+  'paper_camera',
+  'screen_camera',
 ] as const;
 export type PlusCapability = (typeof PLUS_ONLY)[number];
 

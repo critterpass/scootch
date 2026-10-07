@@ -105,8 +105,8 @@ listening to the Sunday record, and anything shared.
 
 **Plus:** up to two more things a day, opening tables (free friends ride on the
 host's pass), the Scootch that learns you, keeping and exporting records, the
-extra-large widget and StandBy, the binder and extra card finishes, and later
-the Paper and Screen camera modes.
+extra-large widget and StandBy, the binder and extra card finishes, and the
+Paper and Screen camera modes (one free try of each).
 
 **House rules:** no paywall in first launch, on the one screen, in a session or
 on "Done for today". Paid features are quiet locked controls where they live.
@@ -134,12 +134,13 @@ iOS has no pause; cancelling goes through Apple's sheet.
 
 ## 10. Scope
 
-Everything above ships at launch. These come after launch, because each is
-complex and isolated:
+Everything above ships at launch. So does the camera (Desk, Room, Paper,
+Screen, before-and-after), moved into scope by the founder on 8 Oct 2026 and
+planned in `plans/261008-0033-camera/`. These come after launch, because each
+is complex and isolated:
 
 | Later | Why |
 |---|---|
-| Camera (Desk, Room, Paper, Screen, before-and-after) | Vision models, privacy flow, the largest isolated feature |
 | Gifts | Needs Apple's sign-off on offer codes; a gifted year auto-renews for the receiver |
 | iPhone Duo layouts | Second size class across every screen |
 | Monster wall and Unwrapped | Need moderation at volume and a month of data |

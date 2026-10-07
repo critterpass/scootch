@@ -3,8 +3,10 @@
 Status: the day loop runs on a real iPhone (TestFlight, 7 Oct); most of the rest is
 written but not reachable or not proven. Audited against the code 7 Oct 2026 · Created 6 Oct 2026 · Scope: everything in
 [product-brief.md](../../docs/product-brief.md) sections 3 to 9. The
-after-launch list (camera, gifts, iPhone Duo, monster wall, Unwrapped, Android
+after-launch list (gifts, iPhone Duo, monster wall, Unwrapped, Android
 release, tables with strangers) is section 10 there and is not planned here.
+The camera left that list on 8 Oct 2026 and has its own plan:
+[261008-0033-camera](../261008-0033-camera/plan.md).
 
 Decided 6 Oct 2026: public repository at github.com/critterpass/scootch,
 RevenueCat, English and Vietnamese at launch, tables for friends only.
