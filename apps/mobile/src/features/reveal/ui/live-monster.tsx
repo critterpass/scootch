@@ -4,7 +4,7 @@ import { boilFrame, buildMonster, type DrawCommand } from '@scootch/art';
 
 import { FULL_HZ } from '../../../art/motion-plan';
 import { CommandLayer } from '../../../art/skia-commands';
-import { useMotionTicks } from '../../../art/use-motion-ticks';
+import { useMotionTicksWhile } from '../../../art/use-motion-ticks';
 
 type Spec = Parameters<typeof buildMonster>[0];
 
@@ -16,8 +16,11 @@ type Spec = Parameters<typeof buildMonster>[0];
 function useLiveMonster(spec: Spec, alive: boolean, hz: number = FULL_HZ): readonly DrawCommand[] {
   const rest = useMemo(() => buildMonster(spec), [spec]);
   const [moved, setMoved] = useState<{ of: typeof rest; commands: DrawCommand[] } | null>(null);
-  useMotionTicks(
+  // Inside a canvas there is no navigation context to ask: `alive` already says whether the
+  // screen is in view.
+  useMotionTicksWhile(
     alive,
+    true,
     (seconds) =>
       setMoved({
         of: rest,
@@ -33,7 +36,10 @@ function useLiveMonster(spec: Spec, alive: boolean, hz: number = FULL_HZ): reado
 
 export interface LiveMonsterLayerProps {
   readonly spec: Spec;
-  /** False holds it still in its rest drawing. */
+  /**
+   * False holds it still in its rest drawing. The caller folds in whether its screen is focused:
+   * this layer lives inside a canvas and cannot ask.
+   */
   readonly alive: boolean;
   /** How often it is redrawn. A small one, as in a grid, is given a slower rate. */
   readonly hz?: number;

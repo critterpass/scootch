@@ -1,3 +1,4 @@
+import { useIsFocused } from 'expo-router';
 import { Canvas, Group, rect, rrect } from '@shopify/react-native-skia';
 import { useMemo, useState, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
@@ -74,7 +75,9 @@ export function HandledCard(props: HandledCardProps) {
     [card, hideTask, language],
   );
   const back = useMemo(() => buildCardBack({ label: t('reveal.cardBack'), scootch: false }), [t]);
-  const alive = !character.reducedMotion && character.care === 'none';
+  // Asked here, outside the canvas, and handed to the monster's layer inside it.
+  const focused = useIsFocused();
+  const alive = focused && !character.reducedMotion && character.care === 'none';
   const panelClip = useMemo(() => {
     const { x, y, w, h } = layers.panel;
     return rrect(rect(x, y, w, h), 11, 11);
