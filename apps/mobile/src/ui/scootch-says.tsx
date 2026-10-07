@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import Animated, {
   ReduceMotion,
   useAnimatedStyle,
@@ -40,7 +40,7 @@ export interface ScootchSaysProps {
   /** How big he is drawn, where the design draws him other than 260 points. */
   readonly figureSize?: number;
   /** Tapping him, where he answers to it. */
-  readonly onPress?: () => void;
+  readonly onPress?: (() => void) | undefined;
 }
 
 /**
@@ -80,7 +80,14 @@ export function ScootchSays({
   const body = (
     <>
       <Animated.View style={[styles.figure, sized]}>
-        <Scootch mood={mood} attitude={attitude} size={full} squashOnChange {...character} />
+        <Scootch
+          mood={mood}
+          attitude={attitude}
+          size={full}
+          squashOnChange
+          {...(onPress ? { onPress } : {})}
+          {...character}
+        />
       </Animated.View>
       {line === null ? null : (
         <Text
@@ -101,28 +108,17 @@ export function ScootchSays({
     </>
   );
 
-  if (onPress) {
-    return (
-      <Pressable
-        accessible
-        accessibilityRole="button"
-        accessibilityLabel={t('brand.name')}
-        accessibilityValue={{ text: said }}
-        accessibilityHint={t('scootch.squeakHint')}
-        onPress={onPress}
-        testID="one-sentence"
-        style={styles.group}
-      >
-        {body}
-      </Pressable>
-    );
-  }
+  // A tap on Scootch himself is his to answer (a squeak, a small celebration); a screen reader
+  // reaches the same thing by activating the element.
   return (
     <View
       accessible
-      accessibilityRole="text"
+      accessibilityRole={onPress ? 'button' : 'text'}
       accessibilityLabel={t('brand.name')}
       accessibilityValue={{ text: said }}
+      {...(onPress
+        ? { accessibilityHint: t('scootch.squeakHint'), onAccessibilityTap: onPress }
+        : {})}
       testID="one-sentence"
       style={styles.group}
     >

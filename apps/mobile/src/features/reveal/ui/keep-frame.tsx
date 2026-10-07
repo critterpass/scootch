@@ -3,7 +3,8 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { spacing } from '@scootch/tokens';
 
-import { CapsuleButton, RoundButton } from '../../../ui/buttons';
+import { CapsuleButton } from '../../../ui/buttons';
+import { CloseButton, CornerBar } from '../../../ui/corner-bar';
 import { useScreenStyle } from '../../../ui/use-screen-style';
 import { SessionText } from '../../session/ui/session-text';
 import { SafeFrame } from '../../../ui/safe-frame';
@@ -22,39 +23,25 @@ export interface KeepFrameProps {
 }
 
 /** A cross, drawn from two bars. */
-function Cross({ color }: { readonly color: string }) {
-  return (
-    <View style={styles.cross}>
-      <View style={[styles.bar, { backgroundColor: color, transform: [{ rotate: '45deg' }] }]} />
-      <View style={[styles.bar, { backgroundColor: color, transform: [{ rotate: '-45deg' }] }]} />
-    </View>
-  );
-}
-
 /**
  * The frame of every keeping screen: a title, a round close control, a middle and a dock. The
- * close control sits on the trailing side under a title and on the leading side without one, as
- * the boards draw it.
+ * close control is always in the trailing corner, exactly where every other screen has its own.
  */
 export function KeepFrame(props: KeepFrameProps) {
   const { palette } = useScreenStyle();
   const { title, subtitle, close, footer, scroll = true, children } = props;
   const closeButton = (
-    <RoundButton
+    <CloseButton
       label={close.label}
       hint={close.hint}
       onPress={close.onPress}
       testID={props.closeTestID}
-    >
-      <Cross color={palette.ink} />
-    </RoundButton>
+    />
   );
   return (
     <SafeFrame testID={props.testID} style={[styles.fill, { backgroundColor: palette.page }]}>
-      <View style={styles.head}>
-        {title === undefined ? (
-          closeButton
-        ) : (
+      <CornerBar trailing={closeButton}>
+        {title === undefined ? null : (
           <>
             <View style={styles.titles}>
               <SessionText face="headline" color={palette.ink} accessibilityRole="header">
@@ -66,10 +53,9 @@ export function KeepFrame(props: KeepFrameProps) {
                 </SessionText>
               ) : null}
             </View>
-            {closeButton}
           </>
         )}
-      </View>
+      </CornerBar>
       {scroll ? (
         <ScrollView contentContainerStyle={styles.middle}>{children}</ScrollView>
       ) : (
@@ -131,16 +117,13 @@ export function Dock({
 
 const styles = StyleSheet.create({
   fill: { flex: 1 },
-  head: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    gap: spacing.md,
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.sm,
+  // The bar's own gap gives the title its 24-point margin; the close control is in the corner.
+  titles: {
+    flex: 1,
+    gap: spacing.xs,
+    paddingTop: spacing.xs,
     paddingBottom: spacing.sm,
   },
-  titles: { flex: 1, gap: spacing.xs },
   middle: {
     flexGrow: 1,
     paddingHorizontal: spacing.lg,
@@ -151,8 +134,6 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', gap: spacing.sm },
   stack: { gap: spacing.sm },
   grow: { flex: 1 },
-  cross: { width: 16, height: 16, alignItems: 'center', justifyContent: 'center' },
-  bar: { position: 'absolute', width: 16, height: 2, borderRadius: 1 },
   lock: { width: 12, height: 14, justifyContent: 'flex-end', alignItems: 'center' },
   shackle: {
     width: 8,

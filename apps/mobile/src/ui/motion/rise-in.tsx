@@ -13,6 +13,9 @@ import { plainStyle } from './animated-style';
 import { CROSSFADE_MS, RISE, SPRING_CURVE, staggerDelay } from './motion-tokens';
 import { useMayMove } from './use-feel';
 
+/** The faintest a rising part is ever drawn: enough for the system to hand it a touch. */
+const TOUCHABLE_FROM = 0.02;
+
 export interface RiseInProps {
   /** Its place among the parts that rise together: each waits 70 ms longer than the one before. */
   readonly index?: number;
@@ -47,10 +50,16 @@ export function RiseIn({ index = 0, style, testID, children }: RiseInProps) {
   }, [shown]);
 
   const rising = useAnimatedStyle(() => {
-    if (!mayMove) return { opacity: shown.value, transform: [{ translateY: 0 }, { scale: 1 }] };
+    if (!mayMove) {
+      return {
+        opacity: Math.min(1, TOUCHABLE_FROM + shown.value),
+        transform: [{ translateY: 0 }, { scale: 1 }],
+      };
+    }
     return {
-      // Opacity leads, so the part can be seen and touched while it is still settling.
-      opacity: Math.min(1, shown.value * 2.5),
+      // Opacity leads, and never starts at nothing: a view with no opacity at all takes no touch,
+      // and a control must be tappable from the frame it is mounted on.
+      opacity: Math.min(1, TOUCHABLE_FROM + shown.value * 2.5),
       transform: [
         { translateY: RISE.fromY * (1 - shown.value) },
         { scale: RISE.fromScale + (1 - RISE.fromScale) * shown.value },

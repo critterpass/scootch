@@ -102,6 +102,16 @@ function afterFinish(session: LiveSession, input: SessionViewInput): SessionView
   return afterTheEnd(input);
 }
 
+/**
+ * What the close control means on a view. While an ordinary session is running, closing is a
+ * question first: the session never ends on one stray tap, and "keep going" changes nothing. A
+ * quiet session, and every screen after the end, simply closes.
+ */
+export function closeMeans(view: SessionView): 'ask' | 'leave' {
+  if (view.kind === 'burst') return 'ask';
+  return view.kind === 'working' && !view.quiet && !view.timeUp ? 'ask' : 'leave';
+}
+
 export function sessionView(input: SessionViewInput): SessionView {
   const { session, passed } = input;
   if (session === null) return { kind: 'home' };

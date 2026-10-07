@@ -64,12 +64,15 @@ export function leaveEarly(state: LiveSession, now: Instant): LiveStep {
   };
 }
 
-/** "Not finished" is a normal outcome: one line, then three calm choices. */
+/**
+ * "Not finished" is a normal outcome: one line, then three calm choices. Said before time is up
+ * (the person chose to stop), the Live Activity ends with the timer.
+ */
 export function notFinished(state: LiveSession, now: Instant): LiveStep {
-  return {
-    state: { ...state, phase: 'not_finished', endedAt: now },
-    effects: [{ kind: 'cancel_timer' }, { kind: 'show_line', line: 'notFinished' }],
-  };
+  const effects: SessionEffect[] = [{ kind: 'cancel_timer' }];
+  if (state.phase !== 'time_up') effects.push({ kind: 'end_live_activity' });
+  effects.push({ kind: 'show_line', line: 'notFinished' });
+  return { state: { ...state, phase: 'not_finished', heldFrom: null, endedAt: now }, effects };
 }
 
 export function chooseAfterNotFinished(

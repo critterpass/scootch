@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AccessibilityInfo } from 'react-native';
 
 import type { ParkedThought, SessionEvent } from '@scootch/domain';
@@ -14,6 +14,7 @@ import { SHORT_SESSION_SECONDS, shortSession } from './dev/short-session';
 import type { SessionActions, SessionModel } from './screens/screen-props';
 import {
   NOTHING_PASSED,
+  closeMeans,
   minutesLeft,
   sessionView,
   timeLeftFraction,
@@ -55,6 +56,7 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
   const character = useCharacterMotion();
   const [passed, setPassed] = useState<Passed>(NOTHING_PASSED);
   const [parkOpen, setParkOpen] = useState(false);
+  const [leaveAsked, setLeaveAsked] = useState(false);
   const [parkedNote, setParkedNote] = useState<string | null>(null);
 
   const send = useCallback(
@@ -152,6 +154,8 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
     thoughtsLine: afterLines.parkedThoughts,
     reducedMotion: character.reducedMotion,
     parkOpen,
+    // The question belongs to the running session: once it is over there is nothing to ask.
+    leaveAsked: leaveAsked && closeMeans(view) === 'ask',
     parkedNote,
     holdStartsAt: 0,
     developerEnd: shortSession.isArmed(),
@@ -162,10 +166,19 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
       }),
   };
 
+  const shown = useRef(view);
+  shown.current = view;
   const actions = useMemo<SessionActions>(
     () => ({
-      // Leaving early is unremarked: the session ends and the one screen is simply back.
-      leave: () => send({ type: 'left' }),
+      // Mid-session the close control asks first, so a session never vanishes on a stray tap.
+      leave: () =>
+        closeMeans(shown.current) === 'ask' ? setLeaveAsked(true) : send({ type: 'left' }),
+      stay: () => setLeaveAsked(false),
+      // Stopping on purpose leads to the not-finished choices; the work so far is recorded.
+      leaveNow: () => {
+        setLeaveAsked(false);
+        send({ type: 'not_finished' });
+      },
       openPark: () => setParkOpen(true),
       closePark: () => setParkOpen(false),
       park: (text) => {
