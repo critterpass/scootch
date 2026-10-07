@@ -18,7 +18,7 @@ import { park } from './task-rows';
 /** A reminder is never set for sooner than this. */
 const REMINDER_LEAD_MS = 15 * MINUTE_MS;
 
-const NOTHING_SAID: SessionContext = { title: '', liveLine: '', lineFor: () => null };
+export const NOTHING_SAID: SessionContext = { title: '', liveLine: '', lineFor: () => null };
 
 /**
  * A crisis day begins: every task is hidden, and anything that was going on stops without a word.
