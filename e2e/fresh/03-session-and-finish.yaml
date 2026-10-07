@@ -75,9 +75,12 @@ appId: app.scootch.dev
 - takeScreenshot: fresh-03-park-a-thought-keyboard
 - tapOn:
     id: 'session-park-save'
+# The "Parked" note only shows for a few seconds and a tap on this screen returns later than that
+# (the countdown never lets the screen go quiet), so the proof is that the field has closed; the
+# thought itself comes back in the next step.
 - extendedWaitUntil:
-    visible:
-      id: 'session-parked-note'
+    notVisible:
+      id: 'session-park-input'
     timeout: 15000
 - takeScreenshot: fresh-03-thought-parked
 # Time is up a few seconds after the developer control is pressed.
@@ -88,13 +91,13 @@ appId: app.scootch.dev
       id: 'session-finish-tap'
     timeout: 30000
 - takeScreenshot: fresh-03-time-up
-# Tap, then tap again to confirm.
+# Tap, then tap again to confirm. The second tap must come within four seconds of the first, and a
+# separate tap command on this screen returns later than that (the countdown never lets the
+# screen go quiet), so both taps are one command.
 - tapOn:
     id: 'session-finish-tap-button'
-- assertVisible:
-    id: 'session-finish-tap-button'
-- tapOn:
-    id: 'session-finish-tap-button'
+    repeat: 2
+    delay: 300
 # What the finish gave is shown next: the walk carries on in the step after this one.
 - extendedWaitUntil:
     visible:

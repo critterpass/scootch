@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { fonts, spacing } from '@scootch/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
+import { SafeFrame } from '../../ui/safe-frame';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
 const TITLE_SIZE = 34;
@@ -24,7 +24,7 @@ export function Page({ title, barTitle, onClose, testID, children }: PageProps) 
   const { palette, allowFontScaling, size } = useScreenStyle();
   const t = useT();
   return (
-    <SafeAreaView style={[styles.page, { backgroundColor: palette.page }]} testID={testID}>
+    <SafeFrame style={[styles.page, { backgroundColor: palette.page }]} testID={testID}>
       <View style={styles.bar}>
         <Pressable
           accessibilityRole="button"
@@ -60,7 +60,7 @@ export function Page({ title, barTitle, onClose, testID, children }: PageProps) 
         )}
         {children}
       </ScrollView>
-    </SafeAreaView>
+    </SafeFrame>
   );
 }
 
