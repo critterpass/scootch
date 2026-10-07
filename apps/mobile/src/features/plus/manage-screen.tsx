@@ -1,16 +1,21 @@
-import { View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { FREE_STARTS_PER_DAY } from '@scootch/domain';
-import { spacing } from '@scootch/tokens';
+import { fonts, spacing } from '@scootch/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { KeepFrame } from '../reveal/ui/keep-frame';
 import { SessionText } from '../session/ui/session-text';
+import { Row, Section } from '../settings/rows';
+import { inkOf } from '../studio/catalogue';
+import type { Look } from '../studio/look';
 
-import type { PlanId } from './products';
+import type { Member } from './member';
+import { planLine } from './plan-line';
 import type { CustomerState } from './purchases-port';
-import { ChoiceRow, Panel } from './ui/parts';
+import { MemberCard } from './ui/member-card';
+import { Panel } from './ui/parts';
 
 export interface ManageModel {
   readonly customer: CustomerState;
@@ -18,18 +23,31 @@ export interface ManageModel {
   readonly price: string | null;
   /** The store's next date for the plan (trial end, renewal or end), already written out. */
   readonly date: string | null;
-  /** The trial ends today: "Change plan" leads to the three choices. */
+  /** The trial ends today: "Manage subscription" leads to the three choices. */
   readonly lastTrialDay: boolean;
   readonly notice: 'restore_none' | 'restore_done' | 'restore_failed' | 'unavailable' | null;
+  /** What the card wears. */
+  readonly look: Look;
+  readonly member: Member;
+  /** The year and the short month Plus began, as the person reads them; `null` when not known. */
+  readonly since: { readonly month: string; readonly year: string } | null;
+  /** The year printed on the card when it has no joining date yet. */
+  readonly thisYear: string;
+  /** The name on the card: the account's, when there is one. */
+  readonly name: string | null;
+  readonly caught: number;
+  readonly finishesOwned: number;
+  /** False on a day with something heavy in it: nothing that sells is offered. */
+  readonly selling: boolean;
 }
 
 export interface ManageActions {
   readonly close: () => void;
   readonly seePlus: () => void;
-  readonly changePlan: () => void;
+  /** Opens Apple's own sheet, where a plan is changed or cancelled. */
+  readonly manage: () => void;
   readonly restore: () => void;
-  readonly cancel: () => void;
-  readonly openShelf: () => void;
+  readonly openStudio: () => void;
 }
 
 const NOTICES = {
@@ -39,86 +57,152 @@ const NOTICES = {
   unavailable: 'plus.unavailable',
 } as const;
 
-function planLine(model: ManageModel, t: ReturnType<typeof useT>): string {
-  const { customer, date } = model;
-  const plan: PlanId | null = customer.activePlan;
-  if (plan === 'lifetime') return t('plus.manage.lifetime');
-  if (plan === null) return t('plus.manage.free.note', { count: FREE_STARTS_PER_DAY });
-  if (date === null) return '';
-  if (customer.inTrial && customer.willRenew) return t('plus.manage.trialEnds', { date });
-  if (!customer.willRenew) return t('plus.manage.ends', { date });
-  return t(`plus.manage.renews.${plan}`, { date });
+/** The board's card on this page is 345 points wide on a 393 point phone. */
+const CARD_WIDTH = 345;
+
+/** What the date beside the plan is: the trial's end, the day it stops, or the next renewal. */
+function dateLabel(
+  customer: CustomerState,
+): 'plus.card.freeUntil' | 'plus.card.ends' | 'plus.card.renews' {
+  if (customer.inTrial && customer.willRenew) return 'plus.card.freeUntil';
+  return customer.willRenew ? 'plus.card.renews' : 'plus.card.ends';
+}
+
+function Figure({ value, label }: { readonly value: string; readonly label: string }) {
+  const { palette, allowFontScaling, size } = useScreenStyle();
+  return (
+    <View accessible style={[styles.figure, { backgroundColor: palette.surface }]}>
+      <Text
+        allowFontScaling={allowFontScaling}
+        maxFontSizeMultiplier={1.4}
+        style={[styles.value, { color: palette.ink, fontSize: size(24) }]}
+      >
+        {value}
+      </Text>
+      <SessionText face="caption" color={palette.muted}>
+        {label}
+      </SessionText>
+    </View>
+  );
 }
 
 /**
- * The manage page: the plan, its next date and the reminder that comes before it, and the ways to
- * change, restore and cancel. Changing and cancelling are Apple's own sheet.
+ * Your card: the member card in the finish and ink the person wears, three figures, then the
+ * plan, its next date and the way to manage it, right under the card and never hidden. Changing
+ * and cancelling are Apple's own sheet. Someone without Plus sees what free Scootch is, and the
+ * way to see Plus.
  */
 export function ManageScreen({ model, actions }: { model: ManageModel; actions: ManageActions }) {
   const t = useT();
-  const { palette } = useScreenStyle();
-  const plan = model.customer.activePlan;
+  const { palette, largeText } = useScreenStyle();
+  const { customer, look, member } = model;
+  const plan = customer.activePlan;
   const subscribed = plan === 'monthly' || plan === 'yearly';
-  const title =
-    plan === null
-      ? t('plus.manage.free')
-      : [t(`plus.plan.${plan}`), model.price].filter((part) => part !== null).join(' · ');
+  const ink = inkOf(look.ink);
+  const wearing = `${t(`finish.${look.finish}`)} · ${ink.code}`;
   return (
     <KeepFrame
       testID="plus-manage"
-      title={t('brand.plus')}
+      title={plan === null ? t('brand.plus') : t('plus.card.title')}
       close={{ label: t('keep.close'), hint: t('plus.done.hint'), onPress: actions.close }}
       closeTestID="plus-manage-close"
     >
-      <Panel testID="plus-manage-plan">
-        <SessionText face="action" color={palette.ink}>
-          {title}
-        </SessionText>
-        <SessionText face="body" color={palette.muted} testID="plus-manage-plan-line">
-          {planLine(model, t)}
-        </SessionText>
-      </Panel>
-      <View style={{ gap: spacing.sm }}>
+      {plan === null ? (
+        <Panel testID="plus-manage-plan">
+          <SessionText face="action" color={palette.ink}>
+            {t('plus.manage.free')}
+          </SessionText>
+          <SessionText face="body" color={palette.muted} testID="plus-manage-plan-line">
+            {planLine(customer, model.date, t)}
+          </SessionText>
+        </Panel>
+      ) : (
+        <>
+          <View style={styles.stage}>
+            <MemberCard
+              finish={look.finish}
+              width={largeText ? 260 : CARD_WIDTH}
+              number={member.number}
+              year={model.since?.year ?? model.thisYear}
+              line={model.name ?? wearing}
+              mood="pleased"
+              testID="plus-manage-card"
+            />
+          </View>
+          <View style={[styles.figures, largeText ? styles.stacked : null]}>
+            <Figure
+              value={String(model.caught)}
+              label={t('plus.card.caught', { count: model.caught })}
+            />
+            <Figure
+              value={String(model.finishesOwned)}
+              label={t('plus.card.finishes', { count: model.finishesOwned })}
+            />
+            {model.since ? (
+              <Figure
+                value={model.since.month}
+                label={t('plus.card.since', { year: model.since.year })}
+              />
+            ) : null}
+          </View>
+        </>
+      )}
+
+      <Section>
         {plan === null ? (
-          <ChoiceRow
-            title={t('plus.manage.see')}
+          <Row
+            first
+            label={t('plus.manage.see')}
             hint={t('plus.manage.see.hint')}
+            {...(model.selling ? { onPress: actions.seePlus } : { inert: true })}
             testID="plus-manage-see"
-            onPress={actions.seePlus}
           />
-        ) : null}
-        {subscribed ? (
-          <ChoiceRow
-            title={t('plus.manage.change')}
-            note={model.lastTrialDay ? t('plus.manage.lastDay') : null}
-            hint={t('plus.opensApple.hint')}
-            testID="plus-manage-change"
-            onPress={actions.changePlan}
-          />
-        ) : null}
-        <ChoiceRow
-          title={t('plus.manage.restore')}
+        ) : (
+          <>
+            <Row
+              first
+              kind="fact"
+              label={t('plus.card.plan')}
+              value={[t(`plus.plan.${plan}`), model.price]
+                .filter((part) => part !== null)
+                .join(' · ')}
+              testID="plus-manage-plan"
+            />
+            {subscribed && model.date !== null ? (
+              <Row
+                kind="fact"
+                label={t(dateLabel(customer))}
+                value={model.date}
+                testID="plus-manage-date"
+              />
+            ) : null}
+            {subscribed ? (
+              <Row
+                label={t('plus.card.manage')}
+                {...(model.lastTrialDay ? { sub: t('plus.manage.lastDay') } : {})}
+                hint={t('plus.opensApple.hint')}
+                onPress={actions.manage}
+                testID="plus-manage-change"
+              />
+            ) : null}
+          </>
+        )}
+        <Row
+          label={t('plus.manage.restore')}
           hint={t('plus.restore.hint')}
-          testID="plus-manage-restore"
           onPress={actions.restore}
+          testID="plus-manage-restore"
         />
-        <ChoiceRow
-          title={t('plus.manage.shelf')}
-          hint={t('plus.manage.shelf.hint')}
-          testID="plus-manage-shelf"
-          onPress={actions.openShelf}
-        />
-        {subscribed && model.customer.willRenew ? (
-          <ChoiceRow
-            title={t('plus.manage.cancel')}
-            hint={t('plus.opensApple.hint')}
-            aside={t('plus.manage.opensApple')}
-            ending
-            testID="plus-manage-cancel"
-            onPress={actions.cancel}
+        {model.selling ? (
+          <Row
+            label={t('studio.title')}
+            sub={wearing}
+            hint={t('plus.card.studio.hint')}
+            onPress={actions.openStudio}
+            testID="plus-manage-studio"
           />
         ) : null}
-      </View>
+      </Section>
       {model.notice ? (
         <SessionText
           face="body"
@@ -129,9 +213,22 @@ export function ManageScreen({ model, actions }: { model: ManageModel; actions: 
           {t(NOTICES[model.notice])}
         </SessionText>
       ) : null}
+      {plan === null ? null : (
+        <SessionText face="caption" color={palette.muted} testID="plus-manage-plan-line">
+          {planLine(customer, model.date, t)}
+        </SessionText>
+      )}
       <SessionText face="caption" color={palette.muted}>
         {t('plus.manage.keeps', { count: FREE_STARTS_PER_DAY })}
       </SessionText>
     </KeepFrame>
   );
 }
+
+const styles = StyleSheet.create({
+  stage: { alignItems: 'center', paddingVertical: spacing.md },
+  figures: { flexDirection: 'row', gap: spacing.sm },
+  stacked: { flexDirection: 'column' },
+  figure: { flex: 1, borderRadius: 20, paddingVertical: 14, paddingHorizontal: 12, gap: 4 },
+  value: { fontFamily: fonts.heading, fontWeight: '800' },
+});

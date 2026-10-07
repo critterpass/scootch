@@ -20,7 +20,8 @@ import {
   type ShareDevice,
   type SharePages,
 } from './share-flow';
-import { composeShareImage, type ShareImage } from './share-image';
+import { composeShareImage, formatsOffered, type ShareDress, type ShareImage } from './share-image';
+import { dayLog, monthBefore, monthWrap } from './share-logs';
 import { shareOffered, shareOfferedOn } from './share-rules';
 
 const task = fixtureTask(0);
@@ -90,24 +91,117 @@ function website(answers: Readonly<Record<string, unknown>> = {}, kept: readonly
 const texts = (image: ShareImage) =>
   image.commands.flatMap((command) => (command.op === 'text' ? [command.text] : [])).join('\n');
 
+/** A phone with nothing bought, nothing done today and no month to look back on. */
+const plain: ShareDress = { finish: 'paper', member: null, plus: false, day: null, month: null };
+const fixtureRows = (count: number) => {
+  const monsters = Array.from({ length: count }, (_, index) => fixtureMonster(index));
+  const tasks = new Map(monsters.map((monster, index) => [monster.taskId, fixtureTask(index)]));
+  return { monsters, tasks };
+};
+
 describe('a shared picture', () => {
-  it('carries the task line until it is hidden, and then none of it', () => {
-    for (const kind of ['story', 'card'] as const) {
-      const shown = composeShareImage(kind, card, { hideTask: false, language: 'en' });
-      expect(texts(shown)).toContain('Email the dentist');
-      const hidden = composeShareImage(kind, card, { hideTask: true, language: 'en' });
-      expect(texts(hidden)).not.toContain('dentist');
-      for (const word of task.text.split(' ').filter((one) => one.length > 3)) {
-        expect(texts(hidden)).not.toContain(word);
+  it('never carries the task on a story, a card, a sticker sheet or a poster', () => {
+    const { monsters, tasks } = fixtureRows(3);
+    const first = monsters[0]!;
+    const [year, month] = first.caughtOn.split('-').map(Number) as [number, number];
+    const dress = { ...plain, month: monthWrap(monsters, tasks, year, month) };
+    expect(dress.month).not.toBeNull();
+    for (const format of ['story', 'card', 'stickers', 'poster'] as const) {
+      for (const hideTask of [false, true]) {
+        const words = texts(composeShareImage(format, card, { hideTask, language: 'en' }, dress));
+        for (const word of task.text.split(' ').filter((one) => one.length > 3)) {
+          expect([format, word, words.includes(word)]).toEqual([format, word, false]);
+        }
       }
-      // Everything else about the card is still there.
-      expect(texts(hidden)).toContain(card.name);
     }
+    // The catch itself is still on its story and its card.
+    for (const format of ['story', 'card'] as const) {
+      const image = composeShareImage(format, card, { hideTask: true, language: 'en' }, plain);
+      expect(texts(image)).toContain(card.name);
+    }
+  });
+
+  it('prints every picture on the finish that is worn, whatever the card was caught in', () => {
+    const worn = composeShareImage('card', card, { hideTask: false, language: 'en' }, plain);
+    const velvet = { ...plain, finish: 'flock' } as const;
+    const other = composeShareImage('card', card, { hideTask: false, language: 'en' }, velvet);
+    expect(texts(worn)).toContain('PAPER');
+    expect(texts(other)).toContain('VELVET');
+    expect(texts(other)).not.toContain('PAPER');
+  });
+
+  it("lists the day's tasks on the receipt until they are hidden, and then their monsters", () => {
+    const { monsters, tasks } = fixtureRows(2);
+    const first = monsters[0]!;
+    const shown = dayLog(monsters, tasks, first.caughtOn, 'UTC', false);
+    const hidden = dayLog(monsters, tasks, first.caughtOn, 'UTC', true);
+    expect(shown?.rows.map((row) => row.label)).toContain(fixtureTask(0).text);
+    expect(hidden?.rows.map((row) => row.label)).toContain(first.name);
+    const image = composeShareImage(
+      'receipt',
+      card,
+      { hideTask: true, language: 'en' },
+      { ...plain, day: hidden },
+    );
+    for (const word of task.text.split(' ').filter((one) => one.length > 3)) {
+      expect(texts(image)).not.toContain(word);
+    }
+    // The foil stamp is Plus's; the receipt itself is everyone's.
+    expect(texts(image)).not.toContain('STAMPED');
+    const stamped = composeShareImage(
+      'receipt',
+      card,
+      { hideTask: true, language: 'en' },
+      { ...plain, plus: true, day: hidden },
+    );
+    expect(texts(stamped)).toContain('STAMPED');
+  });
+
+  it('counts a day and a month only from tasks that may be shared', () => {
+    const { monsters, tasks } = fixtureRows(3);
+    const first = monsters[0]!;
+    const [year, month] = first.caughtOn.split('-').map(Number) as [number, number];
+    const all = monthWrap(monsters, tasks, year, month);
+    const closed = [
+      { ...fixtureTask(0), sharePrivate: true },
+      { ...fixtureTask(0), screen: 'serious' as const },
+      { ...fixtureTask(0), screen: 'unscreened' as const },
+    ];
+    for (const one of closed) {
+      const guarded = new Map(tasks).set(first.taskId, one);
+      expect(monthWrap(monsters, guarded, year, month)?.caught).toBe((all?.caught ?? 0) - 1);
+      const log = dayLog(monsters, guarded, first.caughtOn, 'UTC', false);
+      expect(log?.rows.map((row) => row.label) ?? []).not.toContain(one.text);
+      expect(log?.rows.map((row) => row.label) ?? []).not.toContain(first.name);
+    }
+    // A task that is no longer stored is left out too, and a day with nothing left prints nothing.
+    const forgotten = new Map(tasks);
+    for (const monster of monsters) forgotten.delete(monster.taskId);
+    expect(dayLog(monsters, forgotten, first.caughtOn, 'UTC', false)).toBeNull();
+    expect(monthWrap(monsters, forgotten, year, month)).toBeNull();
+  });
+
+  it('offers the receipt only on a day with something on it, and the poster only for a month that had catches', () => {
+    expect(formatsOffered(plain)).toEqual(['story', 'card', 'stickers']);
+    const { monsters, tasks } = fixtureRows(1);
+    const first = monsters[0]!;
+    const day = dayLog(monsters, tasks, first.caughtOn, 'UTC', false);
+    expect(formatsOffered({ day, month: null })).toEqual(['story', 'card', 'stickers', 'receipt']);
+    expect(monthBefore('2026-01-03')).toEqual({ year: 2025, month: 12 });
+    expect(monthBefore('2026-10-01')).toEqual({ year: 2026, month: 9 });
   });
 });
 
 describe('sharing a catch', () => {
-  const share = { task, card, signed, kind: 'story', hideTask: true, language: 'en' } as const;
+  const share = {
+    task,
+    card,
+    signed,
+    format: 'story',
+    dress: plain,
+    hideTask: true,
+    language: 'en',
+  } as const;
 
   it('draws the picture and opens the share sheet', async () => {
     const { calls, device } = recorder();
@@ -118,7 +212,7 @@ describe('sharing a catch', () => {
   });
 
   it('posts the card as its page draws it, and the task line only on a card that shows it', () => {
-    const shown = cardShareRequest({ ...share, kind: 'card', hideTask: false }, signed);
+    const shown = cardShareRequest({ ...share, format: 'card', hideTask: false }, signed);
     expect(shown).toEqual({
       kind: 'card',
       language: 'en',
@@ -129,10 +223,10 @@ describe('sharing a catch', () => {
     expect(shown.card.taskLine).toBe(card.taskLine);
 
     const posts = [
-      cardShareRequest({ ...share, kind: 'card', hideTask: true }, signed),
+      cardShareRequest({ ...share, format: 'card', hideTask: true }, signed),
       // A story's page never shows the task line, hidden or not.
-      cardShareRequest({ ...share, kind: 'story', hideTask: false }, signed),
-      cardShareRequest({ ...share, kind: 'story', hideTask: true }, signed),
+      cardShareRequest({ ...share, format: 'story', hideTask: false }, signed),
+      cardShareRequest({ ...share, format: 'story', hideTask: true }, signed),
     ];
     for (const post of posts) {
       expect(post.card).toEqual({ ...card, taskLine: null });
@@ -149,7 +243,7 @@ describe('sharing a catch', () => {
     const { calls, device } = recorder();
     const { pages, sent } = website();
     // The page is in the language the words were written and signed in.
-    const cardShare = { ...share, kind: 'card', signed: { ...signed, language: 'vi' } } as const;
+    const cardShare = { ...share, format: 'card', signed: { ...signed, language: 'vi' } } as const;
 
     await shareCatch(device, pages, cardShare);
     await shareCatch(device, pages, cardShare);
@@ -176,7 +270,11 @@ describe('sharing a catch', () => {
     const { pages, sent } = website();
     const written = { ...signed, language: 'vi' } as const;
 
-    expect(pageOffered({ card, signed: written })).toBe(true);
+    expect(pageOffered({ card, signed: written, format: 'story' })).toBe(true);
+    // A sticker sheet, a receipt and a poster have no page, even for a catch that could have one.
+    for (const format of ['stickers', 'receipt', 'poster'] as const) {
+      expect(pageOffered({ card, signed: written, format })).toBe(false);
+    }
     expect(await shareCatch(device, pages, { ...share, signed: written })).toBe('shared');
     expect(sent).toHaveLength(1);
     expect(sent[0]?.body).toMatchObject({
@@ -185,6 +283,16 @@ describe('sharing a catch', () => {
       signature: signed.signature,
       card: { name: card.name, title: card.title, flavourText: card.flavourText, taskLine: null },
     });
+  });
+
+  it('sends a sticker sheet, a receipt and a poster as pictures alone, and asks the server nothing', async () => {
+    for (const format of ['stickers', 'receipt', 'poster'] as const) {
+      const { calls, device } = recorder();
+      const { pages, sent } = website();
+      expect(await shareCatch(device, pages, { ...share, format })).toBe('shared_picture');
+      expect(sent).toEqual([]);
+      expect(calls.sheets).toEqual([`image/png file:///scootch-${format}-1.png`]);
+    }
   });
 
   it('shares only the picture, and says so, for a monster with no signature', async () => {
@@ -208,8 +316,8 @@ describe('sharing a catch', () => {
   it('takes the old page down before a page that shows something else goes up', async () => {
     const { device } = recorder();
     const { pages, sent } = website();
-    await shareCatch(device, pages, { ...share, kind: 'card', hideTask: false });
-    await shareCatch(device, pages, { ...share, kind: 'card', hideTask: true });
+    await shareCatch(device, pages, { ...share, format: 'card', hideTask: false });
+    await shareCatch(device, pages, { ...share, format: 'card', hideTask: true });
 
     expect(sent.map((one) => `${one.method} ${one.path}`)).toEqual([
       'POST /v1/card-share',
@@ -275,7 +383,7 @@ describe('sharing a catch', () => {
 
   it('saves to Photos, or says the permission was refused', async () => {
     const allowed = recorder('saved');
-    expect(await saveCatch(allowed.device, { ...share, kind: 'card' })).toBe('saved');
+    expect(await saveCatch(allowed.device, { ...share, format: 'card' })).toBe('saved');
     expect(allowed.calls.saved).toEqual(['file:///scootch-card-1.png']);
     expect(await saveCatch(recorder('refused').device, share)).toBe('refused');
   });

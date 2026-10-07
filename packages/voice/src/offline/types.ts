@@ -42,7 +42,8 @@ export const noTaskSlots = [
   'plusSheet',
   'plusOneMore',
   'plusOffer',
-  'trialStarted',
+  /** Plus has just been bought, on any plan: said once, under the card that arrives. */
+  'plusWelcome',
   'trialEndsTomorrow',
   'trialLastDay',
   'renewalOff',

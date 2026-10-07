@@ -105,7 +105,7 @@ describe('nothing is sold near something heavy', () => {
     const seen = { dismissedAt: null, worldVisitedAt: now - 1 };
     expect(offerShows({ ...due, selling: true }, seen, 'free', now)).toBe(true);
     expect(offerShows(due, seen, 'free', now)).toBe(false);
-    for (const slot of ['plusOffer', 'lifetime', 'trialStarted', 'trialLastDay'] as const) {
+    for (const slot of ['plusOffer', 'lifetime', 'plusWelcome', 'trialLastDay'] as const) {
       expect(plusLine(slot, voice, state)).toBeNull();
     }
   });

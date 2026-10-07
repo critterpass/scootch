@@ -18,6 +18,7 @@ import { toneFor } from '../state/lines';
 import type { MotionCare } from '../ui/motion/may-move';
 import { stackBar, stackMotion } from '../ui/motion/stack-transitions';
 import { FeelProvider, useMayMove } from '../ui/motion/use-feel';
+import { usePalette } from '../ui/use-palette';
 
 // Crash reporting starts only when a DSN is set; with none, nothing is initialised or sent.
 const sentryDsn = process.env['EXPO_PUBLIC_SENTRY_DSN'];
@@ -51,7 +52,7 @@ const SYSTEM_BAR = Platform.OS === 'ios';
 function Screens() {
   const mayMove = useMayMove();
   const appearance = useAppearance();
-  const palette = colors[appearance];
+  const palette = usePalette();
   return (
     <Stack
       screenOptions={({ route }) => {

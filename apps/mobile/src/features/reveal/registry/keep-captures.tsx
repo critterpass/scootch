@@ -4,6 +4,8 @@ import { offlineLine } from '@scootch/voice';
 import { RecordScreen } from '../../record/record-screen';
 import { ARM_REST_DEG } from '../../record/record-audio';
 import { weekView } from '../../record/record-week';
+import { formatsOffered, type ShareDress, type ShareFormat } from '../../share/share-image';
+import { dayLog, monthWrap } from '../../share/share-logs';
 import { SharePanel } from '../../share/share-panel';
 import { lighthousePiece } from '../../world/landmarks';
 import { WorldScreen } from '../../world/world-screen';
@@ -125,12 +127,26 @@ function capturedRecord(language: Language, barCount: number) {
   );
 }
 
-function capturedShare(language: Language) {
+function capturedShare(language: Language, format: ShareFormat) {
+  // A member wearing holo foil, with a few things caught today and the month they were caught in.
+  const monsters = fixtureMonsters(5);
+  const tasks = new Map(monsters.map((one, index) => [one.taskId, fixtureTask(index, language)]));
+  const first = fixtureMonster(0);
+  const [year = 2026, month = 1] = first.caughtOn.split('-').map(Number);
+  const dress: ShareDress = {
+    finish: 'holo',
+    member: 42,
+    plus: true,
+    day: dayLog(monsters, tasks, first.caughtOn, 'UTC', false),
+    month: monthWrap(monsters, tasks, year, month),
+  };
   return (
     <SharePanel
       model={{
-        card: cardDataFor(fixtureMonster(0), fixtureTask(0, language)),
-        kind: 'story',
+        card: cardDataFor(first, fixtureTask(0, language)),
+        format,
+        formats: formatsOffered(dress),
+        dress,
         language,
         hideTask: false,
         notice: null,
@@ -139,6 +155,7 @@ function capturedShare(language: Language) {
       }}
       actions={{
         close: nothing,
+        setFormat: nothing,
         setHideTask: nothing,
         share: nothing,
         unshare: nothing,
@@ -164,6 +181,6 @@ export function Captured({ capture, language }: { capture: KeepCapture; language
     case 'record':
       return capturedRecord(language, capture.bars);
     case 'share':
-      return capturedShare(language);
+      return capturedShare(language, capture.format);
   }
 }

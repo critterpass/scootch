@@ -1,10 +1,21 @@
+import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import type { CardData, SignedWords, TaskRow, TodayState } from '@scootch/domain';
+import {
+  localDateTime,
+  type CardData,
+  type SignedWords,
+  type TaskRow,
+  type TodayState,
+} from '@scootch/domain';
 import type { Language } from '@scootch/i18n';
 
 import { siteBaseUrl } from '../../api/api-config';
+import { openRepositories } from '../../data/repositories';
+import { loadKeepsakes, type Keepsakes } from '../../state/keepsakes';
+import { usePlusRuntime, usePlusState } from '../../state/plus-context';
 import { useTogether } from '../../state/together-context';
+import { inkOf } from '../studio/catalogue';
 
 import { keychainKeptShares } from './native-kept-shares';
 import { nativeShareDevice } from './native-share-device';
@@ -17,6 +28,8 @@ import {
   type CatchShare,
   type SharePages,
 } from './share-flow';
+import { formatsOffered, type ShareDress, type ShareFormat } from './share-image';
+import { dayLog, monthBefore, monthWrap } from './share-logs';
 import type { ShareActions, ShareModel } from './share-panel';
 import { shareOfferedOn } from './share-rules';
 
@@ -25,7 +38,8 @@ export interface ShareTarget {
   readonly card: CardData;
   /** The signature stored with the monster's words; `null` when it has none. */
   readonly signed: SignedWords | null;
-  readonly kind: 'story' | 'card';
+  /** The picture the panel opens on. */
+  readonly format: ShareFormat;
 }
 
 export interface ShareHandle {
@@ -42,7 +56,12 @@ export function useShare(language: Language, today: Pick<TodayState, 'kind'>): S
     () => ({ api, kept: keychainKeptShares, site: siteBaseUrl() }),
     [api],
   );
+  const db = useSQLiteContext();
+  const runtime = usePlusRuntime();
+  const { look, member, unlocked } = usePlusState();
   const [target, setTarget] = useState<ShareTarget | null>(null);
+  const [format, setFormat] = useState<ShareFormat>('story');
+  const [kept, setKept] = useState<Keepsakes | null>(null);
   const [hideTask, setHideTask] = useState(false);
   const [notice, setNotice] = useState<ShareModel['notice']>(null);
   const [pageUp, setPageUp] = useState(false);
@@ -55,15 +74,45 @@ export function useShare(language: Language, today: Pick<TodayState, 'kind'>): S
       setHideTask(false);
       setNotice(null);
       setPageUp(false);
+      setFormat(next.format);
       setTarget(next);
     },
     [today],
   );
+  // The receipt and the poster are counted from the phone's own tables, read as the panel opens.
+  useEffect(() => {
+    if (!target) return;
+    let current = true;
+    void loadKeepsakes(openRepositories(db))
+      .then((loaded) => {
+        if (current) setKept(loaded);
+      })
+      .catch(() => undefined);
+    return () => {
+      current = false;
+    };
+  }, [target, db]);
+  const dress = useMemo<ShareDress>(() => {
+    const timeZone = runtime.timeZone();
+    const date = localDateTime(runtime.now(), timeZone).date;
+    const before = monthBefore(date);
+    const { accent, deep, highlight, blush } = inkOf(look.ink).colours;
+    return {
+      finish: look.finish,
+      ...(look.ink === 'tangerine'
+        ? {}
+        : { body: { body: accent, shade: deep, highlight, blush } }),
+      member: unlocked.plus ? member.number : null,
+      plus: unlocked.plus,
+      day: kept ? dayLog(kept.monsters, kept.tasks, date, timeZone, hideTask) : null,
+      month: kept ? monthWrap(kept.monsters, kept.tasks, before.year, before.month) : null,
+    };
+  }, [runtime, look, member, unlocked, kept, hideTask]);
   // Whether a page for this catch is already up, so that it can be taken down from here.
   useEffect(() => {
     if (!target) return;
     let current = true;
-    void sharedPageOf(pages, { ...target, hideTask: false, language })
+    void sharedPageOf(pages, { card: target.card, format })
       .then((link) => {
         if (current) setPageUp(link !== null);
       })
@@ -71,11 +120,14 @@ export function useShare(language: Language, today: Pick<TodayState, 'kind'>): S
     return () => {
       current = false;
     };
-  }, [target, pages, language]);
+  }, [target, format, pages]);
 
   const panel = useMemo(() => {
     if (!target || crisis) return null;
-    const share: CatchShare = { ...target, hideTask, language };
+    const formats = formatsOffered(dress);
+    // A format that can no longer be made (the day's log is gone) falls back to the story.
+    const shown = formats.includes(format) ? format : 'story';
+    const share: CatchShare = { ...target, format: shown, dress, hideTask, language };
     const page = pageOffered(share);
     /** One call to the server at a time; a tap while one is out does nothing. */
     const once = (work: () => Promise<void>) => {
@@ -91,6 +143,10 @@ export function useShare(language: Language, today: Pick<TodayState, 'kind'>): S
     };
     const actions: ShareActions = {
       close: () => setTarget(null),
+      setFormat: (next) => {
+        setNotice(null);
+        setFormat(next);
+      },
       setHideTask,
       share: () =>
         once(async () => {
@@ -116,7 +172,9 @@ export function useShare(language: Language, today: Pick<TodayState, 'kind'>): S
     return {
       model: {
         card: target.card,
-        kind: target.kind,
+        format: shown,
+        formats,
+        dress,
         language,
         hideTask,
         notice,
@@ -125,7 +183,7 @@ export function useShare(language: Language, today: Pick<TodayState, 'kind'>): S
       },
       actions,
     };
-  }, [target, hideTask, notice, pageUp, language, pages, crisis]);
+  }, [target, format, dress, hideTask, notice, pageUp, language, pages, crisis]);
 
   return { panel, open };
 }

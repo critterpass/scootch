@@ -116,7 +116,11 @@ describe('the sheet at the store', () => {
     shop.nextPurchase = CUSTOMERS.monthly;
     await controller.buy();
     expect(shop.calls).toContain('purchase plus_monthly');
-    expect(controller.getState().done).toEqual({ plan: 'monthly', customer: CUSTOMERS.monthly });
+    expect(controller.getState().done).toEqual({
+      plan: 'monthly',
+      customer: CUSTOMERS.monthly,
+      restored: false,
+    });
     expect(store.getState().unlocked.plus).toBe(true);
   });
 
@@ -138,6 +142,8 @@ describe('the sheet at the store', () => {
     expect(owned.controller.getState().done).toEqual({
       plan: 'lifetime',
       customer: CUSTOMERS.lifetime,
+      // Plus came back through Restore: nothing was bought, so no card arrives.
+      restored: true,
     });
     expect(owned.store.getState().unlocked.plus).toBe(true);
   });

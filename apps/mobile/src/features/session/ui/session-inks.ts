@@ -1,4 +1,7 @@
-import { colors, type ColorScheme, type Palette } from '@scootch/tokens';
+import type { ColorScheme, Palette } from '@scootch/tokens';
+
+import type { InkId } from '../../studio/catalogue';
+import { paletteIn } from '../../../ui/use-palette';
 
 /** The session's own inks on top of the palette: the timer's track and the quiet disc. */
 export interface SessionInks extends Palette {
@@ -21,8 +24,9 @@ export interface SessionInks extends Palette {
   readonly onButton: string;
 }
 
-export function sessionInks(scheme: ColorScheme): SessionInks {
-  const palette = colors[scheme];
+/** The session's inks, in the ink the person wears. Tangerine when it is not said. */
+export function sessionInks(scheme: ColorScheme, ink: InkId = 'tangerine'): SessionInks {
+  const palette = paletteIn(scheme, ink);
   return {
     ...palette,
     dark: scheme === 'dark',

@@ -99,7 +99,7 @@ export const monster: MonsterRow = {
   daysLurked: 5,
   catchMinutes: 23,
   dread: 2,
-  finish: 'standard',
+  finish: 'paper',
 };
 
 export const session: SessionRow = {

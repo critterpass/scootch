@@ -113,7 +113,7 @@ export const enOffline: OfflinePack = {
       plusOneMore:
         "Today's things are all done, and tomorrow brings a fresh set. More today lives in Plus. No rush at all.",
       plusOffer: "Three caught. There's a little more of me, if you ever want it.",
-      trialStarted: "A whole week of everything. I'll tell you before it costs a thing.",
+      plusWelcome: "Plus is on. I'm so glad you're here.",
       trialEndsTomorrow:
         'Your free week ends tomorrow, and the charge comes then. I wanted you to hear it from me.',
       trialLastDay: 'The free week ends tonight. What would you like to do?',
@@ -150,7 +150,7 @@ export const enOffline: OfflinePack = {
         "An eleventh? In this economy? Today's lot is done and tomorrow has a fresh one. More today is a Plus thing.",
       plusOffer:
         'Three caught. I could do more for you, for a small fee. No pressure. Some pressure.',
-      trialStarted: "A whole week of everything. I'll poke you before it costs a thing.",
+      plusWelcome: 'Plus is on. I celebrated by buying myself a very small hat.',
       trialEndsTomorrow: "Tomorrow I charge you. I'm telling you now because I'm not a monster.",
       trialLastDay: 'Free week ends tonight. What shall we do?',
       renewalOff: "Done. Plus won't renew.",
@@ -188,8 +188,8 @@ export const enOffline: OfflinePack = {
         "AN ELEVENTH? TODAY? Today's lot is done and tomorrow has a fresh one. More is a Plus thing. I checked the tiny rulebook.",
       plusOffer:
         'THREE CAUGHT. I could do more for you, for a small fee. I rehearsed saying that casually.',
-      trialStarted:
-        'A WHOLE WEEK OF EVERYTHING. I will poke you before it costs a thing. I have set nine alarms.',
+      plusWelcome:
+        'PLUS IS ON. I bought myself a very small hat. The hat has its own, smaller hat.',
       trialEndsTomorrow:
         'TOMORROW I CHARGE YOU. I am telling you now because I am not a monster. I checked.',
       trialLastDay:

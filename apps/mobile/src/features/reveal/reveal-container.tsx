@@ -164,7 +164,7 @@ export function RevealContainer() {
     skip: () => send({ type: 'skip' }),
     backToToday: () => send({ type: 'back_to_today' }),
     showSomeone: () => {
-      if (card) share.open({ task, card, signed: monster?.signed ?? null, kind: 'story' });
+      if (card) share.open({ task, card, signed: monster?.signed ?? null, format: 'story' });
     },
     playBar: () => {
       if (!bar || !musicOn) return;

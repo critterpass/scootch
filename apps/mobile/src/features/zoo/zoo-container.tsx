@@ -50,7 +50,6 @@ export function ZooContainer() {
         nextSort: () => setSort(sortAfter),
         // Nothing sells near something heavy: on such a day the locked controls do nothing.
         ...(heavyToday ? {} : plusDoor),
-        setFinish: (finish) => shown?.setFinish(finish),
         shareCard: () => shown?.share(),
         shareMonster: (monster) => {
           if (!opened.shareOf(monster)) opened.open(monster.id);

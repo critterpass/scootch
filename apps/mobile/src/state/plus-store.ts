@@ -2,6 +2,7 @@ import type { Unlocked } from '@scootch/domain';
 
 import type { PlusMemory } from '../data/plus-memory';
 import { unlockedFor } from '../features/plus/entitlement';
+import { memberFromStored, NO_MEMBER, type Member } from '../features/plus/member';
 import { PLANS, type PlanId } from '../features/plus/products';
 import {
   FREE_CUSTOMER,
@@ -9,6 +10,7 @@ import {
   type Offerings,
   type PurchasesPort,
 } from '../features/plus/purchases-port';
+import { lookFromStored, PLAIN_LOOK, type Look } from '../features/studio/look';
 
 export type PlanPrices = Readonly<Partial<Record<PlanId, string>>>;
 
@@ -21,6 +23,10 @@ export interface PlusState {
   readonly unlocked: Unlocked;
   /** The store's own price text for each plan, as last seen. Never a number of the app's. */
   readonly prices: PlanPrices;
+  /** The ink, finish and trail the person wears. Plain until the phone has been read. */
+  readonly look: Look;
+  /** The member card's number and joining date, as far as they are known. */
+  readonly member: Member;
 }
 
 export interface PlusStore {
@@ -36,6 +42,10 @@ export interface PlusStore {
   /** Takes a state the store has just reported, as after a purchase or a restore. */
   readonly accept: (customer: CustomerState) => Promise<void>;
   readonly rememberPrices: (offerings: Offerings) => Promise<void>;
+  /** Puts a look on and keeps it on the phone. Whether it may be worn is the studio's to decide. */
+  readonly wear: (look: Look) => Promise<void>;
+  /** Keeps what has been learned about the member card: its number, or the day Plus began. */
+  readonly rememberMember: (member: Member) => Promise<void>;
 }
 
 const isInstant = (value: unknown): value is number | null =>
@@ -93,6 +103,8 @@ export function createPlusStore(deps: {
     customer: FREE_CUSTOMER,
     unlocked: unlockedFor(FREE_CUSTOMER),
     prices: {},
+    look: PLAIN_LOOK,
+    member: NO_MEMBER,
   };
   const set = (changes: Partial<PlusState>) => {
     state = { ...state, ...changes };
@@ -114,7 +126,12 @@ export function createPlusStore(deps: {
       const customer = customerFromStored(await memory.read('customer').catch(() => null));
       const prices = pricesFromStored(await memory.read('prices').catch(() => null));
       const known = customer ?? state.customer;
-      set({ loaded: true, customer: known, unlocked: unlockedFor(known), prices });
+      const look = lookFromStored(
+        await memory.read('look').catch(() => null),
+        await memory.read('ink').catch(() => null),
+      );
+      const member = memberFromStored(await memory.read('member').catch(() => null));
+      set({ loaded: true, customer: known, unlocked: unlockedFor(known), prices, look, member });
     },
     refresh: async () => {
       let answer: CustomerState;
@@ -135,6 +152,14 @@ export function createPlusStore(deps: {
       }
       set({ prices });
       await memory.write('prices', prices).catch(() => undefined);
+    },
+    rememberMember: async (member) => {
+      set({ member });
+      await memory.write('member', member).catch(() => undefined);
+    },
+    wear: async (look) => {
+      set({ look });
+      await memory.write('look', look).catch(() => undefined);
     },
   };
 }

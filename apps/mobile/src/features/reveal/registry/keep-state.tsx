@@ -6,6 +6,7 @@ import {
   type DesignReference,
   type ScreenState,
 } from '../../../screens/registry/support/screen-state';
+import type { ShareFormat } from '../../share/share-image';
 import type { RevealStep } from '../reveal-steps';
 
 // Loaded when a state is shown, so listing the registry never loads a screen.
@@ -16,6 +17,8 @@ const Captured = lazy(() =>
 export const KEEPSAKES_BOARD = 'Monsters and Keepsakes';
 export const SCOOTCH_BOARD = 'Scootch';
 export const PLUS_BOARD = 'Plus';
+/** The board that redrew everything that is shared. */
+export const MATERIALS_BOARD = 'Plus Materials';
 
 /** Which keeping screen a capture shows, and with how much in it. */
 export type KeepCapture =
@@ -28,7 +31,7 @@ export type KeepCapture =
       readonly open?: boolean;
     }
   | { readonly screen: 'record'; readonly bars: number }
-  | { readonly screen: 'share' };
+  | { readonly screen: 'share'; readonly format: ShareFormat };
 
 export interface KeepStateInput {
   readonly id: string;

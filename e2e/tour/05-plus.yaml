@@ -1,6 +1,6 @@
 appId: app.scootch.dev
 ---
-# Tour: Part (e): the Plus sheet in its loading, unavailable, failed and purchasing states, and the manage page. Each shot is a registry row, named for the sheet that pairs it with its design.
+# Tour: Part (e): the Plus sheet in its loading, unavailable, failed and purchasing states, the welcome, the studio, Your card and the five things to share. Each shot is a registry row, named for the sheet that pairs it with its design.
 - runFlow: ../tour-support/to-registry.yaml
 - runFlow:
     file: ../tour-support/shot.yaml
@@ -37,6 +37,30 @@ appId: app.scootch.dev
 - runFlow:
     file: ../tour-support/shot.yaml
     env:
+      NAME: plus-welcome--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: plus-welcome-lifetime--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: studio-trying-on--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: studio-wearing--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: studio-ink--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: studio-trail--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
       NAME: plus-manage-free--en-light-default
 - runFlow:
     file: ../tour-support/shot.yaml
@@ -54,3 +78,23 @@ appId: app.scootch.dev
     file: ../tour-support/shot.yaml
     env:
       NAME: plus-manage-free--vi-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: share-story--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: share-card--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: share-stickers--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: share-receipt--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: share-poster--en-light-default

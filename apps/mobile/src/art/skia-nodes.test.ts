@@ -34,6 +34,21 @@ const ONE_OF_EACH: { readonly [K in DrawCommand['op']]: Extract<DrawCommand, { o
   transform: { op: 'transform', matrix: [1, 2, 3, 4, 5, 6] },
   clip: { op: 'clip', path: SQUARE },
   fill: { op: 'fill', path: SQUARE, color: '#F0562E', alpha: 0.5, rule: 'evenodd' },
+  paint: {
+    op: 'paint',
+    path: SQUARE,
+    paint: {
+      kind: 'linear',
+      from: [0, 0],
+      to: [10, 10],
+      stops: [
+        [0, '#FF69B4', 0.5],
+        [1, '#64D7FF', 0],
+      ],
+    },
+    alpha: 0.9,
+    blend: 'soft-light',
+  },
   stroke: { op: 'stroke', path: SQUARE, color: '#1C1A17', alpha: 0.9, width: 2.8 },
   text: {
     op: 'text',
@@ -114,6 +129,36 @@ describe('drawing commands as Skia nodes', () => {
       const painted = commands.filter((c) => c.op === 'fill' || c.op === 'stroke');
       expect(drawn(toSkiaNodes(commands))).toHaveLength(painted.length);
     }
+  });
+
+  it('hands Skia a paint with its colours written out, its blend named and its grain as a frequency', () => {
+    const [linear] = toSkiaNodes([ONE_OF_EACH.paint]);
+    expect(linear).toEqual({
+      kind: 'paint',
+      path: 'M0 0L10 0L10 10Z',
+      paint: {
+        kind: 'linear',
+        start: { x: 0, y: 0 },
+        end: { x: 10, y: 10 },
+        colors: ['rgba(255,105,180,0.5)', 'rgba(100,215,255,0)'],
+        positions: [0, 1],
+      },
+      opacity: 0.9,
+      blend: 'softLight',
+    });
+    const [round] = toSkiaNodes([
+      {
+        ...ONE_OF_EACH.paint,
+        blend: 'normal',
+        paint: { kind: 'radial', centre: [5, 6], radius: 7, stops: [[0.25, '#FFFFFF', 1]] },
+      },
+    ]);
+    expect(round).toMatchObject({
+      blend: 'srcOver',
+      paint: { kind: 'radial', centre: { x: 5, y: 6 }, radius: 7, positions: [0.25] },
+    });
+    const [grain] = toSkiaNodes([{ ...ONE_OF_EACH.paint, paint: { kind: 'grain', size: 4 } }]);
+    expect(grain).toMatchObject({ paint: { kind: 'grain', frequency: 0.25 } });
   });
 
   it('writes each segment kind as SVG path data, a circle as its own closed subpath', () => {

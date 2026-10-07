@@ -5,7 +5,7 @@ import { describe, expect, it } from '@jest/globals';
 
 import { ALWAYS_FREE, PURCHASE_STATES, isUnlocked, unlockedBy } from '@scootch/domain';
 
-import { SHELF, SHELF_KINDS } from '../shelf/catalogue';
+import { STUDIO, STUDIO_KINDS } from '../studio/catalogue';
 
 import { unlockedFor } from './entitlement';
 import { PLAN_PRODUCTS, PLANS, PLUS_ENTITLEMENT } from './products';
@@ -68,10 +68,10 @@ function closureOf(entry: string): string[] {
   return [...seen];
 }
 
-/** The routes on which something can be bought: the sheet, and the shelf. */
-const SELLING_ROUTES = ['/plus', '/shelf'];
+/** The routes on which something can be bought: the sheet, and the studio. */
+const SELLING_ROUTES = ['/plus', '/studio'];
 /** The names those routes are reached by, from the routes file, and the paths themselves. */
-const WAYS_IN = /\b(PLUS_SHEET(?:_ONE_MORE)?|SHELF_ROUTE)\b|['"`]\/(?:plus|shelf)(?:[?'"`])/g;
+const WAYS_IN = /\b(PLUS_SHEET(?:_ONE_MORE)?|STUDIO_ROUTE)\b|['"`]\/(?:plus|studio)(?:[?'"`])/g;
 
 function waysIn(file: string): string[] {
   const source = readFileSync(file, 'utf8')
@@ -102,11 +102,10 @@ describe('the house rules', () => {
         '/helplines',
         '/plus',
         '/plus/last-day',
-        '/plus/lifetime',
         '/plus/manage',
         '/plus/records',
         '/plus/renewal-off',
-        '/plus/trial-started',
+        '/plus/welcome',
         '/privacy',
         '/record',
         '/registry',
@@ -114,7 +113,7 @@ describe('the house rules', () => {
         '/reveal',
         '/session',
         '/settings',
-        '/shelf',
+        '/studio',
         '/t/[code]',
         '/table',
         '/table-quieted',
@@ -142,13 +141,14 @@ describe('the house rules', () => {
       [
         'features/one-screen/one-screen.tsx: onUnlock: () => router.push(PLUS_SHEET_ONE_MORE),',
         'features/plus/first-offer.tsx: onTell={() => router.push(PLUS_SHEET)}',
-        'features/plus/manage-container.tsx: openShelf: () => router.push(SHELF_ROUTE),',
+        'features/plus/manage-container.tsx: openStudio: () => router.push(STUDIO_ROUTE),',
         'features/plus/manage-container.tsx: seePlus: () => router.push(PLUS_SHEET),',
+        // The welcome's "Pick my first finish": a member wears every finish, so nothing is sold
+        // on the way in.
+        'features/plus/moment-containers.tsx: pickFinish={() => router.push(STUDIO_ROUTE)}',
         'features/record/record-container.tsx: openPlus: () => router.push(PLUS_SHEET),',
         'features/table/lobby-containers.tsx: onLocked={() => router.push(PLUS_SHEET)}',
-        // A monster's card is one screen, opened from the zoo or the world: its locked finishes
-        // open the sheet from both.
-        'features/world/world-container.tsx: openPlus: () => router.push(PLUS_SHEET),',
+        // The binder's sorting is the zoo's one locked control.
         'features/zoo/zoo-container.tsx: openPlus: () => router.push(PLUS_SHEET),',
       ].sort(),
     );
@@ -157,13 +157,9 @@ describe('the house rules', () => {
   });
 
   it('leaves the locked controls of the keeping screens inert on a heavy day', () => {
-    // The world's and the zoo's card and the record each have one way to the sheet, and each
-    // hands it over only when the day has nothing heavy in it.
-    for (const file of [
-      'features/world/world-container.tsx',
-      'features/zoo/zoo-container.tsx',
-      'features/record/record-container.tsx',
-    ]) {
+    // The zoo's binder and the record each have one way to the sheet, and each hands it over only
+    // when the day has nothing heavy in it.
+    for (const file of ['features/zoo/zoo-container.tsx', 'features/record/record-container.tsx']) {
       const source = readFileSync(path.join(SOURCE, file), 'utf8');
       expect(source.match(/PLUS_SHEET\)/g)).toHaveLength(1);
       expect(source).toMatch(
@@ -174,6 +170,12 @@ describe('the house rules', () => {
       expect(source).toMatch(/\.\.\.\(heavyToday \? \{\} : plusDoor\)/);
       expect(source).toMatch(/\{[^}]*\bheavyToday\b[^}]*\} = useToday\(\)/);
     }
+    // Your card offers the sheet and the studio only when the one selling guard says so.
+    const card = readFileSync(path.join(SOURCE, 'features/plus/manage-container.tsx'), 'utf8');
+    expect(card).toMatch(/selling: showsSelling\(day\)/);
+    const page = readFileSync(path.join(SOURCE, 'features/plus/manage-screen.tsx'), 'utf8');
+    expect(page).toMatch(/model\.selling \? \{ onPress: actions\.seePlus \} : \{ inert: true \}/);
+    expect(page).toMatch(/\{model\.selling \? \(\s*<Row\s+label=\{t\('studio\.title'\)\}/);
   });
 
   it('reaches no selling route from first launch, a session, the reveal or the care screens', () => {
@@ -186,22 +188,17 @@ describe('the house rules', () => {
     expect(quiet.length).toBeGreaterThan(20);
     expect(quiet.filter((file) => waysIn(file).length > 0).map(relative)).toEqual([]);
     for (const file of quiet) {
-      expect(readFileSync(file, 'utf8')).not.toMatch(/features\/(plus\/sheet|shelf\/)/);
+      expect(readFileSync(file, 'utf8')).not.toMatch(/features\/(plus\/sheet|studio\/studio-)/);
     }
   });
 
   it('reaches the sheet from the one screen only through the locked talk capsule on home', () => {
     const closure = closureOf(routes.get('/') ?? '');
     const users = closure.filter((file) => file !== ROUTES_FILE && waysIn(file).length > 0);
-    // The world is the page beside home, and brings its own two doors with it: the locked finish
-    // on a resident's card and the first offer. Both are held shut on a heavy day by the world
-    // itself, as the rule above checks. Nothing else on the way from home names a selling route.
+    // The world is the page beside home, and brings one door with it: the first offer, which is
+    // not shown at all on a heavy day. Nothing else on the way from home names a selling route.
     const ONE_SCREEN = 'features/one-screen/one-screen.tsx';
-    expect(users.map(relative).sort()).toEqual([
-      ONE_SCREEN,
-      'features/plus/first-offer.tsx',
-      'features/world/world-container.tsx',
-    ]);
+    expect(users.map(relative).sort()).toEqual([ONE_SCREEN, 'features/plus/first-offer.tsx']);
 
     const source = readFileSync(path.join(SOURCE, ONE_SCREEN), 'utf8');
     const at = source.indexOf('router.push(PLUS_SHEET_ONE_MORE)');
@@ -212,7 +209,7 @@ describe('the house rules', () => {
     expect(taskSet).toBeGreaterThan(-1);
     expect(home).toBeGreaterThan(taskSet);
     expect(at).toBeGreaterThan(home);
-    expect(source.slice(taskSet, home)).not.toMatch(/PLUS_|SHELF_ROUTE|\/plus|\/shelf/);
+    expect(source.slice(taskSet, home)).not.toMatch(/PLUS_|STUDIO_ROUTE|\/plus|\/studio/);
     expect(source.match(/PLUS_SHEET/g)).toHaveLength(2);
     expect(source).toMatch(
       /gate: \{\s*kind: starts,\s*onUnlock: \(\) => router\.push\(PLUS_SHEET_ONE_MORE\),\s*\}/,
@@ -257,10 +254,10 @@ describe('the house rules', () => {
       /rar(e|ity)|random|pack|loot|gacha|lucky|chance|odds|coin|gem|currency|credit|token|streak|repair|freeze|missed|skip|catch.?up/i;
     const sold = [
       ...PLANS.map((plan) => ({ id: plan, productId: PLAN_PRODUCTS[plan], words: [] as string[] })),
-      ...SHELF.map((item) => ({
+      ...STUDIO.map((item) => ({
         id: item.id,
         productId: item.productId ?? '',
-        words: [item.name, item.about, item.kind],
+        words: [item.name, item.short, item.about, item.kind],
       })),
     ];
     expect(sold.map((one) => one.productId).filter(Boolean)).toEqual([
@@ -268,8 +265,18 @@ describe('the house rules', () => {
       'plus_yearly',
       'plus_lifetime',
       'ink_midnight_riso',
-      'ink_kraft_paper',
-      'ink_gold_leaf',
+      'ink_moss',
+      'ink_plum',
+      'ink_mustard',
+      'finish_holo',
+      'finish_chrome',
+      'finish_jelly',
+      'finish_glass',
+      'finish_flock',
+      'finish_riso',
+      'trail_stardust',
+      'trail_bubbles',
+      'trail_splat',
     ]);
     expect(PLUS_ENTITLEMENT).toBe('plus');
     for (const one of sold) {
@@ -277,14 +284,16 @@ describe('the house rules', () => {
         expect([one.id, text, NEVER_SOLD.test(text)]).toEqual([one.id, text, false]);
       }
     }
-    // A shelf item is exactly what it shows: one fixed thing, with no amount and no odds.
-    for (const item of SHELF) {
-      expect(SHELF_KINDS).toContain(item.kind);
+    // A studio item is exactly what it shows: one fixed thing, with no amount and no odds.
+    for (const item of STUDIO) {
+      expect(STUDIO_KINDS).toContain(item.kind);
+      const own = item.kind === 'ink' ? ['code', 'colours'] : [];
       expect(Object.keys(item).sort()).toEqual(
-        ['about', 'colours', 'id', 'kind', 'name', 'productId'].sort(),
+        ['about', 'id', 'kind', 'name', 'productId', 'short', ...own].sort(),
       );
     }
-    expect(new Set(sold.map((one) => one.productId)).size).toBe(sold.length - 1 + 1);
+    const products = sold.map((one) => one.productId).filter(Boolean);
+    expect(new Set(products).size).toBe(products.length);
     // The store's port has no way to spend, top up or consume anything.
     const port = readFileSync(path.join(SOURCE, 'features/plus/purchases-port.ts'), 'utf8');
     expect(port).not.toMatch(/consum|balance|wallet|quantity/i);
@@ -312,7 +321,7 @@ describe('the words and prices on a Plus screen', () => {
   const screens = ['features', 'ui', 'app'].flatMap((folder) =>
     filesUnder(path.join(SOURCE, folder)).filter(
       (file) =>
-        /\.tsx$/.test(file) || /features\/(plus|shelf)\//.test(file.split(path.sep).join('/')),
+        /\.tsx$/.test(file) || /features\/(plus|studio)\//.test(file.split(path.sep).join('/')),
     ),
   );
   /** A money amount written into the source: a currency sign or code beside a number. */

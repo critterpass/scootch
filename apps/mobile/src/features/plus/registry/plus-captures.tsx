@@ -9,23 +9,23 @@ import { PlusContext, type PlusRuntime } from '../../../state/plus-context';
 import { useScreenStyle } from '../../../ui/use-screen-style';
 import { initialComposer } from '../../composer/composer-machine';
 import { OneScreenView } from '../../one-screen/one-screen-view';
-import { fixtureMonster, fixtureTask } from '../../reveal/registry/keep-fixtures';
-import { ShelfScreen } from '../../shelf/shelf-screen';
-import { shelfItem, SHELF_OPENS_ON, type ShelfItem } from '../../shelf/catalogue';
-import { cardDataFor } from '../../zoo/zoo-cards';
-import { ZooScreen } from '../../zoo/zoo-screen';
-import { longDate, shortDay } from '../dates';
+import { itemOf } from '../../studio/catalogue';
+import { PLAIN_LOOK, withPart } from '../../studio/look';
+import { finishesOwned } from '../../studio/rules';
+import { StudioScreen } from '../../studio/studio-screen';
+import { longDate } from '../dates';
 import { unlockedFor } from '../entitlement';
 import { OfferCard } from '../first-offer';
-import { lifetimeCard } from '../lifetime-card';
 import { ManageScreen } from '../manage-screen';
-import { LifetimeMoment } from '../lifetime-moment';
-import { LastDay, RenewalOff, TrialStarted } from '../moments';
+import { NO_MEMBER } from '../member';
+import { LastDay, RenewalOff } from '../moments';
+import { nextPlanDate, planLine } from '../plan-line';
 import { PlusSheet } from '../plus-sheet';
 import { unavailablePurchases, type CustomerState } from '../purchases-port';
 import { RecordShelf } from '../record-shelf';
 import { sheetLineSlot } from '../sheet-model';
 import { CUSTOMERS, FAKE_OFFERINGS, FAKE_PRICES } from '../test/fake-purchases';
+import { Welcome } from '../welcome';
 
 import type { PlusCapture } from './plus-state';
 
@@ -35,11 +35,21 @@ const ZONE = 'Europe/London';
 /** The morning every capture is taken on, and the store dates that follow from it. */
 const NOW = Date.parse('2026-10-06T09:00:00.000Z');
 const TRIAL_ENDS = NOW + 7 * DAY_MS;
-const SHELF_PRICE = '¤S.ss';
+const STUDIO_PRICE = '¤S.ss';
+/** The member every capture shows: the number the board prints, joined on the capture's morning. */
+const MEMBER = { number: 42, since: NOW } as const;
+const YEAR = '2026';
 
 /** A phone whose store last said `customer`, with nothing behind it. */
 function runtimeFor(customer: CustomerState, now: number): PlusRuntime {
-  const state = { loaded: true, customer, unlocked: unlockedFor(customer), prices: FAKE_PRICES };
+  const state = {
+    loaded: true,
+    customer,
+    unlocked: unlockedFor(customer),
+    prices: FAKE_PRICES,
+    look: PLAIN_LOOK,
+    member: NO_MEMBER,
+  };
   return {
     port: unavailablePurchases,
     store: {
@@ -49,6 +59,8 @@ function runtimeFor(customer: CustomerState, now: number): PlusRuntime {
       refresh: () => Promise.resolve(false),
       accept: () => Promise.resolve(),
       rememberPrices: () => Promise.resolve(),
+      wear: () => Promise.resolve(),
+      rememberMember: () => Promise.resolve(),
     },
     memory: { read: () => Promise.resolve(null), write: () => Promise.resolve() },
     timeZone: () => ZONE,
@@ -80,6 +92,7 @@ export function Captured({ capture }: { readonly capture: PlusCapture }) {
                   sheetLineSlot(capture.oneMore ? 'one_more' : 'asked'),
                 )
           }
+          year={YEAR}
           state={{
             phase: phase === 'loading' || phase === 'unavailable' ? phase : 'ready',
             offerings: phase === 'loading' || phase === 'unavailable' ? null : FAKE_OFFERINGS,
@@ -145,16 +158,26 @@ export function Captured({ capture }: { readonly capture: PlusCapture }) {
           />
         </View>
       );
-    case 'trial-started':
+    case 'welcome': {
+      const customer = CUSTOMERS[capture.customer];
+      const next = nextPlanDate(customer);
+      const plan = customer.activePlan ?? 'yearly';
       return (
-        <TrialStarted
-          {...moment}
-          said={said('trialStarted')}
-          remindOn={shortDay(TRIAL_ENDS - DAY_MS, language, ZONE)}
-          chargeOn={shortDay(TRIAL_ENDS, language, ZONE)}
-          price={FAKE_PRICES.yearly}
+        <Welcome
+          attitude="cheeky"
+          said={said(plan === 'lifetime' ? 'lifetime' : 'plusWelcome')}
+          print={[
+            t(`plus.plan.${plan}`),
+            planLine(customer, next === null ? null : longDate(next, language, ZONE), t),
+          ].join(' · ')}
+          number={MEMBER.number}
+          year={YEAR}
+          landmark={plan === 'lifetime'}
+          pickFinish={nothing}
+          done={nothing}
         />
       );
+    }
     case 'last-day':
       return (
         <LastDay
@@ -177,27 +200,10 @@ export function Captured({ capture }: { readonly capture: PlusCapture }) {
           manage={nothing}
         />
       );
-    case 'lifetime':
-      return (
-        <LifetimeMoment
-          {...moment}
-          said={said('lifetime')}
-          language={language}
-          card={lifetimeCard(
-            {
-              name: t('plus.lifetime.cardName'),
-              title: t('plus.lifetime.cardTitle'),
-              flavour: t('plus.lifetime.flavour'),
-            },
-            '2026-10-06',
-          )}
-          landmark
-          openWorld={nothing}
-        />
-      );
     case 'manage': {
       const customer = CUSTOMERS[capture.customer];
-      const next = customer.trialEndsAt ?? customer.renewsAt ?? customer.endsAt;
+      const next = nextPlanDate(customer);
+      const member = customer.activePlan === null ? NO_MEMBER : MEMBER;
       return (
         <ManageScreen
           model={{
@@ -206,37 +212,31 @@ export function Captured({ capture }: { readonly capture: PlusCapture }) {
             date: next === null ? null : longDate(next, language, ZONE),
             lastTrialDay: false,
             notice: null,
+            look:
+              customer.activePlan === null ? PLAIN_LOOK : withPart(PLAIN_LOOK, 'finish', 'holo'),
+            member,
+            since:
+              member.since === null
+                ? null
+                : {
+                    month: new Intl.DateTimeFormat(language, {
+                      month: 'short',
+                      timeZone: ZONE,
+                    }).format(member.since),
+                    year: YEAR,
+                  },
+            thisYear: YEAR,
+            name: null,
+            caught: customer.activePlan === null ? 3 : 42,
+            finishesOwned: finishesOwned(customer.ownedItems),
+            selling: true,
           }}
           actions={{
             close: nothing,
             seePlus: nothing,
-            changePlan: nothing,
+            manage: nothing,
             restore: nothing,
-            cancel: nothing,
-            openShelf: nothing,
-          }}
-        />
-      );
-    }
-    case 'finishes': {
-      const monster = fixtureMonster(1);
-      return (
-        <ZooScreen
-          model={{
-            cards: [monster],
-            language,
-            plus: capture.plus,
-            sort: null,
-            open: { card: cardDataFor(monster, fixtureTask(1, language)), shareOffered: false },
-          }}
-          actions={{
-            close: nothing,
-            openCard: nothing,
-            closeCard: nothing,
-            nextSort: nothing,
-            shareCard: nothing,
-            openPlus: nothing,
-            setFinish: nothing,
+            openStudio: nothing,
           }}
         />
       );
@@ -252,23 +252,25 @@ export function Captured({ capture }: { readonly capture: PlusCapture }) {
           }))}
         />
       );
-    case 'shelf': {
-      const focus = shelfItem(SHELF_OPENS_ON) as ShelfItem;
+    case 'studio': {
+      const focus = itemOf(capture.tab, capture.trying);
       return (
-        <ShelfScreen
+        <StudioScreen
           model={{
-            kind: 'inks',
+            tab: capture.tab,
+            trying: withPart(PLAIN_LOOK, capture.tab, focus.id),
             focus,
-            wearing: capture.owned ? focus.id : 'standard',
-            owned: capture.owned,
-            price: SHELF_PRICE,
+            action: capture.worn ? 'wearing' : 'buy',
+            price: capture.worn ? null : STUDIO_PRICE,
+            held: capture.worn ? 'owned' : null,
+            number: null,
             busy: false,
             notice: null,
           }}
           actions={{
             close: nothing,
-            showKind: nothing,
-            focus: nothing,
+            showTab: nothing,
+            tryOn: nothing,
             buy: nothing,
             wear: nothing,
             takeOff: nothing,

@@ -688,6 +688,78 @@
     "height": 934
   },
   {
+    "board": "Plus Materials",
+    "section": "02 The sheet, dressed up",
+    "screen": "Plus sheet · Foil · Yearly",
+    "path": "design/renders/plus-materials/02-the-sheet-dressed-up--plus-sheet-foil-yearly.png",
+    "width": 393,
+    "height": 948
+  },
+  {
+    "board": "Plus Materials",
+    "section": "02 The sheet, dressed up",
+    "screen": "Welcome · the card arrives",
+    "path": "design/renders/plus-materials/02-the-sheet-dressed-up--welcome-the-card-arrives.png",
+    "width": 393,
+    "height": 948
+  },
+  {
+    "board": "Plus Materials",
+    "section": "03 The studio",
+    "screen": "Studio · live try-on",
+    "path": "design/renders/plus-materials/03-the-studio--studio-live-try-on.png",
+    "width": 393,
+    "height": 930
+  },
+  {
+    "board": "Plus Materials",
+    "section": "03 The studio",
+    "screen": "Your card · Settings",
+    "path": "design/renders/plus-materials/03-the-studio--your-card-settings.png",
+    "width": 393,
+    "height": 930
+  },
+  {
+    "board": "Plus Materials",
+    "section": "04 Made to share",
+    "screen": "Story · caught, riso",
+    "path": "design/renders/plus-materials/04-made-to-share--story-caught-riso.png",
+    "width": 360,
+    "height": 716
+  },
+  {
+    "board": "Plus Materials",
+    "section": "04 Made to share",
+    "screen": "Trading card · foil",
+    "path": "design/renders/plus-materials/04-made-to-share--trading-card-foil.png",
+    "width": 300,
+    "height": 514
+  },
+  {
+    "board": "Plus Materials",
+    "section": "04 Made to share",
+    "screen": "Sticker sheet · die-cut",
+    "path": "design/renders/plus-materials/04-made-to-share--sticker-sheet-die-cut.png",
+    "width": 420,
+    "height": 616
+  },
+  {
+    "board": "Plus Materials",
+    "section": "04 Made to share",
+    "screen": "Receipt · today's done log",
+    "path": "design/renders/plus-materials/04-made-to-share--receipt-today-s-done-log.png",
+    "width": 290,
+    "height": 597
+  },
+  {
+    "board": "Plus Materials",
+    "section": "04 Made to share",
+    "screen": "Poster · month, wrapped",
+    "path": "design/renders/plus-materials/04-made-to-share--poster-month-wrapped.png",
+    "width": 360,
+    "height": 716
+  },
+  {
     "board": "Plus",
     "section": "01 Scootch Plus · where it lives",
     "screen": "Locked controls · free and Plus",

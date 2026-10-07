@@ -3,6 +3,7 @@ import { View } from 'react-native';
 
 import { useT } from '../../i18n/i18n-provider';
 import { useAppearance } from '../../screens/registry/support/forced-variant';
+import { usePlusState } from '../../state/plus-context';
 
 import { CatchScreen } from './catch/catch-screen';
 import { MomentScreen, TreatScreen } from './screens/after-screens';
@@ -28,7 +29,8 @@ export function SessionScreen({ model, actions }: SessionScreenProps) {
   // One object for as long as the scheme lasts: a burst builds its marks from these inks, and
   // must not build them again on every tick of the clock.
   const scheme = useAppearance();
-  const inks = useMemo(() => sessionInks(scheme), [scheme]);
+  const { ink } = usePlusState().look;
+  const inks = useMemo(() => sessionInks(scheme, ink), [scheme, ink]);
   const t = useT();
   const props = { model, actions, inks, t };
   // A session that ends in a catch is one screen from its first minute to the catch, so the trap

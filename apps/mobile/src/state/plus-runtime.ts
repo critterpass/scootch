@@ -22,6 +22,8 @@ export interface PlusRuntimeDeps {
   /** The person's language and attitude, for the words of a reminder. */
   readonly voice: () => Pick<SettingsRow, 'language' | 'attitude'>;
   readonly offerFacts: PlusRuntime['offerFacts'];
+  /** Asks the server for this phone's member number. Rejects when it cannot be reached. */
+  readonly memberNumber: () => Promise<number>;
 }
 
 /** What the first offer needs, read from the phone's own tables and today's state. */
@@ -78,8 +80,26 @@ export function createPlusRuntime(deps: PlusRuntimeDeps): RunningPlus {
       .catch(() => undefined);
     return queue;
   };
+  /**
+   * Keeps the member card's facts once Plus is on: the day it was first seen here, and the number
+   * the server hands out. A phone with no connection keeps asking on later refreshes; a phone
+   * without Plus never asks.
+   */
+  const keepMember = async () => {
+    const { unlocked, member } = store.getState();
+    if (!unlocked.plus) return;
+    if (member.since === null) await store.rememberMember({ ...member, since: deps.clock.now() });
+    if (member.number !== null) return;
+    try {
+      const number = await deps.memberNumber();
+      await store.rememberMember({ ...store.getState().member, number });
+    } catch {
+      // Asked again at the next refresh.
+    }
+  };
   const refresh = async () => {
     await store.refresh();
+    await keepMember();
     await syncReminders();
   };
 

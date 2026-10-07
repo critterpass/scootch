@@ -1,12 +1,8 @@
-import {
-  LIFETIME_SHELF_MANAGE,
-  PLUS_BOARD,
-  plusState,
-} from '../../features/plus/registry/plus-state';
+import { MATERIALS_BOARD, plusState, THE_STUDIO } from '../../features/plus/registry/plus-state';
 
-/** The manage page on a yearly plan. */
+/** Your card on a yearly plan. */
 export const plusManageYearly = plusState({
   id: 'plus-manage-yearly',
-  design: { board: PLUS_BOARD, section: LIFETIME_SHELF_MANAGE, screen: 'Manage' },
+  design: { board: MATERIALS_BOARD, section: THE_STUDIO, screen: 'Your card · Settings' },
   capture: { screen: 'manage', customer: 'yearly' },
 });

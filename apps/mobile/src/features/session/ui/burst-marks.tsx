@@ -9,8 +9,19 @@ import Animated, {
   type SharedValue,
 } from 'react-native-reanimated';
 
+import { usePlusState } from '../../../state/plus-context';
+import type { TrailId } from '../../studio/catalogue';
+
 import { BURST_MS, burstSources, type BurstMark, type BurstRing } from './burst-shapes';
 import type { SessionInks } from './session-inks';
+
+/** What each kind of mark adds to its plain shape. */
+const MADE_OF = {
+  paper: null,
+  gold: { boxShadow: '0 0 12px rgba(255,200,80,0.95)' },
+  bubble: { borderWidth: 1, borderColor: 'rgba(255,255,255,0.75)' },
+  blot: null,
+} as const;
 
 function Mark({ mark, clock }: { readonly mark: BurstMark; readonly clock: SharedValue<number> }) {
   const style = useAnimatedStyle(() => {
@@ -33,8 +44,9 @@ function Mark({ mark, clock }: { readonly mark: BurstMark; readonly clock: Share
         {
           width: mark.width,
           height: mark.height,
-          borderRadius: mark.height / 2,
+          borderRadius: (mark.made === 'paper' ? mark.height : mark.width) / 2,
           backgroundColor: mark.color,
+          ...MADE_OF[mark.made],
           marginLeft: -mark.width / 2,
           marginTop: -mark.height / 2,
         },
@@ -78,6 +90,8 @@ export interface BurstMarksProps {
   readonly controlAt?: { readonly x: number; readonly y: number } | null;
   readonly inks: SessionInks;
   readonly reducedMotion: boolean;
+  /** The trail to throw. Left out, it is the one the person wears. */
+  readonly trail?: TrailId;
 }
 
 const at = ([across, down]: readonly [number, number]) =>
@@ -88,9 +102,12 @@ const at = ([across, down]: readonly [number, number]) =>
  * goes from the Start button and then from up the screen, as the board fires it). With Reduce
  * Motion nothing flies: a soft glow comes up and fades. It never takes a touch.
  */
-export function BurstMarks({ kind, inks, reducedMotion, controlAt }: BurstMarksProps) {
+export function BurstMarks(props: BurstMarksProps) {
+  const { kind, inks, reducedMotion, controlAt } = props;
   const clock = useSharedValue(0);
   const glow = useSharedValue(0);
+  const worn = usePlusState().look.trail;
+  const trail = props.trail ?? worn;
 
   useEffect(() => {
     if (reducedMotion) {
@@ -107,8 +124,9 @@ export function BurstMarks({ kind, inks, reducedMotion, controlAt }: BurstMarksP
         kind,
         [inks.tomato, inks.ink, inks.tomato, inks.risoBlob],
         [inks.tomato, inks.ink],
+        trail,
       ),
-    [kind, inks],
+    [kind, inks, trail],
   );
 
   return (

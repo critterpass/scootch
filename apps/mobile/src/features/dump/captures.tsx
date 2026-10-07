@@ -134,7 +134,7 @@ export function fixtures(language: Language) {
     daysLurked: null,
     catchMinutes: null,
     dread: null,
-    finish: 'standard',
+    finish: 'paper',
   };
   const item = (text: string, index: number, dueDate: string | null): DrawerItemRow => ({
     id: `capture-item-${index}`,

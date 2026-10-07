@@ -12,11 +12,17 @@ import { CommandCanvas } from '../reveal/ui/command-canvas';
 import { Dock, KeepFrame } from '../reveal/ui/keep-frame';
 import { SessionText } from '../session/ui/session-text';
 
-import { composeShareImage } from './share-image';
+import { PressSpring } from '../../ui/motion/press-spring';
+
+import { composeShareImage, type ShareDress, type ShareFormat } from './share-image';
 
 export interface ShareModel {
   readonly card: CardData;
-  readonly kind: 'story' | 'card';
+  /** The picture in view, and the ones that can be made right now. */
+  readonly format: ShareFormat;
+  readonly formats: readonly ShareFormat[];
+  /** What the pictures wear and carry: the worn finish and ink, the day's log, last month. */
+  readonly dress: ShareDress;
   readonly language: Language;
   readonly hideTask: boolean;
   /** What the last press came to, said in the interface's own words. */
@@ -33,6 +39,7 @@ export interface ShareModel {
 
 export interface ShareActions {
   readonly close: () => void;
+  readonly setFormat: (format: ShareFormat) => void;
   readonly setHideTask: (hide: boolean) => void;
   readonly share: () => void;
   /** Takes the catch's page off the website. */
@@ -50,17 +57,21 @@ const NOTICE = {
   unshared: 'share.unshared',
 } as const;
 
+/** The formats whose picture or page can carry the task's words, so the switch means something. */
+const CAN_SHOW_TASK: readonly ShareFormat[] = ['story', 'card', 'receipt'];
+
 /**
- * The share panel: the picture as it will be sent, the switch that takes the task's words off it,
- * and the two ways out. It is only ever opened for a task that may be shared.
+ * The share panel: the picture as it will be sent, the formats it can be sent as, the switch that
+ * takes the task's words off it, and the two ways out. It is only ever opened for a task that may
+ * be shared.
  */
 export function SharePanel({ model, actions }: { model: ShareModel; actions: ShareActions }) {
   const t = useT();
   const { palette } = useScreenStyle();
   const { width } = useWindowDimensions();
   const image = useMemo(
-    () => composeShareImage(model.kind, model.card, model),
-    [model.kind, model.card, model.hideTask, model.language],
+    () => composeShareImage(model.format, model.card, model, model.dress),
+    [model.format, model.card, model.hideTask, model.language, model.dress],
   );
   return (
     <KeepFrame
@@ -92,19 +103,46 @@ export function SharePanel({ model, actions }: { model: ShareModel; actions: Sha
           testID="share-preview"
         />
       </View>
-      <View style={styles.toggle}>
-        <SessionText face="body" color={palette.ink} style={styles.grow}>
-          {t('share.hideTask')}
-        </SessionText>
-        <Switch
-          accessibilityLabel={t('share.hideTask')}
-          accessibilityHint={t('share.hideTask.hint')}
-          testID="share-hide-task"
-          value={model.hideTask}
-          onValueChange={actions.setHideTask}
-          trackColor={{ true: palette.tomato }}
-        />
+      <View accessibilityRole="radiogroup" style={styles.formats}>
+        {model.formats.map((format) => {
+          const chosen = format === model.format;
+          return (
+            <PressSpring
+              key={format}
+              accessibilityRole="radio"
+              accessibilityState={{ selected: chosen, checked: chosen }}
+              accessibilityLabel={t(`share.format.${format}`)}
+              accessibilityHint={t('share.format.hint')}
+              onPress={() => actions.setFormat(format)}
+              feedback="choice"
+              testID={`share-format-${format}`}
+              style={[
+                styles.format,
+                { backgroundColor: chosen ? palette.ink : `${palette.ink}0F` },
+              ]}
+            >
+              <SessionText face="caption" color={chosen ? palette.page : palette.ink}>
+                {t(`share.format.${format}`)}
+              </SessionText>
+            </PressSpring>
+          );
+        })}
       </View>
+      {CAN_SHOW_TASK.includes(model.format) ? (
+        <View style={styles.toggle}>
+          <SessionText face="body" color={palette.ink} style={styles.grow}>
+            {t('share.hideTask')}
+          </SessionText>
+          <Switch
+            accessibilityLabel={t('share.hideTask')}
+            accessibilityHint={t('share.hideTask.hint')}
+            testID="share-hide-task"
+            value={model.hideTask}
+            onValueChange={actions.setHideTask}
+            trackColor={{ true: palette.tomato }}
+          />
+        </View>
+      ) : null}
       {model.pageOffered ? null : (
         <SessionText face="caption" color={palette.muted} testID="share-no-page">
           {t('share.noPage')}
@@ -135,6 +173,8 @@ export function SharePanel({ model, actions }: { model: ShareModel; actions: Sha
 
 const styles = StyleSheet.create({
   centre: { alignItems: 'center' },
+  formats: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: spacing.sm },
+  format: { minHeight: 36, justifyContent: 'center', borderRadius: 18, paddingHorizontal: 14 },
   toggle: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   grow: { flex: 1 },
 });
