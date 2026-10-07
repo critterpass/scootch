@@ -160,9 +160,11 @@ export function VacuumScene(props: SceneProps) {
       />
       <Ink ref={ink} style={styles.air} />
       <Animated.View style={[styles.vacuum, vacuum.style]}>
-        <View style={[styles.mouth, { backgroundColor: inks.ink }]} />
-        <View style={[styles.nozzle, { backgroundColor: inks.ink }]} />
-        <View style={styles.neck} />
+        <Ink
+          style={styles.nozzle}
+          first={[{ d: 'M0 44 L72 61.4 L72 88.6 L0 106 Z', width: 0, color: inks.ink, fill: true }]}
+        />
+        <View style={[styles.neck, { backgroundColor: inks.muted }]} />
         <Animated.View style={[styles.body, { backgroundColor: inks.tomato }, body.style]}>
           <SessionText face="pill" color={inks.onTomato}>
             {t(
@@ -201,16 +203,14 @@ const styles = StyleSheet.create({
     height: 150,
     zIndex: 5,
   },
-  // The nozzle flares towards him: a wide mouth on a narrower tube.
-  mouth: { position: 'absolute', left: 0, top: 44, width: 20, height: 62, borderRadius: 6 },
-  nozzle: { position: 'absolute', left: 14, top: 56, width: 58, height: 38, borderRadius: 6 },
+  // The nozzle flares towards him: wide at the mouth, narrowing to the neck.
+  nozzle: { width: 176, height: 150 },
   neck: {
     position: 'absolute',
     left: 68,
     top: 63,
     width: 22,
     height: 24,
-    backgroundColor: '#3A3430',
   },
   body: {
     position: 'absolute',

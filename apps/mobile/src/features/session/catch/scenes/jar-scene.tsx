@@ -46,6 +46,8 @@ export function JarScene(props: SceneProps) {
   const stamp = useSprite(ended ? { r: 9 } : STAMP_AWAY);
   const puffs = useRef<PuffsHandle>(null);
   const own = useRef({ jy: HIGH, y0: 0, settling: false }).current;
+  // Glass catches the light of the page it stands on: a glare on paper, a glint in the dark.
+  const shine = inks.dark ? 0.22 : 0.85;
 
   const setJar = (y: number, turn = 0) => {
     own.jy = y;
@@ -162,7 +164,7 @@ export function JarScene(props: SceneProps) {
   return (
     <Board>
       <Floor y={FLOOR} inks={inks} />
-      <Shadow sprite={shadow} left={96} top={FLOOR - 10} width={200} height={20} />
+      <Shadow sprite={shadow} inks={inks} left={96} top={FLOOR - 10} width={200} height={20} />
       <SceneMonster
         monster={monster}
         mood={rig.mood}
@@ -174,10 +176,10 @@ export function JarScene(props: SceneProps) {
       />
       <Animated.View style={[styles.jar, jar.style]}>
         <View style={[styles.body, { borderColor: inks.ink }]}>
-          <View style={[styles.shine, styles.shineLong]} />
-          <View style={[styles.shine, styles.shineShort]} />
+          <View style={[styles.shine, styles.shineLong, { opacity: shine }]} />
+          <View style={[styles.shine, styles.shineShort, { opacity: shine }]} />
         </View>
-        <View style={[styles.rim, { borderColor: inks.ink }]}>
+        <View style={[styles.rim, { borderColor: inks.ink, backgroundColor: `${inks.page}BF` }]}>
           <View style={[styles.thread, { backgroundColor: inks.hairline }]} />
           <View style={[styles.thread, { backgroundColor: inks.hairline }]} />
         </View>
@@ -211,7 +213,7 @@ const styles = StyleSheet.create({
     left: 18,
     width: 13,
     borderRadius: 7,
-    backgroundColor: 'rgba(255,255,255,0.85)',
+    backgroundColor: '#FFFFFF',
   },
   shineLong: { top: 28, height: 118 },
   shineShort: { top: 156, height: 18 },
@@ -223,7 +225,6 @@ const styles = StyleSheet.create({
     height: 28,
     borderWidth: 3,
     borderRadius: 9,
-    backgroundColor: 'rgba(246,243,238,0.75)',
     justifyContent: 'center',
     gap: 5,
     paddingHorizontal: 12,

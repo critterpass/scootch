@@ -12,6 +12,8 @@ export interface InkStroke {
   readonly opacity?: number;
   /** Dashes: how long each is, and the gap after it. */
   readonly dash?: readonly [number, number];
+  /** A filled shape in place of a line. */
+  readonly fill?: boolean;
   /** How much of the path is drawn, from its start: 0 to 1. All of it when left out. */
   readonly end?: number;
 }
@@ -37,7 +39,7 @@ export const Ink = forwardRef<
         <Path
           key={index}
           path={stroke.d}
-          style="stroke"
+          style={stroke.fill ? 'fill' : 'stroke'}
           strokeWidth={stroke.width}
           strokeCap="round"
           strokeJoin="round"

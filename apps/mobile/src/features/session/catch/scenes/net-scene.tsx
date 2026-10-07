@@ -37,6 +37,14 @@ interface NetAt {
 /** Where the net waits, leaning, and how it is held: by the middle of its hoop. */
 const REST: NetAt = { x: 316, y: 630, r: -10, s: 1 };
 const HOOP = { x: 75, y: 30 } as const;
+const BAG = 122;
+/** The bag's mesh: threads ten points apart, crossing both ways. */
+const MESH = [1, -1].map((way) =>
+  Array.from({ length: 25 }, (_, index) => {
+    const x = (index - 12) * 10;
+    return way > 0 ? `M${x} 0 L${x + BAG} ${BAG}` : `M${x} ${BAG} L${x + BAG} 0`;
+  }).join(' '),
+);
 /** How many touches of the swipe leave a trail. */
 const TRAIL = 14;
 
@@ -188,10 +196,15 @@ export function NetScene(props: SceneProps) {
   return (
     <Board>
       <Floor y={FLOOR} inks={inks} />
-      <Shadow sprite={shadow} left={0} top={FLOOR - 8} width={110} height={16} />
+      <Shadow sprite={shadow} inks={inks} left={0} top={FLOOR - 8} width={110} height={16} />
       <SceneMonster monster={monster} mood={rig.mood} sprite={mon} still={still} />
       <Animated.View style={[styles.net, net.style]}>
-        <View style={[styles.bag, { borderColor: inks.hairline }]} />
+        <View style={styles.bag}>
+          <Ink
+            style={styles.mesh}
+            first={MESH.map((d) => ({ d, width: 1.5, color: inks.ink, opacity: 0.42 }))}
+          />
+        </View>
         <View style={styles.handle} />
         <View style={[styles.hoop, { borderColor: inks.ink }]} />
       </Animated.View>
@@ -216,14 +229,14 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 14,
     top: 28,
-    width: 122,
-    height: 122,
+    width: BAG,
+    height: BAG,
     borderBottomLeftRadius: 61,
     borderBottomRightRadius: 61,
-    borderWidth: 1.5,
-    borderStyle: 'dashed',
+    overflow: 'hidden',
     backgroundColor: 'rgba(255,255,255,0.35)',
   },
+  mesh: { width: BAG, height: BAG },
   handle: {
     position: 'absolute',
     left: 136,

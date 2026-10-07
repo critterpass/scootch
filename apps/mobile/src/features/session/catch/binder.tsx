@@ -28,9 +28,9 @@ export function Binder({
 }) {
   return (
     <Animated.View pointerEvents="none" style={[styles.at, styles.binder, sprite.style]}>
-      <View style={[styles.binderBack, styles.fill]} />
+      <View style={[styles.binderBack, styles.fill, { backgroundColor: inks.muted }]} />
       <View style={[styles.binderCover, styles.fill, { backgroundColor: inks.ink }]}>
-        <View style={styles.binderPage} />
+        <View style={[styles.binderPage, { backgroundColor: inks.risoBlob }]} />
       </View>
       {count === null ? null : (
         <View style={[styles.count, { backgroundColor: inks.tomato, borderColor: inks.page }]}>
@@ -103,9 +103,9 @@ const styles = StyleSheet.create({
     height: BINDER.height,
     zIndex: 5,
   },
-  binderBack: { borderRadius: 8, backgroundColor: '#3A3430', transform: [{ rotate: '9deg' }] },
+  binderBack: { borderRadius: 8, transform: [{ rotate: '9deg' }] },
   binderCover: { borderRadius: 8, padding: 4 },
-  binderPage: { flex: 1, borderRadius: 5, backgroundColor: '#F3E6D3' },
+  binderPage: { flex: 1, borderRadius: 5 },
   count: {
     position: 'absolute',
     right: -10,

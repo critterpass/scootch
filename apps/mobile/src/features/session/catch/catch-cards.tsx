@@ -86,7 +86,13 @@ export function AskSheet({
 }) {
   return (
     <>
-      <View style={[StyleSheet.absoluteFill, styles.dim]} />
+      <View
+        style={[
+          StyleSheet.absoluteFill,
+          // Ink over a dark page dims nothing: there the page goes towards black.
+          { backgroundColor: inks.dark ? 'rgba(0,0,0,0.5)' : 'rgba(28,26,23,0.28)' },
+        ]}
+      />
       <RiseIn testID="session-catch-ask" style={[styles.sheet, { bottom }]}>
         <View style={[styles.panel, styles.sheetPanel, { backgroundColor: inks.surface }]}>
           <Scootch
@@ -150,7 +156,6 @@ const styles = StyleSheet.create({
   stepWords: { flex: 1, gap: 3 },
   plain: { fontWeight: '400' },
   centred: { textAlign: 'center' },
-  dim: { backgroundColor: 'rgba(28,26,23,0.28)' },
   sheet: { position: 'absolute', left: 8, right: 8 },
   sheetPanel: {
     borderRadius: 44,

@@ -220,8 +220,8 @@ export function StickerScene(props: SceneProps) {
 
   return (
     <Board>
-      <View style={styles.sheet} />
-      <View style={styles.hole} />
+      <View style={[styles.sheet, { backgroundColor: inks.risoBlob }]} />
+      <View style={[styles.hole, { backgroundColor: inks.hairline }]} />
       <Ink ref={ink} />
       <StickerPage
         mates={onPage}
@@ -259,7 +259,6 @@ const styles = StyleSheet.create({
     width: 321,
     height: 272,
     borderRadius: 20,
-    backgroundColor: '#ECE4D7',
   },
   hole: {
     position: 'absolute',
@@ -268,7 +267,6 @@ const styles = StyleSheet.create({
     width: STICKER.w,
     height: STICKER.h,
     borderRadius: 30,
-    backgroundColor: '#E0D6C5',
   },
   sticker: {
     position: 'absolute',
