@@ -1,5 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
+import { PLUS_STARTS_PER_DAY } from '@scootch/domain';
 import { t as translate, type Language } from '@scootch/i18n';
 
 import { plusMemory } from '../../data/plus-memory';
@@ -124,7 +125,7 @@ describe('the sheet at the store', () => {
     await controller.buy();
     expect(shop.calls).toContain('purchase plus_yearly');
     expect(controller.getState().done?.customer.inTrial).toBe(true);
-    expect(store.getState().unlocked.startsPerDay).toBe(6);
+    expect(store.getState().unlocked.startsPerDay).toBe(PLUS_STARTS_PER_DAY);
   });
 
   it('restores through the Apple ID, and says so when there is nothing to restore', async () => {

@@ -1,6 +1,11 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { DAY_MS, OFFER_AFTER_CATCHES, type TaskCreateResponse } from '@scootch/domain';
+import {
+  DAY_MS,
+  OFFER_AFTER_CATCHES,
+  PLUS_STARTS_PER_DAY,
+  type TaskCreateResponse,
+} from '@scootch/domain';
 
 import seriousFixture from '../../../../../packages/voice/fixtures/task.create.serious.en.json';
 import { plusLine } from '../../state/lines';
@@ -48,7 +53,7 @@ describe('nothing is sold near something heavy', () => {
     const app = await heavyDay();
     await app.store.dispatch({ type: 'serious_set_aside' });
     const state = app.store.getState();
-    expect(state.today).toEqual({ kind: 'done_for_today', startsLeft: 6 });
+    expect(state.today).toEqual({ kind: 'done_for_today', startsLeft: PLUS_STARTS_PER_DAY });
     expect(state.heavyToday).toBe(true);
     expect(showsSelling(state)).toBe(false);
 

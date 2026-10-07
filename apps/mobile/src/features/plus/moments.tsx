@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 
-import type { Attitude } from '@scootch/domain';
+import { FREE_STARTS_PER_DAY, type Attitude } from '@scootch/domain';
 import { spacing } from '@scootch/tokens';
 
 import { Scootch, type ScootchProps } from '../../art/Scootch';
@@ -123,7 +123,7 @@ export function LastDay(props: LastDayProps) {
         </SessionText>
       )}
       <SessionText face="body" color={palette.muted}>
-        {t('plus.lastDay.keeps')}
+        {t('plus.lastDay.keeps', { count: FREE_STARTS_PER_DAY })}
       </SessionText>
       <ChoiceRow
         title={t('plus.lastDay.keep')}

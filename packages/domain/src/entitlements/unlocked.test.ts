@@ -1,6 +1,8 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 
+import { FREE_STARTS_PER_DAY, PLUS_STARTS_PER_DAY } from '../day';
+
 import {
   ALWAYS_FREE,
   CAPABILITIES,
@@ -45,16 +47,16 @@ describe('what each purchase state unlocks', () => {
 
   // Purchase state, has Plus, things a day, friends the pass seats.
   const states: readonly (readonly [PurchaseState, boolean, number, number])[] = [
-    ['free', false, 3, 0],
-    ['trial', true, 6, 3],
-    ['monthly', true, 6, 3],
-    ['yearly', true, 6, 3],
-    ['lifetime', true, 6, 3],
+    ['free', false, FREE_STARTS_PER_DAY, 0],
+    ['trial', true, PLUS_STARTS_PER_DAY, 3],
+    ['monthly', true, PLUS_STARTS_PER_DAY, 3],
+    ['yearly', true, PLUS_STARTS_PER_DAY, 3],
+    ['lifetime', true, PLUS_STARTS_PER_DAY, 3],
     // A trial or subscription that lapsed, and a purchase Apple refunded, are free Scootch again.
-    ['expired', false, 3, 0],
-    ['refunded', false, 3, 0],
+    ['expired', false, FREE_STARTS_PER_DAY, 0],
+    ['refunded', false, FREE_STARTS_PER_DAY, 0],
     // A guest sits at the host's table on the host's pass; it gives the guest no Plus of their own.
-    ['friend_pass_guest', false, 3, 0],
+    ['friend_pass_guest', false, FREE_STARTS_PER_DAY, 0],
   ];
 
   it('covers every purchase state', () => {
