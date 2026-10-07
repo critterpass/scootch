@@ -32,7 +32,8 @@ function briefs(language: Language, attitude: Attitude): Readonly<Record<string,
         'the tiniest concrete first step of this thing, as a plain instruction. No joke.',
       tinierNextSteps: `exactly 2 more plain instructions for the same thing, no joke, each smaller than the one before: the first smaller than tinyNextStep and at most ${tinier} words, the second smaller again and at most ${tiniest} words (only opening it, only finding it, only looking at it).`,
       twoMinutesLeft: 'says two minutes are left.',
-      timeUp: 'says time is up and to press and hold the button to catch the monster.',
+      timeUp:
+        'says time is up and that it is time to catch the monster. Never says how to finish: the person chooses how, and the button on the screen says it.',
       caught: 'said when the monster is caught.',
       notFinished:
         'said when the person stops before the end, which is a normal outcome: say that they started, then ask what to do with the monster now. No judgement.',
@@ -58,7 +59,8 @@ function briefs(language: Language, attitude: Attitude): Readonly<Record<string,
       'bước đầu tiên nhỏ nhất, cụ thể, của việc này, viết như một lời chỉ dẫn thường. Không đùa.',
     tinierNextSteps: `đúng 2 lời chỉ dẫn thường nữa cho cùng việc này, không đùa, cái sau nhỏ hơn cái trước: cái đầu nhỏ hơn tinyNextStep và tối đa ${tinier} chữ, cái thứ hai nhỏ hơn nữa và tối đa ${tiniest} chữ (chỉ mở nó ra, chỉ tìm nó, chỉ nhìn nó).`,
     twoMinutesLeft: 'báo còn hai phút.',
-    timeUp: 'báo hết giờ và bảo nhấn giữ cái nút để tóm con quái.',
+    timeUp:
+      'báo hết giờ và nói đã đến lúc tóm con quái. Không nói cách kết thúc: người dùng tự chọn cách, và cái nút trên màn hình đã nói rồi.',
     caught: 'nói khi tóm được con quái.',
     notFinished:
       'nói khi người dùng dừng trước khi xong, chuyện này hoàn toàn bình thường: nói là bạn đã bắt đầu rồi, rồi hỏi giờ tính sao với con quái. Không phán xét.',

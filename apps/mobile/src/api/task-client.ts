@@ -39,9 +39,14 @@ export interface TaskName {
   readonly hatch: string;
 }
 
-/** Whether the judge an answer names is the trusted one. An answer that names none says nothing. */
+/**
+ * Whether the judge an answer names is the trusted one: Jev, or the app's own first-run texts.
+ * An answer that names none says nothing.
+ */
 export function trustedJudge(answeredBy: string | undefined): { readonly trusted?: boolean } {
-  return answeredBy === undefined ? {} : { trusted: answeredBy === 'jev' };
+  return answeredBy === undefined
+    ? {}
+    : { trusted: answeredBy === 'jev' || answeredBy === 'builtin' };
 }
 
 /** What follows: the monster's words and the lines of the session. */

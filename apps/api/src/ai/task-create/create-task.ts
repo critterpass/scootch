@@ -1,4 +1,5 @@
 import {
+  isBuiltInTaskText,
   taskCreateResponseSchema,
   type Energy,
   type ScreenVerdict,
@@ -61,6 +62,10 @@ type Screened = {
 
 /** The screen's verdict. When no model answers, nothing was judged and nothing is funny. */
 async function screen(context: TaskCreateContext, text: string): Promise<Screened> {
+  // The app's own first-run suggestions are not judged: no model decides whether they are heavy.
+  if (isBuiltInTaskText(text)) {
+    return { verdict: 'pass', screened: true, judge: { answeredBy: 'builtin' } };
+  }
   try {
     const { verdict, answeredBy, reason } = await screenText(decideContext(context), text);
     return {
