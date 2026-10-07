@@ -13,8 +13,11 @@ import { revealSeen } from '../reveal/reveal-seen';
 import { SHORT_SESSION_SECONDS, shortSession } from './dev/short-session';
 import type { SessionActions, SessionModel } from './screens/screen-props';
 import {
+  CAUGHT_HOLD_MS,
   NOTHING_PASSED,
+  catchPlays,
   closeMeans,
+  finishedByHand,
   minutesLeft,
   sessionView,
   timeLeftFraction,
@@ -56,11 +59,15 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
   const character = useCharacterMotion();
   const [passed, setPassed] = useState<Passed>(NOTHING_PASSED);
   const [parkOpen, setParkOpen] = useState(false);
-  const [leaveAsked, setLeaveAsked] = useState(false);
   const [parkedNote, setParkedNote] = useState<string | null>(null);
 
+  // A finish made on the finish control on this visit: the catch may play before the reveal.
+  const [byHand, setByHand] = useState(false);
   const sendFinish = useCallback(
-    (event: SessionEvent) => dispatch({ type: 'session', event }).catch(() => undefined),
+    (event: SessionEvent) => {
+      if (finishedByHand(event)) setByHand(true);
+      return dispatch({ type: 'session', event }).catch(() => undefined);
+    },
     [dispatch],
   );
   const send = useCallback((event: SessionEvent) => void sendFinish(event), [sendFinish]);
@@ -79,6 +86,11 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
     parkedThoughts,
     finishWith: settings.finishWith,
     passed,
+    caught: catchPlays({
+      byHand,
+      reducedMotion: character.reducedMotion,
+      crisis: today.kind === 'crisis',
+    }),
     ...(session?.phase === 'finished'
       ? { reveal: revealSeen(session.taskId) ? ('seen' as const) : ('pending' as const) }
       : {}),
@@ -95,6 +107,13 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
   useEffect(() => {
     if (phase === 'set') send({ type: 'started' });
   }, [phase, send]);
+
+  // The catch ends by itself, and the reveal takes over.
+  useEffect(() => {
+    if (view.kind !== 'caught') return undefined;
+    const timer = setTimeout(() => pass({ caught: true }), CAUGHT_HOLD_MS);
+    return () => clearTimeout(timer);
+  }, [view.kind, pass]);
 
   // The burst goes quiet by itself.
   useEffect(() => {
@@ -155,8 +174,7 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
     thoughtsLine: afterLines.parkedThoughts,
     reducedMotion: character.reducedMotion,
     parkOpen,
-    // The question belongs to the running session: once it is over there is nothing to ask.
-    leaveAsked: leaveAsked && closeMeans(view) === 'ask',
+    secondsLeft: live?.endsAt != null ? Math.max(0, (live.endsAt - now) / 1000) : 0,
     parkedNote,
     holdStartsAt: 0,
     developerEnd: shortSession.isArmed(),
@@ -171,15 +189,11 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
   shown.current = view;
   const actions = useMemo<SessionActions>(
     () => ({
-      // Mid-session the close control asks first, so a session never vanishes on a stray tap.
-      leave: () =>
-        closeMeans(shown.current) === 'ask' ? setLeaveAsked(true) : send({ type: 'left' }),
-      stay: () => setLeaveAsked(false),
+      // Mid-session a close never ends the session silently: it leads to the not-finished
+      // choices, which can be taken back.
+      leave: () => send({ type: closeMeans(shown.current) === 'ask' ? 'not_finished' : 'left' }),
       // Stopping on purpose leads to the not-finished choices; the work so far is recorded.
-      leaveNow: () => {
-        setLeaveAsked(false);
-        send({ type: 'not_finished' });
-      },
+      leaveNow: () => send({ type: 'not_finished' }),
       openPark: () => setParkOpen(true),
       closePark: () => setParkOpen(false),
       park: (text) => {
@@ -192,6 +206,7 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
       finishEarly: () => pass({ finishingEarly: true }),
       keepGoing: () => pass({ finishingEarly: false }),
       passBurst: () => pass({ burst: true }),
+      passCaught: () => pass({ caught: true }),
       passMoment: () => pass({ moment: true }),
       passTreat: () => pass({ treat: true }),
       passThoughts: () => pass({ thoughts: true }),

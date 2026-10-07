@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, ReduceMotion } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { spacing } from '@scootch/tokens';
 
@@ -17,9 +18,24 @@ export interface SessionFrameProps {
   readonly footer?: ReactNode;
   /** Drawn over everything, untouchable: the burst. */
   readonly over?: ReactNode;
-  readonly align?: 'center' | 'start';
+  /** Drawn over the corners and the middle but under the footer: what a touch outside it does. */
+  readonly behindFooter?: ReactNode;
+  /**
+   * `drawn` is a screen laid out to its board frame: the middle starts under the corners with no
+   * padding of its own, and the footer sits where the board puts it.
+   */
+  readonly align?: 'center' | 'start' | 'drawn';
+  /** How far in from the sides the footer sits on a drawn screen. */
+  readonly footerInset?: number;
+  /** The page behind the screen, when it is not the usual one. */
+  readonly page?: string;
   readonly children: ReactNode;
 }
+
+/** The board's footers end 34 points above the screen's edge, which is the home bar's own room. */
+const DRAWN_FOOT = 34;
+/** On a phone with no home bar the footer still keeps clear of the edge. */
+const LEAST_FOOT = 12;
 
 /**
  * One session screen: corners, a middle that scrolls when the text is large, and a footer. Each
@@ -31,11 +47,17 @@ export function SessionFrame({
   top,
   footer,
   over,
+  behindFooter,
   align = 'center',
+  footerInset = 0,
+  page,
   children,
 }: SessionFrameProps) {
+  const insets = useSafeAreaInsets();
+  const drawn = align === 'drawn';
+  const foot = Math.max(LEAST_FOOT, DRAWN_FOOT - insets.bottom);
   return (
-    <SafeFrame style={[styles.fill, { backgroundColor: inks.page }]}>
+    <SafeFrame style={[styles.fill, { backgroundColor: page ?? inks.page }]}>
       <Animated.View
         testID={testID}
         entering={FadeIn.duration(240).reduceMotion(ReduceMotion.Never)}
@@ -44,11 +66,24 @@ export function SessionFrame({
         <View style={styles.top}>{top}</View>
         <ScrollView
           keyboardShouldPersistTaps="handled"
-          contentContainerStyle={[styles.middle, align === 'center' ? styles.centred : null]}
+          contentContainerStyle={
+            drawn ? styles.drawn : [styles.middle, align === 'center' ? styles.centred : null]
+          }
         >
           {children}
         </ScrollView>
-        {footer ? <View style={styles.footer}>{footer}</View> : null}
+        {behindFooter}
+        {footer ? (
+          <View
+            style={
+              drawn
+                ? { paddingHorizontal: footerInset, paddingBottom: foot, paddingTop: spacing.sm }
+                : styles.footer
+            }
+          >
+            {footer}
+          </View>
+        ) : null}
       </Animated.View>
       {over}
     </SafeFrame>
@@ -78,6 +113,10 @@ const styles = StyleSheet.create({
   centred: {
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  drawn: {
+    flexGrow: 1,
+    alignItems: 'center',
   },
   footer: {
     paddingHorizontal: spacing.lg,

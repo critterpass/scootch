@@ -70,6 +70,41 @@ describe('buildScootch', () => {
     expect(buildScootch({ ...props, reducedMotion: false }, motion)).not.toEqual(still);
   });
 
+  it('draws the paper tone as the same Scootch in other colours', () => {
+    const colours = (commands: ReturnType<typeof buildScootch>): Set<string> =>
+      new Set(commands.flatMap((c) => (c.op === 'fill' || c.op === 'stroke' ? [c.color] : [])));
+    for (const mood of moods) {
+      const props = { mood, attitude: 'cheeky', workMode: null, reducedMotion: false } as const;
+      const tomato = buildScootch(props);
+      const paper = buildScootch(props, undefined, { tone: 'paper' });
+      // Naming the tomato tone changes nothing, so every pinned drawing stays as it was.
+      expect(buildScootch(props, undefined, { tone: 'tomato', ground: 'light' })).toEqual(tomato);
+      // Same shapes in the same order; only colours differ.
+      expect(paper.map((c) => ('path' in c ? c.path : c.op))).toEqual(
+        tomato.map((c) => ('path' in c ? c.path : c.op)),
+      );
+      expect(colours(paper).has('#FBF8F2'), mood).toBe(true);
+      expect(colours(paper).has('#C63F22'), mood).toBe(false);
+    }
+    // The confetti stays tomato on a paper Scootch, and the desk line stays ink.
+    const party = { attitude: 'cheeky', workMode: null, reducedMotion: false } as const;
+    const pieces = buildScootch({ ...party, mood: 'celebrating' }, undefined, { tone: 'paper' });
+    expect(pieces.some((c) => c.op === 'stroke' && c.width === 3.2 && c.color === '#F0562E')).toBe(
+      true,
+    );
+    const desk = buildScootch({ ...party, mood: 'working' }, undefined, { tone: 'paper' });
+    expect(desk.some((c) => c.op === 'stroke' && c.width === 2.6 && c.color === '#1C1A17')).toBe(
+      true,
+    );
+  });
+
+  it('turns the marks around a tomato Scootch light on a dark ground', () => {
+    const props = { attitude: 'cheeky', workMode: null, reducedMotion: false } as const;
+    const dark = buildScootch({ ...props, mood: 'asleep' }, undefined, { ground: 'dark' });
+    expect(dark.some((c) => c.op === 'stroke' && c.color === '#F6F3EE')).toBe(true);
+    expect(dark.some((c) => c.op === 'fill' && c.color === '#F0562E')).toBe(true);
+  });
+
   it('has the contract reject an unknown mood', () => {
     const props = { mood: 'waiting', attitude: 'soft', workMode: null, reducedMotion: false };
     expect(scootchPropsSchema.safeParse(props).success).toBe(true);

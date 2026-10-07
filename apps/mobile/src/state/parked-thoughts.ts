@@ -35,9 +35,12 @@ async function intoDrawer(ctx: DayContext, text: string, when: 'tomorrow' | 'whe
   const today = ctx.memory.state.localDate;
   const tomorrow = addDays(today, 1);
   const thing = { text: text.slice(0, TEXT_MAX) };
+  const before = await repositories.drawerItems.all();
+  // A thing already in the drawer with a real date keeps it: "Tomorrow" only mentions it again.
+  const dated = before.some((item) => item.dueDate !== null && sameThing(item.text, thing.text));
   const drawer = parkThings({
-    drawer: await repositories.drawerItems.all(),
-    things: [when === 'tomorrow' ? { ...thing, dueDate: tomorrow } : thing],
+    drawer: before,
+    things: [when === 'tomorrow' && !dated ? { ...thing, dueDate: tomorrow } : thing],
     screen: 'unscreened',
     today,
     now: ctx.now(),

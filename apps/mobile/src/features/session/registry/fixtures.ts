@@ -45,7 +45,6 @@ const MONSTER: MonsterRow = {
 
 export const NO_ACTIONS: SessionActions = {
   leave: () => undefined,
-  stay: () => undefined,
   leaveNow: () => undefined,
   openPark: () => undefined,
   closePark: () => undefined,
@@ -58,6 +57,7 @@ export const NO_ACTIONS: SessionActions = {
   passTreat: () => undefined,
   passThoughts: () => undefined,
   sendFinish: () => Promise.resolve(),
+  passCaught: () => undefined,
   resolveThought: () => undefined,
   developerEnd: () => undefined,
 };
@@ -112,7 +112,7 @@ export function fixtureModel(
     // A capture is a still: nothing is mid-flight when the picture is taken.
     reducedMotion: true,
     parkOpen: false,
-    leaveAsked: false,
+    secondsLeft: 420,
     parkedNote: null,
     holdStartsAt: 0,
     developerEnd: false,

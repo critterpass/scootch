@@ -366,3 +366,30 @@ describe('changing your mind after "not finished"', () => {
     expect(at(running, 'mind_changed', minutes(1)).state).toEqual(running);
   });
 });
+
+describe('parking a thought at the very end', () => {
+  const park = (state: LiveSession, offset: number) =>
+    sessionReducer(state, { type: 'thought_parked', text: 'ring Mum' }, T0 + offset);
+
+  it('is taken once time is up, so an open park field can hand its words over', () => {
+    const timeUp = at(started(), 'clock', minutes(10)).state as LiveSession;
+    expect(timeUp.phase).toBe('time_up');
+    const step = park(timeUp, minutes(11));
+    expect(step.state).toMatchObject({ phase: 'time_up', thoughts: [{ text: 'ring Mum' }] });
+    expect(step.effects.map((effect) => effect.kind)).toContain('save_parked_thought');
+  });
+
+  it('is taken while the finish is being held, and the hold goes on', () => {
+    const holding = at(started(), 'hold_started', minutes(3)).state as LiveSession;
+    const step = park(holding, minutes(3));
+    expect(step.state).toMatchObject({ phase: 'holding', thoughts: [{ text: 'ring Mum' }] });
+    expect(at(step.state as LiveSession, 'hold_completed', minutes(3)).state.phase).toBe(
+      'finished',
+    );
+  });
+
+  it('is still refused once the session is over or answered "not finished"', () => {
+    const over = at(started(), 'not_finished', minutes(3)).state as LiveSession;
+    expect(park(over, minutes(4)).state).toEqual(over);
+  });
+});

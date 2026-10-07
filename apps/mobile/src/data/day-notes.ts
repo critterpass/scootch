@@ -11,7 +11,12 @@ export interface DayNotes {
    * "That's it for today" was tapped: what it moved, so it can be taken back the same day.
    * `taskId` is `null` when the day rested with nothing on it.
    */
-  readonly rested: { readonly taskId: Id | null; readonly carriedOver: boolean } | null;
+  readonly rested: {
+    readonly taskId: Id | null;
+    readonly carriedOver: boolean;
+    /** What the task was before it was moved; absent in a note written before this was kept. */
+    readonly status?: 'set' | 'started';
+  } | null;
 }
 
 export interface DayNotesStore {

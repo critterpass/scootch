@@ -12,9 +12,11 @@ import {
   VIEW_SIZE,
   type DrawCommand,
   type Gaze,
+  type ScootchGround,
+  type ScootchTone,
 } from '@scootch/art';
 
-import { useForcedVariant } from '../screens/registry/support/forced-variant';
+import { useAppearance, useForcedVariant } from '../screens/registry/support/forced-variant';
 
 import {
   scootchFrameAt,
@@ -41,6 +43,13 @@ export interface ScootchProps {
   readonly workMode?: ScootchDrawing['workMode'];
   /** Worn in place of the curl. */
   readonly hat?: ScootchDrawing['hat'];
+  /** `paper` is the pale Scootch who sits on the session's disc. Tomato unless told otherwise. */
+  readonly tone?: ScootchTone;
+  /**
+   * What he stands on. Left out, it is the page: light or dark with the phone, so the marks around
+   * a tomato Scootch (dots, waves, the letters of sleep) are never ink on a dark page.
+   */
+  readonly ground?: ScootchGround;
   /** Leave unset to follow the system's Reduce Motion setting. */
   readonly reducedMotion?: boolean;
   /** A serious task only breathes; on a crisis day nothing moves. */
@@ -93,6 +102,8 @@ export function Scootch({
   attitude = 'cheeky',
   workMode = null,
   hat = null,
+  tone = 'tomato',
+  ground: groundGiven,
   reducedMotion,
   care = 'none',
   ownLoop = true,
@@ -103,6 +114,8 @@ export function Scootch({
   size = 200,
   testID,
 }: ScootchProps) {
+  const appearance = useAppearance();
+  const ground = groundGiven ?? appearance;
   const systemReducedMotion = useReducedMotion();
   // A registry capture is always the still, whatever the screen passes.
   const captured = useForcedVariant() !== undefined;
@@ -128,13 +141,15 @@ export function Scootch({
       care,
       ownLoop,
     };
+    const drawn = { ...DRAWN_IN_APP, tone, ground };
     return {
       props,
       input,
+      drawn,
       plan: scootchMotionPlan(input),
-      rest: buildScootch(props, undefined, DRAWN_IN_APP),
+      rest: buildScootch(props, undefined, drawn),
     };
-  }, [shownMood, shownWork, attitude, hat, still, care, ownLoop]);
+  }, [shownMood, shownWork, attitude, hat, still, care, ownLoop, tone, ground]);
   const { plan, rest } = drawing;
 
   const [moved, setMoved] = useState<{ of: typeof drawing; commands: DrawCommand[] } | null>(null);
@@ -168,7 +183,7 @@ export function Scootch({
       state.key = frame.key;
       if (frame.key === '') setMoved(null);
       else {
-        const options = { ...DRAWN_IN_APP, boil: frame.boil };
+        const options = { ...drawing.drawn, boil: frame.boil };
         setMoved({ of: drawing, commands: buildScootch(drawing.props, frame.motion, options) });
       }
     },

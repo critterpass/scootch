@@ -27,8 +27,4 @@ export const enDayLoop = {
   'drawer.cap': "Today's {count} are started. These wait here until tomorrow.",
   'composer.cancelThinking': 'Cancel',
   'composer.cancelThinking.hint': 'Stops waiting and puts your words back in the field.',
-  'session.leaveAsk': 'Leave it for now?',
-  'session.leaveAsk.sub': 'Nothing has stopped. The timer is still running.',
-  'session.leaveAsk.stay': 'Keep going',
-  'session.leaveAsk.stay.hint': 'Goes back to the session, which is still running',
 } as const;

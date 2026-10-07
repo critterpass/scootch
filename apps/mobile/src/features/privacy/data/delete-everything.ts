@@ -10,6 +10,8 @@ export interface Leftovers {
   readonly kept: KeptShares;
   readonly unshare: (share: KeptShare) => Promise<void>;
   readonly cancelChargeReminders: () => Promise<void>;
+  /** How long all the takedowns together may hold the delete up. */
+  readonly capMs?: number;
 }
 
 export interface DeleteEverythingDeps {
@@ -19,18 +21,51 @@ export interface DeleteEverythingDeps {
   readonly leftovers?: Leftovers;
 }
 
+/** The keys of the shared pages a "delete everything" still has to take down, as a JSON list. */
+const TAKEDOWNS_PENDING_KEY = 'takedownsPending';
+const TAKEDOWN_CAP_MS = 8000;
+
+async function pendingTakedowns(db: SqlDatabase): Promise<string[]> {
+  const stored = await settingsValues(db).get(TAKEDOWNS_PENDING_KEY);
+  try {
+    const keys: unknown = JSON.parse(stored ?? '[]');
+    return Array.isArray(keys) ? keys.filter((key): key is string => typeof key === 'string') : [];
+  } catch {
+    return [];
+  }
+}
+
 /**
- * The shared pages are taken down one by one, while their tokens are still known, and the list is
- * then forgotten whether or not each one could be reached: the server's delete does not remove
- * shared pages, and nothing about them is kept on an emptied phone. Charge reminders already
- * scheduled are cancelled; while a subscription is still active the store plans them afresh.
+ * Takes down the shared pages a delete named, all at once and under one cap, so a page that does
+ * not answer holds nothing up. A page is forgotten only once it is down: the ones that failed, or
+ * had not answered by the cap, stay in the list with their tokens and are tried again when the
+ * app next starts. The server's delete does not remove shared pages, so this is the only way they
+ * come down. Pages shared after the delete are not named, and are left alone.
  */
-async function clearLeftovers(leftovers: Leftovers | undefined): Promise<void> {
+async function takeDownShared(deps: DeleteEverythingDeps): Promise<void> {
+  const { leftovers, db } = deps;
   if (!leftovers) return;
-  const shares = await leftovers.kept.read().catch(() => []);
-  for (const share of shares) await leftovers.unshare(share).catch(() => undefined);
-  await leftovers.kept.write([]).catch(() => undefined);
-  await leftovers.cancelChargeReminders().catch(() => undefined);
+  const pending = new Set(await pendingTakedowns(db));
+  if (pending.size === 0) return;
+  const shares = await leftovers.kept.read();
+  const down = new Set<string>();
+  const attempts = shares
+    .filter((share) => pending.has(share.key))
+    .map((share) =>
+      leftovers.unshare(share).then(
+        () => void down.add(share.key),
+        () => undefined,
+      ),
+    );
+  const cap = new Promise<void>((over) => setTimeout(over, leftovers.capMs ?? TAKEDOWN_CAP_MS));
+  await Promise.race([Promise.all(attempts), cap]);
+  // The list is read again: anything shared meanwhile stays in it.
+  const now = await leftovers.kept.read();
+  await leftovers.kept.write(now.filter((share) => !down.has(share.key)));
+  const left = now.filter((share) => pending.has(share.key) && !down.has(share.key));
+  const values = settingsValues(db);
+  if (left.length === 0) await values.remove(TAKEDOWNS_PENDING_KEY);
+  else await values.set(TAKEDOWNS_PENDING_KEY, JSON.stringify(left.map((share) => share.key)));
 }
 
 /** `pending`: the phone is empty, but the server has not been reached yet. */
@@ -67,6 +102,7 @@ async function finishOnServer(deps: DeleteEverythingDeps): Promise<ServerDelete>
  * the phone again the next time it is needed.
  */
 export async function deleteEverything(deps: DeleteEverythingDeps): Promise<ServerDelete> {
+  const shared = (await deps.leftovers?.kept.read().catch(() => [])) ?? [];
   const tables = await deps.db.getAllAsync<{ name: string }>(
     "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' AND name <> ?",
     [MIGRATION_LOG],
@@ -76,18 +112,26 @@ export async function deleteEverything(deps: DeleteEverythingDeps): Promise<Serv
       await deps.db.runAsync(`DELETE FROM "${name.replaceAll('"', '""')}"`, []);
     }
     await settingsValues(deps.db).set(SERVER_DELETE_PENDING_KEY, '1');
+    if (shared.length > 0) {
+      const keys = JSON.stringify(shared.map((share) => share.key));
+      await settingsValues(deps.db).set(TAKEDOWNS_PENDING_KEY, keys);
+    }
   });
-  await clearLeftovers(deps.leftovers);
+  await takeDownShared(deps).catch(() => undefined);
+  // Reminders already scheduled go; while a subscription is active the store plans them afresh.
+  await deps.leftovers?.cancelChargeReminders().catch(() => undefined);
   return finishOnServer(deps);
 }
 
 /**
- * Run at app start. When an earlier "delete everything" did not reach the server, tries again;
+ * Run at app start. Shared pages an earlier "delete everything" could not take down are tried
+ * again. When that delete did not reach the server either, that is tried again too;
  * on success the marker and the tokens are cleared. Does nothing when no delete is waiting.
  */
 export async function retryServerDelete(
   deps: DeleteEverythingDeps,
 ): Promise<ServerDelete | 'nothing_pending'> {
+  await takeDownShared(deps).catch(() => undefined);
   const marker = await settingsValues(deps.db).get(SERVER_DELETE_PENDING_KEY);
   return marker === null ? 'nothing_pending' : finishOnServer(deps);
 }
