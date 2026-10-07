@@ -27,9 +27,7 @@ export interface Rollover {
 /** A task from an earlier day that was never finished and is not yet waiting in the drawer. */
 function leftBehind(task: TaskRow, input: RolloverInput): boolean {
   return (
-    task.status !== 'finished' &&
-    task.localDate < input.today &&
-    !input.parkedIds.includes(task.id)
+    task.status !== 'finished' && task.localDate < input.today && !input.parkedIds.includes(task.id)
   );
 }
 

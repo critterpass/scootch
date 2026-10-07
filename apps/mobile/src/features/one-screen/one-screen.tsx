@@ -34,6 +34,7 @@ import { minuteOptions } from './one-screen-panels';
 import { stageOf } from './one-screen-stage';
 import { OneScreenView, type OneScreenShown } from './one-screen-view';
 import { stageShown } from './stage-shown';
+import { useReturnedText } from './use-returned-text';
 
 export interface OneScreenProps {
   readonly speech: SpeechPort;
@@ -107,13 +108,7 @@ export function OneScreen({ speech, warmUp, notificationsRefused }: OneScreenPro
       request.listening ? { type: 'toggled', at: Date.now() } : { type: 'keyboard_tapped' },
     ),
   );
-  // A cancelled wait hands the words back: they go into the field, to edit or send again.
-  const { returnedText } = day;
-  useEffect(() => {
-    if (returnedText === null) return;
-    sendComposer({ type: 'text_returned', text: returnedText });
-    void dispatch({ type: 'returned_text_taken' }).catch(() => undefined);
-  }, [returnedText, sendComposer, dispatch]);
+  useReturnedText(day.returnedText, sendComposer, dispatch);
   const care = stage.kind === 'care';
   useEffect(() => {
     // A crisis day shows nothing of this screen: the care screens take over.

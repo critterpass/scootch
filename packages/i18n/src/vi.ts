@@ -1,3 +1,4 @@
+import { viDayLoop } from './vi-day-loop';
 import { viCareAndSettings } from './vi-care-and-settings';
 import type { Catalogue } from './catalogue-types';
 import { viPlus } from './vi-plus';
@@ -135,8 +136,6 @@ export const vi = {
   'composer.cancelled': 'Đã huỷ. Không sao cả.',
   'composer.tooShort': 'Giữ nút trong lúc bạn nói',
   'composer.thinking': 'Scootch đang chọn ra một việc…',
-  'composer.cancelThinking': 'Thôi',
-  'composer.cancelThinking.hint': 'Ngừng chờ và trả lời bạn vừa gửi về ô nhập.',
   'composer.placeholder': 'Gõ một việc thôi…',
   'composer.typeIt': 'Gõ chữ',
   'composer.typeIt.hint': 'Đổi thanh này thành ô nhập chữ.',
@@ -286,18 +285,6 @@ export const vi = {
   'energy.guess': 'Đoán theo cách mình viết',
   'energy.hint': 'Scootch sẽ chọn cho vừa sức.',
 
-  'pick.picked': 'Scootch chọn',
-  'pick.again': 'Chọn cái khác',
-  'pick.again.hint': 'Scootch đưa ra việc khác.',
-  'pick.accept': 'Ừ, việc đó',
-  'pick.accept.hint': 'Chọn nó làm một việc của hôm nay.',
-  'pick.back': 'Quay lại',
-  'pick.back.hint': 'Trở về chỗ bạn vừa ở. Không có gì thay đổi.',
-  'taskSet.rest': 'Hôm nay thế thôi',
-  'taskSet.rest.hint': 'Để việc này sang ngày mai và cho hôm nay nghỉ.',
-  'done.waiting': 'Để dành cho ngày mai',
-  'drawer.cap': 'Hôm nay đã bắt đầu đủ {count} việc. Mấy việc này chờ ở đây đến mai.',
-
   'bargain.notNow.hint': 'Nói cho Scootch biết lý do, nó sẽ xin ít hơn.',
   'bargain.reason': 'Sao chưa làm được?',
   'bargain.reason.hint': 'Vài chữ là đủ.',
@@ -330,6 +317,7 @@ export const vi = {
   'morning.note': '{thing} tới hạn {day}.',
 
   ...viCareAndSettings,
+  ...viDayLoop,
   ...viPlus,
   ...viTogether,
 } as const satisfies Catalogue;

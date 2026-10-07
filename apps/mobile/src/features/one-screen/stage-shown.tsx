@@ -199,12 +199,20 @@ export function stageShown(stage: Drawable, env: StageEnv): StageDrawn {
         kind: 'panel',
         name: 'bargain',
         body: (
-          <Headed
-            label={t('bargain.youSaid', { excuse: stage.excuse })}
-            heading={null}
-            said={lineFor('tinyNextStep', task, voice)}
-            testID="bargain"
-          />
+          <Stack>
+            <Headed
+              label={t('bargain.youSaid', { excuse: stage.excuse })}
+              heading={null}
+              said={lineFor('tinyNextStep', task, voice)}
+              testID="bargain"
+            />
+            <QuietLink
+              label={t('pick.back')}
+              hint={t('pick.back.hint')}
+              onPress={actions.dropPick}
+              testID="bargain-back"
+            />
+          </Stack>
         ),
         footer: (
           <ChoiceDock

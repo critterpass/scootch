@@ -116,7 +116,12 @@ export function stageOf(input: StageInput): Stage {
     if (item) return { kind: 'picked_for_me', item, canPickAgain: drawer.items.length > 1 };
   }
   if (today.kind === 'done_for_today') {
-    return { kind: 'composer', returning: false, note: null, canPickForMe: drawer.items.length > 0 };
+    return {
+      kind: 'composer',
+      returning: false,
+      note: null,
+      canPickForMe: drawer.items.length > 0,
+    };
   }
 
   if (today.kind === 'nothing_yet') {

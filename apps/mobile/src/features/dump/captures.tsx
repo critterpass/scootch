@@ -24,6 +24,7 @@ const NO_ACTIONS: StageActions = {
   answerDeadline: nothing,
   pickAgain: nothing,
   takePick: nothing,
+  dropPick: nothing,
   smaller: nothing,
   deal: nothing,
   tooBig: nothing,
@@ -242,7 +243,7 @@ export const DrawerTwelve = captured((data) => oneThing(data), {
 export const DumpEnergyRead = captured(() => ({ kind: 'energy' }));
 export const DumpPickForMe = captured((data) => {
   const item = data.drawer.at(-1);
-  return item ? { kind: 'picked_for_me', item } : { kind: 'energy' };
+  return item ? { kind: 'picked_for_me', item, canPickAgain: true } : { kind: 'energy' };
 });
 export const OneScreenBargaining = captured((data) => ({
   kind: 'bargain',

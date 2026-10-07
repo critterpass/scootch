@@ -27,7 +27,11 @@ const parkedIds = (app: Phone) => app.store.getState().drawer.items.map((item) =
 describe("the day's limit on starts", () => {
   it('refuses a swap from the drawer once three things have been started, and a start with it', async () => {
     const app = await stagedPhone(stagedServer());
-    for (const [index, text] of ['water the plants', 'post the letter', 'ring the bank'].entries()) {
+    for (const [index, text] of [
+      'water the plants',
+      'post the letter',
+      'ring the bank',
+    ].entries()) {
       await finishOne(app, text, MORNING + index * 20 * MINUTE_MS);
     }
     expect(app.store.getState().today).toEqual({ kind: 'done_for_today', startsLeft: 0 });
@@ -50,7 +54,11 @@ describe("the day's limit on starts", () => {
 
   it('lets a swap through while a start is left, and with Plus after the third', async () => {
     const app = await stagedPhone(stagedServer(), undefined, MORNING, { plus: true });
-    for (const [index, text] of ['water the plants', 'post the letter', 'ring the bank'].entries()) {
+    for (const [index, text] of [
+      'water the plants',
+      'post the letter',
+      'ring the bank',
+    ].entries()) {
       await finishOne(app, text, MORNING + index * 20 * MINUTE_MS);
     }
     expect(app.store.getState().today).toEqual({ kind: 'done_for_today', startsLeft: 3 });

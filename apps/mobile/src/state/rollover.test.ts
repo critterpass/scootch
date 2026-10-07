@@ -36,15 +36,18 @@ describe('a task left unfinished when the day turns', () => {
     expect(state.monster).toMatchObject({ id: monster.id, name: monster.name });
   });
 
-  it.each([1, 2, 7, 40])('is in today or in the drawer %i days on, never in neither', async (gap) => {
-    const { server, app, task } = await dayWithATaskLeft();
-    const next = await stagedPhone(server, app.data, MORNING + gap * DAY_MS);
+  it.each([1, 2, 7, 40])(
+    'is in today or in the drawer %i days on, never in neither',
+    async (gap) => {
+      const { server, app, task } = await dayWithATaskLeft();
+      const next = await stagedPhone(server, app.data, MORNING + gap * DAY_MS);
 
-    const { today, drawer } = everything(next);
-    expect([today, ...drawer]).toContain(task.id);
-    expect(next.data.count('monsters')).toBe(1);
-    expect(next.data.count('tasks')).toBe(1);
-  });
+      const { today, drawer } = everything(next);
+      expect([today, ...drawer]).toContain(task.id);
+      expect(next.data.count('monsters')).toBe(1);
+      expect(next.data.count('tasks')).toBe(1);
+    },
+  );
 
   it('goes to the drawer with its monster after its one carried morning, and comes back whole', async () => {
     const { server, app, task, monster } = await dayWithATaskLeft();

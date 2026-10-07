@@ -143,7 +143,8 @@ export async function restForToday(ctx: DayContext): Promise<void> {
     ctx.set({ pick: { kind: 'none' }, session: null, line: null });
   } else if (today.kind === 'nothing_yet') {
     const day = await ctx.deps.repositories.days.get(localDate);
-    if (day && day.status === 'open') await ctx.deps.repositories.days.put({ ...day, status: 'done' });
+    if (day && day.status === 'open')
+      await ctx.deps.repositories.days.put({ ...day, status: 'done' });
   }
   await ctx.refresh();
 }

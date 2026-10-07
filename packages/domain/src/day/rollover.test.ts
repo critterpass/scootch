@@ -76,7 +76,10 @@ describe('what becomes of an unfinished task on a new day', () => {
     const left = taskRow({ id: 'task-left', localDate: YESTERDAY });
     const open = taskRow({ id: 'task-open' });
     expect(roll({ tasks: [left, open] })).toEqual({ carried: null, parked: [left] });
-    expect(roll({ tasks: [left], deadlineReturns: true })).toEqual({ carried: null, parked: [left] });
+    expect(roll({ tasks: [left], deadlineReturns: true })).toEqual({
+      carried: null,
+      parked: [left],
+    });
   });
 
   it('leaves alone what is finished, what waits for a later day and what is already parked', () => {
@@ -88,46 +91,53 @@ describe('what becomes of an unfinished task on a new day', () => {
     expect(roll({ tasks, parkedIds: ['task-parked'] })).toEqual({ carried: null, parked: [] });
   });
 
-  it('loses nothing, carries at most one, and does nothing more the second time', { timeout: 60_000 }, () => {
-    fc.assert(
-      fc.property(
-        fc.uniqueArray(
-          fc.tuple(taskRowArbitrary, fc.integer({ min: -45, max: 1 })),
-          { selector: ([task]) => task.id, maxLength: 8 },
-        ),
-        fc.integer({ min: 1, max: 45 }),
-        fc.boolean(),
-        (made, away, deadlineReturns) => {
-          const tasks = made.map(([task, offset]) => ({ ...task, localDate: addDays(TODAY, offset) }));
-          const lastOpenedDay = addDays(TODAY, -away);
-          const input: RolloverInput = {
-            ...base,
-            tasks,
-            openedDays: [lastOpenedDay],
-            lastOpenedDay,
-            deadlineReturns,
-          };
-          const { carried, parked } = rollOver(input);
-          const moved = [...(carried ? [carried.id] : []), ...parked.map((task) => task.id)];
-          const unfinishedBefore = tasks
-            .filter((task) => task.status !== 'finished' && task.localDate < TODAY)
-            .map((task) => task.id);
-          expect([...moved].sort()).toEqual([...unfinishedBefore].sort());
-          if (away >= 7 || deadlineReturns) expect(carried).toBeNull();
+  it(
+    'loses nothing, carries at most one, and does nothing more the second time',
+    { timeout: 60_000 },
+    () => {
+      fc.assert(
+        fc.property(
+          fc.uniqueArray(fc.tuple(taskRowArbitrary, fc.integer({ min: -45, max: 1 })), {
+            selector: ([task]) => task.id,
+            maxLength: 8,
+          }),
+          fc.integer({ min: 1, max: 45 }),
+          fc.boolean(),
+          (made, away, deadlineReturns) => {
+            const tasks = made.map(([task, offset]) => ({
+              ...task,
+              localDate: addDays(TODAY, offset),
+            }));
+            const lastOpenedDay = addDays(TODAY, -away);
+            const input: RolloverInput = {
+              ...base,
+              tasks,
+              openedDays: [lastOpenedDay],
+              lastOpenedDay,
+              deadlineReturns,
+            };
+            const { carried, parked } = rollOver(input);
+            const moved = [...(carried ? [carried.id] : []), ...parked.map((task) => task.id)];
+            const unfinishedBefore = tasks
+              .filter((task) => task.status !== 'finished' && task.localDate < TODAY)
+              .map((task) => task.id);
+            expect([...moved].sort()).toEqual([...unfinishedBefore].sort());
+            if (away >= 7 || deadlineReturns) expect(carried).toBeNull();
 
-          // Applied, and the day opened once more: nothing moves again.
-          const after = tasks.map((task) => (task.id === carried?.id ? carried : task));
-          const again = rollOver({
-            ...input,
-            tasks: after,
-            openedDays: [lastOpenedDay, TODAY],
-            parkedIds: parked.map((task) => task.id),
-          });
-          expect(again).toEqual({ carried: null, parked: [] });
-        },
-      ),
-    );
-  });
+            // Applied, and the day opened once more: nothing moves again.
+            const after = tasks.map((task) => (task.id === carried?.id ? carried : task));
+            const again = rollOver({
+              ...input,
+              tasks: after,
+              openedDays: [lastOpenedDay, TODAY],
+              parkedIds: parked.map((task) => task.id),
+            });
+            expect(again).toEqual({ carried: null, parked: [] });
+          },
+        ),
+      );
+    },
+  );
 });
 
 describe('a task put into the drawer whole', () => {
@@ -135,7 +145,11 @@ describe('a task put into the drawer whole', () => {
 
   it('keeps its id, its first mention and its date, and fades or returns as any item does', () => {
     const undated = taskRow({ id: 'task-u', firstMentionedOn: addDays(TODAY, -5) });
-    const dated = taskRow({ id: 'task-d', text: 'Renew the passport', dueDate: addDays(TODAY, 20) });
+    const dated = taskRow({
+      id: 'task-d',
+      text: 'Renew the passport',
+      dueDate: addDays(TODAY, 20),
+    });
     const { drawer } = parkTasks({ drawer: [], tasks: [undated, dated], today: TODAY, now });
     expect(drawer).toEqual([
       expect.objectContaining({
@@ -205,7 +219,13 @@ describe('a start is counted on the day it was used', () => {
       todayState({
         ...input,
         sessions: [session],
-        day: { localDate: TODAY, status: 'done', openedAt: session.startedAt, morningLine: null, energy: null },
+        day: {
+          localDate: TODAY,
+          status: 'done',
+          openedAt: session.startedAt,
+          morningLine: null,
+          energy: null,
+        },
       }),
     ).toEqual({ kind: 'done_for_today', startsLeft: 2 });
   });
