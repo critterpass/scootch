@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import { specFromSeed } from '@scootch/art';
 import type { DrawerItemRow, MonsterRow, TaskRow } from '@scootch/domain';
 import type { Language } from '@scootch/i18n';
@@ -173,6 +174,7 @@ function captured(
 ) {
   return function Captured() {
     const { language } = useLanguage();
+    const router = useRouter();
     const t = useT();
     const data = fixtures(language);
     const drawn = stageShown(stage(data), {
@@ -200,7 +202,8 @@ function captured(
               today={TODAY}
               canSwap
               onSwapIn={nothing}
-              onClose={nothing}
+              // The sheet is a window of its own over the registry's way back: it closes the state.
+              onClose={() => router.back()}
             />
           ) : null
         }

@@ -12,10 +12,20 @@ appId: app.scootch.dev
     id: 'launch-hello-next'
 - tapOn:
     id: 'launch-attitude-confirm'
-- tapOn:
-    id: 'launch-permission-skip'
-- tapOn:
-    id: 'launch-permission-skip'
+# Two favours, each skipped. A press that comes while the first is being answered is lost, so the
+# skip is pressed again until the one screen is there.
+- repeat:
+    times: 4
+    commands:
+      - runFlow:
+          when:
+            notVisible:
+              id: 'more-button'
+          commands:
+            - tapOn:
+                id: 'launch-permission-skip'
+            - waitForAnimationToEnd:
+                timeout: 2000
 - extendedWaitUntil:
     visible:
       id: 'more-button'
