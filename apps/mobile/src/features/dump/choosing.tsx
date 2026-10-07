@@ -52,7 +52,8 @@ export function Choosing({ script: given, playing, onDone, children }: ChoosingP
   const [plays] = useState(script !== null && !reducedMotion && !captured);
   // A capture holds the lit beat, so it looks the same every time.
   const holds = script !== null && captured;
-  const timeline = choosingTimeline(script?.words.length ?? 0);
+  const count = script?.words.length ?? 0;
+  const timeline = choosingTimeline(count, script !== null && script.to - script.from < count);
   const { answerAt, endAt, lightAt } = timeline;
 
   const clock = useSharedValue(plays ? 0 : holds ? lightAt + LIGHT_MS : endAt);

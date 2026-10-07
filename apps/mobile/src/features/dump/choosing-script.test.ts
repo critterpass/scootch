@@ -71,6 +71,16 @@ describe('when each beat of the reveal happens', () => {
     });
   });
 
+  it('goes straight from the light to the answer when no other word is there to fall', () => {
+    expect(choosingTimeline(3, false)).toEqual({
+      step: 100,
+      lightAt: 800,
+      fallAt: 1150,
+      answerAt: 1600,
+      endAt: 2300,
+    });
+  });
+
   it('never spends more than four and a half seconds on the words arriving', () => {
     const { step, lightAt } = choosingTimeline(60);
     expect(step * 60).toBeCloseTo(4500);

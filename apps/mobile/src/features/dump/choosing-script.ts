@@ -109,12 +109,18 @@ export const WORDS_OUT_MS = 500;
 export const ANSWER_FADE_MS = 600;
 export const ANSWER_RISE_MS = 700;
 export const ANSWER_RISE = 14;
+/** How long a lit one thing is held when no other word is there to fall. */
+const NOTHING_FALLS_MS = 450;
 
-export function choosingTimeline(words: number): ChoosingTimeline {
+/**
+ * The beats for a script. When every word is the one thing there is nothing to watch fall, so the
+ * answer follows the light directly instead of waiting out a fall that does not happen.
+ */
+export function choosingTimeline(words: number, others = true): ChoosingTimeline {
   const step = Math.min(STEP_MS, LONGEST_ARRIVAL_MS / Math.max(1, words));
   const lightAt = words * step + 500;
-  const fallAt = lightAt + 900;
-  const answerAt = fallAt + 1500;
+  const fallAt = lightAt + (others ? 900 : LIGHT_MS);
+  const answerAt = fallAt + (others ? 1500 : NOTHING_FALLS_MS);
   return { step, lightAt, fallAt, answerAt, endAt: answerAt + ANSWER_RISE_MS };
 }
 

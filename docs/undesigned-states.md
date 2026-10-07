@@ -154,3 +154,4 @@ state is designed or removed.
 | One screen, choosing | A tap anywhere on the words skips to the one thing; with Reduce Motion or Motion off it does not play | The board's reveal runs on a loop with no control |
 | One screen, choosing | A falling word is softened with a shadow in its own ink instead of a true 3 px blur | iOS draws no blur filter on text; a Skia layer for every word would rebuild the text outside the system's own layout |
 | One screen, the one thing | "The other N are in a drawer": the number is written in digits, and with one other thing parked the line is in the singular | The board spells out "eleven" for its example |
+| One screen, choosing | A typed thing that is the one thing, whole: it arrives, lights up, and the headline rises 450 ms later | The board's reveal always has other words to fall, and waits two and a half seconds for them |
