@@ -44,7 +44,7 @@ export const viPlus = {
   'plus.oneMore': 'Thêm một việc',
   'plus.oneMore.left': { other: 'Thêm một việc · hôm nay còn {count}' },
   'plus.oneMore.hint': 'Bắt đầu thêm một việc nữa hôm nay',
-  'plus.oneMore.freeDone': 'Hôm nay đủ ba việc rồi. Mai có ba việc nữa.',
+  'plus.oneMore.freeDone': 'Hôm nay đủ {count} việc rồi. Mai có {count} việc nữa.',
   'plus.oneMore.cap': 'Hôm nay bắt đầu đủ rồi',
   'plus.offer.tell': 'Kể nghe coi',
   'plus.offer.tell.hint': 'Mở Scootch Plus',
@@ -59,7 +59,8 @@ export const viPlus = {
   'plus.trial.ok.hint': 'Quay lại hôm nay',
   'plus.note.trialEndsTomorrow':
     'Mai là hết tuần dùng thử. Sau đó sẽ tính tiền gói năm, trừ khi bạn huỷ trong Cài đặt.',
-  'plus.lastDay.keeps': 'Bạn chọn gì thì thế giới, thẻ bài và ba việc mỗi ngày vẫn là của bạn.',
+  'plus.lastDay.keeps':
+    'Bạn chọn gì thì thế giới, thẻ bài và {count} việc mỗi ngày vẫn là của bạn.',
   'plus.lastDay.keep': 'Giữ gói năm',
   'plus.lastDay.keep.note': '{price} mỗi năm, tính từ ngày mai',
   'plus.lastDay.keep.noteNoPrice': 'Giá gói năm, tính từ ngày mai',
@@ -94,7 +95,7 @@ export const viPlus = {
   'plus.manage.ends': 'Vẫn bật tới {date}. Sẽ không gia hạn.',
   'plus.manage.lifetime': 'Mua một lần. Không bao giờ gia hạn gì cả.',
   'plus.manage.free': 'Scootch miễn phí',
-  'plus.manage.free.note': 'Mỗi ngày một việc, mọi quái vật và thế giới của bạn, mãi mãi.',
+  'plus.manage.free.note': 'Mỗi ngày {count} việc, mọi quái vật và thế giới của bạn, mãi mãi.',
   'plus.manage.see': 'Xem Plus',
   'plus.manage.see.hint': 'Mở bảng Plus',
   'plus.manage.lastDay': 'Tối nay hết tuần dùng thử',
@@ -105,7 +106,7 @@ export const viPlus = {
   'plus.manage.shelf': 'Kệ đồ',
   'plus.manage.shelf.hint': 'Mở các màu mực',
   'plus.manage.keeps':
-    'Huỷ rồi bạn vẫn giữ mọi thứ đã bắt được, mọi thẻ bài, thế giới của bạn và ba việc mỗi ngày.',
+    'Huỷ rồi bạn vẫn giữ mọi thứ đã bắt được, mọi thẻ bài, thế giới của bạn và {count} việc mỗi ngày.',
   'finish.standard': 'Mặc định',
   'finish.kraft': 'Giấy kraft',
   'finish.gold': 'Vàng',

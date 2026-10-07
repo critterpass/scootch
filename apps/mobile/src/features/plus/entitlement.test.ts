@@ -1,6 +1,13 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { ALWAYS_FREE, PLUS_ONLY, holdingsAfter, type PurchaseState } from '@scootch/domain';
+import {
+  ALWAYS_FREE,
+  FREE_STARTS_PER_DAY,
+  PLUS_ONLY,
+  PLUS_STARTS_PER_DAY,
+  holdingsAfter,
+  type PurchaseState,
+} from '@scootch/domain';
 
 import { plusMemory } from '../../data/plus-memory';
 import { openTestDatabase } from '../../data/test/open-test-database';
@@ -30,7 +37,7 @@ describe('what a customer has unlocked', () => {
     expect(purchaseStateOf(customer)).toBe(state);
     const unlocked = unlockedFor(customer);
     expect(unlocked.plus).toBe(plus);
-    expect(unlocked.startsPerDay).toBe(plus ? 6 : 3);
+    expect(unlocked.startsPerDay).toBe(plus ? PLUS_STARTS_PER_DAY : FREE_STARTS_PER_DAY);
     for (const capability of ALWAYS_FREE) expect(unlocked.capabilities.has(capability)).toBe(true);
     for (const capability of PLUS_ONLY) expect(unlocked.capabilities.has(capability)).toBe(plus);
   });

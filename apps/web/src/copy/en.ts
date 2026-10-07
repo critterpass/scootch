@@ -114,9 +114,9 @@ export const en = {
   },
   prices: {
     freeEyebrow: 'Free for ever',
-    freeHeadline: 'The whole thing, up to three things a day.',
+    freeHeadline: 'The whole thing, up to ten things a day.',
     free: [
-      'Up to three things a day, for ever',
+      'Up to ten things a day, for ever',
       'Every monster you catch, kept for ever',
       'Tables with friends, and a table for two of your own',
       'All three attitudes',
@@ -130,7 +130,7 @@ export const en = {
       { name: 'Lifetime', price: '$89.99', detail: 'once, for ever' },
     ],
     plus: [
-      'A second and third thing on good days',
+      'Up to twenty-five things a day',
       'Open tables for up to four',
       'Keep every weekly record',
       'The binder, with sorting and stats',

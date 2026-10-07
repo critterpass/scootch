@@ -1,5 +1,6 @@
 import { Text, View } from 'react-native';
 
+import { FREE_STARTS_PER_DAY } from '@scootch/domain';
 import { fonts, spacing } from '@scootch/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
@@ -56,7 +57,7 @@ export function OneMore({ plus, left, onLocked, onMore }: OneMoreProps) {
         allowFontScaling={allowFontScaling}
         style={{ color: palette.muted, fontFamily: fonts.body, fontSize: size(15) }}
       >
-        {t('plus.oneMore.freeDone')}
+        {t('plus.oneMore.freeDone', { count: FREE_STARTS_PER_DAY })}
       </Text>
       <CapsuleButton
         label={t('plus.oneMore')}

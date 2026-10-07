@@ -129,7 +129,7 @@ export const plainEn = {
     questions: [
       {
         q: 'Is Scootch free?',
-        a: 'Yes. The whole day loop for up to three things a day is free for ever: all three attitudes, every monster you catch, joining a friend’s table, and the weekly song. Plus adds extras. Nothing you need to start is behind it.',
+        a: 'Yes. The whole day loop for up to ten things a day is free for ever: all three attitudes, every monster you catch, joining a friend’s table, and the weekly song. Plus adds extras. Nothing you need to start is behind it.',
       },
       {
         q: 'Do I need an account?',
@@ -149,7 +149,7 @@ export const plainEn = {
       },
       {
         q: 'Why one thing at a time?',
-        a: 'Because starting is the win, and a long list is the thing most of us are avoiding. Scootch picks one thing and parks the rest in a drawer. When it’s done you can pick another: up to three a day, free.',
+        a: 'Because starting is the win, and a long list is the thing most of us are avoiding. Scootch picks one thing and parks the rest in a drawer. When it’s done you can pick another: up to ten a day, free.',
       },
       {
         q: 'What if I don’t finish?',

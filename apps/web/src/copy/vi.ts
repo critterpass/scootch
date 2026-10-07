@@ -124,9 +124,9 @@ export const vi = {
   },
   prices: {
     freeEyebrow: 'Miễn phí mãi mãi',
-    freeHeadline: 'Có đủ hết, mỗi ngày tới ba việc.',
+    freeHeadline: 'Có đủ hết, mỗi ngày tới mười việc.',
     free: [
-      'Mỗi ngày tới ba việc, mãi mãi',
+      'Mỗi ngày tới mười việc, mãi mãi',
       'Con quái nào bắt được cũng giữ mãi',
       'Ngồi bàn cùng bạn bè, và tự mở bàn hai chỗ',
       'Đủ cả ba thái độ',
@@ -140,7 +140,7 @@ export const vi = {
       { name: 'Trọn đời', price: '$89.99', detail: 'một lần, mãi mãi' },
     ],
     plus: [
-      'Việc thứ hai và thứ ba vào những ngày khoẻ',
+      'Mỗi ngày tới hai mươi lăm việc',
       'Mở bàn tới bốn chỗ',
       'Giữ mọi bản thu hằng tuần',
       'Cuốn sổ thẻ, có sắp xếp và thống kê',
