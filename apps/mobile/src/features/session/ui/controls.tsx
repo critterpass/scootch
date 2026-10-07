@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react';
-import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 
 import { radius, spacing } from '@scootch/tokens';
 
-import { GlassPill, GlassTag } from '../../../ui/buttons';
+import { GlassPill } from '../../../ui/buttons';
 import { CloseButton } from '../../../ui/corner-bar';
 
 import type { SessionInks } from './session-inks';
@@ -37,18 +37,6 @@ export function Capsule({
         {label}
       </SessionText>
     </GlassPill>
-  );
-}
-
-/** A glass label that is not a control: the monster's name and the session's length. */
-export function Tag({ label, inks }: { readonly label: string; readonly inks: SessionInks }) {
-  return (
-    <GlassTag style={styles.tag}>
-      <View style={[styles.dot, { backgroundColor: inks.tomato }]} />
-      <SessionText face="caption" color={inks.ink} numberOfLines={1} style={styles.tagLabel}>
-        {label}
-      </SessionText>
-    </GlassTag>
   );
 }
 
@@ -113,19 +101,6 @@ export function TextButton({
 }
 
 const styles = StyleSheet.create({
-  tag: {
-    flexShrink: 1,
-    paddingHorizontal: spacing.md,
-  },
-  tagLabel: {
-    flexShrink: 1,
-    fontWeight: '600',
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
   filled: {
     minHeight: 56,
     borderRadius: radius.pill,

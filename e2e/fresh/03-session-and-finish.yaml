@@ -86,6 +86,19 @@ appId: app.scootch.dev
 # Park a thought: one tap, a few words, and back to work.
 - tapOn:
     id: 'session-park'
+# The field opens as hold-to-talk where the phone can listen: the keyboard is one tap away.
+- extendedWaitUntil:
+    visible:
+      id: 'session-park-composer'
+    timeout: 15000
+- takeScreenshot: fresh-03-park-a-thought
+- runFlow:
+    when:
+      notVisible:
+        id: 'session-park-input'
+    commands:
+      - tapOn:
+          id: 'session-park-switch'
 - extendedWaitUntil:
     visible:
       id: 'session-park-input'
@@ -102,7 +115,17 @@ appId: app.scootch.dev
       id: 'session-park-input'
     timeout: 15000
 - takeScreenshot: fresh-03-thought-parked
-# Time is up a few seconds after the developer control is pressed.
+# Time is up a few seconds after the developer control is pressed. It lives in the corner menu,
+# with everything else that is not the work itself.
+- tapOn:
+    id: 'session-menu'
+- extendedWaitUntil:
+    visible:
+      id: 'session-developer-end'
+    timeout: 15000
+- assertVisible:
+    id: 'session-stuck'
+- takeScreenshot: fresh-03-session-menu
 - tapOn:
     id: 'session-developer-end'
 # The disc shrinks with the time left: a second after the end is pulled in, it is nearly gone.

@@ -59,7 +59,6 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
   const character = useCharacterMotion();
   const [passed, setPassed] = useState<Passed>(NOTHING_PASSED);
   const [parkOpen, setParkOpen] = useState(false);
-  const [leaveAsked, setLeaveAsked] = useState(false);
   const [parkedNote, setParkedNote] = useState<string | null>(null);
 
   // A finish made on the finish control on this visit: the catch may play before the reveal.
@@ -175,8 +174,7 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
     thoughtsLine: afterLines.parkedThoughts,
     reducedMotion: character.reducedMotion,
     parkOpen,
-    // The question belongs to the running session: once it is over there is nothing to ask.
-    leaveAsked: leaveAsked && closeMeans(view) === 'ask',
+    secondsLeft: live?.endsAt != null ? Math.max(0, (live.endsAt - now) / 1000) : 0,
     parkedNote,
     holdStartsAt: 0,
     developerEnd: shortSession.isArmed(),
@@ -191,15 +189,11 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
   shown.current = view;
   const actions = useMemo<SessionActions>(
     () => ({
-      // Mid-session the close control asks first, so a session never vanishes on a stray tap.
-      leave: () =>
-        closeMeans(shown.current) === 'ask' ? setLeaveAsked(true) : send({ type: 'left' }),
-      stay: () => setLeaveAsked(false),
+      // Mid-session a close never ends the session silently: it leads to the not-finished
+      // choices, which can be taken back.
+      leave: () => send({ type: closeMeans(shown.current) === 'ask' ? 'not_finished' : 'left' }),
       // Stopping on purpose leads to the not-finished choices; the work so far is recorded.
-      leaveNow: () => {
-        setLeaveAsked(false);
-        send({ type: 'not_finished' });
-      },
+      leaveNow: () => send({ type: 'not_finished' }),
       openPark: () => setParkOpen(true),
       closePark: () => setParkOpen(false),
       park: (text) => {

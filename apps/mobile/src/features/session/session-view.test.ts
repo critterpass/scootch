@@ -5,9 +5,10 @@ import { MINUTE_MS, sessionReducer, sessionSet, type SessionState } from '@scoot
 import {
   NOTHING_PASSED,
   closeMeans,
-  discScale,
+  discShare,
   finishControl,
   minutesLeft,
+  scootchShare,
   sessionView,
   timeLeftFraction,
   type SessionViewInput,
@@ -175,15 +176,19 @@ describe('the disc', () => {
     expect(minutesLeft(session, START + 11 * MINUTE_MS)).toBe(0);
   });
 
-  it('only ever shrinks, by area, from full to nothing', () => {
+  it('only ever shrinks, in a straight line as the board draws it, from full to nothing', () => {
     const session = { startedAt: START, endsAt: START + 10 * MINUTE_MS };
-    const scales = [0, 2, 5, 8, 10, 12].map((minute) =>
-      discScale(timeLeftFraction(session, START + minute * MINUTE_MS)),
+    const shares = [0, 2, 5, 8, 10, 12].map((minute) =>
+      discShare(timeLeftFraction(session, START + minute * MINUTE_MS)),
     );
-    expect(scales[0]).toBe(1);
-    expect(scales.at(-1)).toBe(0);
-    expect([...scales].sort((a, b) => b - a)).toEqual(scales);
-    expect(discScale(0.25)).toBeCloseTo(0.5);
+    expect(shares[0]).toBeCloseTo(316 / 330);
+    expect(shares.at(-1)).toBe(0);
+    expect([...shares].sort((a, b) => b - a)).toEqual(shares);
+    // The board's two drawn moments of a ten-minute session, in points of a 330-point ring.
+    expect(discShare(0.7) * 330).toBeCloseTo(232);
+    expect(discShare(0.2) * 330).toBeCloseTo(92);
+    expect(scootchShare(0.7) * 330).toBeCloseTo(200);
+    expect(scootchShare(0.2) * 330).toBeCloseTo(180);
   });
 });
 

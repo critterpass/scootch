@@ -42,4 +42,14 @@ describe('the ringer switch', () => {
     control.musicStopped();
     expect(silentModes()).toEqual([false, true, false]);
   });
+
+  it('puts the session back on the rule when asked, even with nothing changed', () => {
+    const applied: AudioMode[] = [];
+    const control = createSoundModeControl((mode) => applied.push(mode));
+    control.setMusicWhenSilent(true);
+    control.musicStarted();
+    control.restore();
+    expect(applied.map((mode) => mode.playsInSilentMode)).toEqual([false, true, true]);
+    expect(applied.at(-1)?.interruptionMode).toBe('mixWithOthers');
+  });
 });
