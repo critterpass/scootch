@@ -14,6 +14,7 @@ import {
   reasonOf,
   sitDown,
   until,
+  postHaunt,
 } from './table-support';
 
 afterEach(() => {
@@ -46,8 +47,8 @@ describe('delete everything, with an account', () => {
     );
     const seed = '5f0c9a2e-77aa-4c1d-9d6e-0b1c2d3e4f50';
     const haunt = { bodyType: 'sock', seed, dare: 'tiny_bit', screen: 'pass' };
-    await ok(as(leaver, 'POST', '/v1/haunts', { ...haunt, to: friend.accountId }));
-    await ok(as(friend, 'POST', '/v1/haunts', { ...haunt, to: leaver.accountId }));
+    await ok(postHaunt(leaver, { ...haunt, to: friend.accountId }));
+    await ok(postHaunt(friend, { ...haunt, to: leaver.accountId }));
 
     await ok(as(leaver, 'POST', '/v1/data-delete', {}));
 

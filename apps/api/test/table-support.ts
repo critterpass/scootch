@@ -10,7 +10,9 @@ import type { Bindings } from '../src/env';
 import * as routes from '../src/routes/index.generated';
 import { tableServerMessageSchema, type TableServerMessage } from '../src/tables/table-contract';
 
-import { freshIp, registerDevice } from './support';
+import { signWords } from '../src/sharing/signed-words';
+
+import { freshIp, registerDevice, shareSecret } from './support';
 
 export type Person = { token: string; deviceHash: string; accountId: string; name: string };
 
@@ -81,6 +83,42 @@ export async function befriend(one: Person, other: Person): Promise<void> {
   )
     .bind(...pairOf(one.accountId, other.accountId), new Date().toISOString())
     .run();
+}
+
+/** The bindings with the secret the server signs its own words with. */
+export const signingEnv: Bindings = { ...env, SHARE_SIGNING_SECRET: shareSecret };
+
+/** A monster's words as the task call would have written and signed them for this seed. */
+export async function signedWords(seed: string, language: 'en' | 'vi' = 'en') {
+  const words = { name: 'Sockrates', title: 'Drawer dweller', flavourText: 'Lives in pairs.' };
+  return {
+    ...words,
+    language,
+    signature: await signWords(shareSecret, { ...words, seed, language }),
+  };
+}
+
+/**
+ * Sends a haunt as the app does: with the words the server signed for the monster's seed, unless
+ * the body brings its own `words` (or `words: null` for none at all).
+ */
+export async function postHaunt(
+  from: Pick<Person, 'token'>,
+  body: Record<string, unknown>,
+  bindings: Bindings = signingEnv,
+): Promise<Response> {
+  const { words, ...rest } = body;
+  const carried =
+    words === undefined && typeof body['seed'] === 'string'
+      ? await signedWords(body['seed'])
+      : words;
+  return as(
+    from,
+    'POST',
+    '/v1/haunts',
+    carried === null || carried === undefined ? rest : { ...rest, words: carried },
+    bindings,
+  );
 }
 
 export async function count(sql: string, ...values: unknown[]): Promise<number> {

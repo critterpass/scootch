@@ -6,6 +6,7 @@ import { ApiError } from '../errors';
 import type { RouteContext, RouteDefinition } from '../route';
 import { previewPng } from '../sharing/preview-image';
 import { previewPrefix, readSharedMonster, type SharedMonster } from '../sharing/shared-monsters';
+import { shareSigningSecret, signWords } from '../sharing/signed-words';
 
 async function sharedMonster(c: RouteContext): Promise<SharedMonster> {
   const monster = await readSharedMonster(c.env.DB, c.req.param('id') ?? '');
@@ -13,12 +14,23 @@ async function sharedMonster(c: RouteContext): Promise<SharedMonster> {
   return monster;
 }
 
-/** What a monster's own page shows. An unknown or unshared id is `not_found`. */
+/**
+ * What a monster's own page shows, and what the app hatches a website monster from: its body,
+ * seed, name and card line, with the server's signature over those words. An unknown or unshared
+ * id is `not_found`.
+ */
 export const monsterPageRoute: RouteDefinition = {
   method: 'GET',
   path: '/v1/monster-page/:id',
   access: 'public',
-  handle: async (c) => c.json(await sharedMonster(c)),
+  handle: async (c) => {
+    const monster = await sharedMonster(c);
+    const secret = shareSigningSecret(c.env);
+    if (secret === undefined) return c.json(monster);
+    const { name, flavourText, seed, language } = monster;
+    const signature = await signWords(secret, { name, title: '', flavourText, seed, language });
+    return c.json({ ...monster, signature });
+  },
 };
 
 /**

@@ -1,4 +1,5 @@
-import { readHauntPage, shooHauntByLink } from '../accounts/haunts';
+import { readHauntPage } from '../accounts/haunt-reads';
+import { shooHauntByLink } from '../accounts/haunts';
 import { hauntPageIdPattern, hauntPageSchema } from '../contracts';
 import { ApiError } from '../errors';
 import type { RouteContext, RouteDefinition } from '../route';
@@ -19,7 +20,7 @@ export const hauntPageRoute: RouteDefinition = {
   path: '/v1/haunt-page/:id',
   access: 'public',
   handle: async (c) => {
-    const haunt = await readHauntPage(c.env.DB, pageId(c));
+    const haunt = await readHauntPage(c.env.DB, pageId(c), new Date());
     if (haunt === null) throw new ApiError('not_found', 'No such haunt');
     c.header('Cache-Control', 'private, no-store');
     return c.json(hauntPageSchema.parse(haunt));

@@ -107,7 +107,7 @@ const lines = {
       <div class="actions">
         {
           !preLaunch && (
-            <a class="button button-ink" href={appStoreUrl}>
+            <a class="button button-ink" href={appStoreUrl} data-catch>
               {copy.catchIt}
             </a>
           )
@@ -120,7 +120,7 @@ const lines = {
     <div class="actions" data-show="nap" hidden>
       {
         !preLaunch && (
-          <a class="button button-ink" href={appStoreUrl} data-last-only>
+          <a class="button button-ink" href={appStoreUrl} data-last-only data-catch>
             {copy.napCatch}
           </a>
         )

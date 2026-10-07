@@ -161,6 +161,7 @@ describe('a table', () => {
       type: 'nudge_sent',
       to: guest.accountId,
       nudgesLeft: 0,
+      delivered: true,
     });
     hostSeat.send({ type: 'nudge', to: guest.accountId });
     await until(() => hostSeat.of('error').length === 1, 'the fourth to be refused');
