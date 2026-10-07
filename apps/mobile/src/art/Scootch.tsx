@@ -1,23 +1,31 @@
 import { Group } from '@shopify/react-native-skia';
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useDerivedValue, useReducedMotion, useSharedValue } from 'react-native-reanimated';
-import type { SharedValue } from 'react-native-reanimated';
 
-import { buildScootch, GROUND_Y, VIEW_SIZE, type DrawCommand } from '@scootch/art';
+import {
+  buildScootch,
+  easeGaze,
+  GAZE_AT_REST,
+  gazeTarget,
+  GROUND_Y,
+  moodSquash,
+  VIEW_SIZE,
+  type DrawCommand,
+  type Gaze,
+} from '@scootch/art';
 
 import { useForcedVariant } from '../screens/registry/support/forced-variant';
 
 import {
-  scootchFrameSet,
+  scootchFrameAt,
   scootchMotionPlan,
-  scootchTick,
-  uniqueLayers,
+  tickHz,
   type MotionCare,
   type ScootchMotionInput,
 } from './motion-plan';
-import { runInSlices } from './motion-runner';
 import { CharacterCanvas, CommandLayer } from './skia-commands';
 import { useMotionTicks } from './use-motion-ticks';
+import { useChangeSquash, useTapReaction } from './use-reactions';
 
 /** The contract's Scootch props, as the drawing takes them. */
 type ScootchDrawing = Parameters<typeof buildScootch>[0];
@@ -31,14 +39,28 @@ export interface ScootchProps {
   readonly attitude?: ScootchDrawing['attitude'];
   /** Read only when the mood is `working`. */
   readonly workMode?: ScootchDrawing['workMode'];
+  /** Worn in place of the curl. */
+  readonly hat?: ScootchDrawing['hat'];
   /** Leave unset to follow the system's Reduce Motion setting. */
   readonly reducedMotion?: boolean;
   /** A serious task only breathes; on a crisis day nothing moves. */
   readonly care?: MotionCare;
-  /** False keeps the mood's or the work mode's own loop off: idle only, as at a table. */
+  /** False keeps the mood's or the work mode's own motion off: idle only, as at a table. */
   readonly ownLoop?: boolean;
   /** Makes one Scootch blink and glance at other moments than the next one. */
   readonly seed?: string;
+  /** Gives a squash whenever the mood or the work mode changes. */
+  readonly squashOnChange?: boolean;
+  /**
+   * Makes Scootch something to tap. A tap calls this and, unless the moment asks for care or for
+   * stillness, pops a short celebration with a squash in and out of it.
+   */
+  readonly onPress?: () => void;
+  /**
+   * A point for the eyes to follow, in points from the centre of this component (x to the right,
+   * y down). `null` or absent lets go of it. Only the watching moods follow.
+   */
+  readonly gaze?: { readonly x: number; readonly y: number } | null;
   /** Width and height in points. */
   readonly size?: number;
   readonly testID?: string;
@@ -48,43 +70,36 @@ const FEET = { x: VIEW_SIZE / 2, y: GROUND_Y };
 // The same stretch the drawing model gives a full breath (its `bob` motion input).
 const BREATH_TALLER = 0.014;
 const BREATH_NARROWER = 0.0084;
-/** Frames built between two pauses. One frame is a few milliseconds of work on a phone. */
-const FRAMES_PER_SLICE = 4;
+/** The face sits a little above the middle of the box. */
+const FACE_ABOVE_CENTRE = 0.05;
 
-interface Layers {
-  readonly layers: readonly (readonly DrawCommand[])[];
-  readonly layerOf: readonly number[];
+interface Clock {
+  /** The runner's seconds at the last tick, and at the last change of mood or work mode. */
+  now: number;
+  changedAt: number;
+  gaze: Gaze;
+  key: string;
 }
 
-const FrameLayer = memo(function FrameLayer({
-  commands,
-  index,
-  shown,
-}: {
-  readonly commands: readonly DrawCommand[];
-  readonly index: number;
-  readonly shown: SharedValue<number>;
-}) {
-  // Layers swap rather than fade: they hold see-through ink that would double up.
-  const opacity = useDerivedValue<number>(() => (shown.value === index ? 1 : 0));
-  return <CommandLayer commands={commands} opacity={opacity} />;
-});
-
 /**
- * Scootch, drawn with Skia. The still is built once per set of props. When something moves, the
- * few frames of its loop (and of the blink and the glance) are built once, a few at a time, and
- * kept as layers; a slow clock then only says which layer shows and how deep the breath is, so
- * nothing is rebuilt or rendered by React per frame. Off the screen, in the background, with
+ * Scootch, drawn with Skia. The still is built once per set of props and shows at once. While
+ * something moves, a clock rebuilds the drawing for the moment it shows, with the idle, the mood's
+ * own motion, the line boil and the gaze all in it together; the breath and the squash are
+ * transforms of the whole figure on the UI thread. Off the screen, in the background, with
  * reduced motion or on a crisis day the clock does not run at all.
  */
 export function Scootch({
   mood,
   attitude = 'cheeky',
   workMode = null,
+  hat = null,
   reducedMotion,
   care = 'none',
   ownLoop = true,
   seed = 'scootch',
+  squashOnChange = false,
+  onPress,
+  gaze = null,
   size = 200,
   testID,
 }: ScootchProps) {
@@ -92,69 +107,93 @@ export function Scootch({
   // A registry capture is always the still, whatever the screen passes.
   const captured = useForcedVariant() !== undefined;
   const still = captured || (reducedMotion ?? systemReducedMotion);
+  // A celebration is not for a heavy moment, and a still does not jump.
+  const mayReact = !still && care === 'none' && mood !== 'serious';
+  const tap = useTapReaction(onPress, mayReact);
+  const shownMood = tap.reacting ? 'celebrating' : mood;
+  const shownWork = tap.reacting ? null : workMode;
 
   const drawing = useMemo(() => {
-    const props: ScootchDrawing = { mood, attitude, workMode, reducedMotion: still };
-    const input: ScootchMotionInput = { mood, workMode, reducedMotion: still, care, ownLoop };
-    const plan = scootchMotionPlan(input);
+    const props: ScootchDrawing = {
+      mood: shownMood,
+      attitude,
+      workMode: shownWork,
+      reducedMotion: still,
+      hat,
+    };
+    const input: ScootchMotionInput = {
+      mood: shownMood,
+      workMode: shownWork,
+      reducedMotion: still,
+      care,
+      ownLoop,
+    };
     return {
       props,
-      plan,
-      set: scootchFrameSet(input, plan),
+      input,
+      plan: scootchMotionPlan(input),
       rest: buildScootch(props, undefined, DRAWN_IN_APP),
     };
-  }, [mood, attitude, workMode, still, care, ownLoop]);
-  const { plan, set, rest } = drawing;
-  const frameCount = set.motions.length;
+  }, [shownMood, shownWork, attitude, hat, still, care, ownLoop]);
+  const { plan, rest } = drawing;
 
-  const [built, setBuilt] = useState<{ of: typeof drawing; layers: Layers } | null>(null);
-  useEffect(() => {
-    if (frameCount <= 1) return;
-    const jobs = set.motions.map(
-      (motion, i) => () =>
-        i === 0 ? drawing.rest : buildScootch(drawing.props, motion, DRAWN_IN_APP),
-    );
-    return runInSlices(jobs, FRAMES_PER_SLICE, (frames) =>
-      setBuilt({ of: drawing, layers: uniqueLayers(frames) }),
-    );
-  }, [drawing, set, frameCount]);
-  const layers = built?.of === drawing ? built.layers : null;
-
-  const shown = useSharedValue(0);
+  const [moved, setMoved] = useState<{ of: typeof drawing; commands: DrawCommand[] } | null>(null);
   const bob = useSharedValue(0);
-  const last = useRef({ layer: 0, bob: 0 });
-  // Writes only what changed, so a tick that shows the same frame costs the canvas nothing.
-  const put = useCallback(
-    (layer: number, depth: number): void => {
-      if (last.current.layer !== layer) shown.value = layer;
-      if (last.current.bob !== depth) bob.value = depth;
-      last.current = { layer, bob: depth };
-    },
-    [shown, bob],
-  );
-  // A new drawing starts from its still.
-  useEffect(() => put(0, 0), [drawing, put]);
+  const clock = useRef<Clock>({ now: 0, changedAt: 0, gaze: GAZE_AT_REST, key: '' });
+  // A new drawing starts from its still, and its own motion from the beginning.
+  useEffect(() => {
+    clock.current.changedAt = clock.current.now;
+    clock.current.key = '';
+    // The breath carries on through a change of mood; only a still lets it out.
+    if (!drawing.plan.breath) bob.value = 0;
+  }, [drawing, bob]);
 
-  useMotionTicks(plan.breath, (seconds) => {
-    const tick = scootchTick(set, plan, { mood }, seconds, seed);
-    put(layers?.layerOf[tick.frame] ?? 0, tick.bob);
+  useMotionTicks(
+    plan.breath,
+    (seconds) => {
+      const state = clock.current;
+      const dt = Math.max(0, seconds - state.now);
+      state.now = seconds;
+      const target = gaze ? gazeTarget(gaze.x, gaze.y + size * FACE_ABOVE_CENTRE) : null;
+      state.gaze = easeGaze(state.gaze, target, dt);
+      const frame = scootchFrameAt(drawing.input, plan, {
+        seconds,
+        sinceChange: seconds - state.changedAt,
+        seed,
+        look: state.gaze,
+      });
+      bob.value = frame.bob;
+      // The same moment drawn twice costs nothing the second time.
+      if (frame.key === state.key) return;
+      state.key = frame.key;
+      if (frame.key === '') setMoved(null);
+      else {
+        const options = { ...DRAWN_IN_APP, boil: frame.boil };
+        setMoved({ of: drawing, commands: buildScootch(drawing.props, frame.motion, options) });
+      }
+    },
+    tickHz(plan, size),
+  );
+
+  const squashing = (squashOnChange || onPress !== undefined) && mayReact;
+  const changed = useChangeSquash(`${shownMood}|${shownWork ?? ''}`, squashing);
+  const transform = useDerivedValue<[{ scaleX: number }, { scaleY: number }]>(() => {
+    const squash = moodSquash(changed.value);
+    return [
+      { scaleX: (1 - bob.value * BREATH_NARROWER) * squash.scaleX },
+      { scaleY: (1 + bob.value * BREATH_TALLER) * squash.scaleY },
+    ];
   });
 
-  const breath = useDerivedValue<[{ scaleX: number }, { scaleY: number }]>(() => [
-    { scaleX: 1 - bob.value * BREATH_NARROWER },
-    { scaleY: 1 + bob.value * BREATH_TALLER },
-  ]);
-
   return (
-    <CharacterCanvas size={size} accessibilityLabel="Scootch" {...(testID ? { testID } : {})}>
-      <Group transform={breath} origin={FEET}>
-        {layers ? (
-          layers.layers.map((commands, index) => (
-            <FrameLayer key={index} commands={commands} index={index} shown={shown} />
-          ))
-        ) : (
-          <CommandLayer commands={rest} />
-        )}
+    <CharacterCanvas
+      size={size}
+      accessibilityLabel="Scootch"
+      onPress={tap.press}
+      {...(testID ? { testID } : {})}
+    >
+      <Group transform={transform} origin={FEET}>
+        <CommandLayer commands={moved?.of === drawing ? moved.commands : rest} />
       </Group>
     </CharacterCanvas>
   );
