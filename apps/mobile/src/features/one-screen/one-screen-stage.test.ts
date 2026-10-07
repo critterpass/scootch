@@ -3,7 +3,7 @@ import path from 'node:path';
 
 import { describe, expect, it } from '@jest/globals';
 
-import { DAY_MS, type TaskCreateStartResponse } from '@scootch/domain';
+import { DAY_MS, startRefused, type TaskCreateStartResponse } from '@scootch/domain';
 import { languages, t } from '@scootch/i18n';
 import { noTaskLine } from '@scootch/voice';
 
@@ -12,7 +12,7 @@ import seriousFixture from '../../../../../packages/voice/fixtures/task.create.s
 import type { DayStore } from '../../state/day-store';
 import { MORNING, stagedPhone, stagedServer } from '../../state/test/staged-phone';
 
-import { RETURN_CHIPS, chargeNoteShows, stageOf, type Stage } from './one-screen-stage';
+import { RETURN_CHIPS, chargeNoteShows, holdsWords, stageOf, type Stage } from './one-screen-stage';
 
 const stage = (store: DayStore, energyAsked = false): Stage =>
   stageOf({ ...store.getState(), energyAsked });
@@ -31,6 +31,27 @@ describe('the one screen, from the day', () => {
     expect(stage(app.store)).toMatchObject({ kind: 'hatch', shrunk: false, canShrink: true });
     await app.store.dispatch({ type: 'monster_met' });
     expect(stage(app.store)).toMatchObject({ kind: 'task_set', quiet: false, carried: false });
+  });
+
+  it('asks the battery question after "One more" on a day that rested with nothing done', async () => {
+    const app = await stagedPhone(stagedServer());
+    await app.store.dispatch({ type: 'done_for_today' });
+    expect(stage(app.store).kind).toBe('done');
+    await app.store.dispatch({ type: 'one_more_asked' });
+    expect(stage(app.store).kind).toBe('composer');
+
+    // The first words of this day are still held for the question, so it has to be reachable.
+    expect(app.store.getState().energyNeeded).toBe(true);
+    expect(stage(app.store, true).kind).toBe('energy');
+  });
+
+  it('never shows the battery question beside a task: held words are let go of instead', async () => {
+    const app = await stagedPhone(stagedServer());
+    await app.say();
+    const shown = stage(app.store, true);
+    expect(shown.kind).toBe('one_thing');
+    expect(holdsWords(shown)).toBe(false);
+    expect(holdsWords({ kind: 'energy' })).toBe(true);
   });
 
   it('gives a serious task plain words: no reveal, no hatch and no monster at any step', async () => {
@@ -130,5 +151,21 @@ describe('the trial-ends-tomorrow note', () => {
       .map((file) => readFileSync(path.resolve(__dirname, '../session', file), 'utf8'));
     expect(session.length).toBeGreaterThan(8);
     expect(session.filter((source) => /ChargeNote|trialEndsTomorrow/.test(source))).toEqual([]);
+  });
+});
+
+describe('Start, with no start left today', () => {
+  it('is refused for a task that has not been started, and for nothing else', async () => {
+    const app = await stagedPhone(stagedServer());
+    await app.say('ring the bank', 'typed');
+    await app.store.dispatch({ type: 'one_thing_picked' });
+    const { today } = app.store.getState();
+    if (today.kind !== 'task_set') throw new Error('a task is set');
+    expect(startRefused(today)).toBe(false);
+    expect(startRefused({ ...today, startsLeft: 0 })).toBe(true);
+    // A task already started today has used its start and may be picked up.
+    const started = { ...today.task, status: 'started' as const };
+    expect(startRefused({ ...today, task: started, startsLeft: 0 })).toBe(false);
+    expect(startRefused({ kind: 'nothing_yet', startsLeft: 0 })).toBe(false);
   });
 });

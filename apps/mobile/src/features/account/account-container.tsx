@@ -10,6 +10,7 @@ import { TABLE_LOBBY } from '../table/table-rules';
 import { accountStep, chooseName, signIn, type NameProblem } from './account-flow';
 import { NamePage, SignInPage } from './account-page';
 import { nativeApple } from './apple-port';
+import { goHome } from '../navigation/go-home';
 
 const RETURNS = /^\/(?:table|friends|[tf]\/[a-z2-7]{10})$/;
 
@@ -47,7 +48,7 @@ export function AccountContainer() {
       router.replace(next !== undefined && RETURNS.test(next) ? next : TABLE_LOBBY);
   }, [step, next, router]);
 
-  const close = () => router.replace('/');
+  const close = () => goHome(router);
   if (step === 'sign_in') {
     const onSignIn = () => {
       setBusy(true);

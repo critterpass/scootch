@@ -16,6 +16,7 @@ import {
   joinOutcomeOf,
   labelModeFor,
 } from './table-rules';
+import { goHome } from '../navigation/go-home';
 
 /** "Sit with someone" on the real phone. */
 export function LobbyContainer() {
@@ -62,7 +63,7 @@ export function LobbyContainer() {
       onJoin={join}
       onBack={() => router.replace(TABLE_SEAT)}
       onFriends={() => router.push(FRIENDS)}
-      onClose={() => router.replace('/')}
+      onClose={() => goHome(router)}
     />
   );
 }
@@ -100,5 +101,5 @@ export function JoinContainer() {
     // Asked once for each link; a retry is the person's own tap.
   }, [ready, code]);
 
-  return <JoinPage problem={problem} onAgain={ask} onClose={() => router.replace('/')} />;
+  return <JoinPage problem={problem} onAgain={ask} onClose={() => goHome(router)} />;
 }

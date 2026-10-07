@@ -29,7 +29,8 @@ export type OneScreenShown =
       readonly kind: 'task_set';
       /** The person's own words for the task, shown when Scootch has no line about it yet. */
       readonly taskText: string | null;
-      readonly onStart: () => void;
+      /** `null` draws Start disabled: it would be refused, and `label` says why. */
+      readonly onStart: (() => void) | null;
       /** A small line above the task: a morning's greeting, or the plain words of a serious task. */
       readonly label?: string | null;
       /** The label of the one action, when it is not the plain "Start". */

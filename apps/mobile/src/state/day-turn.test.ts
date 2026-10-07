@@ -65,6 +65,91 @@ describe('a day left open overnight', () => {
   });
 });
 
+describe('a session running across the start of a new day', () => {
+  async function runningBefore() {
+    const app = await stagedPhone(stagedServer());
+    await app.say('ring the bank', 'typed');
+    await app.store.dispatch({ type: 'one_thing_picked' });
+    await app.store.dispatch({ type: 'monster_met' });
+    await app.store.dispatch({ type: 'session_set', minutes: 25 });
+    app.time.jumpTo(BOUNDARY - 5 * 60_000);
+    await app.store.dispatch({ type: 'session', event: { type: 'started' } });
+    return app;
+  }
+
+  it('survives the app coming forward after four, and the day turns once it is over', async () => {
+    const app = await runningBefore();
+    await app.store.dispatch({ type: 'app_backgrounded' });
+    app.time.jumpTo(BOUNDARY + 2 * 60_000);
+    await app.store.dispatch({ type: 'app_foregrounded' });
+    expect(app.store.getState()).toMatchObject({
+      localDate: '2026-10-06',
+      today: { kind: 'in_session' },
+      session: { phase: 'running' },
+    });
+
+    // It is finished on the day it was started, and its screens are shown to the end.
+    await app.store.dispatch({ type: 'session', event: { type: 'double_tapped' } });
+    await app.store.dispatch({ type: 'day_turned' });
+    expect(app.store.getState()).toMatchObject({
+      localDate: '2026-10-06',
+      session: { phase: 'finished' },
+    });
+    expect(app.data.dump().includes('"caught_on":"2026-10-06"')).toBe(true);
+
+    // Then the turn that was put off is applied, without waiting for anything else.
+    await app.store.dispatch({ type: 'session_closed' });
+    expect(app.store.getState()).toMatchObject({
+      localDate: '2026-10-07',
+      today: { kind: 'nothing_yet', startsLeft: FREE_STARTS_PER_DAY },
+      session: null,
+    });
+  });
+
+  it('survives in any zone, however far past four the clock is when the app comes forward', async () => {
+    const app = await stagedPhone(stagedServer(), undefined, MORNING, { timeZone: 'Asia/Tokyo' });
+    // 18:00 in Tokyo, then six the next morning.
+    await app.say('ring the bank', 'typed');
+    await app.store.dispatch({ type: 'one_thing_picked' });
+    await app.store.dispatch({ type: 'session_set', minutes: 25 });
+    await app.store.dispatch({ type: 'session', event: { type: 'started' } });
+    const day = app.store.getState().localDate;
+    app.time.jumpTo(MORNING + 12 * HOUR_MS);
+    await app.store.dispatch({ type: 'app_foregrounded' });
+    expect(app.store.getState()).toMatchObject({ localDate: day, today: { kind: 'in_session' } });
+  });
+});
+
+describe('rebuilding today while the app is open', () => {
+  it('keeps the one screen mounted, so nothing typed or held is lost to a day turn', async () => {
+    const app = await stagedPhone(stagedServer());
+    const ready: boolean[] = [];
+    app.store.subscribe(() => ready.push(app.store.getState().ready));
+    app.time.jumpTo(BOUNDARY + 1000);
+    await app.store.dispatch({ type: 'day_turned' });
+    expect(app.store.getState().localDate).toBe('2026-10-07');
+    expect(ready).not.toContain(false);
+  });
+
+  it('stops the timers and the Live Activity of a session that is gone', async () => {
+    const app = await stagedPhone(stagedServer());
+    await app.say('ring the bank', 'typed');
+    await app.store.dispatch({ type: 'one_thing_picked' });
+    await app.store.dispatch({ type: 'session_set', minutes: 25 });
+    await app.store.dispatch({ type: 'session', event: { type: 'started' } });
+    expect(app.time.armed().length).toBeGreaterThan(0);
+
+    // Everything is erased under the running session, as "delete everything" does.
+    for (const table of app.data.tableNames()) {
+      await app.data.db.runAsync(`DELETE FROM ${table}`, []);
+    }
+    await app.store.dispatch({ type: 'storage_replaced' });
+    expect(app.store.getState().session).toBeNull();
+    expect(app.time.armed()).toEqual([]);
+    expect(app.device.calls.live.at(-1)).toBe('end');
+  });
+});
+
 describe('a failure inside the store', () => {
   it('is reported and said in one plain line, never swallowed, and clears on the next thing done', async () => {
     const reported: unknown[] = [];

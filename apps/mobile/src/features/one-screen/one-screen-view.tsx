@@ -159,7 +159,8 @@ export function OneScreenView({
         <CapsuleButton
           label={startLabel ?? t('session.start')}
           hint={t('taskSet.start.hint', { minutes: choices.minutes })}
-          onPress={onStart}
+          disabled={onStart === null}
+          onPress={onStart ?? (() => undefined)}
           testID="one-action"
         />
       </GlassSurface>
