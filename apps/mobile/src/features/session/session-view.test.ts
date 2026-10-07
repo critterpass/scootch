@@ -4,6 +4,7 @@ import { MINUTE_MS, sessionReducer, sessionSet, type SessionState } from '@scoot
 
 import {
   NOTHING_PASSED,
+  closeMeans,
   discScale,
   finishControl,
   minutesLeft,
@@ -132,6 +133,34 @@ describe('which session screen is on', () => {
   it('goes home without a word when the person leaves early', () => {
     const left = sessionReducer(started('full'), { type: 'left' }, START + MINUTE_MS).state;
     expect(sessionView(input({ session: left }))).toEqual({ kind: 'home' });
+  });
+});
+
+describe('the close control', () => {
+  it('asks before leaving a running session, so one tap never ends it', () => {
+    const running = started('full');
+    const burst = sessionView(input({ session: running, burst: 'start' }));
+    const working = sessionView(input({ session: running }));
+    expect(burst.kind).toBe('burst');
+    expect(working.kind).toBe('working');
+    expect(closeMeans(burst)).toBe('ask');
+    expect(closeMeans(working)).toBe('ask');
+    // Asking changes nothing: the session is still running behind the question.
+    expect(running.phase).toBe('running');
+  });
+
+  it('asks while stuck help is open, too', () => {
+    const stuck = sessionReducer(started('full'), { type: 'stuck_tapped' }, START + MINUTE_MS);
+    expect(closeMeans(sessionView(input({ session: stuck.state })))).toBe('ask');
+  });
+
+  it('simply stops a quiet session, where nothing is ever asked of the person', () => {
+    expect(closeMeans(sessionView(input({ session: started('quiet') })))).toBe('leave');
+  });
+
+  it('simply closes once the session is over', () => {
+    expect(closeMeans({ kind: 'home' })).toBe('leave');
+    expect(closeMeans({ kind: 'thoughts', thoughts: [] })).toBe('leave');
   });
 });
 

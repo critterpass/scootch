@@ -14,4 +14,11 @@ export const viDayLoop = {
   'drawer.cap': 'Hôm nay đã bắt đầu đủ {count} việc. Mấy việc này chờ ở đây đến mai.',
   'composer.cancelThinking': 'Thôi',
   'composer.cancelThinking.hint': 'Ngừng chờ và trả lời bạn vừa gửi về ô nhập.',
+  'session.leaveAsk': 'Tạm dừng ở đây nhé?',
+  'session.leaveAsk.sub':
+    'Đồng hồ sẽ dừng. Việc của bạn vẫn nằm đó, khi nào sẵn sàng thì làm tiếp.',
+  'session.leaveAsk.stay': 'Làm tiếp',
+  'session.leaveAsk.stay.hint': 'Quay lại phiên làm việc, đồng hồ vẫn đang chạy',
+  'session.leaveAsk.leave': 'Tạm dừng',
+  'session.leaveAsk.leave.hint': 'Dừng đồng hồ và quay lại việc của bạn',
 } as const;

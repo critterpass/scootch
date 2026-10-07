@@ -12,6 +12,7 @@ import { Scootch } from '../../../art/Scootch';
 import { DEVELOPER_END } from '../dev/short-session';
 import { companyLine } from '../session-view';
 import { Capsule, FilledButton, RoundButton, Tag, TextButton } from '../ui/controls';
+import { LeaveAsk } from '../ui/leave-ask';
 import { ParkComposer } from '../ui/park-composer';
 import { ParkedToast } from '../ui/parked-toast';
 import { SessionFrame } from '../ui/session-frame';
@@ -28,6 +29,9 @@ const SCOOTCH_SHARE = 0.15;
 function Footer({ model, actions, inks, t }: ScreenProps) {
   const { view } = model;
   if (view.kind !== 'working') return null;
+  if (model.leaveAsked) {
+    return <LeaveAsk inks={inks} t={t} onStay={actions.stay} onLeave={actions.leaveNow} />;
+  }
   if (model.parkOpen) {
     return <ParkComposer inks={inks} t={t} onPark={actions.park} onCancel={actions.closePark} />;
   }

@@ -28,6 +28,8 @@ export interface SessionModel {
   readonly thoughtsLine: string | null;
   readonly reducedMotion: boolean;
   readonly parkOpen: boolean;
+  /** The close control was pressed mid-session: leaving is being asked about. */
+  readonly leaveAsked: boolean;
   /** The thought just parked, shown for a moment. */
   readonly parkedNote: string | null;
   /** Where the hold ring starts, for a capture of a ring let go of early. */
@@ -39,7 +41,12 @@ export interface SessionModel {
 }
 
 export interface SessionActions {
+  /** The close control: mid-session it asks first; otherwise it leaves. */
   readonly leave: () => void;
+  /** "Keep going": the question goes away and nothing has changed. */
+  readonly stay: () => void;
+  /** Leaving, said on purpose. */
+  readonly leaveNow: () => void;
   readonly openPark: () => void;
   readonly closePark: () => void;
   readonly park: (text: string) => void;

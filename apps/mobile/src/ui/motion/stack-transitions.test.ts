@@ -63,6 +63,11 @@ describe('how each route arrives and leaves', () => {
     }
   });
 
+  it('cannot be swiped out of mid-session: leaving goes through the close control and its question', () => {
+    expect(stackMotion('session', true).gestureEnabled).toBe(false);
+    expect(stackMotion('session', false).gestureEnabled).toBe(false);
+  });
+
   it('plays nothing on the way into care', () => {
     expect(stackMotion('care', true)).toMatchObject({ animation: 'none', gestureEnabled: false });
     expect(routeMotion('care')).toBe('none');
