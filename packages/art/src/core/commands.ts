@@ -16,6 +16,32 @@ export type FillRule = 'nonzero' | 'evenodd';
 /** The six numbers of a 2D affine matrix, in canvas order (a, b, c, d, e, f). */
 export type Matrix = readonly [number, number, number, number, number, number];
 
+/** One stop of a gradient: where it sits (0 to 1), its colour and how strongly it prints. */
+export type GradientStop = readonly [offset: number, color: string, alpha: number];
+
+/**
+ * What a `paint` command fills its path with. A gradient is written in the drawing's own units;
+ * an oval one is a round one under a `transform`. Grain is fine grey noise, the tooth of paper.
+ */
+export type Paint =
+  | {
+      readonly kind: 'linear';
+      readonly from: readonly [number, number];
+      readonly to: readonly [number, number];
+      readonly stops: readonly GradientStop[];
+    }
+  | {
+      readonly kind: 'radial';
+      readonly centre: readonly [number, number];
+      readonly radius: number;
+      readonly stops: readonly GradientStop[];
+    }
+  /** `size` is roughly the width of one speck, in drawing units. */
+  | { readonly kind: 'grain'; readonly size: number };
+
+/** How a `paint` meets what is already drawn under it. */
+export type BlendMode = 'normal' | 'multiply' | 'screen' | 'overlay' | 'soft-light';
+
 export type DrawCommand =
   | { readonly op: 'save' }
   | { readonly op: 'restore' }
@@ -28,6 +54,14 @@ export type DrawCommand =
       readonly color: string;
       readonly alpha: number;
       readonly rule: FillRule;
+    }
+  /** A fill of light: a gradient or grain instead of one flat colour, laid on in a blend mode. */
+  | {
+      readonly op: 'paint';
+      readonly path: Path;
+      readonly paint: Paint;
+      readonly alpha: number;
+      readonly blend: BlendMode;
     }
   /** Strokes always have round caps and round joins. */
   | {

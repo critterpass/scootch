@@ -1,7 +1,7 @@
 /**
- * Draws the card for looking at beside the design: one card in the five finishes, a wild card, a
- * card with the task hidden, a Vietnamese card with a long name and long flavour text, and the two
- * share stories.
+ * Draws the card for looking at beside the design: the seven materials, level and leant, one card
+ * in every finish, a wild card, a card with the task hidden, a Vietnamese card with a long name
+ * and long flavour text, and the two share stories.
  *
  *   pnpm --filter @scootch/art cards [folder]
  */
@@ -10,15 +10,19 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 
 import { createCanvas } from '@napi-rs/canvas';
-import type { CardData } from '@scootch/domain';
+import { CARD_FINISH_IDS, type CardData } from '@scootch/domain';
 
 import {
   buildCard,
+  buildCardShadow,
+  buildMaterial,
   CARD_BLEED,
+  CARD_MATERIALS,
   CARD_HEIGHT,
   CARD_WIDTH,
   drawCommands,
   specFromSeed,
+  type CardLean,
   type CardOptions,
 } from '../src/index';
 import { measureWithCanvas, renderCardPng, renderStoryPng } from '../src/node';
@@ -34,7 +38,7 @@ const molar: CardData = {
   catchMinutes: 9,
   dread: 4,
   flavourText: 'Feeds on unread notifications. Weak against two-sentence replies.',
-  finish: 'standard',
+  finish: 'paper',
   caughtOn: '2026-10-06',
 };
 const vietnamese: CardData = {
@@ -78,18 +82,45 @@ function sheet(cards: readonly [string, CardData, CardOptions][]): Buffer {
 
 const folder = path.resolve(process.argv[2] ?? path.join(tmpdir(), 'scootch-cards'));
 mkdirSync(folder, { recursive: true });
-const order = ['standard', 'kraft', 'gold', 'night', 'riso'] as const;
+const order = CARD_FINISH_IDS;
+
+/** The seven materials as the board's tiles, 188 by 262 points, each at a lean. */
+function materials(lean: CardLean): Buffer {
+  const tile = { x: 24, y: 24, w: 188, h: 262 };
+  const cell = tile.w + 48;
+  const canvas = createCanvas(cell * order.length * scale, (tile.h + 80) * scale);
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#E9E5DE';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  order.forEach((finish, i) => {
+    const material = CARD_MATERIALS[finish];
+    ctx.save();
+    ctx.scale(scale, scale);
+    ctx.translate(i * cell, 0);
+    drawCommands(ctx, [
+      ...buildCardShadow(tile, 22, material),
+      ...buildMaterial(tile, 22, material, { lean }),
+    ]);
+    ctx.fillStyle = material.text;
+    ctx.font = '800 19px sans-serif';
+    ctx.fillText(finish, tile.x + 14, tile.y + tile.h - 16);
+    ctx.restore();
+  });
+  return canvas.toBuffer('image/png');
+}
 const story = { headline: 'I finally emailed the dentist.', time: '14:52' };
 const files: Record<string, Buffer> = {
+  'materials-level.png': materials({ rx: 0, ry: 0 }),
+  'materials-leant.png': materials({ rx: 8, ry: -11 }),
   'card-finishes.png': sheet(
     order.map((finish): [string, CardData, CardOptions] => [finish, { ...molar, finish }, {}]),
   ),
   'card-states.png': sheet([
     ['wild', molar, { wild: true }],
     ['task hidden', molar, { hideTask: true }],
-    ['tilted foil, night', { ...molar, finish: 'night' }, { tilt: { x: -0.6, y: 0.5 } }],
+    ['tilted foil, velvet', { ...molar, finish: 'flock' }, { tilt: { x: -0.6, y: 0.5 } }],
     ['vi, long text', vietnamese, { language: 'vi' }],
-    ['vi, long text, gold', { ...vietnamese, finish: 'gold' }, { language: 'vi' }],
+    ['vi, long text, holo', { ...vietnamese, finish: 'holo' }, { language: 'vi' }],
   ]),
   'card-export.png': renderCardPng(molar, {}, 660),
   'story-9x16.png': renderStoryPng(molar, '9:16', story, 720),

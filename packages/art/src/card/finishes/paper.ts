@@ -1,7 +1,7 @@
 import type { CardFinishInks } from '../finish';
 
 /** The free finish: warm white paper, orange accent and a pastel rainbow foil. */
-export const standard: CardFinishInks = {
+export const paper: CardFinishInks = {
   frame: '#1C1A17',
   paper: '#FBF8F2',
   panel: '#F3E6D3',

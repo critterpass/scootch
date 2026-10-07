@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { cardDataSchema, cardFinishSchema, type CardData } from '@scootch/domain';
+import { CARD_FINISH_IDS, cardDataSchema, type CardData } from '@scootch/domain';
 
 import type { DrawCommand, TextCommand } from '../core/commands';
 import { hash } from '../core/rng';
@@ -28,7 +28,7 @@ const molar: CardData = cardDataSchema.parse({
   catchMinutes: 9,
   dread: 4,
   flavourText: 'Feeds on unread notifications. Weak against two-sentence replies.',
-  finish: 'standard',
+  finish: 'paper',
   caughtOn: '2026-10-06',
 });
 
@@ -79,12 +79,12 @@ describe('buildCard', () => {
   });
 
   it('changes only colours between finishes', () => {
-    expect(Object.keys(CARD_FINISHES).sort()).toEqual([...cardFinishSchema.options].sort());
-    const standard = buildCard(molar);
-    for (const finish of cardFinishSchema.options) {
+    expect(Object.keys(CARD_FINISHES).sort()).toEqual([...CARD_FINISH_IDS].sort());
+    const paper = buildCard(molar);
+    for (const finish of CARD_FINISH_IDS) {
       const card = buildCard({ ...molar, finish });
-      expect(card.map(shape), finish).toEqual(standard.map(shape));
-      if (finish !== 'standard') expect(card, finish).not.toEqual(standard);
+      expect(card.map(shape), finish).toEqual(paper.map(shape));
+      if (finish !== 'paper') expect(card, finish).not.toEqual(paper);
     }
   });
 

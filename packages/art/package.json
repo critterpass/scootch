@@ -11,8 +11,8 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "generate": "tsx ../../tools/scripts/generate-index.ts src/monsters src/scootch/moods src/work-modes src/card/finishes",
-    "test": "tsx ../../tools/scripts/generate-index.ts --check src/monsters src/scootch/moods src/work-modes src/card/finishes && vitest run --passWithNoTests",
+    "generate": "tsx ../../tools/scripts/generate-index.ts src/monsters src/scootch/moods src/work-modes src/card/finishes src/card/materials",
+    "test": "tsx ../../tools/scripts/generate-index.ts --check src/monsters src/scootch/moods src/work-modes src/card/finishes src/card/materials && vitest run --passWithNoTests",
     "zoo": "tsx scripts/render-zoo.ts",
     "scootch": "tsx scripts/render-scootch.ts",
     "work-modes": "tsx scripts/render-work-modes.ts",

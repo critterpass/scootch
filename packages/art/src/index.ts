@@ -1,5 +1,11 @@
 // Scootch, monsters and cards, and the pose baker.
-export { CANVAS_FONT_FAMILIES, canvasFont, drawCommands, type Canvas2D } from './backends/canvas2d';
+export {
+  CANVAS_FONT_FAMILIES,
+  canvasFont,
+  drawCommands,
+  type Canvas2D,
+  type CanvasGradient2D,
+} from './backends/canvas2d';
 export { toSvg, type SvgOptions } from './backends/svg';
 export {
   buildCardBack,
@@ -24,15 +30,32 @@ export {
   type StoryOptions,
 } from './card/build-story';
 export type { CardFinishInks } from './card/finish';
+export {
+  buildCardShadow,
+  buildMaterial,
+  buildMaterialParts,
+  CARD_MATERIALS,
+  LEVEL,
+  MATERIAL_LIGHT,
+  materialShift,
+  type CardLean,
+  type MaterialParts,
+} from './card/build-material';
+export type { FinishMaterial, MaterialLayer, Tint } from './card/material';
+export { roundRect, type Box } from './card/shapes';
 export type { CardTilt } from './card/foil';
 export { FOIL_BY_RARITY, FOIL_LIGHT, TILE_SHIMMER, type FoilStrength } from './card/foil-light';
 export { CARD_LABELS, type CardLabels, type CardLanguage } from './card/labels';
 export { buildMonster, MONSTER_BODIES, type MonsterLife } from './core/build-monster';
 export { BOIL_FRAMES, BOIL_PER_SECOND, boilFrame, MAX_JITTER, type BoilFrame } from './core/pen';
+export { rgba } from './core/rgba';
 export {
   GROUND_Y,
   VIEW_SIZE,
+  type BlendMode,
   type DrawCommand,
+  type GradientStop,
+  type Paint,
   type FillRule,
   type FontRole,
   type Matrix,

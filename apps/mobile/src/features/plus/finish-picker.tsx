@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 
 import { CARD_FINISHES } from '@scootch/art';
-import type { CardFinish } from '@scootch/domain';
+import { CARD_FINISH_IDS, type CardFinish } from '@scootch/domain';
 import { spacing } from '@scootch/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
@@ -12,8 +12,8 @@ import { Lock } from './ui/parts';
 import { PressSpring } from '../../ui/motion/press-spring';
 
 /** The finishes in the order the board draws them. The first is free. */
-export const FINISH_ORDER: readonly CardFinish[] = ['standard', 'kraft', 'gold', 'night', 'riso'];
-export const FREE_FINISH: CardFinish = 'standard';
+export const FINISH_ORDER: readonly CardFinish[] = CARD_FINISH_IDS;
+export const FREE_FINISH: CardFinish = 'paper';
 
 /** Whether a finish can be put on a card. The finish a card already wears is always its own. */
 export function finishOpen(finish: CardFinish, plus: boolean, worn: CardFinish): boolean {

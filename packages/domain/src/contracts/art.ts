@@ -165,8 +165,28 @@ export type MonsterProps = z.infer<typeof monsterPropsSchema>;
 export const cardRaritySchema = z.enum(['common', 'uncommon', 'rare']);
 export type CardRarity = z.infer<typeof cardRaritySchema>;
 
-export const cardFinishSchema = z.enum(['standard', 'kraft', 'gold', 'night', 'riso']);
-export type CardFinish = z.infer<typeof cardFinishSchema>;
+/** The materials a card can be printed on, in the order the studio shows them. The first is free. */
+export const CARD_FINISH_IDS = ['paper', 'holo', 'chrome', 'jelly', 'glass', 'flock', 'riso'] as const;
+export type CardFinish = (typeof CARD_FINISH_IDS)[number];
+
+/**
+ * The finishes that are gone, and the one each is read as. A card stored, backed up or sent by an
+ * older app in one of them is never refused; it reads as its nearest material.
+ */
+export const RETIRED_CARD_FINISHES: Readonly<Record<string, CardFinish>> = {
+  standard: 'paper',
+  kraft: 'paper',
+  gold: 'holo',
+  night: 'flock',
+};
+
+export const cardFinishSchema = z.preprocess(
+  (value) =>
+    typeof value === 'string' && Object.hasOwn(RETIRED_CARD_FINISHES, value)
+      ? RETIRED_CARD_FINISHES[value]
+      : value,
+  z.enum(CARD_FINISH_IDS),
+);
 
 /**
  * One caught card, as the card component draws it and as a share page shows it.

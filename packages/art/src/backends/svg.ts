@@ -1,4 +1,10 @@
-import { VIEW_SIZE, type DrawCommand, type Path } from '../core/commands';
+import {
+  VIEW_SIZE,
+  type DrawCommand,
+  type GradientStop,
+  type Paint,
+  type Path,
+} from '../core/commands';
 import { strHash } from '../core/rng';
 
 function pathData(path: Path): string {
@@ -47,9 +53,43 @@ const ANCHORS = { left: 'start', center: 'middle', right: 'end' } as const;
 const escapeText = (text: string): string =>
   text.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 
+const stopsOf = (stops: readonly GradientStop[]): string =>
+  stops
+    .map(
+      ([offset, color, alpha]) =>
+        `<stop offset="${offset}" stop-color="${color}"${opacity('stop-opacity', alpha)}/>`,
+    )
+    .join('');
+
+/** A paint as the `<defs>` entry a path refers to by `id`. */
+function paintDef(paint: Paint, id: string): string {
+  if (paint.kind === 'linear') {
+    return (
+      `<linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="${paint.from[0]}"` +
+      ` y1="${paint.from[1]}" x2="${paint.to[0]}" y2="${paint.to[1]}">` +
+      `${stopsOf(paint.stops)}</linearGradient>`
+    );
+  }
+  if (paint.kind === 'radial') {
+    return (
+      `<radialGradient id="${id}" gradientUnits="userSpaceOnUse" cx="${paint.centre[0]}"` +
+      ` cy="${paint.centre[1]}" r="${paint.radius}">${stopsOf(paint.stops)}</radialGradient>`
+    );
+  }
+  // Grain: grey noise whose specks are about `size` units across.
+  const frequency = Math.round((1 / paint.size) * 1000) / 1000;
+  return (
+    `<filter id="${id}" x="0" y="0" width="100%" height="100%">` +
+    `<feTurbulence type="fractalNoise" baseFrequency="${frequency}" numOctaves="3" stitchTiles="stitch"/>` +
+    '<feColorMatrix type="saturate" values="0"/>' +
+    '<feComposite in2="SourceGraphic" operator="in"/></filter>'
+  );
+}
+
 /** Turns drawing commands into a standalone SVG document whose view box is the drawing space. */
 export function toSvg(commands: readonly DrawCommand[], options: SvgOptions = {}): string {
   const clips: string[] = [];
+  const paints: Paint[] = [];
   const body: string[] = [];
   /** How many groups each open save has opened. */
   const open: number[] = [0];
@@ -84,6 +124,22 @@ export function toSvg(commands: readonly DrawCommand[], options: SvgOptions = {}
             '/>',
         );
         break;
+      case 'paint': {
+        paints.push(command.paint);
+        const id = `${ID_SLOT}p${paints.length - 1}`;
+        const blend =
+          command.blend === 'normal' ? '' : ` style="mix-blend-mode:${command.blend}"`;
+        body.push(
+          command.paint.kind === 'grain'
+            ? `<path d="${pathData(command.path)}" filter="url(#${id})"` +
+                opacity('opacity', command.alpha) +
+                `${blend}/>`
+            : `<path d="${pathData(command.path)}" fill="url(#${id})"` +
+                opacity('fill-opacity', command.alpha) +
+                `${blend}/>`,
+        );
+        break;
+      }
       case 'stroke':
         body.push(
           `<path d="${pathData(command.path)}" fill="none" stroke="${command.color}"` +
@@ -110,9 +166,11 @@ export function toSvg(commands: readonly DrawCommand[], options: SvgOptions = {}
 
   const drawing = body.join('');
   const prefix = options.idPrefix ?? `m${strHash(drawing).toString(36)}-`;
-  const defs = clips.length
-    ? `<defs>${clips.map((d, i) => `<clipPath id="${prefix}${i}"><path d="${d}"/></clipPath>`).join('')}</defs>`
-    : '';
+  const defined = [
+    ...clips.map((d, i) => `<clipPath id="${prefix}${i}"><path d="${d}"/></clipPath>`),
+    ...paints.map((paint, i) => paintDef(paint, `${prefix}p${i}`)),
+  ];
+  const defs = defined.length ? `<defs>${defined.join('')}</defs>` : '';
   return (
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${options.width ?? VIEW_SIZE} ${options.height ?? VIEW_SIZE}">` +
     defs +

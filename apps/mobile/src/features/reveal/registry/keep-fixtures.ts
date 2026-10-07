@@ -82,7 +82,7 @@ export function fixtureMonster(index: number): CaughtMonster {
     daysLurked: lurked,
     catchMinutes: 3 + Math.floor(roll(2) * 40),
     dread: 1 + Math.floor(roll(3) * 5),
-    finish: 'standard',
+    finish: 'paper',
   };
 }
 

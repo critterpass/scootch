@@ -114,11 +114,12 @@ export const enPlus = {
   'plus.manage.shelf.hint': 'Opens the inks',
   'plus.manage.keeps':
     'Cancelling keeps everything you’ve caught, every card, your world and your {count} things a day.',
-  'finish.standard': 'Standard',
-  'finish.kraft': 'Kraft',
-  'finish.gold': 'Gold',
-  'finish.night': 'Night',
-  'finish.riso': 'Riso',
+  'finish.paper': 'Paper',
+  'finish.holo': 'Holo foil',
+  'finish.chrome': 'Chrome',
+  'finish.jelly': 'Jelly',
+  'finish.glass': 'Frosted glass',
+  'finish.flock': 'Velvet',
   'finish.hint': 'Prints this card in this finish',
   'record.shelf': {
     one: 'Record shelf · {count}',

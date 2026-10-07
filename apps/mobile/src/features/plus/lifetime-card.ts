@@ -24,7 +24,7 @@ export const FOREVER_FINISH: CardFinishInks = {
 };
 
 /** The finish the builder is asked for; its inks are then swapped for the lifetime ones. */
-const DRAWN_AS = 'gold' as const;
+const DRAWN_AS = 'holo' as const;
 
 export interface LifetimeCardWords {
   readonly name: string;
