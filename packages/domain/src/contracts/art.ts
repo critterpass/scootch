@@ -55,8 +55,17 @@ export const scootchMoodSchema = z.enum([
   'celebrating',
   'asleep',
   'serious',
+  'scheming',
+  'dramatic',
+  'sulk',
+  'nudge',
+  'shocked',
 ]);
 export type ScootchMood = z.infer<typeof scootchMoodSchema>;
+
+/** What Scootch can wear on its head, in place of the curl. */
+export const scootchHatSchema = z.enum(['beret']);
+export type ScootchHat = z.infer<typeof scootchHatSchema>;
 
 /** Props the app passes to the Scootch component. */
 export const scootchPropsSchema = z.object({
@@ -67,6 +76,8 @@ export const scootchPropsSchema = z.object({
   workMode: workModeSchema.nullable(),
   /** True draws the still Reduce Motion form of the mood. */
   reducedMotion: z.boolean(),
+  /** A hat worn in place of the curl. Absent or `null` is the bare head. */
+  hat: scootchHatSchema.nullable().optional(),
 });
 export type ScootchProps = z.infer<typeof scootchPropsSchema>;
 
