@@ -26,6 +26,6 @@ export const enWorld = {
   'world.lighthouse.line': 'The lighthouse. Yours for good.',
   'world.caught': 'Caught',
   'world.caught.hint': 'Opens every monster you caught',
-  'world.song': 'This week’s song',
+  'world.song': 'The song',
   'world.song.hint': 'Opens the week’s record',
 } as const;

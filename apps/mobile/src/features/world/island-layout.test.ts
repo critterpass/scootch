@@ -7,8 +7,12 @@ import {
   hitIsland,
   ISLAND_SPACE,
   islandScale,
+  keepOut,
   layoutIsland,
+  RESIDENT_HALF,
   SCOOTCH_AT,
+  SCOOTCH_GAP,
+  SCOOTCH_HALF,
   tapSpots,
 } from './island-layout';
 import { lighthousePiece } from './landmarks';
@@ -42,30 +46,51 @@ describe('the island', () => {
       monsterId: 'fixture-monster-0',
       seed: 'fixture-0',
       art: null,
-      x: 65.21634830139092,
+      // Its seed puts it left of Scootch and too near him: it stands at the edge of his room.
+      x: 100 - keepOut(0.24),
       y: 139.08774108199574,
       scale: 0.24,
     });
   });
 
-  it('keeps everything on the sand and off Scootch, at every stage', () => {
+  it('keeps everything on the sand, at every stage', () => {
     for (const count of [1, 7, 60, 300]) {
       const { items, ground } = island(count);
-      const clear = count <= 8 ? 40 : 26;
       for (const item of items) {
-        const dx = (item.x - ground.x) / (ground.rx + clear);
+        const dx = (item.x - ground.x) / ground.rx;
         const dy = (item.y - ground.y) / ground.ry;
         expect(dx * dx + dy * dy).toBeLessThanOrEqual(1);
-        const onScootch =
-          Math.abs(item.x - SCOOTCH_AT.x) < clear - 0.001 && Math.abs(item.y - 158) < 12;
-        expect(onScootch).toBe(false);
+      }
+    }
+  });
+
+  it('never draws a resident or a piece of scenery across Scootch, behind him or in front', () => {
+    for (const count of [1, 2, 8, 24, 60, 71]) {
+      for (let seed = 0; seed < 20; seed += 1) {
+        const pieces = fixturePieces(count).map((piece, index) => ({
+          ...piece,
+          seed: `island-${seed}-${index}`,
+        }));
+        const { items, scale, scootchScale } = layoutIsland(inLandingOrder(pieces));
+        const scootchLeft = SCOOTCH_AT.x - SCOOTCH_HALF * scootchScale;
+        const scootchRight = SCOOTCH_AT.x + SCOOTCH_HALF * scootchScale;
+        expect(items.length).toBeGreaterThanOrEqual(count);
+        for (const item of items) {
+          // Its drawn bounds, as wide as the widest resident: wholly to one side of Scootch's,
+          // with sand between them, whatever its depth on the island.
+          const left = item.x - RESIDENT_HALF * scale;
+          const right = item.x + RESIDENT_HALF * scale;
+          const gap = Math.max(left - scootchRight, scootchLeft - right);
+          expect(gap).toBeGreaterThanOrEqual(SCOOTCH_GAP - 1e-9);
+        }
       }
     }
   });
 
   it('stands the first resident beside Scootch, and gives every monster a place', () => {
+    expect(keepOut(0.34)).toBeCloseTo(54.34);
     expect(island(1).items).toEqual([
-      expect.objectContaining({ kind: 'monster', x: 146, y: 154, scale: 0.34 }),
+      expect.objectContaining({ kind: 'monster', x: 100 + keepOut(0.34), y: 156, scale: 0.34 }),
     ]);
     for (const count of [7, 60, 300]) {
       const monsters = fixturePieces(count).filter((piece) => piece.kind === 'monster');

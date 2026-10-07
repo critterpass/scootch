@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { View } from 'react-native';
 
 import { useToday } from '../../state/day-store-provider';
 import { useKeepsakes } from '../../state/keepsakes';
@@ -15,6 +16,17 @@ export interface WorldGlanceValue {
   readonly thumbnail: (size: number) => ReactNode;
 }
 
+/**
+ * The island stands in the lower half of its square. In a row it is lifted by this share of its
+ * side, so that the middle of what is drawn (Scootch's head to the near edge of the sand) is the
+ * middle of the square, and lines up with the words beside it.
+ */
+const LIFT = 0.25;
+
+function Centred({ size, children }: { readonly size: number; readonly children: ReactNode }) {
+  return <View style={{ transform: [{ translateY: -size * LIFT }] }}>{children}</View>;
+}
+
 type Draw = (glance: WorldGlanceValue) => ReactNode;
 
 /** The world a registry capture shows in a row: a week's worth, with nothing read from storage. */
@@ -28,13 +40,15 @@ function Live({ children }: { readonly children: Draw }) {
     count: keepsakes ? finishedThings(keepsakes.pieces) : null,
     thumbnail: (size) =>
       keepsakes ? (
-        <Island
-          pieces={keepsakes.pieces}
-          monsters={keepsakes.monsters}
-          size={size}
-          mood="asleep"
-          still={reducedMotion || settings.motion === 'calm'}
-        />
+        <Centred size={size}>
+          <Island
+            pieces={keepsakes.pieces}
+            monsters={keepsakes.monsters}
+            size={size}
+            mood="asleep"
+            still={reducedMotion || settings.motion === 'calm'}
+          />
+        </Centred>
       ) : null,
   });
 }
@@ -43,13 +57,15 @@ function Captured({ children }: { readonly children: Draw }) {
   return children({
     count: CAPTURED_THINGS,
     thumbnail: (size) => (
-      <Island
-        pieces={fixturePieces(CAPTURED_THINGS)}
-        monsters={asRows(fixtureMonsters(CAPTURED_THINGS))}
-        size={size}
-        mood="asleep"
-        still
-      />
+      <Centred size={size}>
+        <Island
+          pieces={fixturePieces(CAPTURED_THINGS)}
+          monsters={asRows(fixtureMonsters(CAPTURED_THINGS))}
+          size={size}
+          mood="asleep"
+          still
+        />
+      </Centred>
     ),
   });
 }

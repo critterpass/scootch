@@ -58,12 +58,12 @@ export function groundCommands(layout: IslandLayout): DrawCommand[] {
 }
 
 /**
- * A monster as it lives in the world. This is the one place the world asks the art package for a
- * resident: when the package can draw a monster asleep, the mood is passed here and every
- * resident sleeps.
+ * A monster as it lives in the world: caught, so asleep with its eyes shut. The island is a crowd,
+ * so the drifting letter is left out, as the board leaves it out. This is the one place the world
+ * asks the art package for a resident.
  */
 function resident(monster: MonsterRow): DrawCommand[] {
-  return buildMonster(monster.spec);
+  return buildMonster(monster.spec, 1, { mood: 'caught', quiet: true });
 }
 
 /** A pole with a small tomato flag. */
