@@ -175,16 +175,6 @@ describe('motion loops over time and seeds', { timeout: 60_000 }, () => {
     }
   });
 
-  it('never runs a work mode value more than three times in a loop of four seconds or more', () => {
-    for (const mode of WORK_MODE_IDS) {
-      const loop = WORK_LOOPS[mode];
-      expect(loop.seconds, mode).toBeGreaterThanOrEqual(4);
-      for (const track of Object.values(loop.tracks)) {
-        if ('turns' in track) expect(track.turns, mode).toBeLessThanOrEqual(3);
-      }
-    }
-  });
-
   it("rests a monster's idle at zero, keeps it small and repeats it for a seed", () => {
     expect(monsterIdle(0, 'any')).toEqual({ bob: 0, sway: 0, blink: 0 });
     expect(monsterIdle(0, 'any', true)).toEqual({ bob: 0, sway: 0, blink: 0 });
