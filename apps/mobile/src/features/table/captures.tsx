@@ -1,3 +1,4 @@
+import { specFromSeed } from '@scootch/art';
 import type { TableSeat } from '@scootch/domain';
 
 import { useT } from '../../i18n/i18n-provider';
@@ -258,6 +259,11 @@ export const TOGETHER_CAPTURES = {
   'friends-empty': () => <Friends empty />,
   'haunt-send': () => (
     <HauntSendPage
+      monster={{
+        spec: specFromSeed('receipt', '0f3a9c2e7b1d'),
+        name: 'The Receipt Hydra',
+        line: 'Watching your taxes. Silently. Judgingly.',
+      }}
       friends={FRIENDS}
       to="cccccccccccc"
       dare="two_minutes"

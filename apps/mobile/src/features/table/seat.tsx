@@ -1,7 +1,7 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { WORK_MODE_IDS, type TableSeat, type WorkMode } from '@scootch/domain';
-import { radius, spacing } from '@scootch/tokens';
+import { fonts, radius, spacing } from '@scootch/tokens';
 
 import { Scootch } from '../../art/Scootch';
 import { useT } from '../../i18n/i18n-provider';
@@ -65,12 +65,14 @@ export function Seat({
       style={[
         styles.seat,
         { opacity: seat.online ? 1 : 0.45 },
-        (chosen ?? yours) && { backgroundColor: `${palette.ink}0F` },
+        chosen === true && { backgroundColor: `${palette.ink}0F` },
       ]}
     >
       <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
         <Scootch
-          mood="working"
+          mood={seat.done === true ? 'celebrating' : 'working'}
+          // The person's own critter is tomato; everyone else's is the pale one, as the board draws.
+          tone={yours ? 'tomato' : 'paper'}
           workMode={workMode ?? null}
           {...character}
           ownLoop={false}
@@ -79,27 +81,43 @@ export function Seat({
         />
       </View>
       <Words centred>{name}</Words>
-      {seat.label === '' ? null : (
+      {seat.done === true || seat.label !== '' ? (
         <Words kind="quiet" centred>
-          {seat.label}
+          {seat.done === true ? t('table.seat.done') : seat.label}
         </Words>
-      )}
+      ) : null}
     </PressSpring>
   );
 }
 
-/** A seat nobody has taken yet. */
+/** A seat nobody has taken yet: the outline of a critter that is not there, as the board draws it. */
 export function OpenSeat({ size = 96 }: { readonly size?: number }) {
   const t = useT();
-  const { palette } = useScreenStyle();
+  const { palette, allowFontScaling, size: textSize } = useScreenStyle();
   return (
     <View accessible accessibilityLabel={t('table.openSeat')} style={styles.seat}>
-      <View
-        style={[styles.empty, { width: size, height: size, borderColor: `${palette.ink}33` }]}
-      />
-      <Words kind="quiet" centred>
+      <View style={[styles.emptyBox, { width: size, height: size }]}>
+        <View
+          style={[
+            styles.empty,
+            {
+              width: size * 0.66,
+              height: size * 0.49,
+              borderTopLeftRadius: size * 0.34,
+              borderTopRightRadius: size * 0.34,
+              borderBottomLeftRadius: size * 0.21,
+              borderBottomRightRadius: size * 0.21,
+              borderColor: `${palette.ink}40`,
+            },
+          ]}
+        />
+      </View>
+      <Text
+        allowFontScaling={allowFontScaling}
+        style={[styles.openLabel, { color: palette.faint, fontSize: textSize(17) }]}
+      >
         {t('table.openSeat')}
-      </Words>
+      </Text>
     </View>
   );
 }
@@ -113,5 +131,7 @@ const styles = StyleSheet.create({
     padding: spacing.sm,
     gap: 2,
   },
-  empty: { borderRadius: radius.lg, borderWidth: 1.5, borderStyle: 'dashed' },
+  emptyBox: { alignItems: 'center', justifyContent: 'flex-end', paddingBottom: 14 },
+  empty: { borderWidth: 1.5 },
+  openLabel: { fontFamily: fonts.body, textAlign: 'center' },
 });

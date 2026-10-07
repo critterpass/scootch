@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 
-import { fonts, radius, spacing } from '@scootch/tokens';
+import { fonts, spacing } from '@scootch/tokens';
 
 import { Scootch } from '../../art/Scootch';
 import { useT } from '../../i18n/i18n-provider';
-import { CapsuleButton } from '../../ui/buttons';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { Page } from '../settings/page';
 import { Note, Row, Section, SwitchRow } from '../settings/rows';
+import { ActionDock } from '../table/action-dock';
 import { OpenSeat, Seat } from '../table/seat';
 import { Words } from '../table/words';
 
@@ -21,17 +21,15 @@ export interface WayOn {
   readonly onPress: () => void;
 }
 
-function WayOnButton({ way, testID }: { readonly way: WayOn; readonly testID: string }) {
+/** The quiet way on, as a dock's quiet choice. */
+function useWayOn(way: WayOn) {
   const t = useT();
-  return (
-    <CapsuleButton
-      tone="quiet"
-      label={t(way.startsAlone ? 'account.notNow.alone' : 'haunt.notNow')}
-      hint={t(way.startsAlone ? 'account.notNow.alone.hint' : 'account.notNow.hint')}
-      onPress={way.onPress}
-      testID={testID}
-    />
-  );
+  return {
+    label: t(way.startsAlone ? 'account.notNow.alone' : 'haunt.notNow'),
+    hint: t(way.startsAlone ? 'account.notNow.alone.hint' : 'account.notNow.hint'),
+    onPress: way.onPress,
+    testID: 'account-not-now',
+  };
 }
 
 export interface SignInPageProps {
@@ -51,8 +49,24 @@ const PROMISES = ['firstName', 'tasks', 'once'] as const;
 export function SignInPage({ busy, failed, onSignIn, wayOn, onClose }: SignInPageProps) {
   const t = useT();
   const { largeText } = useScreenStyle();
+  const quiet = useWayOn(wayOn);
   return (
-    <Page onClose={onClose} testID="account-sign-in">
+    <Page
+      onClose={onClose}
+      testID="account-sign-in"
+      footer={
+        <ActionDock
+          quiet={quiet}
+          action={{
+            label: t('account.apple'),
+            hint: t('account.apple.hint'),
+            disabled: busy,
+            onPress: onSignIn,
+            testID: 'account-apple',
+          }}
+        />
+      }
+    >
       {largeText ? null : (
         <View
           style={styles.figure}
@@ -62,7 +76,9 @@ export function SignInPage({ busy, failed, onSignIn, wayOn, onClose }: SignInPag
           <Scootch mood="waiting" reducedMotion size={140} />
         </View>
       )}
-      <Words kind="title">{t('account.title')}</Words>
+      <View style={styles.said}>
+        <Words kind="headline">{t('account.title')}</Words>
+      </View>
       <Section>
         {PROMISES.map((promise, index) => (
           <Row
@@ -74,16 +90,6 @@ export function SignInPage({ busy, failed, onSignIn, wayOn, onClose }: SignInPag
           />
         ))}
       </Section>
-      <View style={styles.actions}>
-        <CapsuleButton
-          label={t('account.apple')}
-          hint={t('account.apple.hint')}
-          disabled={busy}
-          onPress={onSignIn}
-          testID="account-apple"
-        />
-        <WayOnButton way={wayOn} testID="account-not-now" />
-      </View>
       {failed ? (
         <Words kind="quiet" accessibilityLiveRegion="polite" testID="account-failed">
           {t('account.apple.failed')}
@@ -108,8 +114,33 @@ export interface SignInCancelledPageProps {
 export function SignInCancelledPage(props: SignInCancelledPageProps) {
   const t = useT();
   const { largeText } = useScreenStyle();
+  const quiet = useWayOn(props.wayOn);
+  const again = {
+    label: t('table.join.again'),
+    hint: t('account.apple.hint'),
+    onPress: props.onAgain,
+    testID: 'account-again',
+  };
   return (
-    <Page onClose={props.onClose} testID="account-cancelled">
+    <Page
+      onClose={props.onClose}
+      testID="account-cancelled"
+      footer={
+        props.wayOn.startsAlone ? (
+          <ActionDock
+            quiet={again}
+            action={{
+              label: t('account.cancelled.alone'),
+              hint: t('account.notNow.alone.hint'),
+              onPress: props.wayOn.onPress,
+              testID: 'account-start-alone',
+            }}
+          />
+        ) : (
+          <ActionDock quiet={quiet} action={again} />
+        )
+      }
+    >
       {largeText ? null : (
         <View
           style={styles.figure}
@@ -119,30 +150,13 @@ export function SignInCancelledPage(props: SignInCancelledPageProps) {
           <Scootch mood="waiting" reducedMotion size={140} />
         </View>
       )}
-      <Words kind="title">{t('account.cancelled.title')}</Words>
-      <Words kind="quiet">
-        {props.taskText === null
-          ? t('account.cancelled.sub')
-          : t('account.cancelled.subTask', { task: props.taskText })}
-      </Words>
-      <View style={styles.actions}>
-        <CapsuleButton
-          tone="quiet"
-          label={t('table.join.again')}
-          hint={t('account.apple.hint')}
-          onPress={props.onAgain}
-          testID="account-again"
-        />
-        {props.wayOn.startsAlone ? (
-          <CapsuleButton
-            label={t('account.cancelled.alone')}
-            hint={t('account.notNow.alone.hint')}
-            onPress={props.wayOn.onPress}
-            testID="account-start-alone"
-          />
-        ) : (
-          <WayOnButton way={props.wayOn} testID="account-not-now" />
-        )}
+      <View style={styles.said}>
+        <Words kind="headline">{t('account.cancelled.title')}</Words>
+        <Words kind="quiet">
+          {props.taskText === null
+            ? t('account.cancelled.sub')
+            : t('account.cancelled.subTask', { task: props.taskText })}
+        </Words>
       </View>
     </Page>
   );
@@ -178,8 +192,24 @@ export function NamePage(props: NamePageProps) {
   const [name, setName] = useState(props.suggested ?? '');
   const shown = tidyName(name);
   return (
-    <Page onClose={onClose} testID="account-name">
-      <Words kind="title">{t('account.name.title')}</Words>
+    <Page
+      onClose={onClose}
+      testID="account-name"
+      footer={
+        <ActionDock
+          action={{
+            label: t('account.name.save'),
+            hint: t('account.name.save.hint'),
+            disabled: busy,
+            onPress: () => onSave(name),
+            testID: 'account-name-save',
+          }}
+        />
+      }
+    >
+      <View style={styles.said}>
+        <Words kind="headline">{t('account.name.title')}</Words>
+      </View>
       <TextInput
         value={name}
         onChangeText={setName}
@@ -195,7 +225,7 @@ export function NamePage(props: NamePageProps) {
         testID="account-name-field"
         style={[
           styles.field,
-          { color: palette.ink, backgroundColor: palette.surface, fontSize: size(20) },
+          { color: palette.ink, backgroundColor: palette.surface, fontSize: size(26) },
         ]}
       />
       <Note text={t(props.suggested ? 'account.name.fromApple' : 'account.name.sub')} />
@@ -210,7 +240,7 @@ export function NamePage(props: NamePageProps) {
             accessible
             accessibilityLabel={shown}
             pointerEvents="none"
-            style={styles.preview}
+            style={[styles.preview, { backgroundColor: palette.risoBlob }]}
             testID="account-name-preview"
           >
             <Seat
@@ -242,26 +272,20 @@ export function NamePage(props: NamePageProps) {
           />
         </Section>
       )}
-      <CapsuleButton
-        label={t('account.name.save')}
-        hint={t('account.name.save.hint')}
-        disabled={busy}
-        onPress={() => onSave(name)}
-        testID="account-name-save"
-      />
     </Page>
   );
 }
 
 const styles = StyleSheet.create({
   figure: { alignItems: 'center' },
-  actions: { gap: spacing.xs },
-  preview: { flexDirection: 'row', padding: spacing.sm, gap: spacing.sm },
+  said: { paddingHorizontal: 12 },
+  preview: { flexDirection: 'row', padding: spacing.sm, gap: spacing.sm, borderRadius: 28 },
   field: {
-    minHeight: 54,
-    borderRadius: radius.lg,
-    paddingHorizontal: spacing.md,
+    minHeight: 64,
+    borderRadius: 28,
+    paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
-    fontFamily: fonts.body,
+    fontFamily: fonts.heading,
+    fontWeight: '700',
   },
 });

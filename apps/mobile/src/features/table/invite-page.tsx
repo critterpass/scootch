@@ -1,15 +1,14 @@
 import { StyleSheet, View } from 'react-native';
 
-import { spacing } from '@scootch/tokens';
-
 import { Scootch } from '../../art/Scootch';
 import { useT } from '../../i18n/i18n-provider';
-import { CapsuleButton, onInkOf } from '../../ui/buttons';
+import { onInkOf } from '../../ui/buttons';
 import { TableIcon } from '../../ui/icons';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { Page } from '../settings/page';
 import { Note, Row, Section } from '../settings/rows';
 
+import { ActionDock } from './action-dock';
 import { Words } from './words';
 
 export interface InvitePageProps {
@@ -35,7 +34,28 @@ export function InvitePage(props: InvitePageProps) {
   const { palette, largeText } = useScreenStyle();
   const { hostName, hostLabel, taskText } = props;
   return (
-    <Page onClose={props.onClose} testID="table-invite-landing">
+    <Page
+      onClose={props.onClose}
+      testID="table-invite-landing"
+      footer={
+        <ActionDock
+          quiet={{
+            label: t('haunt.notNow'),
+            hint: t('table.landing.notNow.hint'),
+            onPress: props.onNotNow,
+            testID: 'table-landing-not-now',
+          }}
+          action={{
+            label: t('table.sitDown'),
+            hint: t('table.sitDown.hint'),
+            icon: <TableIcon color={onInkOf(palette)} />,
+            disabled: props.busy,
+            onPress: props.onSit,
+            testID: 'table-landing-sit',
+          }}
+        />
+      }
+    >
       {largeText ? null : (
         <View
           style={styles.figure}
@@ -46,7 +66,7 @@ export function InvitePage(props: InvitePageProps) {
           <View style={[styles.emptySeat, { borderColor: `${palette.ink}40` }]} />
         </View>
       )}
-      <Words kind="title" centred>
+      <Words kind="headline" centred>
         {hostName === null
           ? t('table.landing.titleNoName')
           : t('table.landing.title', { name: hostName })}
@@ -65,23 +85,6 @@ export function InvitePage(props: InvitePageProps) {
           testID="table-landing-task"
         />
       </Section>
-      <View style={styles.actions}>
-        <CapsuleButton
-          label={t('table.sitDown')}
-          hint={t('table.sitDown.hint')}
-          icon={<TableIcon color={onInkOf(palette)} />}
-          disabled={props.busy}
-          onPress={props.onSit}
-          testID="table-landing-sit"
-        />
-        <CapsuleButton
-          tone="quiet"
-          label={t('haunt.notNow')}
-          hint={t('table.landing.notNow.hint')}
-          onPress={props.onNotNow}
-          testID="table-landing-not-now"
-        />
-      </View>
       <Note text={t('table.landing.note')} />
     </Page>
   );
@@ -100,5 +103,4 @@ const styles = StyleSheet.create({
     marginBottom: 18,
     marginLeft: -6,
   },
-  actions: { gap: spacing.xs },
 });
