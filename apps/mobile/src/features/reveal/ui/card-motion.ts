@@ -92,6 +92,9 @@ export interface CardMotionOptions {
   readonly startsAt?: { readonly flip: number; readonly scale: number };
 }
 
+/** A travel no finger makes: a limit that is never reached. */
+const NEVER: [number, number] = [-100000, 100000];
+
 const clampHalf = (value: number): number => {
   'worklet';
   return Math.min(0.5, Math.max(-0.5, value));
@@ -202,9 +205,11 @@ export function useCardMotion(options: CardMotionOptions): CardMotion {
     // The card takes a drag only once it is clearly one: a touch that has not moved is still the
     // system's or the page's to claim.
     activeOffsetX: [-TILT.takesAfter, TILT.takesAfter],
-    ...(besideScroll
-      ? { failOffsetY: [-TILT.scrollsAfter, TILT.scrollsAfter] as [number, number] }
-      : { activeOffsetY: [-TILT.takesAfter, TILT.takesAfter] as [number, number] }),
+    // Beside a page that scrolls, a drag up or down never becomes the card's and soon gives the
+    // touch up to the page. (The limits are given as numbers either way: this hook's settings
+    // cannot be spread in.)
+    activeOffsetY: besideScroll ? NEVER : [-TILT.takesAfter, TILT.takesAfter],
+    failOffsetY: besideScroll ? [-TILT.scrollsAfter, TILT.scrollsAfter] : NEVER,
     onActivate: (event) => {
       'worklet';
       if (!mayMove) return;
