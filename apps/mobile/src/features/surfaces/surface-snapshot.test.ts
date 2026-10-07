@@ -59,9 +59,7 @@ describe('the shared snapshot', () => {
     expect(snapshot(today).accent).toBeNull();
     expect(snapshot(today, { accent: '#34506E' }).accent).toBe('#34506E');
     // A crisis day keeps the person's own colours and nothing else of the day.
-    expect(snapshot({ kind: 'crisis' }, { accent: '#34506E' }).accent).toBe(
-      '#34506E',
-    );
+    expect(snapshot({ kind: 'crisis' }, { accent: '#34506E' }).accent).toBe('#34506E');
   });
 
   it('shows the line the screen is showing while a session runs', () => {
