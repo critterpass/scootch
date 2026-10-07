@@ -25,6 +25,7 @@ import { UNDER_WAY, applySession } from './session-flow';
 import { closeStraySessions, restoreSession } from './session-restore';
 import { closeSession, followTableClock, shortenSession, turnWorkingLine } from './session-moments';
 import { applySurfaceAction, noticePickUp } from './surface-actions';
+import { parkStartedTask, returnOneThing } from './way-out';
 import {
   askAnother,
   beFunny,
@@ -262,6 +263,10 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
         return restForToday(ctx);
       case 'rest_undone':
         return undoRest(ctx);
+      case 'started_task_parked':
+        return parkStartedTask(ctx);
+      case 'one_thing_returned':
+        return returnOneThing(ctx);
       case 'one_more_asked': {
         const { today } = memory.state;
         // Not on a day with something heavy in it: nothing is sold, or asked for, beside it.

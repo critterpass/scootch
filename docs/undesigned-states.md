@@ -140,3 +140,5 @@ state is designed or removed.
 | Session | "Changed my mind" under the three not-finished choices | The board has no way back from "Not finished". It returns to the running session, or to time up, where finishing is still there |
 | Session | "Not finished" sits a step further below the finish control on time up | A mis-tap on it was one tap from losing the catch |
 | One screen | "Changed my mind" on done for today, after "That's it for today" | The board has no way back. For the rest of that day it opens the day and brings its one thing back as it was |
+| One screen | "Fix the words" under today's one thing | The board offers Another, That's the one and Peek only; mis-heard words had no way back to the composer. Everything said returns to the text field and nothing is set |
+| One screen | "Put it in the drawer" in place of "Not now" on a task that was started and left | The board draws "Not now" on a task that has not been started. A started task cannot be bargained over or swapped, so it had no way out; it goes to the drawer whole and its start stays used |

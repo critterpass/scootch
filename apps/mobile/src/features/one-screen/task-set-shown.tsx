@@ -90,7 +90,17 @@ export function taskSetShown(
               testID="something-else"
             />
           ) : null}
-          <NotNow onExcuse={(text) => send({ type: 'excuse_given', text })} />
+          {stage.task.status === 'started' ? (
+            // Started and left: it cannot be bargained over or swapped, but it can be set down.
+            <QuietLink
+              label={t('taskSet.park')}
+              hint={t('taskSet.park.hint')}
+              onPress={() => send({ type: 'started_task_parked' })}
+              testID="park-started"
+            />
+          ) : (
+            <NotNow onExcuse={(text) => send({ type: 'excuse_given', text })} />
+          )}
           <QuietLink
             label={t('taskSet.rest')}
             hint={t('taskSet.rest.hint')}

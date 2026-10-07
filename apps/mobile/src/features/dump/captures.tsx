@@ -20,6 +20,7 @@ const NO_ACTIONS: StageActions = {
   answerEnergy: nothing,
   another: nothing,
   accept: nothing,
+  edit: nothing,
   peek: nothing,
   answerDeadline: nothing,
   pickAgain: nothing,

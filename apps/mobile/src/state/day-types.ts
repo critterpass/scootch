@@ -70,6 +70,10 @@ export type DayEvent =
       readonly resolution: 'keep' | 'discard';
     }
   | { readonly type: 'done_for_today' }
+  /** A task that was started and left goes to the drawer whole; its start stays used. */
+  | { readonly type: 'started_task_parked' }
+  /** "Fix the words" on the offered one thing: the words go back to the composer. */
+  | { readonly type: 'one_thing_returned' }
   /** "Changed my mind", after "That's it for today": the day and its one thing are back. */
   | { readonly type: 'rest_undone' }
   /** "One more", on a finished day with a start still open: the ask comes back. */

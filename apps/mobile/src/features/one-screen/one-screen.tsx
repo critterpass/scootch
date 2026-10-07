@@ -249,6 +249,7 @@ function useOneScreenDrawn({
         answerEnergy: heldWords.answer,
         another: () => send({ type: 'another_asked' }),
         accept: () => send({ type: 'one_thing_picked' }),
+        edit: () => send({ type: 'one_thing_returned' }),
         peek: () => send({ type: 'drawer', event: { type: 'pulled' } }),
         answerDeadline: (text, choice) => send({ type: 'deadline_answered', text, choice }),
         pickAgain: () => send({ type: 'pick_for_me' }),
