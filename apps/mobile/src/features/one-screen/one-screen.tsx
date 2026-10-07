@@ -48,9 +48,7 @@ type Mood = ScootchProps['mood'];
 type Held = { text: string; source: 'ramble' | 'typed'; sent: () => void };
 
 /** The routes other parts of the app provide, reached by name. */
-const WORLD = '/world' as Href;
-const CARE = '/care' as Href;
-const SETTINGS = '/settings' as Href;
+const [WORLD, CARE, SETTINGS] = ['/world', '/care', '/settings'] as [Href, Href, Href];
 
 /**
  * The one screen, driven by the day store: the composer, the one thing that comes back, its
@@ -101,13 +99,14 @@ export function OneScreen({ speech, warmUp, notificationsRefused }: OneScreenPro
   };
 
   const stage = stageOf({ ...day, drawer, energyAsked: held !== null });
+  const sendComposer = composer.send;
   // A control or a widget asked for the composer: it opens for typing, or starts listening.
   useSurfaceRequest('composer', stage.kind === 'composer' && taskCall === 'idle', (request) =>
-    composer.send(
+    sendComposer(
       request.listening ? { type: 'toggled', at: Date.now() } : { type: 'keyboard_tapped' },
     ),
   );
-  useReturnedText(day.returnedText, composer.send, dispatch);
+  useReturnedText(day.returnedText, sendComposer, dispatch);
   const care = stage.kind === 'care';
   useEffect(() => {
     // A crisis day shows nothing of this screen: the care screens take over.

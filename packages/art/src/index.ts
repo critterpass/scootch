@@ -18,7 +18,8 @@ export {
 export type { CardFinishInks } from './card/finish';
 export type { CardTilt } from './card/foil';
 export { CARD_LABELS, type CardLabels, type CardLanguage } from './card/labels';
-export { buildMonster, MONSTER_BODIES } from './core/build-monster';
+export { buildMonster, MONSTER_BODIES, type MonsterLife } from './core/build-monster';
+export { BOIL_FRAMES, BOIL_PER_SECOND, boilFrame, MAX_JITTER, type BoilFrame } from './core/pen';
 export {
   GROUND_Y,
   VIEW_SIZE,
@@ -35,7 +36,7 @@ export * from './motion';
 export { estimateTextWidth, type MeasureText, type TextStyle } from './core/text';
 export { specFromSeed } from './core/spec-from-seed';
 export { buildScootch, SCOOTCH_MOODS, type ScootchBuildOptions } from './scootch/build-scootch';
-export type { ScootchMotion } from './scootch/expression';
+export { GAZE_MOODS, type ScootchLook, type ScootchMotion } from './scootch/expression';
 export {
   WORK_MODE_ATTACHMENTS,
   type LoopValues,

@@ -4,9 +4,7 @@ import { INK } from '../core/pen';
 import { hash } from '../core/rng';
 import { SCOOTCH } from '../scootch/palette';
 import { defineWorkMode } from '../scootch/work-mode-kit';
-import { PAL, filled } from '../scootch/work-props';
-
-const BERET = '#2C2724';
+import { beret, PAL, filled } from '../scootch/work-props';
 
 /**
  * A beret, a palette and a brush at an easel. `dab` moves the brush hand, -1 to 1; `painted` is
@@ -58,13 +56,7 @@ export const designing = defineWorkMode(
       }
     },
     accessory(pen, g) {
-      const x = g.cx - 8;
-      const y = g.cy - g.ry + 3;
-      pen.riso(ell(x, y, 32, 11, 18, 0.05, 0, -0.2), BERET, '#171412', [x, y], 70, 60, {
-        offset: 4,
-        grains: 50,
-      });
-      pen.blot(x + 4, y - 11, 3.4, BERET);
+      beret(pen, g);
     },
     held(pen, g) {
       const [x, y] = g.leftHand;

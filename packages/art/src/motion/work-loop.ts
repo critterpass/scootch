@@ -32,7 +32,10 @@ export interface WorkLoop {
   readonly tracks: Readonly<Record<string, LoopTrack>>;
 }
 
-/** Every work mode's loop, with speeds at or under the design's. */
+/**
+ * Every work mode's loop, at the design's speeds. Nothing turns more than three times a second,
+ * so nothing flickers.
+ */
 export const WORK_LOOPS: Readonly<Record<WorkMode, WorkLoop>> = {
   ...DESK_LOOPS,
   ...HOME_LOOPS,

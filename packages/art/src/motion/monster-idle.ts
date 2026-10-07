@@ -20,13 +20,23 @@ const BLINK_EVERY_S = 4.3;
 const BLINK_SPREAD_S = 1.4;
 const BLINK_LENGTH_S = 0.14;
 
+/** The design hops a legless sock or note seven units with |sin(3t)|. */
+const HOP = { rate: 3, reach: 7 } as const;
+
+const paceOf = (seed: string): number => 0.8 + seeded(seed, 31) * 0.2;
+
+/** The lift of a hopping monster at `t` seconds, in drawing units: zero on the ground, negative up. */
+export function monsterHop(t: number, seed: string): number {
+  return -Math.abs(Math.sin(t * HOP.rate * paceOf(seed))) * HOP.reach;
+}
+
 /**
  * A monster's idle at `t` seconds: a small bob, a slow sway and a blink at uneven intervals. The
  * seed makes each monster a little slower or quicker than the next (never quicker than the
  * design), so a row of them does not move as one. At zero everything rests.
  */
 export function monsterIdle(t: number, seed: string, hover = false): MonsterIdleMotion {
-  const pace = 0.8 + seeded(seed, 31) * 0.2;
+  const pace = paceOf(seed);
   const { rate, reach } = hover ? HOVER : STAND;
   const nearest = Math.round(t / BLINK_EVERY_S);
   let blink = 0;

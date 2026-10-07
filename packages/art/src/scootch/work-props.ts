@@ -46,6 +46,19 @@ export function filled(
   outline(pen, pts, width, INK, alpha);
 }
 
+const BERET = '#2C2724';
+
+/** A beret, pulled down over one side of the head. */
+export function beret(pen: Pen, g: ScootchFrame): void {
+  const x = g.cx - 8;
+  const y = g.cy - g.ry + 3;
+  pen.riso(ell(x, y, 32, 11, 18, 0.05, 0, -0.2), BERET, '#171412', [x, y], 70, 60, {
+    offset: 4,
+    grains: 50,
+  });
+  pen.blot(x + 4, y - 11, 3.4, BERET);
+}
+
 export function desk(pen: Pen, g: ScootchFrame, halfWidth = 76): void {
   pen.line(
     [

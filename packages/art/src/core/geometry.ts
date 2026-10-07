@@ -171,3 +171,17 @@ export function polygonPath(pts: readonly Point[]): Path {
 export function circle(x: number, y: number, r: number): PathSegment {
   return ['O', round(x), round(y), round(r)];
 }
+
+/** A falling drop (sweat, a tear), point up, `s` times the usual size. */
+export function drop(x: number, y: number, s: number): Point[] {
+  return [
+    [x, y - 9 * s],
+    [x + 5 * s, y - 1 * s],
+    [x + 5.5 * s, y + 3 * s],
+    [x + 3 * s, y + 6.5 * s],
+    [x, y + 7.5 * s],
+    [x - 3 * s, y + 6.5 * s],
+    [x - 5.5 * s, y + 3 * s],
+    [x - 5 * s, y - 1 * s],
+  ];
+}

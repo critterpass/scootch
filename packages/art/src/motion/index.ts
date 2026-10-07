@@ -11,7 +11,12 @@ export {
   type HatchPop,
   type ShrinkStep,
 } from './entrances';
-export { MONSTER_SWAY_RADIANS, monsterIdle, type MonsterIdleMotion } from './monster-idle';
+export {
+  MONSTER_SWAY_RADIANS,
+  monsterHop,
+  monsterIdle,
+  type MonsterIdleMotion,
+} from './monster-idle';
 export { MOOD_LOOP_SECONDS, moodBeat } from './mood-loops';
 export {
   BLINK_EVERY_S,
