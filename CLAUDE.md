@@ -54,7 +54,14 @@ Precedence: product brief > phase file > design board > older notes.
 - Native changes (anything that alters the fingerprint: targets, entitlements,
   native modules, `app.config.ts` native fields) land only in a native batch
   branch, never on main between batches.
-- Never trigger an EAS build for a JavaScript-only change.
+- Native builds run on GitHub's runners:
+  `gh workflow run native-build.yml -f ref=<branch> -f profile=e2e-test` (the
+  simulator app; iOS device runs find it by native fingerprint) or
+  `-f profile=dev -f submit=true` (signed, straight to TestFlight). See
+  `e2e/README.md`.
+- An EAS cloud build is the fallback and needs the founder's approval.
+- A JavaScript-only change never needs a build: device runs swap the commit's
+  JavaScript into the existing `e2e-test` build.
 
 ## Interface work
 

@@ -11,7 +11,8 @@ cd "$repo_root"
 
 case "$PLATFORM" in
   android) [[ "$BUILD_URL" =~ ^https://.+\.apk$ ]] || fail "build_url must be the https URL of an e2e-test .apk" ;;
-  ios) [[ "$BUILD_URL" =~ ^https://.+\.tar\.gz$ ]] || fail "build_url must be the https URL of an e2e-test simulator .tar.gz" ;;
+  # Empty on iOS means: the newest build made for this commit's native code (resolve-device-build.ts).
+  ios) [[ -z "$BUILD_URL" || "$BUILD_URL" =~ ^https://.+\.tar\.gz$ ]] || fail "build_url must be empty or the https URL of an e2e-test simulator .tar.gz" ;;
   *) fail "platform must be android or ios" ;;
 esac
 [[ "$FLOWS" =~ ^e2e(/|$) && "$FLOWS" != *..* ]] || fail "flows must be a folder or file under e2e/"
