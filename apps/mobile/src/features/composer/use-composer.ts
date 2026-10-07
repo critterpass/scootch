@@ -115,3 +115,10 @@ export function useComposer({ speech, language, onSend, onTick }: ComposerOption
     [state, level, send, lastSent, forgetSent],
   );
 }
+
+/** Sends words the way typed ones go: the dock becomes a field, takes them, and sends. */
+export function sendTyped(send: (event: ComposerEvent) => void, text: string): void {
+  send({ type: 'keyboard_tapped' });
+  send({ type: 'text_changed', text });
+  send({ type: 'send_tapped' });
+}

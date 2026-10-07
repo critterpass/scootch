@@ -10,7 +10,12 @@ export type PlusMemoryKey =
   /** The ink the shelf kept before there was a look. Read once, never written. */
   | 'ink'
   | 'look'
-  | 'member';
+  | 'member'
+  /** The free reads of Paper and Screen already had, and whether words may be sent to be read. */
+  | 'cameraTries'
+  | 'cameraConsent'
+  /** The photo a session began with, kept on the phone until its second photo or a day passes. */
+  | 'cameraBefore';
 
 export interface PlusMemory {
   /** The stored value, or `null` when nothing was stored or it cannot be read. */

@@ -1,6 +1,6 @@
 # Phase 05: Before and after
 
-Status: not started · Tasks: 4 · Needs: 03
+Status: built and tested off a phone; never run on a device · Tasks: 4 · Needs: 03
 Owns: `apps/mobile/src/features/camera/` (after),
 `apps/mobile/src/features/session/screens/after-screens.tsx`,
 `apps/mobile/src/features/share/`,
@@ -14,13 +14,13 @@ Goal: proof you can feel. Board screen: "Before and after".
   ends without a second photo, when the user declines, and after a day in
   any case.
 - Test: every ending deletes the photo unless Keep or Share was tapped.
-- Status: not started
+- Status: built — c1e1390; not run on a device
 
 ### 2. Asking for the second photo
-- Do: after a caught session that began with a photo, Scootch asks for one
-  more, once, with a plain way to skip. Never after a session that was not
+- Do: after a caught session that began with a photo, a pill on home offers
+  one more, with a plain way to skip. Never after a session that was not
   finished, never on a serious task, never from Paper or Screen.
-- Status: not started
+- Status: built — c1e1390; not run on a device
 
 ### 3. The card
 - Do: the two photos under one drag handle, "Before" and "After · n min",
@@ -28,16 +28,16 @@ Goal: proof you can feel. Board screen: "Before and after".
   can count: minutes, things gone, zones cleared. A figure that is zero is
   not shown.
 - Test: the figures from two fixed sets of recognised things.
-- Status: not started
+- Status: built — c1e1390; not run on a device
 
 ### 4. Keep, share and sheets
-- Do: "Keep private" saves the pair with the day's keepsakes on the phone
-  only. "Share the glow-up" renders the card as one image carrying
+- Do: "Keep private" saves one picture of the card to the person's own
+  photos. "Share the glow-up" renders the card as one image carrying
   scootch.app and opens the share sheet through the existing share flow; the
   photos are never uploaded. Neither button, nothing is kept. Registry files
   and sheets: the card, dragging, one figure only, skipped, largest text.
 - Done when: sheets in both languages.
-- Status: not started
+- Status: built — c1e1390; not run on a device
 
 ## Risks
 

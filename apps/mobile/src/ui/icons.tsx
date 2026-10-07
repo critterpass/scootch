@@ -34,6 +34,18 @@ export function KeyboardIcon({ color }: IconProps) {
   );
 }
 
+/** A camera: start from a photo. */
+export function CameraIcon({ color }: IconProps) {
+  return (
+    <View style={styles.camera}>
+      <View style={[styles.cameraBump, { backgroundColor: color }]} />
+      <View style={[styles.cameraBody, { borderColor: color }]}>
+        <View style={[styles.cameraLens, { borderColor: color }]} />
+      </View>
+    </View>
+  );
+}
+
 /** Three dots: more. */
 export function MoreIcon({ color }: IconProps) {
   return (
@@ -156,6 +168,17 @@ export function Tick({ color }: IconProps) {
 }
 
 const styles = StyleSheet.create({
+  camera: { width: 24, height: 20, alignItems: 'center', justifyContent: 'flex-end' },
+  cameraBump: { width: 9, height: 3, borderTopLeftRadius: 2, borderTopRightRadius: 2 },
+  cameraBody: {
+    width: 24,
+    height: 17,
+    borderWidth: 2,
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cameraLens: { width: 8, height: 8, borderRadius: 4, borderWidth: 2 },
   wave: { flexDirection: 'row', alignItems: 'center', gap: 3, height: 22 },
   waveBar: { width: 3, borderRadius: 2 },
   keyboard: {

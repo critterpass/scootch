@@ -112,6 +112,9 @@ jobs:
         id: build
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          # The build tools give "expo doctor" thirty seconds and crash (kill ESRCH) when it
+          # finishes just as that runs out, which it now does. Its report never stopped a build.
+          EAS_BUILD_DISABLE_EXPO_DOCTOR_STEP: '1'
         run: tools/scripts/native-build-ios.sh "$PROFILE" "$RUNNER_TEMP/native"
 
       - name: Manifest

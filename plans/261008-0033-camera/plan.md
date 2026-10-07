@@ -1,6 +1,6 @@
 # Camera
 
-Status: planned, nothing built · Created 8 Oct 2026 · Board:
+Status: all five phases are written and tested off a phone; nothing has run on a device, and Paper and Screen have never met the live model · Created 8 Oct 2026 · Board:
 [Scootch - Camera](../../design/Scootch%20-%20Camera.dc.html), section 01
 (nine screens, listed in `design/screens.json`).
 

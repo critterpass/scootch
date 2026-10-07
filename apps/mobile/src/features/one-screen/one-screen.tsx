@@ -5,6 +5,7 @@ import { Linking, View } from 'react-native';
 
 import { FREE_STARTS_PER_DAY, hasStartLeft, startsAllowed, type Attitude } from '@scootch/domain';
 
+import { getReading } from '../../../modules/scootch-reading';
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import {
   useCue,
@@ -26,7 +27,7 @@ import { useScreenReader } from '../../ui/use-screen-style';
 import { seriousShown } from '../care/serious-shown';
 import type { SpeechPort } from '../composer/speech';
 import { useComposerFeedback } from '../composer/composer-feedback';
-import { useComposer } from '../composer/use-composer';
+import { sendTyped, useComposer } from '../composer/use-composer';
 import { drawerRowEvents } from '../drawer/drawer-events';
 import { DrawerSheet } from '../drawer/drawer-sheet';
 import { HatchHauntLink } from '../haunt/hatch-haunt-link';
@@ -34,12 +35,12 @@ import { useHomePager, usePagerHold } from '../home-pager/home-pager-context';
 import { wordsWhileUnscreened } from '../offline/waiting-words';
 import { PLUS_SHEET_ONE_MORE } from '../plus/routes';
 import type { Company } from '../table/company-control';
-import { FriendTablePill } from '../table/friend-table-pill';
 import { lobbyPath, seatPath } from '../table/table-rules';
 
 import { composerMood } from './composer-mood';
 import { composerWays } from './composer-ways';
 import { doneLine } from './done-line';
+import { HomeCompany } from './home-company';
 import { holdsWords, homeStarts, stageOf } from './one-screen-stage';
 import { OneScreenView, type OneScreenShown } from './one-screen-view';
 import { stageShown } from './stage-shown';
@@ -58,7 +59,7 @@ export interface OneScreenProps {
 
 /** The routes other parts of the app provide, reached by name. */
 const [WORLD, CARE, SETTINGS] = ['/world', '/care', '/settings'] as [Href, Href, Href];
-const SESSION = '/session' as Href;
+const [SESSION, CAMERA] = ['/session', '/camera'] as [Href, Href];
 /** What the drawing hook answers while a session covers the one screen. */
 const COVERED = 'covered';
 
@@ -135,6 +136,8 @@ function useOneScreenDrawn({
   useSurfaceRequest('composer', takesWords && taskCall === 'idle', (request) => {
     // Asked for from outside while a page beside home is showing: home comes back first.
     pager?.show('home');
+    // A step from the camera goes the way typed words go: the field, then send.
+    if (request.text !== undefined) return sendTyped(sendComposer, request.text);
     sendComposer(
       request.listening ? { type: 'toggled', at: Date.now() } : { type: 'keyboard_tapped' },
     );
@@ -282,11 +285,7 @@ function useOneScreenDrawn({
   // listen the moment the capsule is held or the keyboard comes up.
   const resting = stage.rested && !quiet && !typing;
   const slot = state.mode === 'typing' ? 'typing' : firstAsk ? 'firstOneThing' : 'waiting';
-  const sendChip = (text: string) => {
-    composer.send({ type: 'keyboard_tapped' });
-    composer.send({ type: 'text_changed', text });
-    composer.send({ type: 'send_tapped' });
-  };
+  const sendChip = (text: string) => sendTyped(composer.send, text);
   const shown: OneScreenShown = {
     kind: 'composer',
     composer: {
@@ -298,6 +297,8 @@ function useOneScreenDrawn({
       screenReader,
       onOpenSettings: () => void Linking.openSettings().catch(() => undefined),
       onCancelThinking: () => send({ type: 'task_call_cancelled' }),
+      // Only on a phone that can read a photo: without the reader there is no camera button.
+      ...(getReading() === null ? {} : { onCamera: () => router.push(CAMERA) }),
       // With no start left the dock takes no words. Only the locked capsule, on a day with nothing
       // heavy in it, leads to the sheet, and only when it is tapped.
       ...(starts === 'open'
@@ -330,7 +331,7 @@ function useOneScreenDrawn({
                 ? t('plus.oneMore.freeDone', { count: FREE_STARTS_PER_DAY })
                 : null,
             // Never beside something heavy: the pill leads to a table, and its lobby sells seats.
-            ...(showsSelling(day) ? { company: <FriendTablePill /> } : {}),
+            ...(showsSelling(day) ? { company: <HomeCompany /> } : {}),
           },
         }),
     ...composerWays({ stage, t, language, today: localDate, sendChip }),

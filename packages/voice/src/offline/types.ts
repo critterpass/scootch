@@ -72,6 +72,10 @@ export const noTaskSlots = [
   'cameraDesk',
   /** Under a room photo with one corner lit, when no line could be written about it. */
   'cameraRoom',
+  /** After a session that began with a photo: asks for one more of the same spot. */
+  'cameraAfterAsk',
+  /** Under the two photos, side by side. */
+  'cameraAfter',
 ] as const;
 export type NoTaskSlot = (typeof noTaskSlots)[number];
 

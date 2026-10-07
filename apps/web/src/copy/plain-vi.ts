@@ -20,6 +20,14 @@ export const plainVi = {
         'Tới khi chọn xong một việc (hoặc bảy ngày nếu bạn bật tùy chọn đó)',
       ],
       ['Việc bạn gõ', 'Tới khi bạn xóa'],
+      [
+        'Ảnh chụp bằng máy ảnh',
+        'Không bao giờ rời khỏi điện thoại. Đọc ngay trên máy và xóa khi đóng máy ảnh; tấm ảnh mở đầu một phiên được giữ cho tấm ảnh sau, nhiều nhất một ngày',
+      ],
+      [
+        'Phần chữ đọc từ ảnh Giấy tờ hoặc Màn hình',
+        'Chỉ gửi đi sau khi bạn cho phép, để đọc. Không lưu và không ghi nhật ký',
+      ],
       ['Thứ bạn gõ vào lò ấp quái trên web', '24 giờ, trừ khi bạn chia sẻ tấm thẻ'],
       ['Thẻ và bản nhạc đã chia sẻ', 'Tới khi bạn gỡ chia sẻ'],
       ['Nhãn ở bàn', 'Trong lúc bạn còn ngồi'],

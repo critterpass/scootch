@@ -91,6 +91,8 @@ describe('the house rules', () => {
       [
         '/',
         '/account',
+        '/camera',
+        '/camera-after',
         '/care',
         '/characters',
         '/developer-tools',
@@ -139,6 +141,8 @@ describe('the house rules', () => {
       .flatMap((file) => waysIn(file).map((line) => `${relative(file)}: ${line}`));
     expect(users.sort()).toEqual(
       [
+        // The camera's Paper and Screen chips, once their free try is used: the quiet lock.
+        'features/camera/camera-container.tsx: openPlus: () => router.push(PLUS_SHEET),',
         'features/one-screen/one-screen.tsx: onUnlock: () => router.push(PLUS_SHEET_ONE_MORE),',
         'features/plus/first-offer.tsx: onTell={() => router.push(PLUS_SHEET)}',
         'features/plus/manage-container.tsx: openStudio: () => router.push(STUDIO_ROUTE),',

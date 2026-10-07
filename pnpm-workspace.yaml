@@ -17,12 +17,14 @@ catalog:
   expo-application: 58.0.4
   expo-asset: 58.0.12
   expo-audio: 58.0.6
+  expo-camera: 58.0.9
   expo-clipboard: 58.0.3
   expo-crypto: 58.0.5
   expo-device: 58.0.5
   expo-file-system: 58.0.6
   expo-font: 58.0.7
   expo-glass-effect: 58.0.3
+  expo-image-manipulator: 58.0.13
   expo-localization: 58.0.3
   expo-media-library: 58.0.7
   expo-network: 58.0.3

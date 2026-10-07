@@ -16,6 +16,14 @@ export const plainEn = {
       ],
       ['Ramble transcript', 'Until the one thing is picked (or seven days if you turn that on)'],
       ['Typed tasks', 'Until you delete them'],
+      [
+        'Camera photos',
+        'Never leave your phone. Read on it and deleted when the camera closes; the photo a session began with waits for its after photo, a day at most',
+      ],
+      [
+        'Words read from a Paper or Screen photo',
+        'Sent only after you allow it, to be read. Not stored and not logged',
+      ],
       ['Web monster-maker input', '24 hours, unless you share the card'],
       ['Shared cards and records', 'Until unshared'],
       ['Table label', 'While seated'],

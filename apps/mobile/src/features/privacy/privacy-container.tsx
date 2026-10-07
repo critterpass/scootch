@@ -7,6 +7,8 @@ import { useKeepsakes } from '../../state/keepsakes';
 import { useTogether } from '../../state/together-context';
 import { goBack } from '../../ui/motion/go-back';
 
+import { useCameraAsk } from '../camera/use-camera-ask';
+
 import { DeleteSheet, PrivacyPage } from './privacy-page';
 import { goHome } from '../navigation/go-home';
 
@@ -23,6 +25,7 @@ export function PrivacyContainer() {
   const router = useRouter();
   const t = useT();
   const [asking, setAsking] = useState(false);
+  const camera = useCameraAsk();
   const [notice, setNotice] = useState<
     'privacy.export.failed' | 'privacy.delete.failed' | 'account.signOut.failed' | null
   >(null);
@@ -94,6 +97,7 @@ export function PrivacyContainer() {
         notice={notice === null ? null : t(notice)}
         backupTooLarge={backupTooLarge}
         {...(accountName === undefined ? {} : { accountName })}
+        {...(camera === undefined ? {} : { camera })}
         onKeepTranscripts={(keepTranscripts) =>
           void dispatch({ type: 'settings_changed', changes: { keepTranscripts } }).catch(
             () => undefined,
