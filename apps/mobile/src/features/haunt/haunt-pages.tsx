@@ -42,6 +42,8 @@ export interface HauntSendPageProps {
   readonly onSend: () => void;
   /** Opens the share sheet with the link to the sent haunt's page. */
   readonly onPassOn: () => void;
+  /** With nobody to haunt yet: sends a friend link, which is how a friend is made. */
+  readonly onInvite?: (() => void) | undefined;
   readonly onClose: () => void;
 }
 
@@ -82,7 +84,14 @@ export function HauntSendPage(props: HauntSendPageProps) {
       }}
       action={
         nobody
-          ? undefined
+          ? props.onInvite === undefined
+            ? undefined
+            : {
+                label: t('table.invite'),
+                hint: t('friends.invite.hint'),
+                onPress: props.onInvite,
+                testID: 'haunt-invite',
+              }
           : {
               label: t('haunt.send'),
               hint: t('haunt.send.hint'),
@@ -102,9 +111,11 @@ export function HauntSendPage(props: HauntSendPageProps) {
         <Words kind="headline">
           {props.sent
             ? t('haunt.sent')
-            : name === null
-              ? t('haunt.send.titleNoOne')
-              : t('haunt.send.title', { name })}
+            : nobody
+              ? t('haunt.noFriends.title')
+              : name === null
+                ? t('haunt.send.titleNoOne')
+                : t('haunt.send.title', { name })}
         </Words>
         <Words kind="quiet" {...(props.sent ? { testID: 'haunt-sent' } : {})}>
           {t(nobody ? 'haunt.noFriends' : 'haunt.send.sub')}

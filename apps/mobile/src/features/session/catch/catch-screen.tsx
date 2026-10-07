@@ -8,10 +8,11 @@ import {
   type GestureResponderEvent,
   type LayoutChangeEvent,
 } from 'react-native';
-import Animated from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut, ReduceMotion } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useCue } from '../../../state/day-store-provider';
+import { GlassPill } from '../../../ui/buttons';
 import { CORNER } from '../../../ui/corner-bar';
 import { GlassGroup } from '../../../ui/glass-surface';
 import type { ScreenProps } from '../screens/screen-props';
@@ -20,6 +21,8 @@ import { workingMenu } from '../screens/working-menu';
 import { BurstMarks } from '../ui/burst-marks';
 import type { ParkComposerHandle } from '../ui/park-composer';
 import { ParkedToast } from '../ui/parked-toast';
+import { PillPlus } from '../ui/pill-marks';
+import { SessionText } from '../ui/session-text';
 import { SessionMenu, type SessionMenuItem } from '../ui/session-menu';
 
 import { CatchCaption } from './catch-caption';
@@ -41,6 +44,8 @@ const UNDER_ROW = 18;
 const COACH_UNDER_ROW = 46;
 /** The room the words are given: a headline and one quiet line, as the board sets them. */
 const WORDS_ROOM = 58;
+/** The room "Park a thought" takes under them: its own height and the gap above it. */
+const PARK_ROOM = 54;
 
 /**
  * The session of a task whose monster is caught by hand, from the first minute to the catch. The
@@ -109,19 +114,10 @@ export function CatchScreen(props: ScreenProps) {
   const timeUp = view.kind === 'finish' && view.timeUp;
   const { headline, sub } = catchWords({ ...scene, stage, model, t });
 
-  // The corner menu. While the trap sets it holds what the working screen's does, and parking a
-  // thought with it, since the foot of this screen belongs to the catch. Once time is up it is
-  // the way to "Not finished", which is never out of reach.
+  // The corner menu. While the trap sets it holds what the working screen's does. Once time is up
+  // it is the way to "Not finished", which is never out of reach.
   const menu: SessionMenuItem[] | null = working
-    ? [
-        {
-          label: t('talk.parkThought'),
-          hint: t('session.park.hint'),
-          testID: 'session-park',
-          onPress: actions.openPark,
-        },
-        ...workingMenu(props),
-      ]
+    ? workingMenu(props)
     : timeUp && (stage === 'waiting' || stage === 'ready')
       ? [
           {
@@ -135,6 +131,10 @@ export function CatchScreen(props: ScreenProps) {
 
   const at = CAPTION_AT[kind];
   const footerUp = working !== null && (model.parkOpen || stuck);
+  // "Park a thought" sits under the two lines for as long as there is quiet work to interrupt:
+  // not in the last two minutes, which are for the finish, and not under a card or the field.
+  const parkShown = working !== null && stage === 'setting' && !footerUp && !working.twoMinutesLeft;
+  const parkRoom = parkShown ? PARK_ROOM : 0;
   // The drawing takes a touch only while there is a catch to try: never under a card or a sheet.
   const touchable =
     (stage === 'setting' || stage === 'waiting' || stage === 'ready') && !footerUp && !menuOpen;
@@ -145,8 +145,8 @@ export function CatchScreen(props: ScreenProps) {
   // and of the words, which sit above the drawing or below it.
   const fit = size
     ? fitBoard(size, DRAWN_IN[kind], {
-        top: rowTop + ROW + (at === 'top' ? UNDER_ROW + WORDS_ROOM : 0),
-        bottom: size.height - foot - (at === 'bottom' ? 10 + WORDS_ROOM : 0),
+        top: rowTop + ROW + (at === 'top' ? UNDER_ROW + WORDS_ROOM + parkRoom : 0),
+        bottom: size.height - foot - (at === 'bottom' ? 10 + WORDS_ROOM + parkRoom : 0),
       })
     : fitted.current;
   fitted.current = fit;
@@ -215,13 +215,35 @@ export function CatchScreen(props: ScreenProps) {
 
       {stage === 'coach' || (footerUp && at === 'bottom') ? null : (
         <View
-          pointerEvents="none"
+          // The words take no touch, so the drawing under them still does; the pill takes its own.
+          pointerEvents="box-none"
           style={[
             styles.words,
             at === 'top' ? { top: rowTop + ROW + UNDER_ROW } : { bottom: foot + 10 },
           ]}
         >
-          <CatchCaption headline={headline} sub={sub} inks={inks} />
+          <View pointerEvents="none" style={styles.lines}>
+            <CatchCaption headline={headline} sub={sub} inks={inks} />
+          </View>
+          {parkShown ? (
+            <Animated.View
+              entering={FadeIn.duration(260).reduceMotion(ReduceMotion.Never)}
+              exiting={FadeOut.duration(160).reduceMotion(ReduceMotion.Never)}
+            >
+              <GlassPill
+                label={t('talk.parkThought')}
+                hint={t('session.park.hint')}
+                testID="session-park"
+                onPress={actions.openPark}
+                style={styles.park}
+              >
+                <PillPlus inks={inks} />
+                <SessionText face="pill" color={inks.ink} numberOfLines={1}>
+                  {t('talk.parkThought')}
+                </SessionText>
+              </GlassPill>
+            </Animated.View>
+          ) : null}
         </View>
       )}
 
@@ -313,6 +335,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  words: { position: 'absolute', left: 28, right: 28, alignItems: 'center', gap: 5 },
+  words: { position: 'absolute', left: 28, right: 28, alignItems: 'center', gap: 10 },
+  lines: { alignSelf: 'stretch', alignItems: 'center', gap: 5 },
+  park: { alignSelf: 'center' },
   footer: { paddingHorizontal: 14, paddingTop: 8 },
 });

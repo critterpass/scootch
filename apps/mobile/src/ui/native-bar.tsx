@@ -3,7 +3,7 @@ import { useMemo, useRef } from 'react';
 import { Platform } from 'react-native';
 
 import { BackButton, CloseButton, MenuButton, type CloseButtonProps } from './corner-bar';
-import { routeBar, type RouteBar } from './motion/stack-transitions';
+import { routeBar, routeMotion, type RouteBar } from './motion/stack-transitions';
 
 /**
  * The system bar the screen being drawn wears, from the route it is drawn in. A screen shown
@@ -12,6 +12,11 @@ import { routeBar, type RouteBar } from './motion/stack-transitions';
 export function useRouteBar(): RouteBar {
   const route = useRoute();
   return routeBar(route.name, Platform.OS === 'ios');
+}
+
+/** Whether the screen being drawn was opened as a sheet, which has its own top edge and grabber. */
+export function useRouteSheet(): boolean {
+  return routeMotion(useRoute().name) === 'sheet';
 }
 
 export interface NativeBarProps {

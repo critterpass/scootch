@@ -34,6 +34,16 @@ export function trapProgress(stage: CatchStage, timeLeftFraction: number): numbe
   return Math.min(1, Math.max(0, 1 - timeLeftFraction));
 }
 
+/**
+ * When the session ends, as a clock reads it on this phone ("12:47"): the other thing the corner
+ * can show while the trap sets.
+ */
+export function endsAtClock(timeLeftFraction: number, plannedMinutes: number, now: number): string {
+  const left = Math.min(1, Math.max(0, timeLeftFraction)) * plannedMinutes * 60_000;
+  const end = new Date(now + left);
+  return `${end.getHours()}:${String(end.getMinutes()).padStart(2, '0')}`;
+}
+
 /** The time left as the corner shows it while the trap sets: minutes and seconds. */
 export function clockLeft(timeLeftFraction: number, plannedMinutes: number): string {
   const left = Math.round(Math.min(1, Math.max(0, timeLeftFraction)) * plannedMinutes * 60);

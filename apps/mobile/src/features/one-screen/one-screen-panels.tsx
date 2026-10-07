@@ -12,7 +12,7 @@ import { WorldGlance } from '../world/world-thumbnail';
 import { MinutesControl } from './minutes-control';
 
 /** The session lengths on the wheel, in minutes. */
-export const SESSION_MINUTES = [5, 10, 15, 20, 25, 30, 40, 50, 60] as const;
+export const SESSION_MINUTES = [5, 10, 15, 20, 25, 30, 40, 50, 60, 75, 90, 120, 150, 180] as const;
 export type SessionMinutes = number;
 /** The lengths offered when the ask is the smallest there is: it leads the wheel. */
 export function minuteOptions(smallest: number | null): readonly number[] {

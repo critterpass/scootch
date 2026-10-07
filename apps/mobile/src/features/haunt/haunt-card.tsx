@@ -13,7 +13,7 @@ const PAPER = '#FBF8F3';
 const PANEL = '#F9E4D8';
 const INK = '#1C1A17';
 const MUTED = '#6F6A62';
-const WIDTH = 196;
+const WIDTH = 188;
 
 export interface HauntCardProps {
   readonly spec: MonsterSpec;
@@ -44,8 +44,8 @@ export function HauntCard({ spec, name, line }: HauntCardProps) {
         <View style={styles.top}>
           <Text
             allowFontScaling={allowFontScaling}
-            numberOfLines={1}
-            style={[styles.name, { fontSize: size(15) }]}
+            numberOfLines={2}
+            style={[styles.name, { fontSize: size(15), lineHeight: size(15) * 1.15 }]}
           >
             {name ?? ''}
           </Text>
@@ -88,9 +88,15 @@ const styles = StyleSheet.create({
     boxShadow: '0 18px 40px -12px rgba(28, 26, 23, 0.35)',
   },
   paper: { borderRadius: 14, backgroundColor: PAPER, padding: 12, gap: 8 },
-  top: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: 6 },
+  top: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 6 },
   name: { flexShrink: 1, fontFamily: fonts.heading, fontWeight: '700', color: INK },
-  tag: { fontFamily: fonts.body, fontWeight: '600', letterSpacing: 0.8, color: MUTED },
+  tag: {
+    fontFamily: fonts.body,
+    fontWeight: '600',
+    letterSpacing: 0.8,
+    color: MUTED,
+    marginTop: 4,
+  },
   panel: {
     height: 148,
     borderRadius: 10,

@@ -90,3 +90,24 @@ appId: app.scootch.dev
 - assertNotVisible:
     id: 'task-set-company-note'
 - assertNotVisible: 'Start at a table'
+# "Haunt a friend" opens as a sheet. A fresh phone has no friend: the sheet says how one is made,
+# and "Not now" closes it and leaves the task as it was.
+- scrollUntilVisible:
+    element:
+      id: 'haunt-a-friend'
+    direction: DOWN
+- tapOn:
+    id: 'haunt-a-friend'
+- extendedWaitUntil:
+    visible:
+      id: 'haunt-not-now'
+    timeout: 15000
+- assertVisible:
+    id: 'haunt-send-close'
+- takeScreenshot: fresh-02-haunt-sheet-no-friends
+- tapOn:
+    id: 'haunt-send-close'
+- extendedWaitUntil:
+    visible:
+      id: 'one-action'
+    timeout: 15000

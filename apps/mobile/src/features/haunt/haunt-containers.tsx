@@ -22,6 +22,7 @@ import {
   type SendProblem,
 } from './haunt-rules';
 import { goHome } from '../navigation/go-home';
+import { accountThen, friendInviteLink } from '../table/table-rules';
 
 /** "Haunt a friend" on the real phone, for today's monster. */
 export function HauntSendContainer() {
@@ -100,6 +101,16 @@ export function HauntSendContainer() {
         Share.share({ message: t('haunt.link.message', { link }) }).catch(() =>
           setProblem('failed'),
         );
+      }}
+      onInvite={() => {
+        setProblem(null);
+        // A friend link needs an account: without one, the friends page asks for it first.
+        void api
+          .friendInvite()
+          .then(({ code }) =>
+            Share.share({ message: t('friends.invite.message', { link: friendInviteLink(code) }) }),
+          )
+          .catch(() => router.push(accountThen('/friends')));
       }}
       onClose={() => goHome(router)}
     />

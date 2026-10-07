@@ -20,7 +20,7 @@ import { useFeel } from '../../ui/motion/use-feel';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
 /** The room each length has on the wheel, and the wheel's own height. */
-const STEP = 64;
+const STEP = 72;
 const HEIGHT = 64;
 const LENS = { width: 78, height: 54 } as const;
 const NUMBER_SIZE = 21;
@@ -57,6 +57,12 @@ export function MinutesControl({ minutes, options, onMinutes }: MinutesControlPr
   const turned = useSharedValue(index * STEP);
   const latest = useRef({ options, minutes, onMinutes, haptics });
   latest.current = { options, minutes, onMinutes, haptics };
+  // True from the thumb's first touch until the wheel has come to rest. While it is, the wheel is
+  // the thumb's: nothing else turns it, or a fast flick is stopped between two lengths.
+  const byHand = useRef(false);
+  const taken = useCallback(() => {
+    byHand.current = true;
+  }, []);
 
   // The length under the lens changed: it is the length now, and it is felt.
   const arrive = useCallback((at: number) => {
@@ -66,15 +72,29 @@ export function MinutesControl({ minutes, options, onMinutes }: MinutesControlPr
     if (now.haptics) touchHaptic('choice');
     now.onMinutes(next);
   }, []);
-  const rest = useCallback(() => {
-    if (latest.current.haptics) touchHaptic('primary');
-  }, []);
+  // At rest the wheel is always on a length: if it stopped between two, it is turned to the nearer.
+  const rest = useCallback(
+    (at: number) => {
+      byHand.current = false;
+      const on = Math.min(latest.current.options.length - 1, Math.max(0, Math.round(at / STEP)));
+      if (Math.abs(at - on * STEP) > 0.5) wheel.current?.scrollTo({ x: on * STEP, animated: true });
+      if (latest.current.haptics) touchHaptic('primary');
+    },
+    [wheel],
+  );
   const follow = useAnimatedScrollHandler({
+    onBeginDrag: () => {
+      scheduleOnRN(taken);
+    },
     onScroll: (event) => {
       turned.value = event.contentOffset.x;
     },
-    onMomentumEnd: () => {
-      scheduleOnRN(rest);
+    // Let go with no speed, there is no coasting to wait for: the wheel is at rest now.
+    onEndDrag: (event) => {
+      if (Math.abs(event.velocity?.x ?? 0) < 0.05) scheduleOnRN(rest, event.contentOffset.x);
+    },
+    onMomentumEnd: (event) => {
+      scheduleOnRN(rest, event.contentOffset.x);
     },
   });
   useAnimatedReaction(
@@ -86,6 +106,7 @@ export function MinutesControl({ minutes, options, onMinutes }: MinutesControlPr
   );
   // A length set from somewhere else turns the wheel to it.
   useEffect(() => {
+    if (byHand.current) return;
     if (Math.round(turned.value / STEP) !== index) {
       wheel.current?.scrollTo({ x: index * STEP, animated: mayMove });
     }
@@ -114,7 +135,8 @@ export function MinutesControl({ minutes, options, onMinutes }: MinutesControlPr
           ref={wheel}
           horizontal
           showsHorizontalScrollIndicator={false}
-          snapToInterval={STEP}
+          snapToOffsets={options.map((_, at) => at * STEP)}
+          snapToAlignment="start"
           decelerationRate="fast"
           contentOffset={{ x: index * STEP, y: 0 }}
           contentContainerStyle={{ paddingHorizontal: side }}
