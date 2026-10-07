@@ -91,13 +91,13 @@ appId: app.scootch.dev
       id: 'session-finish-tap'
     timeout: 30000
 - takeScreenshot: fresh-03-time-up
-# Tap, then tap again to confirm.
+# Tap, then tap again to confirm. The second tap must come within four seconds of the first, and a
+# separate tap command on this screen returns later than that (the countdown never lets the
+# screen go quiet), so both taps are one command.
 - tapOn:
     id: 'session-finish-tap-button'
-- assertVisible:
-    id: 'session-finish-tap-button'
-- tapOn:
-    id: 'session-finish-tap-button'
+    repeat: 2
+    delay: 300
 # What the finish gave is shown next: the walk carries on in the step after this one.
 - extendedWaitUntil:
     visible:
