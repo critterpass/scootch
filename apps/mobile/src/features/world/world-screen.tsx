@@ -16,12 +16,11 @@ import { spacing } from '@scootch/tokens';
 import { useT } from '../../i18n/i18n-provider';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { FirstOffer } from '../plus/first-offer';
-import { KeepFrame } from '../reveal/ui/keep-frame';
+import { Dock, KeepFrame } from '../reveal/ui/keep-frame';
 import { SessionText } from '../session/ui/session-text';
 
 import { Island } from './island';
 import type { IslandTarget } from './island-layout';
-import { WorldDock } from './world-dock';
 import { offerMayShow, worldDay, worldSentence, worldSubtitle } from './world-words';
 
 export interface WorldModel {
@@ -125,21 +124,19 @@ export function WorldScreen({ model, actions }: { model: WorldModel; actions: Wo
       footer={
         <>
           {offerMayShow(model) ? <FirstOffer /> : null}
-          <WorldDock
-            items={[
-              {
-                label: t('world.caught'),
-                hint: t('world.caught.hint'),
-                testID: 'world-open-zoo',
-                onPress: actions.openZoo,
-              },
-              {
-                label: t('world.song'),
-                hint: t('world.song.hint'),
-                testID: 'world-open-record',
-                onPress: actions.openRecord,
-              },
-            ]}
+          <Dock
+            quiet={{
+              label: t('world.caught'),
+              hint: t('world.caught.hint'),
+              testID: 'world-open-zoo',
+              onPress: actions.openZoo,
+            }}
+            action={{
+              label: t('world.song'),
+              hint: t('world.song.hint'),
+              testID: 'world-open-record',
+              onPress: actions.openRecord,
+            }}
           />
         </>
       }

@@ -12,9 +12,21 @@ const CENTRE_Y = 150;
 export const SCOOTCH_AT = { x: CENTRE_X, y: CENTRE_Y + 10 } as const;
 /** Scootch is drawn half as big again as a monster. */
 const SCOOTCH_BIGGER = 1.5;
-/** A character's own drawing is about this tall and wide, before the island scales it. */
+/** A character's own drawing is about this tall, before the island scales it. */
 const BODY_TALL = 96;
-const BODY_WIDE = 92;
+/** Half the width of Scootch with his arms out, and of the widest resident, at scale one. */
+export const SCOOTCH_HALF = 62;
+export const RESIDENT_HALF = 58;
+/** The sand that always shows between Scootch and whoever stands nearest him. */
+export const SCOOTCH_GAP = 3;
+
+/**
+ * How far from Scootch's middle a thing's foot must stand, sideways, so that nothing is ever
+ * drawn across him: not behind him and not in front.
+ */
+export function keepOut(scale: number): number {
+  return SCOOTCH_HALF * scale * SCOOTCH_BIGGER + RESIDENT_HALF * scale + SCOOTCH_GAP;
+}
 
 export type IslandItemKind = 'monster' | 'flag' | 'rocks' | 'house' | 'landmark';
 
@@ -66,7 +78,7 @@ function sceneryKind(roll: number): Exclude<IslandItemKind, 'monster' | 'landmar
 /**
  * Where everything stands, in the board's own arithmetic: one island that widens until it holds
  * forty things, a scale that steps down as it fills, and each thing placed inside the island's
- * ellipse by its own seed, pushed sideways when it would stand on Scootch. The same pieces always
+ * ellipse by its own seed, kept out of a band as wide as Scootch and a resident together. The same pieces always
  * give the same island; nothing here reads a clock.
  */
 export function layoutIsland(ordered: readonly WorldPieceRow[]): IslandLayout {
@@ -76,7 +88,10 @@ export function layoutIsland(ordered: readonly WorldPieceRow[]): IslandLayout {
   const rx = 64 + wide * 32;
   const ry = 22 + wide * 14;
   const scale = islandScale(count);
-  const clear = count <= 8 ? 40 : 26;
+  const clear = keepOut(scale);
+  const centreY = CENTRE_Y + 8;
+  // Beside Scootch the sand is only so deep: a thing moved out of his way stays on it.
+  const deep = ry * 0.86 * Math.sqrt(Math.max(0, 1 - (clear / rx) ** 2));
 
   const spot = (seed: string, slot: number) => {
     const roll = seedRoll(seed);
@@ -84,17 +99,21 @@ export function layoutIsland(ordered: readonly WorldPieceRow[]): IslandLayout {
     const reach = Math.sqrt(roll(slot + 1)) * 0.88;
     const x = CENTRE_X + Math.cos(angle) * rx * reach;
     const y = CENTRE_Y + 6 + Math.sin(angle) * ry * reach;
-    const onScootch = Math.abs(x - CENTRE_X) < clear && Math.abs(y - (CENTRE_Y + 8)) < 12;
-    return { x: onScootch ? CENTRE_X + (x < CENTRE_X ? -clear : clear) : x, y };
+    if (Math.abs(x - CENTRE_X) >= clear) return { x, y };
+    return {
+      x: CENTRE_X + (x < CENTRE_X ? -clear : clear),
+      y: centreY + Math.max(-deep, Math.min(deep, y - centreY)),
+    };
   };
 
+  // The only resident of a new island stands beside Scootch, with sand showing between them.
+  const beside = { x: CENTRE_X + clear, y: CENTRE_Y + 6 };
   const items: IslandItem[] = [];
   for (const piece of ordinary) {
     const roll = seedRoll(piece.seed);
     const base = { monsterId: null, seed: piece.seed, art: null, scale };
     if (piece.kind === 'monster' && piece.monsterId) {
-      // The only resident of a new island stands beside Scootch, as the board's first day does.
-      const at = count === 1 ? { x: CENTRE_X + 46, y: CENTRE_Y + 4 } : spot(piece.seed, 11);
+      const at = count === 1 ? beside : spot(piece.seed, 11);
       items.push({ ...base, ...at, id: piece.id, kind: 'monster', monsterId: piece.monsterId });
       // About one home in three brings something with it.
       if (count > 1 && roll(15) < 0.35) {
@@ -103,7 +122,7 @@ export function layoutIsland(ordered: readonly WorldPieceRow[]): IslandLayout {
       }
     } else {
       const kind = roll(16) < 0.5 ? 'rocks' : 'flag';
-      const at = count === 1 ? { x: CENTRE_X + 46, y: CENTRE_Y + 4 } : spot(piece.seed, 11);
+      const at = count === 1 ? beside : spot(piece.seed, 11);
       items.push({ ...base, ...at, id: piece.id, kind });
     }
   }
@@ -163,7 +182,7 @@ export function tapSpots(layout: IslandLayout, minReach: number): TapSpot[] {
       target: { kind: 'scootch' },
       x: SCOOTCH_AT.x,
       y: SCOOTCH_AT.y - (BODY_TALL * layout.scootchScale) / 2,
-      reach: Math.max(minReach, (BODY_WIDE * layout.scootchScale) / 2),
+      reach: Math.max(minReach, SCOOTCH_HALF * layout.scootchScale),
     },
   ];
   for (const item of layout.items) {
@@ -172,7 +191,7 @@ export function tapSpots(layout: IslandLayout, minReach: number): TapSpot[] {
         target: { kind: 'monster', item },
         x: item.x,
         y: item.y - (BODY_TALL * item.scale) / 2,
-        reach: Math.max(minReach, (BODY_WIDE * item.scale) / 2),
+        reach: Math.max(minReach, RESIDENT_HALF * item.scale),
       });
     } else if (item.kind === 'landmark') {
       const tall = LANDMARK_BOX * item.scale * 0.7;
