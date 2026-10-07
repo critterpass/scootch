@@ -116,3 +116,6 @@ state is designed or removed.
 | Drawer | All of today's starts are used: a line says so in place of "Swap in" | The board draws the drawer on a day with a start left |
 | Crisis | The more button in the top corner, opening Settings | The Care board draws a corner control; Settings holds the helplines page, and leaving Settings on a crisis day comes straight back to care |
 | One screen | "That did not go through" in one plain line | No board draws a failure inside the app; the line uses the note style, goes to the crash reporter, and leaves with the next thing the person does |
+| Settings | "Music on silent" switch under Music, off by default, shown while Music is on | No board draws it. Effects always follow the ringer switch; the record and the day's bar play with it off only when this is turned on |
+| Hatch | The monster starts as the wobbling egg for about a second, then breaks out | The boards draw only "Hatched" and "Shrunk"; the egg is the existing plain oval, now played once for every hatch so the monster arrives with its sound instead of simply being there |
+| One screen | The task set keeps the monster beside Scootch when nothing may move, with no entrance | The board draws them together; with Reduce Motion or Motion off the stage change is a short crossfade |
