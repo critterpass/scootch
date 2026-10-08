@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Animated, {
   Extrapolation,
   interpolate,
@@ -16,7 +16,7 @@ import { fonts, spacing } from '@scootch/tokens';
 import { useT } from '../../i18n/i18n-provider';
 import { SafeFrame } from '../../ui/safe-frame';
 import { BackButton, CloseButton, CornerBar, MenuButton } from '../../ui/corner-bar';
-import { NativeBar, useRouteBar, useRouteSheet } from '../../ui/native-bar';
+import { NativeBar, useRouteBar } from '../../ui/native-bar';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
 const TITLE_SIZE = 34;
@@ -28,9 +28,6 @@ const BAR_TITLE_SIZE = 17;
 const COLLAPSES_BY = 52;
 /** How far the title grows when the page is pulled down past its top, and over what pull. */
 const STRETCH = { by: 1.08, over: 90 } as const;
-/** A sheet's own top: room for the grabber above the close control. */
-const SHEET_TOP = 14;
-const SHEET_EDGES = ['bottom', 'left', 'right'] as const;
 
 export interface PageProps {
   /**
@@ -54,15 +51,13 @@ export interface PageProps {
 
 /**
  * A plain page of rows: a close button, a title, and a list that scrolls at any text size. It is
- * drawn three ways from the route it is in: under the system's bar, with its own corner bar, or
- * as a sheet, which keeps clear of its own top edge instead of the status bar.
+ * drawn two ways from the route it is in: under the system's bar, or with its own corner bar.
  */
 export function Page({ title, barTitle, onClose, testID, menu, footer, children }: PageProps) {
   const { palette, allowFontScaling, size, reducedMotion } = useScreenStyle();
   const t = useT();
   const insets = useSafeAreaInsets();
   const bar = useRouteBar();
-  const sheet = useRouteSheet();
 
   // The large title rides the scroll on the UI thread. Once it has gone, the bar is told, once.
   const scrolled = useSharedValue(0);
@@ -140,27 +135,6 @@ export function Page({ title, barTitle, onClose, testID, menu, footer, children 
     </Animated.ScrollView>
   );
 
-  // A sheet has its own top edge and grabber, and is already clear of the status bar: only the
-  // bottom edge is kept clear. It is laid out as a page with its own corner bar is, which is the
-  // arrangement a sheet is known to draw. The bar is raised over the list, so the list can never
-  // lie on the close control and take its touch.
-  if (sheet) {
-    return (
-      <SafeFrame
-        edges={SHEET_EDGES}
-        style={[styles.page, { backgroundColor: palette.page }]}
-        testID={testID}
-      >
-        <View style={styles.raised}>
-          <CornerBar trailing={<CloseButton {...close} />} />
-        </View>
-        <ScrollView contentContainerStyle={styles.content} testID={`${testID}-list`}>
-          {children}
-        </ScrollView>
-        {dockOver(insets.bottom)}
-      </SafeFrame>
-    );
-  }
   // Under the system's bar the close control is the bar's, and so is the small title: a page with
   // a large one hands it over once the large one has scrolled away.
   if (bar === 'page') {
@@ -229,6 +203,4 @@ const styles = StyleSheet.create({
     letterSpacing: -0.6,
     transformOrigin: 'left center',
   },
-  // The frame sets its own edge padding, so the room for the grabber is the bar's.
-  raised: { zIndex: 1, paddingTop: SHEET_TOP },
 });

@@ -221,8 +221,6 @@ export const viTogether = {
   'share.noPage': 'Con này nở trước khi quái có trang riêng. Nó đi dưới dạng ảnh, không kèm link.',
   'share.pictureOnly': 'Ảnh đã đi. Con quái này không có trang nên không có link.',
   'haunt.entry': 'Ám một người bạn',
-  'haunt.entry.sub':
-    'Gửi con quái này cho một người bạn kèm một lời thách nhỏ. Họ có thể bắt nó hoặc xua nó đi.',
   'haunt.card.wild': 'Chưa bắt được',
   'haunt.card.tag': 'Hoang dã',
   'haunt.card.says': '{name} nói: {dare}',
@@ -255,6 +253,10 @@ export const viTogether = {
   'haunt.noFriends':
     'Chỉ ám được bạn bè. Gửi link của bạn cho ai đó; khi họ mở link, con quái này có thể ghé thăm họ.',
   'haunt.noFriends.title': 'Chưa có ai để ám',
+  'haunt.guide.invite': 'Mời một người bạn bằng link của bạn.',
+  'haunt.guide.send': 'Gửi cho bạn ấy một con quái bạn chưa bắt, kèm một lời thách nhỏ.',
+  'haunt.guide.theirs':
+    'Bạn ấy bắt thì nó thành việc hôm nay của bạn ấy, xua thì nó lặng lẽ rời đi.',
   'haunt.problem.recent': 'Mỗi tuần chỉ ám mỗi người bạn một lần.',
   'haunt.problem.off': 'Người bạn này đang không nhận ám.',
   'haunt.problem.notForThis': 'Việc này cứ để riêng cho bạn.',

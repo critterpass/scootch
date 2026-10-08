@@ -61,13 +61,22 @@ describe('how each route arrives and leaves', () => {
     }
   });
 
-  it('presents the Plus sheet and a haunt as system sheets with a grabber, pulled down to close', () => {
-    for (const route of ['plus/index', 'haunt/send', 'haunt/received']) {
+  it('presents a whole page as the page sheet, laid out as a card is and pulled down to close', () => {
+    for (const route of ['plus/index', 'share']) {
+      const options = stackMotion(route, true);
+      expect(options).toMatchObject({ presentation: 'modal', gestureEnabled: true });
+      // A form sheet gives a page no height to fill: a page is never presented as one.
+      expect(options).not.toHaveProperty('sheetAllowedDetents');
+    }
+  });
+
+  it('presents a haunt as a sheet with a grabber that is as tall as what is on it', () => {
+    for (const route of ['haunt/send', 'haunt/received']) {
       expect(stackMotion(route, true)).toMatchObject({
         presentation: 'formSheet',
         gestureEnabled: true,
         sheetGrabberVisible: true,
-        sheetAllowedDetents: [1],
+        sheetAllowedDetents: 'fitToContents',
       });
     }
   });
@@ -139,8 +148,8 @@ describe("which screens wear the system's bar", () => {
     expect(stackBar('settings', true, inks)).not.toHaveProperty('headerLargeTitle');
   });
 
-  it("gives the world and the record a bar in the page's colour", () => {
-    for (const route of ['world', 'record', 'plus/manage']) {
+  it("gives Your card and the record shelf a bar in the page's colour", () => {
+    for (const route of ['plus/manage', 'plus/records']) {
       expect(stackBar(route, true, inks)).toMatchObject({
         headerShown: true,
         headerTransparent: false,
@@ -149,10 +158,11 @@ describe("which screens wear the system's bar", () => {
     }
   });
 
-  it('lets the studio and the binder draw their own bars, and still swipe back', () => {
-    // The studio's tabs sit between the corners; the binder has a large title, a dark stage for
-    // one card and a leaf of pages, none of which the system's bar can carry.
-    for (const route of ['studio', 'zoo', 'binder/card', 'binder/pages']) {
+  it('lets the studio, the keeping tabs and the binder draw their own bars, and still swipe back', () => {
+    // The studio's tabs sit between the corners; the world, the binder and the record are three
+    // tabs under one close control that stays put; a card has a dark stage and the pages a leaf.
+    // None of these can be carried by the system's bar.
+    for (const route of ['studio', 'world', 'zoo', 'record', 'binder/card', 'binder/pages']) {
       expect(stackBar(route, true, inks)).toEqual({ headerShown: false });
       expect(stackMotion(route, true).gestureEnabled).toBe(true);
     }

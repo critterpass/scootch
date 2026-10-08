@@ -5,7 +5,7 @@ import { fonts, spacing } from '@scootch/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
 import { PressSpring } from '../../ui/motion/press-spring';
-import { SafeFrame } from '../../ui/safe-frame';
+import { SheetFrame } from '../../ui/sheet-frame';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { SessionText } from '../session/ui/session-text';
 
@@ -65,7 +65,7 @@ export function PlusSheet({ attitude, said, year, state, actions }: PlusSheetPro
   const { largeText, captured, allowFontScaling, size } = useScreenStyle();
   const offer = offerOf(state);
   return (
-    <SafeFrame testID="plus-sheet" style={styles.page}>
+    <SheetFrame testID="plus-sheet" style={styles.page}>
       <Aurora />
       <SheetBar onClose={actions.close} />
       <ScrollView contentContainerStyle={styles.middle} showsVerticalScrollIndicator={false}>
@@ -186,7 +186,7 @@ export function PlusSheet({ attitude, said, year, state, actions }: PlusSheetPro
           onRestore={actions.restore}
         />
       </View>
-    </SafeFrame>
+    </SheetFrame>
   );
 }
 
