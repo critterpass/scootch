@@ -105,18 +105,22 @@ async function persist(
         resolution: null,
       });
     } else if (effect.kind === 'record_session_end') {
-      const row = ctx.memory.sessionRowId
-        ? await repositories.sessions.get(ctx.memory.sessionRowId)
-        : null;
-      if (!row) continue;
-      await repositories.sessions.put({
-        ...row,
-        // The session ended when the person ended it, and no later than its planned end.
-        endedAt: isoFromInstant(Math.min(effect.endedAt, Date.parse(row.endsAt))),
-        outcome: effect.outcome,
-        finishMethod: effect.finishMethod,
-        notFinishedChoice: effect.notFinishedChoice,
-      });
+      // Every open row of the task ends here, not only the one this run of the app remembers: a
+      // second row left open (by an earlier version, or a start taken up twice) would keep the
+      // day in a session with nothing running, and home would send the person back into it.
+      const open = (await repositories.sessions.where('taskId', task.id)).filter(
+        (one) => one.endedAt === null,
+      );
+      for (const row of open) {
+        await repositories.sessions.put({
+          ...row,
+          // The session ended when the person ended it, and no later than its planned end.
+          endedAt: isoFromInstant(Math.min(effect.endedAt, Date.parse(row.endsAt))),
+          outcome: effect.outcome,
+          finishMethod: effect.finishMethod,
+          notFinishedChoice: effect.notFinishedChoice,
+        });
+      }
       ctx.memory.sessionRowId = null;
     } else if (effect.kind === 'grant_finish_reward') {
       await save({ status: 'finished', finishedAt: isoFromInstant(ctx.now()) });

@@ -24,9 +24,11 @@ export default function SessionRoute() {
 
   useEffect(() => {
     if (!over) return;
-    void dispatch({ type: 'session_closed' }).catch(() => undefined);
-    // Back to the one screen underneath, by the same fade the session arrived with.
-    router.dismissTo('/');
+    // The session is closed in storage before the one screen underneath is uncovered, by the same
+    // fade the session arrived with: home never finds a session it would send the person back to.
+    void dispatch({ type: 'session_closed' })
+      .catch(() => undefined)
+      .then(() => router.dismissTo('/'));
   }, [over, dispatch, router]);
 
   if (crisis) return <Redirect href="/care" />;

@@ -49,6 +49,23 @@ export async function closeSession(ctx: DayContext): Promise<void> {
     parkedThoughts: [],
     afterLines: NO_AFTER_LINES,
   });
+  // With the screens closed, nothing is left running in storage either. A row still open would
+  // read as a session under way: home would open the session screen again, which has nothing to
+  // show and closes, and the two would hand the person back and forth without end.
+  const { sessions } = ctx.deps.repositories;
+  const open = (await sessions.all()).filter((row) => row.endedAt === null);
+  if (open.length === 0) return;
+  const now = isoFromInstant(ctx.now());
+  for (const row of open) {
+    const endedAt = row.endsAt < now ? row.endsAt : now;
+    await sessions.put({
+      ...row,
+      endedAt: endedAt < row.startedAt ? row.startedAt : endedAt,
+      outcome: row.outcome ?? 'left_early',
+    });
+  }
+  ctx.memory.sessionRowId = null;
+  await ctx.refresh();
 }
 
 /**
