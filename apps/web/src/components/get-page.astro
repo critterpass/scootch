@@ -2,6 +2,7 @@
 import type { Language } from '@scootch/i18n';
 
 import { appStoreUrl, localPath, pagesFor, plainFor, preLaunch, togetherFor } from '../copy';
+import { appBanner, appBannerName } from '../lib/app-links';
 import { scootchArt } from '../lib/drawings';
 import { qrSvg } from '../lib/qr-code';
 import SiteLayout from '../layouts/site-layout.astro';
@@ -21,6 +22,10 @@ interface Props {
 // code of this page on a wide screen. "Catch it in the app" lands here with a monster's id
 // (`/get?m=<id>`): the phone's button then opens the app with the monster, and the QR code is the
 // monster's own link. Android and the press kit live further down.
+//
+// With a monster the page also carries Apple's app banner, opening the app or the App Clip on the
+// monster's link. The page is prebuilt and the id is only in the address, so the tag is written
+// while the head is read, before Safari looks for it.
 const { language } = Astro.props;
 const pages = pagesFor(language);
 const copy = pages.get;
@@ -28,9 +33,25 @@ const carry = togetherFor(language).get;
 const android = pages.android;
 const press = plainFor(language).press;
 const here = new URL(localPath(language, '/get'), Astro.site).href;
+const banner = { name: appBannerName, content: appBanner, monsters: localPath(language, '/m') };
 ---
 
 <SiteLayout language={language} path="/get" title={copy.title} description={copy.description}>
+  <Fragment slot="head">
+    {
+      !preLaunch && (
+        <script is:inline define:vars={{ banner }}>
+          const id = new URLSearchParams(location.search).get('m') ?? '';
+          if (/^[a-z0-9-]{1,40}$/.test(id)) {
+            const tag = document.createElement('meta');
+            tag.name = banner.name;
+            tag.content = `${banner.content}, app-argument=${location.origin}${banner.monsters}/${id}`;
+            document.head.append(tag);
+          }
+        </script>
+      )
+    }
+  </Fragment>
   <section class="band shared-band">
     <div class="grain"></div>
     <div class="halftone get-halftone"></div>

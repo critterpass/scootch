@@ -1,6 +1,7 @@
 import { env } from 'cloudflare:workers';
 import type { Language } from '@scootch/i18n';
 
+import { bannerOpening, withoutBanner } from './app-links';
 import {
   forOneReader,
   previewOf,
@@ -71,6 +72,8 @@ export async function serveSharedPage(
       .replace(/<title>[^<]*<\/title>/, `<title>${escape(preview.title)} · Scootch</title>`)
       .replace('</head>', `${tags(preview, page, language)}</head>`);
   }
+  // A monster's page opens the app on that monster; a page with no monster on it offers nothing.
+  html = preview ? bannerOpening(html, page.origin + page.pathname) : withoutBanner(html);
   if (!preview || forOneReader(kind)) {
     html = html.replace('</head>', '<meta name="robots" content="noindex"></head>');
   }

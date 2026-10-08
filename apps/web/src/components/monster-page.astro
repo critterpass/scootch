@@ -2,6 +2,7 @@
 import type { Language } from '@scootch/i18n';
 
 import { copyFor, localPath, pagesFor, preLaunch } from '../copy';
+import { appBanner, appBannerName } from '../lib/app-links';
 import { monsterArt, stripMonsters } from '../lib/drawings';
 import SiteLayout from '../layouts/site-layout.astro';
 
@@ -15,7 +16,8 @@ interface Props {
 }
 
 // One page for every shared monster: the browser fetches the monster named in the address and
-// fills this in. The Worker serves it at `/m/<id>` with that monster's link preview tags.
+// fills this in. The Worker serves it at `/m/<id>` with that monster's link preview tags, and
+// with its own address in Apple's app banner, so the app or the App Clip opens on this monster.
 const { language } = Astro.props;
 const site = copyFor(language);
 const pages = pagesFor(language);
@@ -26,6 +28,9 @@ const tints = ['#EAF0F6', '#F6EAD8', '#EEF1E6', '#F6E8E2'];
 ---
 
 <SiteLayout language={language} path="/m" title={copy.title} description={copy.description} social={false}>
+  <Fragment slot="head">
+    {!preLaunch && <meta name={appBannerName} content={appBanner} />}
+  </Fragment>
   <section class="band shared-band">
     <div class="grain"></div>
     <div class="halftone shared-halftone"></div>
