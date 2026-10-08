@@ -1,0 +1,40 @@
+appId: app.scootch.dev
+---
+# The fresh-user walk, between the second task being set and it being put down: the session is
+# started, stopped on purpose from the corner menu, and made smaller. It carries on from the step
+# before it; nothing is cleared and nothing is seeded. "Not finished" is a normal way for a
+# session to end: the three calm ways on are there, and choosing one leaves the app on the one
+# screen with the smaller thing set, ready to start.
+- tapOn:
+    id: 'one-action'
+- extendedWaitUntil:
+    visible:
+      id: 'session-menu'
+    timeout: 30000
+# The screen never goes quiet, so the press does not wait for it to settle.
+- tapOn:
+    id: 'session-menu'
+    waitToSettleTimeoutMs: 0
+- extendedWaitUntil:
+    visible:
+      id: 'session-leave'
+    timeout: 15000
+- tapOn:
+    id: 'session-leave'
+    waitToSettleTimeoutMs: 0
+- extendedWaitUntil:
+    visible:
+      id: 'session-not-finished-choices'
+    timeout: 15000
+- takeScreenshot: fresh-04b1-not-finished-choices
+- tapOn:
+    id: 'session-make-smaller'
+    waitToSettleTimeoutMs: 0
+# Back on the one screen, with the thing still set and the app still up.
+- extendedWaitUntil:
+    visible:
+      id: 'one-action'
+    timeout: 30000
+- takeScreenshot: fresh-04b1-smaller-thing-set
+- assertVisible:
+    id: 'task-discard'

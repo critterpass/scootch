@@ -16,8 +16,6 @@ export interface ChoosingSource {
 
 /** More words than this do not fit under Scootch: the reveal keeps the ones around the one thing. */
 export const MOST_WORDS = 60;
-/** A short typed thing that comes back reworded is still the person's one thing, whole. */
-const SHORT_THING_WORDS = 12;
 
 const split = (text: string): string[] => text.trim().split(/\s+/u).filter(Boolean);
 const bare = (word: string): string =>
@@ -61,16 +59,29 @@ function around(words: readonly string[], from: number, to: number): ChoosingScr
 }
 
 /**
- * The script of the reveal. The person's own words are played when the one thing is among them:
- * spoken or typed, online or not. When it came back reworded, a short typed thing is played whole
- * and a ramble is played from what was heard. With nothing of the one thing to show there is no
- * reveal (`null`), so words from some earlier send can never be played over a different task.
+ * A script is worth playing only when something falls away: at least one real word that is not
+ * the one thing. A short thing that is the whole of what was sent has nothing to choose between,
+ * so it is not lit up and held; it is simply there.
+ */
+function withSomethingToFall(script: ChoosingScript): ChoosingScript | null {
+  const others = script.words.some(
+    (word, index) => (index < script.from || index >= script.to) && bare(word) !== '',
+  );
+  return others ? script : null;
+}
+
+/**
+ * The script of the reveal. The person's own words are played when the one thing is among other
+ * words of theirs: spoken or typed, online or not. When it came back reworded out of a ramble, the
+ * reveal is played from what was heard. With nothing of the one thing to show, or nothing else to
+ * fall away (a short thing sent by itself), there is no reveal (`null`): the one thing is simply
+ * there, and words from some earlier send can never be played over a different task.
  */
 export function choosingScript({ sent, heard, oneThing }: ChoosingSource): ChoosingScript | null {
   const thing = split(oneThing);
   const words = sent === null ? [] : split(sent);
   const run = runOf(words, thing);
-  if (run !== null) return around(words, run.from, run.to);
+  if (run !== null) return withSomethingToFall(around(words, run.from, run.to));
 
   if (heard !== null && heard.phrases.length > 0) {
     const flat: string[] = [];
@@ -86,14 +97,9 @@ export function choosingScript({ sent, heard, oneThing }: ChoosingSource): Choos
       }
       flat.push(...part);
     });
-    return around(flat, from, to);
+    return withSomethingToFall(around(flat, from, to));
   }
-
-  if (words.length === 0 || words.length > SHORT_THING_WORDS) return null;
-  const kept = new Set(thing.map(bare).filter(Boolean));
-  const said = words.map(bare).filter(Boolean);
-  const shared = said.filter((word) => kept.has(word)).length;
-  return said.length > 0 && shared * 2 >= said.length ? { words, from: 0, to: words.length } : null;
+  return null;
 }
 
 /** The board's timing, in milliseconds from the first word. */
@@ -117,7 +123,7 @@ export const LIGHT_MS = 350;
 export const FALL_SPREAD_MS = 380;
 export const FALL_FADE_MS = 700;
 export const FALL_MS = 900;
-export const WORDS_OUT_MS = 500;
+export const WORDS_OUT_MS = 260;
 export const ANSWER_FADE_MS = 600;
 export const ANSWER_RISE_MS = 700;
 export const ANSWER_RISE = 14;

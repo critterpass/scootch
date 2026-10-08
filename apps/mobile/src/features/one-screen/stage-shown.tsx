@@ -158,6 +158,8 @@ export function stageShown(stage: Drawable, env: StageEnv): StageDrawn {
                 heading={task.text}
                 // A serious task gets its plain words; nothing playful is said about it.
                 said={quiet ? lineFor('acknowledge', task, voice) : restInDrawerLine(parked, voice)}
+                // The one thing lands a word at a time; a serious one is simply said.
+                lively={!quiet}
                 testID="one-thing"
               />
               {deadline && back !== null ? (
