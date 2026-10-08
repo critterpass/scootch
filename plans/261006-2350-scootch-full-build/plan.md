@@ -233,6 +233,7 @@ Things only the founder can do. Phase 00 lists them with the exact steps.
 - The founder read Tele-MANAS's number and Hy Vọng Sống's hours at their own
   sources; no helpline row holds production any more.
 - The release does not wait for the full fresh-user walk.
+- Crash reports go to Sentry from the dev and the App Store app.
 
 ## Unresolved questions
 
@@ -242,7 +243,6 @@ Things only the founder can do. Phase 00 lists them with the exact steps.
 3. Does the founder accept "a person writes back within two working days" on
    the support page.
 4. The minimum iOS version (16.4 today; 18 is recommended).
-5. Whether to set up Sentry.
-6. Whether the crisis screen offers a way out into a quiet day.
-7. Whether monsters made on the website can be sent as haunts.
-8. Whether `help@`, `privacy@` and `press@scootch.app` exist.
+5. Whether the crisis screen offers a way out into a quiet day.
+6. Whether monsters made on the website can be sent as haunts.
+7. Whether `help@`, `privacy@` and `press@scootch.app` exist.

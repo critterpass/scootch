@@ -28,6 +28,10 @@ export const plainEn = {
       ['Shared cards and records', 'Until unshared'],
       ['Table label', 'While seated'],
       ['Analytics', 'Counts only, no ad ids, 13 months'],
+      [
+        'Crash reports',
+        'What broke and where in the app, with your iPhone model and iOS version. Sent to Sentry, 90 days at most',
+      ],
       ['Delete everything', 'Gone from phone and servers within 30 days'],
     ],
     notes: [
@@ -41,7 +45,7 @@ export const plainEn = {
     deleteBody:
       'In the app: Settings › Privacy and data › Delete everything. It’s gone from your phone and our servers within 30 days. Deleting doesn’t cancel Plus; that’s in your Apple settings.',
     questions: 'Questions: privacy@scootch.app.',
-    updated: 'Last updated 7 October 2026.',
+    updated: 'Last updated 8 October 2026.',
   },
   terms: {
     title: 'Terms, in plain words · Scootch',

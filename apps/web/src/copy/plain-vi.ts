@@ -32,6 +32,10 @@ export const plainVi = {
       ['Thẻ và bản nhạc đã chia sẻ', 'Tới khi bạn gỡ chia sẻ'],
       ['Nhãn ở bàn', 'Trong lúc bạn còn ngồi'],
       ['Số liệu phân tích', 'Chỉ là số đếm, không có mã quảng cáo, 13 tháng'],
+      [
+        'Báo cáo sự cố',
+        'Chỗ bị hỏng và nó nằm ở đâu trong ứng dụng, kèm đời iPhone và phiên bản iOS. Gửi tới Sentry, nhiều nhất 90 ngày',
+      ],
       ['Xóa mọi thứ', 'Biến mất khỏi điện thoại và máy chủ trong vòng 30 ngày'],
     ],
     notes: [
@@ -45,7 +49,7 @@ export const plainVi = {
     deleteBody:
       'Trong app: Cài đặt › Quyền riêng tư và dữ liệu › Xóa mọi thứ. Mọi thứ biến mất khỏi điện thoại và máy chủ của chúng tôi trong vòng 30 ngày. Xóa dữ liệu không hủy Plus; việc đó nằm trong cài đặt Apple.',
     questions: 'Thắc mắc: privacy@scootch.app.',
-    updated: 'Cập nhật lần cuối ngày 7 tháng 10 năm 2026.',
+    updated: 'Cập nhật lần cuối ngày 8 tháng 10 năm 2026.',
   },
   terms: {
     title: 'Điều khoản, nói dễ hiểu · Scootch',
