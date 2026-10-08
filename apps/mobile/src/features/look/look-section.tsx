@@ -17,7 +17,9 @@ export interface LookFacts {
 
 /**
  * The Look group of Settings: the app icon, the card finish and what the icon changes with, each
- * row showing what is picked. The first and last open the icon picker; the finish is the studio's.
+ * row showing what is picked. The first and last open the icon picker. The finish row opens Your
+ * card, which is where the studio is reached from: Settings itself has no door to a place that
+ * sells.
  */
 export function LookSection({
   look,
@@ -28,7 +30,7 @@ export function LookSection({
   readonly look: LookFacts;
   readonly follows: SettingsRow['iconFollows'];
   readonly wallpaper: SettingsRow['wallpaper'];
-  readonly onOpen: (page: 'icon' | 'studio' | 'wallpaper') => void;
+  readonly onOpen: (page: 'icon' | 'plus' | 'wallpaper') => void;
 }) {
   const t = useT();
   const name = t(iconLabel(look.icon));
@@ -53,7 +55,7 @@ export function LookSection({
         label={t('look.cardFinish')}
         hint={t('look.cardFinish.hint')}
         value={t(`studio.finish.${look.finish}.short`)}
-        onPress={() => onOpen('studio')}
+        onPress={() => onOpen('plus')}
         testID="settings-card-finish"
       />
       <Row

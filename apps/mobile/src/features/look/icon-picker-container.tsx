@@ -4,6 +4,9 @@ import { useDispatch } from '../../state/day-store-provider';
 import { goBack } from '../../ui/motion/go-back';
 
 import { IconPickerPage } from './icon-picker-page';
+
+/** Your card, the one page that leads to the studio. The picker itself sells nothing. */
+const YOUR_CARD = '/plus/manage';
 import { useAppIcon } from './use-app-icon';
 
 /**
@@ -24,8 +27,8 @@ export function IconPickerContainer() {
       mayShow={mayShow}
       onFollow={(iconFollows) => change({ type: 'settings_changed', changes: { iconFollows } })}
       onPick={(picked) => {
-        // A finish that is not worn yet is the studio's to offer.
-        if (!mayShow(picked)) return router.push('/studio');
+        // A finish that is not worn yet is the studio's to offer, and the way there is Your card.
+        if (!mayShow(picked)) return router.push(YOUR_CARD);
         return change({
           type: 'settings_changed',
           changes: { iconFollows: 'pinned', iconPinned: picked },

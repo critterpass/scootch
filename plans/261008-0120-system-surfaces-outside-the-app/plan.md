@@ -65,6 +65,7 @@ any task here.
 | "Nudge and Leave work without unlocking" | "Wave back" and "Leave table" open Scootch, which sends them | The table is reached over a connection only the open app holds |
 | The table "updated by push", and the Island opening when a friend sits down | Not built | The phone registers no push token, `push.remote` is off and Apple's key is not set. Until then the table on the Lock Screen is as the app last wrote it |
 | "At a table: Hana, writing · 22m" and "Tables now" with strangers by category | One widget: the friend, the open seats and "Sit here". Shown for ten minutes after the app last asked | The server answers with who of your friends is there and how many seats are open, nothing more; a widget has no way to ask it by itself yet |
+| "Card finish" in Settings and a locked finish in the icon picker open the studio | Both open Your card, which leads to the studio | The studio sells, and the places that open a selling page are a short list the house rules test keeps: none of them is on the way from home, and Settings is the page beside home |
 
 ## Phases
 

@@ -280,6 +280,10 @@ The App Shortcuts, the Focus filter and the Shortcuts action for the
 wallpaper are App Intents in the app and widget targets and need no
 capability of their own.
 
+A signed build can make or renew a provisioning profile by itself: the build
+step is given the App Store Connect key the submit step already uses, for the
+`dev` profile only. Capabilities are still ticked on the App IDs by hand.
+
 ## 5. Ops: a Telegram bot
 
 There is no admin dashboard. One Worker route receives Telegram updates, and

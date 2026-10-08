@@ -46,7 +46,6 @@ export interface SettingsPageProps {
       | 'tables'
       | 'developer-tools'
       | 'icon'
-      | 'studio'
       | 'wallpaper'
       | 'shortcuts',
   ) => void;
