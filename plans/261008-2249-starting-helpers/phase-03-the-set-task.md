@@ -20,13 +20,13 @@ composers as sheets, chips or icon buttons, never bare text.
 - Do: under the length wheel, "Ends at 3:42" in the quiet grey, from the
   phase 01 function, updating as the wheel turns. With a cue set it reads
   "Back after lunch, around 1:10". Read by VoiceOver with the length.
-- Status: not started
+- Status: done — a53118f
 
 ### 2. Guess
 - Do: a Guess chip in the dock opens a sheet, "How long would this take?",
   with five steps (30 min, 1 hour, 2 hours, 3 hours, Half a day), a "Guess 2
   hours" button and Skip. The chip then reads "2 hours". Absent on a serious task.
-- Status: not started
+- Status: done — a53118f
 
 ### 3. When
 - Do: a When chip opens "When should I bring it back?": Now, After
@@ -56,7 +56,7 @@ composers as sheets, chips or icon buttons, never bare text.
   a serious task and when the pack has no bites.
 - Done when: registry files and sheets for each new state, both languages,
   largest text, keyboard open, offline; the fresh-user walk extended.
-- Status: not started
+- Status: done — a53118f
 
 ## Risks
 

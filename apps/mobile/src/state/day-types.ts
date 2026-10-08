@@ -3,6 +3,7 @@ import type {
   DrawerEvent,
   DrawerItemRow,
   Energy,
+  GuessMinutes,
   HeardDeadline,
   Id,
   Instant,
@@ -64,6 +65,8 @@ export type DayEvent =
   | { readonly type: 'monster_met' }
   /** The discard button beside Start, on a task not yet started: its words go to the drawer. */
   | { readonly type: 'task_set_aside' }
+  /** "Guess 2 hours" on the set task: how long the person thinks the whole thing would take. */
+  | { readonly type: 'guess_made'; readonly minutes: GuessMinutes }
   | { readonly type: 'session_set'; readonly minutes: number; readonly treat?: string | null }
   | { readonly type: 'session'; readonly event: SessionEvent }
   | { readonly type: 'drawer'; readonly event: DrawerEvent }

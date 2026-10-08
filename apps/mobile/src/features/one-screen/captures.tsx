@@ -1,4 +1,4 @@
-import { FREE_STARTS_PER_DAY, type TaskRow } from '@scootch/domain';
+import { FREE_STARTS_PER_DAY } from '@scootch/domain';
 
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { lineFor, lineWithNoTask } from '../../state/lines';
@@ -8,7 +8,9 @@ import type { ComposerViewProps } from '../composer/composer-view';
 import { FriendTablePillView } from '../table/friend-table-pill';
 import { TaskSetCompany } from '../table/task-set-company';
 
+import { capturedTask } from './captured-task';
 import { OneScreenView, type OneScreenShown } from './one-screen-view';
+import type { TaskSetHelpers } from './task-set-helpers';
 
 // The one screen's states as the screen registry shows them: the view with fixed state and no
 // store behind it. Scootch's words still come from the offline pack, in the capture's language,
@@ -52,31 +54,6 @@ export function composerShown(
       ...capture,
       state: { ...READY, ...capture.state },
     },
-  };
-}
-
-/** A task as the phone stores it before any answer has come: its own words and nothing else. */
-function capturedTask(text: string, screen: TaskRow['screen']): TaskRow {
-  return {
-    id: 'capture-task',
-    localDate: '2026-10-06',
-    text,
-    originalText: text,
-    source: 'typed',
-    screen,
-    seriousOverridden: false,
-    status: 'set',
-    carriedOver: false,
-    firstMentionedOn: '2026-10-06',
-    dueDate: null,
-    workMode: null,
-    fitsTenMinutes: null,
-    sharePrivate: null,
-    shrinkCount: 0,
-    lines: null,
-    notifications: [],
-    createdAt: '2026-10-06T09:00:00.000Z',
-    finishedAt: null,
   };
 }
 
@@ -168,12 +145,19 @@ export function OneScreenThinking() {
   );
 }
 
-function TaskSet({
+/** 15:32 on the capture's day, where the phone is: the board's own clock, so "Ends at" reads 15:42. */
+const CAPTURED_AT = new Date(2026, 9, 6, 15, 32).getTime();
+/** The helpers of a set task nobody has touched: the guess not made, and no bites in the pack. */
+const UNTOUCHED: TaskSetHelpers = { guess: { minutes: null, onGuess: nothing }, bites: null };
+
+export function TaskSet({
   offline,
   atTable = false,
+  helpers = UNTOUCHED,
 }: {
   readonly offline: boolean;
   readonly atTable?: boolean;
+  readonly helpers?: TaskSetHelpers;
 }) {
   const { voice, words, t } = useCapture();
   // With no connection the task is unscreened: plain company and its own words, no joke.
@@ -192,6 +176,8 @@ function TaskSet({
         taskText: said === null ? words : null,
         treat: '',
         minutes: 10,
+        endsFrom: CAPTURED_AT,
+        helpers,
         onTreat: nothing,
         onMinutes: nothing,
         onStart: nothing,

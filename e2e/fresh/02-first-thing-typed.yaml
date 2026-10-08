@@ -72,6 +72,75 @@ appId: app.scootch.dev
 # A plain task never gets the serious voice.
 - assertNotVisible: 'That sounds like a lot.*'
 - takeScreenshot: one-screen-task-set--en-light-default
+# Under the wheel one quiet line says when this length would end; turning the wheel leaves it there.
+- assertVisible:
+    id: 'task-set-ends-at'
+- assertVisible: 'Ends at .*'
+# The Guess chip opens "How long would this take?". Skip keeps nothing: the chip still asks.
+- tapOn:
+    id: 'task-set-guess'
+- extendedWaitUntil:
+    visible:
+      id: 'guess-skip'
+    timeout: 15000
+- assertVisible: 'How long would this take\?'
+- assertVisible: 'A guess, before you start.'
+- assertVisible: 'Guess 2 hours'
+- takeScreenshot: one-screen-task-set-guess-sheet--en-light-default
+- tapOn:
+    id: 'guess-skip'
+- extendedWaitUntil:
+    visible:
+      id: 'one-action'
+    timeout: 15000
+- assertVisible: 'Guess'
+# Asked again and answered: the button says the guess back, and so does the chip afterwards.
+- tapOn:
+    id: 'task-set-guess'
+- extendedWaitUntil:
+    visible:
+      id: 'guess-confirm'
+    timeout: 15000
+- tapOn:
+    id: 'guess-step-60'
+- assertVisible: 'Guess 1 hour'
+- tapOn:
+    id: 'guess-confirm'
+- extendedWaitUntil:
+    visible:
+      id: 'one-action'
+    timeout: 15000
+- assertVisible: '1 hour'
+- takeScreenshot: one-screen-task-set-guess-made--en-light-default
+# The bites are offered only when the thing's pack has them, so without a connection, or before
+# the pack is in, there is no button. With one, the first bite is ticked and the note counts it;
+# the last tick would open the catch, which the next step reaches from Start instead.
+- runFlow:
+    when:
+      visible:
+        id: 'task-set-bites'
+    commands:
+      - tapOn:
+          id: 'task-set-bites'
+      - extendedWaitUntil:
+          visible:
+            id: 'bites-note'
+          timeout: 15000
+      - assertVisible: 'Start with the first one.'
+      - tapOn:
+          id: 'bite-0'
+      # The tick's own mark sits inside the row, which iOS reads as one element: the note proves it.
+      - extendedWaitUntil:
+          visible: "1 down. Tick the next when it's done."
+          timeout: 15000
+      - takeScreenshot: one-screen-task-set-bites-sheet--en-light-default
+      # A tap on the shade above the sheet closes it.
+      - tapOn:
+          point: '50%,8%'
+      - extendedWaitUntil:
+          visible:
+            id: 'one-action'
+          timeout: 15000
 # Company is a choice on the set task, under the length. "At a table" turns the one action into
 # "Start at a table" and says what a table is shown; "Alone" puts the plain Start back, which the
 # next step taps. No table is opened and no account is asked for here.

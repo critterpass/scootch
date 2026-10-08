@@ -17,6 +17,7 @@ import { FRAMES, TASK_SET_MONSTER } from './one-screen-frame';
 import { minuteOptions } from './one-screen-panels';
 import type { Stage } from './one-screen-stage';
 import type { OneScreenShown } from './one-screen-view';
+import { biteRows, takesGuess } from './task-set-helpers';
 
 type Mood = ScootchProps['mood'];
 
@@ -62,6 +63,7 @@ export function taskSetShown(
   };
   const mood: Mood = said === null ? 'serious' : 'waiting';
   const off = startRefused(day.today);
+  const bites = biteRows(stage.task);
   const { onCompany, onTable } = env;
   // A table is a way to start only where the choice itself is drawn.
   const atTable =
@@ -122,6 +124,23 @@ export function taskSetShown(
             ),
           }
         : {}),
+      helpers: {
+        guess: takesGuess(stage.task)
+          ? {
+              minutes: stage.task.guessMinutes ?? null,
+              onGuess: (guess) => send({ type: 'guess_made', minutes: guess }),
+            }
+          : null,
+        // The ticks are the notification's own: kept in the same place, and the last opens the catch.
+        bites:
+          bites === null
+            ? null
+            : {
+                name: monster?.row.name ?? null,
+                rows: bites,
+                onTick: (place) => send({ type: 'bite_ticked', taskId: stage.task.id, place }),
+              },
+      },
       extra: <TogetherLinks day={day} task={stage.task} monster={day.monster} />,
     },
   };

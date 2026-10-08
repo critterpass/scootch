@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import type { ComposerViewProps } from '../composer/composer-view';
 
 import type { TaskSetChoicesProps } from './one-screen-panels';
+import type { TaskSetHelpers } from './task-set-helpers';
 
 /** What the screen is showing under Scootch and his sentence. */
 export type OneScreenShown =
@@ -65,6 +66,8 @@ export type OneScreenShown =
       readonly extra?: ReactNode;
       /** Drawn in place of Scootch alone, when the task's monster stands beside him. */
       readonly figure?: ReactNode;
+      /** The quiet helpers above the one action: the guess and the bites. */
+      readonly helpers?: TaskSetHelpers;
     } & TaskSetChoicesProps)
   /** A state drawn by its own feature: the one thing, the hatch, a counter-offer. */
   | {
