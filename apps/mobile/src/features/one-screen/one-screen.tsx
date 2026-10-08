@@ -40,7 +40,7 @@ import { lobbyPath, seatPath } from '../table/table-rules';
 import { composerMood } from './composer-mood';
 import { composerWays } from './composer-ways';
 import { doneLine } from './done-line';
-import { HomeCompany } from './home-company';
+import { homeParts } from './home-company';
 import { holdsWords, homeStarts, stageOf } from './one-screen-stage';
 import { OneScreenView, type OneScreenShown } from './one-screen-view';
 import { stageShown } from './stage-shown';
@@ -330,8 +330,7 @@ function useOneScreenDrawn({
               starts === 'locked'
                 ? t('plus.oneMore.freeDone', { count: FREE_STARTS_PER_DAY })
                 : null,
-            // Never beside something heavy: the pill leads to a table, and its lobby sells seats.
-            ...(showsSelling(day) ? { company: <HomeCompany /> } : {}),
+            ...homeParts(showsSelling(day), settings.worldCardOnHome, dispatch),
           },
         }),
     ...composerWays({ stage, t, language, today: localDate, sendChip }),

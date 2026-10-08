@@ -184,6 +184,7 @@ export const en = {
   'keep.tab.song.hint': 'Shows the week’s record',
 
   'oneScreen.world.hint': 'Opens your world.',
+  'oneScreen.world.hide': 'Hide from home',
 
   'dump.oneThing': "Today's one thing",
   'dump.justThis': 'Just this, today',

@@ -182,6 +182,7 @@ export const vi = {
   'keep.tab.song.hint': 'Hiện đĩa nhạc của tuần',
 
   'oneScreen.world.hint': 'Mở thế giới của bạn.',
+  'oneScreen.world.hide': 'Ẩn khỏi màn hình chính',
 
   'dump.oneThing': 'Một việc hôm nay',
   'dump.justThis': 'Hôm nay chỉ việc này thôi',

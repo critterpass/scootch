@@ -30,6 +30,11 @@ export type OneScreenShown =
         readonly startsNote: string | null;
         /** Under the header: a friend who is at a table now, or the person's own seat. */
         readonly company?: ReactNode;
+        /**
+         * The world card was swiped away, and is to stay away. Unset, there is no card: it was put
+         * away already, and the corner button is the way into the world.
+         */
+        readonly onWorldCardAway?: () => void;
       };
       /** Small ways in under the ask: the chips of a return. */
       readonly ways?: {
