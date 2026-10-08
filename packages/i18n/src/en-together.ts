@@ -225,8 +225,6 @@ export const enTogether = {
     'This one hatched before monsters got pages of their own. It goes out as a picture, with no link.',
   'share.pictureOnly': 'The picture went out. This monster has no page, so there is no link.',
   'haunt.entry': 'Haunt a friend',
-  'haunt.entry.sub':
-    'Send this monster to a friend with a tiny dare. They can catch it or shoo it.',
   'haunt.card.wild': 'Not caught yet',
   'haunt.card.tag': 'Wild',
   'haunt.card.says': '{name} says: {dare}',
@@ -260,6 +258,10 @@ export const enTogether = {
   'haunt.noFriends':
     'A haunt goes to a friend. Send someone your link; once they open it, this monster can visit them.',
   'haunt.noFriends.title': 'Nobody to haunt yet',
+  'haunt.guide.invite': 'Invite a friend with your link.',
+  'haunt.guide.send': 'Send them a monster you haven’t caught yet, with a tiny dare.',
+  'haunt.guide.theirs':
+    'They catch it and it becomes their one thing, or shoo it and it leaves quietly.',
   'haunt.problem.recent': 'One haunt per friend each week.',
   'haunt.problem.off': 'This friend isn’t taking haunts.',
   'haunt.problem.notForThis': 'This one stays with you.',

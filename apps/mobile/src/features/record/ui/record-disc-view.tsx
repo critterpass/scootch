@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, type ComponentProps } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
   cancelAnimation,
@@ -22,6 +22,9 @@ import {
 } from '../record-audio';
 import { DISC_SPACE, recordDiscCommands } from '../record-disc';
 
+/** A style that is animated: what `useAnimatedStyle` gives. */
+type Arriving = ComponentProps<typeof Animated.View>['style'];
+
 export interface RecordDiscViewProps {
   readonly size: number;
   readonly barCount: number;
@@ -30,6 +33,10 @@ export interface RecordDiscViewProps {
   /** Where the arm points while playing, in degrees. */
   readonly armDeg: number;
   readonly reducedMotion: boolean;
+  /** How the record lies as it arrives: tipped, turned, part way there. Unset, it lies flat. */
+  readonly lying?: Arriving;
+  /** How the arm arrives, after the record. Unset, it is simply there. */
+  readonly armArriving?: Arriving;
 }
 
 const SPACE = { width: DISC_SPACE, height: DISC_SPACE };
@@ -41,7 +48,7 @@ const ARM_EASE = Easing.bezier(0.32, 0.72, 0, 1);
  * shows that it is playing.
  */
 export function RecordDiscView(props: RecordDiscViewProps) {
-  const { size, barCount, cover, playing, armDeg, reducedMotion } = props;
+  const { size, barCount, cover, playing, armDeg, reducedMotion, lying, armArriving } = props;
   const commands = useMemo(() => recordDiscCommands(barCount, cover), [barCount, cover]);
   const turn = useSharedValue(0);
   const arm = useSharedValue(ARM_REST_DEG);
@@ -75,27 +82,27 @@ export function RecordDiscView(props: RecordDiscViewProps) {
 
   return (
     <View style={{ width: size, height: size }} accessible={false} importantForAccessibility="no">
-      <View
-        pointerEvents="none"
-        style={[
-          styles.shadow,
-          { top: size * 0.04, left: size * 0.04, width: size * 0.92, height: size * 0.92 },
-          { borderRadius: size * 0.46 },
-        ]}
-      />
-      <Animated.View style={spinStyle}>
-        <CommandCanvas commands={commands} space={SPACE} width={size} />
+      <Animated.View style={lying}>
+        <View
+          pointerEvents="none"
+          style={[
+            styles.shadow,
+            { top: size * 0.04, left: size * 0.04, width: size * 0.92, height: size * 0.92 },
+            { borderRadius: size * 0.46 },
+          ]}
+        />
+        <Animated.View style={spinStyle}>
+          <CommandCanvas commands={commands} space={SPACE} width={size} />
+        </Animated.View>
       </Animated.View>
       <Animated.View
-        style={[
-          styles.arm,
-          { height: size * 0.62, right: size * 0.06, transformOrigin: 'top' },
-          armStyle,
-        ]}
+        style={[styles.armPlace, { height: size * 0.62, right: size * 0.06 }, armArriving]}
       >
-        <View style={styles.pivot} />
-        <View style={styles.rod} />
-        <View style={styles.head} />
+        <Animated.View style={[styles.arm, { transformOrigin: 'top' }, armStyle]}>
+          <View style={styles.pivot} />
+          <View style={styles.rod} />
+          <View style={styles.head} />
+        </Animated.View>
       </Animated.View>
     </View>
   );
@@ -104,7 +111,8 @@ export function RecordDiscView(props: RecordDiscViewProps) {
 const styles = StyleSheet.create({
   // The record's own shadow on the deck, under the vinyl: it does not turn with it.
   shadow: { position: 'absolute', boxShadow: '0 24px 40px -14px rgba(28,26,23,0.55)' },
-  arm: { position: 'absolute', top: 0, width: 24, alignItems: 'center' },
+  armPlace: { position: 'absolute', top: 0, width: 24 },
+  arm: { flex: 1, alignItems: 'center' },
   pivot: { width: 22, height: 22, borderRadius: 11, backgroundColor: '#D9D2C6' },
   rod: { flex: 1, width: 5, borderRadius: 2.5, backgroundColor: '#CFC7BA' },
   head: { width: 14, height: 22, borderRadius: 4, backgroundColor: '#1C1A17' },

@@ -6,11 +6,14 @@
  * - `push`: the system's push, with its interruptible swipe back: the world, the binder, the record,
  *   the camera, settings and their children. From home the world and settings are not pushed at all: they are
  *   the pages either side of it.
- * - `sheet`: a system sheet with a grabber, pulled down to close.
+ * - `sheet`: a whole page that comes up as the system's page sheet, pulled down to close: the Plus
+ *   sheet, the share composer. It is laid out as any page is.
+ * - `fitted`: a small sheet with a grabber, as tall as what is on it: a haunt. Its content has its
+ *   own height and never scrolls; the sheet takes that height.
  * - `fade`: a moment, not a place: the session, the reveal, a purchase's own screen. No swipe.
  * - `none`: care. A crisis day is simply there, with nothing playing around it.
  */
-export type RouteMotion = 'home' | 'push' | 'sheet' | 'fade' | 'none';
+export type RouteMotion = 'home' | 'push' | 'sheet' | 'fitted' | 'fade' | 'none';
 
 export const ROUTE_MOTION: Readonly<Record<string, RouteMotion>> = {
   index: 'home',
@@ -40,8 +43,9 @@ export const ROUTE_MOTION: Readonly<Record<string, RouteMotion>> = {
   'plus/records': 'push',
   '(dev)': 'push',
   'plus/index': 'sheet',
-  'haunt/send': 'sheet',
-  'haunt/received': 'sheet',
+  share: 'sheet',
+  'haunt/send': 'fitted',
+  'haunt/received': 'fitted',
   session: 'fade',
   reveal: 'fade',
   'plus/last-day': 'fade',
@@ -74,14 +78,14 @@ const SWIPED_BACK_ANYWHERE: ReadonlySet<string> = new Set([
 
 export interface StackMotionOptions {
   readonly animation: 'default' | 'fade' | 'none';
-  readonly presentation: 'card' | 'formSheet';
+  readonly presentation: 'card' | 'modal' | 'formSheet';
   /** The swipe back (or the pull down on a sheet). */
   readonly gestureEnabled: boolean;
   /** The swipe back starts anywhere across the screen, not only at its edge. */
   readonly fullScreenGestureEnabled: boolean;
   readonly animationTypeForReplace: 'push' | 'pop';
-  /** A sheet rests at the top only: its content is a whole page. */
-  readonly sheetAllowedDetents?: readonly number[];
+  /** A fitted sheet is as tall as its content, and rests nowhere else. */
+  readonly sheetAllowedDetents?: 'fitToContents';
   readonly sheetGrabberVisible?: boolean;
 }
 
@@ -116,13 +120,23 @@ export function stackMotion(routeName: string, mayMove: boolean): StackMotionOpt
         animationTypeForReplace,
       };
     case 'sheet':
+      // A whole page: the system's page sheet, which lays its content out as a card does. A form
+      // sheet does not give a page a height to fill, and moves the first list it finds.
+      return {
+        animation: moving,
+        presentation: 'modal',
+        gestureEnabled: true,
+        fullScreenGestureEnabled: false,
+        animationTypeForReplace,
+      };
+    case 'fitted':
       return {
         animation: moving,
         presentation: 'formSheet',
         gestureEnabled: true,
         fullScreenGestureEnabled: false,
         animationTypeForReplace,
-        sheetAllowedDetents: [1],
+        sheetAllowedDetents: 'fitToContents',
         sheetGrabberVisible: true,
       };
     case 'home':
@@ -149,10 +163,10 @@ export function stackMotion(routeName: string, mayMove: boolean): StackMotionOpt
  *
  * - `page`: a page of rows under a bar in the page's colour. The list is under the bar, never
  *   behind it. A page's large title is drawn by the page, which hands it to the bar as it scrolls.
- * - `frame`: a keeping screen (the world, the zoo, the record) under a bar in the page's colour:
- *   its middle is a picture or scrolls by itself, so nothing runs under the bar.
- * - `none`: a full-bleed moment, or a sheet. Its corner controls are drawn by the screen, in the
- *   bar's place.
+ * - `frame`: a screen with a picture or a card in its middle (Your card, the record shelf) under a
+ *   bar in the page's colour, so nothing runs under the bar.
+ * - `none`: a full-bleed moment, a sheet, or the keeping tabs, whose close control stays put while
+ *   the tabs change under it. Its corner controls are drawn by the screen, in the bar's place.
  */
 export type RouteBar = 'page' | 'frame' | 'none';
 
@@ -171,8 +185,6 @@ const ROUTE_BAR: Readonly<Record<string, RouteBar>> = {
   'table-quieted': 'page',
   't/[code]': 'page',
   'f/[code]': 'page',
-  world: 'frame',
-  record: 'frame',
   'plus/manage': 'frame',
   'plus/records': 'frame',
 };

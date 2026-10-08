@@ -119,6 +119,7 @@ describe('the house rules', () => {
         '/reveal',
         '/session',
         '/settings',
+        '/share',
         '/studio',
         '/t/[code]',
         '/table',
@@ -155,8 +156,14 @@ describe('the house rules', () => {
         // on the way in.
         'features/plus/moment-containers.tsx: pickFinish={() => router.push(STUDIO_ROUTE)}',
         'features/record/record-container.tsx: openPlus: () => router.push(PLUS_SHEET),',
+        // The studio's finishes, for someone Plus would dress: beside the price of one, all of them.
+        'features/studio/studio-container.tsx: openPlus: () => router.push(PLUS_SHEET),',
         'features/table/lobby-containers.tsx: onLocked={() => router.push(PLUS_SHEET)}',
-        // The binder's sorting is the zoo's one locked control.
+        // A locked frame on the postcard, in the composer the world opens.
+        'features/world/world-container.tsx: openPlus: () => router.push(PLUS_SHEET),',
+        // A locked frame on a card's story, in the composer the card opens.
+        'features/zoo/card-container.tsx: openPlus: () => router.push(PLUS_SHEET),',
+        // The binder's sorting and its month pages, and a locked frame in the composer it opens.
         'features/zoo/zoo-container.tsx: openPlus: () => router.push(PLUS_SHEET),',
       ].sort(),
     );
@@ -183,7 +190,9 @@ describe('the house rules', () => {
     expect(card).toMatch(/selling: showsSelling\(day\)/);
     const page = readFileSync(path.join(SOURCE, 'features/plus/manage-screen.tsx'), 'utf8');
     expect(page).toMatch(/model\.selling \? \{ onPress: actions\.seePlus \} : \{ inert: true \}/);
-    expect(page).toMatch(/\{model\.selling \? \(\s*<Row\s+label=\{t\('studio\.title'\)\}/);
+    expect(page).toMatch(
+      /\{model\.selling \? \(\s*<Section>\s*<Row\s+label=\{t\('studio\.title'\)\}/,
+    );
   });
 
   it('reaches no selling route from first launch, a session, the reveal or the care screens', () => {
@@ -203,10 +212,18 @@ describe('the house rules', () => {
   it('reaches the sheet from the one screen only through the locked talk capsule on home', () => {
     const closure = closureOf(routes.get('/') ?? '');
     const users = closure.filter((file) => file !== ROUTES_FILE && waysIn(file).length > 0);
-    // The world is the page beside home, and brings one door with it: the first offer, which is
-    // not shown at all on a heavy day. Nothing else on the way from home names a selling route.
+    // The keeping place is the page beside home, and brings its own doors with it: the first
+    // offer, which is not shown at all on a heavy day, and the quiet locked controls of its three
+    // tabs (the shelf's orders and pages, keeping a record, a locked frame in the composer), each
+    // of which rests on a heavy day. Nothing else on the way from home names a selling route.
     const ONE_SCREEN = 'features/one-screen/one-screen.tsx';
-    expect(users.map(relative).sort()).toEqual([ONE_SCREEN, 'features/plus/first-offer.tsx']);
+    expect(users.map(relative).sort()).toEqual([
+      ONE_SCREEN,
+      'features/plus/first-offer.tsx',
+      'features/record/record-container.tsx',
+      'features/world/world-container.tsx',
+      'features/zoo/zoo-container.tsx',
+    ]);
 
     const source = readFileSync(path.join(SOURCE, ONE_SCREEN), 'utf8');
     const at = source.indexOf('router.push(PLUS_SHEET_ONE_MORE)');

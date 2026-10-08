@@ -142,6 +142,8 @@ export const enPlus = {
   'studio.item.hint': 'Tries this one on',
   'studio.owned': 'Owned',
   'studio.withPlus': 'With Plus',
+  'studio.plusDoor': 'Every finish, with Plus',
+  'studio.plusDoor.hint': 'Opens the Plus sheet',
   'studio.wearingNow': 'Wearing',
   'studio.stage.finish.number': 'Finish {number}',
   'studio.stage.tilt': 'Tilt the phone or drag across the card',

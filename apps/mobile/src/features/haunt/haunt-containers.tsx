@@ -29,7 +29,7 @@ export function HauntSendContainer() {
   const { api } = useTogether();
   const day = useToday();
   const router = useRouter();
-  const [friends, setFriends] = useState<readonly Friend[]>([]);
+  const [friends, setFriends] = useState<readonly Friend[] | null>(null);
   const [to, setTo] = useState<string | null>(null);
   const [dare, setDare] = useState<HauntDare>('two_minutes');
   const [anonymous, setAnonymous] = useState(false);

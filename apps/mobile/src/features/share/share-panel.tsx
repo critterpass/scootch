@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Switch, Text, useWindowDimensions, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -6,24 +6,25 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { ShareFrame } from '@scootch/art';
 import type { Language } from '@scootch/i18n';
 import { fonts, shadows, spacing } from '@scootch/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
-import { CapsuleButton } from '../../ui/buttons';
 import { CloseButton, CORNER, CornerBar } from '../../ui/corner-bar';
 import { BOUNCE_CURVE } from '../../ui/motion/motion-tokens';
-import { SafeFrame } from '../../ui/safe-frame';
+import { SheetFrame } from '../../ui/sheet-frame';
 import { useScreenStyle } from '../../ui/use-screen-style';
+import { QuietLink } from '../dump/dump-panels';
 import { CommandCanvas } from '../reveal/ui/command-canvas';
 import { StudioToast } from '../studio/ui/studio-toast';
 import { Segmented } from '../zoo/ui/segmented';
 
 import type { ShareFormat, ShareImage } from './share-image';
 import { FrameSwatches } from './ui/frame-swatches';
-import { ShareTargets } from './ui/share-targets';
+import { ShareDock } from './ui/share-dock';
 
 /** What is being shared: a catch, a monster still wild, a month, the world, or a week's song. */
 export type ShareMoment = 'caught' | 'monster' | 'month' | 'world' | 'song';
@@ -38,6 +39,8 @@ export interface ShareModel {
   /** The frame the story is printed on, and the four there are; a locked one needs Plus. */
   readonly frame: ShareFrame;
   readonly frames: readonly { readonly id: ShareFrame; readonly locked: boolean }[];
+  /** Whether a locked frame answers a tap. False where nothing may be sold. */
+  readonly framesOpen: boolean;
   /** False for a picture that is its own stock (a sticker sheet, a receipt): the frames then rest. */
   readonly framed: boolean;
   readonly hideTask: boolean;
@@ -92,31 +95,33 @@ const NOTICE = {
   unshared: 'share.unshared',
   linkCopied: 'share.linkCopied',
 } as const;
+/** From the bottom of the screen up to the dock, as the boards draw it. */
+const DOCK_BOTTOM = 30;
 /** What sets the picture stamping: something went out, or was kept. */
 const WENT: readonly ShareModel['notice'][] = ['saved', 'shared', 'pictureOnly', 'linkCopied'];
-/** The board's preview: a story 212 points wide, and less on a narrow or short phone. */
-const PREVIEW = { width: 212, side: 90, least: 150 } as const;
-/** Everything on the composer that is not the picture, at the default text size. */
-const AROUND_PREVIEW = 420;
+/** The picture's room: the least it is drawn at, the most, and the air kept round it. */
+const PREVIEW = { least: 132, most: 300, side: 56, air: 14, scrolled: 190 } as const;
 
 /**
- * The composer: one sheet for everything shared. The picture as it will be sent, the formats it
- * can be sent as, the four frames a story is printed on, the switch that takes the task's words
- * off, and where it goes. Sharing gives the picture a little stamp before it leaves. It is only
- * ever opened for something that may be shared.
+ * The composer: one sheet for everything shared, laid out one way whatever it holds. The picture
+ * as it will be sent fills the room there is; under it sit the choices this picture has (what it
+ * can be sent as, the frame it is printed on, the switch that takes the task's words off); and
+ * at the foot, one dock with where it goes. Sharing gives the picture a little stamp before it
+ * leaves. It is only ever opened for something that may be shared.
  */
 export function SharePanel({ model, actions }: { model: ShareModel; actions: ShareActions }) {
   const t = useT();
-  const { palette, reducedMotion, allowFontScaling, size } = useScreenStyle();
+  const { palette, reducedMotion, allowFontScaling, size, largeText } = useScreenStyle();
+  const insets = useSafeAreaInsets();
   const window = useWindowDimensions();
   const { image, notice } = model;
   const tall = image.height / image.width;
-  const width = Math.round(
-    Math.max(
-      PREVIEW.least,
-      Math.min(PREVIEW.width, window.width - PREVIEW.side, (window.height - AROUND_PREVIEW) / tall),
-    ),
-  );
+  // The picture is as large as the room left for it, measured once the choices have taken theirs.
+  const [room, setRoom] = useState<{ width: number; height: number } | null>(null);
+  const fitted = room
+    ? Math.min(PREVIEW.most, room.width - PREVIEW.side, (room.height - PREVIEW.air * 2) / tall)
+    : 0;
+  const width = Math.round(Math.max(PREVIEW.least, fitted));
 
   // The stamp: the picture dips, jumps a little turned, and settles, once for each thing sent.
   const stamp = useSharedValue(0);
@@ -142,8 +147,92 @@ export function SharePanel({ model, actions }: { model: ShareModel; actions: Sha
     };
   });
 
+  const picture = (shownWidth: number) => (
+    <Animated.View style={[styles.preview, stamped]}>
+      <CommandCanvas
+        commands={image.commands}
+        space={image}
+        width={shownWidth}
+        label={t(`share.title.${model.moment}`)}
+        testID="share-preview"
+      />
+    </Animated.View>
+  );
+  const choices = (
+    <View style={styles.choices}>
+      {model.formats.length > 1 ? (
+        <Segmented
+          label={t('share.format.hint')}
+          chosen={model.format}
+          onChoose={actions.setFormat}
+          segments={model.formats.map((format) => ({
+            value: format,
+            label: t(`share.format.${format}`),
+            testID: `share-format-${format}`,
+          }))}
+        />
+      ) : null}
+      {model.frames.length > 0 ? (
+        <FrameSwatches
+          frames={model.frames}
+          chosen={model.frame}
+          resting={!model.framed}
+          open={model.framesOpen}
+          onChoose={actions.setFrame}
+        />
+      ) : null}
+      {model.canHideTask ? (
+        <View style={[styles.card, { backgroundColor: palette.surface }]}>
+          <View style={styles.words}>
+            <Text
+              allowFontScaling={allowFontScaling}
+              maxFontSizeMultiplier={1.6}
+              style={[styles.hide, { color: palette.ink, fontSize: size(16) }]}
+            >
+              {t('share.hideTask')}
+            </Text>
+            <Text
+              allowFontScaling={allowFontScaling}
+              maxFontSizeMultiplier={1.8}
+              style={[styles.hideNote, { color: palette.muted, fontSize: size(13) }]}
+            >
+              {t('share.hideTask.note')}
+            </Text>
+          </View>
+          <Switch
+            accessibilityLabel={t('share.hideTask')}
+            accessibilityHint={t('share.hideTask.hint')}
+            testID="share-hide-task"
+            value={model.hideTask}
+            onValueChange={actions.setHideTask}
+            trackColor={{ true: palette.tomato }}
+          />
+        </View>
+      ) : null}
+      {model.pageOffered ? null : (
+        <Text
+          allowFontScaling={allowFontScaling}
+          style={[styles.small, { color: palette.muted, fontSize: size(13) }]}
+          testID="share-no-page"
+        >
+          {t('share.noPage')}
+        </Text>
+      )}
+      {model.pageUp ? (
+        <View style={styles.middle}>
+          <QuietLink
+            label={t('share.unshare')}
+            hint={t('share.unshare.hint')}
+            testID="share-unshare"
+            onPress={actions.unshare}
+          />
+        </View>
+      ) : null}
+    </View>
+  );
+
   return (
-    <SafeFrame testID="share" style={[styles.page, { backgroundColor: palette.page }]}>
+    <SheetFrame testID="share" style={[styles.page, { backgroundColor: palette.page }]}>
       <CornerBar
         leading={<View style={styles.corner} />}
         trailing={
@@ -166,91 +255,43 @@ export function SharePanel({ model, actions }: { model: ShareModel; actions: Sha
           {t(`share.title.${model.moment}`)}
         </Text>
       </CornerBar>
-      <ScrollView contentContainerStyle={styles.middle} showsVerticalScrollIndicator={false}>
-        <Animated.View style={[styles.preview, stamped]}>
-          <CommandCanvas
-            commands={image.commands}
-            space={image}
-            width={width}
-            label={t(`share.title.${model.moment}`)}
-            testID="share-preview"
-          />
-        </Animated.View>
-        {model.formats.length > 1 ? (
-          <Segmented
-            label={t('share.format.hint')}
-            chosen={model.format}
-            onChoose={actions.setFormat}
-            segments={model.formats.map((format) => ({
-              value: format,
-              label: t(`share.format.${format}`),
-              testID: `share-format-${format}`,
-            }))}
-          />
-        ) : null}
-        {model.frames.length > 0 ? (
-          <FrameSwatches
-            frames={model.frames}
-            chosen={model.frame}
-            resting={!model.framed}
-            onChoose={actions.setFrame}
-          />
-        ) : null}
-        {model.canHideTask ? (
-          <View style={[styles.card, { backgroundColor: palette.surface }]}>
-            <View style={styles.words}>
-              <Text
-                allowFontScaling={allowFontScaling}
-                maxFontSizeMultiplier={1.6}
-                style={[styles.hide, { color: palette.ink, fontSize: size(17) }]}
-              >
-                {t('share.hideTask')}
-              </Text>
-              <Text
-                allowFontScaling={allowFontScaling}
-                maxFontSizeMultiplier={1.8}
-                style={[styles.hideNote, { color: palette.muted, fontSize: size(13) }]}
-              >
-                {t('share.hideTask.note')}
-              </Text>
-            </View>
-            <Switch
-              accessibilityLabel={t('share.hideTask')}
-              accessibilityHint={t('share.hideTask.hint')}
-              testID="share-hide-task"
-              value={model.hideTask}
-              onValueChange={actions.setHideTask}
-              trackColor={{ true: palette.tomato }}
-            />
+      {largeText ? (
+        // At the large text sizes the choices are taller than the screen: the picture keeps one
+        // size and everything above the dock scrolls.
+        <ScrollView contentContainerStyle={styles.scrolled} showsVerticalScrollIndicator={false}>
+          <View style={styles.middle}>
+            {picture(Math.min(PREVIEW.scrolled, window.width - PREVIEW.side))}
           </View>
-        ) : null}
-        <ShareTargets
+          {choices}
+        </ScrollView>
+      ) : (
+        <>
+          <View
+            style={styles.stage}
+            onLayout={({ nativeEvent }) =>
+              setRoom({ width: nativeEvent.layout.width, height: nativeEvent.layout.height })
+            }
+          >
+            {room ? picture(width) : null}
+          </View>
+          {choices}
+        </>
+      )}
+      <View
+        style={[
+          styles.foot,
+          { paddingBottom: Math.max(insets.bottom, DOCK_BOTTOM) - insets.bottom },
+        ]}
+      >
+        <ShareDock
           onShare={actions.share}
           onSave={actions.save}
           {...(model.linkOffered && actions.copyLink ? { onLink: actions.copyLink } : {})}
           {...(actions.sound ? { onSound: actions.sound } : {})}
         />
-        {model.pageOffered ? null : (
-          <Text
-            allowFontScaling={allowFontScaling}
-            style={[styles.small, { color: palette.muted, fontSize: size(13) }]}
-            testID="share-no-page"
-          >
-            {t('share.noPage')}
-          </Text>
-        )}
-        {model.pageUp ? (
-          <CapsuleButton
-            tone="quiet"
-            label={t('share.unshare')}
-            hint={t('share.unshare.hint')}
-            testID="share-unshare"
-            onPress={actions.unshare}
-          />
-        ) : null}
-      </ScrollView>
+      </View>
       <StudioToast text={notice ? t(NOTICE[notice]) : null} />
-    </SafeFrame>
+    </SheetFrame>
   );
 }
 
@@ -265,15 +306,13 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
     fontWeight: '600',
   },
-  middle: {
-    flexGrow: 1,
-    paddingHorizontal: 18,
-    paddingTop: spacing.sm,
-    paddingBottom: spacing.lg,
-    gap: 14,
-  },
+  // The picture's room: all the height the choices and the dock leave.
+  stage: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  scrolled: { paddingTop: spacing.sm, paddingBottom: spacing.md, gap: spacing.md },
+  middle: { flexDirection: 'row', justifyContent: 'center' },
+  choices: { paddingHorizontal: 18, gap: 14 },
+  foot: { paddingHorizontal: 14, paddingTop: spacing.md },
   preview: {
-    alignSelf: 'center',
     borderRadius: 20,
     overflow: 'hidden',
     boxShadow: '0 24px 40px -22px rgba(28,26,23,0.5)',
@@ -282,9 +321,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    borderRadius: 20,
+    borderRadius: 22,
     paddingVertical: 10,
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
     boxShadow: shadows.card,
   },
   words: { flex: 1, gap: 1 },

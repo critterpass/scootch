@@ -78,7 +78,7 @@ appId: app.scootch.dev
     timeout: 15000
 - takeScreenshot: fresh-06-world-vietnamese
 - tapOn:
-    id: 'world-open-zoo'
+    id: 'keep-tab-caught'
 - extendedWaitUntil:
     visible:
       id: 'zoo-tile-0'
@@ -92,14 +92,12 @@ appId: app.scootch.dev
 - takeScreenshot: fresh-06-caught-card-vietnamese
 - tapOn:
     id: 'zoo-card-close'
-- tapOn:
-    id: 'zoo-close'
 - extendedWaitUntil:
     visible:
-      id: 'world-close'
+      id: 'keep-close'
     timeout: 15000
 - tapOn:
-    id: 'world-close'
+    id: 'keep-close'
 - extendedWaitUntil:
     visible:
       id: 'one-sentence'

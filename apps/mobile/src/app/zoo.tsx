@@ -1,6 +1,6 @@
-import { ZooContainer } from '../features/zoo/zoo-container';
+import { KeepContainer } from '../features/keep/keep-container';
 
-/** The zoo: every caught monster and its card. */
+/** The keeping place, on the shelf: every caught monster and its card. */
 export default function ZooRoute() {
-  return <ZooContainer />;
+  return <KeepContainer initial="caught" />;
 }

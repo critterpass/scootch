@@ -55,8 +55,6 @@ export const enKeeping = {
     one: 'Lurking {count} day',
     other: 'Lurking {count} days',
   },
-  'binder.openWorld': 'Open world',
-  'binder.openWorld.hint': 'Goes to your world',
   'binder.sharePage': 'Share this page',
   'binder.sharePage.hint': 'Opens sharing for this month\u2019s page',
   'binder.pages': 'Pages',

@@ -14,9 +14,13 @@ export function useRouteBar(): RouteBar {
   return routeBar(route.name, Platform.OS === 'ios');
 }
 
-/** Whether the screen being drawn was opened as a sheet, which has its own top edge and grabber. */
+/**
+ * Whether the screen being drawn was opened as a sheet. A sheet is already under the status bar:
+ * it keeps clear of its own top edge, never of the window's.
+ */
 export function useRouteSheet(): boolean {
-  return routeMotion(useRoute().name) === 'sheet';
+  const motion = routeMotion(useRoute().name);
+  return motion === 'sheet' || motion === 'fitted';
 }
 
 export interface NativeBarProps {

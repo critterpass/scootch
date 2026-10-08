@@ -133,6 +133,8 @@ export const viPlus = {
   'studio.item.hint': 'Thử món này',
   'studio.owned': 'Đã có',
   'studio.withPlus': 'Có trong Plus',
+  'studio.plusDoor': 'Mọi chất liệu, khi có Plus',
+  'studio.plusDoor.hint': 'Mở bảng Plus',
   'studio.wearingNow': 'Đang dùng',
   'studio.stage.finish.number': 'Chất liệu {number}',
   'studio.stage.tilt': 'Nghiêng máy hoặc kéo ngang thẻ',

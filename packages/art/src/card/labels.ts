@@ -46,6 +46,8 @@ export interface CardLabels {
   readonly thanks: readonly [string, string];
   /** The month's poster. */
   readonly months: readonly string[];
+  /** A month cut short for a postmark, as dates are written: "Oct", "Thg 10". */
+  readonly monthShort: (month: number) => string;
   readonly wrapped: (month: string) => string;
   readonly caughtThisMonth: (count: number) => string;
   readonly mostCaught: (kind: string, times: number) => string;
@@ -127,6 +129,10 @@ export const CARD_LABELS: Record<CardLanguage, CardLabels> = {
       'January February March April May June July August September October November December'.split(
         ' ',
       ),
+    monthShort: (month) =>
+      ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][
+        month - 1
+      ] ?? '',
     wrapped: (month) => `${month.toUpperCase()}, WRAPPED`,
     caughtThisMonth: (count) => (count === 1 ? 'monster caught.' : 'monsters caught.'),
     mostCaught: (kind, times) => `Most caught: ${kind}, ${plural(times, 'time', 'times')}.`,
@@ -191,6 +197,7 @@ export const CARD_LABELS: Record<CardLanguage, CardLabels> = {
     stamped: 'ĐÃ ĐÓNG DẤU',
     thanks: ['CẢM ƠN BẠN ĐÃ MUA SẮM', 'Ở CHÍNH ĐỜI MÌNH'],
     months: Array.from({ length: 12 }, (_, index) => `Tháng ${index + 1}`),
+    monthShort: (month) => `Thg ${month}`,
     wrapped: (month) => `${month.toUpperCase()}, NHÌN LẠI`,
     caughtThisMonth: () => 'con quái đã bắt.',
     mostCaught: (kind, times) => `Bắt nhiều nhất: ${kind}, ${times} lần.`,

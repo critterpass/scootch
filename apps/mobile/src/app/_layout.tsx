@@ -62,7 +62,7 @@ function Screens() {
         return {
           contentStyle: { backgroundColor: palette.page },
           ...motion,
-          ...(sheetAllowedDetents ? { sheetAllowedDetents: [...sheetAllowedDetents] } : {}),
+          ...(sheetAllowedDetents ? { sheetAllowedDetents } : {}),
           ...stackBar(route.name, SYSTEM_BAR, {
             page: palette.page,
             ink: palette.ink,

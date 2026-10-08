@@ -67,17 +67,23 @@ appId: app.scootch.dev
     visible:
       id: 'world-island'
     timeout: 15000
+# The tabs at the foot: the song, and back to the world, without leaving the place.
 - tapOn:
-    id: 'world-open-record'
+    id: 'keep-tab-song'
     waitToSettleTimeoutMs: 0
 - extendedWaitUntil:
     visible:
       id: 'record'
     timeout: 15000
 - tapOn:
-    id: 'record-close'
+    id: 'keep-tab-world'
+    waitToSettleTimeoutMs: 0
+- extendedWaitUntil:
+    visible:
+      id: 'world'
+    timeout: 15000
 - tapOn:
-    id: 'world-close'
+    id: 'keep-close'
 - extendedWaitUntil:
     visible:
       id: 'world-row'
@@ -96,9 +102,9 @@ appId: app.scootch.dev
 - assertNotVisible:
     id: 'world-empty'
 - takeScreenshot: fresh-04-world
-# The zoo, and the caught card at full size.
+# The shelf, and the caught card at full size.
 - tapOn:
-    id: 'world-open-zoo'
+    id: 'keep-tab-caught'
 - extendedWaitUntil:
     visible:
       id: 'zoo'
@@ -148,15 +154,9 @@ appId: app.scootch.dev
     visible:
       id: 'zoo'
     timeout: 15000
-- tapOn:
-    id: 'zoo-close'
 # The record: today's bar is on it.
-- extendedWaitUntil:
-    visible:
-      id: 'world-open-record'
-    timeout: 15000
 - tapOn:
-    id: 'world-open-record'
+    id: 'keep-tab-song'
 - extendedWaitUntil:
     visible:
       id: 'record'
@@ -167,9 +167,7 @@ appId: app.scootch.dev
     id: 'record-keep'
 - takeScreenshot: fresh-04-record
 - tapOn:
-    id: 'record-close'
-- tapOn:
-    id: 'world-close'
+    id: 'keep-close'
 - extendedWaitUntil:
     visible:
       id: 'one-sentence'

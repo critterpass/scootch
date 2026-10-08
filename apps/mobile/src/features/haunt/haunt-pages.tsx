@@ -1,17 +1,17 @@
-import { useMemo, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { useMemo } from 'react';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import { specFromSeed } from '@scootch/art';
 import type { MonsterBodyType, MonsterSpec } from '@scootch/domain';
 
 import { HAUNT_DARES, type Friend, type HauntDare } from '../../api/together-api';
 import { useT } from '../../i18n/i18n-provider';
-import { Page } from '../settings/page';
-import { Row, Section, SwitchRow } from '../settings/rows';
-import { ActionDock } from '../table/action-dock';
+import { FittedSheet } from '../../ui/fitted-sheet';
+import { Section, SwitchRow } from '../settings/rows';
 import { Words } from '../table/words';
 
 import { HauntCard } from './haunt-card';
+import { ChipChoice, HauntGuide, SheetDock } from './haunt-parts';
 import type { SendProblem } from './haunt-rules';
 
 const PROBLEMS = {
@@ -28,8 +28,8 @@ export interface HauntSendPageProps {
     readonly name: string;
     readonly line: string;
   } | null;
-  /** Friends who take haunts. */
-  readonly friends: readonly Friend[];
+  /** Friends who take haunts; `null` while the server is being asked, when nothing is said yet. */
+  readonly friends: readonly Friend[] | null;
   readonly to: string | null;
   readonly dare: HauntDare;
   readonly anonymous: boolean;
@@ -47,20 +47,34 @@ export interface HauntSendPageProps {
   readonly onClose: () => void;
 }
 
+/** Under this height the monster's card is left off, so the sheet stays on a short phone. */
+const CARD_FITS_FROM = 760;
+
 /**
- * Sending a monster, as the board draws it: its card, "Haunt Kofi?", one card with the dare and
- * whether a name goes with it, and a dock with "Not now" and "Send the haunt". The dare opens
- * into the preset list; with more than one friend who takes haunts, so does who it goes to.
+ * Sending a monster: its card, "Haunt Kofi?", the dare and whether a name goes with it, and a
+ * dock with "Not now" and "Send the haunt". It is a sheet as tall as what is on it, so every
+ * choice is in view as chips and nothing opens or closes. With nobody to haunt yet it says what
+ * a haunt is, in three steps, and offers the link that makes a friend.
  */
 export function HauntSendPage(props: HauntSendPageProps) {
   const t = useT();
-  const { friends, to, monster } = props;
-  const [open, setOpen] = useState<'who' | 'dare' | null>(null);
+  const { height } = useWindowDimensions();
+  const { to, monster } = props;
+  const friends = props.friends ?? [];
   const friend = friends.find((one) => one.accountId === to);
   const name = friend?.displayName ?? null;
-  const nobody = friends.length === 0;
+  // Nobody to haunt is said only once the server has answered: until then the sheet keeps its
+  // heading and its way out, and neither the guide nor the choices flash by.
+  const asking = props.friends === null;
+  const nobody = !asking && friends.length === 0;
+  const notNow = {
+    label: t('haunt.notNow'),
+    hint: t('haunt.notNow.hint'),
+    onPress: props.onClose,
+    testID: 'haunt-not-now',
+  };
   const dock = props.sent ? (
-    <ActionDock
+    <SheetDock
       quiet={{
         label: t('settings.close'),
         hint: t('haunt.notNow.hint'),
@@ -74,37 +88,46 @@ export function HauntSendPage(props: HauntSendPageProps) {
         testID: 'haunt-pass-on',
       }}
     />
+  ) : nobody ? (
+    <SheetDock
+      quiet={notNow}
+      {...(props.onInvite === undefined
+        ? {}
+        : {
+            action: {
+              label: t('table.invite'),
+              hint: t('friends.invite.hint'),
+              onPress: props.onInvite,
+              testID: 'haunt-invite',
+            },
+          })}
+    />
+  ) : asking ? (
+    <SheetDock quiet={notNow} />
   ) : (
-    <ActionDock
-      quiet={{
-        label: t('haunt.notNow'),
-        hint: t('haunt.notNow.hint'),
-        onPress: props.onClose,
-        testID: 'haunt-not-now',
+    <SheetDock
+      quiet={notNow}
+      action={{
+        label: t('haunt.send'),
+        hint: t('haunt.send.hint'),
+        disabled: props.busy || to === null,
+        onPress: props.onSend,
+        testID: 'haunt-send-button',
       }}
-      action={
-        nobody
-          ? props.onInvite === undefined
-            ? undefined
-            : {
-                label: t('table.invite'),
-                hint: t('friends.invite.hint'),
-                onPress: props.onInvite,
-                testID: 'haunt-invite',
-              }
-          : {
-              label: t('haunt.send'),
-              hint: t('haunt.send.hint'),
-              disabled: props.busy || to === null,
-              onPress: props.onSend,
-              testID: 'haunt-send-button',
-            }
-      }
     />
   );
   return (
-    <Page onClose={props.onClose} testID="haunt-send" footer={dock}>
-      {monster === null ? null : (
+    <FittedSheet
+      testID="haunt-send"
+      close={{
+        label: t('settings.close'),
+        hint: t('settings.close.hint'),
+        onPress: props.onClose,
+        testID: 'haunt-send-close',
+      }}
+      footer={dock}
+    >
+      {monster === null || height < CARD_FITS_FROM ? null : (
         <HauntCard spec={monster.spec} name={monster.name} line={monster.line} />
       )}
       <View style={styles.said}>
@@ -117,78 +140,64 @@ export function HauntSendPage(props: HauntSendPageProps) {
                 ? t('haunt.send.titleNoOne')
                 : t('haunt.send.title', { name })}
         </Words>
-        <Words kind="quiet" {...(props.sent ? { testID: 'haunt-sent' } : {})}>
-          {t(nobody ? 'haunt.noFriends' : 'haunt.send.sub')}
-        </Words>
+        {props.sent ? (
+          <Words kind="quiet" testID="haunt-sent">
+            {t('haunt.send.sub')}
+          </Words>
+        ) : nobody ? null : (
+          <Words kind="quiet">{t('haunt.send.sub')}</Words>
+        )}
       </View>
-      {nobody || props.sent ? null : (
-        <Section>
+      {nobody && !props.sent ? (
+        <HauntGuide
+          steps={[t('haunt.guide.invite'), t('haunt.guide.send'), t('haunt.guide.theirs')]}
+        />
+      ) : null}
+      {nobody || asking || props.sent ? null : (
+        <>
           {friends.length < 2 ? null : (
-            <Row
-              first
+            <ChipChoice
               label={t('haunt.who')}
-              value={name ?? ''}
               hint={t('haunt.who.hint')}
-              onPress={() => setOpen(open === 'who' ? null : 'who')}
-              testID="haunt-who"
+              chosen={to}
+              choices={friends.map((one) => ({
+                value: one.accountId,
+                label: one.displayName ?? t('friends.noName'),
+              }))}
+              onChoose={props.onTo}
+              testPrefix="haunt-to"
             />
           )}
-          {open === 'who'
-            ? friends.map((one) => (
-                <Row
-                  key={one.accountId}
-                  kind="choice"
-                  selected={one.accountId === to}
-                  label={one.displayName ?? t('friends.noName')}
-                  hint={t('haunt.who.hint')}
-                  onPress={() => {
-                    props.onTo(one.accountId);
-                    setOpen(null);
-                  }}
-                  testID={`haunt-to-${one.accountId}`}
-                />
-              ))
-            : null}
-          <Row
-            first={friends.length < 2}
+          <ChipChoice
             label={t('haunt.dare')}
-            value={`“${t(`haunt.dare.${props.dare}`)}”`}
             hint={t('haunt.dare.hint')}
-            onPress={() => setOpen(open === 'dare' ? null : 'dare')}
-            testID="haunt-dare"
+            chosen={props.dare}
+            choices={HAUNT_DARES.map((dare) => ({
+              value: dare,
+              label: t(`haunt.dare.${dare}`),
+            }))}
+            onChoose={props.onDare}
+            testPrefix="haunt-dare"
           />
-          {open === 'dare'
-            ? HAUNT_DARES.map((dare) => (
-                <Row
-                  key={dare}
-                  kind="choice"
-                  selected={dare === props.dare}
-                  label={t(`haunt.dare.${dare}`)}
-                  hint={t('haunt.dare.hint')}
-                  onPress={() => {
-                    props.onDare(dare);
-                    setOpen(null);
-                  }}
-                  testID={`haunt-dare-${dare}`}
-                />
-              ))
-            : null}
-          <SwitchRow
-            label={t('haunt.anonymous')}
-            sub={t(props.anonymous ? 'haunt.anonymous.on' : 'haunt.anonymous.off')}
-            hint={t('haunt.anonymous.hint')}
-            value={props.anonymous}
-            onChange={props.onAnonymous}
-            testID="haunt-anonymous"
-          />
-        </Section>
+          <Section>
+            <SwitchRow
+              first
+              label={t('haunt.anonymous')}
+              sub={t(props.anonymous ? 'haunt.anonymous.on' : 'haunt.anonymous.off')}
+              hint={t('haunt.anonymous.hint')}
+              value={props.anonymous}
+              onChange={props.onAnonymous}
+              testID="haunt-anonymous"
+            />
+          </Section>
+        </>
       )}
       {props.problem === null ? null : (
         <Words kind="quiet" accessibilityLiveRegion="polite" testID="haunt-problem">
           {t(PROBLEMS[props.problem])}
         </Words>
       )}
-    </Page>
+    </FittedSheet>
   );
 }
 
@@ -214,12 +223,18 @@ export function HauntReceivedPage(props: HauntReceivedPageProps) {
     [props.bodyType, props.seed],
   );
   const dare = t(`haunt.dare.${props.dare}`);
+  const { height } = useWindowDimensions();
   return (
-    <Page
-      onClose={props.onShoo}
+    <FittedSheet
       testID="haunt-received"
+      close={{
+        label: t('haunt.shoo'),
+        hint: t('haunt.shoo.hint'),
+        onPress: props.onShoo,
+        testID: 'haunt-received-close',
+      }}
       footer={
-        <ActionDock
+        <SheetDock
           quiet={{
             label: t('haunt.shoo'),
             hint: t('haunt.shoo.hint'),
@@ -237,15 +252,17 @@ export function HauntReceivedPage(props: HauntReceivedPageProps) {
         />
       }
     >
-      <HauntCard
-        spec={spec}
-        name={null}
-        line={
-          props.from === null
-            ? t('haunt.received.says', { dare })
-            : t('haunt.card.says', { name: props.from, dare })
-        }
-      />
+      {height < CARD_FITS_FROM ? null : (
+        <HauntCard
+          spec={spec}
+          name={null}
+          line={
+            props.from === null
+              ? t('haunt.received.says', { dare })
+              : t('haunt.card.says', { name: props.from, dare })
+          }
+        />
+      )}
       <View style={styles.said}>
         <Words kind="headline">
           {props.from === null
@@ -255,10 +272,12 @@ export function HauntReceivedPage(props: HauntReceivedPageProps) {
         <Words>{t('haunt.received.says', { dare })}</Words>
         <Words kind="quiet">{t('haunt.received.sub')}</Words>
       </View>
-    </Page>
+    </FittedSheet>
   );
 }
 
 const styles = StyleSheet.create({
-  said: { paddingHorizontal: 12, gap: 10 },
+  // The close control floats in the trailing corner: the words keep clear of it when there is
+  // no card above them.
+  said: { gap: 10, paddingRight: 44 },
 });

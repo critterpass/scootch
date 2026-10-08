@@ -88,7 +88,7 @@ export interface DockAction {
 }
 
 /** A small padlock, as the Plus board draws it beside a locked control. */
-function Lock({ color }: { readonly color: string }) {
+export function Lock({ color }: { readonly color: string }) {
   return (
     <View style={styles.lock}>
       <View style={[styles.shackle, { borderColor: color }]} />

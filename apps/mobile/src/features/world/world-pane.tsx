@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 
 import type { Attitude, Id, IsoDate, MonsterRow, WorldPieceRow } from '@scootch/domain';
 import { spacing } from '@scootch/tokens';
@@ -9,13 +10,15 @@ import { SendIcon } from '../../ui/icons';
 import { FadeAway } from '../../ui/motion/fade-away';
 import { PopIn } from '../../ui/motion/pop-in';
 import { useScreenStyle } from '../../ui/use-screen-style';
+import { QuietLink } from '../dump/dump-panels';
+import { CAUGHT, mix, presence, ramp, SONG, useKeepMotion, WORLD } from '../keep/keep-motion';
+import { PaneHead } from '../keep/pane-head';
 import { FirstOffer } from '../plus/first-offer';
-import { QuietLink, QuietRow } from '../dump/dump-panels';
-import { Dock, KeepFrame } from '../reveal/ui/keep-frame';
 import { SessionText } from '../session/ui/session-text';
 
 import { Island } from './island';
-import type { IslandTarget } from './island-layout';
+import { ISLAND_SPACE, layoutIsland, type IslandTarget } from './island-layout';
+import { inLandingOrder } from './world-layout';
 import { offerMayShow, worldDay, worldSentence, worldSubtitle } from './world-words';
 
 export interface WorldModel {
@@ -35,9 +38,6 @@ export interface WorldModel {
 }
 
 export interface WorldActions {
-  readonly close: () => void;
-  readonly openZoo: () => void;
-  readonly openRecord: () => void;
   /** Opens a resident's card. Left out, a resident answers the press and nothing opens. */
   readonly openMonster?: (monsterId: Id) => void;
   /** Sends the world as a postcard. Left out (an empty world, a crisis day), there is no chip. */
@@ -51,15 +51,28 @@ const ISLAND_MAX = 420;
 const LANDED_NOTE_MS = 3200;
 
 /**
- * The world: everything finished, as one island with Scootch in the middle. It fills the width of
- * the phone and rescales as it fills; the line under the title says how old the place is and how
- * many things live there, and Scootch's sentence sits under the island. Everything on the island
- * answers a tap: a resident opens its card, Scootch reacts, a landmark says what it is.
+ * The world's tab: everything finished, as one island with Scootch in the middle. It fills the
+ * width of the phone and rescales as it fills; the line under the title says how old the place is
+ * and how many things live there, and Scootch's sentence sits under the island. Everything on the
+ * island answers a tap: a resident opens its card, Scootch reacts, a landmark says what it is.
+ *
+ * Leaving for the shelf, the island pulls back and fades as if the eye had stepped away from it;
+ * leaving for the record it sinks a little and lets its sand become the record.
  */
-export function WorldScreen({ model, actions }: { model: WorldModel; actions: WorldActions }) {
+export function WorldPane({
+  model,
+  actions,
+  active = true,
+}: {
+  readonly model: WorldModel;
+  readonly actions: WorldActions;
+  /** Whether this is the tab in view. Only then is it found by its name. */
+  readonly active?: boolean;
+}) {
   const t = useT();
   const { palette, reducedMotion } = useScreenStyle();
   const { width, height } = useWindowDimensions();
+  const { from, to, progress, sand, calm, barSpace } = useKeepMotion();
   const still = reducedMotion || model.calm === true;
   const today = worldDay(model.pieces, model.today);
   const names = useMemo(
@@ -96,40 +109,57 @@ export function WorldScreen({ model, actions }: { model: WorldModel; actions: Wo
     return () => clearTimeout(timer);
   }, [model.landing]);
   const size = Math.min(width - spacing.md * 2, ISLAND_MAX);
+  const top = height > 760 ? 40 : spacing.sm;
+
+  // Where the sand lies, for the record to rise out of.
+  const ground = useMemo(
+    () => layoutIsland(inLandingOrder(model.pieces, model.monsters)).ground,
+    [model.pieces, model.monsters],
+  );
+  useEffect(() => {
+    const unit = size / ISLAND_SPACE;
+    sand.value = { cy: top + ground.y * unit, rx: ground.rx * unit, ry: ground.ry * unit };
+  }, [ground, size, top, sand]);
+
+  const island = useAnimatedStyle(() => {
+    const { v, other } = presence(from.value, to.value, progress.value, WORLD);
+    if (calm) return { opacity: v, transform: [{ translateY: 0 }, { scale: 1 }] };
+    if (other === CAUGHT) {
+      // The eye steps back: the island shrinks toward the top of the shelf and is gone.
+      return {
+        opacity: ramp(v, 0.3, 0.85),
+        transform: [{ translateY: mix(-size * 0.2, 0, v) }, { scale: mix(0.5, 1, v) }],
+      };
+    }
+    if (other === SONG) {
+      return {
+        opacity: ramp(v, 0.4, 0.95),
+        transform: [{ translateY: mix(-10, 0, v) }, { scale: mix(0.94, 1, v) }],
+      };
+    }
+    return { opacity: v > 0 ? 1 : 0, transform: [{ translateY: 0 }, { scale: 1 }] };
+  }, [size, calm]);
+  const under = useAnimatedStyle(() => {
+    const { v } = presence(from.value, to.value, progress.value, WORLD);
+    if (calm) return { opacity: v, transform: [{ translateY: 0 }] };
+    return { opacity: ramp(v, 0.6, 1), transform: [{ translateY: mix(14, 0, ramp(v, 0.4, 1)) }] };
+  }, [calm]);
+
   return (
-    <KeepFrame
-      testID="world"
-      title={t('oneScreen.world')}
-      subtitle={subtitle}
-      close={{ label: t('keep.close'), hint: t('keep.close.hint'), onPress: actions.close }}
-      closeTestID="world-close"
-      scroll={false}
-      footer={
-        <>
-          {offerMayShow(model) ? <FirstOffer /> : null}
-          <Dock
-            quiet={{
-              label: t('world.caught'),
-              hint: t('world.caught.hint'),
-              testID: 'world-open-zoo',
-              onPress: actions.openZoo,
-            }}
-            action={{
-              label: t('world.song'),
-              hint: t('world.song.hint'),
-              testID: 'world-open-record',
-              onPress: actions.openRecord,
-            }}
-          />
-        </>
-      }
-    >
+    <View style={styles.fill} testID={active ? 'world' : undefined}>
+      <PaneHead
+        tab={WORLD}
+        title={t('oneScreen.world')}
+        subtitle={subtitle}
+        countTestID="world-count"
+      />
       <ScrollView
         // The island is not a page to scroll back up: a tap on the status bar is left alone.
         scrollsToTop={false}
-        contentContainerStyle={[styles.middle, { paddingTop: height > 760 ? 40 : spacing.sm }]}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[styles.middle, { paddingTop: top, paddingBottom: barSpace }]}
       >
-        <View style={styles.place}>
+        <Animated.View style={island}>
           <Island
             pieces={model.pieces}
             monsters={model.monsters}
@@ -147,6 +177,8 @@ export function WorldScreen({ model, actions }: { model: WorldModel; actions: Wo
             testID="world-island"
             {...(model.attitude ? { attitude: model.attitude } : {})}
           />
+        </Animated.View>
+        <Animated.View style={[styles.under, under]}>
           {model.landing ? (
             <FadeAway shown={noted} style={styles.words}>
               <PopIn delayMs={still ? 0 : 380}>
@@ -166,7 +198,7 @@ export function WorldScreen({ model, actions }: { model: WorldModel; actions: Wo
             {told ?? sentence}
           </SessionText>
           {actions.sendPostcard && !empty ? (
-            <QuietRow>
+            <View style={styles.chip}>
               <QuietLink
                 label={t('world.postcard')}
                 hint={t('world.postcard.hint')}
@@ -174,16 +206,25 @@ export function WorldScreen({ model, actions }: { model: WorldModel; actions: Wo
                 testID="world-postcard"
                 icon={<SendIcon color={palette.ink} />}
               />
-            </QuietRow>
+            </View>
           ) : null}
-        </View>
+          {offerMayShow(model) ? (
+            <View style={styles.offer}>
+              <FirstOffer />
+            </View>
+          ) : null}
+        </Animated.View>
       </ScrollView>
-    </KeepFrame>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  middle: { flexGrow: 1, alignItems: 'center', paddingBottom: spacing.md },
-  place: { alignItems: 'center', alignSelf: 'stretch' },
+  fill: { flex: 1 },
+  middle: { flexGrow: 1, alignItems: 'center' },
+  under: { alignSelf: 'stretch' },
   words: { alignSelf: 'stretch', paddingHorizontal: spacing.lg + 4, marginTop: spacing.sm },
+  // The way to send the world sits in the middle, a clear step under Scootch's sentence.
+  chip: { flexDirection: 'row', justifyContent: 'center', marginTop: spacing.md },
+  offer: { paddingHorizontal: spacing.lg, marginTop: spacing.lg },
 });

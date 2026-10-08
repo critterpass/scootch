@@ -10,6 +10,8 @@ import { CloseButton, CORNER, CornerBar } from '../../ui/corner-bar';
 import { CROSSFADE_MS } from '../../ui/motion/motion-tokens';
 import { SafeFrame } from '../../ui/safe-frame';
 import { useScreenStyle } from '../../ui/use-screen-style';
+import { QuietLink } from '../dump/dump-panels';
+import { PlusBadge } from '../plus/ui/plus-badge';
 import { SessionText } from '../session/ui/session-text';
 
 import { itemsOf, type StudioItem, type StudioKind } from './catalogue';
@@ -47,6 +49,13 @@ export interface StudioModel {
   readonly monster: { readonly spec: MonsterProps['spec']; readonly name: string } | null;
   readonly busy: boolean;
   readonly notice: 'failed' | 'unavailable' | null;
+  /**
+   * Whether the way to Plus has a place on this tab: the finishes, for someone Plus would dress.
+   * The place is kept whichever finish is in focus, so picking one moves nothing.
+   */
+  readonly plusPlace: boolean;
+  /** Whether the finish in focus is one Plus would put on: the way to Plus is then shown. */
+  readonly plusOffered: boolean;
   /** Said once after a purchase, over the top of the screen; `null` when there is nothing to say. */
   readonly toast: string | null;
 }
@@ -58,6 +67,8 @@ export interface StudioActions {
   readonly buy: () => void;
   readonly wear: () => void;
   readonly takeOff: () => void;
+  /** Opens the Plus sheet. Unset on a day when nothing is sold. */
+  readonly openPlus?: () => void;
 }
 
 /** The board's 30 points under a dock, never less than the home bar's own clear space. */
@@ -188,6 +199,20 @@ export function StudioScreen({ model, actions }: { model: StudioModel; actions: 
               {t(model.notice === 'failed' ? 'plus.failed' : 'plus.unavailable')}
             </SessionText>
           ) : null}
+          {model.plusPlace ? (
+            // Plus wears every finish: beside the price of one, the way to all of them.
+            <View style={styles.plus}>
+              {model.plusOffered && actions.openPlus ? (
+                <QuietLink
+                  label={t('studio.plusDoor')}
+                  hint={t('studio.plusDoor.hint')}
+                  onPress={actions.openPlus}
+                  testID="studio-plus"
+                  icon={<PlusBadge />}
+                />
+              ) : null}
+            </View>
+          ) : null}
         </View>
         <SwatchStrip
           kind={tab}
@@ -219,6 +244,8 @@ export function StudioScreen({ model, actions }: { model: StudioModel; actions: 
 }
 
 const styles = StyleSheet.create({
+  // The chip's own height, kept whether or not it is drawn.
+  plus: { minHeight: 40, flexDirection: 'row', justifyContent: 'center', paddingTop: 4 },
   page: { flex: 1 },
   // An empty corner the size of the close control, so the tabs sit in the middle of the screen.
   corner: { width: CORNER.size, height: CORNER.size },

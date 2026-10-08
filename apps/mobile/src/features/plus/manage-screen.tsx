@@ -1,12 +1,15 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
 import { FREE_STARTS_PER_DAY } from '@scootch/domain';
-import { fonts, spacing } from '@scootch/tokens';
+import { fonts, shadows, spacing } from '@scootch/tokens';
 
+import { Scootch } from '../../art/Scootch';
 import { useT } from '../../i18n/i18n-provider';
+import { useCharacterMotion } from '../../ui/motion/use-feel';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { KeepFrame } from '../reveal/ui/keep-frame';
 import { SessionText } from '../session/ui/session-text';
+import { CardThumb, FinishThumb } from '../settings/look-thumbs';
 import { Row, Section } from '../settings/rows';
 import { inkOf } from '../studio/catalogue';
 import type { Look } from '../studio/look';
@@ -15,7 +18,6 @@ import type { Member } from './member';
 import { planLine } from './plan-line';
 import type { CustomerState } from './purchases-port';
 import { MemberCard } from './ui/member-card';
-import { Panel } from './ui/parts';
 
 export interface ManageModel {
   readonly customer: CustomerState;
@@ -89,12 +91,14 @@ function Figure({ value, label }: { readonly value: string; readonly label: stri
 /**
  * Your card: the member card in the finish and ink the person wears, three figures, then the
  * plan, its next date and the way to manage it, right under the card and never hidden. Changing
- * and cancelling are Apple's own sheet. Someone without Plus sees what free Scootch is, and the
- * way to see Plus.
+ * and cancelling are Apple's own sheet. Someone without Plus sees Scootch beside what free
+ * Scootch is, the card Plus comes with, and the way to see Plus.
  */
 export function ManageScreen({ model, actions }: { model: ManageModel; actions: ManageActions }) {
   const t = useT();
-  const { palette, largeText } = useScreenStyle();
+  const { palette, largeText, allowFontScaling, size } = useScreenStyle();
+  const character = useCharacterMotion();
+  const { width } = useWindowDimensions();
   const { customer, look, member } = model;
   const plan = customer.activePlan;
   const subscribed = plan === 'monthly' || plan === 'yearly';
@@ -108,14 +112,40 @@ export function ManageScreen({ model, actions }: { model: ManageModel; actions: 
       closeTestID="plus-manage-close"
     >
       {plan === null ? (
-        <Panel testID="plus-manage-plan">
-          <SessionText face="action" color={palette.ink}>
-            {t('plus.manage.free')}
-          </SessionText>
-          <SessionText face="body" color={palette.muted} testID="plus-manage-plan-line">
-            {planLine(customer, model.date, t)}
-          </SessionText>
-        </Panel>
+        <>
+          <View
+            style={[styles.free, { backgroundColor: palette.surface }]}
+            testID="plus-manage-plan"
+          >
+            <Scootch mood="pleased" size={76} {...character} />
+            <View style={styles.freeWords}>
+              <Text
+                allowFontScaling={allowFontScaling}
+                maxFontSizeMultiplier={1.4}
+                style={[styles.freeTitle, { color: palette.ink, fontSize: size(20) }]}
+              >
+                {t('plus.manage.free')}
+              </Text>
+              <SessionText face="caption" color={palette.muted} testID="plus-manage-plan-line">
+                {planLine(customer, model.date, t)}
+              </SessionText>
+            </View>
+          </View>
+          {model.selling && !largeText ? (
+            // The card Plus comes with, as a picture: the way to it is the row under it.
+            <View style={styles.preview}>
+              <MemberCard
+                finish="holo"
+                width={Math.min(CARD_WIDTH, width - spacing.lg * 2) * 0.86}
+                number={null}
+                year={model.thisYear}
+                line={t('plus.card.yourName')}
+                mood="bargaining"
+                testID="plus-manage-preview"
+              />
+            </View>
+          ) : null}
+        </>
       ) : (
         <>
           <View style={styles.stage}>
@@ -152,6 +182,7 @@ export function ManageScreen({ model, actions }: { model: ManageModel; actions: 
         {plan === null ? (
           <Row
             first
+            leading={<CardThumb finish="holo" number={null} />}
             label={t('plus.manage.see')}
             hint={t('plus.manage.see.hint')}
             {...(model.selling ? { onPress: actions.seePlus } : { inert: true })}
@@ -193,16 +224,20 @@ export function ManageScreen({ model, actions }: { model: ManageModel; actions: 
           onPress={actions.restore}
           testID="plus-manage-restore"
         />
-        {model.selling ? (
+      </Section>
+      {model.selling ? (
+        <Section>
           <Row
             label={t('studio.title')}
+            first
+            leading={<FinishThumb finish={look.finish} />}
             sub={wearing}
             hint={t('plus.card.studio.hint')}
             onPress={actions.openStudio}
             testID="plus-manage-studio"
           />
-        ) : null}
-      </Section>
+        </Section>
+      ) : null}
       {model.notice ? (
         <SessionText
           face="body"
@@ -227,6 +262,20 @@ export function ManageScreen({ model, actions }: { model: ManageModel; actions: 
 
 const styles = StyleSheet.create({
   stage: { alignItems: 'center', paddingVertical: spacing.md },
+  // What free Scootch is: Scootch himself beside the words, as the board's plan card has him.
+  free: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    borderRadius: 26,
+    paddingVertical: spacing.md,
+    paddingLeft: spacing.sm + 4,
+    paddingRight: spacing.md + 4,
+    boxShadow: shadows.card,
+  },
+  freeWords: { flex: 1, gap: 4 },
+  freeTitle: { fontFamily: fonts.heading, fontWeight: '800', letterSpacing: -0.4 },
+  preview: { alignItems: 'center', paddingVertical: spacing.sm, transform: [{ rotate: '-2deg' }] },
   figures: { flexDirection: 'row', gap: spacing.sm },
   stacked: { flexDirection: 'column' },
   figure: { flex: 1, borderRadius: 20, paddingVertical: 14, paddingHorizontal: 12, gap: 4 },

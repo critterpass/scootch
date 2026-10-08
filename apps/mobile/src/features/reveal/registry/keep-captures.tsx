@@ -1,16 +1,20 @@
+import type { ReactNode } from 'react';
+
 import type { Language } from '@scootch/i18n';
 import { offlineLine } from '@scootch/voice';
 
-import { RecordScreen } from '../../record/record-screen';
+import type { KeepTab } from '../../keep/keep-motion';
+import { KeepScreen } from '../../keep/keep-screen';
+import { RecordPane } from '../../record/record-pane';
 import { ARM_REST_DEG } from '../../record/record-audio';
 import { weekView } from '../../record/record-week';
 import { lighthousePiece } from '../../world/landmarks';
-import { WorldScreen } from '../../world/world-screen';
+import { WorldPane } from '../../world/world-pane';
 import { monthPages, pageOfToday, shelfCards } from '../../zoo/binder';
 import { CardScreen } from '../../zoo/card-screen';
 import { PagesScreen } from '../../zoo/pages-screen';
 import { cardDataFor } from '../../zoo/zoo-cards';
-import { ZooScreen } from '../../zoo/zoo-screen';
+import { ZooPane } from '../../zoo/zoo-pane';
 import type { RevealModel } from '../reveal-model';
 import { RevealScreen } from '../reveal-screen';
 import type { RevealStep } from '../reveal-steps';
@@ -60,21 +64,22 @@ function capturedReveal(step: RevealStep, language: Language) {
   return <RevealScreen model={model} actions={NO_REVEAL_ACTIONS} />;
 }
 
+/** One tab of the keeping place, at rest in its frame: the close control above, the tabs below. */
+function kept(tab: KeepTab, pane: ReactNode) {
+  return <KeepScreen tab={tab} onTab={nothing} close={nothing} calm panes={{ [tab]: pane }} />;
+}
+
 function capturedWorld(count: number, lighthouse = false) {
   const pieces = fixturePieces(count);
-  return (
-    <WorldScreen
+  return kept(
+    'world',
+    <WorldPane
       model={{
         pieces: lighthouse ? [...pieces, lighthousePiece(FIXTURE_MONDAY)] : pieces,
         monsters: asRows(fixtureMonsters(count)),
       }}
-      actions={{
-        close: nothing,
-        openZoo: nothing,
-        openRecord: nothing,
-        sendPostcard: nothing,
-      }}
-    />
+      actions={{ sendPostcard: nothing }}
+    />,
   );
 }
 
@@ -110,8 +115,9 @@ function capturedZoo(
           monster: { ...fixtureMonster(40 + index), caughtOn: null, caughtAt: null, number: null },
           day,
         }));
-  return (
-    <ZooScreen
+  return kept(
+    'caught',
+    <ZooPane
       model={{
         cards,
         wild,
@@ -122,15 +128,13 @@ function capturedZoo(
         lastLooked: first?.id ?? null,
       }}
       actions={{
-        close: nothing,
         openCard: nothing,
         sort: nothing,
         openPages: nothing,
         openPlus: nothing,
-        openWorld: nothing,
         sharePage: nothing,
       }}
-    />
+    />,
   );
 }
 
@@ -161,8 +165,9 @@ function capturedRecord(language: Language, barCount: number) {
     weekRecords: [],
     todayPosition: Math.min(7, barCount + 1),
   });
-  return (
-    <RecordScreen
+  return kept(
+    'song',
+    <RecordPane
       model={{
         week,
         language,
@@ -170,8 +175,8 @@ function capturedRecord(language: Language, barCount: number) {
         playback: { playing: false, lit: [], progress: 0, armDeg: ARM_REST_DEG },
         reducedMotion: true,
       }}
-      actions={{ close: nothing, togglePlay: nothing, shareWeek: nothing }}
-    />
+      actions={{ togglePlay: nothing, shareWeek: nothing }}
+    />,
   );
 }
 

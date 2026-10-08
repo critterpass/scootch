@@ -27,15 +27,19 @@ export interface FrameSwatchesProps {
   readonly chosen: ShareFrame;
   /** True while the picture in view is its own stock: the frames are drawn faint and take no touch. */
   readonly resting: boolean;
+  /**
+   * Whether a locked frame answers a tap (by opening the Plus sheet). False where the composer
+   * was opened from the reveal, or on a heavy day: a locked frame then takes no touch.
+   */
+  readonly open: boolean;
   readonly onChoose: (frame: ShareFrame) => void;
 }
 
 /**
  * The four frames a story is printed on, each a disc of its own stock with its name. The chosen
- * one is ringed; one that needs Plus says so under its name and takes no touch: nothing is sold
- * from the composer, which is reached from the reveal.
+ * one is ringed; one that needs Plus says so under its name.
  */
-export function FrameSwatches({ frames, chosen, resting, onChoose }: FrameSwatchesProps) {
+export function FrameSwatches({ frames, chosen, resting, open, onChoose }: FrameSwatchesProps) {
   const t = useT();
   const { palette, allowFontScaling, size } = useScreenStyle();
   return (
@@ -46,16 +50,17 @@ export function FrameSwatches({ frames, chosen, resting, onChoose }: FrameSwatch
     >
       {frames.map(({ id, locked }) => {
         const on = id === chosen && !resting;
+        const inert = resting || (locked && !open);
         return (
           <PressSpring
             key={id}
             accessibilityRole="radio"
-            accessibilityState={{ selected: on, checked: on, disabled: resting || locked }}
+            accessibilityState={{ selected: on, checked: on, disabled: inert }}
             accessibilityLabel={
               locked ? `${t(`share.frame.${id}`)}, ${t('brand.plus')}` : t(`share.frame.${id}`)
             }
             accessibilityHint={locked ? t('keep.plusOnly.hint') : t('share.frame.hint')}
-            disabled={resting || locked}
+            disabled={inert}
             onPress={() => onChoose(id)}
             feedback="choice"
             testID={`share-frame-${id}`}
@@ -97,7 +102,7 @@ export function FrameSwatches({ frames, chosen, resting, onChoose }: FrameSwatch
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', justifyContent: 'space-around', paddingTop: 6 },
+  row: { flexDirection: 'row', justifyContent: 'space-around' },
   resting: { opacity: 0.35 },
   item: { alignItems: 'center', gap: 6, minWidth: 64 },
   disc: { width: DISC, height: DISC, borderRadius: DISC / 2 },
