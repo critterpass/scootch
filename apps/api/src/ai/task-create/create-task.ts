@@ -12,6 +12,7 @@ import {
 import { checkLine, offlinePacks, wordsOf } from '@scootch/voice';
 
 import { ApiError } from '../../errors';
+import { readSharedMonster } from '../../sharing/shared-monsters';
 import { generate } from '../deepseek';
 import { screenText } from '../screen-input';
 
@@ -140,6 +141,24 @@ async function plainTask(
   };
 }
 
+/**
+ * The website monster a passed thing keeps, when the request names one that is still wild. A page
+ * that cannot be read is no reason to refuse the thing: it then hatches as any other.
+ */
+async function monsterToKeep(context: TaskCreateContext, id: string | undefined) {
+  if (id === undefined) return null;
+  try {
+    const monster = await readSharedMonster(context.env.DB, id);
+    return monster?.status === 'wild' ? monster : null;
+  } catch (error) {
+    console.warn('website monster not read', {
+      requestId: context.requestId,
+      reason: error instanceof ApiError ? error.code : 'internal',
+    });
+    return null;
+  }
+}
+
 /** A promise that is being waited for elsewhere, or not at all, without an unhandled rejection. */
 function held<T>(work: Promise<T>): Promise<T> {
   work.catch(() => undefined);
@@ -197,9 +216,12 @@ export async function startTask(
 
   const sorted = await picking;
   const oneThing = sorted.oneThing.text;
-  const labels = await (early !== null && oneThing === text
+  const read = await (early !== null && oneThing === text
     ? early
     : labelsFor(decideContext(context), oneThing));
+  // Only now, with the words through the screen, is the monster's page read.
+  const kept = await monsterToKeep(context, request.monsterPage);
+  const labels = kept === null ? read : { ...read, bodyType: kept.bodyType };
   return {
     verdict: 'pass',
     response: {
@@ -221,6 +243,16 @@ export async function startTask(
       attitude,
       bodyType: labels.bodyType,
       seed: seedOf(oneThing, language, attitude, request.localDate),
+      ...(kept === null
+        ? {}
+        : {
+            adopted: {
+              name: kept.name,
+              flavourText: kept.flavourText,
+              seed: kept.seed,
+              language: kept.language,
+            },
+          }),
     },
   };
 }
