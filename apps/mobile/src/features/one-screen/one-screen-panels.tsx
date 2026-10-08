@@ -6,6 +6,7 @@ import { useT } from '../../i18n/i18n-provider';
 import { Chevron } from '../../ui/icons';
 import { PressSpring } from '../../ui/motion/press-spring';
 import { glassPressOwner, GlassSurface } from '../../ui/glass-surface';
+import { SwipeAway } from '../../ui/swipe-away';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { WorldGlance } from '../world/world-thumbnail';
 
@@ -54,9 +55,15 @@ const WORLD_THUMBNAIL = 84;
 
 /**
  * The way into the world, on the quiet screen: the world itself, small and alive, and how many
- * things live there now.
+ * things live there now. It can be swiped away from home.
  */
-export function WorldRow({ onPress }: { readonly onPress: () => void }) {
+export function WorldRow({
+  onPress,
+  onAway,
+}: {
+  readonly onPress: () => void;
+  readonly onAway?: () => void;
+}) {
   const { palette, allowFontScaling, size } = useScreenStyle();
   const t = useT();
   return (
@@ -68,7 +75,7 @@ export function WorldRow({ onPress }: { readonly onPress: () => void }) {
             : count === 0
               ? t('world.row.empty')
               : t('world.row.count', { count });
-        return (
+        const card = (
           <PressSpring
             accessibilityRole="button"
             accessibilityLabel={
@@ -111,6 +118,14 @@ export function WorldRow({ onPress }: { readonly onPress: () => void }) {
             </View>
             <Chevron color={palette.chevron} direction="right" />
           </PressSpring>
+        );
+        // Down and away: a swipe sideways here turns the pages home sits between.
+        return onAway ? (
+          <SwipeAway to="down" onGone={onAway}>
+            {card}
+          </SwipeAway>
+        ) : (
+          card
         );
       }}
     </WorldGlance>

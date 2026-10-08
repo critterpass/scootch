@@ -82,6 +82,7 @@ export * from './one-screen-task-set-at-table';
 export * from './one-screen-thinking';
 export * from './one-screen-typing';
 export * from './one-screen-waiting';
+export * from './one-screen-world-card-away';
 export * from './plus-cancelled';
 export * from './plus-first-offer';
 export * from './plus-manage-free';

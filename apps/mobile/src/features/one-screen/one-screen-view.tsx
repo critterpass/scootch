@@ -161,9 +161,9 @@ export function OneScreenView({
     footer = (
       <>
         {warmUp ? <StepDots step={4} /> : null}
-        {home && onWorld ? (
+        {home?.onWorldCardAway && onWorld ? (
           <FadeAway shown={atRest}>
-            <WorldRow onPress={onWorld} />
+            <WorldRow onPress={onWorld} onAway={home.onWorldCardAway} />
           </FadeAway>
         ) : null}
         <View onLayout={(event) => setComposerHeight(event.nativeEvent.layout.height)}>
