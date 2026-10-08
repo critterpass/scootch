@@ -25,6 +25,7 @@ again on 8 Oct 2026; the other boards are as first exported.
 | Website | 15 sections: system, home, maker, monster page, shared pages, invites, getting the app, Plus, wall, Unwrapped, plain pages, before launch, link previews, motion, copy | Replaced on 8 Oct 2026 by Website v2 and the Scootch Web boards. Still the reference for the caught card, story and record pages, which the new boards do not draw |
 | Website v2 and Scootch Web - Monster, Plus, Invites, Get, Help, 404, Wall, Unwrapped (added 8 Oct 2026) | The website as real pages, one board each, with one shared script, `web-fx.js` | Yes, without the wall, Unwrapped, gifts and courage from strangers. See `plans/261008-0239-website-redesign/plan.md` |
 | Camera | Four modes, before and after | Yes (in scope from 8 Oct 2026) |
+| Starting Helpers (added 8 Oct 2026) | Eight sections: before you start (ends at, a guess, a when), getting in (the cue, the energy step, bites), after the catch (the stat line on the card and the story), not finished, a time heard, company in the session's footer, the odd week, widgets at rest | As mapped in `plans/261008-2249-starting-helpers/board-map.md`. Three things it draws are not the app's: the "Treat after this" row, the three length pills (the length is the wheel), and the story's "I finally…" headline |
 | iPhone Duo | Foldable layouts | After launch |
 
 The eight ways to catch a task's monster, which took the place of hold to
