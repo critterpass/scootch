@@ -20,6 +20,7 @@ export function defaultSettings(language: Language): SettingsRow {
     keepTranscripts: false,
     canBeHaunted: true,
     hideTableLabel: false,
+    worldCardOnHome: true,
     iconFollows: 'attitude',
     iconPinned: 'cheeky',
     wallpaper: 'world',
@@ -34,6 +35,7 @@ const BOOLEANS: ReadonlySet<string> = new Set([
   'keepTranscripts',
   'canBeHaunted',
   'hideTableLabel',
+  'worldCardOnHome',
 ] satisfies (keyof StoredSettings)[]);
 
 /** The key the finish method was kept under when it was the catch, two taps or saying "done". */

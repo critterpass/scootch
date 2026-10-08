@@ -1,0 +1,30 @@
+appId: app.scootch.dev
+---
+# The fresh-user walk, between steps four and five: the world card on home is swiped down and
+# away, and stays away when the app is opened again. It carries on from the step before it, on
+# home at rest; nothing is cleared and nothing is seeded. No later step looks for the card.
+- extendedWaitUntil:
+    visible:
+      id: 'world-row'
+    timeout: 90000
+- swipe:
+    from:
+      id: 'world-row'
+    direction: DOWN
+- extendedWaitUntil:
+    notVisible:
+      id: 'world-row'
+    timeout: 15000
+- assertVisible:
+    id: 'composer'
+- takeScreenshot: one-screen-world-card-away--en-light-default
+# It was put away, not hidden for now: a new launch does not bring it back.
+- stopApp
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: 'composer'
+    timeout: 90000
+- assertNotVisible:
+    id: 'world-row'
+- takeScreenshot: fresh-04d-still-away-after-relaunch

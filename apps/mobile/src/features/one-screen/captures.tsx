@@ -17,7 +17,7 @@ import { OneScreenView, type OneScreenShown } from './one-screen-view';
 const nothing = () => undefined;
 const READY = initialComposer('ready');
 /** Home with nothing waiting for tomorrow and a start still open. */
-const HOME = { waiting: null, startsNote: null } as const;
+const HOME = { waiting: null, startsNote: null, onWorldCardAway: () => undefined } as const;
 /** How long the captured recording has been running. */
 const RECORDING_FOR_MS = 14_000;
 
@@ -252,7 +252,13 @@ export function OneScreenOffline() {
 }
 
 /** Home on a day with something done in it: Scootch rests, and the dock is `gate`d or open. */
-function Rested({ gate }: { readonly gate?: 'locked' | 'spent' }) {
+function Rested({
+  gate,
+  worldCard = true,
+}: {
+  readonly gate?: 'locked' | 'spent';
+  readonly worldCard?: boolean;
+}) {
   const { voice, t } = useCapture();
   return (
     <OneScreenView
@@ -263,6 +269,7 @@ function Rested({ gate }: { readonly gate?: 'locked' | 'spent' }) {
       onWorld={nothing}
       shown={composerShown(gate ? { gate: { kind: gate, onUnlock: nothing } } : {}, {
         home: {
+          ...(worldCard ? { onWorldCardAway: nothing } : {}),
           waiting: null,
           startsNote:
             gate === 'locked' ? t('plus.oneMore.freeDone', { count: FREE_STARTS_PER_DAY }) : null,
@@ -274,6 +281,11 @@ function Rested({ gate }: { readonly gate?: 'locked' | 'spent' }) {
 
 export function OneScreenDoneForToday() {
   return <Rested />;
+}
+
+/** Home after the world card was swiped away: Scootch, his line and the composer. */
+export function OneScreenWorldCardAway() {
+  return <Rested worldCard={false} />;
 }
 
 export function OneScreenStartsLocked() {
