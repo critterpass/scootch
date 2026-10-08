@@ -17,9 +17,10 @@ Effort: high (permissions on a public page).
 - Do: the kind line written when the monster arrives is kept with its page,
   the page's read answers with it, and the website's card shows it.
 - Test: the read route; the page's card with and without one.
-- Status: partly done — same commit: the page keeps the kind line, its read
-  answers with it and a second arrival is given the same one. The website's
-  card does not show it yet
+- Status: done — the page keeps the kind line, its read answers with it and a
+  second arrival is given the same one (the commit that adds the
+  `shared_monster_taken_in` migration); the website's card shows it (the commit
+  that adds `card-kind` to the monster's page)
 
 Done when: a monster caught in the dev app reads CAUGHT on the dev site, with
 its kind line.

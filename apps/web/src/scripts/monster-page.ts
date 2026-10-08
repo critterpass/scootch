@@ -21,6 +21,8 @@ type SharedMonster = {
   readonly bodyType: keyof typeof MONSTER_BODIES;
   readonly name: string;
   readonly flavourText: string;
+  /** The kind line written when the monster arrived in an app; absent or null until then. */
+  readonly title?: string | null;
   readonly typed: string | null;
   readonly status: 'wild' | 'caught';
   readonly caughtAt: string | null;
@@ -66,6 +68,9 @@ export async function startMonsterPage(root: HTMLElement): Promise<void> {
   find('[data-card-name]').textContent = monster.name;
   find('[data-card-badge]').textContent = status;
   find('[data-card-badge]').classList.toggle('tag-tomato', caught);
+  const kind = monster.title ?? null;
+  find('[data-card-kind]').textContent = kind ?? '';
+  find('[data-card-kind]').hidden = kind === null;
   find('[data-card-typed]').textContent = monster.typed === null ? '' : `“${monster.typed}”`;
   find('[data-card-typed]').hidden = monster.typed === null;
   find('[data-card-flavour]').textContent = monster.flavourText;

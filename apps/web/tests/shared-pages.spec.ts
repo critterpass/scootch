@@ -29,6 +29,20 @@ test('a wild monster’s page shows its card, its status and both ways on', asyn
   await expect(page.getByRole('button', { name: 'Unshare' })).toBeHidden();
 });
 
+test('a monster’s card shows its kind line once it has one, and no empty line before', async ({
+  page,
+}) => {
+  await answerApi(page, 'monster-page/molar-7f3k9x', wildMonster);
+  await page.goto('/m/molar-7f3k9x');
+  await expect(page.locator('[data-card-name]')).toHaveText('Molar, Keeper of Thursday');
+  await expect(page.locator('[data-card-kind]')).toBeHidden();
+
+  // The kind line is written when the monster arrives in an app, and kept with its page.
+  await answerApi(page, 'monster-page/molar-7f3k9x', { ...wildMonster, title: 'Inbox dweller' });
+  await page.goto('/m/molar-7f3k9x');
+  await expect(page.locator('[data-card-kind]')).toHaveText('Inbox dweller');
+});
+
 test('a caught monster’s page says caught, when, and how long it took', async ({ page }) => {
   await answerApi(page, 'monster-page/molar-7f3k9x', caughtMonster);
   await page.goto('/m/molar-7f3k9x');

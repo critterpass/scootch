@@ -867,6 +867,13 @@ a {
   letter-spacing: -0.03em;
   text-wrap: balance;
 }
+/* The monster's kind line, under its name: small capitals, as the app's card sets it. */
+.monster-card .card-kind {
+  font: 700 0.6875rem/1.2 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--card-sub);
+}
 .monster-card .card-typed,
 .monster-card .card-flavour {
   font-size: 0.84375rem;
