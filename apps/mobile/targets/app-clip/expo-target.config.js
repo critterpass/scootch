@@ -12,7 +12,7 @@ module.exports = (config) => ({
   bundleIdentifier: '.Clip',
   // One minimum iOS version for the app and every target: IOS_DEPLOYMENT_TARGET in app.config.ts.
   deploymentTarget: config.ios.deploymentTarget,
-  // The same placeholder icon as the app (assets/render-app-icon.ts).
+  // The app's own icon (assets/render-app-icon.ts).
   icon: '../../assets/icon.png',
   exportJs: false,
   entitlements: {
