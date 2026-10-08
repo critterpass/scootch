@@ -9,6 +9,7 @@ import { CapsuleButton, type CapsuleButtonProps } from '../../ui/buttons';
 import { glassPressOwner, GlassSurface } from '../../ui/glass-surface';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { PressSpring } from '../../ui/motion/press-spring';
+import { RisingWords } from '../../ui/motion/rising-words';
 
 const LABEL_SIZE = 13;
 /** The one thing as a headline: 34 on a line of 1.07, as the board sets it. */
@@ -25,11 +26,16 @@ export interface HeadedProps {
   readonly heading: string | null;
   /** What Scootch says about it, from the store's lines; `null` when he says nothing. */
   readonly said?: string | null;
+  /**
+   * True for the one thing as it lands: its words arrive one after another. Never for a task
+   * that asked for care, which is simply said.
+   */
+  readonly lively?: boolean;
   readonly testID?: string;
 }
 
 /** A small label, the task as a heading, and Scootch's sentence under it. */
-export function Headed({ label, heading, said = null, testID }: HeadedProps) {
+export function Headed({ label, heading, said = null, lively = false, testID }: HeadedProps) {
   const { palette, allowFontScaling, size } = useScreenStyle();
   const { language } = useLanguage();
   // Vietnamese stacks its marks: its headline gets a line of at least 1.2.
@@ -42,7 +48,18 @@ export function Headed({ label, heading, said = null, testID }: HeadedProps) {
       >
         {label.toLocaleUpperCase()}
       </Text>
-      {heading === null ? null : (
+      {heading === null ? null : lively ? (
+        <RisingWords
+          text={heading}
+          allowFontScaling={allowFontScaling}
+          style={{
+            ...styles.heading,
+            color: palette.ink,
+            fontSize: size(HEADING_SIZE),
+            lineHeight: size(HEADING_SIZE) * headingLine,
+          }}
+        />
+      ) : (
         <Text
           accessibilityRole="header"
           allowFontScaling={allowFontScaling}

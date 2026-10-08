@@ -23,6 +23,9 @@ import {
 } from './choosing-script';
 import { ChosenWord, FallingWord, WORD_SIZE } from './choosing-word';
 
+/** The one thing waits this long for the words to clear, and the words lift this far as they go. */
+const HANDOFF_MS = 180;
+const WORDS_LIFT = 8;
 /** The answer lands a little past its place and settles, as the board's curve has it. */
 const RISE = Easing.bezierFn(0.2, 1.3, 0.4, 1);
 
@@ -111,14 +114,17 @@ export function Choosing({ script: given, playing, onDone, children }: ChoosingP
     tell();
   };
 
-  const wordsStyle = useAnimatedStyle(() => ({
-    opacity: 1 - Math.min(1, Math.max(0, (clock.value - answerAt) / WORDS_OUT_MS)),
-  }));
+  // The words give way first, lifting a little as they go, and the one thing rises into the room
+  // they leave: the two are never on the screen over each other.
+  const wordsStyle = useAnimatedStyle(() => {
+    const gone = Math.min(1, Math.max(0, (clock.value - answerAt) / WORDS_OUT_MS));
+    return { opacity: 1 - gone, transform: [{ translateY: -WORDS_LIFT * gone }] };
+  });
   const answerStyle = useAnimatedStyle(() => {
-    const since = clock.value - answerAt;
-    const risen = RISE(Math.min(1, Math.max(0, since / ANSWER_RISE_MS)));
+    const since = clock.value - answerAt - HANDOFF_MS;
+    const risen = RISE(Math.min(1, Math.max(0, since / (ANSWER_RISE_MS - HANDOFF_MS))));
     return {
-      opacity: Math.min(1, Math.max(0, since / ANSWER_FADE_MS)),
+      opacity: Math.min(1, Math.max(0, since / (ANSWER_FADE_MS - HANDOFF_MS))),
       transform: [{ translateY: ANSWER_RISE * (1 - risen) }],
     };
   });

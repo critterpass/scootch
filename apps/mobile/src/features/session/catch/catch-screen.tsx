@@ -19,16 +19,15 @@ import { WorkingFooter } from '../screens/working-footer';
 import { workingMenu } from '../screens/working-menu';
 import { BurstMarks } from '../ui/burst-marks';
 import type { ParkComposerHandle } from '../ui/park-composer';
-import { ParkPill } from '../ui/park-pill';
 import { ParkedToast } from '../ui/parked-toast';
 import { SessionMenu, type SessionMenuItem } from '../ui/session-menu';
 
-import { CatchCaption } from './catch-caption';
 import { AskSheet, CoachCard } from './catch-cards';
 import { catchStage, gestureUnlocked, trapProgress, type CatchAnswer } from './catch-flow';
 import { CAPTION_AT, DRAWN_IN } from './catch-kinds';
 import { CatchTopRow, ROW } from './catch-top-row';
 import { catchWords } from './catch-words';
+import { CatchWordsBlock } from './catch-words-block';
 import { fitBoard, type BoardFit } from './fit-board';
 import { STAGE } from './math';
 import type { SceneTouch } from './rig';
@@ -44,6 +43,8 @@ const COACH_UNDER_ROW = 46;
 const WORDS_ROOM = 58;
 /** The room "Park a thought" takes under them: its own height and the gap above it. */
 const PARK_ROOM = 54;
+/** The air kept between the words and the drawing. */
+const WORDS_AIR = 12;
 
 /**
  * The session of a task whose monster is caught by hand, from the first minute to the catch. The
@@ -102,6 +103,7 @@ export function CatchScreen(props: ScreenProps) {
   }, [caught]);
 
   const [menuOpen, setMenuOpen] = useState(false);
+  const [wordsTall, setWordsTall] = useState(0);
   const park = useRef<ParkComposerHandle | null>(null);
   // Whether the pill is coming back from the field (it settles out of the field's width) or
   // turning up for the first time (it fades in).
@@ -136,7 +138,10 @@ export function CatchScreen(props: ScreenProps) {
   // "Park a thought" sits under the two lines for as long as there is quiet work to interrupt:
   // not in the last two minutes, which are for the finish, and not under a card or the field.
   const parkShown = working !== null && stage === 'setting' && !footerUp && !working.twoMinutesLeft;
-  const parkRoom = parkShown ? PARK_ROOM : 0;
+  // The words are given the room they turn out to need, and never less than the board's own: a
+  // headline of two lines with the pill under it is taller than one line, and the drawing keeps
+  // clear of all of it. The room only ever grows, so the drawing never jumps back mid-catch.
+  const wordsRoom = Math.max(WORDS_ROOM + (parkShown ? PARK_ROOM : 0), wordsTall + WORDS_AIR);
   // The drawing takes a touch only while there is a catch to try: never under a card or a sheet.
   const touchable =
     (stage === 'setting' || stage === 'waiting' || stage === 'ready') && !footerUp && !menuOpen;
@@ -147,8 +152,8 @@ export function CatchScreen(props: ScreenProps) {
   // and of the words, which sit above the drawing or below it.
   const fit = size
     ? fitBoard(size, DRAWN_IN[kind], {
-        top: rowTop + ROW + (at === 'top' ? UNDER_ROW + WORDS_ROOM + parkRoom : 0),
-        bottom: size.height - foot - (at === 'bottom' ? 10 + WORDS_ROOM + parkRoom : 0),
+        top: rowTop + ROW + (at === 'top' ? UNDER_ROW + wordsRoom : 0),
+        bottom: size.height - foot - (at === 'bottom' ? 10 + wordsRoom : 0),
       })
     : fitted.current;
   fitted.current = fit;
@@ -216,21 +221,15 @@ export function CatchScreen(props: ScreenProps) {
       </GlassGroup>
 
       {stage === 'coach' || (footerUp && at === 'bottom') ? null : (
-        <View
-          // The words take no touch, so the drawing under them still does; the pill takes its own.
-          pointerEvents="box-none"
-          style={[
-            styles.words,
-            at === 'top' ? { top: rowTop + ROW + UNDER_ROW } : { bottom: foot + 10 },
-          ]}
-        >
-          <View pointerEvents="none" style={styles.lines}>
-            <CatchCaption headline={headline} sub={sub} inks={inks} />
-          </View>
-          {parkShown ? (
-            <ParkPill inks={inks} t={t} onPress={actions.openPark} back={fieldWasUp.current} />
-          ) : null}
-        </View>
+        <CatchWordsBlock
+          place={at === 'top' ? { top: rowTop + ROW + UNDER_ROW } : { bottom: foot + 10 }}
+          headline={headline}
+          sub={sub}
+          inks={inks}
+          t={t}
+          park={parkShown ? { onPress: actions.openPark, back: fieldWasUp.current } : null}
+          onTall={(tall) => setWordsTall((before) => Math.max(before, Math.ceil(tall)))}
+        />
       )}
 
       {footerUp ? (
@@ -321,7 +320,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  words: { position: 'absolute', left: 28, right: 28, alignItems: 'center', gap: 10 },
-  lines: { alignSelf: 'stretch', alignItems: 'center', gap: 5 },
   footer: { paddingHorizontal: 14, paddingTop: 8 },
 });

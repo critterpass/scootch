@@ -23,18 +23,23 @@ describe('what the choosing reveal plays', () => {
     expect(script?.words).toHaveLength(18);
   });
 
-  it('plays a typed thing whole, as there is nothing else to fall away', () => {
-    const script = choosingScript({ sent: 'gọi cho mẹ', heard: null, oneThing: 'Gọi cho mẹ' });
-    expect(script).toEqual({ words: ['gọi', 'cho', 'mẹ'], from: 0, to: 3 });
-  });
-
-  it('plays a short typed thing whole when it comes back reworded', () => {
-    const script = choosingScript({
-      sent: 'reply sam asap',
-      heard: null,
-      oneThing: 'Reply to Sam',
-    });
-    expect(chosen(script)).toBe('reply sam asap');
+  it('plays nothing for a short thing sent by itself: there is nothing to choose between', () => {
+    expect(choosingScript({ sent: 'gọi cho mẹ', heard: null, oneThing: 'Gọi cho mẹ' })).toBeNull();
+    expect(choosingScript({ sent: 'eat food', heard: null, oneThing: 'eat food' })).toBeNull();
+    // Reworded, it is still the whole of what was sent.
+    expect(
+      choosingScript({ sent: 'reply sam asap', heard: null, oneThing: 'Reply to Sam' }),
+    ).toBeNull();
+    // One phrase heard, and it is the one thing.
+    expect(
+      choosingScript({
+        sent: 'the dentist',
+        heard: { phrases: ['Email the dentist'], chosen: 0 },
+        oneThing: 'Email the dentist',
+      }),
+    ).toBeNull();
+    // A dash or an emoji beside it is not another word.
+    expect(choosingScript({ sent: '– eat food 🍜', heard: null, oneThing: 'Eat food' })).toBeNull();
   });
 
   it('plays what was heard when the one thing was reworded out of a ramble', () => {
