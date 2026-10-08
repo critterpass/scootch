@@ -10,6 +10,7 @@ import {
   UNCOMMON_FROM_DAYS_LURKED,
   cardStats,
   catchMinutes,
+  guessAndReal,
   type TaskHistory,
 } from './card-stats';
 
@@ -141,6 +142,58 @@ describe('rarity properties', { timeout: 60_000 }, () => {
         expect(levels.indexOf(cardStats(longer).rarity)).toBeGreaterThanOrEqual(
           levels.indexOf(cardStats(shorter).rarity),
         );
+      }),
+    );
+  });
+});
+
+describe('the guess beside the real time', () => {
+  it('is carried on the stats when a guess was made, and leaves them as they were when not', () => {
+    const guessed = cardStats(history({ guessMinutes: 120, sittings: [sitting(11)] }));
+    expect(guessed).toMatchObject({ catchMinutes: 11, guessMinutes: 120 });
+
+    for (const none of [history(), history({ guessMinutes: null })]) {
+      expect(cardStats(none)).toStrictEqual({
+        daysLurked: 0,
+        catchMinutes: 10,
+        dread: 1,
+        rarity: 'common',
+      });
+    }
+  });
+
+  it('changes nothing else on the card: a guess moves no stat', () => {
+    fc.assert(
+      fc.property(anyHistory, fc.constantFrom(30, 60, 120, 180, 360), (one, guessMinutes) => {
+        const { guessMinutes: kept, ...rest } = cardStats({ ...one, guessMinutes });
+        expect(kept).toBe(guessMinutes);
+        expect(rest).toStrictEqual(cardStats(one));
+      }),
+    );
+  });
+
+  it.each([
+    ['no guess', undefined, 11, null],
+    ['a guess cleared', null, 11, null],
+    ['a thing not caught yet', 120, null, null],
+    ['a guess longer than it took', 120, 11, { thoughtMinutes: 120, tookMinutes: 11 }],
+    ['a guess the same as it took', 30, 30, { thoughtMinutes: 30, tookMinutes: 30 }],
+    ['a guess shorter than it took', 30, 95, { thoughtMinutes: 30, tookMinutes: 95 }],
+  ])('%s', (_name, guessMinutes, took, pair) => {
+    expect(guessAndReal({ guessMinutes, catchMinutes: took })).toStrictEqual(pair);
+  });
+
+  it('gives the two numbers and nothing that weighs one against the other', () => {
+    const anyPair = fc.tuple(
+      fc.constantFrom(30, 60, 120, 180, 360),
+      fc.integer({ min: 1, max: 600 }),
+    );
+    fc.assert(
+      fc.property(anyPair, ([guessMinutes, took]) => {
+        const pair = guessAndReal({ guessMinutes, catchMinutes: took });
+        // Whichever way the guess went, the same two fields come back, as they were given.
+        expect(Object.keys(pair ?? {}).sort()).toEqual(['thoughtMinutes', 'tookMinutes']);
+        expect(pair).toEqual({ thoughtMinutes: guessMinutes, tookMinutes: took });
       }),
     );
   });
