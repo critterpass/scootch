@@ -10,6 +10,8 @@ export const sharedMonsterSchema = z.strictObject({
   bodyType: monsterBodyTypeSchema,
   name: z.string(),
   flavourText: z.string(),
+  /** The kind line the task call wrote when the monster arrived in an app; `null` until then. */
+  title: z.string().nullable(),
   language: languageSchema,
   /** What the visitor typed, only when they chose to show it. */
   typed: z.string().nullable(),
@@ -33,6 +35,7 @@ type Row = {
   body_type: string;
   name: string;
   flavour_text: string;
+  kind_line: string | null;
   language: string;
   typed_line: string | null;
   created_at: string;
@@ -44,8 +47,8 @@ type Row = {
 export async function readSharedMonster(db: D1Database, id: string): Promise<SharedMonster | null> {
   const row = await db
     .prepare(
-      `SELECT id, seed, body_type, name, flavour_text, language, typed_line, created_at,
-              caught_at, catch_minutes
+      `SELECT id, seed, body_type, name, flavour_text, kind_line, language, typed_line,
+              created_at, caught_at, catch_minutes
        FROM shared_monsters WHERE id = ?`,
     )
     .bind(id)
@@ -57,6 +60,7 @@ export async function readSharedMonster(db: D1Database, id: string): Promise<Sha
     bodyType: row.body_type,
     name: row.name,
     flavourText: row.flavour_text,
+    title: row.kind_line,
     language: row.language,
     typed: row.typed_line,
     status: row.caught_at === null ? 'wild' : 'caught',
@@ -64,6 +68,26 @@ export async function readSharedMonster(db: D1Database, id: string): Promise<Sha
     catchMinutes: row.catch_minutes,
     sharedAt: row.created_at,
   });
+}
+
+/**
+ * Notes that a phone took the monster in, and the kind line written for it then. The first phone
+ * and the first kind line stand: a later arrival changes neither.
+ */
+export async function noteTakenIn(
+  db: D1Database,
+  id: string,
+  deviceHash: string | null,
+  kindLine: string,
+): Promise<void> {
+  await db
+    .prepare(
+      `UPDATE shared_monsters
+       SET taken_in_by = COALESCE(taken_in_by, ?), kind_line = COALESCE(kind_line, ?)
+       WHERE id = ?`,
+    )
+    .bind(deviceHash, kindLine, id)
+    .run();
 }
 
 const idLetters = 'abcdefghjkmnpqrstuvwxyz23456789';

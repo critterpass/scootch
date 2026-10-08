@@ -10,7 +10,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { signWords } from '../src/sharing/signed-words';
 
 import { connectionDrops } from './ai-providers';
-import { registerDevice, shareSecret } from './support';
+import { call, registerDevice, shareSecret, wireErrorOf } from './support';
 import {
   createTask,
   jevDecides,
@@ -167,6 +167,46 @@ describe('a thing that arrives from a website monster', () => {
       const [call] = writerCalls(named.doubles);
       expect((call?.['tools'] as { name: string }[])[0]?.name).toBe('write_name');
     }
+  });
+
+  it('keeps the kind line with the page, and gives a second arrival the same one', async () => {
+    await putOnItsPage();
+    const first = await start(website.id);
+    if (first.body.verdict !== 'pass') throw new Error('the recorded text passes the screen');
+    const one = await nameFor(first.device, first.body);
+    const page = await (await call(`/v1/monster-page/${website.id}`)).json<{ title: string }>();
+    expect(page.title).toBe(one.name.monster.title);
+
+    // Another phone, and a writer that would now give another kind line: it is not asked for one.
+    const second = await start(website.id);
+    if (second.body.verdict !== 'pass') throw new Error('the recorded text passes the screen');
+    const two = await nameFor(
+      second.device,
+      second.body,
+      writerAnswers([{ ...written, title: 'Another kind entirely' }]),
+    );
+    expect(two.name.monster.title).toBe(one.name.monster.title);
+    const [asked] = writerCalls(two.named.doubles);
+    expect(JSON.stringify(asked?.['tools'])).not.toContain('title');
+  });
+
+  it('lets the phone that took the monster in mark its page caught, and no other phone', async () => {
+    await putOnItsPage();
+    const { device, body } = await start(website.id);
+    if (body.verdict !== 'pass') throw new Error('the recorded text passes the screen');
+    await nameFor(device, body);
+    const caught = { method: 'POST', body: { catchMinutes: 10 } } as const;
+
+    const stranger = await call(`/v1/monster-page/${website.id}/caught`, {
+      ...caught,
+      token: await registerDevice(),
+    });
+    expect(stranger.status).toBe(400);
+    expect(await wireErrorOf(stranger)).toMatchObject({ detail: { reason: 'not_yours' } });
+
+    const mine = await call(`/v1/monster-page/${website.id}/caught`, { ...caught, token: device });
+    expect(mine.status).toBe(200);
+    expect(await mine.json()).toMatchObject({ status: 'caught', catchMinutes: 10 });
   });
 
   it('gives a crisis text no monster, whatever page it names', async () => {

@@ -247,7 +247,9 @@ export async function startTask(
         ? {}
         : {
             adopted: {
+              page: kept.id,
               name: kept.name,
+              ...(kept.title === null ? {} : { title: kept.title }),
               flavourText: kept.flavourText,
               seed: kept.seed,
               language: kept.language,
