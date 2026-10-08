@@ -152,6 +152,10 @@ struct HuntContent {
         return hasCard ? SurfaceLinks.card(ofTask: record.taskId) : SurfaceLinks.home
     }
 
+    /// The Island shows the race in every state that has a clock or a count-in. A parked thought
+    /// has no receipt there, so the race stays.
+    var islandShowsRace: Bool { clockRuns || phase == .overtime || phase == .starting }
+
     /// The monster is the picture while it is being run down; Scootch otherwise.
     var showsMonster: Bool {
         monsterPicture != nil && (clockRuns || phase == .stoppedEarly) && phase != .parked
@@ -189,17 +193,23 @@ struct HuntClock: View {
     var body: some View {
         switch content.phase {
         case .starting:
-            Text("\(content.view.countIn)").font(font).foregroundStyle(SurfaceColor.accent)
+            Text("\(content.view.countIn)").font(font).foregroundStyle(SurfaceColor.accentOnDark)
         case .running, .parked, .lastMinutes:
             Text(timerInterval: min(content.now, content.endDate)...content.endDate, countsDown: true)
                 .font(font)
                 .monospacedDigit()
                 .multilineTextAlignment(.trailing)
-                .foregroundStyle(SurfaceColor.accent)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .foregroundStyle(SurfaceColor.accentOnDark)
         case .stuck:
             VStack(alignment: .trailing, spacing: 2) {
                 Text(Self.clock(content.view.remainingMs)).font(font).monospacedDigit()
-                Text(content.text("PAUSED")).font(.caption2.weight(.bold)).tracking(1.5)
+                Text(content.text("PAUSED"))
+                    .font(.caption2.weight(.bold))
+                    .tracking(1.5)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
             }
             .foregroundStyle(.white.opacity(0.6))
         case .overtime:
@@ -208,6 +218,8 @@ struct HuntClock: View {
                 Text(content.endDate, style: .timer).monospacedDigit()
             }
             .font(font)
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
             .foregroundStyle(gold)
         case .caught, .caughtCollapsed, .stoppedEarly:
             EmptyView()
@@ -223,8 +235,10 @@ struct HuntClock: View {
 /// The race: twelve pips that fill as the minutes go, with Scootch running along them.
 struct RaceBar: View {
     let content: HuntContent
+    /// A lower bar for the Island, where Scootch runs in the gap above it.
+    var low = false
     private let pips = 12
-    private let runner: CGFloat = 20
+    private var runner: CGFloat { low ? 18 : 20 }
 
     var body: some View {
         GeometryReader { geometry in
@@ -240,7 +254,7 @@ struct RaceBar: View {
             }
             .frame(width: width, height: geometry.size.height, alignment: .bottomLeading)
         }
-        .frame(height: 24)
+        .frame(height: low ? 14 : 24)
     }
 
     private var track: some View {
@@ -253,7 +267,7 @@ struct RaceBar: View {
     @ViewBuilder private func filled(width: CGFloat) -> some View {
         if content.phase == .overtime {
             LinearGradient(
-                colors: [SurfaceColor.accent, gold], startPoint: .leading, endPoint: .trailing
+                colors: [SurfaceColor.accentOnDark, gold], startPoint: .leading, endPoint: .trailing
             )
             .frame(height: 5)
         } else if content.clockRuns {
@@ -264,12 +278,12 @@ struct RaceBar: View {
                 EmptyView()
             }
             .progressViewStyle(.linear)
-            .tint(SurfaceColor.accent)
+            .tint(SurfaceColor.accentOnDark)
             .scaleEffect(x: 1, y: 3, anchor: .bottom)
             .frame(height: 5)
         } else {
             Rectangle()
-                .fill(SurfaceColor.accent)
+                .fill(SurfaceColor.accentOnDark)
                 .frame(width: width * content.view.progress, height: 5)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
@@ -356,7 +370,7 @@ struct ParkedReceipt: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            Image(systemName: "checkmark.circle.fill").foregroundStyle(SurfaceColor.accent)
+            Image(systemName: "checkmark.circle.fill").foregroundStyle(SurfaceColor.accentOnDark)
             Text(words).font(.subheadline).lineLimit(1)
             Spacer(minLength: 0)
         }
@@ -364,7 +378,7 @@ struct ParkedReceipt: View {
         .padding(.vertical, 7)
         .background(
             RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(SurfaceColor.accent.opacity(0.22)))
+                .fill(SurfaceColor.accentOnDark.opacity(0.22)))
     }
 
     private var words: String {
@@ -535,6 +549,44 @@ struct HuntLockScreenView: View {
     }
 }
 
+// The Island opened out. iOS cuts it off at 160 points, and the camera takes the top of it: what
+// is said starts under the camera, about 40 points down, and what is under that has some 55
+// points left. So the words are smaller than on the Lock Screen and the race is lower.
+
+/// How wide the Island's clock is drawn. The system's own timer text is cut short in a region
+/// that sizes itself to it, so it is given its room.
+let islandClockWidth: CGFloat = 68
+
+/// The task and Scootch's line, under the camera. With the race below there is room for one line.
+struct HuntIslandWords: View {
+    let content: HuntContent
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 1) {
+            Text(content.title).font(.subheadline.weight(.semibold)).lineLimit(1)
+            Text(content.line)
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.72))
+                .lineLimit(content.islandShowsRace ? 1 : 2)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .dynamicTypeSize(...DynamicTypeSize.large)
+    }
+}
+
+/// The race and the buttons, at the foot of the Island.
+struct HuntIslandFoot: View {
+    let content: HuntContent
+
+    var body: some View {
+        VStack(spacing: 6) {
+            if content.islandShowsRace { RaceBar(content: content, low: true) }
+            HuntButtons(content: content, slim: content.islandShowsRace)
+        }
+        .dynamicTypeSize(...DynamicTypeSize.large)
+    }
+}
+
 /// The right side of the compact Island, which carries the meaning at that size: the time, a
 /// tick, a question, gold, a card.
 struct HuntCompactTrailing: View {
@@ -543,15 +595,15 @@ struct HuntCompactTrailing: View {
     var body: some View {
         switch content.phase {
         case .starting:
-            Text("\(content.view.countIn)").foregroundStyle(SurfaceColor.accent)
+            Text("\(content.view.countIn)").foregroundStyle(SurfaceColor.accentOnDark)
         case .running, .lastMinutes:
             Text(timerInterval: min(content.now, content.endDate)...content.endDate, countsDown: true)
                 .monospacedDigit()
                 .multilineTextAlignment(.trailing)
                 .frame(maxWidth: 44)
-                .foregroundStyle(SurfaceColor.accent)
+                .foregroundStyle(SurfaceColor.accentOnDark)
         case .parked:
-            Image(systemName: "checkmark.circle.fill").foregroundStyle(SurfaceColor.accent)
+            Image(systemName: "checkmark.circle.fill").foregroundStyle(SurfaceColor.accentOnDark)
         case .stuck:
             Text("?").foregroundStyle(.white.opacity(0.7))
         case .overtime:
@@ -582,7 +634,7 @@ struct HuntMinimal: View {
                 EmptyView()
             }
             .progressViewStyle(.circular)
-            .tint(SurfaceColor.accent)
+            .tint(SurfaceColor.accentOnDark)
         } else {
             HuntCompactTrailing(content: content).font(.caption.weight(.bold))
         }
@@ -627,44 +679,42 @@ struct SessionLiveActivity: Widget {
             let content = HuntContent(context: context)
             let seated = table(context, content)
             return DynamicIsland {
+                // At a table the headline and the clock sit beside the camera, as the board
+                // draws them, which leaves the room under it to the seats and the buttons.
                 DynamicIslandExpandedRegion(.leading) {
                     if let seated {
-                        TableSeatDiscs(content: seated).padding(.leading, 4)
+                        Text(seated.headline)
+                            .font(.system(.subheadline, design: .rounded).weight(.heavy))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                            .padding(.leading, 4)
+                            .dynamicTypeSize(...DynamicTypeSize.large)
                     } else {
                         HuntTile(content: content, side: 52)
                     }
                 }
                 DynamicIslandExpandedRegion(.trailing) {
-                    if let seated {
-                        TableClock(content: seated).font(.title3.weight(.heavy))
-                    } else {
-                        HuntClock(content: content, font: .title3.weight(.heavy))
-                    }
-                }
-                DynamicIslandExpandedRegion(.center) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(seated?.headline ?? content.title).font(.headline).lineLimit(1)
-                        if let line = seated == nil ? content.line : seated?.subline {
-                            Text(line)
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                                .lineLimit(2)
+                    Group {
+                        if let seated {
+                            TableClock(content: seated)
+                                .font(.title3.weight(.heavy))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.7)
+                        } else {
+                            HuntClock(content: content, font: .title3.weight(.heavy))
                         }
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .frame(width: islandClockWidth, alignment: .trailing)
+                    .dynamicTypeSize(...DynamicTypeSize.large)
+                }
+                DynamicIslandExpandedRegion(.center) {
+                    if seated == nil { HuntIslandWords(content: content) }
                 }
                 DynamicIslandExpandedRegion(.bottom) {
                     if let seated {
                         TableIslandSeats(content: seated)
                     } else {
-                        VStack(spacing: 8) {
-                            if content.clockRuns || content.phase == .overtime
-                                || content.phase == .starting
-                            {
-                                RaceBar(content: content)
-                            }
-                            HuntButtons(content: content)
-                        }
+                        HuntIslandFoot(content: content)
                     }
                 }
             } compactLeading: {
@@ -686,7 +736,7 @@ struct SessionLiveActivity: Widget {
                     HuntMinimal(content: content).frame(width: 22, height: 22)
                 }
             }
-            .keylineTint(content.phase == .overtime ? gold : SurfaceColor.accent)
+            .keylineTint(content.phase == .overtime ? gold : SurfaceColor.accentOnDark)
             .widgetURL(content.destination)
         }
     }

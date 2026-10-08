@@ -10,6 +10,21 @@ enum SurfaceColor {
     static var accent: Color {
         SurfaceSnapshot.load().accent.flatMap(Color.init(hex:)) ?? tomato
     }
+    /// The worn ink where the ground is dark: the Live Activity's glass and the Island's black. An
+    /// ink made for paper (plum, midnight, moss) all but disappears there, so it is lifted toward
+    /// white until it is as light as tomato is. Tomato and the lighter inks are left as they are.
+    static var accentOnDark: Color {
+        guard let hex = SurfaceSnapshot.load().accent, let ink = Color.parts(hex: hex) else {
+            return tomato
+        }
+        let light = 0.2126 * ink.red + 0.7152 * ink.green + 0.0722 * ink.blue
+        let wanted = 0.5
+        guard light < 0.45 else { return Color(red: ink.red, green: ink.green, blue: ink.blue) }
+        let lift = (wanted - light) / (1 - light)
+        return Color(
+            red: ink.red + (1 - ink.red) * lift, green: ink.green + (1 - ink.green) * lift,
+            blue: ink.blue + (1 - ink.blue) * lift)
+    }
     static let page = Color(red: 0.980, green: 0.965, blue: 0.937)
     static let pageDark = Color(red: 0.122, green: 0.106, blue: 0.094)
     static let ink = Color(red: 0.118, green: 0.106, blue: 0.090)
@@ -55,14 +70,21 @@ enum SurfaceFont {
 }
 
 extension Color {
-    /// A colour from six hex digits, with or without the leading hash. Nil for anything else.
-    init?(hex: String) {
+    /// Red, green and blue, 0 to 1, from six hex digits, with or without the leading hash. Nil
+    /// for anything else.
+    static func parts(hex: String) -> (red: Double, green: Double, blue: Double)? {
         let digits = hex.hasPrefix("#") ? String(hex.dropFirst()) : hex
         guard digits.count == 6, let value = UInt32(digits, radix: 16) else { return nil }
-        self.init(
-            red: Double((value >> 16) & 0xFF) / 255,
-            green: Double((value >> 8) & 0xFF) / 255,
-            blue: Double(value & 0xFF) / 255)
+        return (
+            Double((value >> 16) & 0xFF) / 255, Double((value >> 8) & 0xFF) / 255,
+            Double(value & 0xFF) / 255
+        )
+    }
+
+    /// A colour from six hex digits, with or without the leading hash. Nil for anything else.
+    init?(hex: String) {
+        guard let parts = Color.parts(hex: hex) else { return nil }
+        self.init(red: parts.red, green: parts.green, blue: parts.blue)
     }
 }
 
