@@ -43,7 +43,7 @@ import { SurfaceSyncHost } from '../features/surfaces/surface-sync-host';
 import { useLanguage } from '../i18n/i18n-provider';
 
 import { DataToolsContext, createAppDataTools } from './data-tools';
-import { createDayStore, effectSwitches, type DayStore } from './day-store';
+import { arrivedPagesStore, createDayStore, effectSwitches, type DayStore } from './day-store';
 import { watchDayTurn } from './day-watch';
 import type { DayEvent, DayState, SurfaceRequest } from './day-types';
 import { lineFor } from './lines';
@@ -111,6 +111,7 @@ function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
     phoneLanguage: language,
     plus: unlocked,
     timers: systemTimers,
+    arrivedPages: arrivedPagesStore(db),
   });
   // The day's receipt, drawn when its evening notification is scheduled.
   const eveningReceipt = createReceiptPicture({

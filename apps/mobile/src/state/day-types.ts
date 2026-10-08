@@ -23,6 +23,7 @@ import type { Repositories } from '../data/repositories';
 import type { Clock, Timers } from '../effects/adapters';
 import type { EffectsRunner } from '../effects/effects-runner';
 
+import type { ArrivedPages } from './arrived-pages';
 import type { AfterLines } from './lines';
 
 /** Everything a screen can do to the day. The store adds the current time itself. */
@@ -105,8 +106,17 @@ export type DayEvent =
   | { readonly type: 'surface_action'; readonly action: SurfaceActionKind }
   /** The hunt record in the App Group, read as the app came to the front. */
   | { readonly type: 'hunt_adopted'; readonly hunt: HuntRecord }
-  /** A thing shared in from another app: its words, and whether it was for now or tomorrow. */
-  | { readonly type: 'thing_shared_in'; readonly text: string; readonly when: 'now' | 'tomorrow' }
+  /**
+   * A thing shared in from another app: its words, and whether it was for now or tomorrow. One
+   * that arrives from a monster's page on the website names the page (the id in
+   * `scootch.app/m/<id>`), so the monster it hatches is that one.
+   */
+  | {
+      readonly type: 'thing_shared_in';
+      readonly text: string;
+      readonly when: 'now' | 'tomorrow';
+      readonly monsterPage?: string;
+    }
   /** A bite was ticked under a monster's notification; `place` is 0 to 2. */
   | { readonly type: 'bite_ticked'; readonly taskId: Id; readonly place: number }
   /** "Tomorrow at 9:00" under a notification: today's thing waits for tomorrow and today rests. */
@@ -238,6 +248,11 @@ export interface DayStoreDeps {
   readonly onFailure?: (error: unknown) => void;
   /** Called once a finish has been written, so the backup can follow it. */
   readonly onFinished?: () => void;
+  /**
+   * Where the pages of things that arrived from the website are kept across a relaunch. Without
+   * it, a page is known only for as long as its first task call is being waited for.
+   */
+  readonly arrivedPages?: ArrivedPages;
 }
 
 /** The text a task call is being made for, kept in memory only until its one thing is picked. */
@@ -246,6 +261,8 @@ export interface Offer {
   readonly source: 'ramble' | 'typed';
   readonly energy: Energy | 'guess';
   readonly transcriptId: Id | null;
+  /** The monster's page the text arrived from, when it came from the website. */
+  readonly monsterPage?: string;
 }
 
 /** The store's working memory between events. */

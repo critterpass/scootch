@@ -42,6 +42,8 @@ export const ROUTE_MOTION: Readonly<Record<string, RouteMotion>> = {
   'table-quieted': 'push',
   't/[code]': 'push',
   'f/[code]': 'push',
+  'm/[id]': 'push',
+  'vi/m/[id]': 'push',
   'plus/manage': 'push',
   'plus/records': 'push',
   '(dev)': 'push',

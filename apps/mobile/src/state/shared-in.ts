@@ -1,5 +1,6 @@
 import { careGate } from '../api/care-gate';
 
+import { keepArrivedPage } from './arrived-pages';
 import { enterCrisis } from './care-flow';
 import type { DayContext } from './day-types';
 import { intoDrawer } from './parked-thoughts';
@@ -18,11 +19,15 @@ export const SHARED_TEXT_MAX = 1200;
  *   in it, screened, and only then hatches. A serious thing gets no monster there, as always.
  * - Otherwise it waits in the drawer, unscreened and closed: for tomorrow when that was asked,
  *   and whenever when today already has its thing, has no start left or is a crisis day.
+ *
+ * A thing that arrives from a monster's page on the website is taken in the same way. Its page
+ * goes with it, to the task call or into the drawer, and with nothing else.
  */
 export async function takeSharedIn(
   ctx: DayContext,
   text: string,
   when: 'now' | 'tomorrow',
+  monsterPage?: string,
 ): Promise<void> {
   const words = text.trim().slice(0, SHARED_TEXT_MAX);
   if (words === '') return;
@@ -33,10 +38,17 @@ export async function takeSharedIn(
   const { today, taskCall, pick } = ctx.memory.state;
   const free = today.kind === 'nothing_yet' && taskCall === 'idle' && pick.kind === 'none';
   if (when === 'now' && free) {
-    await submitText(ctx, { text: words, source: 'ramble', energy: 'guess', transcriptId: null });
+    await submitText(ctx, {
+      text: words,
+      source: 'ramble',
+      energy: 'guess',
+      transcriptId: null,
+      ...(monsterPage === undefined ? {} : { monsterPage }),
+    });
     // A day with no start left takes nothing on: the thing is kept instead of lost.
     if (ctx.memory.state.taskCall !== 'idle') return;
   }
-  await intoDrawer(ctx, words, when === 'tomorrow' ? 'tomorrow' : 'whenever');
+  const parked = await intoDrawer(ctx, words, when === 'tomorrow' ? 'tomorrow' : 'whenever');
+  if (parked !== null) await keepArrivedPage(ctx, parked, monsterPage);
   await ctx.refresh();
 }

@@ -1,4 +1,7 @@
-/** English interface strings for resting the day, the ways back and the wait for Scootch. */
+/**
+ * English interface strings for resting the day, the ways back, the wait for Scootch and a
+ * monster's link.
+ */
 export const enDayLoop = {
   'oneScreen.failed': 'That did not go through. Nothing is lost. Try it once more.',
   'pick.picked': 'Scootch picked',
@@ -25,4 +28,10 @@ export const enDayLoop = {
   'notification.huntNextBite': 'Hunt the next bite now',
   'notification.tomorrowAtNine': 'Tomorrow at 9:00',
   'notification.turnDown': 'Turn it down for a week',
+  'arrive.opening': 'Opening the link…',
+  'arrive.ask.title': 'What did {name} hatch from?',
+  'arrive.ask.sub': 'Its page keeps the words hidden. Type the one thing, and it is today’s.',
+  'arrive.ask.placeholder': 'The one thing',
+  'arrive.ask.send': 'Make it today’s thing',
+  'arrive.ask.send.hint': 'Takes it in as today’s one thing, with this monster.',
 } as const;

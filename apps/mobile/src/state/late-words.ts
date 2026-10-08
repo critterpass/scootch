@@ -2,6 +2,7 @@ import type { TaskCreateRequest, TaskRow, TaskScreen } from '@scootch/domain';
 
 import type { TaskCall } from '../api/task-client';
 
+import { keepArrivedPage } from './arrived-pages';
 import { enterCrisis } from './care-flow';
 import type { DayContext, DayMemory, Offer } from './day-types';
 import { TASK_TEXT_MAX, newTask, park } from './task-rows';
@@ -29,6 +30,7 @@ export async function setWithoutAnswer(ctx: DayContext, offer: Offer): Promise<T
   const task = newTask(ctx, oneThingFrom(offer.text), offer.source, 'unscreened');
   await tasks.put(task);
   await unsortedWords.keep({ taskId: task.id, text: offer.text.trim().slice(0, WORDS_MAX) });
+  await keepArrivedPage(ctx, task.id, offer.monsterPage);
   return task;
 }
 

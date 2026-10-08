@@ -2,6 +2,7 @@ import type { TaskLabels, TaskRow, TaskScreen } from '@scootch/domain';
 
 import type { TaskCall, TaskCallOptions, TaskName, TaskRest } from '../api/task-client';
 
+import { keepArrivedPage } from './arrived-pages';
 import { enterCrisis, stopWithoutAWord } from './care-flow';
 import type { DayContext, Offer, Reveal } from './day-types';
 import { catchLateMonster } from './late-catch';
@@ -194,6 +195,9 @@ export async function applyCall(ctx: DayContext, call: TaskCall, existing: TaskR
   ctx.memory.untrustedTaskId = trusted ? null : task.id;
   if (!trusted) ctx.memory.screenAskedAt = ctx.now();
   if (!existing) {
+    // The page a thing arrived from stays with its task: the name and the lines may yet be asked
+    // for again, after a relaunch.
+    await keepArrivedPage(ctx, task.id, offer?.monsterPage);
     // The verdict is for the text as a whole, and the one thing carries it. The other things in
     // it were not judged one by one: a heavy ramble leaves them unscreened, never serious.
     const beside: TaskScreen = screen === 'serious' ? 'unscreened' : screen;

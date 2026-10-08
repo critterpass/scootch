@@ -11,6 +11,7 @@ import {
 import type { Repositories } from '../../data/repositories';
 import type { DayStore } from '../../state/day-store';
 import type { DayState } from '../../state/day-types';
+import { takeClipLink } from '../arrive/arrive-rules';
 import type { FriendsTablesSeen } from '../table/friends-tables-seen';
 
 import { readHunt } from './hunt-store';
@@ -41,6 +42,8 @@ export interface SurfaceSyncDeps {
   readonly friendsTables?: () => FriendsTablesSeen | null;
   /** The table the phone is seated at: a wave to one seat, and giving the seat up. */
   readonly table?: { readonly wave: (seatId: string) => void; readonly leave: () => void };
+  /** Opens one of the app's own routes, as a link to it does. */
+  readonly openRoute?: (route: `/m/${string}`) => void;
   /** Takes back a notification a surface set, by its id. */
   readonly cancelNotification: (id: string) => Promise<void>;
   readonly plus: () => boolean;
@@ -281,6 +284,9 @@ export function createSurfaceSync(deps: SurfaceSyncDeps) {
       for (const thing of sharedIn.take()) {
         await store.dispatch({ type: 'thing_shared_in', text: thing.text, when: thing.when });
       }
+      // A monster's link the App Clip kept is opened once, as the link itself would be.
+      const kept = takeClipLink(shared);
+      if (kept !== null) deps.openRoute?.(kept);
       const actions = pending.take();
       for (const action of actions) {
         if (isDayAction(action.kind)) {
