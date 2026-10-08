@@ -266,6 +266,8 @@ export const settingsRowSchema = z.object({
   iconFollows: z.enum(['attitude', 'finish', 'pinned']),
   /** The icon that stays when the icon follows nothing (apps/mobile/src/features/look/icons.ts). */
   iconPinned: z.string().min(1).max(24),
+  /** The wallpaper last looked at, which the Shortcuts action draws each morning. */
+  wallpaper: z.enum(['world', 'perched', 'night']),
   firstLaunchDoneAt: isoDateTimeSchema.nullable(),
 });
 export type SettingsRow = z.infer<typeof settingsRowSchema>;

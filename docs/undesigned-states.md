@@ -301,6 +301,9 @@ state is designed or removed.
 | Notification, long-press | All three ticked | The board's line is "All three caught. Molar is gone.", but the monster is caught in the app, not here. The line reads "All three caught. Open Scootch to catch Molar." and Scootch opens on the session a moment later |
 | Notification, long-press | Minutes on the first action | The board sets "4 min", "Thu" and "Soft" at the right of each action. iOS draws an action as one title, so the minutes join the first title and the other two have none |
 | Notification | Before the monster has hatched | The board's messages all come from monsters. A thing with no monster yet sends the same line as Scootch, with nothing under it |
-| Settings, Look | No Wallpaper row, and no "Monsters message me" row | Both are on the board and neither is built yet; a row that opens nothing is not shown |
 | App icon picker | With Plus, and with one icon kept | The board draws the locks and the icon following the attitude. With Plus no finish carries the mark; a kept icon wears the ring and "Just one" is the chosen way |
 | App icon picker | A locked finish is tapped | The board does not say. It opens the studio, where the finish can be tried on and bought |
+| Settings | "Monsters message me" states the limit and opens nothing | The board draws a chevron. The limit follows the attitude, which is set at the head of the same page, so the row is a fact |
+| Wallpaper | Photos refused | The board draws none. One plain line under the button, and "Open Settings" |
+| Wallpaper | "Refresh every morning" opened | The board draws the button only. It opens three numbered steps in place and "Open Shortcuts" |
+| Wallpaper | Empty world | The board draws 42 residents. Day zero is Scootch asleep alone on the sand |

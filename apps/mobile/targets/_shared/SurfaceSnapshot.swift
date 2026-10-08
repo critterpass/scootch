@@ -114,6 +114,9 @@ struct SurfaceSnapshot: Codable, Equatable, Sendable {
     /// The world as two pictures in the App Group container, by day and asleep.
     let worldImage: String?
     let worldNightImage: String?
+    /// Scootch alone, and which wallpaper the Shortcuts action draws: world, perched or night.
+    let scootchImage: String?
+    let wallpaper: String?
     /// The thing carried on to tomorrow. Nil when none is, and on a crisis day.
     let tomorrow: Tomorrow?
     /// When the day this snapshot describes rolls over into the next one.
@@ -131,7 +134,7 @@ struct SurfaceSnapshot: Codable, Equatable, Sendable {
         language: Locale.preferredLanguages.first?.hasPrefix("vi") == true ? "vi" : "en",
         weekBars: 0, worldThings: 0, plus: false, lurkers: [], bites: [], finish: "paper",
         shelf: 0, latestCatch: nil, caughtThisWeek: nil, worldImage: nil, worldNightImage: nil,
-        tomorrow: nil, dayEndsAt: .greatestFiniteMagnitude, accent: nil)
+        scootchImage: nil, wallpaper: nil, tomorrow: nil, dayEndsAt: .greatestFiniteMagnitude, accent: nil)
 
     /// Nil when the text is not a snapshot of the version this code reads.
     static func decode(_ json: String) -> SurfaceSnapshot? {
@@ -164,7 +167,8 @@ struct SurfaceSnapshot: Codable, Equatable, Sendable {
             weekBars: weekBars, worldThings: worldThings, plus: plus, lurkers: [], bites: [],
             finish: finish, shelf: shelf, latestCatch: latestCatch,
             caughtThisWeek: caughtThisWeek, worldImage: worldImage,
-            worldNightImage: worldNightImage, tomorrow: nil,
+            worldNightImage: worldNightImage, scootchImage: scootchImage, wallpaper: wallpaper,
+            tomorrow: nil,
             dayEndsAt: .greatestFiniteMagnitude, accent: accent)
     }
 

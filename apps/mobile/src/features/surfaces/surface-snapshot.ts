@@ -131,6 +131,9 @@ export interface SurfaceSnapshot {
   /** The files the world was drawn to, by day and asleep, or `null` when it could not be. */
   readonly worldImage: string | null;
   readonly worldNightImage: string | null;
+  /** Scootch alone, and the wallpaper the Shortcuts action draws with these pictures. */
+  readonly scootchImage: string | null;
+  readonly wallpaper: SettingsRow['wallpaper'];
   /** The thing carried on to tomorrow. `null` when none is, and on a crisis day. */
   readonly tomorrow: SurfaceTomorrow | null;
   /** When the day this describes rolls over. After it, the surfaces show a day with nothing yet. */
@@ -170,6 +173,8 @@ export interface SurfaceSnapshotInput {
   readonly caughtThisWeek: number;
   readonly worldImage: string | null;
   readonly worldNightImage: string | null;
+  readonly scootchImage: string | null;
+  readonly wallpaper: SettingsRow['wallpaper'];
   /** The task carried on to tomorrow with its monster, when it has hatched one. */
   readonly carried: { readonly task: TaskRow; readonly monster: MonsterRow | null } | null;
   readonly dayEndsAt: Instant;
@@ -297,6 +302,8 @@ export function buildSurfaceSnapshot(input: SurfaceSnapshotInput): SurfaceSnapsh
     caughtThisWeek: Math.max(0, Math.floor(input.caughtThisWeek)),
     worldImage: input.worldImage,
     worldNightImage: input.worldNightImage,
+    scootchImage: input.scootchImage,
+    wallpaper: input.wallpaper,
     tomorrow: tomorrow(input),
     dayEndsAt: input.dayEndsAt,
     accent: input.accent ?? null,

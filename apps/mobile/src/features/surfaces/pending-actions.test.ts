@@ -40,7 +40,10 @@ function fakeFiles() {
 }
 
 const painter: MonsterPainter = { paint: () => Promise.resolve(new Uint8Array([1, 2, 3])) };
-const worldPainter: WorldPainter = { paint: () => Promise.resolve(new Uint8Array([4, 5])) };
+const worldPainter: WorldPainter = {
+  paint: () => Promise.resolve(new Uint8Array([4, 5])),
+  paintScootch: () => Promise.resolve(new Uint8Array([6])),
+};
 
 const asked = (...kinds: string[]) =>
   JSON.stringify(kinds.map((kind, index) => ({ id: `a-${index}`, kind, at: MORNING + index })));
@@ -278,9 +281,9 @@ describe('the surface sync on a phone', () => {
     >;
     expect(set['state']).toBe('task_set');
     expect(set['task']).toBe(task().text);
-    // The monster's picture, and the world by day and asleep.
+    // The monster's picture, the world by day and asleep, and Scootch alone.
     expect([...written.keys()].sort()).toEqual(
-      [set['monsterImage'], set['worldImage'], set['worldNightImage']].sort(),
+      [set['monsterImage'], set['worldImage'], set['worldNightImage'], set['scootchImage']].sort(),
     );
     expect(set['worldImage']).toMatch(/^surface-world-[0-9a-f]{8}\.png$/);
     expect(shared.reloads()).toBeGreaterThan(reloads);

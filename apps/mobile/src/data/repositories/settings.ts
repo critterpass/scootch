@@ -22,6 +22,7 @@ export function defaultSettings(language: Language): SettingsRow {
     hideTableLabel: false,
     iconFollows: 'attitude',
     iconPinned: 'cheeky',
+    wallpaper: 'world',
     firstLaunchDoneAt: null,
   };
 }

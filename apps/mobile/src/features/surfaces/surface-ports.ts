@@ -31,6 +31,8 @@ export interface WorldPainter {
     pixels: number,
     asleep: boolean,
   ): Promise<Uint8Array | null>;
+  /** Scootch alone, pleased, for the wallpaper he is perched on. */
+  paintScootch(pixels: number): Promise<Uint8Array | null>;
 }
 
 /** The keys both sides agree on (`targets/_shared/AppGroup.swift`). */

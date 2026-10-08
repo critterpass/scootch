@@ -22,11 +22,13 @@ export interface LookFacts {
 export function LookSection({
   look,
   follows,
+  wallpaper,
   onOpen,
 }: {
   readonly look: LookFacts;
   readonly follows: SettingsRow['iconFollows'];
-  readonly onOpen: (page: 'icon' | 'studio') => void;
+  readonly wallpaper: SettingsRow['wallpaper'];
+  readonly onOpen: (page: 'icon' | 'studio' | 'wallpaper') => void;
 }) {
   const t = useT();
   const name = t(iconLabel(look.icon));
@@ -53,6 +55,13 @@ export function LookSection({
         value={t(`studio.finish.${look.finish}.short`)}
         onPress={() => onOpen('studio')}
         testID="settings-card-finish"
+      />
+      <Row
+        label={t('look.wallpaper')}
+        hint={t('look.wallpaper.hint')}
+        value={t(`wallpaper.${wallpaper}`)}
+        onPress={() => onOpen('wallpaper')}
+        testID="settings-wallpaper"
       />
       <Row
         label={t('look.iconChangesWith')}

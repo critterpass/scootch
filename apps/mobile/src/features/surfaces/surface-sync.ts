@@ -83,6 +83,7 @@ function shownParts(
     state.waitingForTomorrow,
     settings.attitude,
     settings.language,
+    settings.wallpaper,
     plus,
     accent,
     finish,
@@ -191,6 +192,8 @@ export function createSurfaceSync(deps: SurfaceSyncDeps) {
       ).length,
       worldImage: world.day,
       worldNightImage: world.night,
+      scootchImage: world.scootch,
+      wallpaper: state.settings.wallpaper,
       carried: carried
         ? {
             task: carried,

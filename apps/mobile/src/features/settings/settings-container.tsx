@@ -27,6 +27,7 @@ const PAGES = {
   'developer-tools': '/developer-tools',
   icon: '/look/icon',
   studio: '/studio',
+  wallpaper: '/look/wallpaper',
 } as const satisfies Record<string, string>;
 
 /**

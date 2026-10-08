@@ -29,7 +29,13 @@ export interface WorldImages {
   /** The world by day, and the same world with Scootch asleep in it. */
   readonly day: string | null;
   readonly night: string | null;
+  /** Scootch alone, for the wallpaper he is perched on. He never changes, so it is drawn once. */
+  readonly scootch: string | null;
 }
+
+export const SCOOTCH_IMAGE = 'surface-scootch-pleased.png';
+/** Three times the widest the perched wallpaper draws him. */
+const SCOOTCH_IMAGE_PIXELS = 1560;
 
 export function worldImageNames(
   pieces: readonly WorldPieceRow[],
@@ -72,5 +78,15 @@ export async function shareWorldImages(
       return null;
     }
   };
-  return { day: await one(names.day, false), night: await one(names.night, true) };
+  let scootch: string | null = null;
+  try {
+    if (!files.exists(SCOOTCH_IMAGE)) {
+      const bytes = await painter.paintScootch(SCOOTCH_IMAGE_PIXELS);
+      if (bytes !== null) await files.write(SCOOTCH_IMAGE, bytes);
+    }
+    scootch = files.exists(SCOOTCH_IMAGE) ? SCOOTCH_IMAGE : null;
+  } catch {
+    // The perched wallpaper is then drawn without him by the Shortcuts action.
+  }
+  return { day: await one(names.day, false), night: await one(names.night, true), scootch };
 }

@@ -40,6 +40,8 @@ function snapshot(today: TodayState, changes: Partial<SurfaceSnapshotInput> = {}
     caughtThisWeek: 3,
     worldImage: 'surface-world-0badf00d.png',
     worldNightImage: 'surface-world-0badf00d-asleep.png',
+    scootchImage: 'surface-scootch-pleased.png',
+    wallpaper: 'world',
     carried: null,
     dayEndsAt: DAY_END,
     ...changes,
