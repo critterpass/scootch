@@ -9,6 +9,7 @@ import {
 import { offlineMonsterName, type LineKind } from '@scootch/voice';
 
 import { ApiError } from '../../errors';
+import { noteTakenIn } from '../../sharing/shared-monsters';
 import { shareSigningSecret, signWords } from '../../sharing/signed-words';
 import { generate } from '../deepseek';
 
@@ -32,8 +33,12 @@ import {
   type Field,
 } from './voice-check';
 
-/** What is written for a monster that arrives already named: its kind line and its hatch line. */
-const adoptedFields = nameFields.filter(({ key }) => key === 'title' || key === 'hatch');
+/**
+ * What is written for a monster that arrives already named: its kind line and its hatch line, or
+ * the hatch line alone when an earlier arrival already gave it a kind line.
+ */
+const adoptedFields = (kindLine: string | undefined) =>
+  nameFields.filter(({ key }) => (key === 'title' && kindLine === undefined) || key === 'hatch');
 
 type Written = { readonly texts: Map<string, string>; readonly voice: VoiceCheckSummary };
 
@@ -215,16 +220,18 @@ export async function writeName(
   const { adopted } = payload;
   const { texts, voice } = await writeChecked(context, payload, {
     tool: adopted ? 'write_kind_and_hatch' : 'write_name',
-    parts: [adopted ? adoptedFields : nameFields],
+    parts: [adopted ? adoptedFields(adopted.title) : nameFields],
     monsterName: adopted?.name ?? null,
     maxTokens: 400,
   });
   const at = (slot: string) => texts.get(slot) ?? '';
   const words = {
     name: adopted?.name ?? at('monster.name'),
-    title: at('monster.title'),
+    title: adopted?.title ?? at('monster.title'),
     flavourText: adopted?.flavourText ?? at('monster.flavourText'),
   };
+  // The page remembers the phone that took the monster in, and its kind line.
+  if (adopted) await noteTakenIn(context.env.DB, adopted.page, context.deviceHash, words.title);
   // The words are vouched for as they leave: with the seed the monster will be drawn from.
   const secret = shareSigningSecret(context.env);
   const signing = adopted

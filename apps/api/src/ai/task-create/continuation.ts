@@ -30,7 +30,11 @@ export const continuationPayloadSchema = z.object({
    */
   adopted: z
     .object({
+      /** The id of the monster's page. */
+      page: z.string().min(1).max(64),
       name: z.string().min(1).max(60),
+      /** The kind line an earlier arrival was given, when there was one. */
+      title: z.string().min(1).max(40).optional(),
       flavourText: z.string().min(1).max(160),
       seed: z.string().min(1).max(64),
       language: languageSchema,

@@ -12,9 +12,10 @@ const monsterCaughtRequestSchema = z.strictObject({
 });
 
 /**
- * Marks a shared monster caught, so its page and its link preview read CAUGHT. Only whoever
- * shared it can: the request carries the token the share answered with. The first catch stands;
- * telling again changes nothing and answers the same.
+ * Marks a shared monster caught, so its page and its link preview read CAUGHT. Two may: whoever
+ * shared it, whose request carries the token the share answered with, and the phone that took the
+ * monster in from its page. The first catch stands; telling again changes nothing and answers the
+ * same.
  */
 export const monsterCaughtRoute: RouteDefinition = {
   method: 'POST',
@@ -25,12 +26,15 @@ export const monsterCaughtRoute: RouteDefinition = {
     const { catchMinutes } = await readBody(c, monsterCaughtRequestSchema);
     const token = c.req.header(unshareTokenHeader);
     const row = await c.env.DB.prepare(
-      'SELECT unshare_token_hash FROM shared_monsters WHERE id = ?',
+      'SELECT unshare_token_hash, taken_in_by FROM shared_monsters WHERE id = ?',
     )
       .bind(id)
-      .first<{ unshare_token_hash: string }>();
+      .first<{ unshare_token_hash: string; taken_in_by: string | null }>();
     if (!row) throw new ApiError('not_found', 'No such shared monster');
-    if (token === undefined || (await hashDeviceToken(token)) !== row.unshare_token_hash) {
+    const sharedIt =
+      token !== undefined && (await hashDeviceToken(token)) === row.unshare_token_hash;
+    const tookItIn = row.taken_in_by !== null && row.taken_in_by === c.var.device.hash;
+    if (!sharedIt && !tookItIn) {
       throw refusal('not_yours', 'This monster was shared by someone else');
     }
     await c.env.DB.prepare(
