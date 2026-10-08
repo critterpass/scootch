@@ -1,6 +1,6 @@
 # A website monster arrives in the app
 
-Status: planned · Created 8 Oct 2026 · Decided by the founder, 8 Oct 2026: the
+Status: built and sent to TestFlight (dev 1.0.0 (19), App Store app 1.0.0 (3), both from `dce2f80`); not yet seen on a phone · Created 8 Oct 2026 · Decided by the founder, 8 Oct 2026: the
 App Store version waits for this, and the monster that arrives is the same
 monster (its name, card line, body and seed), not a new one hatched from the
 same words.
@@ -49,11 +49,11 @@ with its page, and the website's card shows it from then on (founder, 8 Oct
 | # | Phase | Owns | Needs | Status |
 |---|---|---|---|---|
 | 1 | [The task call adopts a website monster](phase-01-task-call-adopts.md) | `packages/domain/src/contracts`, `apps/api/src/ai/task-create`, `apps/api/src/routes/task-create*.ts`, `apps/api/test`, `packages/voice/evals` | — | done |
-| 2 | [The app opens a monster's link](phase-02-app-opens-the-link.md) | `apps/mobile/src/app/m`, `apps/mobile/src/features/arrive`, `apps/mobile/src/state`, `apps/mobile/src/api` | 1 | in progress |
-| 3 | [The App Clip](phase-03-app-clip.md) | `apps/mobile/targets/app-clip`, `apps/mobile/targets/_shared` | — | in progress |
-| 4 | [The site offers the clip and the app](phase-04-site-offers.md) | `apps/web` | — | in progress |
-| 5 | [Caught on the phone, caught on the page](phase-05-page-reads-caught.md) | `apps/api/src/sharing`, `apps/api/migrations`, `apps/mobile/src/features/reveal` | 1, 2 | not started |
-| 6 | [Made, listed and walked](phase-06-listed-and-walked.md) | `e2e`, App Store Connect | 1 to 5 | not started |
+| 2 | [The app opens a monster's link](phase-02-app-opens-the-link.md) | `apps/mobile/src/app/m`, `apps/mobile/src/features/arrive`, `apps/mobile/src/state`, `apps/mobile/src/api` | 1 | done |
+| 3 | [The App Clip](phase-03-app-clip.md) | `apps/mobile/targets/app-clip`, `apps/mobile/targets/_shared` | — | done |
+| 4 | [The site offers the clip and the app](phase-04-site-offers.md) | `apps/web` | — | done |
+| 5 | [Caught on the phone, caught on the page](phase-05-page-reads-caught.md) | `apps/api/src/sharing`, `apps/api/migrations`, `apps/mobile/src/features/reveal` | 1, 2 | done |
+| 6 | [Made, listed and walked](phase-06-listed-and-walked.md) | `e2e`, App Store Connect | 1 to 5 | in progress |
 
 Phases 2, 3 and 4 own different folders and can run side by side once phase 1
 has merged.
