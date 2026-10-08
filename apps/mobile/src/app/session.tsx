@@ -1,4 +1,4 @@
-import { Redirect, useRouter } from 'expo-router';
+import { Redirect, useIsFocused, useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { View } from 'react-native';
 
@@ -21,15 +21,18 @@ export default function SessionRoute() {
   // A crisis day beats a session that was running: nothing of it is shown, and care takes over.
   const crisis = ready && today.kind === 'crisis';
   const over = ready && !crisis && model.view.kind === 'home';
+  // A link from a surface may have opened a page over this one. Going home would close that page
+  // too, so it waits until this screen is the one in front again.
+  const focused = useIsFocused();
 
   useEffect(() => {
-    if (!over) return;
+    if (!over || !focused) return;
     // The session is closed in storage before the one screen underneath is uncovered, by the same
     // fade the session arrived with: home never finds a session it would send the person back to.
     void dispatch({ type: 'session_closed' })
       .catch(() => undefined)
       .then(() => router.dismissTo('/'));
-  }, [over, dispatch, router]);
+  }, [over, focused, dispatch, router]);
 
   if (crisis) return <Redirect href="/care" />;
   // At a table, the session is the same session with the table's critters in a strip above it.

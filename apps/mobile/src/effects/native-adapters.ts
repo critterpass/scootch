@@ -161,6 +161,16 @@ async function endAll(): Promise<void> {
   for (const id of await liveIds()) await LiveActivity.end(id, undefined, 0);
 }
 
+/**
+ * Takes everything off the Lock Screen, the card of the last catch included: it has ended but
+ * stays until the top of its hour, and a new session would otherwise stand beside it.
+ */
+async function clearAll(): Promise<void> {
+  for (const activity of await LiveActivity.listActive()) {
+    if (activity.status !== 'dismissed') await LiveActivity.end(activity.id, undefined, 0);
+  }
+}
+
 /** The hunt record in the App Group, which the Lock Screen's buttons move with the app away. */
 function storedHunt(): HuntRecord | null {
   try {
@@ -234,7 +244,7 @@ function staleAt(hunt: HuntRecord | null, endsAt: number): number {
  */
 export const nativeLiveActivity: LiveActivityPort = {
   start: async ({ title, taskId, endsAt, line }) => {
-    await endAll();
+    await clearAll();
     const now = Date.now();
     const stored = storedHunt();
     // A hunt begun or moved outside the app keeps the moment its clock started. It is this

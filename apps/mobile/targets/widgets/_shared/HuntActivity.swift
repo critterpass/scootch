@@ -49,6 +49,11 @@ enum HuntActivity {
             let lines = shown.huntLines(for: taskId)
         else { return false }
         let title = shown.lurker(for: taskId)?.task ?? shown.task ?? ""
+        // The card of the last catch has ended but stays until the top of its hour. A new hunt
+        // takes its place instead of standing beside it.
+        for card in SessionActivity.activities where card.activityState == .ended {
+            await card.end(nil, dismissalPolicy: .immediate)
+        }
         let started = nowMs()
         let record = HuntRecord.begin(taskId: taskId, minutes: minutes, at: started)
         let opening = lines.start ?? lines.working.first ?? ""

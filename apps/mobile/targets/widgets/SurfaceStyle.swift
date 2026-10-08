@@ -106,8 +106,18 @@ enum SurfaceLinks {
     static let home = url("")
     static let session = url("session")
     static let world = url("world")
-    /// The caught cards, where one is shared from.
+    /// The caught cards.
     static let cards = url("zoo")
+
+    /// One caught card out of its pocket, where it is shared from. The surfaces know the thing
+    /// a monster came from, not the card, so the card is asked for by its thing.
+    static func card(ofTask taskId: String) -> URL {
+        guard !taskId.isEmpty,
+            let task = taskId.addingPercentEncoding(
+                withAllowedCharacters: .alphanumerics.union(CharacterSet(charactersIn: "-_")))
+        else { return cards }
+        return url("binder/card?task=\(task)")
+    }
 
     static func destination(for snapshot: SurfaceSnapshot, at date: Date) -> URL {
         if snapshot.isRunning(at: date) { return session }
