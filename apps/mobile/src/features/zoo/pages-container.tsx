@@ -9,7 +9,7 @@ import { goBack } from '../../ui/motion/go-back';
 import { useShare } from '../share/use-share';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
-import { monthOf, monthPages } from './binder';
+import { monthOf, monthPages, type LeafAt } from './binder';
 import { cardRoute } from './binder-routes';
 import { lookAt } from './last-looked';
 import { PagesScreen } from './pages-screen';
@@ -28,7 +28,7 @@ export function PagesContainer() {
   const { keepsakes } = useKeepsakes(focused);
   const plus = usePlus();
   const current = monthOf(localDate);
-  const [shown, setShown] = useState(params.month ?? current);
+  const [shown, setShown] = useState<LeafAt>({ month: params.month ?? current, leaf: 0 });
   // The pages are Plus, and Plus wears every frame: the composer has nothing locked to ask about.
   const share = useShare(today);
   const pages = useMemo(
@@ -41,9 +41,11 @@ export function PagesContainer() {
   }, [plus, router]);
 
   if (!keepsakes || !plus) return <View style={{ flex: 1, backgroundColor: palette.page }} />;
-  const open = pages.some((page) => page.month === shown) ? shown : current;
-  const openPage = pages.find((page) => page.month === open);
-  const [year = 0, month = 1] = open.split('-').map(Number);
+  const open = pages.some((page) => page.month === shown.month)
+    ? shown
+    : { month: current, leaf: 0 };
+  const openPage = pages.find((page) => page.month === open.month);
+  const [year = 0, month = 1] = open.month.split('-').map(Number);
   return (
     <PagesScreen
       model={{ pages, shown: open, current, language }}
