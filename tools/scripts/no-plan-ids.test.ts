@@ -20,7 +20,9 @@ const banned: { pattern: RegExp; what: string }[] = [
   { pattern: /\bMVP\b/, what: 'deferral word' },
   // Version segments of URLs, identifiers and vendor API names (`/v2/`, `API_V2_KEY`, `API v2`) are not
   // deferrals.
-  { pattern: /(?<![\w/.-])(?<!\bAPI )v2(?![\w/-]|\.\w)/i, what: 'deferral word' },
+  // Nor is the name the founder gave a design board ("System Surfaces v2"), which a registry
+  // entry has to quote exactly.
+  { pattern: /(?<![\w/.-])(?<!\bAPI )(?<!\bSurfaces )v2(?![\w/-]|\.\w)/i, what: 'deferral word' },
 ];
 
 const sourceExtensions = /\.(ts|tsx|js|mjs|cjs|swift|kt|kts|sql|sh|ya?ml|json|astro|css)$/;
@@ -65,6 +67,8 @@ describe('banned patterns', () => {
     expect(findingsIn("fetch('https://api.revenuecat.com/v2/projects')")).toEqual([]);
     expect(findingsIn('// RevenueCat REST API v2 lists entitlements per project')).toEqual([]);
     expect(findingsIn("import { uuidv2 } from './ids';")).toEqual([]);
+    expect(findingsIn("board: 'System Surfaces v2',")).toEqual([]);
+    expect(findingsIn('// the surfaces get tables in v2')).toEqual(['deferral word']);
   });
 });
 

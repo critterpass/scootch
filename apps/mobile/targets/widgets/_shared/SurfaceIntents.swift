@@ -1,4 +1,5 @@
 import AppIntents
+import WidgetKit
 
 // The intents behind the widgets, the controls, the Action button and the Live Activity's
 // buttons. They are compiled into the app and the widget extension, and the system runs them in
@@ -51,6 +52,8 @@ struct HuntIntent: LiveActivityIntent {
         if await HuntActivity.begin(taskId: taskId) {
             PendingSurfaceActions.record(.hunt, taskId: taskId)
         }
+        // The widgets mark the one that is being hunted.
+        Surfaces.reload()
         return .result()
     }
 }
@@ -177,6 +180,78 @@ struct KeepHereIntent: LiveActivityIntent {
     func perform() async throws -> some IntentResult {
         PendingSurfaceActions.record(.keepHere, taskId: HuntStore.load()?.taskId)
         await HuntActivity.clear()
+        return .result()
+    }
+}
+
+/// "Hunt at 9:00", on the nightstand: tomorrow's one thing is set for nine with one press. It
+/// runs in the app's process, which is the one that may send the notification.
+struct HuntAtNineIntent: LiveActivityIntent {
+    static let title: LocalizedStringResource = "Hunt at 9:00"
+    static let openAppWhenRun = false
+    static let isDiscoverable = false
+
+    func perform() async throws -> some IntentResult {
+        let taskId = SurfaceSnapshot.load().shown(at: Date()).tomorrow?.taskId
+        if await MorningHunt.set() {
+            PendingSurfaceActions.record(.tomorrow, taskId: taskId)
+        }
+        Surfaces.reload()
+        return .result()
+    }
+}
+
+/// "Wave back", at a table. The table is reached over the connection the open app holds, so
+/// this opens Scootch, which sends the wave.
+struct WaveIntent: LiveActivityIntent {
+    static let title: LocalizedStringResource = "Wave back"
+    static let openAppWhenRun = true
+    static let isDiscoverable = false
+
+    @Parameter(title: "Seat") var seatId: String
+
+    init() {}
+
+    init(seatId: String) {
+        self.seatId = seatId
+    }
+
+    func perform() async throws -> some IntentResult {
+        PendingSurfaceActions.record(.wave, seatId: seatId)
+        return .result()
+    }
+}
+
+/// "Leave table": the seat is given up and the session goes on alone. Like the wave, it is the
+/// open app that tells the table.
+struct LeaveTableIntent: LiveActivityIntent {
+    static let title: LocalizedStringResource = "Leave table"
+    static let openAppWhenRun = true
+    static let isDiscoverable = false
+
+    func perform() async throws -> some IntentResult {
+        PendingSurfaceActions.record(.leaveTable)
+        return .result()
+    }
+}
+
+/// The open seat at a friend's table, on the widget: Scootch opens and takes the seat, as the
+/// pill on its home screen does.
+struct SitAtTableIntent: AppIntent {
+    static let title: LocalizedStringResource = "Sit here"
+    static let openAppWhenRun = true
+    static let isDiscoverable = false
+
+    @Parameter(title: "Table") var tableId: String
+
+    init() {}
+
+    init(tableId: String) {
+        self.tableId = tableId
+    }
+
+    func perform() async throws -> some IntentResult {
+        PendingSurfaceActions.record(.sit, seatId: tableId)
         return .result()
     }
 }

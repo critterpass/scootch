@@ -199,6 +199,17 @@ export function moreHunt(record: HuntRecord, now: Instant): HuntRecord {
   return { ...record, endsAt: now + HUNT_MORE_MS };
 }
 
+/**
+ * "Make it 5": the hunt is `minutes` long from when its clock started. Only ever shorter, and
+ * never to a moment that has already passed.
+ */
+export function shortenHunt(record: HuntRecord, minutes: number, now: Instant): HuntRecord {
+  const end = record.beginsAt + minutes * MINUTE_MS;
+  if (over(record) || record.pausedAt !== null) return record;
+  if (end <= now || end >= record.endsAt) return record;
+  return { ...record, endsAt: end };
+}
+
 /** Ended before its time. During the count-in this is "Not yet" and leaves nothing to show. */
 export function stopHunt(record: HuntRecord, now: Instant): HuntRecord | null {
   if (over(record)) return record;

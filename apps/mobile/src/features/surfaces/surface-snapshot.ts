@@ -15,6 +15,8 @@ import {
   type TodayState,
 } from '@scootch/domain';
 
+import { offlinePacks } from '@scootch/voice';
+
 import { liveLineTurns } from '../../effects/live-line-turns';
 import { bitesOf } from '../../state/bites';
 import { lineFor, lineWithNoTask } from '../../state/lines';
@@ -66,6 +68,35 @@ export interface SurfaceLurker {
   readonly lines: SurfaceHuntLines;
 }
 
+/**
+ * The thing carried on to tomorrow, as the nightstand shows it once the evening is late. A
+ * serious task is its plain words alone: no monster's name and no line.
+ */
+export interface SurfaceTomorrow {
+  readonly taskId: string;
+  readonly task: string;
+  readonly monsterName: string | null;
+  /** What Scootch says under it. */
+  readonly line: string | null;
+  /** What the notification says at nine, when "Hunt at 9:00" was pressed. */
+  readonly morning: string;
+}
+
+/** A friend's open table: who of the person's friends is there, never anyone else. */
+export interface SurfaceFriendsTable {
+  readonly tableId: string;
+  /** The friend it is named by, and how many more friends sit beside them. */
+  readonly friend: string | null;
+  readonly others: number;
+  readonly openSeats: number;
+}
+
+export interface SurfaceFriendsTables {
+  /** When the server was asked, in milliseconds since 1970. */
+  readonly asOf: Instant;
+  readonly tables: readonly SurfaceFriendsTable[];
+}
+
 /** One of a monster's three bites. */
 export interface SurfaceBite {
   /** The task's id and the bite's place, 0 to 2, joined by a colon. */
@@ -110,6 +141,21 @@ export interface SurfaceSnapshot {
   /** How many monsters have been caught, and the last of them. */
   readonly shelf: number;
   readonly latestCatch: { readonly name: string; readonly caughtAt: Instant } | null;
+  /** How many of them were caught in this week. */
+  readonly caughtThisWeek: number;
+  /** The files the world was drawn to, by day and asleep, or `null` when it could not be. */
+  readonly worldImage: string | null;
+  readonly worldNightImage: string | null;
+  /** Scootch alone, and the wallpaper the Shortcuts action draws with these pictures. */
+  readonly scootchImage: string | null;
+  readonly wallpaper: SettingsRow['wallpaper'];
+  /** The thing carried on to tomorrow. `null` when none is, and on a crisis day. */
+  readonly tomorrow: SurfaceTomorrow | null;
+  /**
+   * The open tables friends were last seen at, with when that was asked: the widget shows them
+   * only while that is recent. `null` before anything was asked, and on a crisis day.
+   */
+  readonly friendsTables: SurfaceFriendsTables | null;
   /** When the day this describes rolls over. After it, the surfaces show a day with nothing yet. */
   readonly dayEndsAt: Instant;
   /**
@@ -144,6 +190,14 @@ export interface SurfaceSnapshotInput {
   readonly finish: CardFinish;
   readonly shelf: number;
   readonly latestCatch: SurfaceSnapshot['latestCatch'];
+  readonly caughtThisWeek: number;
+  readonly worldImage: string | null;
+  readonly worldNightImage: string | null;
+  readonly scootchImage: string | null;
+  readonly wallpaper: SettingsRow['wallpaper'];
+  readonly friendsTables?: SurfaceFriendsTables | null;
+  /** The task carried on to tomorrow with its monster, when it has hatched one. */
+  readonly carried: { readonly task: TaskRow; readonly monster: MonsterRow | null } | null;
   readonly dayEndsAt: Instant;
   /** The worn ink's accent; left out or `null` for tomato. */
   readonly accent?: string | null;
@@ -211,6 +265,25 @@ function lurkers(input: SurfaceSnapshotInput): Pick<SurfaceSnapshot, 'lurkers' |
   };
 }
 
+/** Tomorrow's one thing. The care flag decides whether it has a monster and a line at all. */
+function tomorrow(input: SurfaceSnapshotInput): SurfaceTomorrow | null {
+  if (input.carried === null) return null;
+  const { task, monster } = input.carried;
+  const { settings } = input;
+  const funny = showsComedy(task, 'monster') && monster !== null;
+  return {
+    taskId: task.id,
+    task: task.text,
+    monsterName: funny ? monster.name : null,
+    line: funny
+      ? lineWithNoTask('asleepTillTomorrow', settings).replace('{name}', monster.name)
+      : null,
+    morning:
+      (showsComedy(task, 'notification') ? lineFor('start', task, settings) : null) ??
+      offlinePacks[settings.language].plain.reminder,
+  };
+}
+
 function running(session: SessionRow | null): session is SessionRow {
   return session !== null && session.endedAt === null;
 }
@@ -247,6 +320,13 @@ export function buildSurfaceSnapshot(input: SurfaceSnapshotInput): SurfaceSnapsh
     finish: input.finish,
     shelf: Math.max(0, Math.floor(input.shelf)),
     latestCatch: input.latestCatch,
+    caughtThisWeek: Math.max(0, Math.floor(input.caughtThisWeek)),
+    worldImage: input.worldImage,
+    worldNightImage: input.worldNightImage,
+    scootchImage: input.scootchImage,
+    wallpaper: input.wallpaper,
+    tomorrow: tomorrow(input),
+    friendsTables: input.friendsTables ?? null,
     dayEndsAt: input.dayEndsAt,
     accent: input.accent ?? null,
   };
@@ -264,7 +344,16 @@ export function buildSurfaceSnapshot(input: SurfaceSnapshotInput): SurfaceSnapsh
 
   // Nothing of the day on a crisis day: no lurker, and nothing kept from before it either.
   if (today.kind === 'crisis') {
-    return { ...base, ...empty, state: 'crisis', lurkers: [], bites: [], latestCatch: null };
+    return {
+      ...base,
+      ...empty,
+      state: 'crisis',
+      lurkers: [],
+      bites: [],
+      latestCatch: null,
+      tomorrow: null,
+      friendsTables: null,
+    };
   }
   const waiting = lurkers(input);
   if (today.kind === 'nothing_yet') {

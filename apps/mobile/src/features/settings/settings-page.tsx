@@ -1,21 +1,24 @@
 import { useState } from 'react';
 
-import type { CardFinish, ClockTime, SettingsRow } from '@scootch/domain';
+import {
+  dailyNotificationLimit,
+  type CardFinish,
+  type ClockTime,
+  type SettingsRow,
+} from '@scootch/domain';
 import type { Language } from '@scootch/i18n';
 
 import { useT } from '../../i18n/i18n-provider';
 import { useAppearance } from '../../screens/registry/support/forced-variant';
-
+import { LookSection, type LookFacts } from '../look/look-section';
 import type { PlanId } from '../plus/products';
 
 import { AttitudeDial } from './attitude-dial';
-import { CardThumb, FinishThumb, SeatThumb } from './look-thumbs';
+import { CardThumb, SeatThumb } from './look-thumbs';
 import { Page } from './page';
 import { QuietHoursRows } from './quiet-hours';
 import { Note, Row, Section, SwitchRow } from './rows';
 
-/** The seat's ground in the Tables row: a shade under the page, in either appearance. */
-const SEAT_GROUND = { light: '#EDE7DD', dark: '#2E2A26' } as const;
 const FINISH_LABELS = {
   hold: 'finishWith.hold',
   double_tap: 'finishWith.tapTwice',
@@ -23,6 +26,8 @@ const FINISH_LABELS = {
 } as const;
 const LANGUAGES: readonly (Language | null)[] = [null, 'en', 'vi'];
 const LANGUAGE_LABELS = { en: 'English', vi: 'Tiếng Việt' } as const;
+/** The seat's ground in the Tables row: a shade under the page, in either appearance. */
+const SEAT_GROUND = { light: '#EDE7DD', dark: '#2E2A26' } as const;
 
 /** `8:30` for `08:30`, as the design writes the quiet hours. */
 export function shortClock(time: ClockTime): string {
@@ -43,8 +48,18 @@ export interface SettingsPageProps {
   readonly onLanguage: (language: Language | null) => void;
   readonly onOpen: (
     page:
-      'finish-with' | 'privacy' | 'helplines' | 'plus' | 'studio' | 'tables' | 'developer-tools',
+      | 'finish-with'
+      | 'privacy'
+      | 'helplines'
+      | 'plus'
+      | 'tables'
+      | 'developer-tools'
+      | 'icon'
+      | 'wallpaper'
+      | 'shortcuts',
   ) => void;
+  /** What the Look group shows as picked. Unset, the group is left out. */
+  readonly look?: LookFacts;
   /**
    * What the Plus row shows: the plan that holds Plus (`null` without it), the member's number
    * once the server has given one, and the finish that is worn, which the card is drawn in.
@@ -54,11 +69,6 @@ export interface SettingsPageProps {
     readonly number: number | null;
     readonly finish: CardFinish;
   };
-  /**
-   * False on a day with something heavy in it: the way to the studio rests, since things are sold
-   * there.
-   */
-  readonly studio: boolean;
   /** The name the person's seat shows; `null` on a phone that is not signed in for tables. */
   readonly tableName?: string | null;
   /** Opens the share sheet with a friend link. Unset (a capture), the row does nothing. */
@@ -73,8 +83,8 @@ export interface SettingsPageProps {
  */
 export function SettingsPage(props: SettingsPageProps) {
   const { settings, chosenLanguage, onChange, onOpen } = props;
-  const appearance = useAppearance();
   const t = useT();
+  const appearance = useAppearance();
   const [open, setOpen] = useState<'quiet' | 'language' | null>(null);
   const toggle = (group: 'quiet' | 'language') => setOpen(open === group ? null : group);
 
@@ -94,18 +104,13 @@ export function SettingsPage(props: SettingsPageProps) {
         />
       </Section>
 
-      {props.studio ? (
-        <Section label={t('settings.look')}>
-          <Row
-            first
-            leading={<FinishThumb finish={props.card.finish} />}
-            label={t('settings.cardFinish')}
-            hint={t('settings.cardFinish.hint')}
-            value={t(`finish.${props.card.finish}`)}
-            onPress={() => onOpen('studio')}
-            testID="settings-card-finish"
-          />
-        </Section>
+      {props.look ? (
+        <LookSection
+          look={props.look}
+          follows={settings.iconFollows}
+          wallpaper={settings.wallpaper}
+          onOpen={onOpen}
+        />
       ) : null}
 
       <Section label={t('settings.feel')}>
@@ -153,6 +158,14 @@ export function SettingsPage(props: SettingsPageProps) {
       <Section label={t('settings.calm')}>
         <Row
           first
+          kind="fact"
+          label={t('look.monstersMessage')}
+          value={t('look.monstersMessage.upTo', {
+            count: dailyNotificationLimit(settings.attitude),
+          })}
+          testID="settings-monsters-message"
+        />
+        <Row
           label={t('settings.quietHours')}
           hint={t('settings.quietHours.hint')}
           value={`${shortClock(settings.quietHoursStart)}–${shortClock(settings.quietHoursEnd)}`}
@@ -166,6 +179,13 @@ export function SettingsPage(props: SettingsPageProps) {
             onChange={onChange}
           />
         ) : null}
+        <Row
+          label={t('settings.backTap')}
+          sub={t('settings.backTap.sub')}
+          hint={t('settings.backTap.hint')}
+          onPress={() => onOpen('shortcuts')}
+          testID="settings-back-tap"
+        />
         <Row
           label={t('settings.finishWith')}
           hint={t('settings.finishWith.hint')}

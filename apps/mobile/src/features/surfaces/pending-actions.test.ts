@@ -7,6 +7,7 @@ import { PENDING_ACTION_MAX_AGE_MS, createPendingActions } from './pending-actio
 import {
   SHARED_KEYS,
   type MonsterPainter,
+  type WorldPainter,
   type SharedFiles,
   type SharedStore,
 } from './surface-ports';
@@ -39,6 +40,10 @@ function fakeFiles() {
 }
 
 const painter: MonsterPainter = { paint: () => Promise.resolve(new Uint8Array([1, 2, 3])) };
+const worldPainter: WorldPainter = {
+  paint: () => Promise.resolve(new Uint8Array([4, 5])),
+  paintScootch: () => Promise.resolve(new Uint8Array([6])),
+};
 
 const asked = (...kinds: string[]) =>
   JSON.stringify(kinds.map((kind, index) => ({ id: `a-${index}`, kind, at: MORNING + index })));
@@ -71,7 +76,7 @@ describe('pending actions from the system surfaces', () => {
     const fresh = { id: 'f', kind: 'stuck', at: MORNING + PENDING_ACTION_MAX_AGE_MS };
     const list = JSON.stringify([fresh, { id: 'x', kind: 'delete_everything', at: fresh.at }]);
     shared.values.set(SHARED_KEYS.pendingActions, list);
-    expect(pending.take()).toEqual([{ ...fresh, taskId: null, biteId: null }]);
+    expect(pending.take()).toEqual([{ ...fresh, taskId: null, biteId: null, seatId: null }]);
     shared.values.set(SHARED_KEYS.pendingActions, list);
     expect(pending.take()).toEqual([]);
     shared.values.set(SHARED_KEYS.pendingActions, '{not json');
@@ -84,37 +89,46 @@ describe('what was asked about one thing', () => {
     const shared = fakeShared();
     const pending = createPendingActions(shared.store, () => MORNING + 1000);
     const list = [
-      { id: 'b', kind: 'bite', taskId: 'task-1', biteId: 'bite-2', at: MORNING + 2 },
+      { id: 'b', kind: 'bite', taskId: 'task-1', biteId: 'bite-2', seatId: null, at: MORNING + 2 },
       { id: 'a', kind: 'hunt', taskId: 'task-1', at: MORNING + 1 },
       { id: 'c', kind: 'turn_down', taskId: 7, at: MORNING + 3 },
     ];
     shared.values.set(SHARED_KEYS.pendingActions, JSON.stringify(list));
     expect(pending.take()).toEqual([
-      { id: 'a', kind: 'hunt', taskId: 'task-1', biteId: null, at: MORNING + 1 },
-      { id: 'b', kind: 'bite', taskId: 'task-1', biteId: 'bite-2', at: MORNING + 2 },
-      { id: 'c', kind: 'turn_down', taskId: null, biteId: null, at: MORNING + 3 },
+      { id: 'a', kind: 'hunt', taskId: 'task-1', biteId: null, seatId: null, at: MORNING + 1 },
+      { id: 'b', kind: 'bite', taskId: 'task-1', biteId: 'bite-2', seatId: null, at: MORNING + 2 },
+      { id: 'c', kind: 'turn_down', taskId: null, biteId: null, seatId: null, at: MORNING + 3 },
     ]);
   });
 });
 
+const CRISIS_WORDS = 'Thinking about ending my life tonight';
+
 describe('the surface sync on a phone', () => {
   async function phone() {
-    const staged = await stagedPhone(stagedServer());
+    const server = stagedServer();
+    const staged = await stagedPhone(server);
     const shared = fakeShared();
     const { files, written } = fakeFiles();
+    const cancelled: string[] = [];
     const sync = createSurfaceSync({
       store: staged.store,
       repositories: openRepositories(staged.data.db),
       shared: shared.store,
       files,
       painter,
+      worldPainter,
+      cancelNotification: (id) => {
+        cancelled.push(id);
+        return Promise.resolve();
+      },
       plus: () => false,
       accent: () => null,
       finish: () => 'paper',
       now: () => staged.time.clock.now(),
       timeZone: () => 'Europe/London',
     });
-    return { ...staged, shared, written, sync };
+    return { ...staged, shared, written, sync, cancelled, server };
   }
 
   it('starts the ten-minute session exactly once when the control asked for it', async () => {
@@ -168,6 +182,190 @@ describe('the surface sync on a phone', () => {
     );
   });
 
+  it("takes back a nine o'clock hunt once its thing is no longer waiting", async () => {
+    const { store, say, shared, sync, task, cancelled } = await phone();
+    await say();
+    await store.dispatch({ type: 'one_thing_picked' });
+    await store.dispatch({ type: 'monster_met' });
+    const set = (taskId: string) =>
+      shared.values.set(SHARED_KEYS.morningHunt, JSON.stringify({ taskId, at: MORNING }));
+
+    // Set for the thing that is still today's: it stays.
+    set(task().id);
+    await sync.sync();
+    expect(cancelled).toEqual([]);
+    expect(shared.values.has(SHARED_KEYS.morningHunt)).toBe(true);
+
+    // Set for a thing that is gone: the notification is taken back with the note.
+    set('gone');
+    await store.dispatch({ type: 'session_set', minutes: 10 });
+    await store.dispatch({ type: 'session', event: { type: 'started' } });
+    await sync.sync();
+    expect(cancelled).toEqual(['morning-hunt-gone']);
+    expect(shared.values.has(SHARED_KEYS.morningHunt)).toBe(false);
+  });
+
+  it('keeps a bite ticked under a notification, and begins the session on the last one', async () => {
+    const { store, say, shared, sync, task, data } = await phone();
+    await say();
+    await store.dispatch({ type: 'one_thing_picked' });
+    await store.dispatch({ type: 'monster_met' });
+    const bites = [
+      { text: 'Find the email.', minutes: 1 },
+      { text: 'Write two lines.', minutes: 4 },
+      { text: 'Hit send.', minutes: 1 },
+    ];
+    const lines = task().lines;
+    if (lines === null || !('hatch' in lines)) throw new Error('no lines');
+    await openRepositories(data.db).tasks.put({ ...task(), lines: { ...lines, bites } });
+    const tick = (place: number) => ({
+      id: `bite-${place}`,
+      kind: 'bite',
+      taskId: task().id,
+      biteId: `${task().id}:${place}`,
+      at: MORNING,
+    });
+
+    shared.values.set(SHARED_KEYS.pendingActions, JSON.stringify([tick(0), tick(1)]));
+    await sync.opened();
+    expect((await openRepositories(data.db).tasks.get(task().id))?.bitesCaught).toEqual([0, 1]);
+    expect(store.getState().session?.phase ?? 'set').toBe('set');
+
+    // The last bite: the session begins, and the catch is on its screen.
+    shared.values.set(SHARED_KEYS.pendingActions, JSON.stringify([tick(2)]));
+    await sync.opened();
+    expect((await openRepositories(data.db).tasks.get(task().id))?.bitesCaught).toEqual([0, 1, 2]);
+    expect(store.getState().today.kind).toBe('in_session');
+  });
+
+  it('rests today when tomorrow at nine is asked for, and turns one monster down for a week', async () => {
+    const { store, say, sync, task, data, shared } = await phone();
+    await say();
+    await store.dispatch({ type: 'one_thing_picked' });
+    await store.dispatch({ type: 'monster_met' });
+    const id = task().id;
+
+    await sync.aboutOneThing('turn_down', id, null);
+    const turned = await openRepositories(data.db).tasks.get(id);
+    expect(turned?.softUntil).toBe('2026-10-12');
+    // A thing that is not there is left alone.
+    await sync.aboutOneThing('turn_down', 'gone', null);
+
+    await sync.aboutOneThing('tomorrow', 'not-todays', null);
+    expect(store.getState().today.kind).toBe('task_set');
+    await sync.aboutOneThing('tomorrow', id, null);
+    expect(store.getState().today.kind).toBe('done_for_today');
+    expect(store.getState().waitingForTomorrow?.id).toBe(id);
+    await sync.sync();
+    const snapshot = JSON.parse(shared.values.get(SHARED_KEYS.snapshot) ?? '{}') as {
+      tomorrow?: unknown;
+    };
+    expect(snapshot.tomorrow).toMatchObject({ taskId: id });
+  });
+
+  it('sends a wave and gives up the seat when the Lock Screen asked, once each', async () => {
+    const staged = await stagedPhone(stagedServer());
+    const shared = fakeShared();
+    const asked: string[] = [];
+    const sync = createSurfaceSync({
+      store: staged.store,
+      repositories: openRepositories(staged.data.db),
+      shared: shared.store,
+      files: fakeFiles().files,
+      painter,
+      worldPainter,
+      cancelNotification: () => Promise.resolve(),
+      table: { wave: (seat) => asked.push(`wave ${seat}`), leave: () => asked.push('leave') },
+      plus: () => false,
+      accent: () => null,
+      finish: () => 'paper',
+      now: () => staged.time.clock.now(),
+      timeZone: () => 'Europe/London',
+    });
+    const list = [
+      { id: 'w', kind: 'wave', seatId: 'dana', at: MORNING },
+      { id: 'n', kind: 'wave', at: MORNING + 1 },
+      { id: 'l', kind: 'leave_table', at: MORNING + 2 },
+    ];
+    shared.values.set(SHARED_KEYS.pendingActions, JSON.stringify(list));
+    await sync.opened();
+    expect(asked).toEqual(['wave dana', 'leave']);
+    shared.values.set(SHARED_KEYS.pendingActions, JSON.stringify(list));
+    await sync.opened();
+    expect(asked).toEqual(['wave dana', 'leave']);
+  });
+
+  const sharedThing = (text: string, when: 'now' | 'tomorrow', id = when) =>
+    JSON.stringify([{ id, text, kind: 'text', when, at: MORNING }]);
+
+  it('says a thing shared for now to Scootch as a ramble, once, when the day is free', async () => {
+    const { store, shared, sync, server, until } = await phone();
+    shared.values.set(
+      SHARED_KEYS.sharedIn,
+      sharedThing('Re: the boiler is still making the noise', 'now'),
+    );
+    await sync.opened();
+    expect(shared.values.has(SHARED_KEYS.sharedIn)).toBe(false);
+    // The one thing is the one the task call found in the words.
+    await until(() => store.getState().pick.kind !== 'none');
+    expect(server.startCalls).toBe(1);
+    // The shared words themselves are not also parked: only what the call set aside is.
+    const parked = store.getState().drawer.items.map((item) => item.text);
+    expect(parked.join(' ')).not.toContain('boiler');
+    await sync.opened();
+    expect(server.startCalls).toBe(1);
+  });
+
+  it('keeps a thing shared for tomorrow in the drawer, unscreened, to come back tomorrow', async () => {
+    const { store, shared, sync, server } = await phone();
+    shared.values.set(SHARED_KEYS.sharedIn, sharedThing('Reply to the landlord', 'tomorrow'));
+    await sync.opened();
+    expect(server.startCalls).toBe(0);
+    expect(store.getState().drawer.items).toMatchObject([
+      { text: 'Reply to the landlord', screen: 'unscreened', returnOn: '2026-10-07' },
+    ]);
+  });
+
+  it('keeps a thing shared for now in the drawer when today already has its thing', async () => {
+    const { store, say, shared, sync, server } = await phone();
+    await say();
+    await store.dispatch({ type: 'one_thing_picked' });
+    await store.dispatch({ type: 'monster_met' });
+    const calls = server.startCalls;
+    shared.values.set(SHARED_KEYS.sharedIn, sharedThing('Reply to the landlord', 'now'));
+    await sync.opened();
+    expect(server.startCalls).toBe(calls);
+    expect(store.getState().today.kind).toBe('task_set');
+    expect(store.getState().drawer.items.map((item) => item.text)).toContain(
+      'Reply to the landlord',
+    );
+  });
+
+  it('never stores shared words that read as a crisis: the day turns to care', async () => {
+    const { store, shared, sync, server } = await phone();
+    shared.values.set(SHARED_KEYS.sharedIn, sharedThing(CRISIS_WORDS, 'tomorrow'));
+    await sync.opened();
+    expect(store.getState().today.kind).toBe('crisis');
+    expect(store.getState().drawer.items).toEqual([]);
+    expect(server.startCalls).toBe(0);
+    expect(shared.values.get(SHARED_KEYS.snapshot) ?? '').not.toContain(CRISIS_WORDS);
+  });
+
+  it('drops a shared thing with no words, an unknown choice or broken text', async () => {
+    const { store, shared, sync } = await phone();
+    const list = [
+      { id: 'a', text: '   ', when: 'now', at: MORNING },
+      { id: 'b', text: 'Something', when: 'someday', at: MORNING },
+      { id: 'c', when: 'now', at: MORNING },
+    ];
+    shared.values.set(SHARED_KEYS.sharedIn, JSON.stringify(list));
+    await sync.opened();
+    shared.values.set(SHARED_KEYS.sharedIn, '{not json');
+    await sync.opened();
+    expect(store.getState().drawer.items).toEqual([]);
+    expect(store.getState().today.kind).toBe('nothing_yet');
+  });
+
   it('writes the snapshot and the monster picture when today changes, and only then', async () => {
     const { store, say, shared, written, sync, task } = await phone();
     await sync.sync();
@@ -189,7 +387,11 @@ describe('the surface sync on a phone', () => {
     >;
     expect(set['state']).toBe('task_set');
     expect(set['task']).toBe(task().text);
-    expect([...written.keys()]).toEqual([set['monsterImage']]);
+    // The monster's picture, the world by day and asleep, and Scootch alone.
+    expect([...written.keys()].sort()).toEqual(
+      [set['monsterImage'], set['worldImage'], set['worldNightImage'], set['scootchImage']].sort(),
+    );
+    expect(set['worldImage']).toMatch(/^surface-world-[0-9a-f]{8}\.png$/);
     expect(shared.reloads()).toBeGreaterThan(reloads);
   });
 });

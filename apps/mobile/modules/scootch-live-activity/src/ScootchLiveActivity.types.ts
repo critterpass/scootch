@@ -38,6 +38,30 @@ export interface SessionActivityState {
   offline?: boolean | null;
   /** The card of a hunt that was caught, which the Lock Screen then shows in the worn finish. */
   caught?: SessionActivityCaughtCard | null;
+  /** The table the session is at, which the Lock Screen shows in place of the race. */
+  table?: SessionActivityTable | null;
+}
+
+/** A seat as the surfaces show it. `label` is one or two words, never the task. */
+export interface SessionActivityTableSeat {
+  id: string;
+  /** `null` for the person's own seat, which reads "You", and for a seat with no name. */
+  name: string | null;
+  label: string | null;
+  you: boolean;
+  /** They waved at this person a moment ago. */
+  waved: boolean;
+  done: boolean;
+  away: boolean;
+}
+
+export interface SessionActivityTable {
+  id: string;
+  seats: SessionActivityTableSeat[];
+  /** The waves this person may still send, across the table. */
+  nudgesLeft: number;
+  /** The seat that waved last, which "Wave back" answers. */
+  wavedBy: string | null;
 }
 
 export interface SessionActivityCaughtCard {

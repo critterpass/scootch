@@ -1,0 +1,14 @@
+/* Nhãn cố định dưới thông báo của một con quái. Lời Scootch nói không nằm ở đây: app gửi sang
+   qua bản chụp dùng chung. Khoá là câu tiếng Anh. */
+"%@, in three bites" = "%@, chia làm ba miếng";
+"%lld left · about %lld minutes in total" = "còn %lld · tổng cộng khoảng %lld phút";
+"1 left · about 1 minute" = "còn 1 · khoảng 1 phút";
+"All three caught. Open Scootch to catch %@." = "Bắt đủ ba miếng rồi. Mở Scootch để bắt %@.";
+"caught" = "đã bắt";
+"%lld min" = "%lld phút";
+"%@, %lld minutes. Tick it." = "%@, %lld phút. Đánh dấu.";
+"%@, caught" = "%@, đã bắt";
+"Hunt the next bite now · %lld min" = "Săn miếng tiếp theo ngay · %lld phút";
+"Hunt it now" = "Săn ngay";
+"Tomorrow at 9:00" = "Ngày mai lúc 9:00";
+"Turn %@ down for a week" = "Cho %@ nói nhỏ lại một tuần";

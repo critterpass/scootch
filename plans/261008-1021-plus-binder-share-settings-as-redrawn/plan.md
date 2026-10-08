@@ -39,10 +39,11 @@ first.
 | Decision | Choice | Why |
 |---|---|---|
 | Rarity is the card's material in the binder | Common is paper, Rare is foil, Epic is dark with gold dust, on the shelf, the open card and the pages. The worn finish still dresses the member card and what is shared | The board: "Rarity is the material" |
-| Who may use a share frame | Paper and Riso are everyone's. Holo and Velvet are used by whoever may wear that finish; otherwise they carry the PLUS tag and open the sheet | One rule for who wears a finish (`features/studio/rules.ts`) |
+| Who may use a share frame | Paper and Riso are everyone's. Holo and Velvet are used by whoever may wear that finish; otherwise they carry the PLUS tag and take no touch, since the composer is reached from the reveal | One rule for who wears a finish (`features/studio/rules.ts`) |
 | "I finally emailed the dentist" | The brief's three lines stay; "finally" is not written anywhere | Product brief, sections 4 and 11 |
 | What Plus adds to the binder | Sorting by longest, fastest and rarest, and the month pages. Every card is on the shelf for everyone | The board; the brief keeps every caught card free |
-| Settings rows with no page yet | App icon, Wallpaper and "Monsters message me" are left off until their pages exist (system surfaces plan, phases 05 to 07) | A row never opens nothing |
+| Settings, the Look group | Main gained the Look group (app icon, card finish, wallpaper) and "Monsters message me" from the system surfaces plan while this was built. This plan keeps them and adds the Plus card row, the seat on Tables and the board's dial and cards | Two plans met on one page |
+| Settings, "Card finish" | Opens Your card, as the surfaces plan decided, not the studio directly as the board links it (**open**: the founder's to settle) | That plan holds that Settings has no door to a place that sells |
 | Language, helplines and developer tools | Kept, in a last group the board does not draw | Product brief, section 11 |
 
 ## Phases

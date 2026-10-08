@@ -35,13 +35,10 @@ import {
 } from '../effects/native-adapters';
 import { purchaseStateOf } from '../features/plus/entitlement';
 import { revenueCatPurchases } from '../features/plus/revenuecat-port';
+import { nativeShareDevice } from '../features/share/native-share-device';
+import { createReceiptPicture } from '../features/share/receipt-picture';
 import { inkOf } from '../features/studio/catalogue';
-import {
-  nativeSharedFiles,
-  nativeSharedStore,
-  skiaMonsterPainter,
-} from '../features/surfaces/native-surface-ports';
-import { createSurfaceSync } from '../features/surfaces/surface-sync';
+import { createNativeSurfaceSync } from '../features/surfaces/native-surface-ports';
 import { SurfaceSyncHost } from '../features/surfaces/surface-sync-host';
 import { useLanguage } from '../i18n/i18n-provider';
 
@@ -78,6 +75,7 @@ function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
     },
     switches: () => effectSwitches(store.getState(), motion.reduced),
     onClock: () => void store.dispatch({ type: 'session', event: { type: 'clock' } }),
+    receiptPicture: () => eveningReceipt(),
   });
   const timeZone = () => getCalendars()[0]?.timeZone ?? 'UTC';
   const repositories = openRepositories(db);
@@ -114,13 +112,21 @@ function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
     plus: unlocked,
     timers: systemTimers,
   });
+  // The day's receipt, drawn when its evening notification is scheduled.
+  const eveningReceipt = createReceiptPicture({
+    repositories,
+    device: nativeShareDevice,
+    day: () => ({ localDate: store.getState().localDate, language: language() }),
+    timeZone,
+    finish: () => plus.store.getState().look.finish,
+    plus: unlocked,
+  });
   // The widgets, the Live Activity and the control read today from the App Group.
-  const surfaces = createSurfaceSync({
+  const surfaces = createNativeSurfaceSync({
     store,
     repositories,
-    shared: nativeSharedStore(),
-    files: nativeSharedFiles(),
-    painter: skiaMonsterPainter,
+    // The table store is made just below; it is only asked once the app is running.
+    table: { wave: (to) => void together.table.nudge(to), leave: () => together.table.leave() },
     plus: unlocked,
     accent: () => {
       const { ink } = plus.store.getState().look;

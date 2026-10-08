@@ -1,20 +1,15 @@
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { useRouter } from 'expo-router';
-
 import { SHARE_FRAMES, type ShareFrame } from '@scootch/art';
 import { localDateTime, type TodayState } from '@scootch/domain';
 import type { Language } from '@scootch/i18n';
 
 import { siteBaseUrl } from '../../api/api-config';
 import { openRepositories } from '../../data/repositories';
-import { useToday } from '../../state/day-store-provider';
 import { loadKeepsakes, type Keepsakes } from '../../state/keepsakes';
 import { usePlusRuntime, usePlusState } from '../../state/plus-context';
-import { showsSelling } from '../../state/shows-comedy';
 import { useTogether } from '../../state/together-context';
-import { PLUS_SHEET } from '../plus/routes';
 import { FINISHES, inkOf } from '../studio/catalogue';
 import { mayWear } from '../studio/rules';
 
@@ -68,8 +63,6 @@ export function useShare(language: Language, today: Pick<TodayState, 'kind'>): S
     [api],
   );
   const db = useSQLiteContext();
-  const router = useRouter();
-  const day = useToday();
   const runtime = usePlusRuntime();
   const { look, member, unlocked, customer } = usePlusState();
   const [target, setTarget] = useState<ShareTarget | null>(null);
@@ -81,7 +74,6 @@ export function useShare(language: Language, today: Pick<TodayState, 'kind'>): S
   const [pageUp, setPageUp] = useState(false);
   const busy = useRef(false);
   const crisis = today.kind === 'crisis';
-  const selling = showsSelling(day);
 
   const open = useCallback(
     (next: ShareTarget) => {
@@ -153,12 +145,10 @@ export function useShare(language: Language, today: Pick<TodayState, 'kind'>): S
       return { id, locked: item !== null && item !== undefined && !mayWear(item, facts) };
     });
     const usable = frames.find((one) => one.id === frame)?.locked ? 'paper' : frame;
+    // A locked frame takes no touch: the composer is reached from the reveal, and nothing is
+    // sold there. The way to Plus is where it has always been.
     const chooseFrame = (next: ShareFrame) => {
-      if (frames.find((one) => one.id === next)?.locked) {
-        // Nothing sells near something heavy: on such a day a locked frame does nothing.
-        if (selling) router.push(PLUS_SHEET);
-        return;
-      }
+      if (frames.find((one) => one.id === next)?.locked) return;
       setNotice(null);
       setFrame(next);
     };
@@ -302,8 +292,6 @@ export function useShare(language: Language, today: Pick<TodayState, 'kind'>): S
     crisis,
     customer.ownedItems,
     unlocked.capabilities,
-    selling,
-    router,
   ]);
 
   return { panel, open };

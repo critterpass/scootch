@@ -1,13 +1,21 @@
 import { ExtensionStorage } from '@bacons/apple-targets';
 import { drawAsImage, Group, ImageFormat } from '@shopify/react-native-skia';
 import Constants from 'expo-constants';
+import * as Notifications from 'expo-notifications';
 import { File, Paths, type Directory } from 'expo-file-system';
 
-import { buildMonster, VIEW_SIZE } from '@scootch/art';
+import { buildMonster, buildScootch, VIEW_SIZE } from '@scootch/art';
+
+import { refreshShortcuts } from '../../../modules/scootch-live-activity';
 
 import { CommandLayer } from '../../art/skia-commands';
 
-import type { MonsterPainter, SharedFiles, SharedStore } from './surface-ports';
+import { IslandStill } from '../world/island-still';
+
+import { friendsTablesSeen } from '../table/friends-tables-seen';
+
+import type { MonsterPainter, SharedFiles, SharedStore, WorldPainter } from './surface-ports';
+import { createSurfaceSync, type SurfaceSync, type SurfaceSyncDeps } from './surface-sync';
 
 // The real phone behind each port. Nothing here is covered by the unit tests, which use fakes: it
 // runs only in a native build.
@@ -29,9 +37,14 @@ export function nativeSharedStore(): SharedStore {
     reloadSurfaces() {
       ExtensionStorage.reloadWidget();
       ExtensionStorage.reloadControls();
+      refreshShortcuts();
     },
   };
 }
+
+/** Takes back a local notification that was set outside the app, by the id it was given. */
+export const cancelNativeNotification = (id: string): Promise<void> =>
+  Notifications.cancelScheduledNotificationAsync(id);
 
 /** The App Group container. Where there is none (Android), nothing is ever there or written. */
 export function nativeSharedFiles(): SharedFiles {
@@ -70,3 +83,47 @@ export const skiaMonsterPainter: MonsterPainter = {
     return image ? image.encodeToBytes(ImageFormat.PNG) : null;
   },
 };
+
+/** Draws the island as the world screen does, as one still picture. */
+export const skiaWorldPainter: WorldPainter = {
+  async paint(pieces, monsters, pixels, asleep) {
+    const image = await drawAsImage(
+      <IslandStill pieces={pieces} monsters={monsters} side={pixels} asleep={asleep} />,
+      { width: pixels, height: pixels },
+    );
+    return image ? image.encodeToBytes(ImageFormat.PNG) : null;
+  },
+  async paintScootch(pixels) {
+    const image = await drawAsImage(
+      <Group transform={[{ scale: pixels / VIEW_SIZE }]}>
+        <CommandLayer
+          commands={buildScootch({
+            mood: 'pleased',
+            attitude: 'cheeky',
+            workMode: null,
+            reducedMotion: true,
+            hat: null,
+          })}
+        />
+      </Group>,
+      { width: pixels, height: pixels },
+    );
+    return image ? image.encodeToBytes(ImageFormat.PNG) : null;
+  },
+};
+
+type NativeParts =
+  'shared' | 'files' | 'painter' | 'worldPainter' | 'cancelNotification' | 'friendsTables';
+
+/** The surface sync on the real phone: the App Group, Skia's painters and the phone's own ports. */
+export function createNativeSurfaceSync(deps: Omit<SurfaceSyncDeps, NativeParts>): SurfaceSync {
+  return createSurfaceSync({
+    ...deps,
+    shared: nativeSharedStore(),
+    files: nativeSharedFiles(),
+    painter: skiaMonsterPainter,
+    worldPainter: skiaWorldPainter,
+    cancelNotification: cancelNativeNotification,
+    friendsTables: friendsTablesSeen.get,
+  });
+}

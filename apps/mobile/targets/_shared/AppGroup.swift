@@ -42,5 +42,7 @@ enum AppGroup {
         static let pendingSurfaceActions = "surfaces.pending-actions"
         /// The session the Lock Screen and the Island follow, as one JSON string (`HuntRecord`).
         static let huntRecord = "surfaces.hunt"
+        /// The thing "Hunt at 9:00" was pressed for, as one JSON string (`MorningHunt`).
+        static let morningHunt = "surfaces.morning-hunt"
     }
 }

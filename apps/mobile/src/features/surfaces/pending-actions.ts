@@ -23,6 +23,11 @@ export const SURFACE_ACTIONS = [
   'keep_here',
   /** That monster's messages at Soft for a week. */
   'turn_down',
+  /** A wave to one seat at the table, and giving up the seat. */
+  'wave',
+  'leave_table',
+  /** The open seat at a friend's table; `seatId` is the table. */
+  'sit',
 ] as const;
 export type SurfaceAction = (typeof SURFACE_ACTIONS)[number];
 
@@ -32,6 +37,8 @@ export interface PendingAction {
   /** The thing it is about, and the bite when it is about one. `null` when it is about today. */
   readonly taskId: string | null;
   readonly biteId: string | null;
+  /** The seat at the table it is about. */
+  readonly seatId: string | null;
   /** When it was asked for, in milliseconds since 1970. */
   readonly at: number;
 }
@@ -51,7 +58,7 @@ function parse(stored: string | null): PendingAction[] {
   const actions: PendingAction[] = [];
   for (const one of list as unknown[]) {
     if (typeof one !== 'object' || one === null) continue;
-    const { id, kind, at, taskId, biteId } = one as Record<string, unknown>;
+    const { id, kind, at, taskId, biteId, seatId } = one as Record<string, unknown>;
     if (typeof id !== 'string' || typeof at !== 'number') continue;
     const known = SURFACE_ACTIONS.find((action) => action === kind);
     if (!known) continue;
@@ -60,6 +67,7 @@ function parse(stored: string | null): PendingAction[] {
       kind: known,
       taskId: typeof taskId === 'string' ? taskId : null,
       biteId: typeof biteId === 'string' ? biteId : null,
+      seatId: typeof seatId === 'string' ? seatId : null,
       at,
     });
   }

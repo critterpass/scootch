@@ -126,6 +126,7 @@ function capturedZoo(
         openCard: nothing,
         sort: nothing,
         openPages: nothing,
+        openPlus: nothing,
         openWorld: nothing,
         sharePage: nothing,
       }}

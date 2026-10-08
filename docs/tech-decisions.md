@@ -267,6 +267,23 @@ Declared in batch two (8 Oct 2026), for the camera: the camera permission,
 `scootch-reading` module, which reads words and finds things in a photo with
 Apple's Vision on the phone.
 
+Declared in the system surfaces batch (8 Oct 2026): iOS 17.0 as the oldest
+system; the Communication Notifications capability and the
+`INSendMessageIntent` activity type, so a notification can come from a
+monster; two new targets, `notification-content` (the three bites under a
+notification) and `share` (the share sheet), each in the App Group and each
+needing its own provisioning profile; nine alternate app icons in the asset
+catalogue; the Photos wording widened to wallpapers; and three local modules:
+`scootch-notifications` (a notification with a sender and a picture),
+`app-icon` (the alternate icon) and one more call in `scootch-live-activity`.
+The App Shortcuts, the Focus filter and the Shortcuts action for the
+wallpaper are App Intents in the app and widget targets and need no
+capability of their own.
+
+A signed build can make or renew a provisioning profile by itself: the build
+step is given the App Store Connect key the submit step already uses, for the
+`dev` profile only. Capabilities are still ticked on the App IDs by hand.
+
 ## 5. Ops: a Telegram bot
 
 There is no admin dashboard. One Worker route receives Telegram updates, and

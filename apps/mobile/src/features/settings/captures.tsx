@@ -28,9 +28,9 @@ function Settings({
       backupLine={backupOff ? lineWithNoTask('backupOff', { language, attitude: 'cheeky' }) : null}
       developerTools={false}
       tableName={tableName}
+      look={{ icon: 'cheeky', finish: 'holo' }}
       // The member the board draws: a yearly plan, number 42, wearing holo foil.
       card={{ plan: 'yearly', number: 42, finish: 'holo' }}
-      studio
       onInvite={nothing}
       onChange={nothing}
       onLanguage={nothing}

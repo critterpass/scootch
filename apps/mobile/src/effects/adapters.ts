@@ -23,10 +23,24 @@ export interface HapticsPlayer {
   stop(name: string): void;
 }
 
+/** Who a notification is from when it is not Scootch: a monster, with its picture's file name. */
+export interface NotificationSender {
+  readonly name: string;
+  readonly image: string | null;
+}
+
 export interface LocalNotification {
   readonly id: string;
   readonly at: Instant;
   readonly text: string;
+  /** The monster that sends it. Left out, it is Scootch's own. */
+  readonly from?: NotificationSender | undefined;
+  /** The thing it is about, which its tap and its actions act on. */
+  readonly taskId?: string | undefined;
+  /** True when the bites and the three actions hang under it. */
+  readonly actions?: boolean | undefined;
+  /** A picture that arrives with it, as the address of a file. */
+  readonly picture?: string | undefined;
 }
 
 export interface NotificationScheduler {

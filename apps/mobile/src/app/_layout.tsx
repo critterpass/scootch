@@ -9,7 +9,9 @@ import { colors, fonts } from '@scootch/tokens';
 
 import { DATABASE_NAME, prepareDatabase } from '../db/database';
 import { SoundMode } from '../effects/sound-mode';
+import { AppIconHost } from '../features/look/app-icon-host';
 import { TableSeatKeeper } from '../features/table/table-prefs';
+import { TableSurfaceHost } from '../features/table/table-surface-host';
 import { I18nProvider } from '../i18n/i18n-provider';
 import { JsCommitMarker } from '../js-commit-marker';
 import { useAppearance } from '../screens/registry/support/forced-variant';
@@ -85,6 +87,8 @@ export default function RootLayout() {
           <DayStoreProvider>
             <SoundMode />
             <TableSeatKeeper />
+            <AppIconHost />
+            <TableSurfaceHost />
             <Feel>
               <Screens />
             </Feel>

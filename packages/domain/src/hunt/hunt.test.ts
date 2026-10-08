@@ -14,6 +14,7 @@ import {
   parkInHunt,
   pauseHunt,
   resumeHunt,
+  shortenHunt,
   stopHunt,
   type HuntPhase,
 } from './hunt-record';
@@ -112,6 +113,19 @@ describe('overtime', () => {
     const more = moreHunt(begun, asked);
     expect(huntView(more, asked)).toMatchObject({ phase: 'running', remainingMs: 5 * MINUTE_MS });
     expect(moreHunt(begun, begun.endsAt - SEC)).toBe(begun);
+  });
+
+  it('"Make it 5" shortens a hunt that still has more than that to go, and nothing else', () => {
+    const five = shortenHunt(begun, 5, CLOCK + MINUTE_MS);
+    expect(five.endsAt).toBe(begun.beginsAt + 5 * MINUTE_MS);
+    expect(huntView(five, CLOCK + MINUTE_MS)).toMatchObject({ remainingMs: 4 * MINUTE_MS });
+    // Never longer, never into the past, never while held or once over.
+    expect(shortenHunt(begun, 15, CLOCK)).toBe(begun);
+    expect(shortenHunt(begun, 5, CLOCK + 6 * MINUTE_MS)).toBe(begun);
+    const held = pauseHunt(begun, CLOCK + MINUTE_MS);
+    expect(shortenHunt(held, 5, CLOCK + MINUTE_MS)).toBe(held);
+    const caught = catchHunt(begun, CLOCK + MINUTE_MS);
+    expect(shortenHunt(caught, 5, CLOCK + MINUTE_MS)).toBe(caught);
   });
 });
 

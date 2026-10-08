@@ -32,7 +32,8 @@ export interface FrameSwatchesProps {
 
 /**
  * The four frames a story is printed on, each a disc of its own stock with its name. The chosen
- * one is ringed; one that needs Plus says so under its name, and a tap on it asks about Plus.
+ * one is ringed; one that needs Plus says so under its name and takes no touch: nothing is sold
+ * from the composer, which is reached from the reveal.
  */
 export function FrameSwatches({ frames, chosen, resting, onChoose }: FrameSwatchesProps) {
   const t = useT();
@@ -49,12 +50,12 @@ export function FrameSwatches({ frames, chosen, resting, onChoose }: FrameSwatch
           <PressSpring
             key={id}
             accessibilityRole="radio"
-            accessibilityState={{ selected: on, checked: on, disabled: resting }}
+            accessibilityState={{ selected: on, checked: on, disabled: resting || locked }}
             accessibilityLabel={
               locked ? `${t(`share.frame.${id}`)}, ${t('brand.plus')}` : t(`share.frame.${id}`)
             }
             accessibilityHint={locked ? t('keep.plusOnly.hint') : t('share.frame.hint')}
-            disabled={resting}
+            disabled={resting || locked}
             onPress={() => onChoose(id)}
             feedback="choice"
             testID={`share-frame-${id}`}

@@ -4,6 +4,8 @@ import type { ConfigContext, ExpoConfig } from 'expo/config';
 // package's TypeScript source.
 import palettes from '../../packages/tokens/src/colors.json' with { type: 'json' };
 
+import { withAlternateAppIcons } from './plugins/with-alternate-app-icons.js';
+
 /** Two environments, dev and prd. `e2e-test` is the dev app as device runs install it. */
 type AppVariant = 'dev' | 'prd' | 'e2e-test';
 
@@ -72,19 +74,21 @@ const PERMISSION_STRINGS = {
       'Scootch turns what you say into text so you do not have to type.',
     NSCameraUsageDescription:
       'Scootch looks at a photo you take of the mess to find one place to start.',
-    NSPhotoLibraryAddUsageDescription: 'Scootch saves a card to your photos when you tap Save.',
+    NSPhotoLibraryAddUsageDescription:
+      'Scootch saves a card or a wallpaper to your photos when you tap Save.',
     // Apple asks for this whenever a linked library can read photos. Scootch never does.
     NSPhotoLibraryUsageDescription:
-      'Scootch only adds the cards you save to your photos. It never looks at the rest.',
+      'Scootch only adds the cards and wallpapers you save to your photos. It never looks at the rest.',
   },
   vi: {
     NSMicrophoneUsageDescription: 'Scootch dùng micro để bạn có thể nói thay vì gõ.',
     NSSpeechRecognitionUsageDescription:
       'Scootch chuyển lời bạn nói thành chữ để bạn không phải gõ.',
     NSCameraUsageDescription: 'Scootch xem tấm ảnh bạn chụp đống bừa bộn để tìm một chỗ bắt đầu.',
-    NSPhotoLibraryAddUsageDescription: 'Scootch lưu thẻ vào ảnh của bạn khi bạn chạm Lưu.',
+    NSPhotoLibraryAddUsageDescription:
+      'Scootch lưu thẻ hoặc hình nền vào ảnh của bạn khi bạn chạm Lưu.',
     NSPhotoLibraryUsageDescription:
-      'Scootch chỉ thêm những thẻ bạn lưu vào ảnh. Scootch không bao giờ xem các ảnh khác.',
+      'Scootch chỉ thêm những thẻ và hình nền bạn lưu vào ảnh. Scootch không bao giờ xem các ảnh khác.',
   },
 };
 
@@ -100,12 +104,35 @@ const IOS_ENTITLEMENTS = {
   // iCloud key-value storage, one store per app.
   'com.apple.developer.ubiquity-kvstore-identifier': `$(TeamIdentifierPrefix)${variant.bundleIdentifier}`,
   'com.apple.developer.usernotifications.time-sensitive': true,
+  // A notification from a monster: its name and picture where the app's would be.
+  'com.apple.developer.usernotifications.communication': true,
   'com.apple.developer.associated-appclip-app-identifiers': [
     `$(AppIdentifierPrefix)${variant.bundleIdentifier}.Clip`,
   ],
 };
 
-export default ({ config }: ConfigContext): ExpoConfig => ({
+/**
+ * The nine icons the app can change to, by the names `src/features/look/icons.ts` asks for. The
+ * tenth, Cheeky, is the app's own icon.
+ */
+const ALTERNATE_ICONS = [
+  'soft',
+  'unhinged',
+  'paper',
+  'holo',
+  'chrome',
+  'jelly',
+  'glass',
+  'velvet',
+  'riso',
+].map((icon) => ({
+  name: `Icon-${icon}`,
+  light: `./assets/icons/${icon}.png`,
+  dark: `./assets/icons/${icon}-dark.png`,
+  tinted: `./assets/icons/${icon}-tinted.png`,
+}));
+
+const app = ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: variant.name,
   owner: 'critterpass',
@@ -113,7 +140,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   scheme: variant.scheme,
   version: '1.0.0',
   orientation: 'portrait',
-  // Placeholder art drawn by assets/render-app-icon.ts. iOS takes this file as it is (opaque).
+  // Drawn by assets/render-app-icon.ts: Cheeky, the attitude a phone starts with.
   icon: './assets/icon.png',
   userInterfaceStyle: 'automatic',
   // The native window behind every screen, shown before the first frame.
@@ -131,6 +158,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     appleTeamId: APPLE_TEAM_ID,
     deploymentTarget: IOS_DEPLOYMENT_TARGET,
     supportsTablet: false,
+    // The app's own icon in the three ways iOS shows one. The other nine are declared below.
+    icon: {
+      light: './assets/icons/cheeky.png',
+      dark: './assets/icons/cheeky-dark.png',
+      tinted: './assets/icons/cheeky-tinted.png',
+    },
     usesAppleSignIn: true,
     associatedDomains: [
       `applinks:${LINK_HOST}`,
@@ -143,6 +176,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       ...PERMISSION_STRINGS.en,
       // Lets iOS pick the Vietnamese permission strings on a Vietnamese phone.
       CFBundleAllowMixedLocalizations: true,
+      // The system draws a notification as a message from a sender only for an app that says it
+      // sends messages (modules/scootch-notifications).
+      NSUserActivityTypes: ['INSendMessageIntent'],
       NSSupportsLiveActivities: true,
       NSSupportsLiveActivitiesFrequentUpdates: true,
       // Lets a silent push wake the app (a table changing, a Live Activity token to renew).
@@ -247,3 +283,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     eas: { projectId: EAS_PROJECT_ID },
   },
 });
+
+export default (context: ConfigContext): ExpoConfig =>
+  withAlternateAppIcons(app(context), ALTERNATE_ICONS);

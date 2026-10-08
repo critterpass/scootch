@@ -1,4 +1,4 @@
-import type { MonsterSpec } from '@scootch/domain';
+import type { MonsterRow, MonsterSpec, WorldPieceRow } from '@scootch/domain';
 
 /** The App Group's key-value store, shared with the widget extension. Values are strings. */
 export interface SharedStore {
@@ -23,9 +23,25 @@ export interface MonsterPainter {
   paint(spec: MonsterSpec, pixels: number): Promise<Uint8Array | null>;
 }
 
+/** Draws the world with Scootch in the middle of it, awake or asleep, to PNG bytes. `null` when it could not. */
+export interface WorldPainter {
+  paint(
+    pieces: readonly WorldPieceRow[],
+    monsters: readonly MonsterRow[],
+    pixels: number,
+    asleep: boolean,
+  ): Promise<Uint8Array | null>;
+  /** Scootch alone, pleased, for the wallpaper he is perched on. */
+  paintScootch(pixels: number): Promise<Uint8Array | null>;
+}
+
 /** The keys both sides agree on (`targets/_shared/AppGroup.swift`). */
 export const SHARED_KEYS = {
   snapshot: 'surfaces.snapshot',
   pendingActions: 'surfaces.pending-actions',
   hunt: 'surfaces.hunt',
+  /** The thing "Hunt at 9:00" was pressed for (`targets/_shared/MorningHunt.swift`). */
+  morningHunt: 'surfaces.morning-hunt',
+  /** Things shared in from another app (`targets/_shared/SharedIn.swift`). */
+  sharedIn: 'surfaces.shared-in',
 } as const;

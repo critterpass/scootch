@@ -17,7 +17,14 @@ import { CommandCanvas } from '../reveal/ui/command-canvas';
 import { Dock, type DockAction } from '../reveal/ui/keep-frame';
 import { SessionText } from '../session/ui/session-text';
 
-import { POCKETS, pocketStat, type MonthPage, type ShelfSort, type WildOne } from './binder';
+import {
+  POCKETS,
+  pocketStat,
+  sortNeedsPlus,
+  type MonthPage,
+  type ShelfSort,
+  type WildOne,
+} from './binder';
 import { MonthBanner } from './ui/month-banner';
 import { Pocket, SHELF_POCKET } from './ui/pocket';
 import { SortChips } from './ui/sort-chips';
@@ -42,8 +49,10 @@ export interface ZooActions {
   readonly close: () => void;
   readonly openCard: (monster: CaughtMonster) => void;
   readonly sort: (sort: ShelfSort) => void;
-  /** Opens the month pages, or asks about Plus without it. Unset, the row above the shelf rests. */
+  /** Opens the month pages. Set only with Plus. */
   readonly openPages?: () => void;
+  /** A locked control was tapped: the Plus sheet opens. Unset, a locked control does nothing. */
+  readonly openPlus?: () => void;
   readonly openWorld: () => void;
   /** Shares this month's page. Unset, there is nothing on it to share yet. */
   readonly sharePage?: () => void;
@@ -141,6 +150,8 @@ export function ZooScreen({ model, actions }: { model: ZooModel; actions: ZooAct
     testID: 'binder-open-world',
     onPress: actions.openWorld,
   };
+  // With Plus the month's row opens the pages; without it, it is a locked control.
+  const open = model.plus ? actions.openPages : actions.openPlus;
   const header = (
     <View style={styles.above} onLayout={({ nativeEvent }) => setAbove(nativeEvent.layout.height)}>
       <MonthBanner
@@ -149,9 +160,16 @@ export function ZooScreen({ model, actions }: { model: ZooModel; actions: ZooAct
         filled={Math.min(POCKETS, month.caught)}
         locked={!model.plus}
         hint={model.plus ? t('binder.month.hint') : t('keep.plusOnly.hint')}
-        {...(actions.openPages ? { onPress: actions.openPages } : {})}
+        {...(open ? { onPress: open } : {})}
       />
-      <SortChips sort={model.sort} plus={model.plus} onSort={actions.sort} />
+      <SortChips
+        sort={model.sort}
+        plus={model.plus}
+        onSort={(next) => {
+          if (sortNeedsPlus(next) && !model.plus) actions.openPlus?.();
+          else actions.sort(next);
+        }}
+      />
     </View>
   );
   return (

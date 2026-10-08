@@ -91,6 +91,8 @@ describe('the house rules', () => {
       [
         '/',
         '/account',
+        '/binder/card',
+        '/binder/pages',
         '/camera',
         '/camera-after',
         '/care',
@@ -102,6 +104,8 @@ describe('the house rules', () => {
         '/haunt/received',
         '/haunt/send',
         '/helplines',
+        '/look/icon',
+        '/look/wallpaper',
         '/plus',
         '/plus/last-day',
         '/plus/manage',

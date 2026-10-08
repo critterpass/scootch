@@ -5,7 +5,6 @@ import { View } from 'react-native';
 import { useLanguage } from '../../i18n/i18n-provider';
 import { useToday } from '../../state/day-store-provider';
 import { useKeepsakes, usePlus } from '../../state/keepsakes';
-import { showsSelling } from '../../state/shows-comedy';
 import { goBack } from '../../ui/motion/go-back';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { PLUS_SHEET } from '../plus/routes';
@@ -13,7 +12,7 @@ import { SharePanel } from '../share/share-panel';
 import { shareOfferedOn } from '../share/share-rules';
 import { useShare } from '../share/use-share';
 
-import { pageOfToday, shelfCards, sortNeedsPlus, wildOnes, type ShelfSort } from './binder';
+import { pageOfToday, shelfCards, wildOnes, type ShelfSort } from './binder';
 import { cardRoute, pagesRoute } from './binder-routes';
 import { lookAt, useLastLooked } from './last-looked';
 import { ZooScreen } from './zoo-screen';
@@ -27,35 +26,31 @@ export function ZooContainer() {
   const router = useRouter();
   const { language } = useLanguage();
   const { palette } = useScreenStyle();
-  const day = useToday();
+  const { localDate, today, heavyToday } = useToday();
   // Read again whenever the shelf comes back into view: a catch may have happened since.
   const focused = useIsFocused();
   const { keepsakes } = useKeepsakes(focused);
   const plus = usePlus();
   const lastLooked = useLastLooked();
-  const share = useShare(language, day.today);
+  const share = useShare(language, today);
   // The composer is drawn over the shelf, not pushed: a swipe back closes it first.
   const { panel } = share;
   usePreventRemove(panel !== null, () => panel?.actions.close());
   const [sort, setSort] = useState<ShelfSort>('newest');
   const monsters = keepsakes?.monsters;
   const cards = useMemo(() => shelfCards(monsters ?? [], sort, plus), [monsters, sort, plus]);
-  const crisis = day.today.kind === 'crisis';
+  const crisis = today.kind === 'crisis';
   const wild = useMemo(
-    () => (keepsakes ? wildOnes(keepsakes.monsters, keepsakes.tasks, day.localDate, crisis) : []),
-    [keepsakes, day.localDate, crisis],
+    () => (keepsakes ? wildOnes(keepsakes.monsters, keepsakes.tasks, localDate, crisis) : []),
+    [keepsakes, localDate, crisis],
   );
-  const month = useMemo(
-    () => pageOfToday(monsters ?? [], day.localDate),
-    [monsters, day.localDate],
-  );
+  const month = useMemo(() => pageOfToday(monsters ?? [], localDate), [monsters, localDate]);
 
   if (!keepsakes) return <View style={{ flex: 1, backgroundColor: palette.page }} />;
   if (panel) return <SharePanel {...panel} />;
   const [year = 0, monthNumber = 1] = month.month.split('-').map(Number);
-  const selling = showsSelling(day);
-  const askAboutPlus = () => {
-    if (selling) router.push(PLUS_SHEET);
+  const plusDoor = {
+    openPlus: () => router.push(PLUS_SHEET),
   };
   const toWorld = () => goBack(router, '/world');
   return (
@@ -69,10 +64,9 @@ export function ZooContainer() {
           lookAt(monster.id);
           router.push(cardRoute(monster.id, { sort }));
         },
-        sort: (next) => {
-          if (sortNeedsPlus(next) && !plus) askAboutPlus();
-          else setSort(next);
-        },
+        sort: setSort,
+        // Nothing sells near something heavy: on such a day the locked controls do nothing.
+        ...(heavyToday ? {} : plusDoor),
         // The month's page goes out as its poster, once something on it may be shared.
         ...(month.cards.length > 0 && !crisis
           ? { sharePage: () => share.open({ kind: 'month', year, month: monthNumber }) }
@@ -80,7 +74,7 @@ export function ZooContainer() {
         // A monster still wild goes on a wanted poster, unless its task is private.
         shareWild: (one) => {
           const task = keepsakes.tasks.get(one.monster.taskId) ?? null;
-          if (!task || !shareOfferedOn(day.today, task)) return;
+          if (!task || !shareOfferedOn(today, task)) return;
           share.open({
             kind: 'wanted',
             task,
@@ -93,11 +87,7 @@ export function ZooContainer() {
             },
           });
         },
-        ...(plus
-          ? { openPages: () => router.push(pagesRoute()) }
-          : selling
-            ? { openPages: askAboutPlus }
-            : {}),
+        ...(plus ? { openPages: () => router.push(pagesRoute()) } : {}),
       }}
     />
   );

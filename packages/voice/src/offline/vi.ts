@@ -138,6 +138,8 @@ export const viOffline: OfflinePack = {
       cameraRoom: 'Chỉ cái góc đang sáng thôi nha. Phần còn lại cứ để đó.',
       cameraAfterAsk: 'Chụp thêm một tấm nữa nha, nếu bạn muốn. Vẫn chỗ lúc nãy.',
       cameraAfter: 'Nhìn kìa. Vẫn chỗ đó, mà nhẹ hơn một chút rồi.',
+      asleepTillTomorrow: '{name} cũng ngủ rồi. Để sáng mai tính nha.',
+      eveningReceipt: 'Hôm nay xong {count} việc. Hoá đơn của bạn đây.',
     },
     cheeky: {
       hello: 'Ơ! Bạn tới rồi. Tui là Scootch. Tui ngồi đợi đúng mình bạn đó.',
@@ -177,6 +179,8 @@ export const viOffline: OfflinePack = {
       cameraRoom: 'Chỉ cái góc đang sáng thôi. Mấy góc kia cứ việc bàn tán.',
       cameraAfterAsk: 'Thêm một tấm nữa. Vẫn chỗ cũ. Tui tò mò lắm rồi.',
       cameraAfter: 'Vẫn chỗ đó mà khác hẳn. Tui đem đi đóng khung đây.',
+      asleepTillTomorrow: '{name} cũng ngủ rồi. Chắc vậy.',
+      eveningReceipt: 'Xong {count} việc. Có hoá đơn kèm theo, đúng truyền thống.',
     },
     unhinged: {
       hello: 'BẠN TỚI RỒI. Tui là Scootch. Tui tập cảnh này trước gương cả buổi.',
@@ -220,6 +224,8 @@ export const viOffline: OfflinePack = {
       cameraRoom: 'CÁI GÓC ĐANG SÁNG. Ngoài nó ra không có gì hết. Mấy góc kia chỉ là tin đồn.',
       cameraAfterAsk: 'THÊM MỘT TẤM NỮA. Vẫn chỗ cũ. Tui cần bằng chứng.',
       cameraAfter: 'NHÌN ĐI. Trước. Sau. Tui gọi báo chí liền đây.',
+      asleepTillTomorrow: '{name} CŨNG NGỦ RỒI. CHẮC VẬY. Tui đang canh nó.',
+      eveningReceipt: '{count}. XONG {count} VIỆC. Tui in hoá đơn rồi đóng khung luôn.',
     },
   },
   monsterNames: [

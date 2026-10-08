@@ -30,7 +30,11 @@ export async function unansweredThoughts(ctx: Reading, taskId: Id): Promise<Park
  * Into the drawer. "Tomorrow" gives the thought tomorrow's date, so it is brought back that
  * morning like any dated thing; a thought nobody chose about is undated and fades in its time.
  */
-async function intoDrawer(ctx: DayContext, text: string, when: 'tomorrow' | 'whenever') {
+export async function intoDrawer(
+  ctx: DayContext,
+  text: string,
+  when: 'tomorrow' | 'whenever',
+): Promise<void> {
   const { repositories, nextId } = ctx.deps;
   const today = ctx.memory.state.localDate;
   const tomorrow = addDays(today, 1);

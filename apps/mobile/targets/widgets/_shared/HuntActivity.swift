@@ -42,7 +42,7 @@ enum HuntActivity {
     /// when it is over and nobody said "Not yet", sets the clock running. False when another hunt
     /// is already on, when the task has no words to hunt with, or when Live Activities are off.
     @discardableResult
-    static func begin(taskId: String, minutes: Double = 10) async -> Bool {
+    static func begin(taskId: String, minutes: Double = 10, waitsForCountIn: Bool = true) async -> Bool {
         let snapshot = SurfaceSnapshot.load()
         let shown = snapshot.shown(at: Date())
         guard shown.state != .crisis, current == nil, !isLive(HuntStore.load()),
@@ -60,17 +60,21 @@ enum HuntActivity {
         else { return false }
         HuntStore.store(record)
 
-        // The count-in is drawn from the record; this only moves the picture on when it ends.
-        try? await Task.sleep(nanoseconds: UInt64(HuntRecord.countInMs * 1_000_000))
-        guard let still = HuntStore.load(), still == record else { return true }
-        await show(still, line: lines.working.first ?? opening)
+        // The count-in is drawn from the record; this only moves the words on when it ends. An
+        // answer that should not wait three seconds (Siri's) leaves that to happen behind it.
+        let afterCountIn = {
+            try? await Task.sleep(nanoseconds: UInt64(HuntRecord.countInMs * 1_000_000))
+            guard let still = HuntStore.load(), still == record else { return }
+            await show(still, line: lines.working.first ?? opening)
+        }
+        if waitsForCountIn { await afterCountIn() } else { Task { await afterCountIn() } }
         return true
     }
 
     /// Whether a stored record still stands for a hunt that is on. One that is over, or whose
     /// time ran out with nothing on the Lock Screen to show for it, was left behind and is
     /// written over.
-    private static func isLive(_ record: HuntRecord?) -> Bool {
+    static func isLive(_ record: HuntRecord?) -> Bool {
         guard let record, record.caughtAt == nil, record.stoppedAt == nil else { return false }
         return record.pausedAt != nil || nowMs() < record.endsAt
     }
