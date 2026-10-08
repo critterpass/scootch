@@ -10,6 +10,8 @@ export interface Leftovers {
   readonly kept: KeptShares;
   readonly unshare: (share: KeptShare) => Promise<void>;
   readonly cancelChargeReminders: () => Promise<void>;
+  /** Drops a monster's link kept in the App Group to be opened later. */
+  readonly forgetKeptLink?: () => void;
   /** How long all the takedowns together may hold the delete up. */
   readonly capMs?: number;
 }
@@ -91,8 +93,8 @@ async function finishOnServer(deps: DeleteEverythingDeps): Promise<ServerDelete>
 }
 
 /**
- * "Delete everything": empties every table on the phone, then what lives outside it (shared
- * pages, charge reminders), then the server, then both token stores.
+ * "Delete everything": empties every table on the phone, then what lives outside it (a monster's
+ * link kept to be opened, shared pages, charge reminders), then the server, then both token stores.
  *
  * The tables are read from the database itself, so one added by a newer migration is emptied
  * without this file changing. The marker is written in the same transaction as the erase, so if
@@ -117,6 +119,12 @@ export async function deleteEverything(deps: DeleteEverythingDeps): Promise<Serv
       await settingsValues(deps.db).set(TAKEDOWNS_PENDING_KEY, keys);
     }
   });
+  // A link that was waiting to be opened would bring its thing into the emptied phone.
+  try {
+    deps.leftovers?.forgetKeptLink?.();
+  } catch {
+    // An App Group that cannot be reached holds no link the app could open either.
+  }
   await takeDownShared(deps).catch(() => undefined);
   // Reminders already scheduled go; while a subscription is active the store plans them afresh.
   await deps.leftovers?.cancelChargeReminders().catch(() => undefined);

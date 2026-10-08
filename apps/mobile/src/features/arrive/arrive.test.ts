@@ -18,9 +18,11 @@ import {
   isNoSuchPage,
   keptLink,
   linkMayOpen,
+  linkScreenFor,
   monsterRouteOf,
   pageIdFrom,
   rememberPage,
+  sessionIsUp,
 } from './arrive-rules';
 
 /** A monster's page as `GET /v1/monster-page/:id` answers it. */
@@ -104,6 +106,34 @@ describe("opening a monster's link", () => {
     expect(() => monsterPageFrom({ ...ANSWER, status: 'gone' })).toThrow();
     expect(() => monsterPageFrom({ ...ANSWER, seed: '' })).toThrow();
     expect(() => monsterPageFrom({ error: { code: 'not_found' } })).toThrow();
+  });
+});
+
+describe('the screen a monster’s link is opened on', () => {
+  const hidden = { ...wild, typed: null };
+  const asks = { kind: 'ask', page: hidden } as const;
+
+  it('says it is opening until the link has been opened, and leaves for home', () => {
+    expect(linkScreenFor(null, ORDINARY)).toBe('opening');
+    expect(linkScreenFor(null, { crisis: true, heavy: true })).toBe('opening');
+    expect(linkScreenFor({ kind: 'home' }, ORDINARY)).toBe('leave');
+  });
+
+  it('asks for the thing only while the day is neither heavy nor a crisis', () => {
+    expect(linkScreenFor(asks, ORDINARY)).toBe('ask');
+    // The day turned while the card was up (an answer came back serious, or as a crisis).
+    expect(linkScreenFor(asks, { crisis: false, heavy: true })).toBe('leave');
+    expect(linkScreenFor(asks, { crisis: true, heavy: false })).toBe('leave');
+    expect(linkScreenFor(asks, { crisis: true, heavy: true })).toBe('leave');
+  });
+
+  it('is never put over a session whose screens are up', () => {
+    for (const phase of ['running', 'stuck', 'holding', 'time_up', 'finished', 'not_finished']) {
+      expect(sessionIsUp({ phase })).toBe(true);
+    }
+    expect(sessionIsUp(null)).toBe(false);
+    expect(sessionIsUp({ phase: 'set' })).toBe(false);
+    expect(sessionIsUp({ phase: 'left_early' })).toBe(false);
   });
 });
 

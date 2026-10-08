@@ -32,6 +32,29 @@ export function arrivalFor(page: MonsterPage | null, day: DayForArrival): Arriva
 }
 
 /**
+ * What the link's own screen shows: `opened` is what opening the link came to (`null` until it
+ * has), and `day` is today as it is now, not as it was when the page was read. The monster's card
+ * and its question stay up only while the day would still ask: the moment the day turns heavy or
+ * to a crisis (an answer that was on its way came back so), the screen leaves, as it does for home.
+ */
+export function linkScreenFor(
+  opened: { readonly kind: 'home' } | { readonly kind: 'ask'; readonly page: MonsterPage } | null,
+  day: DayForArrival,
+): 'opening' | 'ask' | 'leave' {
+  if (opened === null) return 'opening';
+  if (opened.kind === 'home') return 'leave';
+  return arrivalFor(opened.page, day).kind === 'ask' ? 'ask' : 'leave';
+}
+
+/**
+ * A session whose screens are up: under way, or showing how it ended. Nothing is put over it; a
+ * session that is only set, or was left, has no screen of its own.
+ */
+export function sessionIsUp(session: { readonly phase: string } | null): boolean {
+  return session !== null && session.phase !== 'set' && session.phase !== 'left_early';
+}
+
+/**
  * Remembers the page a monster arrived from, by the seed the monster is drawn from, where the
  * pages this phone shared are kept. Only a monster with that very seed is ever looked up by it.
  */

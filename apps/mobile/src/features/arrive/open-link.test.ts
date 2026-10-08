@@ -255,6 +255,83 @@ describe('a link that arrives before the phone is ready for it', () => {
   });
 });
 
+describe('a link whose page hides its words, while a session is up', () => {
+  const hidden = { ...wild, typed: null };
+
+  async function midSession() {
+    const made = await phone();
+    made.read.answer = () => Promise.resolve(hidden);
+    const { app } = made;
+    await app.say('Water the plants', 'typed');
+    await app.store.dispatch({ type: 'one_thing_picked' });
+    await app.store.dispatch({ type: 'monster_met' });
+    await app.store.dispatch({ type: 'session_set', minutes: 10 });
+    await app.store.dispatch({ type: 'session', event: { type: 'started' } });
+    expect(app.store.getState().session?.phase).toBe('running');
+    return made;
+  }
+
+  it('is never shown over the session, and is still kept when the session is over', async () => {
+    const { app, ports, linkKept } = await midSession();
+    const shows: string[] = [];
+    const show = (route: string) => void shows.push(route);
+
+    expect(await openKeptLink(ports, show)).toEqual({ kind: 'home' });
+    expect(shows).toEqual([]);
+    expect(linkKept()).toBe(ROUTE);
+
+    app.time.advanceTo(app.time.clock.now() + 7 * 60_000);
+    await app.store.dispatch({ type: 'session', event: { type: 'double_tapped' } });
+    // The session's last screens are still up.
+    expect(await openKeptLink(ports, show)).toEqual({ kind: 'home' });
+    expect(shows).toEqual([]);
+
+    await app.store.dispatch({ type: 'session_closed' });
+    expect(app.store.getState().session).toBeNull();
+    expect(await openKeptLink(ports, show)).toEqual({ kind: 'ask', page: hidden });
+    expect(shows).toEqual([ROUTE]);
+  });
+
+  it('is kept to ask later when it was tapped during the session', async () => {
+    const { ports, linkKept } = await midSession();
+    ports.shared.remove(SHARED_KEYS.clipLink);
+    expect(linkKept()).toBeNull();
+
+    expect(await openLink(ports, wild.id)).toEqual({ kind: 'home' });
+    expect(linkKept()).toBe(ROUTE);
+  });
+});
+
+describe('a thing sent from the page that asks, on a day that has turned to care', () => {
+  it('is not taken in, and its link is still kept for another day', async () => {
+    const { server, app, kept, ports, linkKept } = await phone();
+    await app.say('Thinking about ending my life tonight', 'typed');
+    expect(app.store.getState().today.kind).toBe('crisis');
+
+    expect(await takeIn(ports, { ...wild, typed: null }, 'Book the dentist')).toBe(false);
+    expect(server.asked).toHaveLength(0);
+    expect(await kept.read()).toEqual([]);
+    expect(linkKept()).toBe(ROUTE);
+  });
+});
+
+describe('a link tapped again after its thing was set aside unpicked and let go', () => {
+  it('takes the thing in again, and its kept link is dropped only then', async () => {
+    const { server, app, ports, linkKept } = await phone();
+    expect(await taken(await openLink(ports, wild.id))).toBe(true);
+    const words = app.task().originalText;
+    await app.store.dispatch({ type: 'task_set_aside' });
+    const aside = app.store.getState().drawer.items.find((item) => item.text === words);
+    await app.store.dispatch({ type: 'drawer_item_removed', itemId: aside?.id ?? '' });
+    ports.shared.set(SHARED_KEYS.clipLink, LINK);
+
+    expect(await taken(await openLink(ports, wild.id))).toBe(true);
+    expect(server.asked).toHaveLength(2);
+    expect(app.task().screen).toBe('pass');
+    expect(linkKept()).toBeNull();
+  });
+});
+
 describe('what the page that asks for the thing may promise', () => {
   it('is today only on a day with nothing set and a start left', async () => {
     const { app } = await phone();

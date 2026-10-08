@@ -5,6 +5,7 @@ import type { Repositories } from '../data/repositories';
 import type { SqlDatabase } from '../data/table';
 import { createShareApi } from '../api/share-api';
 import { nativeNotifications, systemClock } from '../effects/native-adapters';
+import { dropKeptLink } from '../features/arrive/arrive-rules';
 import { createBackup, type Backup } from '../features/backup/backup';
 import { createBackupApi } from '../features/backup/backup-api';
 import { nativeBackupTokens } from '../features/backup/native-token-stores';
@@ -17,6 +18,7 @@ import { exportMyData } from '../features/privacy/data/export-data';
 import { syncChargeReminders } from '../features/plus/charge-reminders';
 import { keychainKeptShares } from '../features/share/native-kept-shares';
 import { nativeShareDevice } from '../features/share/native-share-device';
+import { nativeSharedStore } from '../features/surfaces/native-surface-ports';
 
 /** The person's data beyond today: the backup, the export and deleting everything. */
 export interface DataTools {
@@ -47,7 +49,8 @@ export function createAppDataTools(deps: {
   const tokens = nativeBackupTokens();
   const server = createBackupApi(deps.http);
   const backup = createBackup({ tokens, api: server, repositories, db, clock: systemClock });
-  // What "delete everything" clears beyond the database: shared pages and charge reminders.
+  // What "delete everything" clears beyond the database: shared pages, charge reminders and a
+  // monster's link that was kept to be opened.
   const pages = createShareApi(deps.http);
   const leftovers: Leftovers = {
     kept: keychainKeptShares,
@@ -57,6 +60,7 @@ export function createAppDataTools(deps: {
         ? Promise.resolve()
         : pages.unshareCard(share.id, share.unshareToken),
     cancelChargeReminders: () => syncChargeReminders(nativeNotifications, [], systemClock.now()),
+    forgetKeptLink: () => dropKeptLink(nativeSharedStore()),
   };
   return {
     backup,

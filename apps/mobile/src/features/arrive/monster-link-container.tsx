@@ -12,7 +12,7 @@ import { Page } from '../settings/page';
 import { nativeSharedStore } from '../surfaces/native-surface-ports';
 import { Words } from '../table/words';
 
-import { dropKeptLink, holdLink } from './arrive-rules';
+import { dropKeptLink, holdLink, linkScreenFor } from './arrive-rules';
 import { AskPage } from './ask-page';
 import { nativeLinkPorts } from './native-link-ports';
 import { openLink, takeIn, type LinkPorts, type Opened } from './open-link';
@@ -72,11 +72,15 @@ export function MonsterLinkContainer() {
     };
   }, [ports, id]);
 
+  // The day as it is now decides, not the day the page was read on: a card that is up when the
+  // day turns heavy or to a crisis comes down at once. Its link is left as it was.
+  const crisis = day.today.kind === 'crisis';
+  const screen = linkScreenFor(opened, { crisis, heavy: day.heavyToday });
   useEffect(() => {
-    if (opened?.kind === 'home') leave();
-  }, [opened, leave]);
+    if (screen === 'leave') leave();
+  }, [screen, leave]);
 
-  if (opened?.kind === 'ask' && !left.current) {
+  if (opened?.kind === 'ask' && screen === 'ask' && !left.current) {
     const { page } = opened;
     return (
       <AskPage

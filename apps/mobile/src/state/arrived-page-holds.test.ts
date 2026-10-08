@@ -199,6 +199,27 @@ describe('a page that is already held', () => {
     expect(server.asked).toHaveLength(1);
   });
 
+  it('is taken in again after its thing was set aside unpicked and then let go', async () => {
+    const server = stagedServer();
+    const app = await stagedPhone(server);
+    await app.store.dispatch(arrives);
+    expect(app.store.getState().pick.kind).toBe('offered');
+    const words = app.task().originalText;
+
+    // Set aside while it is still only offered, then swiped out of the drawer: nothing holds it.
+    await app.store.dispatch({ type: 'task_set_aside' });
+    await app.store.dispatch({
+      type: 'drawer_item_removed',
+      itemId: parkedAs(app, words)?.id ?? '',
+    });
+    expect(parkedAs(app, words)).toBeUndefined();
+
+    await app.store.dispatch(arrives);
+    expect(server.asked).toHaveLength(2);
+    expect(server.asked[1]).toMatchObject({ text: THING, monsterPage: PAGE });
+    expect(app.task().screen).toBe('pass');
+  });
+
   it('is taken in again once the thing that held it has been let go', async () => {
     const { server, app } = await dayWithItsThing();
     await app.store.dispatch(arrives);

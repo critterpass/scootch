@@ -15,7 +15,9 @@ import {
   TOKEN,
 } from '../../backup/test/sample-world';
 
+import { dropKeptLink, keptLink } from '../../arrive/arrive-rules';
 import { memoryKeptShares, type KeptShare } from '../../share/kept-shares';
+import { SHARED_KEYS, type SharedStore } from '../../surfaces/surface-ports';
 
 import { deleteEverything, retryServerDelete } from './delete-everything';
 import { buildExport, exportMyData } from './export-data';
@@ -95,6 +97,35 @@ describe('delete everything', () => {
     await retryServerDelete({ db: data.db, tokens, server, leftovers });
     expect(await kept.read()).toEqual([]);
     expect(data.dump()).not.toContain('takedownsPending');
+  });
+
+  it('drops a monster’s link that was waiting to be opened', async () => {
+    const { data, tokens, server } = await phone();
+    const stored = new Map<string, string>([
+      [SHARED_KEYS.clipLink, 'https://scootch.app/m/molar-7f3k9x'],
+      [SHARED_KEYS.clipLinkStoredAt, String(NOW / 1000)],
+      [SHARED_KEYS.snapshot, '{}'],
+    ]);
+    const shared: SharedStore = {
+      get: (key) => stored.get(key) ?? null,
+      set: (key, value) => void stored.set(key, value),
+      remove: (key) => void stored.delete(key),
+      reloadSurfaces: () => undefined,
+    };
+    expect(keptLink(shared, NOW)).toBe('/m/molar-7f3k9x');
+    const leftovers = {
+      kept: memoryKeptShares(),
+      unshare: () => Promise.resolve(),
+      cancelChargeReminders: () => Promise.resolve(),
+      forgetKeptLink: () => dropKeptLink(shared),
+    };
+
+    // The server cannot be reached: the link goes with the phone's own data all the same.
+    server.online = false;
+    expect(await deleteEverything({ db: data.db, tokens, server, leftovers })).toBe('pending');
+
+    expect(keptLink(shared, NOW)).toBeNull();
+    expect([...stored.keys()]).toEqual([SHARED_KEYS.snapshot]);
   });
 
   it('never takes down a page shared after the delete', async () => {
