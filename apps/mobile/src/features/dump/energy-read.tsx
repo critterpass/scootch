@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import type { Energy } from '@scootch/domain';
+import type { Energy, InTheWay } from '@scootch/domain';
 import { fonts, shadows, spacing } from '@scootch/tokens';
 
 import { useLanguage, useT } from '../../i18n/i18n-provider';
@@ -9,6 +9,8 @@ import { CapsuleButton, GlassDock } from '../../ui/buttons';
 import { PressSpring } from '../../ui/motion/press-spring';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { GROUP_RADIUS } from '../settings/rows';
+
+import { InTheWayRow } from './in-the-way-row';
 
 /** The battery question as the board sets it: 30 on a line of 1.14, over rows of 17. */
 const ASK_SIZE = 30;
@@ -46,11 +48,17 @@ function Battery({ energy }: { readonly energy: Energy }) {
 /**
  * The battery question: one card of three answers, each with its battery. The answer tapped is
  * ticked as it is taken. The fourth way, letting Scootch guess, is in the dock: `EnergyGuess`.
+ * Under the card, where it is asked, the optional row "Anything in the way?".
  */
 export function EnergyRead({
   onAnswer,
+  inTheWay = null,
 }: {
   readonly onAnswer: (energy: Energy | 'guess') => void;
+  readonly inTheWay?: {
+    readonly answer: InTheWay | null;
+    readonly onAnswer: (answer: InTheWay | null) => void;
+  } | null;
 }) {
   const { palette, allowFontScaling, size } = useScreenStyle();
   const { language } = useLanguage();
@@ -109,6 +117,7 @@ export function EnergyRead({
           ))}
         </View>
       </View>
+      {inTheWay === null ? null : <InTheWayRow {...inTheWay} />}
     </View>
   );
 }

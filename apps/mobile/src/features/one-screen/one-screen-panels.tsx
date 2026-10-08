@@ -11,7 +11,7 @@ import { SwipeAway } from '../../ui/swipe-away';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { WorldGlance } from '../world/world-thumbnail';
 
-import { EndsAtLine } from './ends-at-line';
+import { EndsAtLine, type CueBack } from './ends-at-line';
 import { MinutesControl } from './minutes-control';
 
 /** The session lengths on the wheel, in minutes. */
@@ -36,6 +36,8 @@ export interface TaskSetChoicesProps {
   readonly options?: readonly number[];
   /** The time "Ends at" is worked out from, held still: a capture's. Unset, the phone's clock. */
   readonly endsFrom?: Instant;
+  /** A cue picked or kept: the line under the wheel says when the thing comes back. */
+  readonly cue?: CueBack;
 }
 
 /**
@@ -47,11 +49,16 @@ export function TaskSetChoices({
   onMinutes,
   options = SESSION_MINUTES,
   endsFrom,
+  cue,
 }: TaskSetChoicesProps) {
   return (
     <View style={styles.choices}>
       <MinutesControl minutes={minutes} options={options} onMinutes={onMinutes} />
-      <EndsAtLine minutes={minutes} {...(endsFrom === undefined ? {} : { now: endsFrom })} />
+      <EndsAtLine
+        minutes={minutes}
+        cue={cue}
+        {...(endsFrom === undefined ? {} : { now: endsFrom })}
+      />
     </View>
   );
 }

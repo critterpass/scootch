@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import type { Energy } from '@scootch/domain';
+import type { Energy, InTheWay } from '@scootch/domain';
+
+import { careGate } from '../../api/care-gate';
 
 import type { DayEvent } from '../../state/day-types';
 import type { ComposerEvent } from '../composer/composer-machine';
@@ -17,11 +19,19 @@ interface Held {
  * screen (the person took something from the drawer, the day moved on) and they go back into the
  * composer's field. Either way the composer is told, so it never stays waiting.
  */
-export function useHeldWords(options: {
-  readonly energyNeeded: boolean;
-  readonly dispatch: (event: DayEvent) => Promise<void>;
-}) {
+export function useHeldWords(
+  day: {
+    readonly energyNeeded: boolean;
+    /** Something heavy is part of today: "Anything in the way?" is not asked. */
+    readonly heavyToday: boolean;
+  },
+  dispatch: (event: DayEvent) => Promise<void>,
+) {
+  const options = { energyNeeded: day.energyNeeded, heavyToday: day.heavyToday, dispatch };
   const [held, setHeld] = useState<Held | null>(null);
+  const [inTheWay, setInTheWay] = useState<InTheWay | null>(null);
+  const answered = useRef<InTheWay | null>(null);
+  answered.current = inTheWay;
   const latest = useRef(options);
   latest.current = options;
   const waiting = useRef<Held | null>(null);
@@ -30,6 +40,7 @@ export function useHeldWords(options: {
   /** The composer's send: held on the day's first words, sent straight on otherwise. */
   const onSend = useCallback((text: string, source: 'ramble' | 'typed') => {
     const { energyNeeded, dispatch } = latest.current;
+    setInTheWay(null);
     return energyNeeded
       ? new Promise<void>((sent) => setHeld({ text, source, sent }))
       : dispatch({ type: 'text_submitted', text, source, energy: 'guess' });
@@ -38,9 +49,17 @@ export function useHeldWords(options: {
   const answer = useCallback((energy: Energy | 'guess') => {
     const words = waiting.current;
     if (!words) return;
+    const said = answered.current;
     setHeld(null);
+    setInTheWay(null);
     void latest.current
-      .dispatch({ type: 'text_submitted', text: words.text, source: words.source, energy })
+      .dispatch({
+        type: 'text_submitted',
+        text: words.text,
+        source: words.source,
+        energy,
+        ...(said === null ? {} : { inTheWay: said }),
+      })
       .catch(() => undefined)
       .then(words.sent);
   }, []);
@@ -57,5 +76,13 @@ export function useHeldWords(options: {
   // Words still held when the screen goes are let go of, so nothing waits on them.
   useEffect(() => () => waiting.current?.sent(), []);
 
-  return { asked: held !== null, onSend, answer, giveBack };
+  // Asked only beside words the phone's own gate finds clear, on a day with nothing heavy in it.
+  const asks = held !== null && !options.heavyToday && careGate(held.text) === 'clear';
+  return {
+    asked: held !== null,
+    onSend,
+    answer,
+    giveBack,
+    inTheWay: asks ? { answer: inTheWay, onAnswer: setInTheWay } : null,
+  };
 }

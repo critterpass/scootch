@@ -7,6 +7,12 @@ import type { TaskCall } from '../api/task-client';
 import { arrivedPageOf, handBack, withHandedBackPage } from './arrived-pages';
 import { endQuiet, enterCrisis, isQuietDay } from './care-flow';
 import type { DayContext, Offer } from './day-types';
+import {
+  inTheWayField,
+  keepInTheWay,
+  localTimeField,
+  withoutInTheWayWhenHeavy,
+} from './in-the-way';
 import { pickForMe } from './pick-flow';
 import { applyCall, keepTranscript, treatNamed } from './task-answers';
 import { askForFinished } from './late-catch';
@@ -26,6 +32,8 @@ function requestFor(ctx: DayContext, offer: Offer, canChoose = false): TaskCreat
     localDate,
     timeZone: ctx.deps.timeZone(),
     overrideSerious: false,
+    ...localTimeField(ctx),
+    ...inTheWayField(offer),
     ...(canChoose ? { canChoose } : {}),
     ...(offer.monsterPage === undefined ? {} : { monsterPage: offer.monsterPage }),
   };
@@ -52,7 +60,11 @@ export async function submitText(ctx: DayContext, sent: Offer): Promise<void> {
   }
   // The next thing typed after the care screen was closed: the quiet is over.
   await endQuiet(ctx);
-  const offer = withHandedBackPage(ctx.memory, sent);
+  const offer = withoutInTheWayWhenHeavy(
+    ctx,
+    withHandedBackPage(ctx.memory, sent),
+    gate === 'hold',
+  );
 
   // With nothing set and things parked, the words may be asking Scootch to choose among them.
   // The phrases the phone knows are answered here, with or without a connection; a looser
@@ -128,6 +140,7 @@ async function applyAnswer(
   }
   // Today is read back before the waiting ends, so the composer never shows again in between.
   await ctx.refresh();
+  await keepInTheWay(ctx, offer);
   ctx.set({ taskCall: 'idle' });
 }
 
@@ -215,6 +228,7 @@ export async function fetchPending(ctx: DayContext): Promise<void> {
         localDate,
         timeZone: ctx.deps.timeZone(),
         overrideSerious: task.seriousOverridden,
+        ...localTimeField(ctx),
         ...(monsterPage === null ? {} : { monsterPage }),
       },
       treatNamed(ctx),

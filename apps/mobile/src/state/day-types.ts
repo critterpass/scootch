@@ -7,6 +7,7 @@ import type {
   HeardDeadline,
   Id,
   Instant,
+  InTheWay,
   IsoDate,
   MonsterRow,
   MorningOffer,
@@ -15,6 +16,7 @@ import type {
   SessionLine,
   SessionState,
   SettingsRow,
+  StartCue,
   TaskRow,
   TodayState,
 } from '@scootch/domain';
@@ -34,6 +36,8 @@ export type DayEvent =
       readonly text: string;
       readonly source: 'ramble' | 'typed';
       readonly energy: Energy | 'guess';
+      /** The answer to "Anything in the way?", when one was given with the battery. */
+      readonly inTheWay?: InTheWay;
     }
   /** "Cancel", while Scootch is thinking: the words go back to the composer and nothing is set. */
   | { readonly type: 'task_call_cancelled' }
@@ -67,6 +71,10 @@ export type DayEvent =
   | { readonly type: 'task_set_aside' }
   /** "Guess 2 hours" on the set task: how long the person thinks the whole thing would take. */
   | { readonly type: 'guess_made'; readonly minutes: GuessMinutes }
+  /** "Save for later" on the set task: it comes back at this cue, with one message. */
+  | { readonly type: 'cue_saved'; readonly cue: StartCue }
+  /** "Now" on the When sheet: the thing has no cue and no message of its own. */
+  | { readonly type: 'cue_cleared' }
   | { readonly type: 'session_set'; readonly minutes: number; readonly treat?: string | null }
   /** `line` comes with "Carry on tomorrow" alone: the words the person left for next time. */
   | { readonly type: 'session'; readonly event: SessionEvent; readonly line?: string }
@@ -267,6 +275,8 @@ export interface Offer {
   readonly transcriptId: Id | null;
   /** The monster's page the text arrived from, when it came from the website. */
   readonly monsterPage?: string;
+  /** What the person said is in the way. Absent when skipped, never asked, or the text is heavy. */
+  readonly inTheWay?: InTheWay;
 }
 
 /** The store's working memory between events. */

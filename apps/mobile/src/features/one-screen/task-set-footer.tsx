@@ -6,7 +6,7 @@ type TaskSetShown = Extract<OneScreenShown, { readonly kind: 'task_set' }>;
 
 /** The length and what goes with it, picked out of a set task for the choices above the dock. */
 export function choicesOf(shown: TaskSetShown): TaskSetChoicesProps {
-  const { treat, minutes, onTreat, onMinutes, options, endsFrom } = shown;
+  const { treat, minutes, onTreat, onMinutes, options, endsFrom, cue } = shown;
   return {
     treat,
     minutes,
@@ -14,6 +14,7 @@ export function choicesOf(shown: TaskSetShown): TaskSetChoicesProps {
     onMinutes,
     ...(options === undefined ? {} : { options }),
     ...(endsFrom === undefined ? {} : { endsFrom }),
+    ...(cue === undefined ? {} : { cue }),
   };
 }
 
@@ -27,6 +28,7 @@ export function TaskSetFooter({ shown }: { readonly shown: TaskSetShown }) {
       onStart={shown.onStart}
       onDiscard={shown.onDiscard}
       helpers={shown.helpers}
+      onSave={shown.onSave}
     />
   );
 }

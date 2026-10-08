@@ -66,8 +66,10 @@ export type OneScreenShown =
       readonly extra?: ReactNode;
       /** Drawn in place of Scootch alone, when the task's monster stands beside him. */
       readonly figure?: ReactNode;
-      /** The quiet helpers above the one action: the guess and the bites. */
+      /** The quiet helpers above the one action: the guess, the when and the bites. */
       readonly helpers?: TaskSetHelpers;
+      /** "Save for later", while a cue is picked and not yet kept: Start becomes "Start now". */
+      readonly onSave?: () => void;
     } & TaskSetChoicesProps)
   /** A state drawn by its own feature: the one thing, the hatch, a counter-offer. */
   | {

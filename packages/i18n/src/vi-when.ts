@@ -1,0 +1,41 @@
+/**
+ * The When chip of a set task, its sheet and the two ways on from it; and "Anything in the way?"
+ * under the battery. Interface words only: what Scootch says back is the voice's.
+ */
+export const viWhen = {
+  'when.chip': 'Khi nào',
+  'when.chip.hint': 'Mở phần chọn lúc việc này quay lại. Để yên cũng được.',
+  'when.chip.set.hint': 'Lúc việc này quay lại. Mở ra để đổi.',
+  'when.title': 'Khi nào mình mang nó quay lại?',
+  'when.now': 'Bây giờ',
+  'when.now.hint': 'Không để dành gì cả: bạn bắt đầu lúc nào thì nó bắt đầu lúc đó.',
+  'when.after': 'Sau một việc gì đó',
+  'when.moment.coffee': 'Sau cà phê',
+  'when.moment.lunch': 'Sau bữa trưa',
+  'when.moment.work': 'Sau giờ làm',
+  'when.moment.dinner': 'Sau bữa tối',
+  'when.moment.bed': 'Trước khi ngủ',
+  'when.moment.spoken': '{moment}, khoảng {clock}',
+  'when.moment.hint': 'Chọn lúc này trong ngày.',
+  'when.atTime': 'Vào một giờ',
+  'when.atTime.hint': 'Chọn một giờ trên đồng hồ.',
+  'when.atTime.said': 'Lúc {clock}',
+  'when.earlier': 'Sớm hơn nửa tiếng',
+  'when.later': 'Muộn hơn nửa tiếng',
+  'when.confirm': 'Mang nó quay lại {cue}',
+  'when.confirm.hint': 'Đóng lại với lúc đã chọn.',
+  'when.back': 'Quay lại {cue}, khoảng {clock}',
+  'when.back.time': 'Quay lại lúc {clock}',
+  'when.startNow': 'Bắt đầu ngay',
+  'when.save': 'Để dành lát nữa',
+  'when.save.hint': 'Việc này vẫn nằm đây. Đến lúc đó, một tin nhắn sẽ mang nó quay lại.',
+
+  'inTheWay.ask': 'Có gì cản đường không?',
+  'inTheWay.skip': 'Bỏ qua',
+  'inTheWay.skip.hint': 'Cất câu hỏi này đi. Không giữ lại gì.',
+  'inTheWay.boring': 'Chán',
+  'inTheWay.scary': 'Đáng sợ',
+  'inTheWay.confusing': 'Rối',
+  'inTheWay.too_big': 'To quá',
+  'inTheWay.hint': 'Cho Scootch biết điều gì làm việc này khó bắt đầu. Chạm lần nữa để rút lại.',
+} as const;

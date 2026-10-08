@@ -1,8 +1,11 @@
 import {
   endTime,
   sittingBites,
+  type ClockTime,
+  type DayMoment,
   type GuessMinutes,
   type Instant,
+  type StartCue,
   type TaskRow,
 } from '@scootch/domain';
 import type { StringKey } from '@scootch/i18n';
@@ -28,6 +31,15 @@ export interface TaskSetHelpers {
     readonly minutes: GuessMinutes | null;
     readonly onGuess: (minutes: GuessMinutes) => void;
   } | null;
+  /** When the thing is brought back; `null` on a task that takes no cue. */
+  readonly when?: {
+    /** The cue picked or kept; `null` for now. */
+    readonly cue: StartCue | null;
+    /** The clock time of each moment of the day, from the settings. */
+    readonly moments: Readonly<Record<DayMoment, ClockTime>>;
+    /** A cue picked, or `null` for "Now", which takes any cue away. */
+    readonly onCue: (cue: StartCue | null) => void;
+  } | null;
   /** The task's bites; `null` when it has none. */
   readonly bites: {
     /** The monster's name, or `null` when it has none to show. */
@@ -36,7 +48,7 @@ export interface TaskSetHelpers {
     readonly onTick: (place: number) => void;
   } | null;
   /** The sheet standing open from the first frame: a capture's, never the app's. */
-  readonly opened?: 'guess' | 'bites';
+  readonly opened?: 'guess' | 'when' | 'bites';
 }
 
 /** The guess offered when none was made yet, as the board draws its sheet. */

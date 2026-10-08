@@ -10,6 +10,7 @@ import {
 
 import { dayNotifications } from './day-notifications';
 import { showsComedy } from './shows-comedy';
+import { withoutSpentCues } from './start-cue';
 import type { DayContext } from './day-types';
 
 /**
@@ -23,7 +24,10 @@ export async function readToday(
   const { deps, memory, set } = ctx;
   const { repositories } = deps;
   const { localDate, settings } = memory.state;
-  const tasks = await repositories.tasks.where('localDate', localDate);
+  const tasks = await withoutSpentCues(
+    repositories,
+    await repositories.tasks.where('localDate', localDate),
+  );
   const sessions = new Map<string, SessionRow>();
   // A start is counted on the day it happened, also for a task that has since moved on.
   for (const session of await repositories.sessions.where('localDate', localDate)) {
@@ -91,6 +95,7 @@ export async function readToday(
       localDate,
       timeZone: deps.timeZone(),
       usualStart,
+      now: deps.clock.now(),
       // Soft while something heavy is around.
       heavyToday,
       reminderAt,

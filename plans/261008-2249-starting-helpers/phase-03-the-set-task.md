@@ -39,14 +39,14 @@ composers as sheets, chips or icon buttons, never bare text.
   task set on the way.
 - Test: the fresh-user walk sets a cue and the plan holds exactly one message
   for it.
-- Status: not started
+- Status: done
 
 ### 4. Anything in the way?
 - Do: one row under the battery on the energy step: Skip, Boring, Scary,
   Confusing, Too big. Sent with the task call; Too big leads to the bites.
   Skip is the same as never being asked. Not shown when the task is already screened serious or
   the day holds something heavy.
-- Status: not started
+- Status: done
 
 ### 5. Bites on request
 - Do: an icon button in the dock opens "Molar, in three bites · Each one
