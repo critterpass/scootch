@@ -1,8 +1,8 @@
 appId: app.scootch.dev
 ---
 # The fresh-user walk, between steps four and five: the world card on home is swiped down and
-# away, stays away when the app is opened again, and is brought back from Settings. It carries on
-# from the step before it, on home at rest; nothing is cleared and nothing is seeded.
+# away, and stays away when the app is opened again. It carries on from the step before it, on
+# home at rest; nothing is cleared and nothing is seeded. No later step looks for the card.
 - extendedWaitUntil:
     visible:
       id: 'world-row'
@@ -27,27 +27,4 @@ appId: app.scootch.dev
     timeout: 90000
 - assertNotVisible:
     id: 'world-row'
-# Settings brings it back: the switch under the haptics and motion ones.
-- tapOn:
-    id: 'more-button'
-    waitToSettleTimeoutMs: 0
-- extendedWaitUntil:
-    visible:
-      id: 'settings'
-    timeout: 15000
-- scrollUntilVisible:
-    element:
-      id: 'settings-world-card'
-    direction: DOWN
-- takeScreenshot: fresh-04d-settings-world-card-off
-- tapOn:
-    id: 'settings-world-card'
-# Home is the page to the left of Settings.
-- swipe:
-    start: 20%, 45%
-    end: 80%, 45%
-- extendedWaitUntil:
-    visible:
-      id: 'world-row'
-    timeout: 15000
-- takeScreenshot: fresh-04d-world-card-back
+- takeScreenshot: fresh-04d-still-away-after-relaunch

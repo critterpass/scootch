@@ -266,7 +266,7 @@ export const settingsRowSchema = z.object({
   keepTranscripts: z.boolean(),
   canBeHaunted: z.boolean(),
   hideTableLabel: z.boolean(),
-  /** The "Your world" card on home. Swiped away it stays away, until Settings brings it back. */
+  /** The "Your world" card on home. Swiped away, it stays away. */
   worldCardOnHome: z.boolean(),
   /** What the app icon changes with: the attitude, the worn card finish, or nothing at all. */
   iconFollows: z.enum(['attitude', 'finish', 'pinned']),

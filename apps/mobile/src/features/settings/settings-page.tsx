@@ -157,13 +157,6 @@ export function SettingsPage(props: SettingsPageProps) {
           onChange={(full) => onChange({ motion: full ? 'full' : 'calm' })}
           testID="settings-motion"
         />
-        <SwitchRow
-          label={t('settings.worldCard')}
-          hint={t('settings.worldCard.hint')}
-          value={settings.worldCardOnHome}
-          onChange={(worldCardOnHome) => onChange({ worldCardOnHome })}
-          testID="settings-world-card"
-        />
       </Section>
 
       <Section label={t('settings.calm')}>

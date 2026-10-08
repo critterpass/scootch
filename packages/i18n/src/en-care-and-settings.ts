@@ -33,8 +33,6 @@ export const enCareAndSettings = {
   'settings.effects.hint': 'Turns sound effects on or off',
   'settings.haptics': 'Haptics',
   'settings.haptics.hint': 'Turns the taps you feel on or off',
-  'settings.worldCard': 'World card on home',
-  'settings.worldCard.hint': 'Shows or hides the card on home that opens your world',
   'settings.motion': 'Motion',
   'settings.motion.hint': 'Off keeps Scootch still and swaps bursts for a soft glow',
   'settings.calm': 'Calm',

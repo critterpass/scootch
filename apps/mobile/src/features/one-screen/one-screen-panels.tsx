@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, type AccessibilityActionEvent } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { fonts, shadows } from '@scootch/tokens';
 
@@ -55,7 +55,7 @@ const WORLD_THUMBNAIL = 84;
 
 /**
  * The way into the world, on the quiet screen: the world itself, small and alive, and how many
- * things live there now. It can be put away from home, by a swipe or by VoiceOver's action.
+ * things live there now. It can be swiped away from home.
  */
 export function WorldRow({
   onPress,
@@ -82,14 +82,6 @@ export function WorldRow({
               living ? `${t('oneScreen.world')}, ${living}` : t('oneScreen.world')
             }
             accessibilityHint={t('oneScreen.world.hint')}
-            {...(onAway
-              ? {
-                  accessibilityActions: [{ name: 'hide', label: t('oneScreen.world.hide') }],
-                  onAccessibilityAction: (event: AccessibilityActionEvent) => {
-                    if (event.nativeEvent.actionName === 'hide') onAway();
-                  },
-                }
-              : {})}
             onPress={onPress}
             testID="world-row"
             style={[styles.world, { backgroundColor: palette.surface }]}

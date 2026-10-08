@@ -32,7 +32,7 @@ export type OneScreenShown =
         readonly company?: ReactNode;
         /**
          * The world card was swiped away, and is to stay away. Unset, there is no card: it was put
-         * away already, and the corner button is the way into the world.
+         * away for good, and the corner button is the way into the world.
          */
         readonly onWorldCardAway?: () => void;
       };

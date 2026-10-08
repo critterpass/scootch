@@ -31,8 +31,6 @@ export const viCareAndSettings = {
   'settings.effects.hint': 'Bật hoặc tắt hiệu ứng âm thanh',
   'settings.haptics': 'Rung phản hồi',
   'settings.haptics.hint': 'Bật hoặc tắt những cái rung nhẹ',
-  'settings.worldCard': 'Thẻ thế giới ở màn hình chính',
-  'settings.worldCard.hint': 'Hiện hoặc ẩn tấm thẻ mở thế giới của bạn ở màn hình chính',
   'settings.motion': 'Chuyển động',
   'settings.motion.hint': 'Tắt thì Scootch đứng yên, pháo giấy đổi thành ánh sáng dịu',
   'settings.calm': 'Yên tĩnh',
