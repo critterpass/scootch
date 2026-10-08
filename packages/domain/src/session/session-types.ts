@@ -1,4 +1,4 @@
-import type { FinishMethod, Id } from '../contracts';
+import type { FinishMethod, Id, NextStart } from '../contracts';
 import type { Instant } from '../day';
 
 /** `quiet` is the path of a serious task: the same steps, with no burst, confetti or comedy. */
@@ -52,6 +52,11 @@ export interface LiveSession {
   readonly stepShrinks: number;
   /** Hidden until the end: read them through `visibleThoughts`. */
   readonly thoughts: readonly ParkedThought[];
+  /**
+   * The line the user left for this sitting, which it opens on (`sessionOpening`). Absent when
+   * none was left, and from the moment the task is caught or made smaller.
+   */
+  readonly nextStart?: NextStart | null;
 }
 
 /** A task the user let go leaves a session with nothing in it. */

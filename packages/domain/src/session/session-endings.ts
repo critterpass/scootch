@@ -1,6 +1,7 @@
 import type { FinishMethod } from '../contracts';
 import type { Instant } from '../day';
 
+import { withoutNextStart } from './next-start';
 import type { LiveStep } from './session-clock';
 import type { LiveSession, SessionEffect, SessionStep } from './session-types';
 
@@ -43,7 +44,11 @@ export function finish(state: LiveSession, method: FinishMethod, now: Instant): 
     );
   }
   effects.push(...thoughtsEffect(state));
-  return { state: { ...state, phase: 'finished', heldFrom: null, endedAt: now }, effects };
+  // Caught, there is no next sitting for a kept line to open.
+  return {
+    state: { ...withoutNextStart(state), phase: 'finished', heldFrom: null, endedAt: now },
+    effects,
+  };
 }
 
 /** Leaving early is unremarked: the timer stops and nothing is said, played or offered. */
@@ -108,7 +113,7 @@ export function chooseAfterNotFinished(
   }
   return {
     state: {
-      ...state,
+      ...withoutNextStart(state),
       phase: 'made_smaller',
       ask: { ...state.ask, shrinkCount: state.ask.shrinkCount + 1 },
     },

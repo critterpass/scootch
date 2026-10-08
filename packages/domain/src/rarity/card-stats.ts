@@ -1,4 +1,4 @@
-import type { CardRarity, IsoDate } from '../contracts';
+import type { CardRarity, GuessMinutes, IsoDate } from '../contracts';
 import { MINUTE_MS, daysBetween, type Instant } from '../day';
 
 /** Lurking this many days or more moves the dread meter up one pip each: 2 to 5 pips. */
@@ -32,6 +32,8 @@ export interface TaskHistory {
   readonly shrinkCount: number;
   /** Every sitting it took, the catching one included. */
   readonly sittings: readonly Sitting[];
+  /** How long the user thought it would take, when they guessed before starting. */
+  readonly guessMinutes?: GuessMinutes | null;
 }
 
 /** The numbers printed on a caught card, frozen at the catch. */
@@ -42,6 +44,8 @@ export interface CardStats {
   /** The five-pip meter, 1 to 5. */
   readonly dread: number;
   readonly rarity: CardRarity;
+  /** The guess, kept beside the real time and never weighed against it. Absent with no guess. */
+  readonly guessMinutes?: GuessMinutes;
 }
 
 export function daysLurked(history: Pick<TaskHistory, 'firstMentionedOn' | 'caughtOn'>): number {
@@ -84,5 +88,25 @@ export function cardStats(history: TaskHistory): CardStats {
     catchMinutes: catchMinutes(history.sittings),
     dread: dreadLevel(history),
     rarity: rarityFor(lurked),
+    ...(history.guessMinutes != null ? { guessMinutes: history.guessMinutes } : {}),
   };
+}
+
+/** The two numbers a card prints side by side: "Thought 2 hours. Took 11 minutes." */
+export interface GuessAndReal {
+  readonly thoughtMinutes: number;
+  readonly tookMinutes: number;
+}
+
+/**
+ * The guess and the real time of a caught thing, or `null` when no guess was made or it is not
+ * caught yet. Two numbers and nothing else: which one is larger is never worked out, so no line
+ * can say faster, slower, only or just, and a guess that was too short prints like any other.
+ */
+export function guessAndReal(card: {
+  readonly guessMinutes?: number | null | undefined;
+  readonly catchMinutes: number | null;
+}): GuessAndReal | null {
+  if (card.guessMinutes == null || card.catchMinutes === null) return null;
+  return { thoughtMinutes: card.guessMinutes, tookMinutes: card.catchMinutes };
 }
