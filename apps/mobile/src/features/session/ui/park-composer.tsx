@@ -45,6 +45,19 @@ export interface ParkComposerProps {
   readonly onCancel: () => void;
   /** Lets the screen close the field from outside it (a touch above the dock). */
   readonly handle: RefObject<ParkComposerHandle | null>;
+  /** The field's own words, when it is not a thought being parked. */
+  readonly words?: ParkComposerWords;
+}
+
+/** What the field says about itself: the line above it, its placeholder and its labels. */
+export interface ParkComposerWords {
+  /** The line above the dock. `null` when the sheet around the field already says it. */
+  readonly explain: string | null;
+  readonly placeholder: string;
+  readonly label: string;
+  readonly hint: string;
+  readonly save: string;
+  readonly saveHint: string;
 }
 
 /**
@@ -53,7 +66,15 @@ export interface ParkComposerProps {
  * keyboard; either way the words become the parked thought through the same action. One line
  * above the dock says what parking does.
  */
-export function ParkComposer({ inks, t, onPark, onCancel, handle }: ParkComposerProps) {
+export function ParkComposer({ inks, t, onPark, onCancel, handle, words }: ParkComposerProps) {
+  const said: ParkComposerWords = words ?? {
+    explain: t('session.park.explain'),
+    placeholder: t('session.park.placeholder'),
+    label: t('talk.parkThought'),
+    hint: t('session.park.hint'),
+    save: t('session.park.save'),
+    saveHint: t('session.park.save.hint'),
+  };
   const { language } = useLanguage();
   const { allowFontScaling, size, reducedMotion } = useScreenStyle();
   const captured = useForcedVariant() !== undefined;
@@ -118,7 +139,9 @@ export function ParkComposer({ inks, t, onPark, onCancel, handle }: ParkComposer
           ? { text: t('composer.tooShort'), slide: false }
           : state.notice === 'empty'
             ? { text: t('composer.empty'), slide: false }
-            : { text: t('session.park.explain'), slide: false };
+            : said.explain === null
+              ? null
+              : { text: said.explain, slide: false };
 
   return (
     <View style={styles.wrap}>
@@ -167,10 +190,10 @@ export function ParkComposer({ inks, t, onPark, onCancel, handle }: ParkComposer
                 maxLength={THOUGHT_MAX}
                 returnKeyType="done"
                 submitBehavior="submit"
-                placeholder={t('session.park.placeholder')}
+                placeholder={said.placeholder}
                 placeholderTextColor={inks.muted}
-                accessibilityLabel={t('talk.parkThought')}
-                accessibilityHint={t('session.park.hint')}
+                accessibilityLabel={said.label}
+                accessibilityHint={said.hint}
                 allowFontScaling={allowFontScaling}
                 maxFontSizeMultiplier={2}
                 testID="session-park-input"
@@ -179,8 +202,8 @@ export function ParkComposer({ inks, t, onPark, onCancel, handle }: ParkComposer
               {state.text.trim() === '' ? null : (
                 <PressSpring
                   accessibilityRole="button"
-                  accessibilityLabel={t('session.park.save')}
-                  accessibilityHint={t('session.park.save.hint')}
+                  accessibilityLabel={said.save}
+                  accessibilityHint={said.saveHint}
                   onPress={() => latest.current()}
                   feedback="primary"
                   testID="session-park-save"

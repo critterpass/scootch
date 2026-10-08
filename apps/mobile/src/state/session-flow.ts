@@ -1,5 +1,7 @@
 import {
   isoFromInstant,
+  nextStartAfter,
+  nextStartFrom,
   sessionReducer,
   startRefused,
   sessionSet,
@@ -123,7 +125,12 @@ async function persist(
       }
       ctx.memory.sessionRowId = null;
     } else if (effect.kind === 'grant_finish_reward') {
-      await save({ status: 'finished', finishedAt: isoFromInstant(ctx.now()) });
+      await save({
+        status: 'finished',
+        finishedAt: isoFromInstant(ctx.now()),
+        // A caught thing has no next sitting, so no line waits for one.
+        nextStart: nextStartAfter(current.nextStart, 'caught'),
+      });
       await persistFinishEarnings(ctx, current, effect.tone, session?.treat ?? null);
       ctx.deps.onFinished?.();
     } else if (effect.kind === 'shrink_task') {
@@ -173,6 +180,7 @@ export function setSession(ctx: DayContext, minutes: number, treat: string | nul
       minutes,
       shrinkCount: task.shrinkCount,
       treat: treat === null ? null : treat.slice(0, TREAT_MAX),
+      nextStart: task.nextStart ?? null,
     }),
     burst: null,
     treat: null,
@@ -182,9 +190,14 @@ export function setSession(ctx: DayContext, minutes: number, treat: string | nul
 }
 
 /** Runs one event through the session reducer at the current time, stores the result and performs the effects. */
-export async function applySession(ctx: DayContext, event: SessionEvent): Promise<void> {
+export async function applySession(
+  ctx: DayContext,
+  event: SessionEvent,
+  line?: string,
+): Promise<void> {
   const { session } = ctx.memory.state;
-  const task = currentTask(ctx);
+  const kept = await keepLine(ctx, event, line);
+  const task = kept ?? currentTask(ctx);
   if (!session || !task) return;
   // A start goes through the day's limit like everything else. A task already started today has
   // used its start and may be picked up again.
@@ -218,4 +231,25 @@ async function markNotFinished(ctx: DayContext, tapped: boolean): Promise<void> 
   const { sessions } = ctx.deps.repositories;
   const row = ctx.memory.sessionRowId ? await sessions.get(ctx.memory.sessionRowId) : null;
   if (row) await sessions.put({ ...row, outcome: tapped ? 'not_finished' : null });
+}
+
+/**
+ * "Save for tomorrow": the task that is being carried on keeps the words left for its next
+ * sitting, exactly as they were given, with today's date. `null` when there is nothing to keep:
+ * empty words are the same as Skip, and a line comes only with the carry-on from "not finished".
+ */
+async function keepLine(
+  ctx: DayContext,
+  event: SessionEvent,
+  line: string | undefined,
+): Promise<TaskRow | null> {
+  const { session, localDate } = ctx.memory.state;
+  const task = currentTask(ctx);
+  if (!task || line === undefined || event.type !== 'chose_carry_on') return null;
+  if (session?.phase !== 'not_finished') return null;
+  const nextStart = nextStartFrom(line, localDate);
+  if (nextStart === null) return null;
+  const kept = { ...task, nextStart };
+  await ctx.deps.repositories.tasks.put(kept);
+  return kept;
 }

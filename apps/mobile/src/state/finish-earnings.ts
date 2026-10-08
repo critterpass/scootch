@@ -45,6 +45,7 @@ export async function persistFinishEarnings(
       carriedOverCount: task.carriedOver ? 1 : 0,
       shrinkCount: task.shrinkCount,
       sittings,
+      guessMinutes: task.guessMinutes ?? null,
     },
     treat,
     dayHasBar: (await repositories.recordBars.get(caughtOn)) !== null,
@@ -65,6 +66,8 @@ export async function persistFinishEarnings(
           daysLurked: earning.stats.daysLurked,
           catchMinutes: earning.stats.catchMinutes,
           dread: earning.stats.dread,
+          // The guess goes onto the card as it stood at the catch, beside the real time.
+          guessMinutes: earning.stats.guessMinutes ?? null,
         });
       } else if (earning.kind === 'world_piece') {
         const home = earning.piece === 'monster' && monster !== null;

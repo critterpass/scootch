@@ -28,7 +28,7 @@ import type { CardMotion } from '../../reveal/ui/card-motion';
 import { facesFront } from '../../reveal/ui/card-turn';
 import { LiveMonsterLayer } from '../../reveal/ui/live-monster';
 import { TiltSensor } from '../../reveal/ui/tilt-sensor';
-import { cardDataFor, cardSpokenLabel, type CaughtMonster } from '../zoo-cards';
+import { cardDataFor, cardSpokenLabel, guessLine, type CaughtMonster } from '../zoo-cards';
 
 import { FieldNotes } from './field-notes';
 
@@ -144,6 +144,7 @@ export function BinderCard({
   const number = labels.number(String(monster.number).padStart(3, '0'));
   const lurked = labels.days(monster.daysLurked);
   const took = labels.duration(Math.floor(monster.catchMinutes / 60), monster.catchMinutes % 60);
+  const guessed = guessLine(monster, language);
   const notes: readonly (readonly [string, string])[] = [
     [labels.lurked, lurked],
     [labels.caughtIn, took],
@@ -157,7 +158,9 @@ export function BinderCard({
         testID={testID}
         accessible
         accessibilityRole="image"
-        accessibilityLabel={cardSpokenLabel(cardDataFor(monster, null), language)}
+        accessibilityLabel={[cardSpokenLabel(cardDataFor(monster, null), language), guessed]
+          .filter((part) => part !== null)
+          .join(', ')}
         style={[size, tilt]}
       >
         {motion.sensing ? <TiltSensor into={motion.phone} /> : null}
@@ -244,6 +247,17 @@ export function BinderCard({
                     </View>
                   ))}
                 </View>
+                {guessed === null ? null : (
+                  // The same type and ink whichever way the guess went.
+                  <Text
+                    allowFontScaling={false}
+                    numberOfLines={2}
+                    testID="binder-card-guess"
+                    style={[styles.guess, { color: ink }]}
+                  >
+                    {guessed}
+                  </Text>
+                )}
               </View>
             </View>
           </View>
@@ -277,6 +291,7 @@ const styles = StyleSheet.create({
   task: { fontFamily: STAMPED, fontWeight: '500', fontSize: 10.5, lineHeight: 13.7 },
   numbers: { flexDirection: 'row', gap: 14, marginTop: 8, paddingTop: 8, borderTopWidth: 1 },
   number: { gap: 3 },
+  guess: { marginTop: 7, fontFamily: STAMPED, fontWeight: '600', fontSize: 9.5, lineHeight: 12.5 },
   small: { fontFamily: STAMPED, fontWeight: '700', fontSize: 7, letterSpacing: 0.84 },
   value: { fontFamily: fonts.heading, fontWeight: '800', fontSize: 15 },
 });

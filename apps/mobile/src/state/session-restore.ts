@@ -94,6 +94,7 @@ export async function restoreSession(ctx: DayContext, tasks: readonly TaskRow[])
         minutes: row.plannedMinutes,
         shrinkCount: task.shrinkCount,
         treat: row.treat,
+        nextStart: task.nextStart ?? null,
       }),
       startedAt,
       endsAt,

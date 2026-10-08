@@ -1,5 +1,7 @@
 import { lazy } from 'react';
 
+import type { GuessMinutes } from '@scootch/domain';
+
 import { useLanguage } from '../../../i18n/i18n-provider';
 import {
   standardVariants,
@@ -31,6 +33,8 @@ export type KeepCapture =
       readonly cards: number;
       readonly plus: boolean;
       readonly open?: boolean;
+      /** The open card carries this guess, made before starting. */
+      readonly guessMinutes?: GuessMinutes;
     }
   | { readonly screen: 'pages' }
   | { readonly screen: 'record'; readonly bars: number }

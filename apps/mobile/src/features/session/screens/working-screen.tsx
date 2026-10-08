@@ -13,6 +13,7 @@ import { MoreIcon } from '../../../ui/icons';
 import { useKeyboardOpen } from '../../../ui/use-keyboard-open';
 import { shortName } from '../../monster/monster-name';
 import { RoundButton } from '../ui/controls';
+import { OpeningCard } from '../ui/opening-card';
 import type { ParkComposerHandle } from '../ui/park-composer';
 import { PillDot } from '../ui/pill-marks';
 import { ParkedToast } from '../ui/parked-toast';
@@ -158,6 +159,10 @@ export function WorkingScreen(props: ScreenProps) {
           )
         }
       >
+        {/* The user's own line first, before any of Scootch's; it folds away after the first minute. */}
+        {model.opening && !model.parkOpen && !stuck ? (
+          <OpeningCard opening={model.opening} inks={inks} t={t} />
+        ) : null}
         <WorkingDesk {...props} ring={ring} />
       </SessionFrame>
     </KeyboardAvoidingView>

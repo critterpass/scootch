@@ -2,7 +2,12 @@ import { useIsFocused, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AccessibilityInfo } from 'react-native';
 
-import type { MonsterRow, ParkedThought, SessionEvent } from '@scootch/domain';
+import {
+  sessionOpening,
+  type MonsterRow,
+  type ParkedThought,
+  type SessionEvent,
+} from '@scootch/domain';
 
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { useCharacterMotion } from '../../ui/motion/use-feel';
@@ -208,6 +213,9 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
   }, [ticking, left, t]);
 
   const task = 'task' in today ? today.task : null;
+  // The user's own line comes before any line of Scootch's: while the sitting is opened on it,
+  // nothing he says is shown.
+  const opening = session ? sessionOpening(session, now, localDate) : null;
   const model: SessionModel = {
     view,
     quiet: live?.tone === 'quiet',
@@ -218,7 +226,8 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
     plannedMinutes: live?.ask.minutes ?? 0,
     minutesLeft: left,
     fraction: live ? timeLeftFraction(live, now) : 0,
-    line,
+    line: opening ? null : line,
+    opening,
     tinyNextStep,
     treatLine: afterLines.treat,
     thoughtsLine: afterLines.parkedThoughts,
@@ -272,6 +281,10 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
         setParkOpen(false);
         setParkedNote(text);
       },
+      carryOnWith: (line) =>
+        void dispatch({ type: 'session', event: { type: 'chose_carry_on' }, line }).catch(
+          () => undefined,
+        ),
       send,
       sendFinish,
       startNow: () => {

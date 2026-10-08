@@ -1,4 +1,4 @@
-import type { MonsterRow, TaskRow } from '@scootch/domain';
+import { nextStartAfter, type MonsterRow, type TaskRow } from '@scootch/domain';
 
 import type { DayContext } from './day-types';
 import { nextSteps } from './lines';
@@ -30,11 +30,18 @@ export function shrunkMonster(monster: MonsterRow, fromShrinks: number): Monster
 
 /**
  * "Too big", before or after a session: the task takes its smaller wording and its monster drops
- * a size. After the last size step the count still goes up and nothing gets bigger.
+ * a size. After the last size step the count still goes up and nothing gets bigger. A line left
+ * for its next sitting is cleared.
  */
 export async function shrinkTask(ctx: DayContext, task: TaskRow): Promise<void> {
   const { tasks, monsters } = ctx.deps.repositories;
-  await tasks.put({ ...task, text: smallerText(task), shrinkCount: task.shrinkCount + 1 });
+  await tasks.put({
+    ...task,
+    text: smallerText(task),
+    shrinkCount: task.shrinkCount + 1,
+    // A smaller task is a different ask: a line left for the old one goes with it.
+    nextStart: nextStartAfter(task.nextStart, 'made_smaller'),
+  });
   const monster = (await monsters.where('taskId', task.id))[0];
   if (monster && task.shrinkCount < MAX_SHRINKS) {
     await monsters.put(shrunkMonster(monster, task.shrinkCount));

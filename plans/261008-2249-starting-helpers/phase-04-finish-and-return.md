@@ -1,6 +1,6 @@
 # Phase 04: Finish and return
 
-Status: not started · Tasks: 4 · Needs: 01, 02
+Status: in progress · Tasks: 4 · Needs: 01, 02
 Owns: `apps/mobile/src/features/session/screens/not-finished-screen.tsx`,
 `apps/mobile/src/features/session/screens/working-screen.tsx`,
 `apps/mobile/src/features/zoo/` (the card), `apps/mobile/src/features/share/`
@@ -21,7 +21,9 @@ back in.
   colour change or a score of guesses. No guess, the card is as today. A guess shorter than the
   real time is printed the same way, with nothing added.
 - Test: the card's stat line for no guess, shorter, longer.
-- Status: not started
+- Status: partly done — 7d6549b. Done: the guess frozen onto the monster at the catch (and at a late
+  catch), and the line on the binder's card. Left: the line on the reveal's card, which
+  `packages/art` draws.
 
 ### 2. On the story and the card's page
 - Do: the share story prints the line under the headline when there is a
@@ -29,14 +31,16 @@ back in.
   share composer takes it out. The headline stays the website's three lines,
   not the board's "I finally…". The website's card page prints
   the same line from the same signed values.
-- Status: not started
+- Status: blocked — the story is drawn in `packages/art` and the website's card page reads the
+  shared card contract, which carries no guess. Left: the line on the story, the composer's
+  toggle, the line on the website's page.
 
 ### 3. Leaving a line
 - Do: on "not finished", after Carry on tomorrow, a sheet: "Next time,
   start with…", "Optional. I'll show it to you first next time, word for
   word.", one field typed or held to say, "Save for tomorrow" and Skip. Reuses the park composer. Not
   offered after Let go; cleared by Make smaller.
-- Status: not started
+- Status: done — 7d6549b
 
 ### 4. Opening on it
 - Do: the next sitting on that task opens on the user's line, verbatim,
@@ -46,4 +50,5 @@ back in.
   unchanged.
 - Done when: sheets both languages, largest text, keyboard open, offline;
   the fresh-user walk leaves a line and sees it on the next sitting.
-- Status: not started
+- Status: partly done — 7d6549b. Done: the opening, its label rule, the first bite, the registry
+  states. Left: the fresh-user walk that leaves a line and sees it.

@@ -1,5 +1,12 @@
 import { CARD_LABELS, type CardLanguage } from '@scootch/art';
-import { isUnlocked, type CardData, type MonsterRow, type TaskRow } from '@scootch/domain';
+import {
+  guessAndReal,
+  isUnlocked,
+  type CardData,
+  type MonsterRow,
+  type TaskRow,
+} from '@scootch/domain';
+import { t } from '@scootch/i18n';
 
 /** A monster with its card: every card field was frozen at the catch. */
 export type CaughtMonster = MonsterRow & {
@@ -57,4 +64,23 @@ export function cardSpokenLabel(card: CardData, language: CardLanguage): string 
     `${labels.dread} ${card.dread}/5`,
     `${labels.caughtIn} ${labels.durationLong(hours, card.catchMinutes % 60)}`,
   ].join(', ');
+}
+
+/**
+ * The one line a card prints under its stats when a guess was made before starting: "Thought 2
+ * hours. Took 11 minutes." Always those two sentences in plain units, whichever number is the
+ * larger, and `null` with no guess: the card is then as it always was.
+ */
+export function guessLine(
+  monster: Pick<MonsterRow, 'guessMinutes' | 'catchMinutes'>,
+  language: CardLanguage,
+): string | null {
+  const pair = guessAndReal(monster);
+  if (pair === null) return null;
+  const { durationLong } = CARD_LABELS[language];
+  const plain = (minutes: number) => durationLong(Math.floor(minutes / 60), minutes % 60);
+  return t(language, 'binder.card.thoughtTook', {
+    thought: plain(pair.thoughtMinutes),
+    took: plain(pair.tookMinutes),
+  });
 }

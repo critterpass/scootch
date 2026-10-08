@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 
+import type { GuessMinutes } from '@scootch/domain';
 import type { Language } from '@scootch/i18n';
 import { offlineLine } from '@scootch/voice';
 
@@ -88,9 +89,14 @@ const BINDER_TODAY = '2026-10-08';
 
 function capturedZoo(
   language: Language,
-  options: { count: number; plus: boolean; open?: boolean },
+  options: { count: number; plus: boolean; open?: boolean; guessMinutes?: GuessMinutes },
 ) {
-  const monsters = asRows(fixtureMonsters(options.count));
+  const guessed = options.guessMinutes;
+  const monsters = asRows(
+    fixtureMonsters(options.count).map((monster) =>
+      guessed === undefined ? monster : { ...monster, guessMinutes: guessed },
+    ),
+  );
   const cards = shelfCards(monsters, 'newest', options.plus);
   const first = cards[0];
   if (options.open && first) {
@@ -192,6 +198,7 @@ export function Captured({ capture, language }: { capture: KeepCapture; language
         count: capture.cards,
         plus: capture.plus,
         open: capture.open === true,
+        ...(capture.guessMinutes === undefined ? {} : { guessMinutes: capture.guessMinutes }),
       });
     case 'pages':
       return capturedPages(language);
