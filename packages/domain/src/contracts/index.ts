@@ -3,6 +3,7 @@ export * from './art';
 export * from './camera';
 export * from './common';
 export * from './haunt';
+export * from './hunting';
 export * from './local-db';
 export * from './member';
 export * from './public-pages';

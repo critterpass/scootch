@@ -28,6 +28,8 @@ export * from './haunts-list';
 export * from './haunts-send';
 export * from './haunts-shoo';
 export * from './health';
+export * from './hunting-beat';
+export * from './hunting-count';
 export * from './members-number';
 export * from './monster-caught';
 export * from './monster-make';
