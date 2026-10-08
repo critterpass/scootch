@@ -6,6 +6,7 @@ import type { WhoCanSit } from '../../api/together-api';
 import { useT } from '../../i18n/i18n-provider';
 import { CapsuleButton } from '../../ui/buttons';
 import { useScreenStyle } from '../../ui/use-screen-style';
+import { AppleSignInButton } from '../account/apple-sign-in-button';
 import { Page } from '../settings/page';
 import { Note, Row, Section, SwitchRow } from '../settings/rows';
 import { Segmented } from '../zoo/ui/segmented';
@@ -65,12 +66,7 @@ export function TablesSettingsPage(props: TablesSettingsPageProps) {
             <Words kind="quiet" testID="table-settings-off">
               {t('settings.tables.signedOut')}
             </Words>
-            <CapsuleButton
-              label={t('account.apple')}
-              hint={t('account.apple.hint')}
-              onPress={props.onSignIn}
-              testID="table-settings-sign-in"
-            />
+            <AppleSignInButton onPress={props.onSignIn} testID="table-settings-sign-in" />
           </>
         ) : (
           <>
