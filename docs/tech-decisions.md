@@ -51,6 +51,10 @@ that order. The App Store app is made from the same commit with
 `native-build.yml -f profile=prd`. The production API answers at
 `api.scootch.app`, the only address the App Store app calls.
 
+After the App Store app is out, a JavaScript-only fix reaches it over the air
+with `update-prd.yml`, which takes a commit of main and the commit the App
+Store build was made from, and refuses a change to the native fingerprint.
+
 ### Keys
 
 The founder's CritterPass keys are reused for Scootch: Jev (TypeSafe),

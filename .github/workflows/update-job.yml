@@ -1,0 +1,101 @@
+# Publishes one ref's JavaScript as an over-the-air update on one channel. Called by update-dev.yml
+# and update-prd.yml; it has no trigger of its own.
+#
+# An update only reaches a build with the same native fingerprint, so the job compares the ref's
+# fingerprint with the commit the installed build was made from and stops when they differ: that
+# change needs a new native build, not an update.
+name: update-job
+
+on:
+  workflow_call:
+    inputs:
+      variant:
+        description: dev or prd; the app variant, its eas.json build profile and its update channel
+        required: true
+        type: string
+      ref:
+        description: Branch, tag or commit whose JavaScript is published
+        required: true
+        type: string
+      built_from:
+        description: Commit the installed build was made from
+        required: true
+        type: string
+      message:
+        description: Update message
+        required: true
+        type: string
+      main_only:
+        description: Refuse a ref that is not on main
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      EXPO_TOKEN:
+        description: Expo access token
+        required: false
+
+env:
+  EAS_CLI: eas-cli@24.8.0
+
+jobs:
+  publish:
+    name: ${{ inputs.variant }} update
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      APP_VARIANT: ${{ inputs.variant }}
+    steps:
+      - name: Check the request and the secret
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          case "$APP_VARIANT" in dev | prd) ;; *) echo "::error::variant must be dev or prd, not \"$APP_VARIANT\""; exit 1 ;; esac
+          [ -n "$EXPO_TOKEN" ] || { echo "::error::The EXPO_TOKEN secret is missing"; exit 1; }
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.built_from }}
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with: { node-version: 24, cache: pnpm }
+      - name: Fingerprint of the installed build
+        run: |
+          pnpm install --frozen-lockfile
+          cd apps/mobile
+          hash=$(pnpm exec expo-updates fingerprint:generate --platform ios | sed -n '/{/,$p' | jq -r .hash)
+          [ -n "$hash" ] && [ "$hash" != null ] || { echo "::error::No fingerprint for the installed build"; exit 1; }
+          echo "INSTALLED=$hash" >> "$GITHUB_ENV"
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref }}
+          clean: false
+          # The whole history, so that the ref can be placed on main.
+          fetch-depth: 0
+      - name: The ref is on main
+        if: inputs.main_only
+        run: |
+          git merge-base --is-ancestor HEAD origin/main || {
+            echo "::error::$(git rev-parse --short HEAD) is not on main: the App Store app only takes what main has."
+            exit 1
+          }
+      - name: Fingerprint of the ref
+        run: |
+          pnpm install --frozen-lockfile
+          cd apps/mobile
+          hash=$(pnpm exec expo-updates fingerprint:generate --platform ios | sed -n '/{/,$p' | jq -r .hash)
+          echo "installed build: $INSTALLED"
+          echo "this ref:        $hash"
+          if [ "$hash" != "$INSTALLED" ]; then
+            echo "::error::The native fingerprint changed since the installed build. This needs a new native build (native-build.yml), not an update."
+            exit 1
+          fi
+      - name: Publish
+        working-directory: apps/mobile
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          MESSAGE: ${{ inputs.message }}
+        run: |
+          # The same public values the build profile carries, so the update behaves as the build does.
+          eval "$(jq -r --arg profile "$APP_VARIANT" '.build[$profile].env | to_entries[] | select(.key | startswith("EXPO_PUBLIC_")) | "export \(.key)=\(.value | @sh)"' eas.json)"
+          export EXPO_PUBLIC_JS_COMMIT="$(git rev-parse --short=12 HEAD)"
+          npx --yes "$EAS_CLI" update --channel "$APP_VARIANT" --platform ios --message "$MESSAGE" --non-interactive
