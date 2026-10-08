@@ -18,6 +18,13 @@ export interface AppIcon {
   readonly name: string;
   readonly mood: ScootchMood;
   readonly ground: Ground;
+  /** A dark ground: the marks drawn around Scootch turn light, so they read on it. */
+  readonly dark?: boolean;
+  /**
+   * Where Scootch stands, when not low in the square and cut at the foot: his size as a share of
+   * the square, and where the middle of his drawing lands.
+   */
+  readonly stands?: { readonly scale: number; readonly centre: readonly [number, number] };
 }
 
 type Stop = readonly [number, string];
@@ -144,13 +151,19 @@ export const ICONS: readonly AppIcon[] = [
     ]),
   },
   {
+    // The app's own icon: tomato Scootch, whole, on ink, with a warm glow behind him. Tomato on
+    // tomato lost him on the home screen.
     name: 'cheeky',
     mood: 'scheming',
-    ground: radial([0.3, 0.15], 1.1, [
-      [0, '#FFB08F'],
-      [0.55, '#F0562E'],
-      [1, '#C63F22'],
-    ]),
+    ground: all(
+      (ctx) => fill(ctx, '#1C1A17'),
+      radial([0.5, 0.58], 0.55, [
+        [0, 'rgba(240,86,46,0.38)'],
+        [1, 'rgba(240,86,46,0)'],
+      ]),
+    ),
+    dark: true,
+    stands: { scale: 0.98, centre: [0.5, 0.56] },
   },
   { name: 'unhinged', mood: 'dramatic', ground: sunburst },
   { name: 'paper', mood: 'waiting', ground: all((ctx) => fill(ctx, '#FBF8F3'), sheen(0.45)) },
