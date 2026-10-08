@@ -82,16 +82,21 @@ function drawIcon(icon: AppIcon, variant: Variant, pixels: number): Buffer {
       ])(ctx);
     }
   }
-  const unit = (SIZE * STANDS.scale) / VIEW_SIZE;
+  const stands = icon.stands ?? STANDS;
+  const unit = (SIZE * stands.scale) / VIEW_SIZE;
   ctx.save();
   ctx.translate(
-    SIZE * STANDS.centre[0] - (VIEW_SIZE / 2) * unit,
-    SIZE * STANDS.centre[1] - (VIEW_SIZE / 2) * unit,
+    SIZE * stands.centre[0] - (VIEW_SIZE / 2) * unit,
+    SIZE * stands.centre[1] - (VIEW_SIZE / 2) * unit,
   );
   ctx.scale(unit, unit);
   drawCommands(
     ctx,
-    buildScootch({ mood: icon.mood, attitude: 'cheeky', workMode: null, reducedMotion: true }),
+    buildScootch(
+      { mood: icon.mood, attitude: 'cheeky', workMode: null, reducedMotion: true },
+      undefined,
+      { ground: icon.dark === true ? 'dark' : 'light' },
+    ),
   );
   ctx.restore();
   if (variant === 'tinted') {
