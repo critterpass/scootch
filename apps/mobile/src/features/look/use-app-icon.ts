@@ -14,8 +14,8 @@ import { iconFor, mayShow, type AppIconName, type IconFacts } from './icons';
  * look and purchases everywhere, so Settings, the picker and the Home Screen never disagree.
  */
 export function useAppIcon() {
-  const { settings } = useToday();
-  const { customer, unlocked, look } = usePlusState();
+  const { settings, ready } = useToday();
+  const { customer, unlocked, look, loaded } = usePlusState();
   const { attitude, iconFollows, iconPinned } = settings;
   const { finish } = look;
   const { ownedItems } = customer;
@@ -35,6 +35,11 @@ export function useAppIcon() {
       mayWear: wear,
     });
     return {
+      /**
+       * False until the settings and the look have been read from the phone. Before that they
+       * are the defaults, and an icon chosen from them would be the wrong one for a moment.
+       */
+      known: ready && loaded,
       icon: iconFor(facts(iconFollows)),
       follows: iconFollows,
       finish,
@@ -46,5 +51,5 @@ export function useAppIcon() {
       },
       mayShow: (icon: AppIconName) => mayShow(icon, wear),
     };
-  }, [attitude, iconFollows, iconPinned, finish, wear]);
+  }, [attitude, iconFollows, iconPinned, finish, wear, ready, loaded]);
 }

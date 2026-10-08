@@ -9,13 +9,15 @@ import { useAppIcon } from './use-app-icon';
 /**
  * Keeps the Home Screen icon the one the person's settings ask for. iOS shows its own alert
  * whenever an app changes its icon, so the change is only asked for while the app is in front,
- * and only when the icon that is on is not already the right one.
+ * only when the icon that is on is not already the right one, and never before the phone's own
+ * settings have been read: at launch they are the defaults for a moment, and acting on those
+ * would change the icon away and back, with the system's alert each time.
  */
 export function AppIconHost() {
-  const { icon } = useAppIcon();
+  const { icon, known } = useAppIcon();
 
   useEffect(() => {
-    if (!AppIcon.isSupported()) return undefined;
+    if (!known || !AppIcon.isSupported()) return undefined;
     const wanted = alternateName(icon);
     const apply = () => {
       if (AppState.currentState !== 'active' || AppIcon.current() === wanted) return;
@@ -25,7 +27,7 @@ export function AppIconHost() {
     apply();
     const state = AppState.addEventListener('change', apply);
     return () => state.remove();
-  }, [icon]);
+  }, [icon, known]);
 
   return null;
 }
