@@ -576,3 +576,16 @@
 .shared-words :is(.phone-only, .desk-only) > * + * {
   margin-top: 1.25rem;
 }
+/* Android's field: the one green button on the site, with its promise close under it. */
+#android .maker-form .button {
+  background: #7fb76a;
+  color: #1c1a17;
+  font: 800 1rem/1.15 var(--heading);
+}
+.waitlist [data-waitlist-ask] {
+  display: grid;
+  gap: 0.75rem;
+}
+.waitlist .maker-form {
+  margin-top: 0;
+}

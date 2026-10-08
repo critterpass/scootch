@@ -1,5 +1,6 @@
-import { buildMonster, type MONSTER_BODIES, specFromSeed, toSvg } from '@scootch/art';
+import type { MONSTER_BODIES } from '@scootch/art';
 
+import { showArt } from './live-art';
 import { wireOpenInApp } from './open-in-app';
 import { fetchShared, fill, idFromAddress, keepLanguageSwitchHere, showState } from './shared-page';
 
@@ -55,7 +56,7 @@ export async function startHauntPage(root: HTMLElement): Promise<void> {
     sender === null ? (lines['headline'] ?? '') : fill(lines['headlineBy'] ?? '', { name: sender });
   document.title = `${headline} · Scootch`;
   find('[data-headline]').textContent = headline;
-  find('[data-monster]').innerHTML = toSvg(buildMonster(specFromSeed(haunt.bodyType, haunt.seed)));
+  showArt(find('[data-monster]'), { k: 'monster', body: haunt.bodyType, seed: haunt.seed });
   // Only a dare from the preset list is ever shown: an id this page does not know shows nothing.
   const dare = dares[haunt.dare];
   find('[data-dare]').textContent = dare === undefined ? '' : fill(lines['dare'] ?? '', { dare });

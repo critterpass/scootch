@@ -1,5 +1,6 @@
-import { buildScootch, toSvg } from '@scootch/art';
+import type { buildScootch } from '@scootch/art';
 
+import { showArt } from './live-art';
 import { wireOpenInApp } from './open-in-app';
 import {
   dateLocale,
@@ -29,13 +30,17 @@ export type TableInvite = {
   }[];
 };
 
-function seat(drawing: string, name: string, label: string, saved = false): HTMLLIElement {
+/** One seat: who is working at what, or the ringed seat that is saved for the reader. */
+function seat(work: WorkMode | 'saved', name: string, label: string, index = 0): HTMLLIElement {
   const item = document.createElement('li');
-  item.className = saved ? 'seat seat-saved' : 'seat';
+  item.className = work === 'saved' ? 'seat seat-saved' : 'seat';
   const art = document.createElement('span');
   art.className = 'drawing';
   art.setAttribute('aria-hidden', 'true');
-  art.innerHTML = drawing;
+  // The host's seat is tomato; the others sit in paper, as at a table in the app.
+  if (work !== 'saved') {
+    showArt(art, { k: 'scootch', mood: 'working', work, paper: index > 0 }, `seat-${index}-`);
+  }
   const who = document.createElement('strong');
   who.textContent = name;
   const what = document.createElement('span');
@@ -69,21 +74,9 @@ export async function startInvitePage(root: HTMLElement): Promise<void> {
   const host = invite.hostName;
   find('[data-seats]').replaceChildren(
     ...invite.seats.map((taken, index) =>
-      seat(
-        toSvg(
-          buildScootch({
-            mood: 'working',
-            attitude: 'cheeky',
-            workMode: taken.workMode,
-            reducedMotion: true,
-          }),
-          { idPrefix: `seat-${index}-` },
-        ),
-        taken.name ?? line('seatName'),
-        taken.label ?? '',
-      ),
+      seat(taken.workMode, taken.name ?? line('seatName'), taken.label ?? '', index),
     ),
-    seat('', line('you'), line('savedForYou'), true),
+    seat('saved', line('you'), line('savedForYou')),
   );
 
   if (open) {

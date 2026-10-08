@@ -1,7 +1,9 @@
 ---
+import type { Art } from '../lib/drawings';
+
 interface Props {
-  /** The drawing, as inline SVG from `lib/drawings`. */
-  svg: string;
+  /** The character, from `lib/drawings`: its still, and what the browser needs to move it. */
+  art: Art;
   /** Its width, such as `6rem`. The stylesheet sets it when absent. */
   size?: string;
   class?: string;
@@ -9,14 +11,15 @@ interface Props {
   label?: string;
 }
 
-const { svg, size, label } = Astro.props;
+const { art, size, label } = Astro.props;
+const spec = JSON.stringify(art.spec);
 const style = size ? `--size:${size}` : undefined;
 ---
 
 {
   label ? (
-    <span class:list={['critter', Astro.props.class]} style={style} role="img" aria-label={label} set:html={svg} />
+    <span class:list={['critter', Astro.props.class]} style={style} role="img" aria-label={label} data-art={spec} set:html={art.svg} />
   ) : (
-    <span class:list={['critter', Astro.props.class]} style={style} aria-hidden="true" set:html={svg} />
+    <span class:list={['critter', Astro.props.class]} style={style} aria-hidden="true" data-art={spec} set:html={art.svg} />
   )
 }

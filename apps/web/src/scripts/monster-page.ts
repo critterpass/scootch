@@ -1,6 +1,7 @@
-import { buildMonster, type MONSTER_BODIES, specFromSeed, toSvg } from '@scootch/art';
+import type { MONSTER_BODIES } from '@scootch/art';
 
 import { getPath } from './get-page';
+import { showArt } from './live-art';
 import { sharedFromHere, unshareMonster } from './monster-sharing';
 import {
   dateLocale,
@@ -61,9 +62,7 @@ export async function startMonsterPage(root: HTMLElement): Promise<void> {
 
   document.title = `${monster.name} · Scootch`;
   root.dataset['status'] = monster.status;
-  find('[data-card-art]').innerHTML = toSvg(
-    buildMonster(specFromSeed(monster.bodyType, monster.seed)),
-  );
+  showArt(find('[data-card-art]'), { k: 'monster', body: monster.bodyType, seed: monster.seed });
   find('[data-card-name]').textContent = monster.name;
   find('[data-card-badge]').textContent = status;
   find('[data-card-badge]').classList.toggle('tag-tomato', caught);

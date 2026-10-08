@@ -1,57 +1,4 @@
 /* The home page, section by section, in the order they are scrolled. */
-.split,
-.head-pair {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem 3.5rem;
-}
-.split {
-  align-items: center;
-  padding-block: clamp(4rem, 9vw, 6.875rem);
-}
-.split-words {
-  flex: 1 1 26.25rem;
-  min-width: 0;
-  display: grid;
-  gap: 1.25rem;
-  justify-items: start;
-}
-.split-art {
-  flex: 1 1 23.75rem;
-  min-width: 0;
-  display: flex;
-  justify-content: center;
-}
-.stack {
-  display: grid;
-  gap: clamp(2.5rem, 5vw, 3.5rem);
-  padding-block: clamp(4rem, 9vw, 6.875rem);
-}
-.head-pair {
-  align-items: flex-end;
-  justify-content: space-between;
-}
-.head-pair > div {
-  flex: 1 1 32.5rem;
-  min-width: 0;
-  display: grid;
-  gap: 1.125rem;
-}
-.head-pair > .lede {
-  flex: 1 1 22.5rem;
-}
-.head-single {
-  display: grid;
-  gap: 1.125rem;
-  max-width: 47.5rem;
-}
-.mono-note {
-  font: 700 0.75rem/1.2 var(--mono);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
 /* 01 The maker. */
 .maker-halftone {
   right: -12vw;
@@ -314,11 +261,18 @@
 
 /* The strip of names that never stops. */
 .strip {
+  position: relative;
   overflow: hidden;
   padding-block: 0.875rem;
   background: var(--footer);
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
-  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+/* Names fade into the strip's own night at both ends. */
+.strip::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, var(--footer), transparent 8%, transparent 92%, var(--footer));
 }
 .strip-track {
   display: flex;
@@ -1140,15 +1094,17 @@
   box-shadow: none;
 }
 .table-toast {
-  position: relative;
-  justify-self: center;
+  position: absolute;
+  left: 50%;
+  top: 5.25rem;
+  translate: -50% 0;
+  z-index: 3;
   padding: 0.625rem 1rem;
   border-radius: 62rem;
   background: #fff;
   box-shadow: 0 0.75rem 1.625rem -0.75rem rgb(28 26 23 / 0.4);
-  font: 700 0.9375rem/1.15 var(--heading);
-  margin-bottom: -3.25rem;
-  z-index: 3;
+  font: 700 0.9375rem/1 var(--heading);
+  white-space: nowrap;
 }
 .table-seats {
   position: relative;

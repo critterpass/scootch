@@ -4,7 +4,7 @@ import MaterialLayers from '../../components/material-layers.astro';
 import RisingWords from '../../components/rising-words.astro';
 import { fill, languagePaths, localPath, pagesFor, preLaunch } from '../../copy';
 import SiteLayout from '../../layouts/site-layout.astro';
-import { monsterSvg, scootchSvg, shelfMonsters } from '../../lib/drawings';
+import { monsterArt, scootchArt, shelfMonsters } from '../../lib/drawings';
 import '../../styles/plus.css';
 
 export const getStaticPaths = languagePaths;
@@ -21,7 +21,7 @@ const fan = [
   ['glass', 'waiting'],
   ['velvet', 'asleep'],
 ] as const;
-const shelf = shelfMonsters.map((monster) => monsterSvg(monster.bodyType, monster.seed));
+const shelf = shelfMonsters.map((monster) => monsterArt(monster.bodyType, monster.seed));
 ---
 
 <SiteLayout language={language} path="/plus" title={copy.title} description={copy.description}>
@@ -42,7 +42,7 @@ const shelf = shelfMonsters.map((monster) => monsterSvg(monster.bodyType, monste
             <div class="mcard fan-card" data-finish={finish} data-lean>
               <MaterialLayers />
               <span class="card-top">{fill(copy.finishLabel, { n: String(index + 1).padStart(2, '0') })}</span>
-              <div class="fan-art"><Critter svg={scootchSvg(mood)} /></div>
+              <div class="fan-art"><Critter art={scootchArt(mood)} /></div>
               <strong>{copy.finishes[index]}</strong>
               <span class="mcard-glare" />
             </div>
@@ -103,12 +103,12 @@ const shelf = shelfMonsters.map((monster) => monsterSvg(monster.bodyType, monste
                 {index === 0 && <b class="bento-number">25</b>}
                 {index === 1 && (
                   <>
-                    <Critter svg={scootchSvg('working', { work: 'writing', paper: true })} size="5.25rem" />
-                    <Critter svg={scootchSvg('working', { work: 'email' })} size="5.25rem" />
+                    <Critter art={scootchArt('working', { work: 'writing', paper: true })} size="5.25rem" />
+                    <Critter art={scootchArt('working', { work: 'email' })} size="5.25rem" />
                     <i class="bento-seat">+</i>
                   </>
                 )}
-                {index === 2 && <Critter svg={scootchSvg('thinking')} size="6rem" />}
+                {index === 2 && <Critter art={scootchArt('thinking')} size="6rem" />}
                 {index === 3 && <span class="bento-bars">{Array.from({ length: 7 }, () => <i />)}</span>}
                 {index === 4 && (
                   <span class="bento-cards">
@@ -117,7 +117,7 @@ const shelf = shelfMonsters.map((monster) => monsterSvg(monster.bodyType, monste
                     <i class="mcard" data-finish="jelly"><MaterialLayers /></i>
                   </span>
                 )}
-                {index === 5 && <span class="bento-shelf">{shelf.map((svg) => <Critter svg={svg} size="3.5rem" />)}</span>}
+                {index === 5 && <span class="bento-shelf">{shelf.map((svg) => <Critter art={svg} size="3.5rem" />)}</span>}
               </div>
             </li>
           ))

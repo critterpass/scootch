@@ -2,7 +2,7 @@
 import { t, type Language } from '@scootch/i18n';
 
 import { localPath, preLaunch, togetherFor } from '../copy';
-import { scootchSvg } from '../lib/drawings';
+import { scootchArt } from '../lib/drawings';
 import SiteLayout from '../layouts/site-layout.astro';
 import '../styles/together.css';
 
@@ -72,7 +72,7 @@ const dares = {
     </div>
 
     <div class="wandered" data-show="shooed gone" hidden>
-      <span class="drawing" aria-hidden="true" set:html={scootchSvg('asleep', { night: true })} />
+      <span class="drawing" aria-hidden="true" set:html={scootchArt('asleep', { night: true }).svg} />
       <h1 tabindex="-1" data-gone-title></h1>
       <p class="lede" data-gone-body></p>
       <div class="actions">
