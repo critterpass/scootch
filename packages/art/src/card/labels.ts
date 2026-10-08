@@ -50,6 +50,9 @@ export interface CardLabels {
   readonly monthShort: (month: number) => string;
   readonly wrapped: (month: string) => string;
   readonly caughtThisMonth: (count: number) => string;
+  /** The binder's leaf: the word on a full month's stamp, and the count under it. */
+  readonly pageComplete: string;
+  readonly caughtCount: (count: number) => string;
   readonly mostCaught: (kind: string, times: number) => string;
   readonly bestDay: (weekday: string) => string;
   readonly longWeekdays: readonly [string, string, string, string, string, string, string];
@@ -135,6 +138,8 @@ export const CARD_LABELS: Record<CardLanguage, CardLabels> = {
       ] ?? '',
     wrapped: (month) => `${month.toUpperCase()}, WRAPPED`,
     caughtThisMonth: (count) => (count === 1 ? 'monster caught.' : 'monsters caught.'),
+    pageComplete: 'COMPLETE',
+    caughtCount: (count) => `${count} CAUGHT`,
     mostCaught: (kind, times) => `Most caught: ${kind}, ${plural(times, 'time', 'times')}.`,
     bestDay: (weekday) => `Best day: a ${weekday}, obviously.`,
     longWeekdays: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
@@ -200,6 +205,8 @@ export const CARD_LABELS: Record<CardLanguage, CardLabels> = {
     monthShort: (month) => `Thg ${month}`,
     wrapped: (month) => `${month.toUpperCase()}, NHÌN LẠI`,
     caughtThisMonth: () => 'con quái đã bắt.',
+    pageComplete: 'ĐỦ BỘ',
+    caughtCount: (count) => `ĐÃ BẮT ${count}`,
     mostCaught: (kind, times) => `Bắt nhiều nhất: ${kind}, ${times} lần.`,
     bestDay: (weekday) => `Ngày đỉnh nhất: ${weekday}, khỏi nói.`,
     longWeekdays: ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'],

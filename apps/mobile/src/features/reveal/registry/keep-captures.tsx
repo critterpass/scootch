@@ -147,7 +147,7 @@ function capturedPages(language: Language) {
   const pages = monthPages([...asRows(full), ...asRows(fixtureMonsters(4))], BINDER_TODAY);
   return (
     <PagesScreen
-      model={{ pages, shown: '2026-09', current: '2026-10', language }}
+      model={{ pages, shown: { month: '2026-09', leaf: 0 }, current: '2026-10', language }}
       actions={{ close: nothing, show: nothing, openCard: nothing, sharePage: nothing }}
     />
   );

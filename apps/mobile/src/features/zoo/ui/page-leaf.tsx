@@ -7,7 +7,7 @@ import { fonts } from '@scootch/tokens';
 import { useT } from '../../../i18n/i18n-provider';
 import { PressSpring } from '../../../ui/motion/press-spring';
 import { STAMPED } from '../../plus/ui/member-card';
-import { POCKETS, type MonthPage } from '../binder';
+import { leafCards, POCKETS, type MonthPage } from '../binder';
 import type { CaughtMonster } from '../zoo-cards';
 
 import { MonthStamp } from './month-stamp';
@@ -23,6 +23,8 @@ const GAP = 8;
 
 export interface PageLeafProps {
   readonly page: MonthPage;
+  /** Which of the month's leaves this is, from 0. */
+  readonly leaf: number;
   /** "September". */
   readonly monthName: string;
   readonly language: Language;
@@ -32,15 +34,16 @@ export interface PageLeafProps {
 }
 
 /**
- * What is on one leaf of the binder: its spine and three holes, the month and how full it is,
- * nine pockets (the empty ones are sleeves with nothing in them yet), and the foil stamp once
- * all nine are filled. A tap on a card takes it out.
+ * What is on one leaf of the binder: its spine and three holes, the month and how full the leaf
+ * is, nine pockets (the empty ones are sleeves with nothing in them yet), and on the month's
+ * first leaf the foil stamp, once all nine of its pockets are filled. A tap on a card takes it out.
  */
 export function PageLeaf(props: PageLeafProps) {
   const { page, monthName, language, pocketWidth, pocketSize } = props;
   const t = useT();
   const labels = CARD_LABELS[language];
-  const empty = POCKETS - page.cards.length;
+  const cards = leafCards(page, props.leaf);
+  const empty = POCKETS - cards.length;
   return (
     <>
       <View style={styles.spine} />
@@ -58,11 +61,11 @@ export function PageLeaf(props: PageLeafProps) {
           {monthName}
         </Text>
         <Text allowFontScaling={false} style={styles.fill}>
-          {t('binder.page.fill', { count: Math.min(POCKETS, page.caught), of: POCKETS })}
+          {t('binder.page.fill', { count: cards.length, of: POCKETS })}
         </Text>
       </View>
       <View style={styles.pockets}>
-        {page.cards.map((monster) => (
+        {cards.map((monster) => (
           <PressSpring
             key={monster.id}
             accessibilityRole="button"
@@ -84,7 +87,7 @@ export function PageLeaf(props: PageLeafProps) {
           <EmptyPocket key={`empty-${index}`} width={pocketWidth} size={pocketSize} />
         ))}
       </View>
-      {page.complete ? (
+      {page.complete && props.leaf === 0 ? (
         <MonthStamp
           month={monthName}
           word={t('binder.page.complete')}

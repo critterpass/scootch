@@ -11,8 +11,11 @@ import {
 
 import {
   cardOut,
+  leafCards,
+  leafCount,
   monthPages,
   pageOfToday,
+  turnLeaf,
   pocketStat,
   POCKETS,
   shelfCards,
@@ -93,15 +96,39 @@ describe('the month pages', () => {
     expect(pageOfToday([], '2026-10-08').caught).toBe(0);
   });
 
-  it('gives each month its first nine catches in the order they were caught', () => {
+  it('gives each month its catches in the order they were caught, nine to a leaf', () => {
     const september = Array.from({ length: 11 }, (_, index) => onDay(index, '2026-09-12'));
     const october = [onDay(20, '2026-10-01'), onDay(21, '2026-10-06')];
     const pages = monthPages([...october, ...september].reverse(), '2026-10-08');
     expect(pages.map((page) => page.month)).toEqual(['2026-09', '2026-10']);
-    expect(numbers(pages[0]?.cards ?? [])).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    const [september9] = pages;
+    expect(numbers(september9?.cards ?? [])).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
+    expect(leafCount(september9 ?? { cards: [] })).toBe(2);
+    expect(numbers(leafCards(september9 ?? { cards: [] }, 0))).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    expect(numbers(leafCards(september9 ?? { cards: [] }, 1))).toEqual([10, 11]);
+    expect(leafCount({ cards: [] })).toBe(1);
     expect(pages[0]).toMatchObject({ caught: 11, complete: true });
     expect(pages[1]).toMatchObject({ caught: 2, complete: false });
     expect(pageOfToday([...october, ...september], '2026-10-08').cards).toHaveLength(2);
+  });
+
+  it('turns leaf by leaf through the months, and stops at either cover', () => {
+    const september = Array.from({ length: 11 }, (_, index) => onDay(index, '2026-09-12'));
+    const pages = monthPages([...september, onDay(20, '2026-10-01')], '2026-10-08');
+    const first = { month: '2026-09', leaf: 0 };
+    expect(turnLeaf(pages, first, -1)).toBeNull();
+    expect(turnLeaf(pages, first, 1)).toEqual({ month: '2026-09', leaf: 1 });
+    expect(turnLeaf(pages, { month: '2026-09', leaf: 1 }, 1)).toEqual({
+      month: '2026-10',
+      leaf: 0,
+    });
+    // Back from a month's first leaf is the month before's last.
+    expect(turnLeaf(pages, { month: '2026-10', leaf: 0 }, -1)).toEqual({
+      month: '2026-09',
+      leaf: 1,
+    });
+    expect(turnLeaf(pages, { month: '2026-10', leaf: 0 }, 1)).toBeNull();
+    expect(turnLeaf(pages, { month: '2025-01', leaf: 0 }, 1)).toBeNull();
   });
 
   it('is stamped at nine and not before', () => {

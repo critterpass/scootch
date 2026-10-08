@@ -1,3 +1,4 @@
+import { specFromSeed } from '@scootch/art';
 import { View } from 'react-native';
 
 import { DAY_MS } from '@scootch/domain';
@@ -245,10 +246,17 @@ export function Captured({ capture }: { readonly capture: PlusCapture }) {
       return (
         <RecordShelf
           close={nothing}
+          playing={null}
+          onPlay={nothing}
           records={Array.from({ length: capture.records }, (_, index) => ({
             week: `2026-W${41 - index}`,
+            weekNumber: 41 - index,
             name: t('record.week', { number: 41 - index }),
             bars: 7 - index * 2,
+            // The band on each sleeve: one monster for every bar its week has.
+            cover: Array.from({ length: 7 - index * 2 }, (_unused, bar) =>
+              specFromSeed('sock', `shelf-${index}-${bar}`),
+            ),
           }))}
         />
       );

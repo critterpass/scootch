@@ -76,6 +76,8 @@ export interface MonthWrap {
   readonly month: number;
   readonly caught: number;
   readonly monsters: readonly MonsterSpec[];
+  /** Their names, in the same order: what the binder's leaf writes under each pocket. */
+  readonly names: readonly string[];
   readonly most: { readonly kind: string; readonly times: number } | null;
   readonly bestWeekday: number | null;
 }
@@ -122,6 +124,7 @@ export function monthWrap(
     month,
     caught: caught.length,
     monsters: caught.map((monster) => monster.spec),
+    names: caught.map((monster) => monster.name),
     most: kind ? { kind: kind.value, times: kind.times } : null,
     bestWeekday: weekday?.value ?? null,
   };

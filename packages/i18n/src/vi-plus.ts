@@ -193,5 +193,11 @@ export const viPlus = {
   'record.keep.hint': 'Giữ đĩa nhạc tuần này trên kệ của bạn',
   'recordShelf.title': 'Kệ đĩa',
   'recordShelf.empty': 'Đĩa nào bạn giữ sẽ đứng ở đây.',
+  'recordShelf.empty.how':
+    'Giữ một tuần ở \u201cBài hát tuần này\u201d thì đĩa của tuần đó sẽ đứng ở đây, sẵn sàng để nghe.',
+  'recordShelf.count': { other: 'Đã giữ {count} đĩa' },
+  'recordShelf.tap': 'Chạm để nghe',
+  'recordShelf.play.hint': 'Rút đĩa ra khỏi bìa và phát tuần đó',
+  'recordShelf.stop.hint': 'Dừng đĩa và cất lại vào bìa',
   'recordShelf.bars': { other: '{count} ô nhạc' },
 } as const;

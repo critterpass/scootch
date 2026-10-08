@@ -69,18 +69,54 @@ export function pocketStat(card: CaughtMonster, sort: ShelfSort, language: CardL
   return formatCardDate(card.caughtOn, language);
 }
 
-/** A page holds nine pockets: three rows of three. */
+/** A leaf holds nine pockets: three rows of three. */
 export const POCKETS = 9;
 
-/** One month of the binder: the first nine monsters caught in it, in the order they were caught. */
+/**
+ * One month of the binder: every monster caught in it, in the order they were caught. Nine go on
+ * a leaf, so a busy month runs to more leaves than one.
+ */
 export interface MonthPage {
   /** `2026-10`. */
   readonly month: string;
   readonly cards: readonly CaughtMonster[];
-  /** How many were caught that month, which can be more than the page holds. */
+  /** How many were caught that month. */
   readonly caught: number;
-  /** All nine pockets are filled: the page is stamped. */
+  /** The month's first nine pockets are filled: it is stamped. */
   readonly complete: boolean;
+}
+
+/** Where the binder is open: a month, and which of its leaves, from 0. */
+export interface LeafAt {
+  readonly month: string;
+  readonly leaf: number;
+}
+
+/** How many leaves a month runs to. An empty month still has its one, waiting. */
+export function leafCount(page: Pick<MonthPage, 'cards'>): number {
+  return Math.max(1, Math.ceil(page.cards.length / POCKETS));
+}
+
+/** The cards on one leaf of a month. Past the month's last leaf, its last. */
+export function leafCards(page: Pick<MonthPage, 'cards'>, leaf: number): readonly CaughtMonster[] {
+  const at = Math.min(Math.max(0, leaf), leafCount(page) - 1);
+  return page.cards.slice(at * POCKETS, (at + 1) * POCKETS);
+}
+
+/**
+ * The leaf `by` leaves on from `at`, through the months as a real binder is leafed through: on
+ * from a month's last leaf is the next month's first, and back from its first is the month
+ * before's last. `null` at either cover, where there is nothing more to turn to.
+ */
+export function turnLeaf(pages: readonly MonthPage[], at: LeafAt, by: 1 | -1): LeafAt | null {
+  const index = pages.findIndex((page) => page.month === at.month);
+  const page = pages[index];
+  if (!page) return null;
+  const leaf = Math.min(Math.max(0, at.leaf), leafCount(page) - 1) + by;
+  if (leaf >= 0 && leaf < leafCount(page)) return { month: page.month, leaf };
+  const next = pages[index + by];
+  if (!next) return null;
+  return { month: next.month, leaf: by === 1 ? 0 : leafCount(next) - 1 };
 }
 
 export const monthOf = (date: IsoDate): string => date.slice(0, 7);
@@ -89,7 +125,7 @@ function pageOf(month: string, caught: readonly CaughtMonster[]): MonthPage {
   const inOrder = [...caught].sort((a, b) => a.number - b.number);
   return {
     month,
-    cards: inOrder.slice(0, POCKETS),
+    cards: inOrder,
     caught: inOrder.length,
     complete: inOrder.length >= POCKETS,
   };
