@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
-import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import { useWindowDimensions } from 'react-native';
 
 import { specFromSeed } from '@scootch/art';
 import type { MonsterBodyType, MonsterSpec } from '@scootch/domain';
 
 import { HAUNT_DARES, type Friend, type HauntDare } from '../../api/together-api';
 import { useT } from '../../i18n/i18n-provider';
-import { FittedSheet } from '../../ui/fitted-sheet';
+import { FittedSheet, SheetHeading } from '../../ui/fitted-sheet';
 import { Section, SwitchRow } from '../settings/rows';
 import { Words } from '../table/words';
 
@@ -130,7 +130,7 @@ export function HauntSendPage(props: HauntSendPageProps) {
       {monster === null || height < CARD_FITS_FROM ? null : (
         <HauntCard spec={monster.spec} name={monster.name} line={monster.line} />
       )}
-      <View style={styles.said}>
+      <SheetHeading>
         <Words kind="headline">
           {props.sent
             ? t('haunt.sent')
@@ -147,7 +147,7 @@ export function HauntSendPage(props: HauntSendPageProps) {
         ) : nobody ? null : (
           <Words kind="quiet">{t('haunt.send.sub')}</Words>
         )}
-      </View>
+      </SheetHeading>
       {nobody && !props.sent ? (
         <HauntGuide
           steps={[t('haunt.guide.invite'), t('haunt.guide.send'), t('haunt.guide.theirs')]}
@@ -263,7 +263,7 @@ export function HauntReceivedPage(props: HauntReceivedPageProps) {
           }
         />
       )}
-      <View style={styles.said}>
+      <SheetHeading>
         <Words kind="headline">
           {props.from === null
             ? t('haunt.receivedAnonymous')
@@ -271,13 +271,7 @@ export function HauntReceivedPage(props: HauntReceivedPageProps) {
         </Words>
         <Words>{t('haunt.received.says', { dare })}</Words>
         <Words kind="quiet">{t('haunt.received.sub')}</Words>
-      </View>
+      </SheetHeading>
     </FittedSheet>
   );
 }
-
-const styles = StyleSheet.create({
-  // The close control floats in the trailing corner: the words keep clear of it when there is
-  // no card above them.
-  said: { gap: 10, paddingRight: 44 },
-});

@@ -1,11 +1,10 @@
 import type { RefObject } from 'react';
 import { StyleSheet } from 'react-native';
 
-import { CapsuleButton, DOCK_PADDING, GlassDock, GlassPill } from '../../../ui/buttons';
+import { CapsuleButton, DOCK_PADDING, GlassDock } from '../../../ui/buttons';
 
 import { ParkComposer, type ParkComposerHandle } from '../ui/park-composer';
-import { PillPlus } from '../ui/pill-marks';
-import { SessionText } from '../ui/session-text';
+import { ParkPill } from '../ui/park-pill';
 import { StuckCard } from '../ui/stuck-card';
 
 import type { ScreenProps } from './screen-props';
@@ -83,26 +82,12 @@ export function WorkingFooter({
   }
   // The last two minutes are for the finish: the board draws no pill under the warning.
   if (view.twoMinutesLeft) return null;
-  return (
-    <GlassPill
-      label={t('talk.parkThought')}
-      hint={t('session.park.hint')}
-      testID="session-park"
-      onPress={actions.openPark}
-      style={styles.park}
-    >
-      <PillPlus inks={inks} />
-      <SessionText face="pill" color={inks.ink} numberOfLines={1}>
-        {t('talk.parkThought')}
-      </SessionText>
-    </GlassPill>
-  );
+  // In flow at the foot, the pill leaves at once and the field takes its room; back from the
+  // field it settles out of the field's width.
+  return <ParkPill inks={inks} t={t} onPress={actions.openPark} back />;
 }
 
 const styles = StyleSheet.create({
-  park: {
-    alignSelf: 'center',
-  },
   dock: {
     flexDirection: 'row',
     flexWrap: 'wrap',

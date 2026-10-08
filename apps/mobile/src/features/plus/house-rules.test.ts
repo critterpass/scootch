@@ -104,6 +104,7 @@ describe('the house rules', () => {
         '/haunt/received',
         '/haunt/send',
         '/helplines',
+        '/language',
         '/look/icon',
         '/look/wallpaper',
         '/plus',
@@ -113,6 +114,7 @@ describe('the house rules', () => {
         '/plus/renewal-off',
         '/plus/welcome',
         '/privacy',
+        '/quiet-hours',
         '/record',
         '/registry',
         '/registry/[capture]',
@@ -150,12 +152,15 @@ describe('the house rules', () => {
         'features/camera/camera-container.tsx: openPlus: () => router.push(PLUS_SHEET),',
         'features/one-screen/one-screen.tsx: onUnlock: () => router.push(PLUS_SHEET_ONE_MORE),',
         'features/plus/first-offer.tsx: onTell={() => router.push(PLUS_SHEET)}',
-        'features/plus/manage-container.tsx: openStudio: () => router.push(STUDIO_ROUTE),',
+        // An icon in a finish not worn yet leads to the studio, where the finish is.
+        'features/look/icon-picker-container.tsx: openStudio: () => router.push(STUDIO_ROUTE),',
         'features/plus/manage-container.tsx: seePlus: () => router.push(PLUS_SHEET),',
         // The welcome's "Pick my first finish": a member wears every finish, so nothing is sold
         // on the way in.
         'features/plus/moment-containers.tsx: pickFinish={() => router.push(STUDIO_ROUTE)}',
         'features/record/record-container.tsx: openPlus: () => router.push(PLUS_SHEET),',
+        // The studio's own row in Settings, beside the finish that is worn.
+        'features/settings/settings-container.tsx: openStudio: () => router.push(STUDIO_ROUTE),',
         // The studio's finishes, for someone Plus would dress: beside the price of one, all of them.
         'features/studio/studio-container.tsx: openPlus: () => router.push(PLUS_SHEET),',
         'features/table/lobby-containers.tsx: onLocked={() => router.push(PLUS_SHEET)}',
@@ -185,14 +190,20 @@ describe('the house rules', () => {
       expect(source).toMatch(/\.\.\.\(heavyToday \? \{\} : plusDoor\)/);
       expect(source).toMatch(/\{[^}]*\bheavyToday\b[^}]*\} = useToday\(\)/);
     }
-    // Your card offers the sheet and the studio only when the one selling guard says so.
+    // Your card offers the sheet only when the one selling guard says so.
     const card = readFileSync(path.join(SOURCE, 'features/plus/manage-container.tsx'), 'utf8');
     expect(card).toMatch(/selling: showsSelling\(day\)/);
     const page = readFileSync(path.join(SOURCE, 'features/plus/manage-screen.tsx'), 'utf8');
     expect(page).toMatch(/model\.selling \? \{ onPress: actions\.seePlus \} : \{ inert: true \}/);
-    expect(page).toMatch(
-      /\{model\.selling \? \(\s*<Section>\s*<Row\s+label=\{t\('studio\.title'\)\}/,
-    );
+    // The studio's rows, in Settings and behind a locked icon, ask the same guard.
+    for (const file of [
+      'features/settings/settings-container.tsx',
+      'features/look/icon-picker-container.tsx',
+    ]) {
+      expect(readFileSync(path.join(SOURCE, file), 'utf8')).toMatch(
+        /showsSelling\(day\) \? studioDoor : \{\}/,
+      );
+    }
   });
 
   it('reaches no selling route from first launch, a session, the reveal or the care screens', () => {
@@ -212,15 +223,17 @@ describe('the house rules', () => {
   it('reaches the sheet from the one screen only through the locked talk capsule on home', () => {
     const closure = closureOf(routes.get('/') ?? '');
     const users = closure.filter((file) => file !== ROUTES_FILE && waysIn(file).length > 0);
-    // The keeping place is the page beside home, and brings its own doors with it: the first
-    // offer, which is not shown at all on a heavy day, and the quiet locked controls of its three
-    // tabs (the shelf's orders and pages, keeping a record, a locked frame in the composer), each
-    // of which rests on a heavy day. Nothing else on the way from home names a selling route.
+    // The keeping place is the page to one side of home, and brings its own doors with it: the
+    // first offer, which is not shown at all on a heavy day, and the quiet locked controls of
+    // its three tabs (the shelf's orders and pages, keeping a record, a locked frame in the
+    // composer). Settings is the page to the other side, with the studio's row. Each rests on a
+    // heavy day. Nothing else on the way from home names a selling route.
     const ONE_SCREEN = 'features/one-screen/one-screen.tsx';
     expect(users.map(relative).sort()).toEqual([
       ONE_SCREEN,
       'features/plus/first-offer.tsx',
       'features/record/record-container.tsx',
+      'features/settings/settings-container.tsx',
       'features/world/world-container.tsx',
       'features/zoo/zoo-container.tsx',
     ]);

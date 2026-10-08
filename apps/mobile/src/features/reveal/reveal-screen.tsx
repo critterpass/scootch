@@ -4,6 +4,7 @@ import { spacing } from '@scootch/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
 import { RiseIn } from '../../ui/motion/rise-in';
+import { PullToClose } from '../../ui/pull-to-close';
 import { Island } from '../world/island';
 
 import { CardStep } from './reveal-card-step';
@@ -86,8 +87,7 @@ export interface RevealScreenProps {
   readonly actions: RevealActions;
 }
 
-/** The reveal, whichever of its steps the model asks for. Each step enters as it is mounted. */
-export function RevealScreen({ model, actions }: RevealScreenProps) {
+function Step({ model, actions }: RevealScreenProps) {
   const t = useT();
   const props = { model, actions, t };
   switch (model.step) {
@@ -100,6 +100,19 @@ export function RevealScreen({ model, actions }: RevealScreenProps) {
     case 'drop':
       return <DropStep {...props} />;
   }
+}
+
+/**
+ * The reveal, whichever of its steps the model asks for. Each step enters as it is mounted. The
+ * reveal cannot be swiped back, since it is a moment and not a place, but any step can be pulled
+ * down and away, which closes it exactly as its close control does.
+ */
+export function RevealScreen({ model, actions }: RevealScreenProps) {
+  return (
+    <PullToClose onClose={actions.skip}>
+      <Step model={model} actions={actions} />
+    </PullToClose>
+  );
 }
 
 const styles = StyleSheet.create({

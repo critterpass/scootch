@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import type { Attitude } from '@scootch/domain';
-import { radius, spacing } from '@scootch/tokens';
+import { shadows, spacing } from '@scootch/tokens';
 import { noTaskLine } from '@scootch/voice';
 
 import { Scootch } from '../../art/Scootch';
@@ -17,7 +17,6 @@ import { SessionText } from '../session/ui/session-text';
 import { purchaseStateOf } from './entitlement';
 import { offerShows } from './offer-rules';
 import { PLUS_SHEET } from './routes';
-import { PressSpring } from '../../ui/motion/press-spring';
 
 const instant = (value: unknown): number | null => (typeof value === 'number' ? value : null);
 
@@ -29,39 +28,44 @@ export interface OfferCardProps {
   readonly onDismiss: () => void;
 }
 
-/** The offer as it is drawn: one line, "Tell me", and one tap to wave it away. */
+/**
+ * The offer as it is drawn: Scootch beside his one line, with the whole width of the card to say
+ * it in, and under it the two answers side by side, "Not now" as plain as "Tell me".
+ */
 export function OfferCard({ attitude, said, onTell, onDismiss }: OfferCardProps) {
   const t = useT();
   const { palette, largeText } = useScreenStyle();
   const character = useCharacterMotion();
   return (
-    <View
-      testID="first-offer"
-      style={[styles.card, largeText ? styles.stacked : null, { backgroundColor: palette.surface }]}
-    >
-      <Scootch mood="pleased" attitude={attitude} size={56} {...character} />
-      <SessionText face="body" color={palette.ink} style={styles.grow} testID="first-offer-line">
-        {said}
-      </SessionText>
-      <CapsuleButton
-        label={t('plus.offer.tell')}
-        hint={t('plus.offer.tell.hint')}
-        onPress={onTell}
-        testID="first-offer-tell"
-      />
-      <PressSpring
-        accessibilityRole="button"
-        accessibilityLabel={t('plus.offer.dismiss')}
-        accessibilityHint={t('plus.offer.dismiss.hint')}
-        onPress={onDismiss}
-        hitSlop={spacing.sm}
-        testID="first-offer-dismiss"
-        style={styles.dismiss}
-      >
-        <SessionText face="action" color={palette.muted}>
-          ×
+    <View testID="first-offer" style={[styles.card, { backgroundColor: palette.surface }]}>
+      <View style={styles.said}>
+        <Scootch mood="pleased" attitude={attitude} size={52} {...character} />
+        <SessionText
+          face="caption"
+          color={palette.ink}
+          style={styles.line}
+          testID="first-offer-line"
+        >
+          {said}
         </SessionText>
-      </PressSpring>
+      </View>
+      <View style={[styles.answers, largeText ? styles.stacked : null]}>
+        <CapsuleButton
+          tone="quiet"
+          label={t('plus.offer.dismiss')}
+          hint={t('plus.offer.dismiss.hint')}
+          onPress={onDismiss}
+          testID="first-offer-dismiss"
+          style={styles.answer}
+        />
+        <CapsuleButton
+          label={t('plus.offer.tell')}
+          hint={t('plus.offer.tell.hint')}
+          onPress={onTell}
+          testID="first-offer-tell"
+          style={styles.answer}
+        />
+      </View>
     </View>
   );
 }
@@ -115,14 +119,17 @@ export function FirstOffer() {
 
 const styles = StyleSheet.create({
   card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    borderRadius: radius.lg + 4,
-    padding: spacing.md,
-    marginBottom: spacing.sm,
+    borderRadius: 26,
+    paddingVertical: spacing.md,
+    paddingLeft: spacing.sm + 4,
+    paddingRight: spacing.md,
+    gap: spacing.sm + 4,
+    boxShadow: shadows.card,
   },
+  said: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm + 4 },
+  line: { flex: 1, fontSize: 15, lineHeight: 15 * 1.36, fontWeight: '500' },
+  answers: { flexDirection: 'row', justifyContent: 'flex-end', gap: spacing.sm },
   stacked: { flexDirection: 'column', alignItems: 'stretch' },
-  grow: { flex: 1 },
-  dismiss: { minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
+  // Smaller than a dock's control: these sit on a card, not at the foot of the screen.
+  answer: { minHeight: 40, paddingHorizontal: 18, paddingVertical: 6 },
 });

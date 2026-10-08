@@ -12,7 +12,7 @@ export const STAGE = { height: 392, radius: 36, side: 16, least: 250 } as const;
  * Everything on the studio that is not the stage, at the default text size: the bar, the name and
  * its line, the swatches and the dock, with the gaps between them.
  */
-const AROUND_STAGE = 348;
+const AROUND_STAGE = 356;
 /** The board's 30 points under a dock, never less than the home bar's own clear space. */
 const DOCK_BOTTOM = 30;
 

@@ -31,6 +31,7 @@ export function QuietHoursRows({ start, end, onChange }: QuietHoursRowsProps) {
   return (
     <>
       <Stepper
+        first
         id="start"
         label={t('settings.quietHours.from')}
         time={start}
@@ -51,6 +52,8 @@ export function QuietHoursRows({ start, end, onChange }: QuietHoursRowsProps) {
 }
 
 interface StepperProps {
+  /** The first row of its group has no line above it. */
+  readonly first?: boolean;
   readonly id: string;
   readonly label: string;
   readonly time: ClockTime;
@@ -59,7 +62,7 @@ interface StepperProps {
   readonly onStep: (steps: number) => void;
 }
 
-function Stepper({ id, label, time, earlier, later, onStep }: StepperProps) {
+function Stepper({ first = false, id, label, time, earlier, later, onStep }: StepperProps) {
   const { palette, allowFontScaling, size } = useScreenStyle();
   const button = (mark: string, hint: string, steps: number, name: string) => (
     <PressSpring
@@ -78,7 +81,13 @@ function Stepper({ id, label, time, earlier, later, onStep }: StepperProps) {
   );
   return (
     <View
-      style={[styles.row, { borderTopColor: `${palette.ink}1F` }]}
+      style={[
+        styles.row,
+        !first && {
+          borderTopColor: `${palette.ink}1F`,
+          borderTopWidth: StyleSheet.hairlineWidth,
+        },
+      ]}
       accessibilityRole="adjustable"
       accessibilityLabel={label}
       accessibilityValue={{ text: time }}
@@ -115,7 +124,6 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
-    borderTopWidth: StyleSheet.hairlineWidth,
   },
   label: { flex: 1, fontFamily: fonts.body },
   time: { fontFamily: fonts.body, minWidth: 56, textAlign: 'center' },

@@ -5,7 +5,7 @@ import { describe, expect, it } from '@jest/globals';
 
 import { goBack } from './go-back';
 import { feelFor } from './may-move';
-import { ROUTE_MOTION, routeBar, routeMotion, stackBar, stackMotion } from './stack-transitions';
+import { ROUTE_MOTION, routeMotion, stackMotion } from './stack-transitions';
 
 const APP = join(__dirname, '..', '..', 'app');
 
@@ -124,72 +124,6 @@ describe('how each route arrives and leaves', () => {
     expect(stackMotion('index', true).animationTypeForReplace).toBe('pop');
     expect(stackMotion('world', true).animationTypeForReplace).toBe('pop');
     expect(stackMotion('zoo', true).animationTypeForReplace).toBe('push');
-  });
-});
-
-describe("which screens wear the system's bar", () => {
-  const inks = { page: '#EEE', ink: '#111', appearance: 'dark', titleFont: 'ui-rounded' } as const;
-
-  it("gives settings and its pages a solid bar in the page's colour, with nothing behind its title", () => {
-    for (const route of ['settings', 'privacy', 'helplines', 'finish-with', 'account']) {
-      expect(routeBar(route, true)).toBe('page');
-      expect(stackBar(route, true, inks)).toMatchObject({
-        headerShown: true,
-        headerTransparent: false,
-        headerStyle: { backgroundColor: '#EEE' },
-        headerBackVisible: false,
-        headerUserInterfaceStyle: 'dark',
-      });
-    }
-  });
-
-  it('never asks the system for a large title: a page draws and collapses its own', () => {
-    expect(stackBar('privacy', true, inks)).not.toHaveProperty('headerLargeTitle');
-    expect(stackBar('settings', true, inks)).not.toHaveProperty('headerLargeTitle');
-  });
-
-  it("gives Your card and the record shelf a bar in the page's colour", () => {
-    for (const route of ['plus/manage', 'plus/records']) {
-      expect(stackBar(route, true, inks)).toMatchObject({
-        headerShown: true,
-        headerTransparent: false,
-        headerStyle: { backgroundColor: '#EEE' },
-      });
-    }
-  });
-
-  it('lets the studio, the keeping tabs and the binder draw their own bars, and still swipe back', () => {
-    // The studio's tabs sit between the corners; the world, the binder and the record are three
-    // tabs under one close control that stays put; a card has a dark stage and the pages a leaf.
-    // None of these can be carried by the system's bar.
-    for (const route of ['studio', 'world', 'zoo', 'record', 'binder/card', 'binder/pages']) {
-      expect(stackBar(route, true, inks)).toEqual({ headerShown: false });
-      expect(stackMotion(route, true).gestureEnabled).toBe(true);
-    }
-  });
-
-  it('leaves the one screen, the session, the reveal, care and every sheet without a bar', () => {
-    const bare = Object.keys(ROUTE_MOTION).filter((route) => routeMotion(route) !== 'push');
-    expect(bare).toEqual(
-      expect.arrayContaining(['index', 'session', 'reveal', 'care', 'plus/index', 'haunt/send']),
-    );
-    for (const route of bare) {
-      expect(stackBar(route, true, inks)).toEqual({ headerShown: false });
-    }
-  });
-
-  it('only gives a bar to a screen that can also be swiped back, so no bar is the only way out', () => {
-    for (const route of Object.keys(ROUTE_MOTION)) {
-      if (routeBar(route, true) === 'none') continue;
-      expect(stackMotion(route, true).gestureEnabled).toBe(true);
-      expect(stackMotion(route, false).gestureEnabled).toBe(true);
-    }
-  });
-
-  it('draws every corner itself where there is no system bar', () => {
-    for (const route of Object.keys(ROUTE_MOTION)) {
-      expect(stackBar(route, false, inks)).toEqual({ headerShown: false });
-    }
   });
 });
 

@@ -67,6 +67,20 @@ export function BackButton({ label, hint, onPress, testID }: CloseButtonProps) {
   );
 }
 
+/**
+ * The way on to the page at the trailing side, in the trailing corner: the round glass button
+ * with one arrow pointing there. The page beside home that lies to its leading side closes with
+ * this, since home is that way.
+ */
+export function ForwardButton({ label, hint, onPress, testID }: CloseButtonProps) {
+  const { palette } = useScreenStyle();
+  return (
+    <RoundButton label={label} hint={hint} onPress={onPress} testID={testID}>
+      <Chevron color={palette.ink} direction="right" />
+    </RoundButton>
+  );
+}
+
 /** A screen's own menu, in the trailing corner: the round glass button with three dots. */
 export function MenuButton({ label, hint, onPress, testID }: CloseButtonProps) {
   const { palette } = useScreenStyle();

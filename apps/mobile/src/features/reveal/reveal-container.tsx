@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { View } from 'react-native';
 
 import { useLanguage } from '../../i18n/i18n-provider';
-import { useSession, useToday } from '../../state/day-store-provider';
+import { useDispatch, useSession, useToday } from '../../state/day-store-provider';
 import { useKeepsakes } from '../../state/keepsakes';
 import { useTogether } from '../../state/together-context';
 import { useScreenStyle } from '../../ui/use-screen-style';
@@ -43,7 +43,8 @@ const GIVE_UP_MS = 4000;
 export function RevealContainer() {
   const router = useRouter();
   const { language } = useLanguage();
-  const { session, line } = useSession();
+  const { session, line, treat, parkedThoughts } = useSession();
+  const dispatch = useDispatch();
   const { today, localDate, settings, ready } = useToday();
   const { reducedMotion, captured } = useScreenStyle();
   // Today is read back from storage after every store event, so a change in it is a reason to look again.
@@ -85,16 +86,24 @@ export function RevealContainer() {
     }
   }, [state, rows, piece]);
 
+  // What the session still has to hand over once the reveal is done: the treat, then the thoughts
+  // parked on the way.
+  const follows = treat !== null || parkedThoughts.length > 0;
   const leave = useMemo(
     () => () => {
       if (taskId) markRevealSeen(taskId);
       player.stop();
-      // The session takes the reveal's place for what follows it; with none, the one screen
-      // underneath is uncovered.
-      if (taskId) router.replace('/session');
-      else router.dismissTo('/');
+      if (taskId && follows) {
+        // The session takes the reveal's place for what follows it.
+        router.replace('/session');
+        return;
+      }
+      // Nothing follows: the session is closed here and the one screen underneath is uncovered
+      // in one fade, instead of passing through a session screen with nothing on it.
+      if (taskId) void dispatch({ type: 'session_closed' }).catch(() => undefined);
+      router.dismissTo('/');
     },
-    [taskId, player, router],
+    [taskId, follows, player, router, dispatch],
   );
   const over = (ready && finished === null) || (state !== null && revealOver(state));
   useEffect(() => {

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, type RefObject } from 'react';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 
 import { fonts, spacing } from '@scootch/tokens';
 
@@ -17,6 +18,7 @@ import type { SpeechPort } from '../../composer/speech';
 import { useComposer } from '../../composer/use-composer';
 
 import { parkDraft, THOUGHT_MAX } from './park-draft';
+import { parkMotion } from './park-motion';
 import { parkSpeech } from './park-speech';
 import { ParkTalk } from './park-talk';
 import type { SessionInks } from './session-inks';
@@ -53,8 +55,9 @@ export interface ParkComposerProps {
  */
 export function ParkComposer({ inks, t, onPark, onCancel, handle }: ParkComposerProps) {
   const { language } = useLanguage();
-  const { allowFontScaling, size } = useScreenStyle();
+  const { allowFontScaling, size, reducedMotion } = useScreenStyle();
   const captured = useForcedVariant() !== undefined;
+  const arriving = parkMotion(reducedMotion || captured);
   const spoken = useRef(language);
   spoken.current = language;
   const speech = useMemo(
@@ -120,65 +123,76 @@ export function ParkComposer({ inks, t, onPark, onCancel, handle }: ParkComposer
   return (
     <View style={styles.wrap}>
       {hint ? (
-        <GlassSurface style={styles.pill}>
-          <View accessibilityLiveRegion="polite" style={styles.pillRow}>
-            {hint.slide ? <Chevron color={inks.ink} direction="left" /> : null}
-            <SessionText face="hint" color={inks.ink} testID="session-park-hint" style={styles.fit}>
-              {hint.text}
-            </SessionText>
-          </View>
-        </GlassSurface>
-      ) : null}
-      <GlassDock style={styles.dock} testID="session-park-composer">
-        {(!typing || canTalk) && !listening ? (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={typing ? t('composer.talkInstead') : t('composer.typeIt')}
-            accessibilityHint={typing ? t('composer.talkInstead.hint') : t('composer.typeIt.hint')}
-            onPress={() => send({ type: typing ? 'voice_tapped' : 'keyboard_tapped' })}
-            testID="session-park-switch"
-            style={[styles.round, { backgroundColor: `${inks.ink}0F` }]}
-          >
-            {typing ? <WaveIcon color={inks.ink} /> : <KeyboardIcon color={inks.ink} />}
-          </Pressable>
-        ) : null}
-        {typing ? (
-          <>
-            <TextInput
-              autoFocus
-              value={state.text}
-              onChangeText={(text) => send({ type: 'text_changed', text })}
-              onSubmitEditing={() => latest.current()}
-              maxLength={THOUGHT_MAX}
-              returnKeyType="done"
-              submitBehavior="submit"
-              placeholder={t('session.park.placeholder')}
-              placeholderTextColor={inks.muted}
-              accessibilityLabel={t('talk.parkThought')}
-              accessibilityHint={t('session.park.hint')}
-              allowFontScaling={allowFontScaling}
-              maxFontSizeMultiplier={2}
-              testID="session-park-input"
-              style={[styles.input, { color: inks.ink, fontSize: Math.min(size(17), 34) }]}
-            />
-            {state.text.trim() === '' ? null : (
-              <PressSpring
-                accessibilityRole="button"
-                accessibilityLabel={t('session.park.save')}
-                accessibilityHint={t('session.park.save.hint')}
-                onPress={() => latest.current()}
-                feedback="primary"
-                testID="session-park-save"
-                style={[styles.round, { backgroundColor: inks.button }]}
+        <Animated.View entering={arriving.line} style={styles.fit}>
+          <GlassSurface style={styles.pill}>
+            <View accessibilityLiveRegion="polite" style={styles.pillRow}>
+              {hint.slide ? <Chevron color={inks.ink} direction="left" /> : null}
+              <SessionText
+                face="hint"
+                color={inks.ink}
+                testID="session-park-hint"
+                style={styles.fit}
               >
-                <SendIcon color={inks.onButton} />
-              </PressSpring>
-            )}
-          </>
-        ) : (
-          <ParkTalk state={state} level={composer.level} inks={inks} t={t} onEvent={send} />
-        )}
-      </GlassDock>
+                {hint.text}
+              </SessionText>
+            </View>
+          </GlassSurface>
+        </Animated.View>
+      ) : null}
+      <Animated.View entering={arriving.dock} style={styles.stretch}>
+        <GlassDock style={styles.dock} testID="session-park-composer">
+          {(!typing || canTalk) && !listening ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={typing ? t('composer.talkInstead') : t('composer.typeIt')}
+              accessibilityHint={
+                typing ? t('composer.talkInstead.hint') : t('composer.typeIt.hint')
+              }
+              onPress={() => send({ type: typing ? 'voice_tapped' : 'keyboard_tapped' })}
+              testID="session-park-switch"
+              style={[styles.round, { backgroundColor: `${inks.ink}0F` }]}
+            >
+              {typing ? <WaveIcon color={inks.ink} /> : <KeyboardIcon color={inks.ink} />}
+            </Pressable>
+          ) : null}
+          {typing ? (
+            <>
+              <TextInput
+                autoFocus
+                value={state.text}
+                onChangeText={(text) => send({ type: 'text_changed', text })}
+                onSubmitEditing={() => latest.current()}
+                maxLength={THOUGHT_MAX}
+                returnKeyType="done"
+                submitBehavior="submit"
+                placeholder={t('session.park.placeholder')}
+                placeholderTextColor={inks.muted}
+                accessibilityLabel={t('talk.parkThought')}
+                accessibilityHint={t('session.park.hint')}
+                allowFontScaling={allowFontScaling}
+                maxFontSizeMultiplier={2}
+                testID="session-park-input"
+                style={[styles.input, { color: inks.ink, fontSize: Math.min(size(17), 34) }]}
+              />
+              {state.text.trim() === '' ? null : (
+                <PressSpring
+                  accessibilityRole="button"
+                  accessibilityLabel={t('session.park.save')}
+                  accessibilityHint={t('session.park.save.hint')}
+                  onPress={() => latest.current()}
+                  feedback="primary"
+                  testID="session-park-save"
+                  style={[styles.round, { backgroundColor: inks.button }]}
+                >
+                  <SendIcon color={inks.onButton} />
+                </PressSpring>
+              )}
+            </>
+          ) : (
+            <ParkTalk state={state} level={composer.level} inks={inks} t={t} onEvent={send} />
+          )}
+        </GlassDock>
+      </Animated.View>
     </View>
   );
 }
@@ -204,8 +218,8 @@ const styles = StyleSheet.create({
   fit: {
     flexShrink: 1,
   },
+  stretch: { alignSelf: 'stretch' },
   dock: {
-    alignSelf: 'stretch',
     flexDirection: 'row',
     alignItems: 'center',
     gap: DOCK_PADDING,

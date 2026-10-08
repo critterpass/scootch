@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 import {
   dailyNotificationLimit,
   type CardFinish,
@@ -14,9 +12,9 @@ import { LookSection, type LookFacts } from '../look/look-section';
 import type { PlanId } from '../plus/products';
 
 import { AttitudeDial } from './attitude-dial';
+import { LANGUAGE_LABELS } from './language-sheet';
 import { CardThumb, SeatThumb } from './look-thumbs';
 import { Page } from './page';
-import { QuietHoursRows } from './quiet-hours';
 import { Note, Row, Section, SwitchRow } from './rows';
 
 const FINISH_LABELS = {
@@ -24,8 +22,6 @@ const FINISH_LABELS = {
   double_tap: 'finishWith.tapTwice',
   voice: 'finishWith.sayDone',
 } as const;
-const LANGUAGES: readonly (Language | null)[] = [null, 'en', 'vi'];
-const LANGUAGE_LABELS = { en: 'English', vi: 'Tiếng Việt' } as const;
 /** The seat's ground in the Tables row: a shade under the page, in either appearance. */
 const SEAT_GROUND = { light: '#EDE7DD', dark: '#2E2A26' } as const;
 
@@ -45,7 +41,6 @@ export interface SettingsPageProps {
   /** Music with the ringer switch off: the choice and its change. Off until the person says so. */
   readonly musicWhenSilent?: boolean;
   readonly onMusicWhenSilent?: (on: boolean) => void;
-  readonly onLanguage: (language: Language | null) => void;
   readonly onOpen: (
     page:
       | 'finish-with'
@@ -56,8 +51,12 @@ export interface SettingsPageProps {
       | 'developer-tools'
       | 'icon'
       | 'wallpaper'
-      | 'shortcuts',
+      | 'shortcuts'
+      | 'language'
+      | 'quiet-hours',
   ) => void;
+  /** Opens the studio. Unset on a day when nothing is sold. */
+  readonly onStudio?: (() => void) | undefined;
   /** What the Look group shows as picked. Unset, the group is left out. */
   readonly look?: LookFacts;
   /**
@@ -74,22 +73,28 @@ export interface SettingsPageProps {
   /** Opens the share sheet with a friend link. Unset (a capture), the row does nothing. */
   readonly onInvite?: () => void;
   readonly onClose: () => void;
+  /** True beside home: the page closes by sliding back to home, at its leading side. */
+  readonly homeIsBeside?: boolean;
 }
 
 /**
- * Settings: one page. The attitude, the Plus card, the look, how the app feels, the quiet hours,
- * how a monster is caught, privacy, tables, and the few rows the app needs beyond the design:
- * language and the helplines. Every row with an arrow opens a page that lives with its topic.
+ * Settings: one page. The attitude, the Plus card, the look and the studio, how the app feels,
+ * the quiet hours, how a monster is caught, privacy, tables, and the few rows the app needs
+ * beyond the design: language and the helplines. Every row with an arrow opens a page or a sheet
+ * that lives with its topic; nothing opens and closes inside the list.
  */
 export function SettingsPage(props: SettingsPageProps) {
   const { settings, chosenLanguage, onChange, onOpen } = props;
   const t = useT();
   const appearance = useAppearance();
-  const [open, setOpen] = useState<'quiet' | 'language' | null>(null);
-  const toggle = (group: 'quiet' | 'language') => setOpen(open === group ? null : group);
 
   return (
-    <Page barTitle={t('brand.name')} onClose={props.onClose} testID="settings">
+    <Page
+      title={t('settings.title')}
+      onClose={props.onClose}
+      backAtLeading={props.homeIsBeside === true}
+      testID="settings"
+    >
       <AttitudeDial attitude={settings.attitude} onChoose={(attitude) => onChange({ attitude })} />
 
       <Section label={`${t('brand.name')} ${t('brand.plus')}`}>
@@ -116,6 +121,7 @@ export function SettingsPage(props: SettingsPageProps) {
           follows={settings.iconFollows}
           wallpaper={settings.wallpaper}
           onOpen={onOpen}
+          onStudio={props.onStudio}
         />
       ) : null}
 
@@ -175,16 +181,9 @@ export function SettingsPage(props: SettingsPageProps) {
           label={t('settings.quietHours')}
           hint={t('settings.quietHours.hint')}
           value={`${shortClock(settings.quietHoursStart)}–${shortClock(settings.quietHoursEnd)}`}
-          onPress={() => toggle('quiet')}
+          onPress={() => onOpen('quiet-hours')}
           testID="settings-quiet-hours"
         />
-        {open === 'quiet' ? (
-          <QuietHoursRows
-            start={settings.quietHoursStart}
-            end={settings.quietHoursEnd}
-            onChange={onChange}
-          />
-        ) : null}
         <Row
           label={t('settings.backTap')}
           sub={t('settings.backTap.sub')}
@@ -233,22 +232,9 @@ export function SettingsPage(props: SettingsPageProps) {
           value={
             chosenLanguage === null ? t('settings.language.phone') : LANGUAGE_LABELS[chosenLanguage]
           }
-          onPress={() => toggle('language')}
+          onPress={() => onOpen('language')}
           testID="settings-language"
         />
-        {open === 'language'
-          ? LANGUAGES.map((language) => (
-              <Row
-                key={language ?? 'phone'}
-                kind="choice"
-                selected={language === chosenLanguage}
-                label={language === null ? t('settings.language.phone') : LANGUAGE_LABELS[language]}
-                hint={t('settings.language.choose.hint')}
-                onPress={() => props.onLanguage(language)}
-                testID={`settings-language-${language ?? 'phone'}`}
-              />
-            ))
-          : null}
         <Row
           label={t('settings.helplines')}
           hint={t('settings.helplines.hint')}

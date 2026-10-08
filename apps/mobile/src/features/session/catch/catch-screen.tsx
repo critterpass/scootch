@@ -8,11 +8,10 @@ import {
   type GestureResponderEvent,
   type LayoutChangeEvent,
 } from 'react-native';
-import Animated, { FadeIn, FadeOut, ReduceMotion } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useCue } from '../../../state/day-store-provider';
-import { GlassPill } from '../../../ui/buttons';
 import { CORNER } from '../../../ui/corner-bar';
 import { GlassGroup } from '../../../ui/glass-surface';
 import type { ScreenProps } from '../screens/screen-props';
@@ -20,9 +19,8 @@ import { WorkingFooter } from '../screens/working-footer';
 import { workingMenu } from '../screens/working-menu';
 import { BurstMarks } from '../ui/burst-marks';
 import type { ParkComposerHandle } from '../ui/park-composer';
+import { ParkPill } from '../ui/park-pill';
 import { ParkedToast } from '../ui/parked-toast';
-import { PillPlus } from '../ui/pill-marks';
-import { SessionText } from '../ui/session-text';
 import { SessionMenu, type SessionMenuItem } from '../ui/session-menu';
 
 import { CatchCaption } from './catch-caption';
@@ -105,6 +103,10 @@ export function CatchScreen(props: ScreenProps) {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const park = useRef<ParkComposerHandle | null>(null);
+  // Whether the pill is coming back from the field (it settles out of the field's width) or
+  // turning up for the first time (it fades in).
+  const fieldWasUp = useRef(false);
+  if (model.parkOpen) fieldWasUp.current = true;
   const monster = model.monster;
   if (!monster || !model.catch) return null;
   const { kind } = model.catch;
@@ -226,23 +228,7 @@ export function CatchScreen(props: ScreenProps) {
             <CatchCaption headline={headline} sub={sub} inks={inks} />
           </View>
           {parkShown ? (
-            <Animated.View
-              entering={FadeIn.duration(260).reduceMotion(ReduceMotion.Never)}
-              exiting={FadeOut.duration(160).reduceMotion(ReduceMotion.Never)}
-            >
-              <GlassPill
-                label={t('talk.parkThought')}
-                hint={t('session.park.hint')}
-                testID="session-park"
-                onPress={actions.openPark}
-                style={styles.park}
-              >
-                <PillPlus inks={inks} />
-                <SessionText face="pill" color={inks.ink} numberOfLines={1}>
-                  {t('talk.parkThought')}
-                </SessionText>
-              </GlassPill>
-            </Animated.View>
+            <ParkPill inks={inks} t={t} onPress={actions.openPark} back={fieldWasUp.current} />
           ) : null}
         </View>
       )}
@@ -337,6 +323,5 @@ const styles = StyleSheet.create({
   },
   words: { position: 'absolute', left: 28, right: 28, alignItems: 'center', gap: 10 },
   lines: { alignSelf: 'stretch', alignItems: 'center', gap: 5 },
-  park: { alignSelf: 'center' },
   footer: { paddingHorizontal: 14, paddingTop: 8 },
 });

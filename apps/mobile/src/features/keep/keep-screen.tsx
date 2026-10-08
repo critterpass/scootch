@@ -10,7 +10,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { scheduleOnUI } from 'react-native-worklets';
 
 import { useT } from '../../i18n/i18n-provider';
-import { CloseButton, CORNER } from '../../ui/corner-bar';
+import { CloseButton, CORNER, ForwardButton } from '../../ui/corner-bar';
 import { CROSSFADE_MS, SPRING_CURVE } from '../../ui/motion/motion-tokens';
 import { SafeFrame } from '../../ui/safe-frame';
 import { useScreenStyle } from '../../ui/use-screen-style';
@@ -35,6 +35,11 @@ export interface KeepScreenProps {
   readonly tab: KeepTab;
   readonly onTab: (tab: KeepTab) => void;
   readonly close: () => void;
+  /**
+   * True beside home, where closing slides to home at the trailing side: the control is then an
+   * arrow pointing that way. Anywhere else it is the close control every screen has.
+   */
+  readonly homeIsBeside?: boolean;
   /**
    * Each tab's content. One left out is not drawn yet: the frame keeps its place, and it arrives
    * with its own movement when it is first asked for.
@@ -84,7 +89,8 @@ function Layer({
  * to the next in a single movement that each tab plays its own part in (the island pulling back
  * into the shelf, the sand tipping up into the record). Tabs are pressed, never swiped.
  */
-export function KeepScreen({ tab, onTab, close, panes, calm = false }: KeepScreenProps) {
+export function KeepScreen(props: KeepScreenProps) {
+  const { tab, onTab, close, panes, calm = false, homeIsBeside = false } = props;
   const t = useT();
   const { palette, reducedMotion } = useScreenStyle();
   const insets = useSafeAreaInsets();
@@ -149,12 +155,21 @@ export function KeepScreen({ tab, onTab, close, panes, calm = false }: KeepScree
           </View>
           {/* Drawn last: nothing on a tab can lie over the close control and take its touch. */}
           <View style={styles.close}>
-            <CloseButton
-              label={t('keep.close')}
-              hint={t('keep.close.hint')}
-              onPress={close}
-              testID="keep-close"
-            />
+            {homeIsBeside ? (
+              <ForwardButton
+                label={t('keep.close')}
+                hint={t('keep.close.hint')}
+                onPress={close}
+                testID="keep-close"
+              />
+            ) : (
+              <CloseButton
+                label={t('keep.close')}
+                hint={t('keep.close.hint')}
+                onPress={close}
+                testID="keep-close"
+              />
+            )}
           </View>
         </View>
       </KeepMotionContext.Provider>

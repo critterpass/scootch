@@ -8,9 +8,11 @@ import { developerToolsAllowed } from '../../screens/registry/support/developer-
 import { useDataTools, useDispatch, useToday } from '../../state/day-store-provider';
 import { lineWithNoTask } from '../../state/lines';
 import { usePlusState } from '../../state/plus-context';
+import { showsSelling } from '../../state/shows-comedy';
 import { useTogether } from '../../state/together-context';
 import { goBack } from '../../ui/motion/go-back';
 import { useHomePager, usePageShown } from '../home-pager/home-pager-context';
+import { STUDIO_ROUTE } from '../plus/routes';
 import { accountThen, friendInviteLink } from '../table/table-rules';
 
 import { useAppIcon } from '../look/use-app-icon';
@@ -22,12 +24,14 @@ const PAGES = {
   'finish-with': '/finish-with',
   privacy: '/privacy',
   helplines: '/helplines',
-  // The manage page: what this phone has, and the quiet way to the sheet from there.
+  // Your card: what this phone has, and the quiet way to the sheet from there.
   plus: '/plus/manage',
   tables: '/table-settings',
   'developer-tools': '/developer-tools',
   icon: '/look/icon',
   wallpaper: '/look/wallpaper',
+  language: '/language',
+  'quiet-hours': '/quiet-hours',
 } as const satisfies Record<string, string>;
 
 /**
@@ -35,8 +39,9 @@ const PAGES = {
  * a page kept ready out of sight, and closes by sliding home.
  */
 export function SettingsContainer() {
-  const { settings } = useToday();
-  const { chosen, choose, language } = useLanguage();
+  const day = useToday();
+  const { settings } = day;
+  const { chosen, language } = useLanguage();
   const { backup } = useDataTools();
   const dispatch = useDispatch();
   const router = useRouter();
@@ -89,9 +94,15 @@ export function SettingsContainer() {
     };
   }, [backup]);
 
+  // The studio sells: on a day with something heavy in it, its row rests.
+  const studioDoor = {
+    openStudio: () => router.push(STUDIO_ROUTE),
+  };
+  const studio: { readonly openStudio?: () => void } = showsSelling(day) ? studioDoor : {};
   return (
     <SettingsPage
       settings={settings}
+      onStudio={studio.openStudio}
       chosenLanguage={chosen}
       // Scootch's own words, from the offline pack: with both stores off there is no spare copy.
       backupLine={
@@ -107,12 +118,6 @@ export function SettingsContainer() {
       onChange={(changes) =>
         void dispatch({ type: 'settings_changed', changes }).catch(() => undefined)
       }
-      onLanguage={(next) =>
-        // The language is one stored key; the store reads its settings again once it is written.
-        void choose(next)
-          .then(() => dispatch({ type: 'settings_changed', changes: {} }))
-          .catch(() => undefined)
-      }
       onOpen={(page) =>
         // Back Tap, the Action button and automations are set up in Shortcuts, not here.
         page === 'shortcuts'
@@ -120,6 +125,7 @@ export function SettingsContainer() {
           : router.push(PAGES[page])
       }
       onClose={() => (pager ? pager.show('home') : goBack(router, '/'))}
+      homeIsBeside={pager !== null}
     />
   );
 }

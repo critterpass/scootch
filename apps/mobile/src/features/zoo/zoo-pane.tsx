@@ -2,19 +2,19 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { FlatList, StyleSheet, useWindowDimensions, View } from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 
-import { CARD_LABELS, type DrawCommand } from '@scootch/art';
+import { CARD_LABELS } from '@scootch/art';
 import type { Id } from '@scootch/domain';
 import type { Language } from '@scootch/i18n';
 import { spacing } from '@scootch/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
+import { EdgeFade } from '../../ui/edge-fade';
 import { SendIcon } from '../../ui/icons';
 import { PressSpring } from '../../ui/motion/press-spring';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { QuietLink } from '../dump/dump-panels';
 import { CAUGHT, mix, presence, ramp, useKeepMotion, WORLD } from '../keep/keep-motion';
 import { PaneHead } from '../keep/pane-head';
-import { CommandCanvas } from '../reveal/ui/command-canvas';
 import { SessionText } from '../session/ui/session-text';
 
 import {
@@ -71,32 +71,6 @@ const STAGGERED_ROWS = 4;
 type Row =
   | { readonly kind: 'card'; readonly monster: CaughtMonster }
   | { readonly kind: 'wild'; readonly one: WildOne };
-
-/** The page's own colour, clear at the top and solid at the foot, to fade the shelf out. */
-function Fade({ color, width }: { readonly color: string; readonly width: number }) {
-  const commands = useMemo(
-    (): DrawCommand[] => [
-      {
-        op: 'paint',
-        path: [['M', 0, 0], ['L', width, 0], ['L', width, FADE], ['L', 0, FADE], ['Z']],
-        paint: {
-          kind: 'linear',
-          from: [0, 0],
-          to: [0, FADE],
-          stops: [
-            [0, color, 0],
-            [0.7, color, 1],
-            [1, color, 1],
-          ],
-        },
-        alpha: 1,
-        blend: 'normal',
-      },
-    ],
-    [color, width],
-  );
-  return <CommandCanvas commands={commands} space={{ width, height: FADE }} width={width} />;
-}
 
 /**
  * One row's worth of the shelf coming forward. Arriving from the world the pockets start a
@@ -279,8 +253,8 @@ export function ZooPane({
           </Forward>
         )}
       />
-      <View pointerEvents="none" style={[styles.fade, { height: FADE }]}>
-        <Fade color={palette.page} width={width} />
+      <View pointerEvents="none" style={styles.fade}>
+        <EdgeFade color={palette.page} width={width} height={FADE} edge="bottom" solid={0.3} />
       </View>
     </View>
   );
