@@ -5,7 +5,11 @@ import { RestoreOfferView } from '../backup/restore-offer';
 import { OneScreenView } from '../one-screen/one-screen-view';
 import { DeleteSheet, PrivacyPage } from '../privacy/privacy-page';
 
+import { DayMomentsSheet, GetReadySheet } from './day-helper-sheets';
 import { FinishWithPage } from './finish-with-page';
+import { DayTimeRows, OthersHuntingRow } from './helper-rows';
+import { Page } from './page';
+import { Row, Section } from './rows';
 import { SettingsPage } from './settings-page';
 
 // Settings, privacy and the edge states as the screen registry shows them: the real views with
@@ -50,6 +54,48 @@ export function SettingsSignedInForTables() {
 
 export function SettingsBackupOff() {
   return <Settings backupOff />;
+}
+
+/**
+ * The rows for the day's times and the count of others, in the groups they sit in on Settings:
+ * a capture of the whole page would leave them below its fold.
+ */
+export function DayAndCompanyRowsCapture() {
+  const t = useT();
+  const { language } = useLanguage();
+  const settings = { ...defaultSettings(language), coffeeAt: '08:20', getReadyLeadMinutes: 45 };
+  return (
+    <Page title={t('settings.title')} onClose={nothing} testID="settings">
+      <Section label={t('settings.calm')}>
+        <Row first label={t('settings.quietHours')} value="21:00–8:30" onPress={nothing} />
+        <DayTimeRows settings={settings} onOpen={nothing} />
+      </Section>
+      <Section label={t('settings.people')}>
+        <Row first label={t('settings.invite')} onPress={nothing} />
+        <OthersHuntingRow settings={settings} onChange={nothing} />
+      </Section>
+    </Page>
+  );
+}
+
+/** The five moments of the day, with one moved off its default. */
+export function DayMomentsCapture() {
+  const { language } = useLanguage();
+  return (
+    <DayMomentsSheet
+      settings={{ ...defaultSettings(language), coffeeAt: '08:20' }}
+      onChange={nothing}
+      onClose={nothing}
+    />
+  );
+}
+
+/** The lead before a time heard, at its default. */
+export function GetReadyCapture() {
+  const { language } = useLanguage();
+  return (
+    <GetReadySheet settings={defaultSettings(language)} onChange={nothing} onClose={nothing} />
+  );
 }
 
 export function FinishWithCapture() {

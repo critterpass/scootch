@@ -13,6 +13,7 @@ import type { PlanId } from '../plus/products';
 
 import { AttitudeDial } from './attitude-dial';
 import { LANGUAGE_LABELS } from './language-sheet';
+import { DayTimeRows, OthersHuntingRow } from './helper-rows';
 import { CardThumb, SeatThumb } from './look-thumbs';
 import { Page } from './page';
 import { Note, Row, Section, SwitchRow } from './rows';
@@ -52,7 +53,9 @@ export interface SettingsPageProps {
       | 'wallpaper'
       | 'shortcuts'
       | 'language'
-      | 'quiet-hours',
+      | 'quiet-hours'
+      | 'day-moments'
+      | 'get-ready',
   ) => void;
   /** Opens the studio. Unset on a day when nothing is sold. */
   readonly onStudio?: (() => void) | undefined;
@@ -76,8 +79,8 @@ export interface SettingsPageProps {
 
 /**
  * Settings: one page. The attitude, the Plus card, the look and the studio, how the app feels,
- * the quiet hours, how a monster is caught, privacy, tables, and the few rows the app needs
- * beyond the design: language and the helplines. Every row with an arrow opens a page or a sheet
+ * the quiet hours and the times of the day, how a monster is caught, privacy, tables and the count
+ * of others hunting, and the few rows the app needs beyond the design: language and the helplines. Every row with an arrow opens a page or a sheet
  * that lives with its topic; nothing opens and closes inside the list.
  */
 export function SettingsPage(props: SettingsPageProps) {
@@ -176,6 +179,7 @@ export function SettingsPage(props: SettingsPageProps) {
           onPress={() => onOpen('quiet-hours')}
           testID="settings-quiet-hours"
         />
+        <DayTimeRows settings={settings} onOpen={onOpen} />
         <Row
           label={t('settings.backTap')}
           sub={t('settings.backTap.sub')}
@@ -214,6 +218,7 @@ export function SettingsPage(props: SettingsPageProps) {
           {...(props.onInvite ? { onPress: props.onInvite } : {})}
           testID="settings-invite"
         />
+        <OthersHuntingRow settings={settings} onChange={onChange} />
       </Section>
 
       <Section label={t('settings.more')}>

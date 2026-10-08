@@ -9,6 +9,7 @@ import { viCatch } from './vi-catch';
 import { viCamera } from './vi-camera';
 import { viFinishAndReturn } from './vi-finish-and-return';
 import { viWhen } from './vi-when';
+import { viCompany } from './vi-company';
 
 /**
  * Vietnamese interface strings, written as a Vietnamese app would say them rather than word for
@@ -266,4 +267,5 @@ export const vi = {
   ...viCamera,
   ...viFinishAndReturn,
   ...viWhen,
+  ...viCompany,
 } as const satisfies Catalogue;
