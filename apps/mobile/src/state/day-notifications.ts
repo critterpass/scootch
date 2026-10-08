@@ -16,6 +16,7 @@ import {
 import { t } from '@scootch/i18n';
 import { offlineLine, offlinePacks } from '@scootch/voice';
 
+import type { NotificationSender } from '../effects/adapters';
 import type { PlannedText } from '../effects/effects-runner';
 
 import { lineFor } from './lines';
@@ -48,6 +49,8 @@ export interface DayNotificationsInput {
   readonly heavyToday?: boolean;
   /** The reminder the person asked for on today's serious task, if any. */
   readonly reminderAt?: Instant | null;
+  /** Today's monster, which sends the task's own lines in its name. `null` before it hatched. */
+  readonly monster?: NotificationSender | null;
 }
 
 /** The offline voice a volume is written in. Only full theatre is Unhinged. */
@@ -83,8 +86,10 @@ function sessionEnd(input: DayNotificationsInput): PlannedText[] {
  * any days before it, and each later day is planned as one more day ignored. Opening the app on
  * one of those days replaces the whole plan.
  *
- * Today's are the task's own lines, and only for a task that is set and not yet started. The later
- * days speak from the offline pack, which is never about a task. A crisis day plans nothing at
+ * Today's are the task's own lines, and only for a task that is set and not yet started. Its
+ * monster sends them, with the bites and the three actions under each; a monster turned down for
+ * a week sends the soft lines of the offline pack at the soft limit instead. The later days are
+ * Scootch's own and speak from the offline pack, which is never about a task. A crisis day plans nothing at
  * all, and a serious task plans only the reminder that was asked for; while a task not yet
  * screened is open, nothing louder than the soft voice is planned.
  */
@@ -117,16 +122,26 @@ export function dayNotifications(input: DayNotificationsInput): PlannedText[] {
     today.task.status === 'set' &&
     showsComedy(today.task, 'notification')
   ) {
-    const lines = today.task.notifications;
+    const { task } = today;
+    const lines = task.notifications;
+    const turnedDown = task.softUntil != null && task.softUntil >= input.localDate;
     const plan = notificationPlan({
       ...shared,
+      ...(turnedDown ? { attitude: 'soft' as const } : {}),
       ignoredDays: 0,
       localDate: input.localDate,
       available: lines.length,
     });
+    // A monster's message carries its bites and the three actions. Before it has hatched the
+    // same lines are Scootch's, with nothing under them.
+    const sender = input.monster
+      ? { from: input.monster, taskId: task.id, actions: true }
+      : { taskId: task.id };
     for (const one of plan.notifications) {
-      const text = lines[one.ordinal]?.text;
-      if (text !== undefined) planned.push({ at: one.at, text });
+      const text = turnedDown
+        ? offlineLine(settings.language, 'soft', 'notification', one.ordinal)
+        : lines[one.ordinal]?.text;
+      if (text !== undefined) planned.push({ at: one.at, text, ...sender });
     }
   }
 

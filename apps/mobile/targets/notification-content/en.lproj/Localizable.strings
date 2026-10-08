@@ -1,0 +1,14 @@
+/* Fixed labels under a monster's notification. Spoken lines are never here: they come from the
+   app, in the shared snapshot. The key is the English text. */
+"%@, in three bites" = "%@, in three bites";
+"%lld left · about %lld minutes in total" = "%lld left · about %lld minutes in total";
+"1 left · about 1 minute" = "1 left · about 1 minute";
+"All three caught. Open Scootch to catch %@." = "All three caught. Open Scootch to catch %@.";
+"caught" = "caught";
+"%lld min" = "%lld min";
+"%@, %lld minutes. Tick it." = "%@, %lld minutes. Tick it.";
+"%@, caught" = "%@, caught";
+"Hunt the next bite now · %lld min" = "Hunt the next bite now · %lld min";
+"Hunt it now" = "Hunt it now";
+"Tomorrow at 9:00" = "Tomorrow at 9:00";
+"Turn %@ down for a week" = "Turn %@ down for a week";

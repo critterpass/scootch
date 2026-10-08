@@ -1,0 +1,9 @@
+{
+  "name": "scootch-notifications",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local notifications sent in a monster's name with its picture, and the actions under them.",
+  "main": "index.ts",
+  "types": "index.ts",
+  "license": "UNLICENSED"
+}

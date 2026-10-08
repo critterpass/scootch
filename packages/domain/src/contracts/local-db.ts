@@ -94,6 +94,11 @@ export const taskRowSchema = z.object({
    * on a task nobody has bitten and on one stored before bites existed.
    */
   bitesCaught: z.array(z.number().int().min(0).max(2)).max(3).nullable().optional(),
+  /**
+   * The last day this thing's monster sends its messages at Soft, after "Turn it down for a
+   * week". Null or absent on a task nobody turned down.
+   */
+  softUntil: isoDateSchema.nullable().optional(),
   createdAt: isoDateTimeSchema,
   finishedAt: isoDateTimeSchema.nullable(),
 });

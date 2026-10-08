@@ -297,3 +297,7 @@ state is designed or removed.
 | Widgets, StandBy | Nightlight as two small widgets | The board draws one full-width StandBy screen; StandBy shows small widgets side by side. The Lurker widget is the words and the two buttons, the Shelf beside it is the world asleep in red, and the clock is the system's own |
 | Widgets, StandBy | Set for 9:00 | The board says the screen goes dark after the press. A widget cannot dim the screen, so the two buttons give way to one quiet "Set for 9:00" |
 | Widgets, StandBy | "Pick another" as an outlined chip | The board draws bare words; a secondary action is a chip |
+| Notification, long-press | No bites yet, or a thing with no monster | The board draws three bites. With none the long-press shows only the message and the three actions, the first reading "Hunt it now" |
+| Notification, long-press | All three ticked | The board's line is "All three caught. Molar is gone.", but the monster is caught in the app, not here. The line reads "All three caught. Open Scootch to catch Molar." and Scootch opens on the session a moment later |
+| Notification, long-press | Minutes on the first action | The board sets "4 min", "Thu" and "Soft" at the right of each action. iOS draws an action as one title, so the minutes join the first title and the other two have none |
+| Notification | Before the monster has hatched | The board's messages all come from monsters. A thing with no monster yet sends the same line as Scootch, with nothing under it |

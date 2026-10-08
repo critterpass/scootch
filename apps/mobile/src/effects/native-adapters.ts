@@ -16,6 +16,7 @@ import {
 import { CUES, encodeWav, type HapticTap } from '@scootch/sound';
 
 import * as LiveActivity from '../../modules/scootch-live-activity';
+import * as MonsterNotifications from '../../modules/scootch-notifications';
 import { nativeSharedStore } from '../features/surfaces/native-surface-ports';
 import { SHARED_KEYS } from '../features/surfaces/surface-ports';
 import type { SurfaceSnapshot } from '../features/surfaces/surface-snapshot';
@@ -119,10 +120,29 @@ export const nativeHaptics: HapticsPlayer = createTapScheduler(systemTimers, (ta
 export const nativeNotifications: NotificationScheduler = {
   scheduledIds: async () =>
     (await Notifications.getAllScheduledNotificationsAsync()).map((request) => request.identifier),
-  schedule: async ({ id, at, text }) => {
+  schedule: async ({ id, at, text, from, taskId, actions }) => {
+    // A monster's message, or one with the bites under it, is the native module's to send: only
+    // it can give a notification a sender. A build without the module sends the same words with
+    // the monster's name as the title.
+    if ((from || actions) && MonsterNotifications.isAvailable()) {
+      await MonsterNotifications.schedule({
+        id,
+        at,
+        body: text,
+        senderName: from?.name ?? null,
+        senderImage: from?.image ?? null,
+        taskId: taskId ?? null,
+        actions: actions === true,
+      });
+      return;
+    }
     await Notifications.scheduleNotificationAsync({
       identifier: id,
-      content: { body: text },
+      content: {
+        body: text,
+        ...(from ? { title: from.name } : {}),
+        ...(taskId ? { data: { taskId } } : {}),
+      },
       trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: at },
     });
   },

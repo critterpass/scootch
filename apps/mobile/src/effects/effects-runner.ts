@@ -8,6 +8,7 @@ import type {
   HapticsPlayer,
   LiveActivityPort,
   NotificationScheduler,
+  NotificationSender,
   ScreenSink,
   SessionContext,
   Timers,
@@ -29,6 +30,10 @@ export interface EffectsRunnerOptions {
 export interface PlannedText {
   readonly at: Instant;
   readonly text: string;
+  /** The monster that sends it; left out, it is Scootch's own. */
+  readonly from?: NotificationSender | undefined;
+  readonly taskId?: string | undefined;
+  readonly actions?: boolean | undefined;
 }
 
 export interface EffectsRunner {

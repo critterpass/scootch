@@ -103,6 +103,12 @@ export type DayEvent =
   | { readonly type: 'surface_action'; readonly action: SurfaceActionKind }
   /** The hunt record in the App Group, read as the app came to the front. */
   | { readonly type: 'hunt_adopted'; readonly hunt: HuntRecord }
+  /** A bite was ticked under a monster's notification; `place` is 0 to 2. */
+  | { readonly type: 'bite_ticked'; readonly taskId: Id; readonly place: number }
+  /** "Tomorrow at 9:00" under a notification: today's thing waits for tomorrow and today rests. */
+  | { readonly type: 'hunt_tomorrow'; readonly taskId: Id }
+  /** "Turn it down for a week": that thing's monster sends its messages at Soft for seven days. */
+  | { readonly type: 'monster_turned_down'; readonly taskId: Id }
   /** A screen has acted on `surfaceRequest`, so it is cleared. */
   | { readonly type: 'surface_request_taken' }
   /** A step found by the camera: the composer sends its words as it sends typed ones. */

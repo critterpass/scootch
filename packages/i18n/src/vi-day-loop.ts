@@ -22,4 +22,7 @@ export const viDayLoop = {
   'drawer.cap': 'Hôm nay đã bắt đầu đủ {count} việc. Mấy việc này chờ ở đây đến mai.',
   'composer.cancelThinking': 'Thôi',
   'composer.cancelThinking.hint': 'Ngừng chờ và trả lời bạn vừa gửi về ô nhập.',
+  'notification.huntNextBite': 'Săn miếng tiếp theo ngay',
+  'notification.tomorrowAtNine': 'Ngày mai lúc 9:00',
+  'notification.turnDown': 'Nói nhỏ lại trong một tuần',
 } as const;

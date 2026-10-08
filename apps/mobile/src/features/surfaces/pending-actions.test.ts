@@ -199,6 +199,64 @@ describe('the surface sync on a phone', () => {
     expect(shared.values.has(SHARED_KEYS.morningHunt)).toBe(false);
   });
 
+  it('keeps a bite ticked under a notification, and begins the session on the last one', async () => {
+    const { store, say, shared, sync, task, data } = await phone();
+    await say();
+    await store.dispatch({ type: 'one_thing_picked' });
+    await store.dispatch({ type: 'monster_met' });
+    const bites = [
+      { text: 'Find the email.', minutes: 1 },
+      { text: 'Write two lines.', minutes: 4 },
+      { text: 'Hit send.', minutes: 1 },
+    ];
+    const lines = task().lines;
+    if (lines === null || !('hatch' in lines)) throw new Error('no lines');
+    await openRepositories(data.db).tasks.put({ ...task(), lines: { ...lines, bites } });
+    const tick = (place: number) => ({
+      id: `bite-${place}`,
+      kind: 'bite',
+      taskId: task().id,
+      biteId: `${task().id}:${place}`,
+      at: MORNING,
+    });
+
+    shared.values.set(SHARED_KEYS.pendingActions, JSON.stringify([tick(0), tick(1)]));
+    await sync.opened();
+    expect((await openRepositories(data.db).tasks.get(task().id))?.bitesCaught).toEqual([0, 1]);
+    expect(store.getState().session?.phase ?? 'set').toBe('set');
+
+    // The last bite: the session begins, and the catch is on its screen.
+    shared.values.set(SHARED_KEYS.pendingActions, JSON.stringify([tick(2)]));
+    await sync.opened();
+    expect((await openRepositories(data.db).tasks.get(task().id))?.bitesCaught).toEqual([0, 1, 2]);
+    expect(store.getState().today.kind).toBe('in_session');
+  });
+
+  it('rests today when tomorrow at nine is asked for, and turns one monster down for a week', async () => {
+    const { store, say, sync, task, data, shared } = await phone();
+    await say();
+    await store.dispatch({ type: 'one_thing_picked' });
+    await store.dispatch({ type: 'monster_met' });
+    const id = task().id;
+
+    await sync.aboutOneThing('turn_down', id, null);
+    const turned = await openRepositories(data.db).tasks.get(id);
+    expect(turned?.softUntil).toBe('2026-10-12');
+    // A thing that is not there is left alone.
+    await sync.aboutOneThing('turn_down', 'gone', null);
+
+    await sync.aboutOneThing('tomorrow', 'not-todays', null);
+    expect(store.getState().today.kind).toBe('task_set');
+    await sync.aboutOneThing('tomorrow', id, null);
+    expect(store.getState().today.kind).toBe('done_for_today');
+    expect(store.getState().waitingForTomorrow?.id).toBe(id);
+    await sync.sync();
+    const snapshot = JSON.parse(shared.values.get(SHARED_KEYS.snapshot) ?? '{}') as {
+      tomorrow?: unknown;
+    };
+    expect(snapshot.tomorrow).toMatchObject({ taskId: id });
+  });
+
   it('writes the snapshot and the monster picture when today changes, and only then', async () => {
     const { store, say, shared, written, sync, task } = await phone();
     await sync.sync();

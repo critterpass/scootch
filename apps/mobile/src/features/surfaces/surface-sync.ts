@@ -220,6 +220,18 @@ export function createSurfaceSync(deps: SurfaceSyncDeps) {
     }
   };
 
+  /** What was asked about one thing under its notification, or on the nightstand. */
+  async function aboutOneThing(kind: string, taskId: string, biteId: string | null) {
+    if (kind === 'bite') {
+      const place = Number(biteId?.split(':').pop());
+      if (Number.isInteger(place)) await store.dispatch({ type: 'bite_ticked', taskId, place });
+    } else if (kind === 'tomorrow') {
+      await store.dispatch({ type: 'hunt_tomorrow', taskId });
+    } else if (kind === 'turn_down') {
+      await store.dispatch({ type: 'monster_turned_down', taskId });
+    }
+  }
+
   const sync = () => {
     queue = queue.then(write).catch(() => undefined);
     return queue;
@@ -228,6 +240,8 @@ export function createSurfaceSync(deps: SurfaceSyncDeps) {
   return {
     /** Writes the snapshot now if it changed. Resolves when it is written. */
     sync,
+    /** Does what an action under a notification asked, about the thing it names. */
+    aboutOneThing,
     /** Follows the store until the returned function is called. */
     follow(): () => void {
       void sync();
@@ -244,6 +258,8 @@ export function createSurfaceSync(deps: SurfaceSyncDeps) {
       for (const action of actions) {
         if (isDayAction(action.kind)) {
           await store.dispatch({ type: 'surface_action', action: action.kind });
+        } else if (action.taskId !== null) {
+          await aboutOneThing(action.kind, action.taskId, action.biteId);
         }
       }
       // A hunt begun or moved outside the app is taken up before anything else is noticed.

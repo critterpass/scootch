@@ -1,3 +1,4 @@
+import { monsterImageName } from '../features/surfaces/monster-image';
 import {
   addDays,
   morningOffer,
@@ -89,6 +90,7 @@ export async function readToday(
       // Soft while something heavy is around.
       heavyToday,
       reminderAt,
+      monster: monster ? { name: monster.name, image: monsterImageName(monster) } : null,
     }),
   );
 }

@@ -100,6 +100,8 @@ const IOS_ENTITLEMENTS = {
   // iCloud key-value storage, one store per app.
   'com.apple.developer.ubiquity-kvstore-identifier': `$(TeamIdentifierPrefix)${variant.bundleIdentifier}`,
   'com.apple.developer.usernotifications.time-sensitive': true,
+  // A notification from a monster: its name and picture where the app's would be.
+  'com.apple.developer.usernotifications.communication': true,
   'com.apple.developer.associated-appclip-app-identifiers': [
     `$(AppIdentifierPrefix)${variant.bundleIdentifier}.Clip`,
   ],
@@ -143,6 +145,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       ...PERMISSION_STRINGS.en,
       // Lets iOS pick the Vietnamese permission strings on a Vietnamese phone.
       CFBundleAllowMixedLocalizations: true,
+      // The system draws a notification as a message from a sender only for an app that says it
+      // sends messages (modules/scootch-notifications).
+      NSUserActivityTypes: ['INSendMessageIntent'],
       NSSupportsLiveActivities: true,
       NSSupportsLiveActivitiesFrequentUpdates: true,
       // Lets a silent push wake the app (a table changing, a Live Activity token to renew).

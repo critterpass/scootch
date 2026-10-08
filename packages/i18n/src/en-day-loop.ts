@@ -22,4 +22,7 @@ export const enDayLoop = {
   'drawer.cap': "Today's {count} are started. These wait here until tomorrow.",
   'composer.cancelThinking': 'Cancel',
   'composer.cancelThinking.hint': 'Stops waiting and puts your words back in the field.',
+  'notification.huntNextBite': 'Hunt the next bite now',
+  'notification.tomorrowAtNine': 'Tomorrow at 9:00',
+  'notification.turnDown': 'Turn it down for a week',
 } as const;
