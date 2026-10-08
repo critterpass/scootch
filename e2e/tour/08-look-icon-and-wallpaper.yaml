@@ -1,0 +1,52 @@
+appId: app.scootch.dev
+---
+# Tour: Look. The app icon picker (locked finishes, and with Plus and one icon kept) and the wallpaper page (the world, an empty world, and Photos refused), in English, Dark, Vietnamese and the largest text. Each shot is a registry row, named for the sheet that pairs it with its design.
+- runFlow: ../tour-support/to-registry.yaml
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: look-icon-picker--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: look-icon-picker-pinned--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: look-wallpaper--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: look-wallpaper-empty-world--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: look-wallpaper-photos-refused--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: look-icon-picker--en-dark-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: look-icon-picker--vi-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: look-icon-picker--en-light-largest
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: look-wallpaper--en-dark-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: look-wallpaper--vi-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: look-wallpaper--en-light-largest
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: look-wallpaper-photos-refused--vi-light-largest

@@ -74,19 +74,21 @@ const PERMISSION_STRINGS = {
       'Scootch turns what you say into text so you do not have to type.',
     NSCameraUsageDescription:
       'Scootch looks at a photo you take of the mess to find one place to start.',
-    NSPhotoLibraryAddUsageDescription: 'Scootch saves a card to your photos when you tap Save.',
+    NSPhotoLibraryAddUsageDescription:
+      'Scootch saves a card or a wallpaper to your photos when you tap Save.',
     // Apple asks for this whenever a linked library can read photos. Scootch never does.
     NSPhotoLibraryUsageDescription:
-      'Scootch only adds the cards you save to your photos. It never looks at the rest.',
+      'Scootch only adds the cards and wallpapers you save to your photos. It never looks at the rest.',
   },
   vi: {
     NSMicrophoneUsageDescription: 'Scootch dùng micro để bạn có thể nói thay vì gõ.',
     NSSpeechRecognitionUsageDescription:
       'Scootch chuyển lời bạn nói thành chữ để bạn không phải gõ.',
     NSCameraUsageDescription: 'Scootch xem tấm ảnh bạn chụp đống bừa bộn để tìm một chỗ bắt đầu.',
-    NSPhotoLibraryAddUsageDescription: 'Scootch lưu thẻ vào ảnh của bạn khi bạn chạm Lưu.',
+    NSPhotoLibraryAddUsageDescription:
+      'Scootch lưu thẻ hoặc hình nền vào ảnh của bạn khi bạn chạm Lưu.',
     NSPhotoLibraryUsageDescription:
-      'Scootch chỉ thêm những thẻ bạn lưu vào ảnh. Scootch không bao giờ xem các ảnh khác.',
+      'Scootch chỉ thêm những thẻ và hình nền bạn lưu vào ảnh. Scootch không bao giờ xem các ảnh khác.',
   },
 };
 

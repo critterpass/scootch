@@ -1,0 +1,103 @@
+appId: app.scootch.dev
+---
+# The fresh-user walk, step five (a): Look. It runs on the install the steps before it left;
+# nothing is cleared and nothing is seeded. Settings shows the icon that is on and the wallpaper
+# that is picked. The icon picker keeps one icon, which iOS announces; the wallpaper page shows
+# the person's own world three ways and how to refresh it each morning. Nothing is saved to
+# Photos here, since that asks the system for permission.
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: 'more-button'
+    timeout: 90000
+- tapOn:
+    id: 'more-button'
+    waitToSettleTimeoutMs: 0
+- extendedWaitUntil:
+    visible:
+      id: 'settings'
+    timeout: 6000
+    optional: true
+- runFlow:
+    when:
+      notVisible:
+        id: 'settings'
+      visible:
+        id: 'more-button'
+    commands:
+      - tapOn:
+          id: 'more-button'
+          waitToSettleTimeoutMs: 0
+          optional: true
+- extendedWaitUntil:
+    visible:
+      id: 'settings'
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: 'settings-app-icon'
+    direction: DOWN
+- assertVisible:
+    id: 'settings-wallpaper'
+- takeScreenshot: fresh-05a-settings-look
+- tapOn:
+    id: 'settings-app-icon'
+- extendedWaitUntil:
+    visible:
+      id: 'icon-picker'
+    timeout: 15000
+- takeScreenshot: fresh-05a-icon-picker
+# Tapping an icon keeps it: "Just one" becomes the way it changes.
+- tapOn:
+    id: 'icon-unhinged'
+- runFlow: ../tour-support/icon-changed.yaml
+- takeScreenshot: fresh-05a-icon-kept
+# Back to following the attitude, as a fresh phone does.
+- tapOn:
+    id: 'icon-follows-attitude'
+- runFlow: ../tour-support/icon-changed.yaml
+- tapOn:
+    id: 'icon-picker-close'
+- extendedWaitUntil:
+    visible:
+      id: 'settings'
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: 'settings-wallpaper'
+    direction: DOWN
+- tapOn:
+    id: 'settings-wallpaper'
+- extendedWaitUntil:
+    visible:
+      id: 'wallpaper'
+    timeout: 15000
+- takeScreenshot: fresh-05a-wallpaper-your-world
+- tapOn:
+    id: 'wallpaper-night'
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: fresh-05a-wallpaper-night-shelf
+- scrollUntilVisible:
+    element:
+      id: 'wallpaper-refresh'
+    direction: DOWN
+- tapOn:
+    id: 'wallpaper-refresh'
+- scrollUntilVisible:
+    element:
+      id: 'wallpaper-open-shortcuts'
+    direction: DOWN
+- takeScreenshot: fresh-05a-wallpaper-refresh-steps
+- tapOn:
+    id: 'wallpaper-close'
+- extendedWaitUntil:
+    visible:
+      id: 'settings'
+    timeout: 15000
+- tapOn:
+    id: 'settings-close'
+- extendedWaitUntil:
+    visible:
+      id: 'one-sentence'
+    timeout: 15000

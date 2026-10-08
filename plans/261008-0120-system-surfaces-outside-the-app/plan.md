@@ -1,6 +1,6 @@
 # The monsters get out: system surfaces, redrawn
 
-Status: in progress · Created 8 Oct 2026 · Board:
+Status: built, not yet proven on a device · Created 8 Oct 2026 · Board:
 [Scootch - System Surfaces v2](../../design/Scootch%20-%20System%20Surfaces%20v2.dc.html)
 (25 screens, listed in `design/screens.json` under "System Surfaces v2").
 

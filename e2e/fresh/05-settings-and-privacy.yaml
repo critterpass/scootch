@@ -39,6 +39,8 @@ appId: app.scootch.dev
 - takeScreenshot: settings-page--en-light-default
 - tapOn:
     id: 'settings-attitude-soft'
+# The app icon follows the attitude, so iOS announces the new icon.
+- runFlow: ../tour-support/icon-changed.yaml
 - assertVisible:
     id: 'settings-attitude-note'
 - takeScreenshot: fresh-05-attitude-soft
