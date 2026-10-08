@@ -162,6 +162,8 @@ export function ParkComposer({ inks, t, onPark, onCancel, handle }: ParkComposer
                 value={state.text}
                 onChangeText={(text) => send({ type: 'text_changed', text })}
                 onSubmitEditing={() => latest.current()}
+                // The keyboard put away: with nothing typed, the capsule is hold-to-talk again.
+                onBlur={() => send({ type: 'keyboard_dismissed' })}
                 maxLength={THOUGHT_MAX}
                 returnKeyType="done"
                 submitBehavior="submit"

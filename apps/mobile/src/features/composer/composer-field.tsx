@@ -29,7 +29,10 @@ interface FieldProps {
   readonly onEvent: (event: ComposerEvent) => void;
 }
 
-/** The capsule as a text field. The keyboard's send key sends, as the send button does. */
+/**
+ * The capsule as a text field. The keyboard's send key sends, as the send button does; putting
+ * the keyboard away with nothing typed gives the capsule back.
+ */
 export function ComposerField({ text, busy, onEvent }: FieldProps) {
   const { palette, allowFontScaling, size, largeText } = useScreenStyle();
   const t = useT();
@@ -38,6 +41,8 @@ export function ComposerField({ text, busy, onEvent }: FieldProps) {
       value={text}
       onChangeText={(next) => onEvent({ type: 'text_changed', text: next })}
       onSubmitEditing={() => onEvent({ type: 'send_tapped' })}
+      // The keyboard put away: with nothing typed, the capsule is hold-to-talk again.
+      onBlur={() => onEvent({ type: 'keyboard_dismissed' })}
       placeholder={t('composer.placeholder')}
       placeholderTextColor={palette.muted}
       accessibilityLabel={t('composer.placeholder')}
