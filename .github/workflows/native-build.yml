@@ -4,6 +4,7 @@ name: native-build
 # native-build-job.yml for where each build goes, and e2e/README.md for the secrets it needs.
 #   gh workflow run native-build.yml -f ref=<branch> -f profile=e2e-test
 #   gh workflow run native-build.yml -f ref=<branch> -f profile=dev -f submit=true
+#   gh workflow run native-build.yml -f ref=main -f profile=prd -f submit=true
 on:
   workflow_dispatch:
     inputs:
@@ -12,12 +13,12 @@ on:
         required: true
         default: main
       profile:
-        description: e2e-test (the simulator app device runs install) or dev (signed, for TestFlight)
+        description: e2e-test (the simulator app device runs install), dev (signed, for TestFlight) or prd (signed, the App Store app)
         required: true
         type: choice
-        options: [e2e-test, dev]
+        options: [e2e-test, dev, prd]
       submit:
-        description: Send the dev build to TestFlight (a dev build must be submitted)
+        description: Send the signed build to App Store Connect (a dev or prd build must be submitted)
         required: false
         type: boolean
         default: false

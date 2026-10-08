@@ -1,0 +1,98 @@
+# Deploys one release to production: the API (database migrations first) and scootch.app.
+# A release is a `v*` tag on a commit that is already on main, so it has passed `ci passed` as a
+# pull request and has been running on dev. Nothing else reaches production.
+#   git tag v1.0.0 <commit on main> && git push origin v1.0.0
+# To deploy a tag again:
+#   gh workflow run deploy-prd.yml --ref v1.0.0
+name: deploy prd
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+run-name: deploy prd ${{ github.ref_name }}
+
+# One deploy at a time, in order: a migration must never race the one before it.
+concurrency:
+  group: deploy-prd
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+  CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+jobs:
+  # Before anything is changed: the ref is a release, and the helpline table is fit to be shown.
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Only a release tag is deployed
+        if: github.ref_type != 'tag' || !startsWith(github.ref_name, 'v')
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          echo "::error::Production takes a release tag, not the $REF_TYPE \"$REF_NAME\". Use --ref v<version>."
+          exit 1
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: The tag is on main
+        run: |
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main || {
+            echo "::error::${GITHUB_SHA::7} is not on main: a release is tagged from main."
+            exit 1
+          }
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with: { node-version: 24, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: Every helpline is verified at its source
+        run: pnpm exec tsx tools/scripts/check-helplines-verified.ts
+
+  api:
+    runs-on: ubuntu-latest
+    needs: release
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with: { node-version: 24, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: Apply database migrations
+        working-directory: apps/api
+        run: pnpm exec wrangler d1 migrations apply scootch --env prd --remote
+      - name: Deploy the API
+        working-directory: apps/api
+        run: pnpm exec wrangler deploy --env prd --var "COMMIT_SHA:${GITHUB_SHA::7}"
+      - name: Wait until prd serves this commit
+        run: |
+          for attempt in $(seq 1 20); do
+            got=$(curl -s --max-time 10 https://scootch.bkdev98.workers.dev/v1/health || true)
+            case "$got" in *"\"commit\":\"${GITHUB_SHA::7}\""*) echo "$got"; exit 0 ;; esac
+            sleep 3
+          done
+          echo "::error::prd does not serve ${GITHUB_SHA::7}: $got"
+          exit 1
+
+  web:
+    runs-on: ubuntu-latest
+    needs: api
+    env:
+      CLOUDFLARE_ENV: prd
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with: { node-version: 24, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: Bundle the site for prd
+        working-directory: apps/web
+        run: pnpm exec astro build
+      - name: Deploy the site
+        working-directory: apps/web
+        run: pnpm exec wrangler deploy

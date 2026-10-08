@@ -45,6 +45,11 @@ run against dev before a release is tagged, and every server change is
 backward compatible with the App Store build already in people's hands.
 Feature flags keep unfinished work dark in prd.
 
+A release is a `v*` tag on a commit of main. Pushing the tag runs
+`deploy-prd.yml`: the helpline check, then prd's migrations, API and site, in
+that order. The App Store app is made from the same commit with
+`native-build.yml -f profile=prd`.
+
 ### Keys
 
 The founder's CritterPass keys are reused for Scootch: Jev (TypeSafe),
@@ -282,7 +287,7 @@ capability of their own.
 
 A signed build can make or renew a provisioning profile by itself: the build
 step is given the App Store Connect key the submit step already uses, for the
-`dev` profile only. Capabilities are still ticked on the App IDs by hand.
+signed profiles (`dev` and `prd`). Capabilities are still ticked on the App IDs by hand.
 
 ## 5. Ops: a Telegram bot
 
