@@ -91,8 +91,13 @@ jobs:
       - uses: actions/setup-node@v7
         with: { node-version: 24, cache: pnpm }
       - run: pnpm install --frozen-lockfile
+      # Until the App Store listing is live, the repository variable SITE_PRE_LAUNCH is 1 and the
+      # site is bundled with one email field where its App Store badge goes. On launch day the
+      # variable is cleared and the tag deployed again.
       - name: Bundle the site for prd
         working-directory: apps/web
+        env:
+          PUBLIC_PRE_LAUNCH: ${{ vars.SITE_PRE_LAUNCH }}
         run: pnpm exec astro build
       - name: Deploy the site
         working-directory: apps/web
