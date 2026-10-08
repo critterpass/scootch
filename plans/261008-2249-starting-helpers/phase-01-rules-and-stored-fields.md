@@ -30,14 +30,14 @@ any screen. Read `docs/tech-decisions.md`: the local database and contracts sect
   the get-ready lead (35 minutes), and "others hunting" on or off. Local migration.
 - Test: a row and a backup written before the fields still parse; let go
   still deletes everything.
-- Status: not started
+- Status: done — 78b57dc
 
 ### 2. Guess and real
 - Do: `CardStats` carries the guess beside `catchMinutes`. A function gives
   the pair to print, or nothing when no guess was made. No verdict, ratio or
   comparison word is computed.
 - Test: guess absent, shorter, equal and longer than real.
-- Status: not started
+- Status: done — c600852
 
 ### 3. End time and the gap
 - Do: the end time of a length from now, in the user's local clock; with a
@@ -46,7 +46,7 @@ any screen. Read `docs/tech-decisions.md`: the local database and contracts sect
   length that ends before it, and whether a thing fits at all.
 - Test: across midnight, across the day's rollover hour, a gap under five
   minutes (no length offered), a heard time already past (ignored).
-- Status: not started
+- Status: done — b1a9ebb
 
 ### 4. The cue in the notification plan
 - Do: a cue or a get-ready nudge takes one of the day's notifications, at its
@@ -54,7 +54,7 @@ any screen. Read `docs/tech-decisions.md`: the local database and contracts sect
   never adds a message. A serious task's cue is plain and unsigned by a monster.
 - Test: Soft with a cue sends exactly one; a cue inside quiet hours moves to
   their end or is dropped; a silent back-off day sends none.
-- Status: not started
+- Status: done — a35a91f
 
 ### 5. Next time, and the first bite
 - Do: a stored `nextStart` is the first bite of the next sitting in place of
@@ -62,7 +62,7 @@ any screen. Read `docs/tech-decisions.md`: the local database and contracts sect
   is made smaller. Session state carries it to the opening line.
 - Test: carried to tomorrow keeps it; made smaller clears it; a serious task
   keeps the line and shows it plain.
-- Status: not started
+- Status: done — 7d632f0
 
 ### 6. The brief
 - Do: once the rest of this phase has merged, add the helpers to
