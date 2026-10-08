@@ -3,6 +3,7 @@ import {
   addDays,
   instantFromIso,
   instantOfLocal,
+  localDateTime,
   isoWeekOf,
   type CardFinish,
 } from '@scootch/domain';
@@ -21,8 +22,10 @@ import {
   type MonsterPainter,
   type SharedFiles,
   type SharedStore,
+  type WorldPainter,
 } from './surface-ports';
 import { buildSurfaceSnapshot, type WaitingThing } from './surface-snapshot';
+import { shareWorldImages } from './world-image';
 
 export interface SurfaceSyncDeps {
   readonly store: DayStore;
@@ -30,6 +33,9 @@ export interface SurfaceSyncDeps {
   readonly shared: SharedStore;
   readonly files: SharedFiles;
   readonly painter: MonsterPainter;
+  readonly worldPainter: WorldPainter;
+  /** Takes back a notification a surface set, by its id. */
+  readonly cancelNotification: (id: string) => Promise<void>;
   readonly plus: () => boolean;
   /** The worn ink's accent as a hex colour; `null` for tomato. */
   readonly accent: () => string | null;
@@ -48,6 +54,20 @@ type DayAction = (typeof DAY_ACTIONS)[number];
 const isDayAction = (kind: string): kind is DayAction =>
   (DAY_ACTIONS as readonly string[]).includes(kind);
 
+/** The id of the notification "Hunt at 9:00" sets (`targets/_shared/MorningHunt.swift`). */
+export const morningHuntNotification = (taskId: string) => `morning-hunt-${taskId}`;
+
+/** The thing a nine o'clock hunt is set for, or `null` when none is or the note cannot be read. */
+function morningHuntTask(stored: string | null): string | null {
+  if (stored === null) return null;
+  try {
+    const { taskId } = JSON.parse(stored) as { taskId?: unknown };
+    return typeof taskId === 'string' ? taskId : null;
+  } catch {
+    return null;
+  }
+}
+
 /** The parts of the day a surface shows. While none of them changes, nothing is written. */
 function shownParts(
   state: DayState,
@@ -60,6 +80,7 @@ function shownParts(
     state.today,
     state.monster,
     state.line,
+    state.waitingForTomorrow,
     settings.attitude,
     settings.language,
     plus,
@@ -123,6 +144,24 @@ export function createSurfaceSync(deps: SurfaceSyncDeps) {
       deps.painter,
       deps.files,
     );
+    // A nine o'clock hunt is for a thing that is still waiting. Once it is finished, let go or
+    // the day has turned heavy, nothing is sent about it.
+    const setForNine = morningHuntTask(shared.get(SHARED_KEYS.morningHunt));
+    const stillWaiting = [
+      ...unfinished,
+      ...(state.waitingForTomorrow ? [state.waitingForTomorrow] : []),
+    ];
+    if (
+      setForNine !== null &&
+      (today.kind === 'crisis' || !stillWaiting.some((task) => task.id === setForNine))
+    ) {
+      shared.remove(SHARED_KEYS.morningHunt);
+      await deps.cancelNotification(morningHuntNotification(setForNine)).catch(() => undefined);
+    }
+    const pieces = await deps.repositories.worldPieces.all();
+    const world = await shareWorldImages(pieces, monsters, deps.worldPainter, deps.files);
+    const { week } = isoWeekOf(state.localDate);
+    const carried = today.kind === 'crisis' ? null : state.waitingForTomorrow;
     const live = state.session !== null && TIMED.includes(state.session.phase);
     const snapshot = buildSurfaceSnapshot({
       today,
@@ -130,9 +169,8 @@ export function createSurfaceSync(deps: SurfaceSyncDeps) {
       monster,
       monsterImage: monster ? (images.get(monster.id) ?? null) : null,
       shownLine: live ? (state.line?.text ?? null) : null,
-      weekBars: (await deps.repositories.recordBars.where('week', isoWeekOf(state.localDate).week))
-        .length,
-      worldThings: finishedThings(await deps.repositories.worldPieces.all()),
+      weekBars: (await deps.repositories.recordBars.where('week', week)).length,
+      worldThings: finishedThings(pieces),
       plus,
       accent,
       localDate: state.localDate,
@@ -146,6 +184,20 @@ export function createSurfaceSync(deps: SurfaceSyncDeps) {
         latest?.caughtAt != null
           ? { name: latest.name, caughtAt: instantFromIso(latest.caughtAt) }
           : null,
+      caughtThisWeek: caught.filter(
+        (one) =>
+          isoWeekOf(localDateTime(instantFromIso(one.caughtAt ?? ''), deps.timeZone()).date)
+            .week === week,
+      ).length,
+      worldImage: world.day,
+      worldNightImage: world.night,
+      carried: carried
+        ? {
+            task: carried,
+            monster:
+              monsters.find((one) => one.taskId === carried.id && one.caughtAt === null) ?? null,
+          }
+        : null,
       dayEndsAt: instantOfLocal(
         addDays(state.localDate, 1),
         `${String(DAY_ROLLOVER_HOUR).padStart(2, '0')}:00`,

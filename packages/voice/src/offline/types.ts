@@ -76,6 +76,8 @@ export const noTaskSlots = [
   'cameraAfterAsk',
   /** Under the two photos, side by side. */
   'cameraAfter',
+  /** On the nightstand, under tomorrow's one thing. `{name}` is its monster's name. */
+  'asleepTillTomorrow',
 ] as const;
 export type NoTaskSlot = (typeof noTaskSlots)[number];
 

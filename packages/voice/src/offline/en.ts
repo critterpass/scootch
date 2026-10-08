@@ -135,6 +135,7 @@ export const enOffline: OfflinePack = {
       cameraRoom: 'Only the lit corner. The rest of the room can wait.',
       cameraAfterAsk: 'One more photo, if you like. Same spot as before.',
       cameraAfter: 'Look at that. Same place, a little lighter.',
+      asleepTillTomorrow: '{name} is asleep too. It can wait for the morning.',
     },
     cheeky: {
       hello: "Oh! You're here. I'm Scootch. I've been waiting for you specifically.",
@@ -174,6 +175,7 @@ export const enOffline: OfflinePack = {
       cameraRoom: 'Just the lit corner. The other corners can gossip.',
       cameraAfterAsk: 'One more photo. Same spot. I want to see what you did.',
       cameraAfter: "Same spot, different mood. I'm framing this.",
+      asleepTillTomorrow: "{name}'s asleep too. Probably.",
     },
     unhinged: {
       hello: "YOU'RE HERE. I'm Scootch. I have been rehearsing this moment in a mirror.",
@@ -217,6 +219,7 @@ export const enOffline: OfflinePack = {
       cameraRoom: 'THE LIT CORNER. Nothing else exists. The other corners are a rumour.',
       cameraAfterAsk: 'ONE MORE PHOTO. Same spot. I need evidence.',
       cameraAfter: 'LOOK AT IT. Before. After. I am calling the newspapers.',
+      asleepTillTomorrow: "{name} IS ASLEEP TOO. PROBABLY. I'm watching it.",
     },
   },
   monsterNames: [

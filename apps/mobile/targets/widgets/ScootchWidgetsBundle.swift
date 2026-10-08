@@ -5,8 +5,10 @@ import WidgetKit
 @main
 struct ScootchWidgetsBundle: WidgetBundle {
     var body: some Widget {
-        TodayWidget()
-        WorldWidget()
+        LurkerWidget()
+        LurkersWidget()
+        ShelfWidget()
+        TerrariumWidget()
         SessionLiveActivity()
         if #available(iOS 18.0, *) {
             StartSessionControl()

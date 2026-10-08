@@ -1,13 +1,18 @@
 import { ExtensionStorage } from '@bacons/apple-targets';
 import { drawAsImage, Group, ImageFormat } from '@shopify/react-native-skia';
 import Constants from 'expo-constants';
+import * as Notifications from 'expo-notifications';
 import { File, Paths, type Directory } from 'expo-file-system';
 
-import { buildMonster, VIEW_SIZE } from '@scootch/art';
+import { buildMonster, buildScootch, GROUND_Y, VIEW_SIZE } from '@scootch/art';
 
 import { CommandLayer } from '../../art/skia-commands';
 
-import type { MonsterPainter, SharedFiles, SharedStore } from './surface-ports';
+import { islandCommands } from '../world/island-commands';
+import { ISLAND_SPACE, layoutIsland, SCOOTCH_AT } from '../world/island-layout';
+import { inLandingOrder } from '../world/world-layout';
+
+import type { MonsterPainter, SharedFiles, SharedStore, WorldPainter } from './surface-ports';
 
 // The real phone behind each port. Nothing here is covered by the unit tests, which use fakes: it
 // runs only in a native build.
@@ -32,6 +37,10 @@ export function nativeSharedStore(): SharedStore {
     },
   };
 }
+
+/** Takes back a local notification that was set outside the app, by the id it was given. */
+export const cancelNativeNotification = (id: string): Promise<void> =>
+  Notifications.cancelScheduledNotificationAsync(id);
 
 /** The App Group container. Where there is none (Android), nothing is ever there or written. */
 export function nativeSharedFiles(): SharedFiles {
@@ -64,6 +73,48 @@ export const skiaMonsterPainter: MonsterPainter = {
     const image = await drawAsImage(
       <Group transform={[{ scale }]}>
         <CommandLayer commands={buildMonster(spec)} />
+      </Group>,
+      { width: pixels, height: pixels },
+    );
+    return image ? image.encodeToBytes(ImageFormat.PNG) : null;
+  },
+};
+
+/**
+ * Draws the island as the world screen does, with Scootch standing between what is behind him
+ * and what is in front, as one still picture. Scootch is drawn in tomato, like every drawing of
+ * him on a surface.
+ */
+export const skiaWorldPainter: WorldPainter = {
+  async paint(pieces, monsters, pixels, asleep) {
+    const unit = pixels / ISLAND_SPACE;
+    const layout = layoutIsland(inLandingOrder(pieces, monsters));
+    const drawing = islandCommands(layout, new Map(monsters.map((one) => [one.id, one])));
+    const scootch = buildScootch({
+      mood: asleep ? 'asleep' : 'pleased',
+      attitude: 'cheeky',
+      workMode: null,
+      reducedMotion: true,
+      hat: null,
+    });
+    const scale = layout.scootchScale * unit;
+    const image = await drawAsImage(
+      <Group>
+        <Group transform={[{ scale: unit }]}>
+          <CommandLayer commands={drawing.behind} />
+        </Group>
+        <Group
+          transform={[
+            { translateX: (SCOOTCH_AT.x - (VIEW_SIZE / 2) * layout.scootchScale) * unit },
+            { translateY: (SCOOTCH_AT.y - GROUND_Y * layout.scootchScale) * unit },
+            { scale },
+          ]}
+        >
+          <CommandLayer commands={scootch} />
+        </Group>
+        <Group transform={[{ scale: unit }]}>
+          <CommandLayer commands={drawing.inFront} />
+        </Group>
       </Group>,
       { width: pixels, height: pixels },
     );

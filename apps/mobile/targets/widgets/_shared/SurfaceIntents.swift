@@ -1,4 +1,5 @@
 import AppIntents
+import WidgetKit
 
 // The intents behind the widgets, the controls, the Action button and the Live Activity's
 // buttons. They are compiled into the app and the widget extension, and the system runs them in
@@ -51,6 +52,8 @@ struct HuntIntent: LiveActivityIntent {
         if await HuntActivity.begin(taskId: taskId) {
             PendingSurfaceActions.record(.hunt, taskId: taskId)
         }
+        // The widgets mark the one that is being hunted.
+        WidgetCenter.shared.reloadAllTimelines()
         return .result()
     }
 }
@@ -177,6 +180,23 @@ struct KeepHereIntent: LiveActivityIntent {
     func perform() async throws -> some IntentResult {
         PendingSurfaceActions.record(.keepHere, taskId: HuntStore.load()?.taskId)
         await HuntActivity.clear()
+        return .result()
+    }
+}
+
+/// "Hunt at 9:00", on the nightstand: tomorrow's one thing is set for nine with one press. It
+/// runs in the app's process, which is the one that may send the notification.
+struct HuntAtNineIntent: LiveActivityIntent {
+    static let title: LocalizedStringResource = "Hunt at 9:00"
+    static let openAppWhenRun = false
+    static let isDiscoverable = false
+
+    func perform() async throws -> some IntentResult {
+        let taskId = SurfaceSnapshot.load().shown(at: Date()).tomorrow?.taskId
+        if await MorningHunt.set() {
+            PendingSurfaceActions.record(.tomorrow, taskId: taskId)
+        }
+        WidgetCenter.shared.reloadAllTimelines()
         return .result()
     }
 }

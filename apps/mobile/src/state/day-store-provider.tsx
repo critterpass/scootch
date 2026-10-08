@@ -37,9 +37,11 @@ import { purchaseStateOf } from '../features/plus/entitlement';
 import { revenueCatPurchases } from '../features/plus/revenuecat-port';
 import { inkOf } from '../features/studio/catalogue';
 import {
+  cancelNativeNotification,
   nativeSharedFiles,
   nativeSharedStore,
   skiaMonsterPainter,
+  skiaWorldPainter,
 } from '../features/surfaces/native-surface-ports';
 import { createSurfaceSync } from '../features/surfaces/surface-sync';
 import { SurfaceSyncHost } from '../features/surfaces/surface-sync-host';
@@ -121,6 +123,8 @@ function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
     shared: nativeSharedStore(),
     files: nativeSharedFiles(),
     painter: skiaMonsterPainter,
+    worldPainter: skiaWorldPainter,
+    cancelNotification: cancelNativeNotification,
     plus: unlocked,
     accent: () => {
       const { ink } = plus.store.getState().look;

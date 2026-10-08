@@ -69,6 +69,17 @@ struct SurfaceSnapshot: Codable, Equatable, Sendable {
         let caughtAt: Double
     }
 
+    /// The thing carried on to tomorrow, as the nightstand shows it. A serious task has no
+    /// monster's name and no line: its plain words alone.
+    struct Tomorrow: Codable, Equatable, Sendable {
+        let taskId: String
+        let task: String
+        let monsterName: String?
+        let line: String?
+        /// What the notification says at nine, when "Hunt at 9:00" was pressed.
+        let morning: String
+    }
+
     let version: Int
     let state: DayState
     /// The one thing's id and its words for a hunt. Both nil whenever `task` is.
@@ -98,6 +109,13 @@ struct SurfaceSnapshot: Codable, Equatable, Sendable {
     /// How many monsters have been caught, and the last of them.
     let shelf: Int
     let latestCatch: Catch?
+    /// How many of them were caught in this week. Nil in a snapshot written before it was counted.
+    let caughtThisWeek: Int?
+    /// The world as two pictures in the App Group container, by day and asleep.
+    let worldImage: String?
+    let worldNightImage: String?
+    /// The thing carried on to tomorrow. Nil when none is, and on a crisis day.
+    let tomorrow: Tomorrow?
     /// When the day this snapshot describes rolls over into the next one.
     let dayEndsAt: Double
     /// The ink the person wears, as a six-digit hex colour. Nil is tomato, and so is a snapshot
@@ -112,7 +130,8 @@ struct SurfaceSnapshot: Codable, Equatable, Sendable {
         sessionLines: [], attitude: .cheeky,
         language: Locale.preferredLanguages.first?.hasPrefix("vi") == true ? "vi" : "en",
         weekBars: 0, worldThings: 0, plus: false, lurkers: [], bites: [], finish: "paper",
-        shelf: 0, latestCatch: nil, dayEndsAt: .greatestFiniteMagnitude, accent: nil)
+        shelf: 0, latestCatch: nil, caughtThisWeek: nil, worldImage: nil, worldNightImage: nil,
+        tomorrow: nil, dayEndsAt: .greatestFiniteMagnitude, accent: nil)
 
     /// Nil when the text is not a snapshot of the version this code reads.
     static func decode(_ json: String) -> SurfaceSnapshot? {
@@ -135,7 +154,7 @@ struct SurfaceSnapshot: Codable, Equatable, Sendable {
     /// The snapshot as it reads at `date`. Once its day is over, and the app has not been opened
     /// to write the new one, nothing of yesterday is shown: it is a day with nothing yet. The
     /// lurkers go too, because whether each may still be shown is the app's to decide for the
-    /// new day; what was caught stays caught.
+    /// new day, and what waited for tomorrow is no longer tomorrow's; what was caught stays caught.
     func shown(at date: Date) -> SurfaceSnapshot {
         guard date >= dayEnd else { return self }
         return SurfaceSnapshot(
@@ -144,6 +163,8 @@ struct SurfaceSnapshot: Codable, Equatable, Sendable {
             line: nil, sessionLines: [], attitude: attitude, language: language,
             weekBars: weekBars, worldThings: worldThings, plus: plus, lurkers: [], bites: [],
             finish: finish, shelf: shelf, latestCatch: latestCatch,
+            caughtThisWeek: caughtThisWeek, worldImage: worldImage,
+            worldNightImage: worldNightImage, tomorrow: nil,
             dayEndsAt: .greatestFiniteMagnitude, accent: accent)
     }
 

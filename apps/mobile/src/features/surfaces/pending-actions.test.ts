@@ -7,6 +7,7 @@ import { PENDING_ACTION_MAX_AGE_MS, createPendingActions } from './pending-actio
 import {
   SHARED_KEYS,
   type MonsterPainter,
+  type WorldPainter,
   type SharedFiles,
   type SharedStore,
 } from './surface-ports';
@@ -39,6 +40,7 @@ function fakeFiles() {
 }
 
 const painter: MonsterPainter = { paint: () => Promise.resolve(new Uint8Array([1, 2, 3])) };
+const worldPainter: WorldPainter = { paint: () => Promise.resolve(new Uint8Array([4, 5])) };
 
 const asked = (...kinds: string[]) =>
   JSON.stringify(kinds.map((kind, index) => ({ id: `a-${index}`, kind, at: MORNING + index })));
@@ -102,19 +104,25 @@ describe('the surface sync on a phone', () => {
     const staged = await stagedPhone(stagedServer());
     const shared = fakeShared();
     const { files, written } = fakeFiles();
+    const cancelled: string[] = [];
     const sync = createSurfaceSync({
       store: staged.store,
       repositories: openRepositories(staged.data.db),
       shared: shared.store,
       files,
       painter,
+      worldPainter,
+      cancelNotification: (id) => {
+        cancelled.push(id);
+        return Promise.resolve();
+      },
       plus: () => false,
       accent: () => null,
       finish: () => 'paper',
       now: () => staged.time.clock.now(),
       timeZone: () => 'Europe/London',
     });
-    return { ...staged, shared, written, sync };
+    return { ...staged, shared, written, sync, cancelled };
   }
 
   it('starts the ten-minute session exactly once when the control asked for it', async () => {
@@ -168,6 +176,29 @@ describe('the surface sync on a phone', () => {
     );
   });
 
+  it("takes back a nine o'clock hunt once its thing is no longer waiting", async () => {
+    const { store, say, shared, sync, task, cancelled } = await phone();
+    await say();
+    await store.dispatch({ type: 'one_thing_picked' });
+    await store.dispatch({ type: 'monster_met' });
+    const set = (taskId: string) =>
+      shared.values.set(SHARED_KEYS.morningHunt, JSON.stringify({ taskId, at: MORNING }));
+
+    // Set for the thing that is still today's: it stays.
+    set(task().id);
+    await sync.sync();
+    expect(cancelled).toEqual([]);
+    expect(shared.values.has(SHARED_KEYS.morningHunt)).toBe(true);
+
+    // Set for a thing that is gone: the notification is taken back with the note.
+    set('gone');
+    await store.dispatch({ type: 'session_set', minutes: 10 });
+    await store.dispatch({ type: 'session', event: { type: 'started' } });
+    await sync.sync();
+    expect(cancelled).toEqual(['morning-hunt-gone']);
+    expect(shared.values.has(SHARED_KEYS.morningHunt)).toBe(false);
+  });
+
   it('writes the snapshot and the monster picture when today changes, and only then', async () => {
     const { store, say, shared, written, sync, task } = await phone();
     await sync.sync();
@@ -189,7 +220,11 @@ describe('the surface sync on a phone', () => {
     >;
     expect(set['state']).toBe('task_set');
     expect(set['task']).toBe(task().text);
-    expect([...written.keys()]).toEqual([set['monsterImage']]);
+    // The monster's picture, and the world by day and asleep.
+    expect([...written.keys()].sort()).toEqual(
+      [set['monsterImage'], set['worldImage'], set['worldNightImage']].sort(),
+    );
+    expect(set['worldImage']).toMatch(/^surface-world-[0-9a-f]{8}\.png$/);
     expect(shared.reloads()).toBeGreaterThan(reloads);
   });
 });

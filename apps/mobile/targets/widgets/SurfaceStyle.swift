@@ -15,8 +15,43 @@ enum SurfaceColor {
     static let ink = Color(red: 0.118, green: 0.106, blue: 0.090)
     static let glass = Color(red: 0.180, green: 0.160, blue: 0.140)
 
+    /// The quiet second voice of a widget: "Lurking", a hint, a count's label.
+    static let muted = Color(red: 0.435, green: 0.416, blue: 0.384)
+    /// The floor the lurkers stand on and a calm day chip, with the line along the floor's edge.
+    static let sand = Color(red: 0.929, green: 0.894, blue: 0.839)
+    static let sandLine = Color(red: 0.878, green: 0.827, blue: 0.753)
+    /// A day chip once a lurker has settled in.
+    static let butter = Color(red: 1.0, green: 0.839, blue: 0.420)
+    /// Tomato dark enough to read as small words on paper.
+    static let tomatoDeep = Color(red: 0.776, green: 0.247, blue: 0.133)
+    /// The nightstand's dim red, and the brighter red of the words on it.
+    static let ember = Color(red: 0.910, green: 0.220, blue: 0.165)
+    static let emberBright = Color(red: 1.0, green: 0.353, blue: 0.290)
+
     static func page(_ scheme: ColorScheme) -> Color { scheme == .dark ? pageDark : page }
     static func ink(_ scheme: ColorScheme) -> Color { scheme == .dark ? .white : ink }
+    static func muted(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? Color.white.opacity(0.62) : muted
+    }
+    static func sand(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? Color.white.opacity(0.12) : sand
+    }
+    static func sandLine(_ scheme: ColorScheme) -> Color {
+        scheme == .dark ? Color.white.opacity(0.08) : sandLine
+    }
+}
+
+/// The type of the surfaces, from the design board: rounded for what is said, the system's own
+/// face for the quiet words, and a monospaced face for a count or a day. Each follows the text
+/// size the person chose.
+enum SurfaceFont {
+    static func rounded(_ style: Font.TextStyle, _ weight: Font.Weight = .heavy) -> Font {
+        .system(style, design: .rounded).weight(weight)
+    }
+
+    static func mono(_ style: Font.TextStyle) -> Font {
+        .system(style, design: .monospaced).weight(.bold)
+    }
 }
 
 extension Color {
@@ -49,13 +84,27 @@ extension SurfaceSnapshot {
     /// A baked pose of Scootch at this attitude (ScootchArt.xcassets).
     func pose(_ pose: String) -> String { "Scootch\(pose)\(attitude.rawValue.capitalized)" }
 
+    /// A picture the app drew into the App Group container.
+    static func picture(named name: String?) -> UIImage? {
+        guard let name, let folder = AppGroup.containerURL else { return nil }
+        return UIImage(contentsOfFile: folder.appendingPathComponent(name).path)
+    }
+
     /// The task's monster from the App Group container, when there is one to show.
     var monsterPicture: UIImage? {
-        guard state == .taskSet || state == .inSession, let monsterImage,
-            let folder = AppGroup.containerURL
-        else { return nil }
-        return UIImage(contentsOfFile: folder.appendingPathComponent(monsterImage).path)
+        guard state == .taskSet || state == .inSession else { return nil }
+        return Self.picture(named: monsterImage)
     }
+
+    /// The world by day, or asleep. Never on a crisis day.
+    func worldPicture(asleep: Bool) -> UIImage? {
+        guard state != .crisis else { return nil }
+        return Self.picture(named: asleep ? worldNightImage ?? worldImage : worldImage)
+    }
+}
+
+extension SurfaceSnapshot.Lurker {
+    var picture: UIImage? { SurfaceSnapshot.picture(named: image) }
 }
 
 /// Where a tap on a surface lands. Each is a route the app's router already has.
