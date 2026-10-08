@@ -69,6 +69,7 @@ export function KeepContainer({ initial = 'world' }: { readonly initial?: KeepTa
       tab={tab}
       onTab={show}
       close={() => (pager ? pager.show('home') : goBack(router, '/'))}
+      homeIsBeside={pager !== null}
       calm={settings.motion === 'calm' || !inView}
       panes={{
         world: drawn('world') ? (

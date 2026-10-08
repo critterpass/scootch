@@ -2,10 +2,9 @@ import * as Sentry from '@sentry/react-native';
 import { Stack } from 'expo-router';
 import { SQLiteProvider } from 'expo-sqlite';
 import type { ReactNode } from 'react';
-import { Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-import { colors, fonts } from '@scootch/tokens';
+import { colors } from '@scootch/tokens';
 
 import { DATABASE_NAME, prepareDatabase } from '../db/database';
 import { SoundMode } from '../effects/sound-mode';
@@ -18,7 +17,7 @@ import { useAppearance } from '../screens/registry/support/forced-variant';
 import { DayStoreProvider, useToday } from '../state/day-store-provider';
 import { toneFor } from '../state/lines';
 import type { MotionCare } from '../ui/motion/may-move';
-import { stackBar, stackMotion } from '../ui/motion/stack-transitions';
+import { stackMotion } from '../ui/motion/stack-transitions';
 import { FeelProvider, useMayMove } from '../ui/motion/use-feel';
 import { usePalette } from '../ui/use-palette';
 
@@ -42,18 +41,14 @@ function Feel({ children }: { readonly children: ReactNode }) {
   );
 }
 
-/** The system's navigation bar exists on iOS; elsewhere every screen draws its own corner. */
-const SYSTEM_BAR = Platform.OS === 'ios';
-
 /**
- * Every route, in one native stack, each with the system transition and the system bar the design
- * gives it. Whether anything may move comes from the one `useFeel` hook, so the Motion switch
+ * Every route, in one native stack, each with the system transition the design gives it and none
+ * with the system's bar: a screen draws its own heading. Whether anything may move comes from the one `useFeel` hook, so the Motion switch
  * calms the stack with everything else. The page colour is behind every screen, so no transition
  * ever shows a blank white frame.
  */
 function Screens() {
   const mayMove = useMayMove();
-  const appearance = useAppearance();
   const palette = usePalette();
   return (
     <Stack
@@ -63,12 +58,7 @@ function Screens() {
           contentStyle: { backgroundColor: palette.page },
           ...motion,
           ...(sheetAllowedDetents ? { sheetAllowedDetents } : {}),
-          ...stackBar(route.name, SYSTEM_BAR, {
-            page: palette.page,
-            ink: palette.ink,
-            appearance,
-            titleFont: fonts.heading,
-          }),
+          headerShown: false,
         };
       }}
     />

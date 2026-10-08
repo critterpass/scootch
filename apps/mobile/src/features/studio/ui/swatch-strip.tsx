@@ -125,7 +125,7 @@ export function SwatchStrip({ kind, items, chosen, notes, onPick }: SwatchStripP
 const styles = StyleSheet.create({
   // Room above for the chosen swatch to rise into, ring and all.
   row: {
-    paddingHorizontal: 22,
+    paddingHorizontal: 24,
     paddingTop: spacing.md,
     paddingBottom: spacing.xs,
     gap: 10,

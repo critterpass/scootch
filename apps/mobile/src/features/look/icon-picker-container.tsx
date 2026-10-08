@@ -1,12 +1,11 @@
 import { useRouter } from 'expo-router';
 
-import { useDispatch } from '../../state/day-store-provider';
+import { useDispatch, useToday } from '../../state/day-store-provider';
+import { showsSelling } from '../../state/shows-comedy';
 import { goBack } from '../../ui/motion/go-back';
+import { STUDIO_ROUTE } from '../plus/routes';
 
 import { IconPickerPage } from './icon-picker-page';
-
-/** Your card, the one page that leads to the studio. The picker itself sells nothing. */
-const YOUR_CARD = '/plus/manage';
 import { useAppIcon } from './use-app-icon';
 
 /**
@@ -17,6 +16,13 @@ export function IconPickerContainer() {
   const { icon, follows, iconOf, mayShow } = useAppIcon();
   const dispatch = useDispatch();
   const router = useRouter();
+  const day = useToday();
+  // An icon in a finish that is not worn yet is the studio's to offer. The picker itself sells
+  // nothing, and on a day with something heavy in it the way to the studio rests.
+  const studioDoor = {
+    openStudio: () => router.push(STUDIO_ROUTE),
+  };
+  const studio: { readonly openStudio?: () => void } = showsSelling(day) ? studioDoor : {};
   const change = (changes: Parameters<typeof dispatch>[0] & { type: 'settings_changed' }) =>
     void dispatch(changes).catch(() => undefined);
   return (
@@ -27,8 +33,7 @@ export function IconPickerContainer() {
       mayShow={mayShow}
       onFollow={(iconFollows) => change({ type: 'settings_changed', changes: { iconFollows } })}
       onPick={(picked) => {
-        // A finish that is not worn yet is the studio's to offer, and the way there is Your card.
-        if (!mayShow(picked)) return router.push(YOUR_CARD);
+        if (!mayShow(picked)) return studio.openStudio?.();
         return change({
           type: 'settings_changed',
           changes: { iconFollows: 'pinned', iconPinned: picked },

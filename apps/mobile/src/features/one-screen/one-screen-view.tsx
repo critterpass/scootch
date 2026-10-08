@@ -47,6 +47,8 @@ export interface OneScreenViewProps {
   readonly onWorld?: () => void;
   /** The person pulled the screen down on purpose: the drawer's own gesture. */
   readonly onPull?: () => void;
+  /** True for the moment the screen shows its own pull, to say the drawer is there. */
+  readonly pullNudge?: boolean;
   /** A tap on Scootch, where he is drawn alone. */
   readonly onSqueak?: () => void;
   /** Drawn over the screen: the drawer. */
@@ -65,6 +67,7 @@ export function OneScreenView({
   onMore,
   onWorld,
   onPull,
+  pullNudge = false,
   onSqueak,
   overlay = null,
   shown,
@@ -241,7 +244,7 @@ export function OneScreenView({
             {...(onWorld ? { onWorld } : {})}
             {...(onMore ? { onMore } : {})}
           />
-          <StageScroll onPull={onPull}>
+          <StageScroll onPull={onPull} nudge={pullNudge}>
             {banner}
             <OneScreenFigure
               frame={frame}

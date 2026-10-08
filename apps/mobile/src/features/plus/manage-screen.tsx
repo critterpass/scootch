@@ -9,7 +9,7 @@ import { useCharacterMotion } from '../../ui/motion/use-feel';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { KeepFrame } from '../reveal/ui/keep-frame';
 import { SessionText } from '../session/ui/session-text';
-import { CardThumb, FinishThumb } from '../settings/look-thumbs';
+import { CardThumb } from '../settings/look-thumbs';
 import { Row, Section } from '../settings/rows';
 import { inkOf } from '../studio/catalogue';
 import type { Look } from '../studio/look';
@@ -49,7 +49,6 @@ export interface ManageActions {
   /** Opens Apple's own sheet, where a plan is changed or cancelled. */
   readonly manage: () => void;
   readonly restore: () => void;
-  readonly openStudio: () => void;
 }
 
 const NOTICES = {
@@ -92,7 +91,8 @@ function Figure({ value, label }: { readonly value: string; readonly label: stri
  * Your card: the member card in the finish and ink the person wears, three figures, then the
  * plan, its next date and the way to manage it, right under the card and never hidden. Changing
  * and cancelling are Apple's own sheet. Someone without Plus sees Scootch beside what free
- * Scootch is, the card Plus comes with, and the way to see Plus.
+ * Scootch is, the card Plus comes with, and the way to see Plus. The studio is not here: it has
+ * its own row in Settings.
  */
 export function ManageScreen({ model, actions }: { model: ManageModel; actions: ManageActions }) {
   const t = useT();
@@ -225,19 +225,6 @@ export function ManageScreen({ model, actions }: { model: ManageModel; actions: 
           testID="plus-manage-restore"
         />
       </Section>
-      {model.selling ? (
-        <Section>
-          <Row
-            label={t('studio.title')}
-            first
-            leading={<FinishThumb finish={look.finish} />}
-            sub={wearing}
-            hint={t('plus.card.studio.hint')}
-            onPress={actions.openStudio}
-            testID="plus-manage-studio"
-          />
-        </Section>
-      ) : null}
       {model.notice ? (
         <SessionText
           face="body"

@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fonts } from '@scootch/tokens';
 
 import { BOUNCE_CURVE, CROSSFADE_MS } from '../../../ui/motion/motion-tokens';
-import { useRouteSheet } from '../../../ui/native-bar';
+import { useRouteSheet } from '../../../ui/use-route-sheet';
 import { SHEET_TOP } from '../../../ui/sheet-frame';
 import { useScreenStyle } from '../../../ui/use-screen-style';
 

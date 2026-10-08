@@ -52,16 +52,11 @@ export function FilledButton({
   );
 }
 
-/** A quiet control: words only. */
-export function TextButton({
-  label,
-  hint,
-  testID,
-  inks,
-  onPress,
-  style,
-  strong = false,
-}: ControlProps & { readonly strong?: boolean }) {
+/**
+ * A quiet control: a small capsule in a faint fill, as wide as its words and in the middle of
+ * its row. It is never bare words: everything that can be pressed looks as if it can.
+ */
+export function TextButton({ label, hint, testID, inks, onPress, style }: ControlProps) {
   return (
     <PressSpring
       accessibilityRole="button"
@@ -69,9 +64,11 @@ export function TextButton({
       accessibilityHint={hint}
       testID={testID}
       onPress={onPress}
-      style={[styles.text, style]}
+      feedback="choice"
+      hitSlop={6}
+      style={[styles.quiet, { backgroundColor: `${inks.ink}0F` }, style]}
     >
-      <SessionText face="body" color={strong ? inks.ink : inks.muted} style={styles.centred}>
+      <SessionText face="chip" color={inks.ink} style={styles.centred}>
         {label}
       </SessionText>
     </PressSpring>
@@ -87,9 +84,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  text: {
+  quiet: {
+    alignSelf: 'center',
     minHeight: 44,
-    paddingHorizontal: spacing.md,
+    borderRadius: 22,
+    paddingHorizontal: 20,
     paddingVertical: spacing.sm,
     alignItems: 'center',
     justifyContent: 'center',

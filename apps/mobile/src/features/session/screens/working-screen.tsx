@@ -7,6 +7,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import { LayoutAnimationConfig } from 'react-native-reanimated';
 
 import { Scootch } from '../../../art/Scootch';
 import { GlassPill, RoundButton as GlassRound } from '../../../ui/buttons';
@@ -105,7 +106,12 @@ export function WorkingScreen(props: ScreenProps) {
         align="drawn"
         footerInset={quiet || stuck || model.parkOpen ? 14 : 0}
         testID={quiet ? 'session-quiet' : 'session-running'}
-        footer={<WorkingFooter {...props} park={park} />}
+        footer={
+          // What is at the foot when the screen opens is simply there; only a change of it moves.
+          <LayoutAnimationConfig skipEntering>
+            <WorkingFooter {...props} park={park} />
+          </LayoutAnimationConfig>
+        }
         behindFooter={
           model.parkOpen ? (
             // A touch anywhere above the dock closes it. Words already there are parked.

@@ -105,9 +105,8 @@ export function StudioContainer() {
   const homeLine = useMemo(() => lineWithNoTask('waiting', settings), [settings]);
 
   const looks = { worn: look, trying };
-  // Plus wears every finish. For someone it would dress, the finishes tab keeps a way to the
-  // sheet beside the price of one; on a day with something heavy in it, nothing is sold.
-  const plusPlace = tab === 'finish' && !unlocked.plus;
+  // Plus wears every finish. For someone it would dress, a finish they may not wear yet has a
+  // way to the sheet beside its price; on a day with something heavy in it, nothing is sold.
   const plusDoor = {
     openPlus: () => router.push(PLUS_SHEET),
   };
@@ -127,8 +126,7 @@ export function StudioContainer() {
         monster,
         busy,
         notice,
-        plusPlace,
-        plusOffered: plusPlace && !mayWear(focus, facts),
+        plusOffered: tab === 'finish' && !unlocked.plus && !mayWear(focus, facts),
         toast,
       }}
       actions={{

@@ -369,3 +369,15 @@ state is designed or removed.
 | Settings | A hairline under the bar once the page has scrolled | The board's scrolled screen draws it |
 | Your card, without Plus | Scootch beside "Free Scootch", the foil card as a picture, "See Plus" and the studio each with its picture | The board draws Manage for a member. Without Plus the page was one panel and three rows |
 | Studio, finishes | "Every finish, with Plus" as a glass chip under the finish in focus | Founder, 8 Oct: a tap on something Plus would unlock should lead to the sheet. Shown to someone without Plus on a finish they may not wear yet, beside its own price; its place is kept so picking a finish moves nothing. Not shown on a day with something heavy in it |
+| Every page of rows | One heading: the title large beside the close control, the list fading under a floating bar, no system bar | Founder, 8 Oct: Settings still wore "the old unpolished" header. The boards draw a small centred title. The system's bar is retired on every route, so a page looks the same beside home, pushed, or from a link |
+| World, Settings beside home | The world closes with an arrow pointing right; Settings with an arrow pointing left, in its leading corner | Founder, 8 Oct: home is that way. Reached any other way, both keep the close control in the trailing corner |
+| Settings | "Studio" as a row of Look, in place of "Card finish" | Founder, 8 Oct: the studio moves out to the Settings menu. It rests on a day with something heavy in it. A locked icon in the icon picker leads to the studio too; Your card no longer has a studio row |
+| Settings | Language and the quiet hours open as sheets | Founder, 8 Oct, for language; the quiet hours opened inside the list in the same way, so they follow |
+| Studio | The card stands clear of its labels; "Every finish, with Plus" takes the hint's place at the foot of the stage | The reserved row for the chip pushed the swatches' prices off the screen |
+| World | The first offer: Scootch beside his line, "Not now" and "Tell me" under it | Founder, 8 Oct: the line was squeezed to one word a row beside the button |
+| Wallpaper | "Save to Photos" in a dock at the foot; "Refresh every morning" and "Open Settings" as chips | Loose full-width buttons in the list |
+| Session | Quiet controls are chips: "Not finished", "Back", "Let it go", and "Let go" on a parked thought | They were bare words |
+| Session | "Park a thought" opens out into its field and settles back | Founder, 8 Oct: the two states were cut between |
+| Reveal | Pulled down to close; home in one fade when no treat or parked thought follows; its dock where every dock is | Founder, 8 Oct. The reveal still cannot be swiped back from the edge |
+| One screen | The screen dips by itself and shows the drawer's front, when something is in the drawer | Founder, 8 Oct. Once each time the app is opened, three times on a phone, never while anything else has the screen or where nothing may move |
+

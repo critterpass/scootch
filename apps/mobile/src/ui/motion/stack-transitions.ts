@@ -1,6 +1,8 @@
 /**
  * How each route arrives and leaves, as the design moves between screens, using the system's own
  * transitions. Every route file under `app/` is named here; one that is not gets the plain push.
+ * No route wears the system's navigation bar: every screen draws its own heading and its close
+ * control in the trailing corner, so a screen looks the same however it was reached.
  *
  * - `home`: the one screen. Returning to it reads as going back.
  * - `push`: the system's push, with its interruptible swipe back: the world, the binder, the record,
@@ -8,7 +10,8 @@
  *   the pages either side of it.
  * - `sheet`: a whole page that comes up as the system's page sheet, pulled down to close: the Plus
  *   sheet, the share composer. It is laid out as any page is.
- * - `fitted`: a small sheet with a grabber, as tall as what is on it: a haunt. Its content has its
+ * - `fitted`: a small sheet with a grabber, as tall as what is on it: a haunt, the languages, the
+ *   quiet hours. Its content has its
  *   own height and never scrolls; the sheet takes that height.
  * - `fade`: a moment, not a place: the session, the reveal, a purchase's own screen. No swipe.
  * - `none`: care. A crisis day is simply there, with nothing playing around it.
@@ -46,6 +49,8 @@ export const ROUTE_MOTION: Readonly<Record<string, RouteMotion>> = {
   share: 'sheet',
   'haunt/send': 'fitted',
   'haunt/received': 'fitted',
+  language: 'fitted',
+  'quiet-hours': 'fitted',
   session: 'fade',
   reveal: 'fade',
   'plus/last-day': 'fade',
@@ -156,106 +161,4 @@ export function stackMotion(routeName: string, mayMove: boolean): StackMotionOpt
         animationTypeForReplace,
       };
   }
-}
-
-/**
- * Which routes wear the system's navigation bar, and how.
- *
- * - `page`: a page of rows under a bar in the page's colour. The list is under the bar, never
- *   behind it. A page's large title is drawn by the page, which hands it to the bar as it scrolls.
- * - `frame`: a screen with a picture or a card in its middle (Your card, the record shelf) under a
- *   bar in the page's colour, so nothing runs under the bar.
- * - `none`: a full-bleed moment, a sheet, or the keeping tabs, whose close control stays put while
- *   the tabs change under it. Its corner controls are drawn by the screen, in the bar's place.
- */
-export type RouteBar = 'page' | 'frame' | 'none';
-
-const ROUTE_BAR: Readonly<Record<string, RouteBar>> = {
-  settings: 'page',
-  'finish-with': 'page',
-  'look/icon': 'page',
-  'look/wallpaper': 'page',
-  privacy: 'page',
-  helplines: 'page',
-  account: 'page',
-  friends: 'page',
-  'table/index': 'page',
-  'table/seat': 'page',
-  'table-settings': 'page',
-  'table-quieted': 'page',
-  't/[code]': 'page',
-  'f/[code]': 'page',
-  'plus/manage': 'frame',
-  'plus/records': 'frame',
-};
-
-/**
- * The bar a route wears. Only a pushed screen can wear one: a moment that cannot be swiped away and
- * a sheet never do, whatever the table says. Without the system's bar (`systemBar` false: not iOS)
- * every screen draws its own.
- */
-export function routeBar(routeName: string, systemBar: boolean): RouteBar {
-  if (!systemBar || routeMotion(routeName) !== 'push') return 'none';
-  return ROUTE_BAR[routeName] ?? 'none';
-}
-
-export interface BarInks {
-  readonly page: string;
-  readonly ink: string;
-  readonly appearance: 'light' | 'dark';
-  /** The heading face, for the bar's title. */
-  readonly titleFont: string;
-}
-
-export interface StackBarOptions {
-  readonly headerShown: boolean;
-  readonly title?: string;
-  readonly headerTransparent?: boolean;
-  readonly headerBackVisible?: boolean;
-  readonly headerShadowVisible?: boolean;
-  readonly headerTintColor?: string;
-  readonly headerUserInterfaceStyle?: 'light' | 'dark';
-  readonly headerStyle?: { readonly backgroundColor: string };
-  readonly headerTitleStyle?: BarTitleStyle;
-}
-
-interface BarTitleStyle {
-  readonly fontFamily: string;
-  readonly fontWeight: '700';
-  readonly color: string;
-}
-
-/**
- * The native stack's header options for one route, set before the screen is drawn so the bar is
- * there from its first frame. The screen itself fills in the title and the close control. The
- * system's back chevron is never shown: every screen closes from the trailing corner, and a pushed
- * screen can also be swiped back.
- */
-export function stackBar(routeName: string, systemBar: boolean, inks: BarInks): StackBarOptions {
-  const bar = routeBar(routeName, systemBar);
-  if (bar === 'none') return { headerShown: false };
-  const titleStyle: BarTitleStyle = {
-    fontFamily: inks.titleFont,
-    fontWeight: '700',
-    color: inks.ink,
-  };
-  const shared = {
-    headerShown: true,
-    title: '',
-    headerBackVisible: false,
-    headerShadowVisible: false,
-    headerTintColor: inks.ink,
-    headerUserInterfaceStyle: inks.appearance,
-    headerTitleStyle: titleStyle,
-  } as const;
-  // Every bar is solid, in the page's colour. A see-through bar left its title standing over
-  // whatever scrolled beneath it on a phone: the page is always under the bar, never behind it.
-  const solid = {
-    ...shared,
-    headerTransparent: false,
-    headerStyle: { backgroundColor: inks.page },
-  } as const;
-  // A page's large title is the page's own: it scrolls, shrinks and fades with the list, and the
-  // bar takes it up small once it has gone. The system's large title is never asked for.
-  return solid;
 }

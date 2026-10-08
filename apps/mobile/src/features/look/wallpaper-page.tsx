@@ -7,8 +7,10 @@ import { useT } from '../../i18n/i18n-provider';
 import { CapsuleButton } from '../../ui/buttons';
 import { PressSpring } from '../../ui/motion/press-spring';
 import { useScreenStyle } from '../../ui/use-screen-style';
+import { QuietLink } from '../dump/dump-panels';
 import { Page } from '../settings/page';
 import { Note } from '../settings/rows';
+import { ActionDock } from '../table/action-dock';
 
 import { WALLPAPERS, type WallpaperKind } from './wallpaper-scene';
 
@@ -49,7 +51,23 @@ export function WallpaperPage(props: WallpaperPageProps) {
   const night = kind === 'night';
 
   return (
-    <Page title={t('look.wallpaper')} onClose={props.onClose} testID="wallpaper">
+    <Page
+      title={t('look.wallpaper')}
+      onClose={props.onClose}
+      testID="wallpaper"
+      // The one action of the page, in the dock at its foot as on every other screen.
+      footer={
+        <ActionDock
+          action={{
+            label: t(saving === 'saved' ? 'wallpaper.saved' : 'wallpaper.save'),
+            hint: t('wallpaper.save.hint'),
+            onPress: props.onSave,
+            disabled: saving === 'saving',
+            testID: 'wallpaper-save',
+          }}
+        />
+      }
+    >
       <View
         accessible
         accessibilityRole="image"
@@ -103,34 +121,29 @@ export function WallpaperPage(props: WallpaperPageProps) {
         })}
       </View>
 
-      <CapsuleButton
-        label={t(saving === 'saved' ? 'wallpaper.saved' : 'wallpaper.save')}
-        hint={t('wallpaper.save.hint')}
-        onPress={props.onSave}
-        disabled={saving === 'saving'}
-        testID="wallpaper-save"
-      />
       {saving === 'refused' ? (
         <View style={styles.notice}>
           <Note text={t('wallpaper.refused')} testID="wallpaper-refused" />
-          <CapsuleButton
-            tone="quiet"
-            label={t('wallpaper.openSettings')}
-            hint={t('wallpaper.openSettings.hint')}
-            onPress={props.onOpenSettings}
-            testID="wallpaper-open-settings"
-          />
+          <View style={styles.middle}>
+            <QuietLink
+              label={t('wallpaper.openSettings')}
+              hint={t('wallpaper.openSettings.hint')}
+              onPress={props.onOpenSettings}
+              testID="wallpaper-open-settings"
+            />
+          </View>
         </View>
       ) : null}
       {saving === 'failed' ? <Note text={t('wallpaper.failed')} testID="wallpaper-failed" /> : null}
 
-      <CapsuleButton
-        tone="quiet"
-        label={t('wallpaper.refresh')}
-        hint={t('wallpaper.refresh.hint')}
-        onPress={() => setSteps(!steps)}
-        testID="wallpaper-refresh"
-      />
+      <View style={styles.middle}>
+        <QuietLink
+          label={t('wallpaper.refresh')}
+          hint={t('wallpaper.refresh.hint')}
+          onPress={() => setSteps(!steps)}
+          testID="wallpaper-refresh"
+        />
+      </View>
       {steps ? (
         <View style={[styles.steps, { backgroundColor: palette.surface }]} testID="wallpaper-steps">
           {STEPS.map((step, index) => (
@@ -207,6 +220,7 @@ const styles = StyleSheet.create({
   },
   tabName: { fontFamily: fonts.body, textAlign: 'center' },
   notice: { gap: spacing.sm },
+  middle: { flexDirection: 'row', justifyContent: 'center' },
   steps: { borderRadius: radius.lg, padding: spacing.md, gap: spacing.sm },
   step: { flexDirection: 'row', gap: spacing.sm },
   stepNumber: { fontFamily: fonts.heading, fontWeight: '700', width: 18 },

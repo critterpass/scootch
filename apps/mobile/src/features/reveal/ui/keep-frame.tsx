@@ -1,14 +1,17 @@
 import type { ReactNode } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { spacing } from '@scootch/tokens';
 
 import { CapsuleButton, GlassDock } from '../../../ui/buttons';
 import { CloseButton, CornerBar } from '../../../ui/corner-bar';
-import { NativeBar, useRouteBar } from '../../../ui/native-bar';
 import { useScreenStyle } from '../../../ui/use-screen-style';
 import { SessionText } from '../../session/ui/session-text';
 import { SafeFrame } from '../../../ui/safe-frame';
+
+/** From the bottom of the screen up to a dock, as the boards draw it. */
+const DOCK_BOTTOM = 30;
 
 export interface KeepFrameProps {
   readonly testID: string;
@@ -23,57 +26,46 @@ export interface KeepFrameProps {
   readonly children: ReactNode;
 }
 
-/** The system's bar keeps the top clear, so the frame only keeps the other edges. */
-const UNDER_BAR = ['bottom', 'left', 'right'] as const;
-
 /**
  * The frame of every keeping screen: a title, a round close control, a middle and a dock. The
  * close control is always in the trailing corner, exactly where every other screen has its own.
  */
 export function KeepFrame(props: KeepFrameProps) {
   const { palette } = useScreenStyle();
+  const insets = useSafeAreaInsets();
   const { title, subtitle, close, footer, scroll = true, children } = props;
-  const closeProps = { ...close, testID: props.closeTestID };
-  // Under the system's bar the title and the close control are the bar's; the line under the title
-  // stays with the screen, as its first line.
-  const barred = useRouteBar() === 'frame';
   return (
-    <SafeFrame
-      testID={props.testID}
-      style={[styles.fill, { backgroundColor: palette.page }]}
-      {...(barred ? { edges: UNDER_BAR } : {})}
-    >
-      {barred ? (
-        <NativeBar close={closeProps} {...(title === undefined ? {} : { title })} />
-      ) : (
-        <CornerBar trailing={<CloseButton {...closeProps} />}>
-          {title === undefined ? null : (
-            <View style={styles.titles}>
-              <SessionText face="headline" color={palette.ink} accessibilityRole="header">
-                {title}
+    <SafeFrame testID={props.testID} style={[styles.fill, { backgroundColor: palette.page }]}>
+      <CornerBar trailing={<CloseButton {...close} testID={props.closeTestID} />}>
+        {title === undefined ? null : (
+          <View style={styles.titles}>
+            <SessionText face="headline" color={palette.ink} accessibilityRole="header">
+              {title}
+            </SessionText>
+            {subtitle ? (
+              <SessionText face="caption" color={palette.muted} testID={`${props.testID}-count`}>
+                {subtitle}
               </SessionText>
-              {subtitle ? (
-                <SessionText face="caption" color={palette.muted} testID={`${props.testID}-count`}>
-                  {subtitle}
-                </SessionText>
-              ) : null}
-            </View>
-          )}
-        </CornerBar>
-      )}
-      {barred && subtitle ? (
-        <View style={styles.under}>
-          <SessionText face="caption" color={palette.muted} testID={`${props.testID}-count`}>
-            {subtitle}
-          </SessionText>
-        </View>
-      ) : null}
+            ) : null}
+          </View>
+        )}
+      </CornerBar>
       {scroll ? (
         <ScrollView contentContainerStyle={styles.middle}>{children}</ScrollView>
       ) : (
         <View style={styles.fill}>{children}</View>
       )}
-      {footer ? <View style={styles.footer}>{footer}</View> : null}
+      {footer ? (
+        // The dock sits where every dock does: 30 points up, or on the home bar's own clear space.
+        <View
+          style={[
+            styles.footer,
+            { paddingBottom: Math.max(insets.bottom, DOCK_BOTTOM) - insets.bottom },
+          ]}
+        >
+          {footer}
+        </View>
+      ) : null}
     </SafeFrame>
   );
 }
@@ -142,8 +134,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     gap: spacing.md,
   },
-  under: { paddingHorizontal: spacing.lg, paddingBottom: spacing.xs },
-  footer: { paddingHorizontal: spacing.lg, paddingBottom: spacing.md, paddingTop: spacing.sm },
+  footer: { paddingHorizontal: spacing.lg, paddingTop: spacing.sm },
   row: { flexDirection: 'row', gap: spacing.sm },
   stack: { gap: spacing.sm },
   grow: { flex: 1 },

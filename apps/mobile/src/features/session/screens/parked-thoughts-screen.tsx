@@ -104,7 +104,11 @@ export function ParkedThoughtsScreen({ model, actions, inks, t }: ScreenProps) {
                 feedback="choice"
                 hitSlop={6}
                 onPress={() => actions.resolveThought(thought, 'discard')}
-                style={styles.chip}
+                // The quieter of the two, and still a chip: a hairline round it, no fill.
+                style={[
+                  styles.chip,
+                  { borderWidth: StyleSheet.hairlineWidth, borderColor: inks.hairline },
+                ]}
               >
                 <SessionText face="chip" color={inks.muted}>
                   {t('session.thoughts.letGo')}

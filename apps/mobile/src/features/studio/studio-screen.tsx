@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn, LayoutAnimationConfig, ReduceMotion } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -50,11 +51,9 @@ export interface StudioModel {
   readonly busy: boolean;
   readonly notice: 'failed' | 'unavailable' | null;
   /**
-   * Whether the way to Plus has a place on this tab: the finishes, for someone Plus would dress.
-   * The place is kept whichever finish is in focus, so picking one moves nothing.
+   * Whether the finish in focus is one Plus would put on, for someone it would dress: the way to
+   * Plus then stands at the foot of the stage, where the hint is, so showing it moves nothing.
    */
-  readonly plusPlace: boolean;
-  /** Whether the finish in focus is one Plus would put on: the way to Plus is then shown. */
   readonly plusOffered: boolean;
   /** Said once after a purchase, over the top of the screen; `null` when there is nothing to say. */
   readonly toast: string | null;
@@ -78,7 +77,7 @@ const DOCK_BOTTOM = 30;
  * The stage of the tab in view. A change of tab fades the new stage in; the screen's own arrival
  * is the stack's, so nothing fades the first time.
  */
-function Stage({ model }: { readonly model: StudioModel }) {
+function Stage({ model, plus }: { readonly model: StudioModel; readonly plus: ReactNode }) {
   const { reducedMotion } = useScreenStyle();
   const size = useStageSize();
   const { tab, trying } = model;
@@ -97,6 +96,7 @@ function Stage({ model }: { readonly model: StudioModel }) {
             number={model.number}
             wearing={model.action === 'wearing'}
             size={size}
+            foot={plus}
           />
         ) : tab === 'ink' ? (
           <InkStage ink={trying.ink} line={model.homeLine} size={size} />
@@ -147,7 +147,21 @@ export function StudioScreen({ model, actions }: { model: StudioModel; actions: 
         showsVerticalScrollIndicator={false}
         testID="studio-list"
       >
-        <Stage model={model} />
+        <Stage
+          model={model}
+          plus={
+            // Plus wears every finish: beside the price of one, the way to all of them.
+            model.plusOffered && actions.openPlus ? (
+              <QuietLink
+                label={t('studio.plusDoor')}
+                hint={t('studio.plusDoor.hint')}
+                onPress={actions.openPlus}
+                testID="studio-plus"
+                icon={<PlusBadge />}
+              />
+            ) : null
+          }
+        />
         <View style={styles.words}>
           <View style={styles.nameRow}>
             <Text
@@ -199,20 +213,6 @@ export function StudioScreen({ model, actions }: { model: StudioModel; actions: 
               {t(model.notice === 'failed' ? 'plus.failed' : 'plus.unavailable')}
             </SessionText>
           ) : null}
-          {model.plusPlace ? (
-            // Plus wears every finish: beside the price of one, the way to all of them.
-            <View style={styles.plus}>
-              {model.plusOffered && actions.openPlus ? (
-                <QuietLink
-                  label={t('studio.plusDoor')}
-                  hint={t('studio.plusDoor.hint')}
-                  onPress={actions.openPlus}
-                  testID="studio-plus"
-                  icon={<PlusBadge />}
-                />
-              ) : null}
-            </View>
-          ) : null}
         </View>
         <SwatchStrip
           kind={tab}
@@ -244,15 +244,14 @@ export function StudioScreen({ model, actions }: { model: StudioModel; actions: 
 }
 
 const styles = StyleSheet.create({
-  // The chip's own height, kept whether or not it is drawn.
-  plus: { minHeight: 40, flexDirection: 'row', justifyContent: 'center', paddingTop: 4 },
   page: { flex: 1 },
   // An empty corner the size of the close control, so the tabs sit in the middle of the screen.
   corner: { width: CORNER.size, height: CORNER.size },
   tabs: { flex: 1, alignItems: 'center', justifyContent: 'center', minHeight: CORNER.size },
   middle: { flexGrow: 1, paddingTop: spacing.sm, paddingBottom: spacing.sm },
   stage: { marginHorizontal: STAGE.side },
-  words: { paddingHorizontal: 28, marginTop: 18, gap: 6 },
+  // The words start 24 points in, as every heading does.
+  words: { paddingHorizontal: 24, marginTop: 18, gap: 6 },
   nameRow: {
     flexDirection: 'row',
     alignItems: 'baseline',

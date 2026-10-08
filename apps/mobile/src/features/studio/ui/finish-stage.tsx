@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, type ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Animated, {
   interpolate,
@@ -28,8 +28,11 @@ const LIGHT = {
   dark: ['#3B352F', '#2A2622', '#1F1C19'],
 } as const;
 const HINT = { light: 'rgba(28,26,23,0.5)', dark: 'rgba(243,238,230,0.5)' } as const;
-/** Room the card leaves on the stage for its labels above and its hint below. */
-const AROUND_CARD = 82;
+/**
+ * Room the card leaves on the stage: its labels above, with a little air under them, and the
+ * same again below for its hint or the one chip that takes the hint's place.
+ */
+const AROUND_CARD = 104;
 
 interface Pop {
   readonly ms: number;
@@ -75,6 +78,8 @@ export interface FinishStageProps {
   /** True when the finish in focus is the one worn; otherwise it is only tried on. */
   readonly wearing: boolean;
   readonly size: { readonly width: number; readonly height: number };
+  /** Something to press at the foot of the stage, in the hint's place. Unset, the hint is there. */
+  readonly foot?: ReactNode;
 }
 
 /**
@@ -82,7 +87,7 @@ export interface FinishStageProps {
  * finger so foil, chrome and velvet catch the light as they will in the hand. Its corner says
  * whether it is worn or only tried on, and which finish it is.
  */
-export function FinishStage({ look, number, wearing, size }: FinishStageProps) {
+export function FinishStage({ look, number, wearing, size, foot }: FinishStageProps) {
   const t = useT();
   const { reducedMotion } = useScreenStyle();
   const appearance = useAppearance();
@@ -154,7 +159,7 @@ export function FinishStage({ look, number, wearing, size }: FinishStageProps) {
         ]}
       />
       <View pointerEvents="none" style={styles.floor} />
-      <Animated.View style={[styles.card, landed]}>
+      <Animated.View style={landed}>
         <StudioCard look={look} number={number} handled />
       </Animated.View>
       <StagePill
@@ -169,7 +174,9 @@ export function FinishStage({ look, number, wearing, size }: FinishStageProps) {
         label={t('studio.stage.finish.number', { number: String(order).padStart(2, '0') })}
         testID="studio-finish-number"
       />
-      {reducedMotion ? null : (
+      {foot ? (
+        <View style={styles.foot}>{foot}</View>
+      ) : reducedMotion ? null : (
         <Text
           allowFontScaling={false}
           numberOfLines={1}
@@ -199,14 +206,14 @@ const styles = StyleSheet.create({
   },
   floor: {
     position: 'absolute',
-    bottom: 40,
+    bottom: 48,
     width: 170,
     height: 2,
     borderRadius: 1,
     backgroundColor: 'rgba(28,26,23,0.28)',
     boxShadow: '0 0 18px 10px rgba(28,26,23,0.2)',
   },
-  card: { marginTop: -6 },
+  foot: { position: 'absolute', left: 0, right: 0, bottom: 8, alignItems: 'center' },
   hint: {
     position: 'absolute',
     left: 0,

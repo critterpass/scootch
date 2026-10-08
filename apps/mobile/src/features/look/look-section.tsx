@@ -17,21 +17,24 @@ export interface LookFacts {
 }
 
 /**
- * The Look group of Settings: the app icon, the card finish and what the icon changes with, each
- * row showing what is picked. The first and last open the icon picker. The finish row opens Your
- * card, which is where the studio is reached from: Settings itself has no door to a place that
- * sells.
+ * The Look group of Settings: the app icon, the studio, the wallpaper and what the icon changes
+ * with, each row showing what is picked. The first and last open the icon picker. The studio's
+ * row shows the finish that is worn and opens the studio itself; on a day with something heavy in
+ * it, when nothing is sold, the row rests.
  */
 export function LookSection({
   look,
   follows,
   wallpaper,
   onOpen,
+  onStudio,
 }: {
   readonly look: LookFacts;
   readonly follows: SettingsRow['iconFollows'];
   readonly wallpaper: SettingsRow['wallpaper'];
-  readonly onOpen: (page: 'icon' | 'plus' | 'wallpaper') => void;
+  readonly onOpen: (page: 'icon' | 'wallpaper') => void;
+  /** Opens the studio. Unset on a day when nothing is sold: the row is drawn and rests. */
+  readonly onStudio?: (() => void) | undefined;
 }) {
   const t = useT();
   const name = t(iconLabel(look.icon));
@@ -54,11 +57,11 @@ export function LookSection({
       />
       <Row
         leading={<FinishThumb finish={look.finish} />}
-        label={t('look.cardFinish')}
-        hint={t('look.cardFinish.hint')}
+        label={t('studio.title')}
+        hint={t('look.studio.hint')}
         value={t(`studio.finish.${look.finish}.short`)}
-        onPress={() => onOpen('plus')}
-        testID="settings-card-finish"
+        {...(onStudio ? { onPress: onStudio } : { inert: true })}
+        testID="settings-studio"
       />
       <Row
         leading={<WallpaperThumb kind={wallpaper} />}

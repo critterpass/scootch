@@ -18,7 +18,7 @@ import { longDate } from './dates';
 import { unlockedFor } from './entitlement';
 import { ManageScreen, type ManageModel } from './manage-screen';
 import { nextPlanDate } from './plan-line';
-import { PLUS_CANCELLED, PLUS_LAST_DAY, PLUS_SHEET, STUDIO_ROUTE } from './routes';
+import { PLUS_CANCELLED, PLUS_LAST_DAY, PLUS_SHEET } from './routes';
 
 /** Your card on the real phone. It is reached from Settings, and from a restore. */
 export function ManageContainer() {
@@ -78,7 +78,7 @@ export function ManageContainer() {
         name,
         caught,
         finishesOwned: finishesOwned(customer.ownedItems),
-        // Nothing sells near something heavy: on such a day the ways to the sheet and the studio rest.
+        // Nothing sells near something heavy: on such a day the way to the sheet rests.
         selling: showsSelling(day),
       }}
       actions={{
@@ -101,7 +101,6 @@ export function ManageContainer() {
             })
             .catch(() => setNotice(port.available ? 'restore_failed' : 'unavailable'));
         },
-        openStudio: () => router.push(STUDIO_ROUTE),
       }}
     />
   );

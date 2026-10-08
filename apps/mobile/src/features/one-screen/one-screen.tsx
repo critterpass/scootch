@@ -29,6 +29,7 @@ import { useComposerFeedback } from '../composer/composer-feedback';
 import { sendTyped, useComposer } from '../composer/use-composer';
 import { drawerRowEvents } from '../drawer/drawer-events';
 import { DrawerSheet } from '../drawer/drawer-sheet';
+import { usePullNudge } from '../drawer/pull-nudge';
 import { HatchHauntLink } from '../haunt/hatch-haunt-link';
 import { useHomePager, usePagerHold } from '../home-pager/home-pager-context';
 import { wordsWhileUnscreened } from '../offline/waiting-words';
@@ -164,10 +165,10 @@ function useOneScreenDrawn({
   useEffect(() => {
     if (inSession && focused) router.push(SESSION);
   }, [inSession, focused, router]);
-  // The pages beside home are not swiped to while something here has the finger or stands over
-  // the screen: a hold on the composer, the keyboard, the drawer, a session on its way in.
-  usePagerHold(composer.state.phase !== 'idle' || keyboardOpen || drawer.open || inSession || care);
-
+  // While something has the finger or stands over the screen (a hold, the keyboard, the drawer, a
+  // session on its way in) the pages are not swiped to and home does not show its own pull.
+  const taken = composer.state.phase !== 'idle' || keyboardOpen || drawer.open || inSession || care;
+  usePagerHold(taken);
   const offline = (network.isInternetReachable ?? network.isConnected) === false;
   const task = 'task' in today ? today.task : null;
   const frame = {
@@ -177,6 +178,8 @@ function useOneScreenDrawn({
     onWorld: () => (pager ? pager.show('world') : router.push(WORLD)),
     // The drawer opens on the person's own pull, or their tap on what waits for tomorrow.
     onPull: () => send({ type: 'drawer', event: { type: 'pulled' } }),
+    // With something in the drawer, home at rest shows by itself that it can be pulled down.
+    pullNudge: usePullNudge(drawer.items.length, !taken),
     overlay: (
       <DrawerSheet
         open={drawer.open}

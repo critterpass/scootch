@@ -1,6 +1,6 @@
 import type { ViewProps } from 'react-native';
 
-import { useRouteSheet } from './native-bar';
+import { useRouteSheet } from './use-route-sheet';
 import { SafeFrame } from './safe-frame';
 
 /** A sheet's own top: the room the system leaves for a grabber, above the first control. */

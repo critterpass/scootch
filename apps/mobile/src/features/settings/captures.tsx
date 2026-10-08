@@ -33,7 +33,6 @@ function Settings({
       card={{ plan: 'yearly', number: 42, finish: 'holo' }}
       onInvite={nothing}
       onChange={nothing}
-      onLanguage={nothing}
       onOpen={nothing}
       onClose={nothing}
     />
