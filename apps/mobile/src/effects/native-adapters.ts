@@ -120,11 +120,11 @@ export const nativeHaptics: HapticsPlayer = createTapScheduler(systemTimers, (ta
 export const nativeNotifications: NotificationScheduler = {
   scheduledIds: async () =>
     (await Notifications.getAllScheduledNotificationsAsync()).map((request) => request.identifier),
-  schedule: async ({ id, at, text, from, taskId, actions }) => {
+  schedule: async ({ id, at, text, from, taskId, actions, picture }) => {
     // A monster's message, or one with the bites under it, is the native module's to send: only
     // it can give a notification a sender. A build without the module sends the same words with
     // the monster's name as the title.
-    if ((from || actions) && MonsterNotifications.isAvailable()) {
+    if ((from || actions || picture) && MonsterNotifications.isAvailable()) {
       await MonsterNotifications.schedule({
         id,
         at,
@@ -133,6 +133,7 @@ export const nativeNotifications: NotificationScheduler = {
         senderImage: from?.image ?? null,
         taskId: taskId ?? null,
         actions: actions === true,
+        attachment: picture ?? null,
       });
       return;
     }

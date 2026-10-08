@@ -98,6 +98,33 @@ describe('who sends a notification', () => {
   });
 });
 
+describe('the evening receipt', () => {
+  const done = { kind: 'done_for_today', startsLeft: 0 } as const;
+  const receipts = (list: ReturnType<typeof planned>) => list.filter((one) => one.receipt);
+
+  it('is sent once on a finished day with something on it, as Scootch, with the count', () => {
+    const sent = receipts(planned({ today: done, doneToday: 5 }));
+    expect(sent).toHaveLength(1);
+    expect(sent[0]).toMatchObject({ text: '5 done. Receipt attached, as is tradition.' });
+    expect(sent[0]?.from).toBeUndefined();
+    expect(new Date(sent[0]?.at ?? 0).toISOString()).toBe('2026-10-06T18:00:00.000Z');
+  });
+
+  it('is not sent with nothing done, on a day still going, or on a crisis day', () => {
+    expect(receipts(planned({ today: done, doneToday: 0 }))).toEqual([]);
+    expect(receipts(planned({ doneToday: 3 }))).toEqual([]);
+    expect(receipts(planned({ today: { kind: 'crisis' }, doneToday: 3 }))).toEqual([]);
+  });
+
+  it('is not sent inside quiet hours, and is soft while something heavy is around', () => {
+    const early = { ...defaultSettings('en'), firstLaunchDoneAt: '2026-10-01T09:00:00.000Z' };
+    const quiet = { ...early, quietHoursStart: '18:30' as const };
+    expect(receipts(planned({ today: done, doneToday: 2, settings: quiet }))).toEqual([]);
+    const heavy = receipts(planned({ today: done, doneToday: 2, heavyToday: true }));
+    expect(heavy[0]?.text).toBe('2 done today. Your receipt is attached.');
+  });
+});
+
 describe('what a tap on a notification asks for', () => {
   const response = (actionIdentifier: string, data: unknown) => ({
     actionIdentifier,

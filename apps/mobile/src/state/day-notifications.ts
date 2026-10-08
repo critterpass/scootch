@@ -1,6 +1,7 @@
 import {
   addDays,
   instantFromIso,
+  instantOfLocal,
   isQuietMinute,
   localDateTime,
   notificationPlan,
@@ -14,7 +15,7 @@ import {
   type TodayState,
 } from '@scootch/domain';
 import { t } from '@scootch/i18n';
-import { offlineLine, offlinePacks } from '@scootch/voice';
+import { noTaskLine, offlineLine, offlinePacks } from '@scootch/voice';
 
 import type { NotificationSender } from '../effects/adapters';
 import type { PlannedText } from '../effects/effects-runner';
@@ -51,6 +52,33 @@ export interface DayNotificationsInput {
   readonly reminderAt?: Instant | null;
   /** Today's monster, which sends the task's own lines in its name. `null` before it hatched. */
   readonly monster?: NotificationSender | null;
+  /** The things finished today that a receipt may list. */
+  readonly doneToday?: number;
+}
+
+/** When the day's receipt is sent on a finished day. */
+export const RECEIPT_AT: ClockTime = '19:00';
+
+/**
+ * The evening receipt: on a day that is done, with something on it, Scootch sends the day's
+ * receipt as a picture, once. It is the only thing sent that evening, so no attitude's limit is
+ * passed, and it is not sent inside quiet hours.
+ */
+function eveningReceipt(input: DayNotificationsInput, attitude: Attitude): PlannedText[] {
+  const { today, settings } = input;
+  const done = input.doneToday ?? 0;
+  if (today.kind !== 'done_for_today' || done < 1) return [];
+  const [hour = 19, minute = 0] = RECEIPT_AT.split(':').map(Number);
+  const quietHours = { start: settings.quietHoursStart, end: settings.quietHoursEnd };
+  if (isQuietMinute(hour * 60 + minute, quietHours)) return [];
+  const text = noTaskLine(settings.language, attitude, 'eveningReceipt');
+  return [
+    {
+      at: instantOfLocal(input.localDate, RECEIPT_AT, input.timeZone),
+      text: text.replaceAll('{count}', String(done)),
+      receipt: true,
+    },
+  ];
 }
 
 /** The offline voice a volume is written in. Only full theatre is Unhinged. */
@@ -115,7 +143,7 @@ export function dayNotifications(input: DayNotificationsInput): PlannedText[] {
     quietHours: { start: settings.quietHoursStart, end: settings.quietHoursEnd },
     usualStart: input.usualStart,
   };
-  const planned: PlannedText[] = sessionEnd(input);
+  const planned: PlannedText[] = [...sessionEnd(input), ...eveningReceipt(input, attitude)];
 
   if (
     today.kind === 'task_set' &&

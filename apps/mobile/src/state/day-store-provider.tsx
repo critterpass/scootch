@@ -35,6 +35,8 @@ import {
 } from '../effects/native-adapters';
 import { purchaseStateOf } from '../features/plus/entitlement';
 import { revenueCatPurchases } from '../features/plus/revenuecat-port';
+import { nativeShareDevice } from '../features/share/native-share-device';
+import { createReceiptPicture } from '../features/share/receipt-picture';
 import { inkOf } from '../features/studio/catalogue';
 import { createNativeSurfaceSync } from '../features/surfaces/native-surface-ports';
 import { SurfaceSyncHost } from '../features/surfaces/surface-sync-host';
@@ -73,6 +75,7 @@ function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
     },
     switches: () => effectSwitches(store.getState(), motion.reduced),
     onClock: () => void store.dispatch({ type: 'session', event: { type: 'clock' } }),
+    receiptPicture: () => eveningReceipt(),
   });
   const timeZone = () => getCalendars()[0]?.timeZone ?? 'UTC';
   const repositories = openRepositories(db);
@@ -108,6 +111,15 @@ function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
     phoneLanguage: language,
     plus: unlocked,
     timers: systemTimers,
+  });
+  // The day's receipt, drawn when its evening notification is scheduled.
+  const eveningReceipt = createReceiptPicture({
+    repositories,
+    device: nativeShareDevice,
+    day: () => ({ localDate: store.getState().localDate, language: language() }),
+    timeZone,
+    finish: () => plus.store.getState().look.finish,
+    plus: unlocked,
   });
   // The widgets, the Live Activity and the control read today from the App Group.
   const surfaces = createNativeSurfaceSync({

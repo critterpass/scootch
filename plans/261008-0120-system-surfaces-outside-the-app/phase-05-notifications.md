@@ -11,7 +11,7 @@ Owns: `apps/mobile/src/features/notifications`,
   A serious task sends plain words from Scootch. Limits, back-off and quiet
   hours are unchanged.
 - Test: who sends what for each day state and attitude.
-- Status: done — see the commit that adds `apps/mobile/modules/scootch-notifications`. Who sends what is tested; the sender's face needs the Communication Notifications capability on the App ID and has not been seen. The evening receipt as a picture is not built: there is no receipt drawing and no line for it yet
+- Status: done — see the commit that adds `apps/mobile/modules/scootch-notifications`. Who sends what is tested; the sender's face needs the Communication Notifications capability on the App ID and has not been seen. The evening receipt is sent at 19:00 on a finished day with something on it, as the day's receipt with monsters' names in place of tasks' words; its plan is tested, its picture has not been seen in a notification
 
 ### 2. The long-press
 - Do: a content extension showing the three bites, each a tick; "Hunt the

@@ -39,6 +39,8 @@ export interface LocalNotification {
   readonly taskId?: string | undefined;
   /** True when the bites and the three actions hang under it. */
   readonly actions?: boolean | undefined;
+  /** A picture that arrives with it, as the address of a file. */
+  readonly picture?: string | undefined;
 }
 
 export interface NotificationScheduler {

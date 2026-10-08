@@ -11,6 +11,8 @@ export interface NativeMonsterNotification {
   taskId: string | null;
   /** True when the three actions and the bites hang under it. */
   actions: boolean;
+  /** A picture that arrives with it: the address of a file, which the system takes as its own. */
+  attachment: string | null;
 }
 
 export interface NativeActionLabels {

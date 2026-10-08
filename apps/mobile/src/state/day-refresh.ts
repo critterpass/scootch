@@ -9,6 +9,7 @@ import {
 } from '@scootch/domain';
 
 import { dayNotifications } from './day-notifications';
+import { showsComedy } from './shows-comedy';
 import type { DayContext } from './day-types';
 
 /**
@@ -91,6 +92,10 @@ export async function readToday(
       heavyToday,
       reminderAt,
       monster: monster ? { name: monster.name, image: monsterImageName(monster) } : null,
+      // What a receipt may list: a serious thing is never on one.
+      doneToday: tasks.filter(
+        (one) => one.status === 'finished' && showsComedy(one, 'notification'),
+      ).length,
     }),
   );
 }

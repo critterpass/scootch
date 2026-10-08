@@ -13,6 +13,8 @@ struct MonsterNotification: Record {
   @Field var senderImage: String?
   @Field var taskId: String?
   @Field var actions: Bool = false
+  /// A picture that arrives with it, as a file address.
+  @Field var attachment: String?
 }
 
 struct ActionLabels: Record {
@@ -77,6 +79,16 @@ enum MonsterNotifications {
       content.threadIdentifier = taskId
     }
     if notification.actions { content.categoryIdentifier = MorningHunt.category }
+    // The system moves the file into its own store, so it is given a copy to keep.
+    if let address = notification.attachment, let url = URL(string: address), url.isFileURL {
+      let copy = FileManager.default.temporaryDirectory
+        .appendingPathComponent(UUID().uuidString + "-" + url.lastPathComponent)
+      if (try? FileManager.default.copyItem(at: url, to: copy)) != nil,
+        let picture = try? UNNotificationAttachment(identifier: "picture", url: copy)
+      {
+        content.attachments = [picture]
+      }
+    }
 
     let seconds = max(1, notification.at / 1000 - Date().timeIntervalSince1970)
     let request = UNNotificationRequest(
