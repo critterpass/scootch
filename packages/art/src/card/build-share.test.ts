@@ -77,7 +77,7 @@ describe('the trading card', () => {
     const words = printed(card.commands);
     for (const part of [
       'INBOX DWELLER',
-      'RARE',
+      'EPIC',
       'Lurked',
       '214 days',
       'Tue 09:41',

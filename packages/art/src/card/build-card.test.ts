@@ -52,7 +52,7 @@ describe('buildCard', () => {
 
   it('prints the card data, and the fixed labels in the chosen language', () => {
     const en = printed(buildCard(molar));
-    for (const part of ['Molar, Keeper of Thursday', 'INBOX DWELLER · RARE', 'No. 041']) {
+    for (const part of ['Molar, Keeper of Thursday', 'INBOX DWELLER · EPIC', 'No. 041']) {
       expect(en).toContain(part);
     }
     for (const part of ['“email the dentist”', '214 days', '9 min', 'Tue 6 Oct', 'scootch.app']) {

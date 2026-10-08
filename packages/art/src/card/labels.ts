@@ -59,7 +59,7 @@ const plural = (count: number, one: string, many: string): string =>
 
 export const CARD_LABELS: Record<CardLanguage, CardLabels> = {
   en: {
-    rarity: { common: 'Common', uncommon: 'Uncommon', rare: 'Rare' },
+    rarity: { common: 'Common', uncommon: 'Rare', rare: 'Epic' },
     number: (digits) => `No. ${digits}`,
     lurked: 'Lurked',
     dread: 'Dread',
@@ -115,7 +115,7 @@ export const CARD_LABELS: Record<CardLanguage, CardLabels> = {
     longWeekdays: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
   },
   vi: {
-    rarity: { common: 'Thường', uncommon: 'Ít gặp', rare: 'Hiếm' },
+    rarity: { common: 'Thường', uncommon: 'Hiếm', rare: 'Sử thi' },
     number: (digits) => `Số ${digits}`,
     lurked: 'Ẩn nấp',
     dread: 'Độ ngán',
