@@ -12,7 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fonts, fontSizes, spacing } from '@scootch/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
-import { BackButton, CloseButton, CORNER, CornerBar, MenuButton } from '../../ui/corner-bar';
+import { BackButton, CORNER, CornerBar, MenuButton } from '../../ui/corner-bar';
 import { EdgeFade } from '../../ui/edge-fade';
 import { SafeFrame } from '../../ui/safe-frame';
 import { useScreenStyle } from '../../ui/use-screen-style';
@@ -30,23 +30,14 @@ const FADE_BELOW = 22;
 
 export interface PageProps {
   /**
-   * The page's large title, in the heading every screen wears: beside the close control at rest,
-   * scrolling away with the list, and taken up small by the bar once it has gone. Left out, the
-   * small centred title is shown from the start.
+   * The page's large title: under the bar at rest, scrolling away with the list, and taken up
+   * small by the bar once it has gone. Left out, the small centred title is shown from the start.
    */
   readonly title?: string;
   readonly barTitle?: string;
   readonly onClose: () => void;
-  /**
-   * True for the page beside home that lies to its trailing side: it closes by sliding back to
-   * home at its leading side, so its control is an arrow in the leading corner pointing there.
-   */
-  readonly backAtLeading?: boolean;
   readonly testID: string;
-  /**
-   * The page's own menu. With one, the way back sits in the leading corner and the menu in the
-   * trailing one.
-   */
+  /** The page's own menu, in the trailing corner. */
   readonly menu?: { readonly label: string; readonly hint: string; readonly onPress: () => void };
   /** The page's actions, in a dock that stays at the bottom while the page scrolls above it. */
   readonly footer?: ReactNode;
@@ -54,14 +45,14 @@ export interface PageProps {
 }
 
 /**
- * A page of rows, under the one heading every screen wears: the title large at the leading side,
- * the round close control in the trailing corner. The list scrolls under the bar and fades into
- * the page there instead of being cut off on a line; as it goes the large title shrinks away and
- * the bar takes it up small. The bar is the page's own on every route, so a page looks the same
- * beside home, pushed, or opened from a link.
+ * A page of rows, under the one heading every page wears: the way back as a round arrow in the
+ * leading corner, and the title large under it. The list scrolls under the bar and fades into the
+ * page there instead of being cut off on a line; as it goes the large title shrinks away and the
+ * bar takes it up small. The bar is the page's own on every route, so a page looks the same
+ * beside home, pushed, or opened from a link. A page is gone back from; only a sheet or a moment
+ * is closed, and those keep their cross in the trailing corner.
  */
-export function Page(props: PageProps) {
-  const { title, barTitle, onClose, testID, menu, footer, children, backAtLeading = false } = props;
+export function Page({ title, barTitle, onClose, testID, menu, footer, children }: PageProps) {
   const { palette, allowFontScaling, size, reducedMotion } = useScreenStyle();
   const t = useT();
   const insets = useSafeAreaInsets();
@@ -112,10 +103,6 @@ export function Page(props: PageProps) {
     testID: `${testID}-close`,
   };
   const menuItem = menu === undefined ? undefined : { ...menu, testID: `${testID}-menu` };
-  // A page with only the close control has its title in the bar's own row, beside it. With a
-  // way back in the leading corner, the row is the controls' and the title starts under it.
-  const leading = backAtLeading || menuItem !== undefined;
-  const beside = title !== undefined && !leading;
   const small = barTitle ?? title;
   return (
     <SafeFrame style={[styles.page, { backgroundColor: palette.page }]} testID={testID}>
@@ -124,10 +111,7 @@ export function Page(props: PageProps) {
           onScroll={follow}
           scrollEventThrottle={16}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={[
-            styles.content,
-            { paddingTop: beside ? spacing.xs : barHeight + spacing.sm },
-          ]}
+          contentContainerStyle={[styles.content, { paddingTop: barHeight + spacing.sm }]}
           testID={`${testID}-list`}
         >
           {title === undefined ? null : (
@@ -137,7 +121,6 @@ export function Page(props: PageProps) {
               maxFontSizeMultiplier={1.5}
               style={[
                 styles.title,
-                beside ? styles.besideClose : null,
                 {
                   color: palette.ink,
                   fontSize: size(fontSizes.sentence),
@@ -163,18 +146,15 @@ export function Page(props: PageProps) {
           </Animated.View>
           <View onLayout={({ nativeEvent }) => setBarHeight(nativeEvent.layout.height)}>
             <CornerBar
-              {...(leading
-                ? {
-                    leading: <BackButton {...close} />,
-                    // With no menu, an empty corner keeps the small title in the middle.
-                    trailing:
-                      menuItem === undefined ? (
-                        <View style={styles.corner} />
-                      ) : (
-                        <MenuButton {...menuItem} />
-                      ),
-                  }
-                : { trailing: <CloseButton {...close} /> })}
+              leading={<BackButton {...close} />}
+              // With no menu, an empty corner keeps the small title in the middle.
+              trailing={
+                menuItem === undefined ? (
+                  <View style={styles.corner} />
+                ) : (
+                  <MenuButton {...menuItem} />
+                )
+              }
             >
               {small === undefined ? null : (
                 <Animated.Text
@@ -184,8 +164,6 @@ export function Page(props: PageProps) {
                   numberOfLines={1}
                   style={[
                     styles.barTitle,
-                    // With a control in each corner the title is already centred between them.
-                    leading && styles.between,
                     { color: palette.ink, fontSize: size(BAR_TITLE_SIZE) },
                     title === undefined ? null : taken,
                   ]}
@@ -220,13 +198,10 @@ const styles = StyleSheet.create({
   barTitle: {
     flex: 1,
     textAlign: 'center',
-    // The close control is in the trailing corner: the title is centred on the screen beside it.
-    marginLeft: CORNER.size,
     alignSelf: 'center',
     fontFamily: fonts.heading,
     fontWeight: '700',
   },
-  between: { marginLeft: 0 },
   corner: { width: CORNER.size, height: CORNER.size },
   content: { paddingHorizontal: spacing.md, paddingBottom: spacing.xxl, gap: spacing.lg },
   footer: { paddingHorizontal: DOCK_GUTTER, paddingTop: spacing.sm },
@@ -239,5 +214,4 @@ const styles = StyleSheet.create({
     marginLeft: spacing.sm,
     transformOrigin: 'left center',
   },
-  besideClose: { marginRight: CORNER.size + spacing.sm, minHeight: CORNER.size },
 });

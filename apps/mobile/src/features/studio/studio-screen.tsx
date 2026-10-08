@@ -7,7 +7,7 @@ import { fonts, spacing } from '@scootch/tokens';
 
 import type { MonsterProps } from '../../art/Monster';
 import { useT } from '../../i18n/i18n-provider';
-import { CloseButton, CORNER, CornerBar } from '../../ui/corner-bar';
+import { BackButton, CORNER, CornerBar } from '../../ui/corner-bar';
 import { CROSSFADE_MS } from '../../ui/motion/motion-tokens';
 import { SafeFrame } from '../../ui/safe-frame';
 import { useScreenStyle } from '../../ui/use-screen-style';
@@ -128,15 +128,17 @@ export function StudioScreen({ model, actions }: { model: StudioModel; actions: 
   return (
     <SafeFrame testID="studio" style={[styles.page, { backgroundColor: palette.page }]}>
       <CornerBar
-        leading={<View style={styles.corner} />}
-        trailing={
-          <CloseButton
+        // The studio is gone back from, as every page under Settings is: an arrow in the leading
+        // corner, and an empty one opposite so the tabs stay in the middle.
+        leading={
+          <BackButton
             label={t('keep.close')}
             hint={t('keep.close.hint')}
             onPress={actions.close}
             testID="studio-close"
           />
         }
+        trailing={<View style={styles.corner} />}
       >
         <View style={styles.tabs}>
           <StudioTabs shown={tab} onShow={actions.showTab} />

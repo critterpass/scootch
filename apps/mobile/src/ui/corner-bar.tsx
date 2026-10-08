@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import { spacing } from '@scootch/tokens';
 
 import { RoundButton } from './buttons';
-import { Chevron, MoreIcon } from './icons';
+import { MoreIcon } from './icons';
 import { GlassGroup } from './glass-surface';
 import { useScreenStyle } from './use-screen-style';
 
@@ -37,6 +37,29 @@ export function CornerBar({ leading, children, trailing }: CornerBarProps) {
   );
 }
 
+/** The arrow's square: two of its sides are the strokes, turned to point one way. */
+const ARROW = 10;
+
+/**
+ * The arrow of a corner button. It is two sides of a turned square, so all of its ink lies on the
+ * side it points to: it is set back by that much, and its middle is then the button's middle.
+ */
+function Arrow({ color, to }: { readonly color: string; readonly to: 'left' | 'right' }) {
+  // The strokes run from the square's middle out to its point, 0.71 of a side away.
+  const back = ARROW * 0.35 * (to === 'right' ? -1 : 1);
+  return (
+    <View
+      style={[
+        styles.arrow,
+        {
+          borderColor: color,
+          transform: [{ translateX: back }, { rotate: to === 'right' ? '45deg' : '225deg' }],
+        },
+      ]}
+    />
+  );
+}
+
 export interface CloseButtonProps {
   readonly label: string;
   readonly hint: string;
@@ -62,7 +85,7 @@ export function BackButton({ label, hint, onPress, testID }: CloseButtonProps) {
   const { palette } = useScreenStyle();
   return (
     <RoundButton label={label} hint={hint} onPress={onPress} testID={testID}>
-      <Chevron color={palette.ink} direction="left" />
+      <Arrow color={palette.ink} to="left" />
     </RoundButton>
   );
 }
@@ -76,7 +99,7 @@ export function ForwardButton({ label, hint, onPress, testID }: CloseButtonProps
   const { palette } = useScreenStyle();
   return (
     <RoundButton label={label} hint={hint} onPress={onPress} testID={testID}>
-      <Chevron color={palette.ink} direction="right" />
+      <Arrow color={palette.ink} to="right" />
     </RoundButton>
   );
 }
@@ -102,6 +125,13 @@ const styles = StyleSheet.create({
     paddingTop: CORNER.top,
   },
   empty: { width: 0, height: CORNER.size },
+  arrow: {
+    width: ARROW,
+    height: ARROW,
+    borderTopWidth: 2.2,
+    borderRightWidth: 2.2,
+    borderTopRightRadius: 1.5,
+  },
   cross: { width: 16, height: 16, alignItems: 'center', justifyContent: 'center' },
   stroke: { position: 'absolute', width: 16, height: 2, borderRadius: 1 },
   down: { transform: [{ rotate: '45deg' }] },

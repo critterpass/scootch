@@ -73,8 +73,6 @@ export interface SettingsPageProps {
   /** Opens the share sheet with a friend link. Unset (a capture), the row does nothing. */
   readonly onInvite?: () => void;
   readonly onClose: () => void;
-  /** True beside home: the page closes by sliding back to home, at its leading side. */
-  readonly homeIsBeside?: boolean;
 }
 
 /**
@@ -89,12 +87,7 @@ export function SettingsPage(props: SettingsPageProps) {
   const appearance = useAppearance();
 
   return (
-    <Page
-      title={t('settings.title')}
-      onClose={props.onClose}
-      backAtLeading={props.homeIsBeside === true}
-      testID="settings"
-    >
+    <Page title={t('settings.title')} onClose={props.onClose} testID="settings">
       <AttitudeDial attitude={settings.attitude} onChoose={(attitude) => onChange({ attitude })} />
 
       <Section label={`${t('brand.name')} ${t('brand.plus')}`}>
