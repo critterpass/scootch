@@ -6,8 +6,9 @@ name: native-build-job
 # - `e2e-test` (the simulator app, no Apple credentials) becomes a GitHub release named
 #   native-e2e-test-ios-<fingerprint, 12 characters>-<run id> whose body is its manifest
 #   (tools/scripts/native-build-manifest.ts). Device runs find it there by native fingerprint.
-# - `dev` (signed for the App Store) goes straight from the runner to TestFlight. This repository
-#   is public, so the signed .ipa is never a run artifact or a release asset.
+# - `dev` and `prd` (signed for the App Store) go straight from the runner to App Store Connect:
+#   `dev` to the "Scootch Dev" app's TestFlight, `prd` to the store app's. This repository is
+#   public, so the signed .ipa is never a run artifact or a release asset.
 on:
   workflow_call:
     inputs:
@@ -16,11 +17,11 @@ on:
         required: true
         type: string
       profile:
-        description: eas.json build profile (e2e-test or dev)
+        description: eas.json build profile (e2e-test, dev or prd)
         required: true
         type: string
       submit:
-        description: Send the dev build to TestFlight
+        description: Send the signed build to App Store Connect
         required: false
         type: boolean
         default: false
@@ -29,13 +30,13 @@ on:
         description: Expo access token (every build)
         required: false
       EXPO_ASC_API_KEY_P8:
-        description: App Store Connect API key file contents (dev)
+        description: App Store Connect API key file contents (dev, prd)
         required: false
       EXPO_ASC_KEY_ID:
-        description: App Store Connect API key id (dev)
+        description: App Store Connect API key id (dev, prd)
         required: false
       EXPO_ASC_ISSUER_ID:
-        description: App Store Connect API issuer id (dev)
+        description: App Store Connect API issuer id (dev, prd)
         required: false
 
 env:
@@ -61,7 +62,8 @@ jobs:
           ASC_API_KEY_P8: ${{ secrets.EXPO_ASC_API_KEY_P8 }}
           ASC_KEY_ID: ${{ secrets.EXPO_ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.EXPO_ASC_ISSUER_ID }}
-          ASC_APP_ID: ${{ vars.ASC_APP_ID }}
+          ASC_APP_ID: ${{ inputs.profile == 'prd' && vars.ASC_APP_ID_PRD || vars.ASC_APP_ID }}
+          ASC_APP_ID_NAME: ${{ inputs.profile == 'prd' && 'ASC_APP_ID_PRD' || 'ASC_APP_ID' }}
         run: |
           fail() { echo "::error::$1"; exit 1; }
           missing=()
@@ -70,14 +72,14 @@ jobs:
             e2e-test)
               [ "$SUBMIT" != true ] || fail "An e2e-test build is the simulator app: it cannot be submitted. Use submit=false."
               ;;
-            dev)
-              [ "$SUBMIT" = true ] || fail "A dev build on a public repository must be submitted (submit=true): the signed .ipa is never kept as an artifact."
+            dev | prd)
+              [ "$SUBMIT" = true ] || fail "A $PROFILE build on a public repository must be submitted (submit=true): the signed .ipa is never kept as an artifact."
               [ -n "$ASC_API_KEY_P8" ] || missing+=("secret EXPO_ASC_API_KEY_P8")
               [ -n "$ASC_KEY_ID" ] || missing+=("secret EXPO_ASC_KEY_ID")
               [ -n "$ASC_ISSUER_ID" ] || missing+=("secret EXPO_ASC_ISSUER_ID")
-              [ -n "$ASC_APP_ID" ] || missing+=("variable ASC_APP_ID")
+              [ -n "$ASC_APP_ID" ] || missing+=("variable $ASC_APP_ID_NAME")
               ;;
-            *) fail "profile must be e2e-test or dev, not \"$PROFILE\"" ;;
+            *) fail "profile must be e2e-test, dev or prd, not \"$PROFILE\"" ;;
           esac
           if [ "${#missing[@]}" -gt 0 ]; then
             list=$(printf '%s, ' "${missing[@]}")
@@ -108,6 +110,10 @@ jobs:
       # Seconds, not the half hour a build takes to produce an app that cannot start.
       - name: The Expo prebuilt frameworks link with each other
         run: pnpm exec tsx tools/scripts/check-expo-prebuilds.ts
+      # The store app's bundle refuses an unverified helpline; say so before the compile, not after.
+      - name: Every helpline is verified at its source
+        if: inputs.profile == 'prd'
+        run: pnpm exec tsx tools/scripts/check-helplines-verified.ts
       - name: Build
         id: build
         env:
@@ -118,9 +124,9 @@ jobs:
           # A signed build may need a provisioning profile made or renewed: a new extension, or
           # a capability added to an App ID. EAS does that through App Store Connect with the
           # same key the submit step uses. The simulator build is never given it.
-          ASC_API_KEY_P8: ${{ inputs.profile == 'dev' && secrets.EXPO_ASC_API_KEY_P8 || '' }}
-          EXPO_ASC_KEY_ID: ${{ inputs.profile == 'dev' && secrets.EXPO_ASC_KEY_ID || '' }}
-          EXPO_ASC_ISSUER_ID: ${{ inputs.profile == 'dev' && secrets.EXPO_ASC_ISSUER_ID || '' }}
+          ASC_API_KEY_P8: ${{ inputs.profile != 'e2e-test' && secrets.EXPO_ASC_API_KEY_P8 || '' }}
+          EXPO_ASC_KEY_ID: ${{ inputs.profile != 'e2e-test' && secrets.EXPO_ASC_KEY_ID || '' }}
+          EXPO_ASC_ISSUER_ID: ${{ inputs.profile != 'e2e-test' && secrets.EXPO_ASC_ISSUER_ID || '' }}
         run: tools/scripts/native-build-ios.sh "$PROFILE" "$RUNNER_TEMP/native"
 
       - name: Manifest
@@ -148,16 +154,16 @@ jobs:
             echo '```json'; cat "$manifest"; echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Submit to TestFlight
-        if: inputs.profile == 'dev'
+      - name: Submit to App Store Connect
+        if: inputs.profile != 'e2e-test'
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           ASC_API_KEY_P8: ${{ secrets.EXPO_ASC_API_KEY_P8 }}
           EXPO_ASC_KEY_ID: ${{ secrets.EXPO_ASC_KEY_ID }}
           EXPO_ASC_ISSUER_ID: ${{ secrets.EXPO_ASC_ISSUER_ID }}
-          ASC_APP_ID: ${{ vars.ASC_APP_ID }}
+          ASC_APP_ID: ${{ inputs.profile == 'prd' && vars.ASC_APP_ID_PRD || vars.ASC_APP_ID }}
           ARTIFACT: ${{ steps.build.outputs.artifact }}
         run: tools/scripts/native-submit-ios.sh "$PROFILE" "$ARTIFACT"
       - name: Remove the signed build
-        if: always() && inputs.profile == 'dev'
+        if: always() && inputs.profile != 'e2e-test'
         run: rm -rf "$RUNNER_TEMP/native" "$RUNNER_TEMP/asc-api-key.p8"

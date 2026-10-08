@@ -169,7 +169,7 @@ A and C merge.
 | First minute | End of 04 | Passed online 7 Oct 2026 on a device run and on the founder's iPhone; offline for the session is not yet walked |
 | Care | End of 07 | The serious and crisis eval set passes with no miss, and the walk shows no joke on a heavy task |
 | Money | End of 08 | On dev: sandbox purchase, trial, restore and cancel walked end to end; the house rules checked screen by screen |
-| Release | End of 11 | The full fresh-user walk passes on the release candidate against dev, with video; then prd is deployed and smoke-checked before submission |
+| Release | End of 11 | prd is deployed and smoke-checked before submission. The full fresh-user walk on the release candidate is not required: the founder waived it on 8 Oct 2026 |
 
 Each phase also ends with design-beside-device sheets for every screen it
 touched, and its part of the fresh-user walk.
@@ -227,6 +227,13 @@ Things only the founder can do. Phase 00 lists them with the exact steps.
 - Vietnam's helplines: 115 first, then Ngày mai and Hy Vọng Sống with their
   hours, and 111 as the children's line.
 
+## Decided 8 Oct 2026
+
+- The production API answers at `api.scootch.app`.
+- The founder read Tele-MANAS's number and Hy Vọng Sống's hours at their own
+  sources; no helpline row holds production any more.
+- The release does not wait for the full fresh-user walk.
+
 ## Unresolved questions
 
 0. How many things a day Plus allows, now that free is three (six for now).
@@ -234,10 +241,8 @@ Things only the founder can do. Phase 00 lists them with the exact steps.
 2. "Send the link to my phone": QR code and email only, or text messages too.
 3. Does the founder accept "a person writes back within two working days" on
    the support page.
-4. Two helpline rows are unverified at their own source and block a
-   production bundle: Tele-MANAS (India) and the hours of Hy Vọng Sống.
-5. The minimum iOS version (16.4 today; 18 is recommended).
-6. Whether to set up Sentry.
-7. Whether the crisis screen offers a way out into a quiet day.
-8. Whether monsters made on the website can be sent as haunts.
-9. Whether `help@`, `privacy@` and `press@scootch.app` exist.
+4. The minimum iOS version (16.4 today; 18 is recommended).
+5. Whether to set up Sentry.
+6. Whether the crisis screen offers a way out into a quiet day.
+7. Whether monsters made on the website can be sent as haunts.
+8. Whether `help@`, `privacy@` and `press@scootch.app` exist.

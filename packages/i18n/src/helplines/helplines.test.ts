@@ -166,11 +166,8 @@ describe('the release check', () => {
     expect(unverifiedHelplines([hoursUnchecked])).toHaveLength(1);
   });
 
-  it('holds production today on exactly the two things still to be verified', () => {
-    const problems = unverifiedHelplines(HELPLINES);
-    expect(problems).toHaveLength(2);
-    expect(problems[0]).toContain('IN 14416');
-    expect(problems[1]).toContain('VN 086 50 444 00');
+  it('finds nothing left to verify in the table the app and the site read', () => {
+    expect(unverifiedHelplines(HELPLINES)).toEqual([]);
   });
 });
 

@@ -9,7 +9,7 @@ const DEV_URL = 'https://scootch-dev.bkdev98.workers.dev';
 const API_URLS: Readonly<Record<string, string>> = {
   dev: DEV_URL,
   'e2e-test': DEV_URL,
-  prd: 'https://scootch.bkdev98.workers.dev',
+  prd: 'https://api.scootch.app',
 };
 
 /** The base URL for a variant name from the app config. An unknown variant talks to dev. */

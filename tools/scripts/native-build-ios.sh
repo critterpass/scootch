@@ -3,7 +3,7 @@
 # minutes. EAS still supplies the project, the build number and, for a store profile, the
 # distribution certificate and the provisioning profiles of every target, through EXPO_TOKEN.
 #
-#   tools/scripts/native-build-ios.sh <e2e-test|dev> <out dir>
+#   tools/scripts/native-build-ios.sh <e2e-test|dev|prd> <out dir>
 #
 # Writes <out dir>/scootch-<profile>-ios.tar.gz (the simulator app) or .ipa (the signed store
 # build), and its path as the `artifact` step output.
@@ -22,15 +22,15 @@ repo_root=$(cd "$(dirname "$0")/../.." && pwd)
 [ -n "${EXPO_TOKEN:-}" ] || { echo "::error::The EXPO_TOKEN secret is missing"; exit 1; }
 case "$profile" in
   e2e-test) extension=tar.gz ;;
-  dev) extension=ipa ;;
-  *) echo "::error::profile must be e2e-test or dev, not \"$profile\""; exit 1 ;;
+  dev | prd) extension=ipa ;;
+  *) echo "::error::profile must be e2e-test, dev or prd, not \"$profile\""; exit 1 ;;
 esac
 
 mkdir -p "$out_dir"
 artifact=$(cd "$out_dir" && pwd)/scootch-$profile-ios.$extension
 
 # Only a signed build is given the key, and only as a file nobody else on the runner can read.
-if [ "$profile" = dev ] && [ -n "${ASC_API_KEY_P8:-}" ] && [ -n "${EXPO_ASC_KEY_ID:-}" ] &&
+if [ "$profile" != e2e-test ] && [ -n "${ASC_API_KEY_P8:-}" ] && [ -n "${EXPO_ASC_KEY_ID:-}" ] &&
   [ -n "${EXPO_ASC_ISSUER_ID:-}" ]; then
   key_file=${RUNNER_TEMP:-$(mktemp -d)}/asc-api-key.p8
   trap 'rm -f "$key_file"' EXIT

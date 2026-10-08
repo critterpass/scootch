@@ -53,6 +53,9 @@ gh workflow run native-build.yml -f ref=<branch> -f profile=e2e-test
 
 # The signed dev app, sent to TestFlight
 gh workflow run native-build.yml -f ref=<branch> -f profile=dev -f submit=true
+
+# The signed App Store app, sent to its own app in App Store Connect
+gh workflow run native-build.yml -f ref=main -f profile=prd -f submit=true
 ```
 
 One build per ref and profile runs at a time; a second dispatch waits. Before building, the job
@@ -71,6 +74,10 @@ checks that the Expo prebuilt frameworks link with each other (`check-expo-prebu
   signed `.ipa` is never a run artifact or a release asset, and a `dev` build with `submit=false`
   stops before building. Capability syncing is off (`EXPO_NO_CAPABILITY_SYNC=1`): EAS cannot sync
   an App Clip's capabilities, so the App IDs are kept by hand.
+- **`prd`** is the App Store app (`app.scootch`), made and sent the same way as `dev`, to the
+  store app's record in App Store Connect. It talks to the production API and takes updates from
+  the `prd` channel. Its bundle is refused while a helpline is unverified
+  (`check-helplines-verified.ts`), so the job runs that check before it compiles.
 
 The fingerprint covers native packages, config plugins and the native fields of `app.config.ts`.
 It does not cover the Swift sources under `apps/mobile/targets/`: after changing those, make a new
@@ -81,10 +88,11 @@ The job stops in its first step, naming what is missing, unless the repository h
 | Name | Kind | Needed by | What it is |
 | --- | --- | --- | --- |
 | `EXPO_TOKEN` | secret | every build | An Expo access token for the account that owns the project; `eas build` does nothing without a login, even for the simulator. |
-| `EXPO_ASC_API_KEY_P8` | secret | `dev` | The contents of an App Store Connect API key file (`AuthKey_<id>.p8`). |
-| `EXPO_ASC_KEY_ID` | secret | `dev` | That key's id. |
-| `EXPO_ASC_ISSUER_ID` | secret | `dev` | The issuer id shown above the keys in App Store Connect. |
+| `EXPO_ASC_API_KEY_P8` | secret | `dev`, `prd` | The contents of an App Store Connect API key file (`AuthKey_<id>.p8`). |
+| `EXPO_ASC_KEY_ID` | secret | `dev`, `prd` | That key's id. |
+| `EXPO_ASC_ISSUER_ID` | secret | `dev`, `prd` | The issuer id shown above the keys in App Store Connect. |
 | `ASC_APP_ID` | variable | `dev` | The dev app's numeric Apple ID in App Store Connect (App Information). |
+| `ASC_APP_ID_PRD` | variable | `prd` | The store app's numeric Apple ID in App Store Connect. |
 
 Device runs need none of them.
 
