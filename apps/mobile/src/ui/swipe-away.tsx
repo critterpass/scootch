@@ -20,6 +20,8 @@ import { useScreenStyle } from './use-screen-style';
 
 const ALWAYS = ReduceMotion.Never;
 
+type PanConfig = NonNullable<Parameters<typeof usePanGesture>[0]>;
+
 export interface SwipeAwayProps {
   /** The row has slid off and closed up: it is gone. */
   readonly onGone: () => void;
@@ -51,39 +53,45 @@ export function SwipeAway({ onGone, to = 'left', radius = 0, style, children }: 
   const gone = useSharedValue(0);
 
   // How far it has gone, as a negative number either way: to the left, or down.
-  const pan = usePanGesture({
-    ...(down
+  const follow: NonNullable<PanConfig['onUpdate']> = (event) => {
+    'worklet';
+    slid.value = Math.min(0, down ? -event.translationY : event.translationX);
+  };
+  const release: NonNullable<PanConfig['onDeactivate']> = (event) => {
+    'worklet';
+    const far = down ? tall.value : wide.value;
+    const velocity = down ? -event.velocityY : event.velocityX;
+    if (!event.canceled && removesOnRelease(slid.value, velocity, far)) {
+      slid.value = withTiming(-far, { duration: ROW.offMs, reduceMotion: ALWAYS });
+      gone.value = withTiming(
+        1,
+        { duration: mayMove ? ROW.closeMs : 0, reduceMotion: ALWAYS },
+        (finished) => {
+          if (finished) scheduleOnRN(onGone);
+        },
+      );
+      return;
+    }
+    slid.value = withSpring(0, { ...ROW.settle, reduceMotion: ALWAYS });
+  };
+  // Which drag takes it, and which is left alone. Each way is written whole: a spread inside the
+  // hook's own braces stops the worklets plugin, and the app does not bundle.
+  const pan = usePanGesture(
+    down
       ? {
           activeOffsetY: ROW.takesAfter,
           failOffsetY: -ROW.takesAfter,
-          failOffsetX: [-ROW.scrollsAfter, ROW.scrollsAfter] as [number, number],
+          failOffsetX: [-ROW.scrollsAfter, ROW.scrollsAfter],
+          onUpdate: follow,
+          onDeactivate: release,
         }
       : {
-          activeOffsetX: [-ROW.takesAfter, ROW.takesAfter] as [number, number],
-          failOffsetY: [-ROW.scrollsAfter, ROW.scrollsAfter] as [number, number],
-        }),
-    onUpdate: (event) => {
-      'worklet';
-      slid.value = Math.min(0, down ? -event.translationY : event.translationX);
-    },
-    onDeactivate: (event) => {
-      'worklet';
-      const far = down ? tall.value : wide.value;
-      const velocity = down ? -event.velocityY : event.velocityX;
-      if (!event.canceled && removesOnRelease(slid.value, velocity, far)) {
-        slid.value = withTiming(-far, { duration: ROW.offMs, reduceMotion: ALWAYS });
-        gone.value = withTiming(
-          1,
-          { duration: mayMove ? ROW.closeMs : 0, reduceMotion: ALWAYS },
-          (finished) => {
-            if (finished) scheduleOnRN(onGone);
-          },
-        );
-        return;
-      }
-      slid.value = withSpring(0, { ...ROW.settle, reduceMotion: ALWAYS });
-    },
-  });
+          activeOffsetX: [-ROW.takesAfter, ROW.takesAfter],
+          failOffsetY: [-ROW.scrollsAfter, ROW.scrollsAfter],
+          onUpdate: follow,
+          onDeactivate: release,
+        },
+  );
   const tick = () => touchHaptic('choice');
   useAnimatedReaction(
     () => {
