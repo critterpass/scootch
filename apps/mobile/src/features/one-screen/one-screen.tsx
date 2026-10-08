@@ -5,7 +5,6 @@ import { Linking, View } from 'react-native';
 
 import { FREE_STARTS_PER_DAY, hasStartLeft, startsAllowed, type Attitude } from '@scootch/domain';
 
-import { getReading } from '../../../modules/scootch-reading';
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import {
   useCue,
@@ -59,7 +58,7 @@ export interface OneScreenProps {
 
 /** The routes other parts of the app provide, reached by name. */
 const [WORLD, CARE, SETTINGS] = ['/world', '/care', '/settings'] as [Href, Href, Href];
-const [SESSION, CAMERA] = ['/session', '/camera'] as [Href, Href];
+const SESSION = '/session' as Href;
 /** What the drawing hook answers while a session covers the one screen. */
 const COVERED = 'covered';
 
@@ -297,8 +296,6 @@ function useOneScreenDrawn({
       screenReader,
       onOpenSettings: () => void Linking.openSettings().catch(() => undefined),
       onCancelThinking: () => send({ type: 'task_call_cancelled' }),
-      // Only on a phone that can read a photo: without the reader there is no camera button.
-      ...(getReading() === null ? {} : { onCamera: () => router.push(CAMERA) }),
       // With no start left the dock takes no words. Only the locked capsule, on a day with nothing
       // heavy in it, leads to the sheet, and only when it is tapped.
       ...(starts === 'open'
