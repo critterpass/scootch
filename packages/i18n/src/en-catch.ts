@@ -136,4 +136,15 @@ export const enCatch = {
   'session.catch.envelope.seal.sub': 'Tap once more.',
   'session.catch.envelope.sealed': 'Sealed.',
   'session.catch.envelope.won': 'Signed, sealed, delivered.',
+
+  // Odd weeks: the ninth catch, and the word an odd hatch adds to a card's name.
+  'session.catch.teacup.setting.sub': 'Every minute you work, the cup swings a little closer.',
+  'session.catch.teacup.ready': 'Tip the cup',
+  'session.catch.teacup.ready.sub': 'Drag it down over him',
+  'session.catch.teacup.almost': 'Almost.',
+  'session.catch.teacup.almost.sub': 'Drag it all the way down.',
+  'session.catch.teacup.under': 'Got him under there.',
+  'session.catch.teacup.under.sub': 'Hang on…',
+  'session.catch.teacup.won': 'Got him.',
+  'card.oddName.tiny': '{name} (tiny)',
 } as const;

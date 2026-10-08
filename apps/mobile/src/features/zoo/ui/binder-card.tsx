@@ -22,6 +22,7 @@ import { fonts } from '@scootch/tokens';
 import { CommandLayer } from '../../../art/skia-commands';
 import { useT } from '../../../i18n/i18n-provider';
 import { useCharacterMotion } from '../../../ui/motion/use-feel';
+import { cardName } from '../../monster/monster-name';
 import { STAMPED } from '../../plus/ui/member-card';
 import type { CardMotion } from '../../reveal/ui/card-motion';
 import { facesFront } from '../../reveal/ui/card-turn';
@@ -206,7 +207,7 @@ export function BinderCard({
                   minimumFontScale={0.7}
                   style={[styles.name, { color: ink }]}
                 >
-                  {monster.name}
+                  {cardName(monster, t)}
                 </Text>
                 <Text
                   allowFontScaling={false}

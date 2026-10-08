@@ -7,6 +7,7 @@ import { enterCrisis, stopWithoutAWord } from './care-flow';
 import type { DayContext, Offer, Reveal } from './day-types';
 import { catchLateMonster } from './late-catch';
 import { sortKeptWords } from './late-words';
+import { hatchedInThisWeek } from './odd-hatch';
 import { pickForMe } from './pick-flow';
 import { fallbackCopy, monsterFor, newTask, park } from './task-rows';
 
@@ -46,7 +47,9 @@ async function applyName(
   const task = await tasks.get(taskId);
   if (!task || task.screen !== 'pass') return;
   if ((await monsters.where('taskId', task.id)).length > 0) return;
-  await monsters.put(monsterFor(ctx, task, labels, name.monster));
+  await monsters.put(
+    await hatchedInThisWeek(ctx, task, monsterFor(ctx, task, labels, name.monster)),
+  );
   // A task finished meanwhile has nothing left to hatch on the screen: its monster is caught.
   if (task.status === 'finished') await catchLateMonster(ctx, task);
   else ctx.set({ line: { slot: 'hatch', text: name.hatch } });
@@ -94,7 +97,9 @@ async function applyRest(
     if (pass?.monster) await repositories.monsters.put({ ...named, ...pass.monster });
   } else {
     const copy = pass?.monster ?? fallbackCopy(ctx, written, known);
-    await repositories.monsters.put(monsterFor(ctx, written, known, copy));
+    await repositories.monsters.put(
+      await hatchedInThisWeek(ctx, written, monsterFor(ctx, written, known, copy)),
+    );
   }
   // The hatch line the name brought stays; otherwise the pack's own is said now.
   if (written.status === 'finished') await catchLateMonster(ctx, written);

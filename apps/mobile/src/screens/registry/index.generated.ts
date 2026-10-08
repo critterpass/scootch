@@ -70,6 +70,8 @@ export * from './monster-shrunk';
 export * from './morning-back-after-a-month';
 export * from './morning-back-after-a-while';
 export * from './morning-carried-over';
+export * from './odd-catch-teacup';
+export * from './odd-hatch-tiny';
 export * from './one-screen-done-for-today';
 export * from './one-screen-friend-at-table';
 export * from './one-screen-largest-text';
