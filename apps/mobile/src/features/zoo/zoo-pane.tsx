@@ -200,21 +200,26 @@ export function ZooPane({
         // Only the tab in view goes back to its top on a tap on the status bar.
         scrollsToTop={active}
         ListEmptyComponent={
-          <SessionText face="body" color={palette.muted} testID="zoo-empty">
-            {t('zoo.empty')}
-          </SessionText>
+          <Forward row={0}>
+            <SessionText face="body" color={palette.muted} testID="zoo-empty">
+              {t('zoo.empty')}
+            </SessionText>
+          </Forward>
         }
         ListFooterComponent={
           actions.sharePage ? (
-            <View style={styles.chip}>
-              <QuietLink
-                label={t('binder.sharePage')}
-                hint={t('binder.sharePage.hint')}
-                onPress={actions.sharePage}
-                testID="binder-share-page"
-                icon={<SendIcon color={palette.ink} />}
-              />
-            </View>
+            // It comes forward with the shelf, after the last row of pockets, and goes with it.
+            <Forward row={Math.ceil(rows.length / COLUMNS)}>
+              <View style={styles.chip}>
+                <QuietLink
+                  label={t('binder.sharePage')}
+                  hint={t('binder.sharePage.hint')}
+                  onPress={actions.sharePage}
+                  testID="binder-share-page"
+                  icon={<SendIcon color={palette.ink} />}
+                />
+              </View>
+            </Forward>
           ) : undefined
         }
         renderItem={({ item, index }) => (
