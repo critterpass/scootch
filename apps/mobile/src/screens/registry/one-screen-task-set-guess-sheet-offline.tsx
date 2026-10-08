@@ -8,7 +8,7 @@ export const oneScreenTaskSetGuessSheetOffline: ScreenState = {
   design: null,
   undesignedReason: 'The board draws the guess sheet with a connection only; the guess needs none.',
   component: lazy(() =>
-    import('../../features/one-screen/captures').then((captures) => ({
+    import('../../features/one-screen/task-set-helper-captures').then((captures) => ({
       default: captures.OneScreenTaskSetGuessSheetOffline,
     })),
   ),

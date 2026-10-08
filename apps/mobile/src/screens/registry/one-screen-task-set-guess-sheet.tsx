@@ -11,7 +11,7 @@ export const oneScreenTaskSetGuessSheet: ScreenState = {
     screen: 'Guess sheet',
   },
   component: lazy(() =>
-    import('../../features/one-screen/captures').then((captures) => ({
+    import('../../features/one-screen/task-set-helper-captures').then((captures) => ({
       default: captures.OneScreenTaskSetGuessSheet,
     })),
   ),

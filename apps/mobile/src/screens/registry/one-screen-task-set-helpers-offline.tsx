@@ -9,7 +9,7 @@ export const oneScreenTaskSetHelpersOffline: ScreenState = {
   undesignedReason:
     'The board draws the helpers with a connection only. Offline the task has no pack yet, so it has no bites; the end time and the guess are worked out on the phone.',
   component: lazy(() =>
-    import('../../features/one-screen/captures').then((captures) => ({
+    import('../../features/one-screen/task-set-helper-captures').then((captures) => ({
       default: captures.OneScreenTaskSetHelpersOffline,
     })),
   ),

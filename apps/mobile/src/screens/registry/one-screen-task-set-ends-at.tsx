@@ -11,7 +11,7 @@ export const oneScreenTaskSetEndsAt: ScreenState = {
     screen: 'Task set · ends at',
   },
   component: lazy(() =>
-    import('../../features/one-screen/captures').then((captures) => ({
+    import('../../features/one-screen/task-set-helper-captures').then((captures) => ({
       default: captures.OneScreenTaskSetEndsAt,
     })),
   ),

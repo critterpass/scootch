@@ -9,7 +9,7 @@ export const oneScreenTaskSetGuessMade: ScreenState = {
   undesignedReason:
     'The board draws the guess read back only beside a chosen cue; this is the guess alone, on the same chip.',
   component: lazy(() =>
-    import('../../features/one-screen/captures').then((captures) => ({
+    import('../../features/one-screen/task-set-helper-captures').then((captures) => ({
       default: captures.OneScreenTaskSetGuessMade,
     })),
   ),

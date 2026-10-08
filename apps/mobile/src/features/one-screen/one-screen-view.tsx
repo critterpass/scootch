@@ -25,7 +25,7 @@ import { chargeNoteShows } from './one-screen-stage';
 import { Chips, TaskSetChoices, WorldRow } from './one-screen-panels';
 import type { OneScreenShown } from './one-screen-shown';
 import { StageScroll } from './stage-scroll';
-import { TaskSetDock } from './task-set-dock';
+import { choicesOf, TaskSetFooter } from './task-set-footer';
 
 export type { OneScreenShown } from './one-screen-shown';
 import { SafeFrame } from '../../ui/safe-frame';
@@ -172,19 +172,7 @@ export function OneScreenView({
       </>
     );
   } else if (shown.kind === 'task_set') {
-    const {
-      taskText,
-      onStart,
-      label = null,
-      startLabel,
-      startIcon,
-      onDiscard,
-      company = null,
-      extra = null,
-      helpers,
-      figure: _,
-      ...choices
-    } = shown;
+    const { taskText, label = null, company = null, extra = null } = shown;
     body = (
       <>
         {label === null && taskText === null ? null : (
@@ -202,21 +190,12 @@ export function OneScreenView({
             )}
           </View>
         )}
-        <TaskSetChoices {...choices} />
+        <TaskSetChoices {...choicesOf(shown)} />
         {company}
         {extra}
       </>
     );
-    footer = (
-      <TaskSetDock
-        startLabel={startLabel}
-        startIcon={startIcon}
-        minutes={choices.minutes}
-        onStart={onStart}
-        onDiscard={onDiscard}
-        helpers={helpers}
-      />
-    );
+    footer = <TaskSetFooter shown={shown} />;
   } else if (shown.kind === 'panel') {
     body = shown.body;
     footer = shown.footer;

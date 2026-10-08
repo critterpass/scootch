@@ -47,10 +47,18 @@ export async function turnDown(ctx: DayContext, taskId: Id): Promise<void> {
   await ctx.refresh();
 }
 
-type FromOutside = Extract<
-  DayEvent,
-  { readonly type: 'thing_shared_in' | 'bite_ticked' | 'hunt_tomorrow' | 'monster_turned_down' }
->;
+const FROM_OUTSIDE = [
+  'thing_shared_in',
+  'bite_ticked',
+  'hunt_tomorrow',
+  'monster_turned_down',
+] as const;
+type FromOutside = Extract<DayEvent, { readonly type: (typeof FROM_OUTSIDE)[number] }>;
+
+/** True for what was asked for outside the app, and for a bite ticked on its sheet inside it. */
+export function isFromOutside(event: DayEvent): event is FromOutside {
+  return (FROM_OUTSIDE as readonly string[]).includes(event.type);
+}
 
 /** What was asked for outside the app, under a notification or on a share sheet. */
 export function applyFromOutside(ctx: DayContext, event: FromOutside): Promise<void> {

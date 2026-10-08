@@ -32,7 +32,7 @@ import { closeStraySessions, dayOfRunningSession, restoreSession } from './sessi
 import { guessMade } from './guess';
 import { adoptHunt } from './hunt-adoption';
 import { closeSession, followTableClock, shortenSession, turnWorkingLine } from './session-moments';
-import { applyFromOutside } from './notification-actions';
+import { applyFromOutside, isFromOutside } from './notification-actions';
 import { applySurfaceAction, noticePickUp } from './surface-actions';
 import { cancelOneThing, parkStartedTask } from './way-out';
 import { beFunny, cancelTaskCall, fetchPending, resolveTranscript, submitText } from './task-flow';
@@ -243,6 +243,8 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
     }
     if (await crisisInWords(ctx, event)) return;
     if (isPickEvent(event)) return applyPickEvent(ctx, event);
+    if (isFromOutside(event)) return applyFromOutside(ctx, event);
+    if (event.type === 'guess_made') return guessMade(ctx, event.minutes);
     switch (event.type) {
       case 'text_submitted':
         return submitText(ctx, { ...event, transcriptId: null });
@@ -250,8 +252,6 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
         return cancelTaskCall(ctx);
       case 'returned_text_taken':
         return set({ returnedText: null });
-      case 'guess_made':
-        return guessMade(ctx, event.minutes);
       case 'session_set':
         await resolveTranscript(ctx);
         return setChosenSession(ctx, event.minutes, event.treat ?? null);
@@ -305,11 +305,6 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
         return applySurfaceAction(ctx, event.action);
       case 'hunt_adopted':
         return adoptHunt(ctx, event.hunt);
-      case 'thing_shared_in':
-      case 'bite_ticked':
-      case 'hunt_tomorrow':
-      case 'monster_turned_down':
-        return applyFromOutside(ctx, event);
       case 'surface_request_taken':
         return set({ surfaceRequest: null });
       case 'camera_step_chosen':

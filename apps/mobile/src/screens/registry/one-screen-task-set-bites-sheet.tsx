@@ -11,7 +11,7 @@ export const oneScreenTaskSetBitesSheet: ScreenState = {
     screen: 'Bites sheet · try it',
   },
   component: lazy(() =>
-    import('../../features/one-screen/captures').then((captures) => ({
+    import('../../features/one-screen/task-set-helper-captures').then((captures) => ({
       default: captures.OneScreenTaskSetBitesSheet,
     })),
   ),
