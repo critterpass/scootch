@@ -1,6 +1,6 @@
 # A website monster arrives in the app
 
-Status: built and sent to TestFlight (dev 1.0.0 (19), App Store app 1.0.0 (3), both from `dce2f80`); not yet seen on a phone · Created 8 Oct 2026 · Decided by the founder, 8 Oct 2026: the
+Status: built, on TestFlight (dev 1.0.0 (19), App Store app 1.0.0 (3), from `dce2f80`) and checked by the founder on a phone on 9 Oct 2026; the App Clip itself is not yet opened · Created 8 Oct 2026 · Decided by the founder, 8 Oct 2026: the
 App Store version waits for this, and the monster that arrives is the same
 monster (its name, card line, body and seed), not a new one hatched from the
 same words.
