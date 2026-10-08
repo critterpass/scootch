@@ -77,6 +77,12 @@ export const CAPTIONS = {
   'envelope.seal': { h: 'session.catch.envelope.seal', s: 'session.catch.envelope.seal.sub' },
   'envelope.sealed': { h: 'session.catch.envelope.sealed' },
   'envelope.won': { h: 'session.catch.envelope.won' },
+
+  'teacup.setting': { s: 'session.catch.teacup.setting.sub' },
+  'teacup.ready': { h: 'session.catch.teacup.ready', s: 'session.catch.teacup.ready.sub' },
+  'teacup.almost': { h: 'session.catch.teacup.almost', s: 'session.catch.teacup.almost.sub' },
+  'teacup.under': { h: 'session.catch.teacup.under', s: 'session.catch.teacup.under.sub' },
+  'teacup.won': { h: 'session.catch.teacup.won' },
 } as const satisfies Record<string, CaptionKeys>;
 
 export type CaptionName = keyof typeof CAPTIONS;

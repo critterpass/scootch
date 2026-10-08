@@ -1,7 +1,15 @@
 import { describe, expect, it } from '@jest/globals';
+import { addDays, isOddWeek } from '@scootch/domain';
 
 import { catchStage, clockLeft, gestureUnlocked, trapProgress } from './catch-flow';
-import { CATCH_KINDS, catchFor, DRAWN_IN } from './catch-kinds';
+import {
+  CAPTION_AT,
+  CATCH_KINDS,
+  ODD_CATCH_KINDS,
+  catchFor,
+  catchKindFor,
+  DRAWN_IN,
+} from './catch-kinds';
 import {
   REEL_NEEDS,
   insideLoop,
@@ -68,6 +76,74 @@ describe('the catch a task rolls', () => {
   it('spreads tasks over all eight', () => {
     const rolled = new Set(Array.from({ length: 200 }, (_, i) => catchFor(`task-${i}`)));
     expect(rolled.size).toBe(CATCH_KINDS.length);
+  });
+});
+
+describe('the ninth catch', () => {
+  const caughtOn = (taskId: string, number: number, day: string) => ({
+    taskId,
+    hatchedAt: `${day}T12:00:00.000Z`,
+    caughtOn: day,
+    number,
+  });
+  const binder = [
+    caughtOn('first', 1, '2025-06-02'),
+    caughtOn('second', 2, '2025-06-03'),
+    caughtOn('third', 3, '2025-06-04'),
+  ];
+  const mondays = Array.from({ length: 200 }, (_, week) => addDays('2026-01-05', week * 7));
+  const odd = mondays.find((day) => isOddWeek('first', day)) ?? '';
+  const plain = mondays.find((day) => !isOddWeek('first', day)) ?? '';
+  const tasks = Array.from({ length: 900 }, (_, i) => `task-${i}`);
+  const draw = { taskId: 'task-0', serious: false, today: odd, monsters: binder };
+
+  it('turns up once in an odd week, whatever the task would have rolled', () => {
+    for (const taskId of tasks.slice(0, 40)) {
+      expect(catchKindFor({ ...draw, taskId })).toBe('teacup');
+    }
+    // Once the week has its catch, the next task rolls as it always would.
+    const after = [...binder, caughtOn('cupped', 4, odd)];
+    expect(catchKindFor({ ...draw, taskId: 'cupped', monsters: after })).toBe('teacup');
+  });
+
+  it('is never rolled before its first turn', () => {
+    for (const taskId of tasks) {
+      expect(catchKindFor({ ...draw, taskId, today: plain })).toBe(catchFor(taskId));
+      expect(catchKindFor({ ...draw, taskId, monsters: binder.slice(0, 2) })).toBe(
+        catchFor(taskId),
+      );
+      expect(CATCH_KINDS).toContain(catchFor(taskId));
+    }
+  });
+
+  it('never comes to a serious task', () => {
+    for (const taskId of tasks.slice(0, 40)) {
+      expect(catchKindFor({ ...draw, taskId, serious: true })).toBe(catchFor(taskId));
+    }
+  });
+
+  it('joins the roll after its first turn, at the rate of the others, and moves no other task', () => {
+    const after = [...binder, caughtOn('cupped', 4, odd)];
+    const rolled = tasks.map((taskId) =>
+      catchKindFor({ ...draw, taskId, today: plain, monsters: after }),
+    );
+    const cups = rolled.filter((kind) => kind === 'teacup').length;
+    expect(cups).toBeGreaterThan(tasks.length / 9 / 1.5);
+    expect(cups).toBeLessThan((tasks.length / 9) * 1.5);
+    for (const [index, kind] of rolled.entries()) {
+      if (kind !== 'teacup') expect(kind).toBe(catchFor(tasks[index] ?? ''));
+    }
+    // In the odd week itself, once its catch is made, the cup is only one of the nine.
+    const sameWeek = tasks.map((taskId) => catchKindFor({ ...draw, taskId, monsters: after }));
+    expect(sameWeek).toEqual(rolled);
+  });
+
+  it('has a scene, a place for its words and its part of the board', () => {
+    expect(ODD_CATCH_KINDS).toEqual(['teacup']);
+    for (const kind of ODD_CATCH_KINDS) {
+      expect(CAPTION_AT[kind]).toBeDefined();
+      expect(DRAWN_IN[kind].bottom).toBeGreaterThan(DRAWN_IN[kind].top);
+    }
   });
 });
 
@@ -154,8 +230,8 @@ describe('the board on a phone', () => {
 
   it('keeps every catch whole and inside its room on a short phone, close to full width', () => {
     const screen = { width: 375, height: 667 };
-    for (const kind of CATCH_KINDS) {
-      const words = kind === 'reel' || kind === 'sticker' || kind === 'vacuum' ? 'top' : 'bottom';
+    for (const kind of [...CATCH_KINDS, ...ODD_CATCH_KINDS]) {
+      const words = CAPTION_AT[kind];
       const space = room(667, 20, words);
       const fit = fitBoard(screen, DRAWN_IN[kind], space);
       expect(fit.top + DRAWN_IN[kind].top * fit.scale).toBeGreaterThanOrEqual(space.top - 0.001);

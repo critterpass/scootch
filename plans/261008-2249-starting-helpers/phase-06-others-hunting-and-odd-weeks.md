@@ -44,7 +44,7 @@ Goal: company without strangers, and surprise that does not wear out.
   always gives the same weeks, so a restore changes nothing.
 - Test: the rule is stable for a history; never two odd weeks running; none
   in the first three catches.
-- Status: not started
+- Status: done — f44bb8b
 
 ## Risks
 

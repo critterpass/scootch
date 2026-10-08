@@ -132,4 +132,15 @@ export const viCatch = {
   'session.catch.envelope.seal.sub': 'Chạm thêm một lần.',
   'session.catch.envelope.sealed': 'Đã niêm phong.',
   'session.catch.envelope.won': 'Ký, niêm phong, gửi đi.',
+
+  // Tuần lạ: kiểu bắt thứ chín, và chữ mà một lần nở lạ thêm vào tên trên thẻ.
+  'session.catch.teacup.setting.sub': 'Mỗi phút bạn làm, cái tách đung đưa lại gần thêm một chút.',
+  'session.catch.teacup.ready': 'Nghiêng cái tách',
+  'session.catch.teacup.ready.sub': 'Kéo nó xuống úp lên nó',
+  'session.catch.teacup.almost': 'Suýt rồi.',
+  'session.catch.teacup.almost.sub': 'Kéo xuống hết cỡ.',
+  'session.catch.teacup.under': 'Úp được nó rồi.',
+  'session.catch.teacup.under.sub': 'Chờ chút…',
+  'session.catch.teacup.won': 'Tóm được rồi.',
+  'card.oddName.tiny': '{name} (tí hon)',
 } as const;

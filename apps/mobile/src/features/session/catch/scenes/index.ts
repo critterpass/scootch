@@ -10,6 +10,7 @@ import { LassoScene } from './lasso-scene';
 import { NetScene } from './net-scene';
 import { ReelScene } from './reel-scene';
 import { StickerScene } from './sticker-scene';
+import { TeacupScene } from './teacup-scene';
 import { VacuumScene } from './vacuum-scene';
 
 /** The drawing for each catch. */
@@ -22,4 +23,5 @@ export const SCENES: Readonly<Record<CatchKind, ComponentType<SceneProps>>> = {
   net: NetScene,
   vacuum: VacuumScene,
   envelope: EnvelopeScene,
+  teacup: TeacupScene,
 };

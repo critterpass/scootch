@@ -11,7 +11,7 @@ import { useKeepsakes } from '../../state/keepsakes';
 import { useSurfaceRequest } from '../../state/surface-requests';
 import { revealSeen } from '../reveal/reveal-seen';
 
-import { catchFor } from './catch/catch-kinds';
+import { catchFor, catchKindFor } from './catch/catch-kinds';
 import { SHORT_SESSION_SECONDS, shortSession } from './dev/short-session';
 import type { SessionActions, SessionModel } from './screens/screen-props';
 import {
@@ -229,7 +229,15 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
     catch:
       catches && live
         ? {
-            kind: catchFor(live.taskId),
+            // Until the binder has been read the roll is the task's own; then an odd week may say.
+            kind: keepsakes
+              ? catchKindFor({
+                  taskId: live.taskId,
+                  serious: task?.screen !== 'pass',
+                  today: localDate,
+                  monsters: keepsakes.monsters,
+                })
+              : catchFor(live.taskId),
             opensOn,
             caughtCount: caught ? caught.length : null,
             monthMates: (caught ?? []).filter(

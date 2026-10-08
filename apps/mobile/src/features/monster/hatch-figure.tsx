@@ -10,6 +10,8 @@ import { useT } from '../../i18n/i18n-provider';
 import { useCharacterMotion } from '../../ui/motion/use-feel';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
+import { ODD_HATCH_FIGURES } from './odd-hatch-figures';
+
 const FIGURE_SIZE = 150;
 const FIGURE_SIZE_LARGE_TEXT = 96;
 /** The ring left where a shrunk monster used to reach, as shares of its space on the board. */
@@ -75,6 +77,9 @@ export function HatchFigure({
   const size = Math.round(monsterSize * shrink);
   const tuck = { marginLeft: -Math.round(overlap * shrink) };
   const seed = monster?.spec.seed ?? null;
+  // An odd hatch draws something else in the monster's box. Nothing round it knows.
+  const odd = monster?.oddWord ?? null;
+  const OddFigure = odd === null ? null : ODD_HATCH_FIGURES[odd];
   // A monster met for the first time on its hatch starts as its egg, unless nothing may move.
   const [inEgg, setInEgg] = useState(
     () => hatches && seed !== null && !hatched.has(seed) && !reducedMotion,
@@ -135,7 +140,7 @@ export function HatchFigure({
       >
         {monster && !inEgg ? (
           <>
-            {outgrown ? (
+            {outgrown && !OddFigure ? (
               <View
                 pointerEvents="none"
                 style={[
@@ -151,17 +156,31 @@ export function HatchFigure({
                 ]}
               />
             ) : null}
-            <Monster
-              spec={monster.spec}
-              sizeFactor={sizeFactor}
-              mood={monsterMood}
-              squashOnChange
-              hatching={fromEgg.current}
-              {...(onGrumble ? { onPress: onGrumble } : {})}
-              {...character}
-              size={size}
-              testID="hatch-monster"
-            />
+            {OddFigure ? (
+              <OddFigure
+                monster={monster}
+                sizeFactor={sizeFactor}
+                mood={monsterMood}
+                squashOnChange
+                hatching={fromEgg.current}
+                {...(onGrumble ? { onPress: onGrumble } : {})}
+                {...character}
+                size={size}
+                testID="hatch-monster"
+              />
+            ) : (
+              <Monster
+                spec={monster.spec}
+                sizeFactor={sizeFactor}
+                mood={monsterMood}
+                squashOnChange
+                hatching={fromEgg.current}
+                {...(onGrumble ? { onPress: onGrumble } : {})}
+                {...character}
+                size={size}
+                testID="hatch-monster"
+              />
+            )}
           </>
         ) : null}
         {waiting || bursting ? (
