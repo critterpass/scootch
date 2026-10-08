@@ -3,10 +3,11 @@ import type { CardData } from '@scootch/domain';
 import { buildMonster } from '../core/build-monster';
 import { VIEW_SIZE, type DrawCommand } from '../core/commands';
 import { baseline, estimateTextWidth, textCommand, type TextStyle } from '../core/text';
+import { pushLines } from './card-lines';
 import type { CardOptions } from './build-card';
 import { buildCardShadow } from './build-material';
 import type { ShareComposition } from './build-story';
-import { CARD_LABELS, formatCardDate, splitMinutes } from './labels';
+import { CARD_LABELS, formatCardDate, splitMinutes, thoughtTookLine } from './labels';
 import { paper } from './materials/paper';
 import { dashedRule, dotScreen, fill, placed, roundRect, rotation, type Box } from './shapes';
 import {
@@ -21,7 +22,10 @@ import {
 } from './share-frame';
 import { line, SHARE_MARK } from './share-kit';
 
-export interface CaughtStoryOptions extends Pick<CardOptions, 'hideTask' | 'language' | 'measure'> {
+export interface CaughtStoryOptions extends Pick<
+  CardOptions,
+  'hideTask' | 'language' | 'measure' | 'guessMinutes'
+> {
   /** The frame it is printed on. Paper when it is not said. */
   readonly frame?: ShareFrame;
   /** What the person did, in a sentence: "Emailed the dentist." Dropped when the task is hidden. */
@@ -39,6 +43,9 @@ const SHOUT: TextStyle = { font: 'rounded', size: 56, weight: 900, tracking: -0.
 const SENTENCE: TextStyle = { font: 'rounded', size: 20, weight: 800, tracking: -0.015 };
 const LABEL: TextStyle = { font: 'sans', size: 7.5, weight: 700, tracking: 0.12 };
 const VALUE: TextStyle = { font: 'rounded', size: 16, weight: 800 };
+/** The guess line: one size and one ink however long it runs, on two lines at most. */
+const GUESS: TextStyle = { font: 'sans', size: 10, weight: 600, tracking: 0.04 };
+const GUESS_LEADING = 1.25;
 
 /** The small card in the middle of the story: its number, its monster asleep, its name. */
 function miniCard(data: CardData, options: CaughtStoryOptions): DrawCommand[] {
@@ -116,7 +123,9 @@ function miniCard(data: CardData, options: CaughtStoryOptions): DrawCommand[] {
  * The story of a catch, on one of the four frames: a stamped strip, "CAUGHT." in the frame's
  * ink, the caught card leaning with a round stamp struck across its corner, one true sentence,
  * three honest numbers, and scootch.app at the foot. With the task hidden the sentence says only
- * that the thing was done; the numbers stay. Pure: the same data always gives the same picture.
+ * that the thing was done; the numbers stay. With a guess, "Thought 2 hours. Took 11 minutes."
+ * is printed under the sentence, the same whichever number is the larger. Pure: the same data
+ * always gives the same picture.
  */
 export function buildCaughtStory(
   data: CardData,
@@ -198,6 +207,24 @@ export function buildCaughtStory(
     alpha: look.sub[1],
     width: 1.5,
   });
+  // The guess line sits on the rule, and the sentence above it; with no guess the sentence does.
+  const guessed = thoughtTookLine(
+    { guessMinutes: options.guessMinutes, catchMinutes: data.catchMinutes },
+    language,
+  );
+  let sentenceFoot = ruleY - 12;
+  if (guessed !== null) {
+    const box = { maxWidth: wide, minSize: GUESS.size, maxLines: () => 2 };
+    const rows = measure(guessed, GUESS) > wide ? 2 : 1;
+    const top = ruleY - 9 - GUESS.size * GUESS_LEADING * rows;
+    pushLines(out, measure, guessed, GUESS, box, {
+      x: STORY.side,
+      top,
+      leading: GUESS_LEADING,
+      color: look.ink,
+    });
+    sentenceFoot = top - 4;
+  }
   const did = options.hideTask ? undefined : options.headline;
   const sentence = did ?? labels.storyHeadline;
   // Two lines' room is kept, and a one-line sentence sits on the lower of them.
@@ -208,7 +235,7 @@ export function buildCaughtStory(
       SENTENCE,
       {
         x: STORY.side,
-        top: ruleY - 12 - SENTENCE.size * 1.12 * lines,
+        top: sentenceFoot - SENTENCE.size * 1.12 * lines,
         maxWidth: wide,
         maxLines: 2,
         lineHeight: 1.12,

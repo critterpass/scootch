@@ -33,11 +33,13 @@ import {
   finishOfFrame,
   formatsOffered,
   frameOfFinish,
+  guessOffered,
   takesFrame,
   type ShareDress,
   MONTH_FORMATS,
   type MonthFormat,
   type ShareFormat,
+  type ShareImageOptions,
 } from './share-image';
 import { dayLog, monthBefore, monthWrap } from './share-logs';
 import type { ShareActions, ShareModel } from './share-panel';
@@ -106,6 +108,8 @@ export function useComposer(
   const [frame, setFrame] = useState<ShareFrame>(() => frameOfFinish(look.finish));
   const [kept, setKept] = useState<Keepsakes | null>(null);
   const [hideTask, setHideTask] = useState(false);
+  // The guess line is on the story until the person takes it off.
+  const [showGuess, setShowGuess] = useState(true);
   const [notice, setNotice] = useState<ShareModel['notice']>(null);
   const [pageUp, setPageUp] = useState(false);
   const busy = useRef(false);
@@ -240,12 +244,20 @@ export function useComposer(
     const formats = forACatch(formatsOffered(dress));
     // A format that can no longer be made (the day's log is gone) falls back to the story.
     const shown = formats.includes(format) ? format : 'story';
-    const share: CatchShare = {
+    // The guess was frozen onto the monster at the catch; the card itself does not carry it.
+    const guess =
+      kept?.monsters.find(
+        (one) => one.spec.seed === caught.card.monster.seed && one.number === caught.card.number,
+      )?.guessMinutes ?? null;
+    const guessed = guessOffered(shown, guess);
+    // The picture that is sent is composed from this share, so the guess goes out with it.
+    const share: CatchShare & Pick<ShareImageOptions, 'guessMinutes'> = {
       ...caught,
       format: shown,
       dress: { ...dress, frame: usable },
       hideTask,
       language,
+      guessMinutes: guessed && showGuess ? guess : null,
     };
     const page = pageOffered(share);
     const actions: ShareActions = {
@@ -254,6 +266,7 @@ export function useComposer(
         setNotice(null);
         setFormat(next);
       },
+      setGuess: setShowGuess,
       share: () =>
         once(async () => {
           // Nothing reaches the sheet, and nothing reads as shared, unless the page went up.
@@ -290,7 +303,7 @@ export function useComposer(
     return {
       model: {
         moment: 'caught' as const,
-        image: composeShareImage(shown, caught.card, { hideTask, language }, share.dress),
+        image: composeShareImage(shown, caught.card, share, share.dress),
         format: shown,
         formats,
         frame: usable,
@@ -299,6 +312,7 @@ export function useComposer(
         framed: takesFrame(shown),
         hideTask,
         canHideTask: shown === 'story' || shown === 'card' || shown === 'receipt',
+        ...(guessed ? { guess: showGuess } : {}),
         language,
         notice,
         pageUp,
@@ -314,6 +328,7 @@ export function useComposer(
     dress,
     kept,
     hideTask,
+    showGuess,
     notice,
     pageUp,
     language,

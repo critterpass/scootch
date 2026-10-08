@@ -192,3 +192,66 @@ describe('a card in layers', () => {
     expect(bare.length).toBeLessThan(back.length);
   });
 });
+
+describe("a card's guess line", () => {
+  const took11 = { ...molar, catchMinutes: 11 };
+  const line = (commands: readonly DrawCommand[]): TextCommand | undefined =>
+    texts(commands).find((command) => /^(Thought|Tưởng) /.test(command.text));
+
+  it('is not drawn with no guess: the card is built exactly as it always was', () => {
+    expect(buildCard(took11, { guessMinutes: null })).toEqual(buildCard(took11));
+    expect(buildCardLayers(took11, { guessMinutes: null })).toEqual(buildCardLayers(took11));
+    expect(line(buildCard(took11))).toBeUndefined();
+    // A monster that is not caught yet has no real time to set beside a guess.
+    expect(buildCard(took11, { wild: true, guessMinutes: 120 })).toEqual(
+      buildCard(took11, { wild: true }),
+    );
+  });
+
+  it('prints the two sentences under the stats, above the flavour text', () => {
+    const plain = buildCardLayers(took11).over;
+    const guessed = buildCardLayers(took11, { guessMinutes: 120 }).over;
+    const printedLine = line(guessed);
+    expect(printedLine?.text).toBe('Thought 2 hours. Took 11 minutes.');
+    expect(line(buildCard(took11, { guessMinutes: 120, language: 'vi' }))?.text).toBe(
+      'Tưởng 2 tiếng. Mất 11 phút.',
+    );
+    const y = (commands: readonly DrawCommand[], text: string) =>
+      texts(commands).find((command) => command.text.startsWith(text))?.y ?? Number.NaN;
+    expect(printedLine?.y).toBeGreaterThan(y(guessed, '214 days'));
+    expect(y(guessed, 'Feeds on')).toBeGreaterThan(printedLine?.y ?? 0);
+    // The line takes one tile and one line of text, and moves nothing above it.
+    expect(guessed.length).toBeGreaterThanOrEqual(plain.length + 2);
+    expect(y(guessed, '214 days')).toBe(y(plain, '214 days'));
+    expect(printed(guessed)).toContain('scootch.app');
+  });
+
+  it('draws a guess that was too short the same way as one that was too long', () => {
+    const long = line(buildCard(took11, { guessMinutes: 120 }));
+    const short = line(buildCard({ ...molar, catchMinutes: 95 }, { guessMinutes: 30 }));
+    expect(short?.text).toBe('Thought 30 minutes. Took 1 hour 35 minutes.');
+    const look = ({ color, font, weight, size, x, y }: TextCommand) => ({
+      color,
+      font,
+      weight,
+      size,
+      x,
+      y,
+    });
+    expect(look(short!)).toEqual(look(long!));
+    // Nothing else on the card knows which way it went.
+    const rest = (commands: readonly DrawCommand[]) =>
+      commands.filter((command) => command !== line(commands)).length;
+    expect(rest(buildCard({ ...molar, catchMinutes: 95 }, { guessMinutes: 30 }))).toBe(
+      rest(buildCard(took11, { guessMinutes: 120 })),
+    );
+    for (const language of ['en', 'vi'] as const) {
+      const longest = line(
+        buildCard({ ...molar, catchMinutes: 1439 }, { guessMinutes: 360, language }),
+      );
+      expect(estimateTextWidth(longest!.text, longest!)).toBeLessThanOrEqual(longest!.maxWidth);
+      expect(longest!.size).toBeGreaterThanOrEqual(8);
+      expect(longest!.text.endsWith('…')).toBe(false);
+    }
+  });
+});

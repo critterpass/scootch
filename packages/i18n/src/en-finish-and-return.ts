@@ -3,7 +3,9 @@
  * Lines Scootch speaks never go here.
  */
 export const enFinishAndReturn = {
-  'binder.card.thoughtTook': 'Thought {thought}. Took {took}.',
+  'share.guess': 'Show my guess',
+  'share.guess.note': 'Thought, then took.',
+  'share.guess.hint': 'Prints what you thought it would take beside what it took',
   'session.nextTime.title': 'Next time, start with…',
   'session.nextTime.sub': "Optional. I'll show it to you first next time, word for word.",
   'session.nextTime.how': 'Type it, or hold and say it.',

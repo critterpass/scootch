@@ -8,6 +8,8 @@ import { splitMinutes, type CardLabels } from './labels';
 import { fill, roundRect } from './shapes';
 
 export const TILE_HEIGHT = 47;
+/** The tile of the guess line, which lies under the three stats across their whole width. */
+export const GUESS_TILE_HEIGHT = 30;
 
 const LABEL: TextStyle = { font: 'sans', size: 10, weight: 600, tracking: 0.05 };
 const VALUE: TextStyle = { font: 'rounded', size: 15, weight: 700 };
@@ -74,4 +76,32 @@ export function buildTiles(
     }
   });
   return out;
+}
+
+/**
+ * The guess and the real time on one tile under the stats, in the stats' own face and ink. It is
+ * drawn one way whichever number is the larger.
+ */
+export function buildGuessTile(
+  text: string,
+  inks: CardFinishInks,
+  measure: MeasureText,
+  place: Pick<TilePlace, 'left' | 'top' | 'width'>,
+): DrawCommand[] {
+  // Small enough that a guess and a time of any ordinary length print at this one size.
+  const style: TextStyle = { ...VALUE, size: 10.5 };
+  const inner = place.width - 18;
+  const fitted = fitText(text, style, oneLine(8, inner), measure);
+  return [
+    fill(
+      roundRect({ x: place.left, y: place.top, w: place.width, h: GUESS_TILE_HEIGHT }, 10),
+      inks.tile,
+    ),
+    textCommand(fitted.lines[0] ?? '', fitted.style, {
+      x: place.left + 9,
+      y: baseline(place.top, fitted.style.size, GUESS_TILE_HEIGHT),
+      maxWidth: inner,
+      color: inks.ink,
+    }),
+  ];
 }

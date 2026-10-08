@@ -22,14 +22,14 @@ import {
   FOIL_BY_RARITY,
   VIEW_SIZE,
 } from '@scootch/art';
-import type { CardData } from '@scootch/domain';
+import type { CardData, GuessMinutes } from '@scootch/domain';
 import type { Language } from '@scootch/i18n';
 
 import { Scootch } from '../../../art/Scootch';
 import { CommandLayer } from '../../../art/skia-commands';
 import { useT } from '../../../i18n/i18n-provider';
 import { useCharacterMotion } from '../../../ui/motion/use-feel';
-import { cardSpokenLabel } from '../../zoo/zoo-cards';
+import { cardSpokenLabel, guessLine } from '../../zoo/zoo-cards';
 
 import { CardFoil } from './card-foil';
 import type { CardMotion } from './card-motion';
@@ -51,6 +51,8 @@ export interface HandledCardProps {
   /** What moves it: made by `useCardMotion` in whoever shows the card. */
   readonly motion: CardMotion;
   readonly hideTask?: boolean;
+  /** The guess made before starting: with one, the card prints its line under the stats. */
+  readonly guessMinutes?: GuessMinutes | null;
   /** False leaves the stamp off the face, for a reveal that brings it down by itself. */
   readonly stamped?: boolean;
   /** Drawn over the face and turning with it: the reveal's own stamp. */
@@ -65,14 +67,20 @@ export interface HandledCardProps {
  */
 export function HandledCard(props: HandledCardProps) {
   const { card, language, cardWidth, motion, hideTask = false, stamped = true, testID } = props;
+  const guessMinutes = props.guessMinutes ?? null;
   const t = useT();
   const character = useCharacterMotion();
   const scale = cardWidth / CARD_WIDTH;
   const size = cardCanvasSize(cardWidth);
 
   const layers = useMemo(
-    () => buildCardLayers(hideTask ? { ...card, taskLine: null } : card, { hideTask, language }),
-    [card, hideTask, language],
+    () =>
+      buildCardLayers(hideTask ? { ...card, taskLine: null } : card, {
+        hideTask,
+        language,
+        guessMinutes,
+      }),
+    [card, hideTask, language, guessMinutes],
   );
   const back = useMemo(() => buildCardBack({ label: t('reveal.cardBack'), scootch: false }), [t]);
   // Asked here, outside the canvas, and handed to the monster's layer inside it.
@@ -119,7 +127,12 @@ export function HandledCard(props: HandledCardProps) {
         testID={testID}
         accessible
         accessibilityRole="image"
-        accessibilityLabel={cardSpokenLabel(card, language)}
+        accessibilityLabel={[
+          cardSpokenLabel(card, language),
+          guessLine({ guessMinutes, catchMinutes: card.catchMinutes }, language),
+        ]
+          .filter((part) => part !== null)
+          .join(', ')}
         style={[size, tilt]}
       >
         {motion.sensing ? <TiltSensor into={motion.phone} /> : null}

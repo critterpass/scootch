@@ -431,3 +431,89 @@ describe("the week's record in its sleeve", () => {
     }
   });
 });
+
+describe("a story's guess line", () => {
+  const took11 = { ...molar, catchMinutes: 11 };
+  const guessLines = (commands: readonly DrawCommand[]): TextCommand[] => {
+    const all = texts(commands);
+    const first = all.findIndex((command) => /^(Thought|Tưởng) /.test(command.text));
+    if (first < 0) return [];
+    // A line that wraps is two text commands in the same style, one after the other.
+    const next = all[first + 1];
+    const one = all[first]!;
+    const wrapped =
+      next && next.size === one.size && next.weight === one.weight && next.x === one.x;
+    return wrapped ? [one, next] : [one];
+  };
+  const said = (commands: readonly DrawCommand[]) =>
+    guessLines(commands)
+      .map((command) => command.text)
+      .join(' ');
+
+  it('is not drawn with no guess: the story is built exactly as it always was', () => {
+    for (const frame of SHARE_FRAMES) {
+      expect(buildCaughtStory(took11, { frame, guessMinutes: null })).toEqual(
+        buildCaughtStory(took11, { frame }),
+      );
+    }
+    expect(guessLines(buildCaughtStory(took11).commands)).toEqual([]);
+  });
+
+  it('prints the two sentences under the headline and above the numbers, with the headline as it was', () => {
+    for (const language of ['en', 'vi'] as const) {
+      const plain = buildCaughtStory(took11, { language });
+      const story = buildCaughtStory(took11, { language, guessMinutes: 120 });
+      expect(said(story.commands)).toBe(
+        language === 'en' ? 'Thought 2 hours. Took 11 minutes.' : 'Tưởng 2 tiếng. Mất 11 phút.',
+      );
+      // The headline is the one the story had: the same words, in the same face.
+      const headline = (commands: readonly DrawCommand[]) =>
+        texts(commands).filter((command) => command.size > 16 && command.size < 30);
+      const words = (commands: readonly DrawCommand[]) =>
+        [...new Set(headline(commands).map((command) => command.text))].join(' ');
+      expect(words(story.commands)).toBe(CARD_LABELS[language].storyHeadline);
+      expect(words(story.commands)).toBe(words(plain.commands));
+      const [line] = guessLines(story.commands);
+      for (const part of headline(story.commands)) expect(line!.y).toBeGreaterThan(part.y);
+      const label = CARD_LABELS[language].lurked.toUpperCase();
+      const lurked = (commands: readonly DrawCommand[]) =>
+        texts(commands).find((command) => command.text === label)!.y;
+      expect(lurked(story.commands)).toBeGreaterThan(line!.y);
+      // The numbers and the foot stay where they were.
+      expect(lurked(story.commands)).toBe(lurked(plain.commands));
+      fits(story.commands);
+      expect(() => toSvg(story.commands, story)).not.toThrow();
+    }
+  });
+
+  it('prints a guess that was too short in the same type and ink as one that was too long', () => {
+    for (const frame of SHARE_FRAMES) {
+      const long = guessLines(buildCaughtStory(took11, { frame, guessMinutes: 120 }).commands);
+      const short = guessLines(
+        buildCaughtStory({ ...molar, catchMinutes: 70 }, { frame, guessMinutes: 30 }).commands,
+      );
+      expect(short.map((command) => command.text).join(' ')).toBe(
+        'Thought 30 minutes. Took 1 hour 10 minutes.',
+      );
+      const look = ({ color, font, weight, size, letterSpacing, x }: TextCommand) => ({
+        color,
+        font,
+        weight,
+        size,
+        letterSpacing,
+        x,
+      });
+      for (const command of short) expect(look(command)).toEqual(look(long[0]!));
+    }
+    // The longest line there can be is printed whole, on two lines at most.
+    for (const language of ['en', 'vi'] as const) {
+      const story = buildCaughtStory(
+        { ...molar, catchMinutes: 1439 },
+        { language, guessMinutes: 360, headline: LONG },
+      );
+      expect(guessLines(story.commands).length).toBeLessThanOrEqual(2);
+      expect(said(story.commands).endsWith('…')).toBe(false);
+      fits(story.commands);
+    }
+  });
+});

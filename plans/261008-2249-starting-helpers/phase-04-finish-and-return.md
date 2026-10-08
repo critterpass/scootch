@@ -21,9 +21,7 @@ back in.
   colour change or a score of guesses. No guess, the card is as today. A guess shorter than the
   real time is printed the same way, with nothing added.
 - Test: the card's stat line for no guess, shorter, longer.
-- Status: partly done — 7d6549b. Done: the guess frozen onto the monster at the catch (and at a late
-  catch), and the line on the binder's card. Left: the line on the reveal's card, which
-  `packages/art` draws.
+- Status: done — 1e120d8
 
 ### 2. On the story and the card's page
 - Do: the share story prints the line under the headline when there is a
@@ -31,9 +29,8 @@ back in.
   share composer takes it out. The headline stays the website's three lines,
   not the board's "I finally…". The website's card page prints
   the same line from the same signed values.
-- Status: blocked — the story is drawn in `packages/art` and the website's card page reads the
-  shared card contract, which carries no guess. Left: the line on the story, the composer's
-  toggle, the line on the website's page.
+- Status: partly done — 1e120d8. Done: the line on the story, the composer's toggle. Left: the line
+  on the website's card page, which reads the shared card contract, and that carries no guess.
 
 ### 3. Leaving a line
 - Do: on "not finished", after Carry on tomorrow, a sheet: "Next time,

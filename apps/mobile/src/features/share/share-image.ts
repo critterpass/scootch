@@ -22,7 +22,7 @@ import {
   type SleeveData,
   type WantedData,
 } from '@scootch/art';
-import type { CardData, CardFinish } from '@scootch/domain';
+import type { CardData, CardFinish, GuessMinutes } from '@scootch/domain';
 
 import type { DayLog, MonthWrap } from './share-logs';
 
@@ -143,6 +143,19 @@ export interface ShareImageOptions {
   readonly language: CardLanguage;
   /** Where the light falls on the foil, for a card shown on screen. A shared picture is flat. */
   readonly tilt?: CardTilt;
+  /**
+   * The guess made before starting, for the line "Thought 2 hours. Took 11 minutes." Absent or
+   * `null` (no guess, or the person took the line off) prints nothing.
+   */
+  readonly guessMinutes?: GuessMinutes | null;
+}
+
+/** Whether a picture can print the guess line: only the story of a catch that had a guess. */
+export function guessOffered(
+  format: ShareFormat,
+  guessMinutes: GuessMinutes | null | undefined,
+): boolean {
+  return format === 'story' && guessMinutes != null;
 }
 
 /** The trading card as a video: one slow turn of the card, which ends where it began. */
@@ -205,6 +218,7 @@ export function composeCardImage(card: CardData, options: ShareImageOptions): Sh
       ...buildCard(data, {
         hideTask: options.hideTask,
         language: options.language,
+        guessMinutes: options.guessMinutes ?? null,
         ...(options.tilt ? { tilt: options.tilt } : { reducedMotion: true }),
       }),
       { op: 'restore' },
@@ -218,12 +232,13 @@ export function composeCardImage(card: CardData, options: ShareImageOptions): Sh
  * Composes one of the five pictures, with the art package's own builders, on the finish the
  * person wears. The task's words can only ever be on the receipt, and are taken off it with the
  * rest when the task is hidden (the day's log is then built with monster names in their place).
- * A format with nothing to print (no day, no month) falls back to the story of the catch.
+ * A format with nothing to print (no day, no month) falls back to the story of the catch, which
+ * is the one picture that prints the guess line.
  */
 export function composeShareImage(
   format: ShareFormat,
   card: CardData,
-  options: Pick<ShareImageOptions, 'hideTask' | 'language'>,
+  options: Pick<ShareImageOptions, 'hideTask' | 'language' | 'guessMinutes'>,
   dress: ShareDress,
 ): ShareImage {
   const { language } = options;
@@ -250,5 +265,6 @@ export function composeShareImage(
     language,
     hideTask: options.hideTask,
     frame: dress.frame ?? 'paper',
+    guessMinutes: options.guessMinutes ?? null,
   });
 }
