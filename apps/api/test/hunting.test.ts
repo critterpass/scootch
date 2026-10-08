@@ -68,10 +68,21 @@ describe('how many are hunting', () => {
 
     later(minute);
     expect(await countNow(an)).toBe(before);
-    // The next beat from anyone removes the row itself.
-    await beat(an, { hunting: true });
+    // The read that stopped counting it removed the row itself: no beat had to follow.
+    expect(await rowsKept()).toBe(rowsBefore);
+  });
+
+  it('keeps a row whose time has not run out when the count is read', async () => {
+    const [mai, an] = [await registerDevice(), await registerDevice()];
+    const rowsBefore = await rowsKept();
+    await beat(mai, { hunting: true });
+
+    later(179 * minute);
+    await countNow(an);
     expect(await rowsKept()).toBe(rowsBefore + 1);
-    await beat(an, { hunting: false });
+
+    await beat(mai, { hunting: false });
+    expect(await rowsKept()).toBe(rowsBefore);
   });
 
   it('counts a device once however many times it starts', async () => {

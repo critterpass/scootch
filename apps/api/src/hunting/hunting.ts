@@ -29,11 +29,16 @@ export async function recordBeat(
   ]);
 }
 
-/** How many devices are in a session now, the caller's own included. Exact, not rounded. */
+/**
+ * How many devices are in a session now, the caller's own included. Exact, not rounded. The read
+ * clears the rows whose time has run out too, so on a server nobody beats on, nothing is kept past
+ * the longest session.
+ */
 export async function huntingCount(db: D1Database): Promise<number> {
-  const row = await db
-    .prepare('SELECT COUNT(*) AS count FROM hunting_beats WHERE began_at > ?')
-    .bind(forgottenBefore(Date.now()))
-    .first<{ count: number }>();
-  return row?.count ?? 0;
+  const forgotten = forgottenBefore(Date.now());
+  const [, counted] = await db.batch<{ count: number }>([
+    db.prepare('DELETE FROM hunting_beats WHERE began_at <= ?').bind(forgotten),
+    db.prepare('SELECT COUNT(*) AS count FROM hunting_beats WHERE began_at > ?').bind(forgotten),
+  ]);
+  return counted?.results[0]?.count ?? 0;
 }
