@@ -287,3 +287,38 @@ state is designed or removed.
 | Website, Get                | A QR code and no field; the code and button for a carried monster; Android as the waiting list   | The board's field sends a link by text or email; the site has no sender. A wide screen gets a QR code of the page, a phone the App Store button. With a monster in the address the page keeps its hand-off. The press kit is the fact sheet without downloads |
 | Website, Help               | Helplines from the checked table, seven countries; the support page's fifteen answers            | The board lists five fixed numbers and six answers, some about things the app lacks. The page shows the table the app reads, one country at a time, with every country one tap away; the answers are the ones already checked |
 | Website, caught card, story, record, friend link, privacy, terms, helplines | The new shell around the old layout                  | No new board draws them. They wear the new bar, footer, type and paper, and keep their own layout |
+| Widgets, Lurker and Lurkers | Nothing lurking: nothing yet, a thing not yet hatched, a finished day | The board draws the widgets with monsters in them. With none, each shows the day in plain words with Scootch's pose for it, and a start button when a thing is set |
+| Widgets, Lurker and Lurkers | A serious task set | The board draws no serious state. The task's own plain words under "TODAY", Scootch sitting quietly, no monster and no day chip; other things do not lurk beside it |
+| Widgets, all four | Crisis day | The board draws none. One calm label, "Here when you want.", on plain paper: no monster, no count, no world |
+| Widgets, Lurker and Lurkers | The one being hunted | The board marks the hunted monster in the lineup only. The small widget says "Hunting" with a tomato chip and its tap opens the session; the lineup's hint reads "hunting now" |
+| Widgets, Lurkers | Fewer than four lurkers | The board draws four. Fewer stand evenly along the floor |
+| Widgets, Shelf and Terrarium | Nothing caught yet | The board draws 42. The Shelf reads 0 with Scootch alone on the sand; the Terrarium's plate says "Nothing caught yet." and has no week count |
+| Widgets, all four | Dark, Clear and Tinted | The board draws the light page only. Dark uses the dark page and light ink; Clear and Tinted drop the fills, keep the words and the chips' outlines, and let the system tint the day chip and the count |
+| Widgets, StandBy | Nightlight as two small widgets | The board draws one full-width StandBy screen; StandBy shows small widgets side by side. The Lurker widget is the words and the two buttons, the Shelf beside it is the world asleep in red, and the clock is the system's own |
+| Widgets, StandBy | Set for 9:00 | The board says the screen goes dark after the press. A widget cannot dim the screen, so the two buttons give way to one quiet "Set for 9:00" |
+| Widgets, StandBy | "Pick another" as an outlined chip | The board draws bare words; a secondary action is a chip |
+| Notification, long-press | No bites yet, or a thing with no monster | The board draws three bites. With none the long-press shows only the message and the three actions, the first reading "Hunt it now" |
+| Notification, long-press | All three ticked | The board's line is "All three caught. Molar is gone.", but the monster is caught in the app, not here. The line reads "All three caught. Open Scootch to catch Molar." and Scootch opens on the session a moment later |
+| Notification, long-press | Minutes on the first action | The board sets "4 min", "Thu" and "Soft" at the right of each action. iOS draws an action as one title, so the minutes join the first title and the other two have none |
+| Notification | Before the monster has hatched | The board's messages all come from monsters. A thing with no monster yet sends the same line as Scootch, with nothing under it |
+| App icon picker | With Plus, and with one icon kept | The board draws the locks and the icon following the attitude. With Plus no finish carries the mark; a kept icon wears the ring and "Just one" is the chosen way |
+| App icon picker | A locked finish is tapped | The board does not say. It opens Your card, the one page that leads to the studio, where the finish can be tried on and bought |
+| Settings | "Monsters message me" states the limit and opens nothing | The board draws a chevron. The limit follows the attitude, which is set at the head of the same page, so the row is a fact |
+| Wallpaper | Photos refused | The board draws none. One plain line under the button, and "Open Settings" |
+| Wallpaper | "Refresh every morning" opened | The board draws the button only. It opens three numbered steps in place and "Open Shortcuts" |
+| Wallpaper | Empty world | The board draws 42 residents. Day zero is Scootch asleep alone on the sand |
+| Siri | Nothing is waiting, or the hunt could not start | The board draws the answer to a hunt that began. With no monster waiting the card is one plain line, "Nothing is waiting."; where Live Activities are off it says to open Scootch |
+| Siri | A hunt is already on | The board does not say. The answer is that hunt's own card and clock; nothing is begun twice |
+| Settings | "Start with Back Tap" row | The board lists Back Tap among the ways to start and draws no setting. One row under Calm, with one line of how, that opens Shortcuts |
+| Control Center | "Hunt 10 min" beside "Start 10 min" | The board draws one control. From iOS 26 there are two: the new one needs no app, the old one always opens Scootch |
+| Share sheet | Reading what was shared | The board draws the sheet with the thing on it. While a picture is being read there is a spinner in its place |
+| Share sheet | Nothing readable was shared | One plain line on the card, "There are no words here to keep.", and Cancel |
+| Share sheet | Kept | The board ends at the two buttons. After either, a tick and one plain line ("Kept. Open Scootch to start on it." or "Kept. It comes back tomorrow."), then the sheet closes by itself |
+| Share sheet | Crisis day | The two buttons read "Keep it for today" and "Keep it for tomorrow": no hunting or lurking words |
+| Share sheet | "Cancel" and "Let it lurk till tomorrow" as chips | The board draws both as bare words; a secondary action is a chip |
+| Lock Screen, at a table | Alone at the table | The board draws four seats. One seat, the line "Nobody else has sat down yet", and "Leave table" alone |
+| Lock Screen, at a table | No wave to answer, or no waves left | The board always draws "Wave back". It is there only when someone waved and a wave is left to send; otherwise "Leave table" takes the row |
+| Lock Screen, at a table | A seat that is done, away, or has no label | The board draws four working seats. Done: Scootch celebrating and "done". Away: Scootch asleep, dimmed. No label (a serious or unscreened thing): the name alone |
+| Lock Screen, at a table | A wave drawn still | The board's ripple moves. Two still rings round the seat and "waved" under the name, for a minute |
+| Widget, friends at tables | No friend at a table, and nothing recent known | The board draws a friend at a table. With none: "No friend is at a table." When the app has not asked in the last ten minutes: "Open Scootch to see who is at a table." |
+| Notification, evening receipt | When it is sent, and what is on it | The board draws it at 18:58 among other messages. It is sent at 19:00, only on a day that is done with something finished, and not inside quiet hours. The picture lists monsters' names, not the tasks' words, since a notification can be read by whoever is beside the phone |

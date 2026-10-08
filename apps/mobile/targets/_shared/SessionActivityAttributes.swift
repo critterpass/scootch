@@ -17,6 +17,35 @@ struct SessionActivityAttributes: ActivityAttributes, Sendable {
         /// The card of a hunt that was caught. It is carried here because the shared snapshot
         /// has moved on to the rest of the day by the time the card is looked at.
         var caught: CaughtCard? = nil
+        /// The table the session is at. While its clock runs the Lock Screen and the Island show
+        /// the table in place of the race.
+        var table: Table? = nil
+    }
+
+    /// A table as the surfaces show it: who is seated and what each is at, in one or two words
+    /// that are never the task. The app writes it, and a push from the table can replace it.
+    struct Table: Codable, Hashable, Sendable {
+        struct Seat: Codable, Hashable, Sendable, Identifiable {
+            let id: String
+            /// Nil for the person's own seat, which reads "You", and for a seat with no name.
+            let name: String?
+            /// Nil when the label says nothing of the work: a serious or unscreened task.
+            let label: String?
+            let you: Bool
+            /// They waved at this person a moment ago.
+            let waved: Bool
+            /// They said they have finished, this session.
+            let done: Bool
+            /// No connection and not in the session: an empty chair for now.
+            let away: Bool
+        }
+
+        let id: String
+        let seats: [Seat]
+        /// The waves this person may still send, across the table.
+        let nudgesLeft: Int
+        /// The seat that waved last, which "Wave back" answers.
+        let wavedBy: String?
     }
 
     struct CaughtCard: Codable, Hashable, Sendable {

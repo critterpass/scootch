@@ -20,6 +20,9 @@ export function defaultSettings(language: Language): SettingsRow {
     keepTranscripts: false,
     canBeHaunted: true,
     hideTableLabel: false,
+    iconFollows: 'attitude',
+    iconPinned: 'cheeky',
+    wallpaper: 'world',
     firstLaunchDoneAt: null,
   };
 }

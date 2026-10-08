@@ -68,6 +68,7 @@ const task: TaskRow = {
   notifications: [{ text: 'One small start?' }],
   createdAt: '2026-10-06T09:01:00.000Z',
   bitesCaught: null,
+  softUntil: null,
   finishedAt: null,
 };
 

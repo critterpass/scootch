@@ -12,6 +12,13 @@
     "name": "Odd Sock",
     "caughtAt": 1791290000000
   },
+  "caughtThisWeek": 3,
+  "worldImage": "surface-world-0badf00d.png",
+  "worldNightImage": "surface-world-0badf00d-asleep.png",
+  "scootchImage": "surface-scootch-pleased.png",
+  "wallpaper": "world",
+  "tomorrow": null,
+  "friendsTables": null,
   "bites": [],
   "dayEndsAt": 1791342000000,
   "lurkers": [

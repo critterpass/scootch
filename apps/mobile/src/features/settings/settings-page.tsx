@@ -1,25 +1,17 @@
 import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
 
-import type { Attitude, ClockTime, SettingsRow } from '@scootch/domain';
+import { dailyNotificationLimit, type ClockTime, type SettingsRow } from '@scootch/domain';
 import type { Language } from '@scootch/i18n';
-import { fonts, radius, spacing } from '@scootch/tokens';
 
-import { Scootch, type ScootchProps } from '../../art/Scootch';
 import { useT } from '../../i18n/i18n-provider';
-import { useScreenStyle } from '../../ui/use-screen-style';
 
+import { LookSection, type LookFacts } from '../look/look-section';
+
+import { AttitudeDial } from './attitude-dial';
 import { QuietHoursRows } from './quiet-hours';
 import { Page } from './page';
 import { Note, Row, Section, SwitchRow } from './rows';
-import { PressSpring } from '../../ui/motion/press-spring';
 
-const ATTITUDES = ['soft', 'cheeky', 'unhinged'] as const satisfies readonly Attitude[];
-const CARD_MOODS: Record<Attitude, ScootchProps['mood']> = {
-  soft: 'asleep',
-  cheeky: 'waiting',
-  unhinged: 'stuck',
-};
 const FINISH_LABELS = {
   hold: 'finishWith.hold',
   double_tap: 'finishWith.tapTwice',
@@ -46,8 +38,19 @@ export interface SettingsPageProps {
   readonly onMusicWhenSilent?: (on: boolean) => void;
   readonly onLanguage: (language: Language | null) => void;
   readonly onOpen: (
-    page: 'finish-with' | 'privacy' | 'helplines' | 'plus' | 'tables' | 'developer-tools',
+    page:
+      | 'finish-with'
+      | 'privacy'
+      | 'helplines'
+      | 'plus'
+      | 'tables'
+      | 'developer-tools'
+      | 'icon'
+      | 'wallpaper'
+      | 'shortcuts',
   ) => void;
+  /** What the Look group shows as picked. Unset, the group is left out. */
+  readonly look?: LookFacts;
   /** The name the person's seat shows; `null` on a phone that is not signed in for tables. */
   readonly tableName?: string | null;
   /** Opens the share sheet with a friend link. Unset (a capture), the row does nothing. */
@@ -61,65 +64,22 @@ export interface SettingsPageProps {
  */
 export function SettingsPage(props: SettingsPageProps) {
   const { settings, chosenLanguage, onChange, onOpen } = props;
-  const { palette, allowFontScaling, size, largeText } = useScreenStyle();
   const t = useT();
   const [open, setOpen] = useState<'quiet' | 'language' | null>(null);
   const toggle = (group: 'quiet' | 'language') => setOpen(open === group ? null : group);
 
   return (
     <Page barTitle={t('brand.name')} onClose={props.onClose} testID="settings">
-      <View style={styles.section}>
-        <Text
-          accessibilityRole="header"
-          allowFontScaling={allowFontScaling}
-          style={[styles.heading, { color: palette.muted, fontSize: size(13) }]}
-        >
-          {t('settings.attitude').toLocaleUpperCase()}
-        </Text>
-        <View
-          accessibilityRole="radiogroup"
-          style={[styles.dial, largeText && styles.stacked, { backgroundColor: palette.surface }]}
-        >
-          {ATTITUDES.map((attitude) => {
-            const chosen = attitude === settings.attitude;
-            return (
-              <PressSpring
-                key={attitude}
-                accessibilityRole="radio"
-                accessibilityState={{ selected: chosen, checked: chosen }}
-                accessibilityLabel={t(`settings.attitude.${attitude}`)}
-                accessibilityHint={t(`settings.attitude.${attitude}.note`)}
-                onPress={() => onChange({ attitude })}
-                feedback="choice"
-                testID={`settings-attitude-${attitude}`}
-                style={[styles.card, { borderColor: chosen ? palette.tomato : 'transparent' }]}
-              >
-                {largeText ? null : (
-                  <Scootch
-                    mood={CARD_MOODS[attitude]}
-                    attitude={attitude}
-                    reducedMotion
-                    size={72}
-                  />
-                )}
-                <Text
-                  allowFontScaling={allowFontScaling}
-                  style={[
-                    styles.cardName,
-                    { color: palette.ink, fontSize: size(17), fontWeight: chosen ? '700' : '400' },
-                  ]}
-                >
-                  {t(`settings.attitude.${attitude}`)}
-                </Text>
-              </PressSpring>
-            );
-          })}
-        </View>
-        <Note
-          text={t(`settings.attitude.${settings.attitude}.note`)}
-          testID="settings-attitude-note"
+      <AttitudeDial attitude={settings.attitude} onChange={(attitude) => onChange({ attitude })} />
+
+      {props.look ? (
+        <LookSection
+          look={props.look}
+          follows={settings.iconFollows}
+          wallpaper={settings.wallpaper}
+          onOpen={onOpen}
         />
-      </View>
+      ) : null}
 
       <Section label={t('settings.feel')}>
         <SwitchRow
@@ -166,6 +126,14 @@ export function SettingsPage(props: SettingsPageProps) {
       <Section label={t('settings.calm')}>
         <Row
           first
+          kind="fact"
+          label={t('look.monstersMessage')}
+          value={t('look.monstersMessage.upTo', {
+            count: dailyNotificationLimit(settings.attitude),
+          })}
+          testID="settings-monsters-message"
+        />
+        <Row
           label={t('settings.quietHours')}
           hint={t('settings.quietHours.hint')}
           value={`${shortClock(settings.quietHoursStart)}–${shortClock(settings.quietHoursEnd)}`}
@@ -179,6 +147,13 @@ export function SettingsPage(props: SettingsPageProps) {
             onChange={onChange}
           />
         ) : null}
+        <Row
+          label={t('settings.backTap')}
+          sub={t('settings.backTap.sub')}
+          hint={t('settings.backTap.hint')}
+          onPress={() => onOpen('shortcuts')}
+          testID="settings-back-tap"
+        />
         <Row
           label={t('settings.finishWith')}
           hint={t('settings.finishWith.hint')}
@@ -264,21 +239,3 @@ export function SettingsPage(props: SettingsPageProps) {
     </Page>
   );
 }
-
-const styles = StyleSheet.create({
-  section: { gap: spacing.sm },
-  heading: { fontFamily: fonts.body, marginLeft: spacing.md, letterSpacing: 0.3 },
-  dial: { flexDirection: 'row', gap: 6, padding: 12, borderRadius: radius.lg },
-  stacked: { flexDirection: 'column' },
-  card: {
-    flex: 1,
-    minHeight: 52,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.xs,
-    paddingVertical: spacing.sm,
-    borderWidth: 2,
-    borderRadius: radius.md,
-  },
-  cardName: { fontFamily: fonts.body, textAlign: 'center' },
-});

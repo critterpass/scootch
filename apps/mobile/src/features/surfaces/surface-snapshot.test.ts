@@ -37,6 +37,12 @@ function snapshot(today: TodayState, changes: Partial<SurfaceSnapshotInput> = {}
     finish: 'holo',
     shelf: 42,
     latestCatch: null,
+    caughtThisWeek: 3,
+    worldImage: 'surface-world-0badf00d.png',
+    worldNightImage: 'surface-world-0badf00d-asleep.png',
+    scootchImage: 'surface-scootch-pleased.png',
+    wallpaper: 'world',
+    carried: null,
     dayEndsAt: DAY_END,
     ...changes,
   });
@@ -135,6 +141,74 @@ describe('the shared snapshot', () => {
     expect(made.lurkers).toEqual([]);
     expect(made.latestCatch).toBeNull();
     expect(JSON.stringify(made)).not.toContain('Odd Sock');
+  });
+});
+
+describe("tomorrow's one thing", () => {
+  const resting: TodayState = { kind: 'done_for_today', startsLeft: 0 };
+  const carried = (task = {}) => ({
+    task: taskRow({ localDate: '2026-10-07', carriedOver: true, ...task }),
+    monster: monsterRow(),
+  });
+
+  it('is nothing when no thing was carried on', () => {
+    expect(snapshot(resting).tomorrow).toBeNull();
+  });
+
+  it("carries the thing, its monster's name, Scootch's line and the words for nine", () => {
+    expect(snapshot(resting, { carried: carried() }).tomorrow).toEqual({
+      taskId: 'task-1',
+      task: 'Email the dentist',
+      monsterName: 'Molar',
+      line: "Molar's asleep too. Probably.",
+      morning: JOKES.start,
+    });
+  });
+
+  it('is plain words alone for a serious thing, which is never named at nine', () => {
+    const serious = { screen: 'serious' as const, text: 'Open the hospital letter', lines: PLAIN };
+    for (const seriousOverridden of [false, true]) {
+      const made = snapshot(resting, { carried: carried({ ...serious, seriousOverridden }) });
+      expect(made.tomorrow).toMatchObject({
+        task: 'Open the hospital letter',
+        monsterName: null,
+        line: null,
+      });
+      expect(made.tomorrow?.morning).not.toContain('hospital');
+    }
+    const quiet = snapshot(resting, { carried: carried(serious) }).tomorrow;
+    expect(Object.values(JOKES).flat()).not.toContain(quiet?.morning);
+  });
+
+  it('has no monster to name before one has hatched', () => {
+    const made = snapshot(resting, { carried: { ...carried(), monster: null } });
+    expect(made.tomorrow).toMatchObject({ monsterName: null, line: null });
+  });
+
+  it('is not carried on a crisis day', () => {
+    const made = snapshot({ kind: 'crisis' }, { carried: carried() });
+    expect(made.tomorrow).toBeNull();
+    expect(JSON.stringify(made)).not.toContain('dentist');
+  });
+
+  it("carries friends' tables with when they were asked for, and none on a crisis day", () => {
+    const friendsTables = {
+      asOf: DAY_END - 3_600_000,
+      tables: [{ tableId: 't1', friend: 'Hana', others: 1, openSeats: 2 }],
+    };
+    expect(snapshot(resting).friendsTables).toBeNull();
+    expect(snapshot(resting, { friendsTables }).friendsTables).toEqual(friendsTables);
+    const crisis = snapshot({ kind: 'crisis' }, { friendsTables });
+    expect(crisis.friendsTables).toBeNull();
+    expect(JSON.stringify(crisis)).not.toContain('Hana');
+  });
+
+  it('carries the world by day and asleep, and the catches of this week', () => {
+    expect(snapshot(resting)).toMatchObject({
+      caughtThisWeek: 3,
+      worldImage: 'surface-world-0badf00d.png',
+      worldNightImage: 'surface-world-0badf00d-asleep.png',
+    });
   });
 });
 

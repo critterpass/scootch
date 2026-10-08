@@ -5,12 +5,18 @@ import WidgetKit
 @main
 struct ScootchWidgetsBundle: WidgetBundle {
     var body: some Widget {
-        TodayWidget()
-        WorldWidget()
+        LurkerWidget()
+        LurkersWidget()
+        ShelfWidget()
+        TerrariumWidget()
+        FriendsTablesWidget()
         SessionLiveActivity()
         if #available(iOS 18.0, *) {
             StartSessionControl()
             BrainDumpControl()
+        }
+        if #available(iOS 26.0, *) {
+            HuntControl()
         }
     }
 }

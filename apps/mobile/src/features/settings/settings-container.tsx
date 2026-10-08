@@ -1,6 +1,6 @@
 import { useIsFocused, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Share } from 'react-native';
+import { Linking, Share } from 'react-native';
 
 import { useMusicWhenSilent } from '../../effects/sound-mode';
 import { useLanguage, useT } from '../../i18n/i18n-provider';
@@ -11,6 +11,8 @@ import { useTogether } from '../../state/together-context';
 import { goBack } from '../../ui/motion/go-back';
 import { useHomePager, usePageShown } from '../home-pager/home-pager-context';
 import { accountThen, friendInviteLink } from '../table/table-rules';
+
+import { useAppIcon } from '../look/use-app-icon';
 
 import { FinishWithPage } from './finish-with-page';
 import { SettingsPage } from './settings-page';
@@ -23,6 +25,8 @@ const PAGES = {
   plus: '/plus/manage',
   tables: '/table-settings',
   'developer-tools': '/developer-tools',
+  icon: '/look/icon',
+  wallpaper: '/look/wallpaper',
 } as const satisfies Record<string, string>;
 
 /**
@@ -39,6 +43,7 @@ export function SettingsContainer() {
   const [musicWhenSilent, setMusicWhenSilent] = useMusicWhenSilent();
   const { api } = useTogether();
   const t = useT();
+  const appIcon = useAppIcon();
   const pager = useHomePager();
   // In view: on the screen, and with no other screen pushed over it.
   const inView = usePageShown();
@@ -94,6 +99,7 @@ export function SettingsContainer() {
       musicWhenSilent={musicWhenSilent}
       onMusicWhenSilent={setMusicWhenSilent}
       tableName={tableName}
+      look={{ icon: appIcon.icon, finish: appIcon.finish }}
       onInvite={invite}
       onChange={(changes) =>
         void dispatch({ type: 'settings_changed', changes }).catch(() => undefined)
@@ -104,7 +110,12 @@ export function SettingsContainer() {
           .then(() => dispatch({ type: 'settings_changed', changes: {} }))
           .catch(() => undefined)
       }
-      onOpen={(page) => router.push(PAGES[page])}
+      onOpen={(page) =>
+        // Back Tap, the Action button and automations are set up in Shortcuts, not here.
+        page === 'shortcuts'
+          ? void Linking.openURL('shortcuts://').catch(() => undefined)
+          : router.push(PAGES[page])
+      }
       onClose={() => (pager ? pager.show('home') : goBack(router, '/'))}
     />
   );

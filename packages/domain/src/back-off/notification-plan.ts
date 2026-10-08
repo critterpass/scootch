@@ -19,6 +19,11 @@ const ATTITUDES: Record<Attitude, { readonly limit: number; readonly volume: Not
     unhinged: { limit: 3, volume: 'theatre' },
   };
 
+/** The most notifications a day at this attitude, before any back-off. */
+export function dailyNotificationLimit(attitude: Attitude): number {
+  return ATTITUDES[attitude].limit;
+}
+
 /**
  * The back-off table from the design board. A row holds until the next one starts, and no attitude
  * goes above its own limit or volume.

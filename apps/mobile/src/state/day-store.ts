@@ -31,6 +31,7 @@ import { UNDER_WAY, applySession } from './session-flow';
 import { closeStraySessions, dayOfRunningSession, restoreSession } from './session-restore';
 import { adoptHunt } from './hunt-adoption';
 import { closeSession, followTableClock, shortenSession, turnWorkingLine } from './session-moments';
+import { applyFromOutside } from './notification-actions';
 import { applySurfaceAction, noticePickUp } from './surface-actions';
 import { cancelOneThing, parkStartedTask } from './way-out';
 import { beFunny, cancelTaskCall, fetchPending, resolveTranscript, submitText } from './task-flow';
@@ -295,6 +296,11 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
         return applySurfaceAction(ctx, event.action);
       case 'hunt_adopted':
         return adoptHunt(ctx, event.hunt);
+      case 'thing_shared_in':
+      case 'bite_ticked':
+      case 'hunt_tomorrow':
+      case 'monster_turned_down':
+        return applyFromOutside(ctx, event);
       case 'surface_request_taken':
         return set({ surfaceRequest: null });
       case 'camera_step_chosen':

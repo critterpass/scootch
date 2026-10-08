@@ -94,6 +94,11 @@ export const taskRowSchema = z.object({
    * on a task nobody has bitten and on one stored before bites existed.
    */
   bitesCaught: z.array(z.number().int().min(0).max(2)).max(3).nullable().optional(),
+  /**
+   * The last day this thing's monster sends its messages at Soft, after "Turn it down for a
+   * week". Null or absent on a task nobody turned down.
+   */
+  softUntil: isoDateSchema.nullable().optional(),
   createdAt: isoDateTimeSchema,
   finishedAt: isoDateTimeSchema.nullable(),
 });
@@ -257,6 +262,12 @@ export const settingsRowSchema = z.object({
   keepTranscripts: z.boolean(),
   canBeHaunted: z.boolean(),
   hideTableLabel: z.boolean(),
+  /** What the app icon changes with: the attitude, the worn card finish, or nothing at all. */
+  iconFollows: z.enum(['attitude', 'finish', 'pinned']),
+  /** The icon that stays when the icon follows nothing (apps/mobile/src/features/look/icons.ts). */
+  iconPinned: z.string().min(1).max(24),
+  /** The wallpaper last looked at, which the Shortcuts action draws each morning. */
+  wallpaper: z.enum(['world', 'perched', 'night']),
   firstLaunchDoneAt: isoDateTimeSchema.nullable(),
 });
 export type SettingsRow = z.infer<typeof settingsRowSchema>;

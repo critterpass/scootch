@@ -28,6 +28,7 @@ function Settings({
       backupLine={backupOff ? lineWithNoTask('backupOff', { language, attitude: 'cheeky' }) : null}
       developerTools={false}
       tableName={tableName}
+      look={{ icon: 'cheeky', finish: 'paper' }}
       onInvite={nothing}
       onChange={nothing}
       onLanguage={nothing}

@@ -34,6 +34,7 @@ export declare class NativeScootchLiveActivityModule extends NativeModule<Scootc
     dismissAfterSeconds?: number | null,
   ): Promise<boolean>;
   listActive(): Promise<ActiveSessionActivity[]>;
+  refreshShortcuts(): void;
 }
 
 /** `null` on Android, in Jest and in a binary made before the module existed. */

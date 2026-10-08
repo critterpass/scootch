@@ -139,6 +139,16 @@ struct HuntRecord: Codable, Hashable, Sendable {
         return next
     }
 
+    /// "Make it 5": the hunt is `minutes` long from when its clock started. Only ever shorter,
+    /// and never to a moment that has already passed.
+    func shortened(toMinutes minutes: Double, at now: Double) -> HuntRecord {
+        let end = beginsAt + minutes * Self.minuteMs
+        guard !isOver, pausedAt == nil, end > now, end < endsAt else { return self }
+        var next = self
+        next.endsAt = end
+        return next
+    }
+
     /// Ended before its time. During the count-in this is "Not yet" and leaves nothing to show.
     func stopped(at now: Double) -> HuntRecord? {
         guard !isOver else { return self }

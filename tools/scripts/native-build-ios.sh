@@ -8,7 +8,11 @@
 # Writes <out dir>/scootch-<profile>-ios.tar.gz (the simulator app) or .ipa (the signed store
 # build), and its path as the `artifact` step output.
 #
-# Env: EXPO_TOKEN, EAS_CLI (the pinned eas-cli package).
+# Env: EXPO_TOKEN, EAS_CLI (the pinned eas-cli package). For a store profile, optionally
+# ASC_API_KEY_P8 (the key file's contents), EXPO_ASC_KEY_ID and EXPO_ASC_ISSUER_ID: with them
+# EAS can sign in to App Store Connect and make or renew a provisioning profile that is missing
+# or no longer valid (a new extension, a capability added to an App ID). Without them a build
+# whose profiles are all in place still signs, and one that needs a new profile stops and says so.
 set -uo pipefail
 
 profile=$1
@@ -24,6 +28,17 @@ esac
 
 mkdir -p "$out_dir"
 artifact=$(cd "$out_dir" && pwd)/scootch-$profile-ios.$extension
+
+# Only a signed build is given the key, and only as a file nobody else on the runner can read.
+if [ "$profile" = dev ] && [ -n "${ASC_API_KEY_P8:-}" ] && [ -n "${EXPO_ASC_KEY_ID:-}" ] &&
+  [ -n "${EXPO_ASC_ISSUER_ID:-}" ]; then
+  key_file=${RUNNER_TEMP:-$(mktemp -d)}/asc-api-key.p8
+  trap 'rm -f "$key_file"' EXIT
+  (umask 077 && printf '%s' "$ASC_API_KEY_P8" >"$key_file")
+  export EXPO_ASC_API_KEY_PATH=$key_file
+  export EXPO_APPLE_TEAM_ID=YFND2EEW8S EXPO_APPLE_TEAM_TYPE=INDIVIDUAL
+fi
+unset ASC_API_KEY_P8
 
 cd "$repo_root/apps/mobile" || exit 1
 started=$SECONDS

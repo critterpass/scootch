@@ -8,6 +8,7 @@ import type {
   HapticsPlayer,
   LiveActivityPort,
   NotificationScheduler,
+  NotificationSender,
   ScreenSink,
   SessionContext,
   Timers,
@@ -24,11 +25,19 @@ export interface EffectsRunnerOptions {
   readonly switches: () => EffectSwitches;
   /** Called when a session timer comes due. The store answers by dispatching a clock event. */
   readonly onClock: () => void;
+  /** Draws today's receipt to a file and answers with its address; `null` when it cannot. */
+  readonly receiptPicture?: () => Promise<string | null>;
 }
 
 export interface PlannedText {
   readonly at: Instant;
   readonly text: string;
+  /** The monster that sends it; left out, it is Scootch's own. */
+  readonly from?: NotificationSender | undefined;
+  readonly taskId?: string | undefined;
+  readonly actions?: boolean | undefined;
+  /** True for the evening receipt, which is drawn when it is scheduled and sent as a picture. */
+  readonly receipt?: boolean | undefined;
 }
 
 export interface EffectsRunner {
@@ -184,7 +193,16 @@ export function createEffectsRunner(options: EffectsRunnerOptions): EffectsRunne
         const now = options.clock.now();
         for (const [index, one] of planned.entries()) {
           if (one.at <= now) continue;
-          await notifications.schedule({ id: `${NOTIFICATION_PREFIX}${index}`, ...one });
+          const { receipt, ...rest } = one;
+          // The receipt is drawn now, as the day stands; without a picture its words still go.
+          const picture = receipt
+            ? await (options.receiptPicture?.() ?? Promise.resolve(null)).catch(() => null)
+            : null;
+          await notifications.schedule({
+            id: `${NOTIFICATION_PREFIX}${index}`,
+            ...rest,
+            ...(picture === null ? {} : { picture }),
+          });
         }
       });
     },

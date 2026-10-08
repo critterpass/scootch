@@ -102,6 +102,8 @@ describe('the house rules', () => {
         '/haunt/received',
         '/haunt/send',
         '/helplines',
+        '/look/icon',
+        '/look/wallpaper',
         '/plus',
         '/plus/last-day',
         '/plus/manage',

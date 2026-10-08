@@ -14,7 +14,8 @@ import { PressSpring } from '../../ui/motion/press-spring';
 import { useCharacterMotion } from '../../ui/motion/use-feel';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
-import { TABLE_LOBBY, TABLE_SEAT, accountThen, joinOutcomeOf, labelModeFor } from './table-rules';
+import { sitWithFriend } from './sit-with-friend';
+import { TABLE_SEAT } from './table-rules';
 import { tableFriend, useFriendsTables } from './use-friends-tables';
 
 const CRITTER = 44;
@@ -132,21 +133,14 @@ export function FriendTablePill() {
   const { name } = tableFriend(found);
   const join = () => {
     setBusy(true);
-    void api
-      .joinFriendsTable(found.tableId, purchaseState())
-      .then((id) => {
-        table.sit(id, labelModeFor('task' in today ? today.task : null));
-        router.push(TABLE_SEAT);
-      })
-      .catch((error: unknown) => {
-        const outcome = joinOutcomeOf(error);
-        // The lobby says what went wrong and offers what is left; an account is asked for first.
-        if (outcome === 'not_signed_in' || outcome === 'name_required') {
-          router.push(accountThen('/table'));
-        } else {
-          refresh();
-          router.push(TABLE_LOBBY);
-        }
+    void sitWithFriend(
+      { api, table, purchaseState },
+      found.tableId,
+      'task' in today ? today.task : null,
+    )
+      .then(({ to, seated }) => {
+        if (!seated) refresh();
+        router.push(to);
       })
       .finally(() => setBusy(false));
   };

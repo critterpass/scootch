@@ -46,6 +46,7 @@ export function newTask(
     notifications: [],
     createdAt: isoFromInstant(ctx.now()),
     bitesCaught: null,
+    softUntil: null,
     finishedAt: null,
   };
 }

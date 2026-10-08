@@ -3,6 +3,7 @@ import {
   addDays,
   instantFromIso,
   instantOfLocal,
+  localDateTime,
   isoWeekOf,
   type CardFinish,
 } from '@scootch/domain';
@@ -10,19 +11,24 @@ import {
 import type { Repositories } from '../../data/repositories';
 import type { DayStore } from '../../state/day-store';
 import type { DayState } from '../../state/day-types';
+import type { FriendsTablesSeen } from '../table/friends-tables-seen';
+
 import { readHunt } from './hunt-store';
 
 import { finishedThings } from '../world/landmarks';
 
 import { shareMonsterImages } from './monster-image';
 import { createPendingActions } from './pending-actions';
+import { createSharedIn } from './shared-in';
 import {
   SHARED_KEYS,
   type MonsterPainter,
   type SharedFiles,
   type SharedStore,
+  type WorldPainter,
 } from './surface-ports';
 import { buildSurfaceSnapshot, type WaitingThing } from './surface-snapshot';
+import { shareWorldImages } from './world-image';
 
 export interface SurfaceSyncDeps {
   readonly store: DayStore;
@@ -30,6 +36,13 @@ export interface SurfaceSyncDeps {
   readonly shared: SharedStore;
   readonly files: SharedFiles;
   readonly painter: MonsterPainter;
+  readonly worldPainter: WorldPainter;
+  /** The open tables friends were last seen at, or `null` before anything was asked. */
+  readonly friendsTables?: () => FriendsTablesSeen | null;
+  /** The table the phone is seated at: a wave to one seat, and giving the seat up. */
+  readonly table?: { readonly wave: (seatId: string) => void; readonly leave: () => void };
+  /** Takes back a notification a surface set, by its id. */
+  readonly cancelNotification: (id: string) => Promise<void>;
   readonly plus: () => boolean;
   /** The worn ink's accent as a hex colour; `null` for tomato. */
   readonly accent: () => string | null;
@@ -48,20 +61,38 @@ type DayAction = (typeof DAY_ACTIONS)[number];
 const isDayAction = (kind: string): kind is DayAction =>
   (DAY_ACTIONS as readonly string[]).includes(kind);
 
+/** The id of the notification "Hunt at 9:00" sets (`targets/_shared/MorningHunt.swift`). */
+export const morningHuntNotification = (taskId: string) => `morning-hunt-${taskId}`;
+
+/** The thing a nine o'clock hunt is set for, or `null` when none is or the note cannot be read. */
+function morningHuntTask(stored: string | null): string | null {
+  if (stored === null) return null;
+  try {
+    const { taskId } = JSON.parse(stored) as { taskId?: unknown };
+    return typeof taskId === 'string' ? taskId : null;
+  } catch {
+    return null;
+  }
+}
+
 /** The parts of the day a surface shows. While none of them changes, nothing is written. */
 function shownParts(
   state: DayState,
   plus: boolean,
   accent: string | null,
   finish: CardFinish,
+  friends: FriendsTablesSeen | null,
 ): readonly unknown[] {
   const { settings } = state;
   return [
     state.today,
     state.monster,
     state.line,
+    state.waitingForTomorrow,
     settings.attitude,
     settings.language,
+    settings.wallpaper,
+    friends,
     plus,
     accent,
     finish,
@@ -78,6 +109,7 @@ function shownParts(
 export function createSurfaceSync(deps: SurfaceSyncDeps) {
   const { store, shared } = deps;
   const pending = createPendingActions(shared, deps.now);
+  const sharedIn = createSharedIn(shared);
   let queue: Promise<void> = Promise.resolve();
   let lastParts: readonly unknown[] | null = null;
   let lastJson: string | null = null;
@@ -88,7 +120,8 @@ export function createSurfaceSync(deps: SurfaceSyncDeps) {
     const plus = deps.plus();
     const accent = deps.accent();
     const finish = deps.finish();
-    const parts = shownParts(state, plus, accent, finish);
+    const friends = deps.friendsTables?.() ?? null;
+    const parts = shownParts(state, plus, accent, finish, friends);
     if (lastParts && parts.every((part, index) => part === lastParts?.[index])) return;
     lastParts = parts;
 
@@ -123,6 +156,24 @@ export function createSurfaceSync(deps: SurfaceSyncDeps) {
       deps.painter,
       deps.files,
     );
+    // A nine o'clock hunt is for a thing that is still waiting. Once it is finished, let go or
+    // the day has turned heavy, nothing is sent about it.
+    const setForNine = morningHuntTask(shared.get(SHARED_KEYS.morningHunt));
+    const stillWaiting = [
+      ...unfinished,
+      ...(state.waitingForTomorrow ? [state.waitingForTomorrow] : []),
+    ];
+    if (
+      setForNine !== null &&
+      (today.kind === 'crisis' || !stillWaiting.some((task) => task.id === setForNine))
+    ) {
+      shared.remove(SHARED_KEYS.morningHunt);
+      await deps.cancelNotification(morningHuntNotification(setForNine)).catch(() => undefined);
+    }
+    const pieces = await deps.repositories.worldPieces.all();
+    const world = await shareWorldImages(pieces, monsters, deps.worldPainter, deps.files);
+    const { week } = isoWeekOf(state.localDate);
+    const carried = today.kind === 'crisis' ? null : state.waitingForTomorrow;
     const live = state.session !== null && TIMED.includes(state.session.phase);
     const snapshot = buildSurfaceSnapshot({
       today,
@@ -130,9 +181,8 @@ export function createSurfaceSync(deps: SurfaceSyncDeps) {
       monster,
       monsterImage: monster ? (images.get(monster.id) ?? null) : null,
       shownLine: live ? (state.line?.text ?? null) : null,
-      weekBars: (await deps.repositories.recordBars.where('week', isoWeekOf(state.localDate).week))
-        .length,
-      worldThings: finishedThings(await deps.repositories.worldPieces.all()),
+      weekBars: (await deps.repositories.recordBars.where('week', week)).length,
+      worldThings: finishedThings(pieces),
       plus,
       accent,
       localDate: state.localDate,
@@ -146,6 +196,31 @@ export function createSurfaceSync(deps: SurfaceSyncDeps) {
         latest?.caughtAt != null
           ? { name: latest.name, caughtAt: instantFromIso(latest.caughtAt) }
           : null,
+      caughtThisWeek: caught.filter(
+        (one) =>
+          isoWeekOf(localDateTime(instantFromIso(one.caughtAt ?? ''), deps.timeZone()).date)
+            .week === week,
+      ).length,
+      worldImage: world.day,
+      worldNightImage: world.night,
+      scootchImage: world.scootch,
+      wallpaper: state.settings.wallpaper,
+      friendsTables: friends && {
+        asOf: friends.at,
+        tables: friends.tables.map((one) => ({
+          tableId: one.tableId,
+          friend: one.friends[0]?.displayName ?? null,
+          others: Math.max(0, one.friends.length - 1),
+          openSeats: one.openSeats,
+        })),
+      },
+      carried: carried
+        ? {
+            task: carried,
+            monster:
+              monsters.find((one) => one.taskId === carried.id && one.caughtAt === null) ?? null,
+          }
+        : null,
       dayEndsAt: instantOfLocal(
         addDays(state.localDate, 1),
         `${String(DAY_ROLLOVER_HOUR).padStart(2, '0')}:00`,
@@ -168,6 +243,18 @@ export function createSurfaceSync(deps: SurfaceSyncDeps) {
     }
   };
 
+  /** What was asked about one thing under its notification, or on the nightstand. */
+  async function aboutOneThing(kind: string, taskId: string, biteId: string | null) {
+    if (kind === 'bite') {
+      const place = Number(biteId?.split(':').pop());
+      if (Number.isInteger(place)) await store.dispatch({ type: 'bite_ticked', taskId, place });
+    } else if (kind === 'tomorrow') {
+      await store.dispatch({ type: 'hunt_tomorrow', taskId });
+    } else if (kind === 'turn_down') {
+      await store.dispatch({ type: 'monster_turned_down', taskId });
+    }
+  }
+
   const sync = () => {
     queue = queue.then(write).catch(() => undefined);
     return queue;
@@ -176,6 +263,8 @@ export function createSurfaceSync(deps: SurfaceSyncDeps) {
   return {
     /** Writes the snapshot now if it changed. Resolves when it is written. */
     sync,
+    /** Does what an action under a notification asked, about the thing it names. */
+    aboutOneThing,
     /** Follows the store until the returned function is called. */
     follow(): () => void {
       void sync();
@@ -188,10 +277,20 @@ export function createSurfaceSync(deps: SurfaceSyncDeps) {
      */
     async opened() {
       if (!store.getState().ready) return [];
+      // What was shared in from other apps is taken in first, in the order it was shared.
+      for (const thing of sharedIn.take()) {
+        await store.dispatch({ type: 'thing_shared_in', text: thing.text, when: thing.when });
+      }
       const actions = pending.take();
       for (const action of actions) {
         if (isDayAction(action.kind)) {
           await store.dispatch({ type: 'surface_action', action: action.kind });
+        } else if (action.kind === 'leave_table') {
+          deps.table?.leave();
+        } else if (action.kind === 'wave') {
+          if (action.seatId !== null) deps.table?.wave(action.seatId);
+        } else if (action.taskId !== null) {
+          await aboutOneThing(action.kind, action.taskId, action.biteId);
         }
       }
       // A hunt begun or moved outside the app is taken up before anything else is noticed.

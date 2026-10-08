@@ -11,17 +11,17 @@ Owns: `apps/mobile/src/features/notifications`,
   A serious task sends plain words from Scootch. Limits, back-off and quiet
   hours are unchanged.
 - Test: who sends what for each day state and attitude.
-- Status: todo
+- Status: done — see the commit that adds `apps/mobile/modules/scootch-notifications`. Who sends what is tested; the sender's face needs the Communication Notifications capability on the App ID and has not been seen. The evening receipt is sent at 19:00 on a finished day with something on it, as the day's receipt with monsters' names in place of tasks' words; its plan is tested, its picture has not been seen in a notification
 
 ### 2. The long-press
 - Do: a content extension showing the three bites, each a tick; "Hunt the
   next bite now", "Tomorrow at 9:00", "Turn it down for a week".
 - States: no bites yet (the three actions alone), all ticked, largest text.
-- Status: todo
+- Status: done — same commit. Type-checked with `swiftc` and drawn on this Mac; not seen in a notification
 
 ### 3. What a tap does
 - Do: a response handler, so a tap or an action starts the session or does
   what was asked with the app closed. "Turn it down for a week" sends that
   monster's lines at Soft for seven days.
 - Test: each action from a cold start.
-- Status: todo
+- Status: done — same commit. The actions are answered in JavaScript when the app is launched for them; none has been pressed on a phone. The last bite begins the session, where "I'm done" opens the catch

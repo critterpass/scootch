@@ -1,6 +1,6 @@
 # The monsters get out: system surfaces, redrawn
 
-Status: in progress · Created 8 Oct 2026 · Board:
+Status: built, not yet proven on a device · Created 8 Oct 2026 · Board:
 [Scootch - System Surfaces v2](../../design/Scootch%20-%20System%20Surfaces%20v2.dc.html)
 (25 screens, listed in `design/screens.json` under "System Surfaces v2").
 
@@ -54,6 +54,18 @@ any task here.
 | "Stopped early" from outside | The state is drawn and its two buttons work, but nothing outside the app stops a hunt yet; Siri's "Stop" does, in the ways-to-start phase | The board draws no stop button on the Lock Screen |
 | Native batch | Its own batch, on top of the one that brought the turning card video and the worn ink to the widgets | That batch landed on main on 8 Oct while this was being built |
 | The worn look on the surfaces | The snapshot carries the worn finish beside the ink's accent main already sends. Its version stays where it is: every field here is an addition an older reader ignores | One accent, sent once |
+| The control and the Action button with no app in front | A second control, "Hunt 10 min", from iOS 26. The one that opens Scootch stays for iOS 18 to 25 | An intent that needs its app only some of the time can open it from iOS 26; a control cannot choose between two intents as it is drawn |
+| Focus filter: "Only work monsters", "Home monsters stay quiet" | Not built. The filter has "Offer a hunt when this Focus starts" alone | Nothing says whether a thing is work or home; the task call would have to |
+| "Tomorrow's one thing" on the nightstand, as one StandBy screen | Two small widgets side by side | StandBy shows small widgets; there is no full-width one |
+| "NEW MONSTER", its name and "about 10 min" on the share sheet | The sheet shows the words it took as "NEW THING" and the two choices. The monster hatches in the app | The name and size come from the task call, which screens first; the sheet makes no call. A serious thing therefore never has a monster on the sheet either |
+| "Hunt it now" from the share sheet | It keeps the thing and says to open Scootch, where it becomes the one thing if the day is free | A share sheet cannot open its app or start a Live Activity |
+| "from Mail" | A chip for what was shared: words, a link, or read from a picture | A share sheet is not told which app it was opened from |
+| "Four seats, each with its own ring" | Seats with no rings, and the table's one clock in the corner | A table has one clock for everyone seated; a seat only knows whether it is here, done or away |
+| "Deep work", a table's name | "4 at the table" | A table has no name |
+| "Nudge and Leave work without unlocking" | "Wave back" and "Leave table" open Scootch, which sends them | The table is reached over a connection only the open app holds |
+| The table "updated by push", and the Island opening when a friend sits down | Not built | The phone registers no push token, `push.remote` is off and Apple's key is not set. Until then the table on the Lock Screen is as the app last wrote it |
+| "At a table: Hana, writing · 22m" and "Tables now" with strangers by category | One widget: the friend, the open seats and "Sit here". Shown for ten minutes after the app last asked | The server answers with who of your friends is there and how many seats are open, nothing more; a widget has no way to ask it by itself yet |
+| "Card finish" in Settings and a locked finish in the icon picker open the studio | Both open Your card, which leads to the studio | The studio sells, and the places that open a selling page are a short list the house rules test keeps: none of them is on the way from home, and Settings is the page beside home |
 
 ## Phases
 

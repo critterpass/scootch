@@ -21,6 +21,8 @@ export type {
   SessionActivityStartOptions,
   SessionActivityState,
   SessionActivityStatus,
+  SessionActivityTable,
+  SessionActivityTableSeat,
   SessionActivityUpdateOptions,
 } from './src/ScootchLiveActivity.types';
 
@@ -73,6 +75,18 @@ export async function end(
 export async function listActive(): Promise<ActiveSessionActivity[]> {
   if (!native) return [];
   return native.listActive();
+}
+
+/**
+ * Tells Siri and Spotlight that the waiting monsters changed, so the names they offer are today's.
+ * Nothing happens where there are no shortcuts, or in a binary made before them.
+ */
+export function refreshShortcuts(): void {
+  try {
+    native?.refreshShortcuts();
+  } catch {
+    // An older binary has no such call.
+  }
 }
 
 /** Fires with the token for updating one activity started with `pushUpdates`. */
