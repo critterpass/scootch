@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 import type { Attitude } from '@scootch/domain';
 import { spacing } from '@scootch/tokens';
@@ -7,12 +7,12 @@ import { spacing } from '@scootch/tokens';
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { useDataTools, useDispatch } from '../../state/day-store-provider';
 import { lineWithNoTask } from '../../state/lines';
-import { CapsuleButton } from '../../ui/buttons';
 import { ScootchSays } from '../../ui/scootch-says';
+import { SafeFrame } from '../../ui/safe-frame';
 import { useScreenStyle } from '../../ui/use-screen-style';
+import { ChoiceDock } from '../dump/dump-panels';
 
 import type { Snapshot } from './snapshot';
-import { SafeFrame } from '../../ui/safe-frame';
 
 /** How long a new phone waits to hear whether there is a world to bring back. */
 const LOOK_FOR_MS = 4000;
@@ -40,25 +40,29 @@ export function RestoreOfferView({
   const { palette } = useScreenStyle();
   const t = useT();
   return (
+    // The frame the first-launch steps share: the words in the page's gutter, scrolling at large
+    // text, and the choices in the dock at the foot. The padding is on the views inside, since the
+    // safe frame sets its own.
     <SafeFrame style={[styles.screen, { backgroundColor: palette.page }]} testID="restore-offer">
-      <View style={styles.said}>
+      <ScrollView contentContainerStyle={styles.said}>
         <ScootchSays mood="pleased" attitude={attitude} line={line} />
-      </View>
-      <View style={styles.choices}>
-        <CapsuleButton
-          label={t('backup.restore.yes')}
-          hint={t('backup.restore.yes.hint')}
-          disabled={busy}
-          onPress={onRestore}
-          testID="restore-yes"
-        />
-        <CapsuleButton
-          tone="quiet"
-          label={t(inUse ? 'backup.restore.keep' : 'backup.restore.no')}
-          hint={t(inUse ? 'backup.restore.keep.hint' : 'backup.restore.no.hint')}
-          disabled={busy}
-          onPress={onFresh}
-          testID="restore-no"
+      </ScrollView>
+      <View style={styles.footer}>
+        <ChoiceDock
+          quiet={{
+            label: t(inUse ? 'backup.restore.keep' : 'backup.restore.no'),
+            hint: t(inUse ? 'backup.restore.keep.hint' : 'backup.restore.no.hint'),
+            disabled: busy,
+            onPress: onFresh,
+            testID: 'restore-no',
+          }}
+          action={{
+            label: t('backup.restore.yes'),
+            hint: t('backup.restore.yes.hint'),
+            disabled: busy,
+            onPress: onRestore,
+            testID: 'restore-yes',
+          }}
         />
       </View>
     </SafeFrame>
@@ -141,7 +145,12 @@ export function RestoreGate({
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, padding: spacing.lg, justifyContent: 'space-between' },
-  said: { flex: 1, justifyContent: 'center' },
-  choices: { gap: spacing.sm },
+  screen: { flex: 1 },
+  said: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.lg,
+  },
+  footer: { paddingHorizontal: spacing.md, paddingBottom: spacing.sm },
 });
