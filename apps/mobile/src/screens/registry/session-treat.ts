@@ -8,7 +8,7 @@ export const sessionTreat = sessionState({
   id: 'session-treat',
   design: {
     board: SCOOTCH_BOARD,
-    section: '05 Hold to finish and rewards',
+    section: '05 The catch and rewards',
     screen: 'Real-world treat',
   },
   model: (language) =>

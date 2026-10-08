@@ -3,6 +3,7 @@ import { Image, StyleSheet } from 'react-native';
 import type { CardFinish, SettingsRow } from '@scootch/domain';
 
 import { useT } from '../../i18n/i18n-provider';
+import { FinishThumb } from '../settings/look-thumbs';
 import { Row, Section } from '../settings/rows';
 
 import { ICON_PICTURES, iconLabel } from './icon-pictures';
@@ -52,6 +53,7 @@ export function LookSection({
         testID="settings-app-icon"
       />
       <Row
+        leading={<FinishThumb finish={look.finish} />}
         label={t('look.cardFinish')}
         hint={t('look.cardFinish.hint')}
         value={t(`studio.finish.${look.finish}.short`)}

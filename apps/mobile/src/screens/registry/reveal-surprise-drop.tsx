@@ -5,7 +5,7 @@ export const revealSurpriseDrop = keepState({
   id: 'reveal-surprise-drop',
   design: {
     board: SCOOTCH_BOARD,
-    section: '05 Hold to finish and rewards',
+    section: '05 The catch and rewards',
     screen: 'Surprise drop',
   },
   capture: { screen: 'reveal', step: 'drop' },

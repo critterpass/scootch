@@ -3,7 +3,7 @@
  * transitions. Every route file under `app/` is named here; one that is not gets the plain push.
  *
  * - `home`: the one screen. Returning to it reads as going back.
- * - `push`: the system's push, with its interruptible swipe back: the world, the zoo, the record,
+ * - `push`: the system's push, with its interruptible swipe back: the world, the binder, the record,
  *   the camera, settings and their children. From home the world and settings are not pushed at all: they are
  *   the pages either side of it.
  * - `sheet`: a system sheet with a grabber, pulled down to close.
@@ -16,6 +16,8 @@ export const ROUTE_MOTION: Readonly<Record<string, RouteMotion>> = {
   index: 'home',
   world: 'push',
   zoo: 'push',
+  'binder/card': 'push',
+  'binder/pages': 'push',
   record: 'push',
   studio: 'push',
   camera: 'push',
@@ -170,9 +172,7 @@ const ROUTE_BAR: Readonly<Record<string, RouteBar>> = {
   't/[code]': 'page',
   'f/[code]': 'page',
   world: 'frame',
-  zoo: 'frame',
   record: 'frame',
-  studio: 'frame',
   'plus/manage': 'frame',
   'plus/records': 'frame',
 };

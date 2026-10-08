@@ -1,12 +1,8 @@
-import { KEEPSAKES_BOARD, keepState } from '../../features/reveal/registry/keep-state';
+import { KEEPSAKES_BOARD, keepState, THE_BINDER } from '../../features/reveal/registry/keep-state';
 
-/** One caught card at full size. */
+/** One card out of its pocket, on the binder's dark stage. */
 export const zooCard = keepState({
   id: 'zoo-card',
-  design: {
-    board: KEEPSAKES_BOARD,
-    section: '01 The task becomes a creature',
-    screen: 'Caught card · live',
-  },
+  design: { board: KEEPSAKES_BOARD, section: THE_BINDER, screen: 'Card · front and back' },
   capture: { screen: 'zoo', cards: 12, plus: false, open: true },
 });

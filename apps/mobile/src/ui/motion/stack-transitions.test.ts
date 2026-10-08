@@ -139,13 +139,22 @@ describe("which screens wear the system's bar", () => {
     expect(stackBar('settings', true, inks)).not.toHaveProperty('headerLargeTitle');
   });
 
-  it("gives the world, the zoo and the record a bar in the page's colour", () => {
-    for (const route of ['world', 'zoo', 'record', 'studio', 'plus/manage']) {
+  it("gives the world and the record a bar in the page's colour", () => {
+    for (const route of ['world', 'record', 'plus/manage']) {
       expect(stackBar(route, true, inks)).toMatchObject({
         headerShown: true,
         headerTransparent: false,
         headerStyle: { backgroundColor: '#EEE' },
       });
+    }
+  });
+
+  it('lets the studio and the binder draw their own bars, and still swipe back', () => {
+    // The studio's tabs sit between the corners; the binder has a large title, a dark stage for
+    // one card and a leaf of pages, none of which the system's bar can carry.
+    for (const route of ['studio', 'zoo', 'binder/card', 'binder/pages']) {
+      expect(stackBar(route, true, inks)).toEqual({ headerShown: false });
+      expect(stackMotion(route, true).gestureEnabled).toBe(true);
     }
   });
 

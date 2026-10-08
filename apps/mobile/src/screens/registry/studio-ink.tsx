@@ -1,10 +1,8 @@
-import { plusState } from '../../features/plus/registry/plus-state';
+import { PLUS_BOARD, plusState, THE_STUDIO } from '../../features/plus/registry/plus-state';
 
-/** The studio on its ink tab, with an ink tried on. */
+/** The studio on its ink tab, with an ink tried on: the one screen, a widget and the card's corner. */
 export const studioInk = plusState({
   id: 'studio-ink',
-  design: null,
-  undesignedReason:
-    'The board draws the studio on its finish tab; the ink tab is the same screen with the five inks as swatches and Scootch on the card printed in the one in focus.',
+  design: { board: PLUS_BOARD, section: THE_STUDIO, screen: 'Studio · ink' },
   capture: { screen: 'studio', tab: 'ink', trying: 'midnight', worn: false },
 });

@@ -7,6 +7,7 @@ import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { developerToolsAllowed } from '../../screens/registry/support/developer-tools';
 import { useDataTools, useDispatch, useToday } from '../../state/day-store-provider';
 import { lineWithNoTask } from '../../state/lines';
+import { usePlusState } from '../../state/plus-context';
 import { useTogether } from '../../state/together-context';
 import { goBack } from '../../ui/motion/go-back';
 import { useHomePager, usePageShown } from '../home-pager/home-pager-context';
@@ -44,6 +45,7 @@ export function SettingsContainer() {
   const { api } = useTogether();
   const t = useT();
   const appIcon = useAppIcon();
+  const { customer, member } = usePlusState();
   const pager = useHomePager();
   // In view: on the screen, and with no other screen pushed over it.
   const inView = usePageShown();
@@ -100,6 +102,7 @@ export function SettingsContainer() {
       onMusicWhenSilent={setMusicWhenSilent}
       tableName={tableName}
       look={{ icon: appIcon.icon, finish: appIcon.finish }}
+      card={{ plan: customer.activePlan, number: member.number, finish: appIcon.finish }}
       onInvite={invite}
       onChange={(changes) =>
         void dispatch({ type: 'settings_changed', changes }).catch(() => undefined)

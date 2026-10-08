@@ -6,12 +6,17 @@ import { toSvg } from '../backends/svg';
 import type { DrawCommand, TextCommand } from '../core/commands';
 import { specFromSeed } from '../core/spec-from-seed';
 import { estimateTextWidth } from '../core/text';
+import { buildCaughtStory } from './build-caught-story';
+import { buildPostcard } from './build-postcard';
 import { buildPoster, POSTER_MONSTERS } from './build-poster';
 import { buildReceipt, RECEIPT_ROWS } from './build-receipt';
+import { buildSleeve } from './build-sleeve';
 import { buildStickerSheet } from './build-sticker-sheet';
 import { buildStory } from './build-story';
 import { buildTradingCard } from './build-trading-card';
+import { buildWanted } from './build-wanted';
 import { CARD_LABELS } from './labels';
+import { SHARE_FRAMES, STORY } from './share-frame';
 
 const molar: CardData = cardDataSchema.parse({
   monster: specFromSeed('tooth', 'dentist'),
@@ -77,7 +82,7 @@ describe('the trading card', () => {
     const words = printed(card.commands);
     for (const part of [
       'INBOX DWELLER',
-      'RARE',
+      'EPIC',
       'Lurked',
       '214 days',
       'Tue 09:41',
@@ -234,5 +239,145 @@ describe('every shared picture', () => {
   it('has every label in both languages', () => {
     expect(Object.keys(CARD_LABELS.vi).sort()).toEqual(Object.keys(CARD_LABELS.en).sort());
     expect(Object.keys(CARD_LABELS.vi.finish).sort()).toEqual([...CARD_FINISH_IDS].sort());
+  });
+});
+
+describe('the story of a catch, on a frame', () => {
+  it('carries the strip, the sentence, three numbers and the mark, on every frame', () => {
+    for (const frame of SHARE_FRAMES) {
+      const story = buildCaughtStory(molar, { frame, headline: 'Emailed the dentist.' });
+      expect([story.width, story.height]).toEqual([STORY.width, STORY.height]);
+      const words = printed(story.commands);
+      for (const part of [
+        'SCOOTCH · CAUGHT',
+        'TUE 6 OCT',
+        'CAUGHT.',
+        'Emailed the dentist.',
+        '214 days',
+        '9 min',
+        '4 / 5',
+        'SCOOTCH.APP',
+        'NO. 041',
+        '06·10·26',
+      ]) {
+        expect(words, `${frame}: ${part}`).toContain(part);
+      }
+      fits(story.commands);
+      expect(() => toSvg(story.commands, story)).not.toThrow();
+    }
+  });
+
+  it('never prints the task, and drops the sentence about it when the task is hidden', () => {
+    const shown = buildCaughtStory(molar, { headline: 'zzqx the dentist.' });
+    expect(printed(shown.commands)).toContain('zzqx the dentist.');
+    const hidden = buildCaughtStory(molar, { headline: 'zzqx the dentist.', hideTask: true });
+    expect(JSON.stringify(hidden.commands)).not.toContain('zzqx');
+    expect(printed(hidden.commands)).toContain(CARD_LABELS.en.storyHeadline);
+    expect(printed(hidden.commands)).toContain('214 days');
+  });
+
+  it('fits a long sentence and a long name, in both languages', () => {
+    for (const language of ['en', 'vi'] as const) {
+      const story = buildCaughtStory(
+        { ...molar, name: LONG, title: LONG },
+        { language, headline: LONG },
+      );
+      fits(story.commands);
+    }
+  });
+});
+
+describe('the wanted poster', () => {
+  const wild = {
+    monster: molar.monster,
+    name: 'Molar',
+    title: 'Keeper of Thursday',
+    day: 214,
+    since: 3,
+  };
+
+  it('names the monster, its days and the month it turned up, and never the task', () => {
+    for (const frame of SHARE_FRAMES) {
+      const poster = buildWanted(wild, { frame });
+      const words = printed(poster.commands);
+      for (const part of [
+        'SCOOTCH · STILL WILD',
+        'SEEN 214 DAYS',
+        'WANTED',
+        'for lurking since March',
+        'MOLAR, KEEPER OF THURSDAY',
+        'Hold me to it.',
+        'Reward: one coffee.',
+      ]) {
+        expect(words, `${frame}: ${part}`).toContain(part);
+      }
+      expect(texts(poster.commands).filter((line) => line.text === 'scootch.app')).toHaveLength(6);
+      fits(poster.commands);
+      expect(() => toSvg(poster.commands, poster)).not.toThrow();
+    }
+  });
+
+  it('fits a long name in both languages', () => {
+    for (const language of ['en', 'vi'] as const) {
+      fits(buildWanted({ ...wild, name: LONG, title: LONG }, { language }).commands);
+    }
+  });
+});
+
+describe('a postcard from the world', () => {
+  const world = { things: 71, month: 10, year: 2026, scene: [], sceneSize: 200 };
+
+  it('counts what lives there on the strip, the postmark and the sentence, and names no task', () => {
+    for (const frame of SHARE_FRAMES) {
+      const card = buildPostcard(world, { frame });
+      const words = printed(card.commands);
+      for (const part of [
+        'SCOOTCH · MY WORLD',
+        '71 THINGS',
+        'Greetings from',
+        'my world.',
+        'OCT 2026',
+        'one small hill.',
+        '71 / ∞',
+      ]) {
+        expect(words, `${frame}: ${part}`).toContain(part);
+      }
+      fits(card.commands);
+      expect(() => toSvg(card.commands, card)).not.toThrow();
+    }
+    fits(buildPostcard({ ...world, things: 1 }, { language: 'vi' }).commands);
+  });
+});
+
+describe("the week's record in its sleeve", () => {
+  const week = {
+    weekNumber: 41,
+    week: '2026-W41',
+    name: 'Molar and the Bin Bags',
+    credits: [
+      { position: 1, instrument: 'Keys', task: 'replied to Sam' },
+      { position: 2, instrument: 'Bassline', task: 'zzqx the dentist' },
+      { position: 7, instrument: 'Choir', task: null },
+    ],
+  };
+
+  it('credits each day with its instrument, and its task only where there is one', () => {
+    for (const frame of SHARE_FRAMES) {
+      const sleeve = buildSleeve(week, { frame });
+      const words = printed(sleeve.commands);
+      for (const part of ['SCOOTCH · WEEK 41', '3 BARS', 'SIDE A', 'MON', 'Keys', 'SUN', 'Choir']) {
+        expect(words, `${frame}: ${part}`).toContain(part);
+      }
+      expect(words).toContain('zzqx the dentist');
+      fits(sleeve.commands);
+      expect(() => toSvg(sleeve.commands, sleeve)).not.toThrow();
+    }
+  });
+
+  it('names the week alone before it has a name, and fits a long one', () => {
+    expect(printed(buildSleeve({ ...week, name: null }).commands)).toContain('WEEK 41');
+    for (const language of ['en', 'vi'] as const) {
+      fits(buildSleeve({ ...week, name: LONG }, { language }).commands);
+    }
   });
 });

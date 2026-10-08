@@ -1,10 +1,8 @@
-import { plusState } from '../../features/plus/registry/plus-state';
+import { PLUS_BOARD, plusState, THE_STUDIO } from '../../features/plus/registry/plus-state';
 
-/** The studio with a bought finish being worn. */
+/** The studio with a bought finish being worn, as the board draws it. */
 export const studioWearing = plusState({
   id: 'studio-wearing',
-  design: null,
-  undesignedReason:
-    'The board draws the studio before a purchase; afterwards the same item says it is being worn, shows that it is owned and has no price.',
+  design: { board: PLUS_BOARD, section: THE_STUDIO, screen: 'Studio · finish' },
   capture: { screen: 'studio', tab: 'finish', trying: 'holo', worn: true },
 });

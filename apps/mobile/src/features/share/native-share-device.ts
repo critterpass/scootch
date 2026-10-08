@@ -14,6 +14,7 @@ import {
 } from '@shopify/react-native-skia';
 import { File, Paths } from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library/legacy';
+import * as Clipboard from 'expo-clipboard';
 import * as Sharing from 'expo-sharing';
 import { Platform, Share } from 'react-native';
 
@@ -172,6 +173,9 @@ export const nativeShareDevice: ShareDevice = {
     // The picture and its page's link go to the sheet together, which only iOS's own sheet does.
     if (link !== undefined && Platform.OS === 'ios') await Share.share({ url: uri, message: link });
     else await Sharing.shareAsync(uri, { mimeType });
+  },
+  async copyText(text) {
+    await Clipboard.setStringAsync(text);
   },
   async saveToPhotos(uri) {
     const permission = await MediaLibrary.requestPermissionsAsync(true);

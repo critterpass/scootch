@@ -1,10 +1,10 @@
-import { useRouter } from 'expo-router';
+import { usePreventRemove, useRouter } from 'expo-router';
 import { useMemo } from 'react';
 import { View } from 'react-native';
 
 import { isoWeekOf } from '@scootch/domain';
 
-import { useLanguage } from '../../i18n/i18n-provider';
+import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { useToday } from '../../state/day-store-provider';
 import { useKeepsakes, usePlus } from '../../state/keepsakes';
 import { goBack } from '../../ui/motion/go-back';
@@ -13,6 +13,9 @@ import { useKeptWeeks } from '../plus/kept-records';
 import { PLUS_RECORDS, PLUS_SHEET } from '../plus/routes';
 import { nativeShareDevice } from '../share/native-share-device';
 import { shareWeekClip } from '../share/share-flow';
+import { SharePanel } from '../share/share-panel';
+import { shareOffered } from '../share/share-rules';
+import { useShare } from '../share/use-share';
 
 import { nativePcmPlayer } from './native-pcm-player';
 import { weekClip, weekTrack } from './record-audio';
@@ -25,7 +28,12 @@ export function RecordContainer() {
   const router = useRouter();
   const { language } = useLanguage();
   const { palette, reducedMotion } = useScreenStyle();
-  const { localDate, settings, heavyToday } = useToday();
+  const { localDate, settings, heavyToday, today } = useToday();
+  const t = useT();
+  const share = useShare(language, today);
+  // The composer is drawn over the record, not pushed: a swipe back closes it first.
+  const { panel } = share;
+  usePreventRemove(panel !== null, () => panel?.actions.close());
   const { keepsakes } = useKeepsakes();
   const plus = usePlus();
   const shelf = useKeptWeeks();
@@ -47,6 +55,7 @@ export function RecordContainer() {
     openPlus: () => router.push(PLUS_SHEET),
   };
   if (!keepsakes) return <View style={{ flex: 1, backgroundColor: palette.page }} />;
+  if (panel) return <SharePanel {...panel} />;
   return (
     <RecordScreen
       model={{
@@ -71,10 +80,32 @@ export function RecordContainer() {
         openShelf: () => router.push(PLUS_RECORDS),
         shareWeek: () => {
           if (!weekShareOffered(week)) return;
-          // The clip goes out as an audio file by itself: whether it becomes a video is undecided.
-          void shareWeekClip(nativeShareDevice, weekClip(weekTrack(week.rows)), week.week).catch(
-            () => undefined,
-          );
+          share.open({
+            kind: 'song',
+            sleeve: {
+              weekNumber: week.weekNumber,
+              week: week.week,
+              name: week.name,
+              // A day's task is credited only when it may be shared; its instrument always is.
+              credits: week.rows.map((row) => {
+                const task = row.monster
+                  ? (keepsakes?.tasks.get(row.monster.taskId) ?? null)
+                  : null;
+                return {
+                  position: row.position,
+                  instrument: t(`record.instrument.${row.instrument}`),
+                  task: task && shareOffered(task) ? task.text.slice(0, 80) : null,
+                };
+              }),
+            },
+            // The clip still goes out as an audio file by itself, from the composer.
+            sound: () =>
+              void shareWeekClip(
+                nativeShareDevice,
+                weekClip(weekTrack(week.rows)),
+                week.week,
+              ).catch(() => undefined),
+          });
         },
       }}
     />

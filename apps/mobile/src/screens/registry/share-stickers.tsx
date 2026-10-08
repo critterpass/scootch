@@ -1,12 +1,16 @@
-import { keepState, MATERIALS_BOARD } from '../../features/reveal/registry/keep-state';
+import {
+  KEEPSAKES_BOARD,
+  keepState,
+  MADE_TO_SHARE,
+} from '../../features/reveal/registry/keep-state';
 
 /** The share panel on the sticker sheet. */
 export const shareStickers = keepState({
   id: 'share-stickers',
   design: {
-    board: MATERIALS_BOARD,
-    section: '04 Made to share',
-    screen: 'Sticker sheet · die-cut',
+    board: KEEPSAKES_BOARD,
+    section: MADE_TO_SHARE,
+    screen: 'Sticker pack · Messages',
   },
   capture: { screen: 'share', format: 'stickers' },
 });

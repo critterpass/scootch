@@ -9,7 +9,8 @@ import { PlusContext, type PlusRuntime } from '../../../state/plus-context';
 import { useScreenStyle } from '../../../ui/use-screen-style';
 import { initialComposer } from '../../composer/composer-machine';
 import { OneScreenView } from '../../one-screen/one-screen-view';
-import { itemOf } from '../../studio/catalogue';
+import { fixtureMonster } from '../../reveal/registry/keep-fixtures';
+import { itemOf, itemsOf } from '../../studio/catalogue';
 import { PLAIN_LOOK, withPart } from '../../studio/look';
 import { finishesOwned } from '../../studio/rules';
 import { StudioScreen } from '../../studio/studio-screen';
@@ -263,9 +264,22 @@ export function Captured({ capture }: { readonly capture: PlusCapture }) {
             action: capture.worn ? 'wearing' : 'buy',
             price: capture.worn ? null : STUDIO_PRICE,
             held: capture.worn ? 'owned' : null,
-            number: null,
+            // Paper, Tangerine and Confetti are everyone's; the rest show the store's price.
+            notes: Object.fromEntries(
+              itemsOf(capture.tab).map((item) => [
+                item.id,
+                item.productId === null || (capture.worn && item.id === focus.id)
+                  ? { text: t('studio.owned'), priced: false }
+                  : { text: STUDIO_PRICE, priced: true },
+              ]),
+            ),
+            canTakeOff: true,
+            number: MEMBER.number,
+            homeLine: said('waiting'),
+            monster: { spec: fixtureMonster(0).spec, name: fixtureMonster(0).name },
             busy: false,
             notice: null,
+            toast: null,
           }}
           actions={{
             close: nothing,

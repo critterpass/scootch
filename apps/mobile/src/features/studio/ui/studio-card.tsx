@@ -12,14 +12,16 @@ import type { Look } from '../look';
 
 import { MaterialCard } from './material-card';
 
-/** The board's card in the studio: 214 by 298. */
-const CARD = { width: 214, height: 298 } as const;
+/** The board's card in the studio: 222 by 310. */
+export const STUDIO_CARD = { width: 222, height: 310 } as const;
 
 export interface StudioCardProps {
   /** What the card wears: its finish is the stock, its ink prints Scootch. */
   readonly look: Look;
   /** The member's number, printed in the corner; `null` leaves it off. */
   readonly number: number | null;
+  /** True where a finger may lean it, as on the studio's stage. */
+  readonly handled?: boolean;
 }
 
 /**
@@ -27,7 +29,7 @@ export interface StudioCardProps {
  * finish, with the finish's name and the ink's code at its foot. It reads out as one image that
  * says what it is wearing.
  */
-export function StudioCard({ look, number }: StudioCardProps) {
+export function StudioCard({ look, number, handled = false }: StudioCardProps) {
   const t = useT();
   const character = useCharacterMotion();
   const material = CARD_MATERIALS[look.finish];
@@ -36,8 +38,9 @@ export function StudioCard({ look, number }: StudioCardProps) {
   return (
     <MaterialCard
       finish={look.finish}
-      width={CARD.width}
-      height={CARD.height}
+      width={STUDIO_CARD.width}
+      height={STUDIO_CARD.height}
+      handled={handled}
       label={t('studio.card.label', {
         finish: t(`finish.${look.finish}`),
         ink: t(ink.name),
@@ -57,7 +60,7 @@ export function StudioCard({ look, number }: StudioCardProps) {
           )}
         </View>
         <View style={styles.figure}>
-          <Scootch mood="pleased" ink={look.ink} size={180} {...character} />
+          <Scootch mood="pleased" ink={look.ink} size={186} {...character} />
         </View>
         <View style={[styles.spread, styles.foot]}>
           <Text
@@ -86,7 +89,7 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     fontFamily: fonts.heading,
     fontWeight: '800',
-    fontSize: 19,
-    letterSpacing: -0.4,
+    fontSize: 21,
+    letterSpacing: -0.42,
   },
 });

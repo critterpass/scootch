@@ -1,15 +1,22 @@
 import { useState } from 'react';
 
-import { dailyNotificationLimit, type ClockTime, type SettingsRow } from '@scootch/domain';
+import {
+  dailyNotificationLimit,
+  type CardFinish,
+  type ClockTime,
+  type SettingsRow,
+} from '@scootch/domain';
 import type { Language } from '@scootch/i18n';
 
 import { useT } from '../../i18n/i18n-provider';
-
+import { useAppearance } from '../../screens/registry/support/forced-variant';
 import { LookSection, type LookFacts } from '../look/look-section';
+import type { PlanId } from '../plus/products';
 
 import { AttitudeDial } from './attitude-dial';
-import { QuietHoursRows } from './quiet-hours';
+import { CardThumb, SeatThumb } from './look-thumbs';
 import { Page } from './page';
+import { QuietHoursRows } from './quiet-hours';
 import { Note, Row, Section, SwitchRow } from './rows';
 
 const FINISH_LABELS = {
@@ -19,6 +26,8 @@ const FINISH_LABELS = {
 } as const;
 const LANGUAGES: readonly (Language | null)[] = [null, 'en', 'vi'];
 const LANGUAGE_LABELS = { en: 'English', vi: 'Tiếng Việt' } as const;
+/** The seat's ground in the Tables row: a shade under the page, in either appearance. */
+const SEAT_GROUND = { light: '#EDE7DD', dark: '#2E2A26' } as const;
 
 /** `8:30` for `08:30`, as the design writes the quiet hours. */
 export function shortClock(time: ClockTime): string {
@@ -51,6 +60,15 @@ export interface SettingsPageProps {
   ) => void;
   /** What the Look group shows as picked. Unset, the group is left out. */
   readonly look?: LookFacts;
+  /**
+   * What the Plus row shows: the plan that holds Plus (`null` without it), the member's number
+   * once the server has given one, and the finish that is worn, which the card is drawn in.
+   */
+  readonly card: {
+    readonly plan: PlanId | null;
+    readonly number: number | null;
+    readonly finish: CardFinish;
+  };
   /** The name the person's seat shows; `null` on a phone that is not signed in for tables. */
   readonly tableName?: string | null;
   /** Opens the share sheet with a friend link. Unset (a capture), the row does nothing. */
@@ -59,18 +77,32 @@ export interface SettingsPageProps {
 }
 
 /**
- * Settings: one page. The attitude, how the app feels, the quiet hours, how a session is finished,
- * privacy, and the few rows the app needs beyond the design: language, Plus and the helplines.
+ * Settings: one page. The attitude, the Plus card, the look, how the app feels, the quiet hours,
+ * how a monster is caught, privacy, tables, and the few rows the app needs beyond the design:
+ * language and the helplines. Every row with an arrow opens a page that lives with its topic.
  */
 export function SettingsPage(props: SettingsPageProps) {
   const { settings, chosenLanguage, onChange, onOpen } = props;
   const t = useT();
+  const appearance = useAppearance();
   const [open, setOpen] = useState<'quiet' | 'language' | null>(null);
   const toggle = (group: 'quiet' | 'language') => setOpen(open === group ? null : group);
 
   return (
     <Page barTitle={t('brand.name')} onClose={props.onClose} testID="settings">
-      <AttitudeDial attitude={settings.attitude} onChange={(attitude) => onChange({ attitude })} />
+      <AttitudeDial attitude={settings.attitude} onChoose={(attitude) => onChange({ attitude })} />
+
+      <Section label={`${t('brand.name')} ${t('brand.plus')}`}>
+        <Row
+          first
+          leading={<CardThumb finish={props.card.finish} number={props.card.number} />}
+          label={props.card.plan === null ? t('settings.plus.free') : t('plus.card.title')}
+          hint={t('settings.plus.hint')}
+          {...(props.card.plan === null ? {} : { value: t(`plus.plan.${props.card.plan}`) })}
+          onPress={() => onOpen('plus')}
+          testID="settings-plus"
+        />
+      </Section>
 
       {props.look ? (
         <LookSection
@@ -169,12 +201,13 @@ export function SettingsPage(props: SettingsPageProps) {
         />
       </Section>
 
-      <Section label={t('settings.company')}>
+      <Section label={t('settings.people')}>
         <Row
           first
+          leading={<SeatThumb ground={SEAT_GROUND[appearance]} />}
           label={t('settings.tables')}
           hint={t('settings.tables.hint')}
-          value={props.tableName ?? t('settings.tables.off')}
+          sub={props.tableName ?? t('settings.tables.off')}
           onPress={() => onOpen('tables')}
           testID="settings-tables"
         />
@@ -210,12 +243,6 @@ export function SettingsPage(props: SettingsPageProps) {
               />
             ))
           : null}
-        <Row
-          label={t('brand.plus')}
-          hint={t('settings.plus.hint')}
-          onPress={() => onOpen('plus')}
-          testID="settings-plus"
-        />
         <Row
           label={t('settings.helplines')}
           hint={t('settings.helplines.hint')}

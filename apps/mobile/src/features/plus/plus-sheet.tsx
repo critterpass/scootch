@@ -15,6 +15,8 @@ import { actionLabel, smallPrint } from './sheet-model';
 import { Aurora, NIGHT } from './ui/aurora';
 import { MemberCard } from './ui/member-card';
 import { DIM, ON_NIGHT, PlanTiles } from './ui/plan-tiles';
+import { SheetBar } from './ui/sheet-bar';
+import { SheetLegal } from './ui/sheet-legal';
 import { Sweep } from './ui/sweep';
 
 export interface PlusSheetActions {
@@ -44,11 +46,13 @@ const NOTICES = {
 } as const;
 
 // The sheet is a dark page in both appearances, so its inks are its own.
-const SILVER = '#D9D4CC';
 const ACTION = '#FBF8F3';
 const ACTION_INK = '#1C1A17';
-/** The board's member card on the sheet is 310 points wide. */
+/** The board's member card on the sheet is 310 points wide, lit from below by the ember. */
 const CARD_WIDTH = 310;
+const CARD_GLOW = '0 30px 60px -20px rgba(240,86,46,0.55)';
+/** Scootch's line keeps room for this many lines, so a longer one moves nothing. */
+const LINE_ROWS = 2;
 
 /**
  * The one sheet anything is sold on, dressed up: a holo member card that turns with the phone
@@ -60,49 +64,13 @@ export function PlusSheet({ attitude, said, year, state, actions }: PlusSheetPro
   const t = useT();
   const { largeText, captured, allowFontScaling, size } = useScreenStyle();
   const offer = offerOf(state);
-  const link = (label: string, hint: string, testID: string, onPress: () => void) => (
-    <PressSpring
-      accessibilityRole="link"
-      accessibilityLabel={label}
-      accessibilityHint={hint}
-      onPress={onPress}
-      testID={testID}
-      hitSlop={spacing.sm}
-      style={styles.link}
-    >
-      <SessionText face="caption" color={ON_NIGHT} style={styles.underlined}>
-        {label}
-      </SessionText>
-    </PressSpring>
-  );
   return (
     <SafeFrame testID="plus-sheet" style={styles.page}>
       <Aurora />
-      <View style={styles.bar}>
-        <Text
-          allowFontScaling={allowFontScaling}
-          maxFontSizeMultiplier={1.4}
-          accessibilityRole="header"
-          style={[styles.mark, { fontSize: size(20) }]}
-        >
-          {t('brand.name')} <Text style={styles.silver}>{t('brand.plus')}</Text>
-        </Text>
-        <PressSpring
-          accessibilityRole="button"
-          accessibilityLabel={t('session.notNow')}
-          accessibilityHint={t('plus.close.hint')}
-          onPress={actions.close}
-          testID="plus-sheet-close"
-          style={styles.close}
-        >
-          <View style={styles.cross}>
-            <View style={[styles.stroke, styles.down]} />
-            <View style={[styles.stroke, styles.up]} />
-          </View>
-        </PressSpring>
-      </View>
+      <SheetBar onClose={actions.close} />
       <ScrollView contentContainerStyle={styles.middle} showsVerticalScrollIndicator={false}>
-        <View style={styles.stage}>
+        <View style={[styles.stage, largeText ? styles.stageShort : null]}>
+          <View style={styles.floor} />
           <MemberCard
             finish="holo"
             width={largeText ? 240 : CARD_WIDTH}
@@ -111,6 +79,7 @@ export function PlusSheet({ attitude, said, year, state, actions }: PlusSheetPro
             line={t('plus.card.yourName')}
             mood="bargaining"
             attitude={attitude}
+            shadow={CARD_GLOW}
             testID="plus-sheet-card"
           />
         </View>
@@ -118,7 +87,14 @@ export function PlusSheet({ attitude, said, year, state, actions }: PlusSheetPro
           <Text
             allowFontScaling={allowFontScaling}
             maxFontSizeMultiplier={1.6}
-            style={[styles.said, { fontSize: size(25), lineHeight: size(25) * 1.14 }]}
+            style={[
+              styles.said,
+              {
+                fontSize: size(25),
+                lineHeight: size(25) * 1.14,
+                minHeight: size(25) * 1.14 * LINE_ROWS,
+              },
+            ]}
             testID="plus-sheet-line"
           >
             {said}
@@ -140,12 +116,14 @@ export function PlusSheet({ attitude, said, year, state, actions }: PlusSheetPro
         ) : null}
 
         {state.phase === 'ready' && state.offerings ? (
-          <PlanTiles
-            offerings={state.offerings}
-            chosen={state.plan}
-            busy={state.busy}
-            onChoose={actions.choose}
-          />
+          <View style={styles.plans}>
+            <PlanTiles
+              offerings={state.offerings}
+              chosen={state.plan}
+              busy={state.busy}
+              onChoose={actions.choose}
+            />
+          </View>
         ) : null}
         {state.notice ? (
           <SessionText
@@ -201,21 +179,12 @@ export function PlusSheet({ attitude, said, year, state, actions }: PlusSheetPro
             {t('session.notNow')}
           </Text>
         </PressSpring>
-        {offer && state.phase === 'ready' ? (
-          <SessionText face="caption" color={DIM} style={styles.centred} testID="plus-sheet-print">
-            {smallPrint(offer, t)}
-          </SessionText>
-        ) : null}
-        <View style={[styles.links, largeText ? styles.stacked : null]}>
-          {link(t('plus.terms'), t('plus.terms.hint'), 'plus-sheet-terms', actions.openTerms)}
-          {link(
-            t('plus.privacy'),
-            t('plus.privacy.hint'),
-            'plus-sheet-privacy',
-            actions.openPrivacy,
-          )}
-          {link(t('plus.restore'), t('plus.restore.hint'), 'plus-sheet-restore', actions.restore)}
-        </View>
+        <SheetLegal
+          print={offer && state.phase === 'ready' ? smallPrint(offer, t) : null}
+          onTerms={actions.openTerms}
+          onPrivacy={actions.openPrivacy}
+          onRestore={actions.restore}
+        />
       </View>
     </SafeFrame>
   );
@@ -223,48 +192,30 @@ export function PlusSheet({ attitude, said, year, state, actions }: PlusSheetPro
 
 const styles = StyleSheet.create({
   page: { flex: 1, backgroundColor: NIGHT },
-  bar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    minHeight: 52,
-    paddingHorizontal: 20,
-    paddingTop: 4,
-  },
-  mark: { color: ON_NIGHT, fontFamily: fonts.heading, fontWeight: '800', letterSpacing: -0.4 },
-  silver: { color: SILVER },
-  close: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: 'rgba(255,255,255,0.18)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cross: { width: 14, height: 14, alignItems: 'center', justifyContent: 'center' },
-  stroke: {
+  middle: { flexGrow: 1, paddingHorizontal: 20, paddingBottom: spacing.md, gap: spacing.md },
+  // The board's stage: 270 points for the card, with its shadow on the floor under it.
+  stage: { height: 270, alignItems: 'center', justifyContent: 'center' },
+  stageShort: { height: 210 },
+  floor: {
     position: 'absolute',
-    width: 2.2,
-    height: 16,
+    bottom: 30,
+    width: 220,
+    height: 2,
     borderRadius: 1,
-    backgroundColor: ON_NIGHT,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    boxShadow: '0 0 22px 12px rgba(0,0,0,0.5)',
   },
-  down: { transform: [{ rotate: '45deg' }] },
-  up: { transform: [{ rotate: '-45deg' }] },
-  middle: { flexGrow: 1, paddingHorizontal: 20, paddingBottom: spacing.md, gap: spacing.lg },
-  stage: { minHeight: 250, alignItems: 'center', justifyContent: 'center' },
   said: {
+    marginTop: 4 - spacing.md,
     color: ON_NIGHT,
     fontFamily: fonts.heading,
     fontWeight: '800',
     letterSpacing: -0.5,
     textAlign: 'center',
   },
+  plans: { marginTop: 20 - spacing.md },
   wait: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  stacked: { flexDirection: 'column', alignItems: 'stretch' },
-  foot: { paddingHorizontal: 20, paddingBottom: spacing.md, gap: spacing.sm },
+  foot: { paddingHorizontal: 20, paddingBottom: spacing.sm, gap: spacing.sm },
   action: {
     minHeight: 56,
     borderRadius: 28,
@@ -289,8 +240,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   notNowLabel: { color: ON_NIGHT, fontFamily: fonts.body, fontWeight: '600' },
-  centred: { textAlign: 'center' },
-  links: { flexDirection: 'row', justifyContent: 'center', gap: spacing.lg },
-  link: { minHeight: 44, justifyContent: 'center' },
-  underlined: { textDecorationLine: 'underline' },
 });

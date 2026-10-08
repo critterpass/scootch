@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { StyleSheet, Switch, Text, View } from 'react-native';
 
-import { fonts, radius, spacing } from '@scootch/tokens';
+import { fonts, shadows, spacing } from '@scootch/tokens';
 
 import { Chevron, Tick } from '../../ui/icons';
 import { useScreenStyle } from '../../ui/use-screen-style';
@@ -11,6 +11,8 @@ const ROW_SIZE = 17;
 const SUB_SIZE = 14;
 const SECTION_SIZE = 13;
 const DANGER = '#C8381B';
+/** The corner of a group of rows, as the settings board draws it. */
+export const GROUP_RADIUS = 26;
 
 /** A small heading over a group of rows. */
 export function Section({
@@ -33,7 +35,9 @@ export function Section({
           {label.toLocaleUpperCase()}
         </Text>
       )}
-      <View style={[styles.group, { backgroundColor: palette.surface }]}>{children}</View>
+      <View style={[styles.lifted, { backgroundColor: palette.surface }]}>
+        <View style={styles.group}>{children}</View>
+      </View>
     </View>
   );
 }
@@ -247,13 +251,16 @@ const styles = StyleSheet.create({
   crossOver: { transform: [{ rotate: '-45deg' }] },
   section: { gap: spacing.sm },
   sectionLabel: { fontFamily: fonts.body, marginLeft: spacing.md, letterSpacing: 0.3 },
-  group: { borderRadius: radius.lg, overflow: 'hidden' },
+  // The board's card: a 26 point corner with a hairline and a wide, faint drop. The drop is on
+  // the outer box, since a box that clips its rows would clip its own shadow too.
+  lifted: { borderRadius: GROUP_RADIUS, boxShadow: shadows.card },
+  group: { borderRadius: GROUP_RADIUS, overflow: 'hidden' },
   note: { fontFamily: fonts.body, marginHorizontal: spacing.md },
   row: {
     minHeight: 52,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
+    gap: 12,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm + 2,
   },

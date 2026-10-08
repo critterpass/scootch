@@ -8,7 +8,7 @@ export const sessionParkedThoughts = sessionState({
   id: 'session-parked-thoughts',
   design: {
     board: SCOOTCH_BOARD,
-    section: '05 Hold to finish and rewards',
+    section: '05 The catch and rewards',
     screen: 'Your parked thoughts',
   },
   conditions: ['long-text'],

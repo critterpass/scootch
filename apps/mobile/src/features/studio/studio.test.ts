@@ -20,7 +20,17 @@ import {
   studioProductIds,
 } from './catalogue';
 import { lookFromStored, PLAIN_LOOK, withPart } from './look';
-import { actionFor, finishesOwned, lookAfter, mayWear, owns, type WearFacts } from './rules';
+import {
+  actionFor,
+  afterPick,
+  afterTakeOff,
+  canTakeOff,
+  finishesOwned,
+  lookAfter,
+  mayWear,
+  owns,
+  type WearFacts,
+} from './rules';
 
 const factsOf = (customer: CustomerState): WearFacts => ({
   ownedItems: customer.ownedItems,
@@ -157,5 +167,47 @@ describe('the look that is worn', () => {
     const second = open();
     await second.load();
     expect(second.getState().look).toEqual(look);
+  });
+});
+
+describe('picking a swatch and taking one off', () => {
+  const free = factsOf(CUSTOMERS.free);
+  const plain = { worn: PLAIN_LOOK, trying: PLAIN_LOOK };
+
+  it('only tries on what has to be bought first, and leaves what is worn alone', () => {
+    const after = afterPick(plain, holo, free);
+    expect(after.trying.finish).toBe('holo');
+    expect(after.worn).toEqual(PLAIN_LOOK);
+    expect(afterPick(plain, moss, factsOf(CUSTOMERS.yearly)).worn).toEqual(PLAIN_LOOK);
+  });
+
+  it('puts on at once what may be worn: something bought, or any finish with Plus', () => {
+    const bought = { ...free, ownedItems: [moss.productId!] };
+    expect(afterPick(plain, moss, bought).worn.ink).toBe('moss');
+    expect(afterPick(plain, holo, factsOf(CUSTOMERS.yearly)).worn.finish).toBe('holo');
+  });
+
+  it('takes off the one kind in focus and never the other two', () => {
+    const worn = { ink: 'moss', finish: 'holo', trail: 'bubbles' } as const;
+    const after = afterTakeOff({ worn, trying: worn }, 'finish');
+    expect(after.worn).toEqual({ ink: 'moss', finish: FREE_LOOK.finish, trail: 'bubbles' });
+    expect(after.trying).toEqual(after.worn);
+  });
+
+  it('goes back to what is worn when the thing in focus was only tried on', () => {
+    const worn = withPart(PLAIN_LOOK, 'finish', 'riso');
+    const trying = withPart(worn, 'finish', 'chrome');
+    const after = afterTakeOff({ worn, trying }, 'finish');
+    expect(after.worn).toEqual(worn);
+    expect(after.trying.finish).toBe('riso');
+  });
+
+  it('has nothing to take off when the plain one of the kind is on and in focus', () => {
+    expect(canTakeOff(plain, 'ink')).toBe(false);
+    expect(
+      canTakeOff({ worn: PLAIN_LOOK, trying: withPart(PLAIN_LOOK, 'ink', 'plum') }, 'ink'),
+    ).toBe(true);
+    const worn = withPart(PLAIN_LOOK, 'trail', 'splat');
+    expect(canTakeOff({ worn, trying: worn }, 'trail')).toBe(true);
   });
 });

@@ -17,14 +17,10 @@ const Captured = lazy(() =>
 
 export const PLUS_BOARD = 'Plus';
 export const WHERE_IT_LIVES = '01 Scootch Plus · where it lives';
-export const THE_SHEET = '02 Scootch Plus · the sheet';
-export const TRIAL_AND_RENEWAL = '03 Trial, renewal and turning it off';
-export const LIFETIME_SHELF_MANAGE = '04 Friends, gifts, lifetime, shelf and manage';
-
-/** The board that redrew the sheet, the purchase moment, the studio and the member card. */
-export const MATERIALS_BOARD = 'Plus Materials';
-export const DRESSED_SHEET = '02 The sheet, dressed up';
-export const THE_STUDIO = '03 The studio';
+export const THE_SHEET = '02 The sheet';
+export const THE_STUDIO = '04 The studio · ink, finish, trail';
+export const TRIAL_AND_RENEWAL = '05 Trial, renewal and turning it off';
+export const LIFETIME_AND_MANAGE = '06 Friends, gifts, lifetime and manage';
 
 /** Which Plus screen a capture shows, and in what state. */
 export type PlusCapture =

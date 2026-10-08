@@ -1,59 +1,93 @@
-import { useRouter } from 'expo-router';
+import { useIsFocused, usePreventRemove, useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { View } from 'react-native';
 
 import { useLanguage } from '../../i18n/i18n-provider';
 import { useToday } from '../../state/day-store-provider';
+import { useKeepsakes, usePlus } from '../../state/keepsakes';
 import { goBack } from '../../ui/motion/go-back';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { PLUS_SHEET } from '../plus/routes';
 import { SharePanel } from '../share/share-panel';
+import { shareOfferedOn } from '../share/share-rules';
+import { useShare } from '../share/use-share';
 
-import { useOpenedCard } from './use-opened-card';
-import { zooCards, type BinderSort } from './zoo-cards';
-import { sortAfter, ZooScreen } from './zoo-screen';
+import { pageOfToday, shelfCards, wildOnes, type ShelfSort } from './binder';
+import { cardRoute, pagesRoute } from './binder-routes';
+import { lookAt, useLastLooked } from './last-looked';
+import { ZooScreen } from './zoo-screen';
 
-/** The zoo on the real phone. */
+/**
+ * The binder's shelf on the real phone. Every card is here for everyone; the other three orders
+ * and the month pages are Plus, and without it a tap on one asks about Plus, except on a day with
+ * something heavy in it, when nothing is sold and those controls rest.
+ */
 export function ZooContainer() {
   const router = useRouter();
   const { language } = useLanguage();
   const { palette } = useScreenStyle();
-  const { localDate, heavyToday } = useToday();
-  const opened = useOpenedCard();
-  const { keepsakes, plus, shown } = opened;
-  const [sort, setSort] = useState<BinderSort | null>(null);
-  const cards = useMemo(
-    () => zooCards(keepsakes?.monsters ?? [], plus, sort),
-    [keepsakes, plus, sort],
+  const { localDate, today, heavyToday } = useToday();
+  // Read again whenever the shelf comes back into view: a catch may have happened since.
+  const focused = useIsFocused();
+  const { keepsakes } = useKeepsakes(focused);
+  const plus = usePlus();
+  const lastLooked = useLastLooked();
+  const share = useShare(language, today);
+  // The composer is drawn over the shelf, not pushed: a swipe back closes it first.
+  const { panel } = share;
+  usePreventRemove(panel !== null, () => panel?.actions.close());
+  const [sort, setSort] = useState<ShelfSort>('newest');
+  const monsters = keepsakes?.monsters;
+  const cards = useMemo(() => shelfCards(monsters ?? [], sort, plus), [monsters, sort, plus]);
+  const crisis = today.kind === 'crisis';
+  const wild = useMemo(
+    () => (keepsakes ? wildOnes(keepsakes.monsters, keepsakes.tasks, localDate, crisis) : []),
+    [keepsakes, localDate, crisis],
   );
+  const month = useMemo(() => pageOfToday(monsters ?? [], localDate), [monsters, localDate]);
 
+  if (!keepsakes) return <View style={{ flex: 1, backgroundColor: palette.page }} />;
+  if (panel) return <SharePanel {...panel} />;
+  const [year = 0, monthNumber = 1] = month.month.split('-').map(Number);
   const plusDoor = {
     openPlus: () => router.push(PLUS_SHEET),
   };
-  if (!keepsakes) return <View style={{ flex: 1, backgroundColor: palette.page }} />;
-  if (opened.sharePanel) return <SharePanel {...opened.sharePanel} />;
+  const toWorld = () => goBack(router, '/world');
   return (
     <ZooScreen
-      model={{
-        cards,
-        language,
-        plus,
-        sort,
-        today: localDate,
-        open: shown ? { card: shown.card, shareOffered: shown.shareOffered } : null,
-      }}
+      model={{ cards, wild, language, plus, sort, month, lastLooked }}
       actions={{
         // Back to the world it was opened from, whether that is a page beside home or a screen.
-        close: () => goBack(router, '/world'),
-        openCard: (monster) => opened.open(monster.id),
-        closeCard: opened.close,
-        nextSort: () => setSort(sortAfter),
+        close: toWorld,
+        openWorld: toWorld,
+        openCard: (monster) => {
+          lookAt(monster.id);
+          router.push(cardRoute(monster.id, { sort }));
+        },
+        sort: setSort,
         // Nothing sells near something heavy: on such a day the locked controls do nothing.
         ...(heavyToday ? {} : plusDoor),
-        shareCard: () => shown?.share(),
-        shareMonster: (monster) => {
-          if (!opened.shareOf(monster)) opened.open(monster.id);
+        // The month's page goes out as its poster, once something on it may be shared.
+        ...(month.cards.length > 0 && !crisis
+          ? { sharePage: () => share.open({ kind: 'month', year, month: monthNumber }) }
+          : {}),
+        // A monster still wild goes on a wanted poster, unless its task is private.
+        shareWild: (one) => {
+          const task = keepsakes.tasks.get(one.monster.taskId) ?? null;
+          if (!task || !shareOfferedOn(today, task)) return;
+          share.open({
+            kind: 'wanted',
+            task,
+            wanted: {
+              monster: one.monster.spec,
+              name: one.monster.name,
+              title: one.monster.title,
+              day: one.day,
+              since: Number(task.firstMentionedOn.slice(5, 7)),
+            },
+          });
         },
+        ...(plus ? { openPages: () => router.push(pagesRoute()) } : {}),
       }}
     />
   );

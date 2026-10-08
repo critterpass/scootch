@@ -1,5 +1,5 @@
 import {
-  LIFETIME_SHELF_MANAGE,
+  LIFETIME_AND_MANAGE,
   PLUS_BOARD,
   plusState,
 } from '../../features/plus/registry/plus-state';
@@ -9,7 +9,7 @@ export const plusCancelled = plusState({
   id: 'plus-cancelled',
   design: {
     board: PLUS_BOARD,
-    section: LIFETIME_SHELF_MANAGE,
+    section: LIFETIME_AND_MANAGE,
     screen: "Cancel · after Apple's sheet",
   },
   capture: { screen: 'renewal-off', after: 'cancelled' },

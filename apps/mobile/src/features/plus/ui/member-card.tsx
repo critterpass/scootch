@@ -66,6 +66,8 @@ export interface MemberCardProps {
   readonly attitude?: ScootchProps['attitude'];
   /** False leaves Scootch off the card, as when he has climbed on top of it. */
   readonly scootch?: boolean;
+  /** The drop under the card, where a screen lights it its own way. */
+  readonly shadow?: string;
   readonly testID?: string;
 }
 
@@ -74,7 +76,18 @@ export interface MemberCardProps {
  * in at the corner, printed on whatever finish it is given. It reads out as one image.
  */
 export function MemberCard(props: MemberCardProps) {
-  const { finish, width, number, year, line, mood, attitude, scootch = true, testID } = props;
+  const {
+    finish,
+    width,
+    number,
+    year,
+    line,
+    mood,
+    attitude,
+    scootch = true,
+    shadow,
+    testID,
+  } = props;
   const t = useT();
   const character = useCharacterMotion();
   const k = width / DRAWN.width;
@@ -95,6 +108,7 @@ export function MemberCard(props: MemberCardProps) {
       height={DRAWN.height * k}
       radius={DRAWN.radius * k}
       label={spoken}
+      {...(shadow ? { shadow } : {})}
       {...(testID ? { testID } : {})}
     >
       {scootch ? (

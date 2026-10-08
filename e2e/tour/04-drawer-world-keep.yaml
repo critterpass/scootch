@@ -57,6 +57,14 @@ appId: app.scootch.dev
 - runFlow:
     file: ../tour-support/shot.yaml
     env:
+      NAME: binder-pages--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: binder-pages--vi-dark-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
       NAME: reveal-card--en-light-default
 - runFlow:
     file: ../tour-support/shot.yaml

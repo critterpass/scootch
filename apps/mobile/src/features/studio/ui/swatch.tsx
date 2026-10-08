@@ -6,10 +6,26 @@ import { buildMaterial, CARD_MATERIALS } from '@scootch/art';
 import { CommandCanvas } from '../../reveal/ui/command-canvas';
 import type { FinishItem, InkItem, StudioItem, TrailId } from '../catalogue';
 
-/** The board's swatch: a 50 point disc. */
+/** The board's swatch for an ink or a trail: a 50 point disc. */
 export const SWATCH = 50;
-const SPACE = { width: SWATCH, height: SWATCH };
-const FACE = { x: 0, y: 0, w: SWATCH, h: SWATCH };
+/** A finish's swatch is a tiny card of the real material: 40 by 56 with an 8 point corner. */
+export const FINISH_SWATCH = { width: 40, height: 56, radius: 8 } as const;
+const FINISH_FACE = { x: 0, y: 0, w: FINISH_SWATCH.width, h: FINISH_SWATCH.height };
+
+/** The outline of a swatch of this kind, for the ring drawn round the chosen one. */
+export function swatchShape(kind: StudioItem['kind']): {
+  readonly width: number;
+  readonly height: number;
+  readonly borderRadius: number;
+} {
+  return kind === 'finish'
+    ? {
+        width: FINISH_SWATCH.width,
+        height: FINISH_SWATCH.height,
+        borderRadius: FINISH_SWATCH.radius,
+      }
+    : { width: SWATCH, height: SWATCH, borderRadius: SWATCH / 2 };
+}
 
 function Quarters({ colours }: { readonly colours: readonly [string, string, string, string] }) {
   // Clockwise from the top right, as the board's conic gradient lays them.
@@ -19,6 +35,7 @@ function Quarters({ colours }: { readonly colours: readonly [string, string, str
       {[fourth, first, third, second].map((colour, index) => (
         <View key={index} style={[styles.quarter, { backgroundColor: colour }]} />
       ))}
+      <View style={styles.gloss} />
     </View>
   );
 }
@@ -59,14 +76,22 @@ const TRAIL_MARKS: Record<
   },
 };
 
-/** One item of the studio as its swatch: an ink's four colours, a finish's material, a trail's marks. */
+/**
+ * One item of the studio as its swatch: an ink's four colours on a glossy pot, a finish as a tiny
+ * card of its material, a trail's own marks.
+ */
 export function Swatch({ item }: { readonly item: StudioItem }) {
   const finish = item.kind === 'finish' ? (item as FinishItem).id : null;
   const commands = useMemo(
-    () => (finish === null ? null : buildMaterial(FACE, SWATCH / 2, CARD_MATERIALS[finish])),
+    () =>
+      finish === null
+        ? null
+        : buildMaterial(FINISH_FACE, FINISH_SWATCH.radius, CARD_MATERIALS[finish]),
     [finish],
   );
-  if (commands) return <CommandCanvas commands={commands} space={SPACE} width={SWATCH} />;
+  if (commands) {
+    return <CommandCanvas commands={commands} space={FINISH_SWATCH} width={FINISH_SWATCH.width} />;
+  }
   if (item.kind === 'ink') {
     const { accent, ink, paper, deep } = (item as InkItem).colours;
     return <Quarters colours={[accent, ink, paper, deep]} />;
@@ -109,6 +134,17 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   quarter: { width: SWATCH / 2, height: SWATCH / 2 },
+  // The wet highlight on a pot of ink: a soft light up and to the left.
+  gloss: {
+    position: 'absolute',
+    left: SWATCH * 0.34 - 3,
+    top: SWATCH * 0.28 - 3,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: 'rgba(255,255,255,0.5)',
+    boxShadow: '0 0 9px 7px rgba(255,255,255,0.4)',
+  },
   mark: { position: 'absolute' },
   ringed: { borderWidth: 1, borderColor: 'rgba(255,255,255,0.9)' },
 });
