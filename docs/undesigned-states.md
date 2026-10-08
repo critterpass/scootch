@@ -307,3 +307,7 @@ state is designed or removed.
 | Wallpaper | Photos refused | The board draws none. One plain line under the button, and "Open Settings" |
 | Wallpaper | "Refresh every morning" opened | The board draws the button only. It opens three numbered steps in place and "Open Shortcuts" |
 | Wallpaper | Empty world | The board draws 42 residents. Day zero is Scootch asleep alone on the sand |
+| Siri | Nothing is waiting, or the hunt could not start | The board draws the answer to a hunt that began. With no monster waiting the card is one plain line, "Nothing is waiting."; where Live Activities are off it says to open Scootch |
+| Siri | A hunt is already on | The board does not say. The answer is that hunt's own card and clock; nothing is begun twice |
+| Settings | "Start with Back Tap" row | The board lists Back Tap among the ways to start and draws no setting. One row under Calm, with one line of how, that opens Shortcuts |
+| Control Center | "Hunt 10 min" beside "Start 10 min" | The board draws one control. From iOS 26 there are two: the new one needs no app, the old one always opens Scootch |

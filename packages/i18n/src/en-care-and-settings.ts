@@ -63,6 +63,10 @@ export const enCareAndSettings = {
   'look.icon.locked.hint': 'Opens the studio, where this finish is',
   'look.preview': '{icon}, as it sits on the Home Screen',
   'look.note': 'Every icon has Dark, Clear and Tinted versions.',
+  'settings.backTap': 'Start with Back Tap',
+  'settings.backTap.sub':
+    'Set up once in Shortcuts: add “Hunt for ten minutes”, then pick it under Back Tap.',
+  'settings.backTap.hint': 'Opens the Shortcuts app',
   'look.wallpaper': 'Wallpaper',
   'look.wallpaper.hint': 'Opens the wallpaper page',
   'wallpaper.world': 'Your world',

@@ -1,6 +1,6 @@
 import { useIsFocused, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Share } from 'react-native';
+import { Linking, Share } from 'react-native';
 
 import { useMusicWhenSilent } from '../../effects/sound-mode';
 import { useLanguage, useT } from '../../i18n/i18n-provider';
@@ -111,7 +111,12 @@ export function SettingsContainer() {
           .then(() => dispatch({ type: 'settings_changed', changes: {} }))
           .catch(() => undefined)
       }
-      onOpen={(page) => router.push(PAGES[page])}
+      onOpen={(page) =>
+        // Back Tap, the Action button and automations are set up in Shortcuts, not here.
+        page === 'shortcuts'
+          ? void Linking.openURL('shortcuts://').catch(() => undefined)
+          : router.push(PAGES[page])
+      }
       onClose={() => (pager ? pager.show('home') : goBack(router, '/'))}
     />
   );

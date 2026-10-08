@@ -54,6 +54,9 @@ any task here.
 | "Stopped early" from outside | The state is drawn and its two buttons work, but nothing outside the app stops a hunt yet; Siri's "Stop" does, in the ways-to-start phase | The board draws no stop button on the Lock Screen |
 | Native batch | Its own batch, on top of the one that brought the turning card video and the worn ink to the widgets | That batch landed on main on 8 Oct while this was being built |
 | The worn look on the surfaces | The snapshot carries the worn finish beside the ink's accent main already sends. Its version stays where it is: every field here is an addition an older reader ignores | One accent, sent once |
+| The control and the Action button with no app in front | A second control, "Hunt 10 min", from iOS 26. The one that opens Scootch stays for iOS 18 to 25 | An intent that needs its app only some of the time can open it from iOS 26; a control cannot choose between two intents as it is drawn |
+| Focus filter: "Only work monsters", "Home monsters stay quiet" | Not built. The filter has "Offer a hunt when this Focus starts" alone | Nothing says whether a thing is work or home; the task call would have to |
+| "Tomorrow's one thing" on the nightstand, as one StandBy screen | Two small widgets side by side | StandBy shows small widgets; there is no full-width one |
 
 ## Phases
 

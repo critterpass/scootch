@@ -61,6 +61,10 @@ export const viCareAndSettings = {
   'look.icon.locked.hint': 'Mở xưởng, nơi có chất liệu này',
   'look.preview': '{icon}, như khi nằm trên Màn hình chính',
   'look.note': 'Biểu tượng nào cũng có bản Tối, Trong và Nhuộm màu.',
+  'settings.backTap': 'Bắt đầu bằng Chạm mặt sau',
+  'settings.backTap.sub':
+    'Cài một lần trong Phím tắt: thêm “Hunt for ten minutes”, rồi chọn nó trong Chạm mặt sau.',
+  'settings.backTap.hint': 'Mở app Phím tắt',
   'look.wallpaper': 'Hình nền',
   'look.wallpaper.hint': 'Mở trang hình nền',
   'wallpaper.world': 'Thế giới của bạn',

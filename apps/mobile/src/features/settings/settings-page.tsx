@@ -47,7 +47,8 @@ export interface SettingsPageProps {
       | 'developer-tools'
       | 'icon'
       | 'studio'
-      | 'wallpaper',
+      | 'wallpaper'
+      | 'shortcuts',
   ) => void;
   /** What the Look group shows as picked. Unset, the group is left out. */
   readonly look?: LookFacts;
@@ -147,6 +148,13 @@ export function SettingsPage(props: SettingsPageProps) {
             onChange={onChange}
           />
         ) : null}
+        <Row
+          label={t('settings.backTap')}
+          sub={t('settings.backTap.sub')}
+          hint={t('settings.backTap.hint')}
+          onPress={() => onOpen('shortcuts')}
+          testID="settings-back-tap"
+        />
         <Row
           label={t('settings.finishWith')}
           hint={t('settings.finishWith.hint')}

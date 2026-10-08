@@ -6,6 +6,8 @@ import { File, Paths, type Directory } from 'expo-file-system';
 
 import { buildMonster, buildScootch, VIEW_SIZE } from '@scootch/art';
 
+import { refreshShortcuts } from '../../../modules/scootch-live-activity';
+
 import { CommandLayer } from '../../art/skia-commands';
 
 import { IslandStill } from '../world/island-still';
@@ -32,6 +34,7 @@ export function nativeSharedStore(): SharedStore {
     reloadSurfaces() {
       ExtensionStorage.reloadWidget();
       ExtensionStorage.reloadControls();
+      refreshShortcuts();
     },
   };
 }

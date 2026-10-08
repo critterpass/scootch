@@ -14,5 +14,8 @@ struct ScootchWidgetsBundle: WidgetBundle {
             StartSessionControl()
             BrainDumpControl()
         }
+        if #available(iOS 26.0, *) {
+            HuntControl()
+        }
     }
 }

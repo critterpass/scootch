@@ -47,5 +47,15 @@ public class ScootchLiveActivityModule: Module {
     AsyncFunction("listActive") { () -> [[String: Any]] in
       SessionActivityController.listActive()
     }
+
+    // The monsters Siri and Spotlight offer by name are the app target's to refresh
+    // (targets/widgets/_shared/WaysToStart.swift). A module cannot see that type, so it is
+    // reached by name; a binary without it does nothing.
+    Function("refreshShortcuts") {
+      DispatchQueue.main.async {
+        let refresher = NSClassFromString("ScootchShortcutsRefresher") as? NSObject.Type
+        _ = refresher?.perform(NSSelectorFromString("refresh"))
+      }
+    }
   }
 }

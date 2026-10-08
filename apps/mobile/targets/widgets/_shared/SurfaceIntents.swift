@@ -53,7 +53,7 @@ struct HuntIntent: LiveActivityIntent {
             PendingSurfaceActions.record(.hunt, taskId: taskId)
         }
         // The widgets mark the one that is being hunted.
-        WidgetCenter.shared.reloadAllTimelines()
+        Surfaces.reload()
         return .result()
     }
 }
@@ -196,7 +196,7 @@ struct HuntAtNineIntent: LiveActivityIntent {
         if await MorningHunt.set() {
             PendingSurfaceActions.record(.tomorrow, taskId: taskId)
         }
-        WidgetCenter.shared.reloadAllTimelines()
+        Surfaces.reload()
         return .result()
     }
 }
