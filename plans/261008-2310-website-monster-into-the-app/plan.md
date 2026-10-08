@@ -36,17 +36,22 @@ file promises one.
 5. When the monster is caught on the phone, its page reads CAUGHT.
 
 A monster whose owner hid what was typed carries no thing: the server never
-had the words. Its link opens the app at home, and that is logged in
-`docs/undesigned-states.md`.
+had the words. Its link shows the monster's card in the app and asks what the
+thing was; what is answered is taken in with the monster (decided 8 Oct 2026).
+The screen is logged in `docs/undesigned-states.md`.
+
+A website monster has no kind line. The one written when it arrives is kept
+with its page, and the website's card shows it from then on (founder, 8 Oct
+2026).
 
 ## Phases
 
 | # | Phase | Owns | Needs | Status |
 |---|---|---|---|---|
-| 1 | [The task call adopts a website monster](phase-01-task-call-adopts.md) | `packages/domain/src/contracts`, `apps/api/src/ai/task-create`, `apps/api/src/routes/task-create*.ts`, `apps/api/test`, `packages/voice/evals` | — | in progress |
-| 2 | [The app opens a monster's link](phase-02-app-opens-the-link.md) | `apps/mobile/src/app/m`, `apps/mobile/src/features/arrive`, `apps/mobile/src/state`, `apps/mobile/src/api` | 1 | not started |
-| 3 | [The App Clip](phase-03-app-clip.md) | `apps/mobile/targets/app-clip`, `apps/mobile/targets/_shared` | — | not started |
-| 4 | [The site offers the clip and the app](phase-04-site-offers.md) | `apps/web` | — | not started |
+| 1 | [The task call adopts a website monster](phase-01-task-call-adopts.md) | `packages/domain/src/contracts`, `apps/api/src/ai/task-create`, `apps/api/src/routes/task-create*.ts`, `apps/api/test`, `packages/voice/evals` | — | done |
+| 2 | [The app opens a monster's link](phase-02-app-opens-the-link.md) | `apps/mobile/src/app/m`, `apps/mobile/src/features/arrive`, `apps/mobile/src/state`, `apps/mobile/src/api` | 1 | in progress |
+| 3 | [The App Clip](phase-03-app-clip.md) | `apps/mobile/targets/app-clip`, `apps/mobile/targets/_shared` | — | in progress |
+| 4 | [The site offers the clip and the app](phase-04-site-offers.md) | `apps/web` | — | in progress |
 | 5 | [Caught on the phone, caught on the page](phase-05-page-reads-caught.md) | `apps/api/src/sharing`, `apps/api/migrations`, `apps/mobile/src/features/reveal` | 1, 2 | not started |
 | 6 | [Made, listed and walked](phase-06-listed-and-walked.md) | `e2e`, App Store Connect | 1 to 5 | not started |
 
@@ -65,8 +70,4 @@ has merged.
 
 ## Unresolved questions
 
-1. A monster whose typed words are hidden arrives as nothing. Is that right,
-   or should the app show the card and ask what it was?
-2. The website's monsters have a name and a card line but no kind line; the
-   app writes one when the monster arrives. Should the website's card show it
-   too, once written?
+None.

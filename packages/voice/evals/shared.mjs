@@ -57,7 +57,7 @@ export function startTask(
   language,
   token,
   text,
-  { attitude = 'cheeky', source = 'typed', canChoose = false } = {},
+  { attitude = 'cheeky', source = 'typed', canChoose = false, monsterPage } = {},
 ) {
   return post(
     '/v1/task-create',
@@ -71,6 +71,8 @@ export function startTask(
       timeZone: timeZones[language],
       overrideSerious: false,
       ...(canChoose ? { canChoose } : {}),
+      // The website monster this thing was hatched from, when it arrives from one.
+      ...(monsterPage === undefined ? {} : { monsterPage }),
       staged: true,
     },
     token,
