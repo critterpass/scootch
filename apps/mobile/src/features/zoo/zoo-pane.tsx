@@ -25,6 +25,7 @@ import {
   type ShelfSort,
   type WildOne,
 } from './binder';
+import { Dealt, useDealtShelf } from './ui/dealt-shelf';
 import { MonthBanner } from './ui/month-banner';
 import { Pocket, SHELF_POCKET } from './ui/pocket';
 import { SortChips } from './ui/sort-chips';
@@ -112,10 +113,12 @@ export function ZooPane({
   readonly active?: boolean;
 }) {
   const t = useT();
-  const { palette } = useScreenStyle();
+  const { palette, reducedMotion } = useScreenStyle();
   const { width } = useWindowDimensions();
   const { barSpace } = useKeepMotion();
-  const { cards, wild, month, language } = model;
+  const { wild, month, language } = model;
+  // A new order is dealt: the pockets go, and come back in it row after row.
+  const { cards, sort, deal } = useDealtShelf(model.cards, model.sort, reducedMotion);
   const labels = CARD_LABELS[language];
   const pocket = Math.floor((width - SHELF.side * 2 - SHELF.gap * (COLUMNS - 1)) / COLUMNS);
 
@@ -128,17 +131,19 @@ export function ZooPane({
   );
 
   // Coming back from a card, the shelf is where that card is: its row sits a little under the
-  // top, wherever the browsing ended.
+  // top, wherever the browsing ended. A new order moves nothing: the shelf stays where it is.
   const list = useRef<FlatList<Row>>(null);
   const [above, setAbove] = useState<number | null>(null);
   const looked = model.lastLooked;
+  const shelved = useRef(rows);
+  shelved.current = rows;
   useEffect(() => {
     if (looked === null || above === null) return;
-    const at = rows.findIndex((row) => row.kind === 'card' && row.monster.id === looked);
+    const at = shelved.current.findIndex((row) => row.kind === 'card' && row.monster.id === looked);
     if (at < 0) return;
     const row = Math.floor(at / COLUMNS) * (SHELF_POCKET.height + SHELF.gap);
     list.current?.scrollToOffset({ offset: Math.max(0, above + row - PEEK), animated: false });
-  }, [looked, rows, above]);
+  }, [looked, above]);
 
   const left = POCKETS - Math.min(POCKETS, month.caught);
   const monthName = labels.months[Number(month.month.slice(5)) - 1] ?? '';
@@ -215,27 +220,29 @@ export function ZooPane({
         renderItem={({ item, index }) => (
           <Forward row={Math.floor(index / COLUMNS)}>
             {item.kind === 'card' ? (
-              <PressSpring
-                accessibilityRole="button"
-                accessibilityLabel={`${item.monster.name}, ${labels.rarity[item.monster.rarity]}, ${pocketStat(item.monster, model.sort, language)}`}
-                accessibilityHint={t('zoo.card.hint')}
-                onPress={() => actions.openCard(item.monster)}
-                testID={`zoo-tile-${index}`}
-              >
-                <Pocket
-                  rarity={item.monster.rarity}
-                  spec={item.monster.spec}
-                  name={item.monster.name}
-                  width={pocket}
-                  size={SHELF_POCKET}
-                  number={labels.number(String(item.monster.number).padStart(3, '0'))}
-                  rarityWord={
-                    item.monster.rarity === 'common' ? null : labels.rarity[item.monster.rarity]
-                  }
-                  stat={pocketStat(item.monster, model.sort, language)}
-                  chosen={item.monster.id === looked}
-                />
-              </PressSpring>
+              <Dealt deal={deal} row={Math.floor(index / COLUMNS)}>
+                <PressSpring
+                  accessibilityRole="button"
+                  accessibilityLabel={`${item.monster.name}, ${labels.rarity[item.monster.rarity]}, ${pocketStat(item.monster, sort, language)}`}
+                  accessibilityHint={t('zoo.card.hint')}
+                  onPress={() => actions.openCard(item.monster)}
+                  testID={`zoo-tile-${index}`}
+                >
+                  <Pocket
+                    rarity={item.monster.rarity}
+                    spec={item.monster.spec}
+                    name={item.monster.name}
+                    width={pocket}
+                    size={SHELF_POCKET}
+                    number={labels.number(String(item.monster.number).padStart(3, '0'))}
+                    rarityWord={
+                      item.monster.rarity === 'common' ? null : labels.rarity[item.monster.rarity]
+                    }
+                    stat={pocketStat(item.monster, sort, language)}
+                    chosen={item.monster.id === looked}
+                  />
+                </PressSpring>
+              </Dealt>
             ) : (
               <WildPocket
                 spec={item.one.monster.spec}
