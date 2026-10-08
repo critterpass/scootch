@@ -1,25 +1,21 @@
 import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
 
-import type { Attitude, ClockTime, SettingsRow } from '@scootch/domain';
+import type { CardFinish, ClockTime, SettingsRow } from '@scootch/domain';
 import type { Language } from '@scootch/i18n';
-import { fonts, radius, spacing } from '@scootch/tokens';
 
-import { Scootch, type ScootchProps } from '../../art/Scootch';
 import { useT } from '../../i18n/i18n-provider';
-import { useScreenStyle } from '../../ui/use-screen-style';
+import { useAppearance } from '../../screens/registry/support/forced-variant';
 
-import { QuietHoursRows } from './quiet-hours';
+import type { PlanId } from '../plus/products';
+
+import { AttitudeDial } from './attitude-dial';
+import { CardThumb, FinishThumb, SeatThumb } from './look-thumbs';
 import { Page } from './page';
+import { QuietHoursRows } from './quiet-hours';
 import { Note, Row, Section, SwitchRow } from './rows';
-import { PressSpring } from '../../ui/motion/press-spring';
 
-const ATTITUDES = ['soft', 'cheeky', 'unhinged'] as const satisfies readonly Attitude[];
-const CARD_MOODS: Record<Attitude, ScootchProps['mood']> = {
-  soft: 'asleep',
-  cheeky: 'waiting',
-  unhinged: 'stuck',
-};
+/** The seat's ground in the Tables row: a shade under the page, in either appearance. */
+const SEAT_GROUND = { light: '#EDE7DD', dark: '#2E2A26' } as const;
 const FINISH_LABELS = {
   hold: 'finishWith.hold',
   double_tap: 'finishWith.tapTwice',
@@ -46,8 +42,23 @@ export interface SettingsPageProps {
   readonly onMusicWhenSilent?: (on: boolean) => void;
   readonly onLanguage: (language: Language | null) => void;
   readonly onOpen: (
-    page: 'finish-with' | 'privacy' | 'helplines' | 'plus' | 'tables' | 'developer-tools',
+    page:
+      'finish-with' | 'privacy' | 'helplines' | 'plus' | 'studio' | 'tables' | 'developer-tools',
   ) => void;
+  /**
+   * What the Plus row shows: the plan that holds Plus (`null` without it), the member's number
+   * once the server has given one, and the finish that is worn, which the card is drawn in.
+   */
+  readonly card: {
+    readonly plan: PlanId | null;
+    readonly number: number | null;
+    readonly finish: CardFinish;
+  };
+  /**
+   * False on a day with something heavy in it: the way to the studio rests, since things are sold
+   * there.
+   */
+  readonly studio: boolean;
   /** The name the person's seat shows; `null` on a phone that is not signed in for tables. */
   readonly tableName?: string | null;
   /** Opens the share sheet with a friend link. Unset (a capture), the row does nothing. */
@@ -56,70 +67,46 @@ export interface SettingsPageProps {
 }
 
 /**
- * Settings: one page. The attitude, how the app feels, the quiet hours, how a session is finished,
- * privacy, and the few rows the app needs beyond the design: language, Plus and the helplines.
+ * Settings: one page. The attitude, the Plus card, the look, how the app feels, the quiet hours,
+ * how a monster is caught, privacy, tables, and the few rows the app needs beyond the design:
+ * language and the helplines. Every row with an arrow opens a page that lives with its topic.
  */
 export function SettingsPage(props: SettingsPageProps) {
   const { settings, chosenLanguage, onChange, onOpen } = props;
-  const { palette, allowFontScaling, size, largeText } = useScreenStyle();
+  const appearance = useAppearance();
   const t = useT();
   const [open, setOpen] = useState<'quiet' | 'language' | null>(null);
   const toggle = (group: 'quiet' | 'language') => setOpen(open === group ? null : group);
 
   return (
     <Page barTitle={t('brand.name')} onClose={props.onClose} testID="settings">
-      <View style={styles.section}>
-        <Text
-          accessibilityRole="header"
-          allowFontScaling={allowFontScaling}
-          style={[styles.heading, { color: palette.muted, fontSize: size(13) }]}
-        >
-          {t('settings.attitude').toLocaleUpperCase()}
-        </Text>
-        <View
-          accessibilityRole="radiogroup"
-          style={[styles.dial, largeText && styles.stacked, { backgroundColor: palette.surface }]}
-        >
-          {ATTITUDES.map((attitude) => {
-            const chosen = attitude === settings.attitude;
-            return (
-              <PressSpring
-                key={attitude}
-                accessibilityRole="radio"
-                accessibilityState={{ selected: chosen, checked: chosen }}
-                accessibilityLabel={t(`settings.attitude.${attitude}`)}
-                accessibilityHint={t(`settings.attitude.${attitude}.note`)}
-                onPress={() => onChange({ attitude })}
-                feedback="choice"
-                testID={`settings-attitude-${attitude}`}
-                style={[styles.card, { borderColor: chosen ? palette.tomato : 'transparent' }]}
-              >
-                {largeText ? null : (
-                  <Scootch
-                    mood={CARD_MOODS[attitude]}
-                    attitude={attitude}
-                    reducedMotion
-                    size={72}
-                  />
-                )}
-                <Text
-                  allowFontScaling={allowFontScaling}
-                  style={[
-                    styles.cardName,
-                    { color: palette.ink, fontSize: size(17), fontWeight: chosen ? '700' : '400' },
-                  ]}
-                >
-                  {t(`settings.attitude.${attitude}`)}
-                </Text>
-              </PressSpring>
-            );
-          })}
-        </View>
-        <Note
-          text={t(`settings.attitude.${settings.attitude}.note`)}
-          testID="settings-attitude-note"
+      <AttitudeDial attitude={settings.attitude} onChoose={(attitude) => onChange({ attitude })} />
+
+      <Section label={`${t('brand.name')} ${t('brand.plus')}`}>
+        <Row
+          first
+          leading={<CardThumb finish={props.card.finish} number={props.card.number} />}
+          label={props.card.plan === null ? t('settings.plus.free') : t('plus.card.title')}
+          hint={t('settings.plus.hint')}
+          {...(props.card.plan === null ? {} : { value: t(`plus.plan.${props.card.plan}`) })}
+          onPress={() => onOpen('plus')}
+          testID="settings-plus"
         />
-      </View>
+      </Section>
+
+      {props.studio ? (
+        <Section label={t('settings.look')}>
+          <Row
+            first
+            leading={<FinishThumb finish={props.card.finish} />}
+            label={t('settings.cardFinish')}
+            hint={t('settings.cardFinish.hint')}
+            value={t(`finish.${props.card.finish}`)}
+            onPress={() => onOpen('studio')}
+            testID="settings-card-finish"
+          />
+        </Section>
+      ) : null}
 
       <Section label={t('settings.feel')}>
         <SwitchRow
@@ -194,12 +181,13 @@ export function SettingsPage(props: SettingsPageProps) {
         />
       </Section>
 
-      <Section label={t('settings.company')}>
+      <Section label={t('settings.people')}>
         <Row
           first
+          leading={<SeatThumb ground={SEAT_GROUND[appearance]} />}
           label={t('settings.tables')}
           hint={t('settings.tables.hint')}
-          value={props.tableName ?? t('settings.tables.off')}
+          sub={props.tableName ?? t('settings.tables.off')}
           onPress={() => onOpen('tables')}
           testID="settings-tables"
         />
@@ -236,12 +224,6 @@ export function SettingsPage(props: SettingsPageProps) {
             ))
           : null}
         <Row
-          label={t('brand.plus')}
-          hint={t('settings.plus.hint')}
-          onPress={() => onOpen('plus')}
-          testID="settings-plus"
-        />
-        <Row
           label={t('settings.helplines')}
           hint={t('settings.helplines.hint')}
           onPress={() => onOpen('helplines')}
@@ -264,21 +246,3 @@ export function SettingsPage(props: SettingsPageProps) {
     </Page>
   );
 }
-
-const styles = StyleSheet.create({
-  section: { gap: spacing.sm },
-  heading: { fontFamily: fonts.body, marginLeft: spacing.md, letterSpacing: 0.3 },
-  dial: { flexDirection: 'row', gap: 6, padding: 12, borderRadius: radius.lg },
-  stacked: { flexDirection: 'column' },
-  card: {
-    flex: 1,
-    minHeight: 52,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.xs,
-    paddingVertical: spacing.sm,
-    borderWidth: 2,
-    borderRadius: radius.md,
-  },
-  cardName: { fontFamily: fonts.body, textAlign: 'center' },
-});

@@ -15,3 +15,5 @@ export const PLUS_CANCELLED = '/plus/renewal-off?after=cancel' as Href;
 export const PLUS_RECORDS = '/plus/records' as Href;
 /** The studio: inks, finishes and trails, tried on before anything is bought. */
 export const STUDIO_ROUTE = '/studio' as Href;
+/** The studio opened on its finishes, for a row that names the card's finish. */
+export const STUDIO_FINISHES = '/studio?tab=finish' as Href;

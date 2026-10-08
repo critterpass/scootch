@@ -7,9 +7,12 @@ import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { developerToolsAllowed } from '../../screens/registry/support/developer-tools';
 import { useDataTools, useDispatch, useToday } from '../../state/day-store-provider';
 import { lineWithNoTask } from '../../state/lines';
+import { usePlusState } from '../../state/plus-context';
+import { showsSelling } from '../../state/shows-comedy';
 import { useTogether } from '../../state/together-context';
 import { goBack } from '../../ui/motion/go-back';
 import { useHomePager, usePageShown } from '../home-pager/home-pager-context';
+import { STUDIO_FINISHES } from '../plus/routes';
 import { accountThen, friendInviteLink } from '../table/table-rules';
 
 import { FinishWithPage } from './finish-with-page';
@@ -30,7 +33,9 @@ const PAGES = {
  * a page kept ready out of sight, and closes by sliding home.
  */
 export function SettingsContainer() {
-  const { settings } = useToday();
+  const day = useToday();
+  const { settings } = day;
+  const { customer, look, member } = usePlusState();
   const { chosen, choose, language } = useLanguage();
   const { backup } = useDataTools();
   const dispatch = useDispatch();
@@ -94,6 +99,9 @@ export function SettingsContainer() {
       musicWhenSilent={musicWhenSilent}
       onMusicWhenSilent={setMusicWhenSilent}
       tableName={tableName}
+      card={{ plan: customer.activePlan, number: member.number, finish: look.finish }}
+      // Nothing sells near something heavy: on such a day the way to the studio rests.
+      studio={showsSelling(day)}
       onInvite={invite}
       onChange={(changes) =>
         void dispatch({ type: 'settings_changed', changes }).catch(() => undefined)
@@ -104,7 +112,7 @@ export function SettingsContainer() {
           .then(() => dispatch({ type: 'settings_changed', changes: {} }))
           .catch(() => undefined)
       }
-      onOpen={(page) => router.push(PAGES[page])}
+      onOpen={(page) => router.push(page === 'studio' ? STUDIO_FINISHES : PAGES[page])}
       onClose={() => (pager ? pager.show('home') : goBack(router, '/'))}
     />
   );
