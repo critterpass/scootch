@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { FriendsTable } from '../../api/together-api';
 import { useTogether } from '../../state/together-context';
 
+import { friendsTablesSeen } from './friends-tables-seen';
+
 /** A screen that comes into view asks again no sooner than this. */
 const ASK_AGAIN_AFTER_MS = 60_000;
 
@@ -42,6 +44,7 @@ export function useFriendsTables(): FriendsTables {
       .catch(() => [])
       .then((found) => {
         lastAnswer = { ...lastAnswer, tables: found };
+        friendsTablesSeen.set(found, Date.now());
         if (current.current) setTables(found);
       });
   }, [api]);

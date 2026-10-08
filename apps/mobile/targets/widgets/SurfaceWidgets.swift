@@ -71,6 +71,11 @@ struct SurfaceProvider: TimelineProvider {
         {
             moments.insert(ten)
         }
+        // What is known of friends' tables stops being shown once it is no longer recent.
+        if let friends = stored.friendsTables, friends.isFresh(at: now) {
+            moments.insert(
+                Date(timeIntervalSince1970: (friends.asOf + SurfaceSnapshot.FriendsTables.freshMs) / 1000))
+        }
         var hour = now
         for _ in 0..<hoursAhead {
             guard let next = calendar.nextDate(
@@ -154,6 +159,19 @@ struct TerrariumWidget: Widget {
         .configurationDisplayName("Terrarium")
         .description("Your world, living under glass.")
         .supportedFamilies([.systemLarge, .systemExtraLarge])
+        .contentMarginsDisabled()
+    }
+}
+
+/// A friend's open table, with its open seat as a button. Friends only: nobody else is shown.
+struct FriendsTablesWidget: Widget {
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: "ScootchFriendsTables", provider: SurfaceProvider()) { entry in
+            FriendsTablesWidgetView(entry: entry)
+        }
+        .configurationDisplayName("Friends at tables")
+        .description("A friend who is at a table, and the open seat beside them.")
+        .supportedFamilies([.systemSmall])
         .contentMarginsDisabled()
     }
 }

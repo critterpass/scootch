@@ -234,3 +234,24 @@ struct LeaveTableIntent: LiveActivityIntent {
         return .result()
     }
 }
+
+/// The open seat at a friend's table, on the widget: Scootch opens and takes the seat, as the
+/// pill on its home screen does.
+struct SitAtTableIntent: AppIntent {
+    static let title: LocalizedStringResource = "Sit here"
+    static let openAppWhenRun = true
+    static let isDiscoverable = false
+
+    @Parameter(title: "Table") var tableId: String
+
+    init() {}
+
+    init(tableId: String) {
+        self.tableId = tableId
+    }
+
+    func perform() async throws -> some IntentResult {
+        PendingSurfaceActions.record(.sit, seatId: tableId)
+        return .result()
+    }
+}

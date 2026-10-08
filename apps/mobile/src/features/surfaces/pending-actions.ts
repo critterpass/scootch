@@ -26,6 +26,8 @@ export const SURFACE_ACTIONS = [
   /** A wave to one seat at the table, and giving up the seat. */
   'wave',
   'leave_table',
+  /** The open seat at a friend's table; `seatId` is the table. */
+  'sit',
 ] as const;
 export type SurfaceAction = (typeof SURFACE_ACTIONS)[number];
 

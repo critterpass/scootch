@@ -69,6 +69,30 @@ struct SurfaceSnapshot: Codable, Equatable, Sendable {
         let caughtAt: Double
     }
 
+    /// A friend's open table: who of the person's friends is there, never anyone else.
+    struct FriendsTable: Codable, Equatable, Sendable, Identifiable {
+        let tableId: String
+        let friend: String?
+        /// How many more friends sit beside the one it is named by.
+        let others: Int
+        let openSeats: Int
+
+        var id: String { tableId }
+    }
+
+    /// What the app last learned of friends' tables. It is only as fresh as the last time a
+    /// screen asked, so a surface shows it only for a while after `asOf`.
+    struct FriendsTables: Codable, Equatable, Sendable {
+        static let freshMs: Double = 10 * 60_000
+
+        let asOf: Double
+        let tables: [FriendsTable]
+
+        func isFresh(at date: Date) -> Bool {
+            date.timeIntervalSince1970 * 1000 - asOf < Self.freshMs
+        }
+    }
+
     /// The thing carried on to tomorrow, as the nightstand shows it. A serious task has no
     /// monster's name and no line: its plain words alone.
     struct Tomorrow: Codable, Equatable, Sendable {
@@ -119,6 +143,8 @@ struct SurfaceSnapshot: Codable, Equatable, Sendable {
     let wallpaper: String?
     /// The thing carried on to tomorrow. Nil when none is, and on a crisis day.
     let tomorrow: Tomorrow?
+    /// The open tables friends were last seen at. Nil before the app asked, and on a crisis day.
+    let friendsTables: FriendsTables?
     /// When the day this snapshot describes rolls over into the next one.
     let dayEndsAt: Double
     /// The ink the person wears, as a six-digit hex colour. Nil is tomato, and so is a snapshot
@@ -134,7 +160,7 @@ struct SurfaceSnapshot: Codable, Equatable, Sendable {
         language: Locale.preferredLanguages.first?.hasPrefix("vi") == true ? "vi" : "en",
         weekBars: 0, worldThings: 0, plus: false, lurkers: [], bites: [], finish: "paper",
         shelf: 0, latestCatch: nil, caughtThisWeek: nil, worldImage: nil, worldNightImage: nil,
-        scootchImage: nil, wallpaper: nil, tomorrow: nil, dayEndsAt: .greatestFiniteMagnitude, accent: nil)
+        scootchImage: nil, wallpaper: nil, tomorrow: nil, friendsTables: nil, dayEndsAt: .greatestFiniteMagnitude, accent: nil)
 
     /// Nil when the text is not a snapshot of the version this code reads.
     static func decode(_ json: String) -> SurfaceSnapshot? {
@@ -168,7 +194,7 @@ struct SurfaceSnapshot: Codable, Equatable, Sendable {
             finish: finish, shelf: shelf, latestCatch: latestCatch,
             caughtThisWeek: caughtThisWeek, worldImage: worldImage,
             worldNightImage: worldNightImage, scootchImage: scootchImage, wallpaper: wallpaper,
-            tomorrow: nil,
+            tomorrow: nil, friendsTables: friendsTables,
             dayEndsAt: .greatestFiniteMagnitude, accent: accent)
     }
 

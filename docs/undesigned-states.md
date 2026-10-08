@@ -316,3 +316,8 @@ state is designed or removed.
 | Share sheet | Kept | The board ends at the two buttons. After either, a tick and one plain line ("Kept. Open Scootch to start on it." or "Kept. It comes back tomorrow."), then the sheet closes by itself |
 | Share sheet | Crisis day | The two buttons read "Keep it for today" and "Keep it for tomorrow": no hunting or lurking words |
 | Share sheet | "Cancel" and "Let it lurk till tomorrow" as chips | The board draws both as bare words; a secondary action is a chip |
+| Lock Screen, at a table | Alone at the table | The board draws four seats. One seat, the line "Nobody else has sat down yet", and "Leave table" alone |
+| Lock Screen, at a table | No wave to answer, or no waves left | The board always draws "Wave back". It is there only when someone waved and a wave is left to send; otherwise "Leave table" takes the row |
+| Lock Screen, at a table | A seat that is done, away, or has no label | The board draws four working seats. Done: Scootch celebrating and "done". Away: Scootch asleep, dimmed. No label (a serious or unscreened thing): the name alone |
+| Lock Screen, at a table | A wave drawn still | The board's ripple moves. Two still rings round the seat and "waved" under the name, for a minute |
+| Widget, friends at tables | No friend at a table, and nothing recent known | The board draws a friend at a table. With none: "No friend is at a table." When the app has not asked in the last ten minutes: "Open Scootch to see who is at a table." |

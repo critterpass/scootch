@@ -24,6 +24,8 @@ enum SurfaceAction: String, Sendable {
     /// A wave to one seat at the table, and giving up the seat.
     case wave
     case leaveTable = "leave_table"
+    /// The open seat at a friend's table.
+    case sit
 }
 
 /// The list of asked-for actions in the App Group. An intent appends to it; the app reads the

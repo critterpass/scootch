@@ -102,3 +102,14 @@
 "Wave back" = "Vẫy lại";
 "Leave table" = "Rời bàn";
 "Seat" = "Chỗ ngồi";
+"No friend is at a table." = "Chưa có bạn nào ngồi bàn.";
+"Open Scootch to see who is at a table." = "Mở Scootch để xem ai đang ngồi bàn.";
+"AT A TABLE" = "Ở BÀN";
+"A friend" = "Một người bạn";
+"%@ +%lld" = "%@ +%lld người";
+"1 open seat" = "Còn 1 chỗ";
+"%lld open seats" = "Còn %lld chỗ";
+"Sit here" = "Ngồi đây";
+"Friends at tables" = "Bạn bè ở bàn";
+"A friend who is at a table, and the open seat beside them." = "Một người bạn đang ngồi bàn, và chỗ trống bên cạnh.";
+"Table" = "Bàn";

@@ -9,6 +9,7 @@ struct ScootchWidgetsBundle: WidgetBundle {
         LurkersWidget()
         ShelfWidget()
         TerrariumWidget()
+        FriendsTablesWidget()
         SessionLiveActivity()
         if #available(iOS 18.0, *) {
             StartSessionControl()

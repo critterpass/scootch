@@ -36,14 +36,7 @@ import {
 import { purchaseStateOf } from '../features/plus/entitlement';
 import { revenueCatPurchases } from '../features/plus/revenuecat-port';
 import { inkOf } from '../features/studio/catalogue';
-import {
-  cancelNativeNotification,
-  nativeSharedFiles,
-  nativeSharedStore,
-  skiaMonsterPainter,
-  skiaWorldPainter,
-} from '../features/surfaces/native-surface-ports';
-import { createSurfaceSync } from '../features/surfaces/surface-sync';
+import { createNativeSurfaceSync } from '../features/surfaces/native-surface-ports';
 import { SurfaceSyncHost } from '../features/surfaces/surface-sync-host';
 import { useLanguage } from '../i18n/i18n-provider';
 
@@ -117,14 +110,9 @@ function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
     timers: systemTimers,
   });
   // The widgets, the Live Activity and the control read today from the App Group.
-  const surfaces = createSurfaceSync({
+  const surfaces = createNativeSurfaceSync({
     store,
     repositories,
-    shared: nativeSharedStore(),
-    files: nativeSharedFiles(),
-    painter: skiaMonsterPainter,
-    worldPainter: skiaWorldPainter,
-    cancelNotification: cancelNativeNotification,
     // The table store is made just below; it is only asked once the app is running.
     table: { wave: (to) => void together.table.nudge(to), leave: () => together.table.leave() },
     plus: unlocked,

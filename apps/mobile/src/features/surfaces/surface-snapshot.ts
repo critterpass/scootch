@@ -82,6 +82,21 @@ export interface SurfaceTomorrow {
   readonly morning: string;
 }
 
+/** A friend's open table: who of the person's friends is there, never anyone else. */
+export interface SurfaceFriendsTable {
+  readonly tableId: string;
+  /** The friend it is named by, and how many more friends sit beside them. */
+  readonly friend: string | null;
+  readonly others: number;
+  readonly openSeats: number;
+}
+
+export interface SurfaceFriendsTables {
+  /** When the server was asked, in milliseconds since 1970. */
+  readonly asOf: Instant;
+  readonly tables: readonly SurfaceFriendsTable[];
+}
+
 /** One of a monster's three bites. */
 export interface SurfaceBite {
   /** The task's id and the bite's place, 0 to 2, joined by a colon. */
@@ -136,6 +151,11 @@ export interface SurfaceSnapshot {
   readonly wallpaper: SettingsRow['wallpaper'];
   /** The thing carried on to tomorrow. `null` when none is, and on a crisis day. */
   readonly tomorrow: SurfaceTomorrow | null;
+  /**
+   * The open tables friends were last seen at, with when that was asked: the widget shows them
+   * only while that is recent. `null` before anything was asked, and on a crisis day.
+   */
+  readonly friendsTables: SurfaceFriendsTables | null;
   /** When the day this describes rolls over. After it, the surfaces show a day with nothing yet. */
   readonly dayEndsAt: Instant;
   /**
@@ -175,6 +195,7 @@ export interface SurfaceSnapshotInput {
   readonly worldNightImage: string | null;
   readonly scootchImage: string | null;
   readonly wallpaper: SettingsRow['wallpaper'];
+  readonly friendsTables?: SurfaceFriendsTables | null;
   /** The task carried on to tomorrow with its monster, when it has hatched one. */
   readonly carried: { readonly task: TaskRow; readonly monster: MonsterRow | null } | null;
   readonly dayEndsAt: Instant;
@@ -305,6 +326,7 @@ export function buildSurfaceSnapshot(input: SurfaceSnapshotInput): SurfaceSnapsh
     scootchImage: input.scootchImage,
     wallpaper: input.wallpaper,
     tomorrow: tomorrow(input),
+    friendsTables: input.friendsTables ?? null,
     dayEndsAt: input.dayEndsAt,
     accent: input.accent ?? null,
   };
@@ -330,6 +352,7 @@ export function buildSurfaceSnapshot(input: SurfaceSnapshotInput): SurfaceSnapsh
       bites: [],
       latestCatch: null,
       tomorrow: null,
+      friendsTables: null,
     };
   }
   const waiting = lurkers(input);

@@ -102,3 +102,14 @@
 "Wave back" = "Wave back";
 "Leave table" = "Leave table";
 "Seat" = "Seat";
+"No friend is at a table." = "No friend is at a table.";
+"Open Scootch to see who is at a table." = "Open Scootch to see who is at a table.";
+"AT A TABLE" = "AT A TABLE";
+"A friend" = "A friend";
+"%@ +%lld" = "%@ +%lld";
+"1 open seat" = "1 open seat";
+"%lld open seats" = "%lld open seats";
+"Sit here" = "Sit here";
+"Friends at tables" = "Friends at tables";
+"A friend who is at a table, and the open seat beside them." = "A friend who is at a table, and the open seat beside them.";
+"Table" = "Table";

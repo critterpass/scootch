@@ -12,7 +12,10 @@ import { CommandLayer } from '../../art/skia-commands';
 
 import { IslandStill } from '../world/island-still';
 
+import { friendsTablesSeen } from '../table/friends-tables-seen';
+
 import type { MonsterPainter, SharedFiles, SharedStore, WorldPainter } from './surface-ports';
+import { createSurfaceSync, type SurfaceSync, type SurfaceSyncDeps } from './surface-sync';
 
 // The real phone behind each port. Nothing here is covered by the unit tests, which use fakes: it
 // runs only in a native build.
@@ -108,3 +111,19 @@ export const skiaWorldPainter: WorldPainter = {
     return image ? image.encodeToBytes(ImageFormat.PNG) : null;
   },
 };
+
+type NativeParts =
+  'shared' | 'files' | 'painter' | 'worldPainter' | 'cancelNotification' | 'friendsTables';
+
+/** The surface sync on the real phone: the App Group, Skia's painters and the phone's own ports. */
+export function createNativeSurfaceSync(deps: Omit<SurfaceSyncDeps, NativeParts>): SurfaceSync {
+  return createSurfaceSync({
+    ...deps,
+    shared: nativeSharedStore(),
+    files: nativeSharedFiles(),
+    painter: skiaMonsterPainter,
+    worldPainter: skiaWorldPainter,
+    cancelNotification: cancelNativeNotification,
+    friendsTables: friendsTablesSeen.get,
+  });
+}

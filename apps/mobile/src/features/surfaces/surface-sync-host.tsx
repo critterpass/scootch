@@ -7,6 +7,9 @@ import { t } from '@scootch/i18n';
 
 import { setActionLabels, setMorningHunt } from '../../../modules/scootch-notifications';
 import type { DayStore } from '../../state/day-store';
+import { useTogether } from '../../state/together-context';
+import { friendsTablesSeen } from '../table/friends-tables-seen';
+import { sitWithFriend } from '../table/sit-with-friend';
 import { SESSION_ROUTE } from '../../state/session-relaunch';
 
 import { askOf, type ResponseLike } from './notification-responses';
@@ -39,13 +42,25 @@ export function SurfaceSyncHost({
   readonly sync: SurfaceSync;
 }) {
   const router = useRouter();
+  const together = useTogether();
 
   useEffect(() => {
     const stopFollowing = sync.follow();
+    // What a screen learns about friends' tables goes to the widget that shows them.
+    const stopFriends = friendsTablesSeen.subscribe(() => void sync.sync());
     const opened = () =>
       void sync
         .opened()
         .then((actions) => {
+          // The open seat on the widget: the same join the pill on home makes.
+          const seat = actions.find((action) => action.kind === 'sit' && action.seatId !== null);
+          if (seat?.seatId) {
+            const { today } = store.getState();
+            void sitWithFriend(together, seat.seatId, 'task' in today ? today.task : null)
+              .then(({ to }) => router.push(to))
+              .catch(() => undefined);
+            return;
+          }
           const session = store.getState().session;
           const asked = actions.some((action) => OPENS_SESSION.includes(action.kind));
           const under = session !== null && UNDER_WAY.includes(session.phase);
@@ -116,11 +131,12 @@ export function SurfaceSyncHost({
     });
     return () => {
       stopFollowing();
+      stopFriends();
       stopWaiting();
       responses.remove();
       appState.remove();
     };
-  }, [store, sync, router]);
+  }, [store, sync, router, together]);
 
   return null;
 }

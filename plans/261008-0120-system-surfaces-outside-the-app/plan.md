@@ -60,6 +60,11 @@ any task here.
 | "NEW MONSTER", its name and "about 10 min" on the share sheet | The sheet shows the words it took as "NEW THING" and the two choices. The monster hatches in the app | The name and size come from the task call, which screens first; the sheet makes no call. A serious thing therefore never has a monster on the sheet either |
 | "Hunt it now" from the share sheet | It keeps the thing and says to open Scootch, where it becomes the one thing if the day is free | A share sheet cannot open its app or start a Live Activity |
 | "from Mail" | A chip for what was shared: words, a link, or read from a picture | A share sheet is not told which app it was opened from |
+| "Four seats, each with its own ring" | Seats with no rings, and the table's one clock in the corner | A table has one clock for everyone seated; a seat only knows whether it is here, done or away |
+| "Deep work", a table's name | "4 at the table" | A table has no name |
+| "Nudge and Leave work without unlocking" | "Wave back" and "Leave table" open Scootch, which sends them | The table is reached over a connection only the open app holds |
+| The table "updated by push", and the Island opening when a friend sits down | Not built | The phone registers no push token, `push.remote` is off and Apple's key is not set. Until then the table on the Lock Screen is as the app last wrote it |
+| "At a table: Hana, writing · 22m" and "Tables now" with strangers by category | One widget: the friend, the open seats and "Sit here". Shown for ten minutes after the app last asked | The server answers with who of your friends is there and how many seats are open, nothing more; a widget has no way to ask it by itself yet |
 
 ## Phases
 

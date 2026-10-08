@@ -191,6 +191,18 @@ describe("tomorrow's one thing", () => {
     expect(JSON.stringify(made)).not.toContain('dentist');
   });
 
+  it("carries friends' tables with when they were asked for, and none on a crisis day", () => {
+    const friendsTables = {
+      asOf: DAY_END - 3_600_000,
+      tables: [{ tableId: 't1', friend: 'Hana', others: 1, openSeats: 2 }],
+    };
+    expect(snapshot(resting).friendsTables).toBeNull();
+    expect(snapshot(resting, { friendsTables }).friendsTables).toEqual(friendsTables);
+    const crisis = snapshot({ kind: 'crisis' }, { friendsTables });
+    expect(crisis.friendsTables).toBeNull();
+    expect(JSON.stringify(crisis)).not.toContain('Hana');
+  });
+
   it('carries the world by day and asleep, and the catches of this week', () => {
     expect(snapshot(resting)).toMatchObject({
       caughtThisWeek: 3,

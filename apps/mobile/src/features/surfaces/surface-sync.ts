@@ -11,6 +11,8 @@ import {
 import type { Repositories } from '../../data/repositories';
 import type { DayStore } from '../../state/day-store';
 import type { DayState } from '../../state/day-types';
+import type { FriendsTablesSeen } from '../table/friends-tables-seen';
+
 import { readHunt } from './hunt-store';
 
 import { finishedThings } from '../world/landmarks';
@@ -35,6 +37,8 @@ export interface SurfaceSyncDeps {
   readonly files: SharedFiles;
   readonly painter: MonsterPainter;
   readonly worldPainter: WorldPainter;
+  /** The open tables friends were last seen at, or `null` before anything was asked. */
+  readonly friendsTables?: () => FriendsTablesSeen | null;
   /** The table the phone is seated at: a wave to one seat, and giving the seat up. */
   readonly table?: { readonly wave: (seatId: string) => void; readonly leave: () => void };
   /** Takes back a notification a surface set, by its id. */
@@ -77,6 +81,7 @@ function shownParts(
   plus: boolean,
   accent: string | null,
   finish: CardFinish,
+  friends: FriendsTablesSeen | null,
 ): readonly unknown[] {
   const { settings } = state;
   return [
@@ -87,6 +92,7 @@ function shownParts(
     settings.attitude,
     settings.language,
     settings.wallpaper,
+    friends,
     plus,
     accent,
     finish,
@@ -114,7 +120,8 @@ export function createSurfaceSync(deps: SurfaceSyncDeps) {
     const plus = deps.plus();
     const accent = deps.accent();
     const finish = deps.finish();
-    const parts = shownParts(state, plus, accent, finish);
+    const friends = deps.friendsTables?.() ?? null;
+    const parts = shownParts(state, plus, accent, finish, friends);
     if (lastParts && parts.every((part, index) => part === lastParts?.[index])) return;
     lastParts = parts;
 
@@ -198,6 +205,15 @@ export function createSurfaceSync(deps: SurfaceSyncDeps) {
       worldNightImage: world.night,
       scootchImage: world.scootch,
       wallpaper: state.settings.wallpaper,
+      friendsTables: friends && {
+        asOf: friends.at,
+        tables: friends.tables.map((one) => ({
+          tableId: one.tableId,
+          friend: one.friends[0]?.displayName ?? null,
+          others: Math.max(0, one.friends.length - 1),
+          openSeats: one.openSeats,
+        })),
+      },
       carried: carried
         ? {
             task: carried,
