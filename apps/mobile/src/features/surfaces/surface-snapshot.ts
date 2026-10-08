@@ -22,6 +22,8 @@ import { bitesOf } from '../../state/bites';
 import { lineFor, lineWithNoTask } from '../../state/lines';
 import { showsComedy } from '../../state/shows-comedy';
 
+import { atRest, type NewestPiece, type SurfaceAtRest } from './world-image';
+
 /**
  * Today as the widgets, the Live Activity and the control read it. The app writes it to the App
  * Group as one JSON string; `targets/_shared/SurfaceSnapshot.swift` decodes exactly these fields.
@@ -163,6 +165,13 @@ export interface SurfaceSnapshot {
    * older reader that does not know the field draws in tomato, so the version stays as it is.
    */
   readonly accent: string | null;
+  /**
+   * Scootch at rest, for the small and medium widgets on a day with nothing waiting. `null`
+   * whenever a thing is set or lurking, and on a crisis day, which has its plain company and no
+   * line. An older reader that does not know the field draws the day as it did before, so the
+   * version stays as it is.
+   */
+  readonly atRest: SurfaceAtRest | null;
 }
 
 /** A thing that has not been finished, with the monster it hatched. */
@@ -194,6 +203,8 @@ export interface SurfaceSnapshotInput {
   readonly worldImage: string | null;
   readonly worldNightImage: string | null;
   readonly scootchImage: string | null;
+  /** The piece that landed in the world last; left out or `null` while nothing lives there. */
+  readonly newestPiece?: NewestPiece | null;
   readonly wallpaper: SettingsRow['wallpaper'];
   readonly friendsTables?: SurfaceFriendsTables | null;
   /** The task carried on to tomorrow with its monster, when it has hatched one. */
@@ -329,6 +340,8 @@ export function buildSurfaceSnapshot(input: SurfaceSnapshotInput): SurfaceSnapsh
     friendsTables: input.friendsTables ?? null,
     dayEndsAt: input.dayEndsAt,
     accent: input.accent ?? null,
+    // Only a day with no thing set and no monster lurking has Scootch at rest.
+    atRest: null,
   };
   const empty = {
     task: null,
@@ -356,13 +369,17 @@ export function buildSurfaceSnapshot(input: SurfaceSnapshotInput): SurfaceSnapsh
     };
   }
   const waiting = lurkers(input);
+  const rest =
+    waiting.lurkers.length > 0
+      ? null
+      : atRest(settings.language, settings.attitude, input.newestPiece);
   if (today.kind === 'nothing_yet') {
     const line = lineWithNoTask('waiting', settings);
-    return { ...base, ...empty, ...waiting, state: 'nothing_yet', line };
+    return { ...base, ...empty, ...waiting, state: 'nothing_yet', line, atRest: rest };
   }
   if (today.kind === 'done_for_today') {
     const line = lineWithNoTask('doneForToday', settings);
-    return { ...base, ...empty, ...waiting, state: 'done', line };
+    return { ...base, ...empty, ...waiting, state: 'done', line, atRest: rest };
   }
 
   const { task } = today;
