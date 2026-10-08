@@ -6,6 +6,7 @@
   "worldThings": 8,
   "plus": false,
   "accent": null,
+  "atRest": null,
   "finish": "holo",
   "shelf": 42,
   "latestCatch": {
