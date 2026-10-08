@@ -30,54 +30,13 @@ concurrency:
 permissions:
   contents: read
 
-env:
-  EAS_CLI: eas-cli@24.8.0
-  APP_VARIANT: dev
-
 jobs:
   publish:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - name: Check the secret
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-        run: '[ -n "$EXPO_TOKEN" ] || { echo "::error::The EXPO_TOKEN secret is missing"; exit 1; }'
-      - uses: actions/checkout@v7
-        with:
-          ref: ${{ inputs.built_from }}
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v7
-        with: { node-version: 24, cache: pnpm }
-      - name: Fingerprint of the installed build
-        run: |
-          pnpm install --frozen-lockfile
-          cd apps/mobile
-          hash=$(pnpm exec expo-updates fingerprint:generate --platform ios | sed -n '/{/,$p' | jq -r .hash)
-          [ -n "$hash" ] && [ "$hash" != null ] || { echo "::error::No fingerprint for the installed build"; exit 1; }
-          echo "INSTALLED=$hash" >> "$GITHUB_ENV"
-      - uses: actions/checkout@v7
-        with:
-          ref: ${{ inputs.ref }}
-          clean: false
-      - name: Fingerprint of the ref
-        run: |
-          pnpm install --frozen-lockfile
-          cd apps/mobile
-          hash=$(pnpm exec expo-updates fingerprint:generate --platform ios | sed -n '/{/,$p' | jq -r .hash)
-          echo "installed build: $INSTALLED"
-          echo "this ref:        $hash"
-          if [ "$hash" != "$INSTALLED" ]; then
-            echo "::error::The native fingerprint changed since the installed build. This needs a new native build (native-build.yml), not an update."
-            exit 1
-          fi
-      - name: Publish
-        working-directory: apps/mobile
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-          MESSAGE: ${{ inputs.message }}
-        run: |
-          # The same public values the dev build profile carries, so the update behaves as the build does.
-          eval "$(jq -r '.build.dev.env | to_entries[] | select(.key | startswith("EXPO_PUBLIC_")) | "export \(.key)=\(.value | @sh)"' eas.json)"
-          export EXPO_PUBLIC_JS_COMMIT="$(git rev-parse --short=12 HEAD)"
-          npx --yes "$EAS_CLI" update --channel dev --platform ios --message "$MESSAGE" --non-interactive
+    uses: ./.github/workflows/update-job.yml
+    with:
+      variant: dev
+      ref: ${{ inputs.ref }}
+      built_from: ${{ inputs.built_from }}
+      message: ${{ inputs.message }}
+    secrets:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}

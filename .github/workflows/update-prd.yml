@@ -1,0 +1,41 @@
+# Publishes one commit of main's JavaScript as an over-the-air update on the `prd` channel, for the
+# App Store app in people's hands. It stops when the commit is not on main, when a helpline is
+# unverified (the store bundle refuses it), and when the native fingerprint differs from the
+# commit the App Store build was made from: that change needs a new build and a new review.
+#   gh workflow run update-prd.yml -f ref=<commit on main> -f built_from=<commit of the App Store build> -f message="..."
+name: update prd
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Commit on main whose JavaScript is published
+        required: true
+      built_from:
+        description: Commit the App Store build was made from
+        required: true
+      message:
+        description: Update message
+        required: true
+
+run-name: update prd from ${{ inputs.ref }}
+
+# Two publishes never overlap; a second one waits for the first.
+concurrency:
+  group: update-prd
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    uses: ./.github/workflows/update-job.yml
+    with:
+      variant: prd
+      ref: ${{ inputs.ref }}
+      built_from: ${{ inputs.built_from }}
+      message: ${{ inputs.message }}
+      main_only: true
+    secrets:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
