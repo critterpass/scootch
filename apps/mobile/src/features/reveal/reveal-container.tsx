@@ -100,8 +100,9 @@ export function RevealContainer() {
       }
       // Nothing follows: the session is closed here and the one screen underneath is uncovered
       // in one fade, instead of passing through a session screen with nothing on it.
-      if (taskId) void dispatch({ type: 'session_closed' }).catch(() => undefined);
-      router.dismissTo('/');
+      void (
+        taskId ? dispatch({ type: 'session_closed' }).catch(() => undefined) : Promise.resolve()
+      ).then(() => router.dismissTo('/'));
     },
     [taskId, follows, player, router, dispatch],
   );
