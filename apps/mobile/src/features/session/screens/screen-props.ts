@@ -1,4 +1,11 @@
-import type { Attitude, MonsterRow, ParkedThought, SessionEvent, WorkMode } from '@scootch/domain';
+import type {
+  Attitude,
+  MonsterRow,
+  ParkedThought,
+  SessionEvent,
+  SessionOpening,
+  WorkMode,
+} from '@scootch/domain';
 
 import type { Translate } from '../../../i18n/i18n-provider';
 import type { CatchKind } from '../catch/catch-kinds';
@@ -39,8 +46,15 @@ export interface SessionModel {
   readonly minutesLeft: number;
   /** Time left, from 1 down to 0. */
   readonly fraction: number;
-  /** What Scootch last said, from the store. */
+  /** What Scootch last said, from the store. `null` while the sitting is opened on the user's line. */
   readonly line: ShownLine | null;
+  /**
+   * The line the user left for this sitting, for as long as the sitting is opened on it. Left out
+   * or `null` when there is none, and once it has folded away.
+   */
+  readonly opening?: SessionOpening | null;
+  /** The not-finished screen is already on its "Next time, start with…" sheet: a capture of it. */
+  readonly nextTimeOpen?: boolean;
   /** The task's own tiny next step, from the store. */
   readonly tinyNextStep: string | null;
   /** The task's own ceremony line for the treat; `null` shows the treat as before. */
@@ -69,6 +83,11 @@ export interface SessionActions {
   readonly openPark: () => void;
   readonly closePark: () => void;
   readonly park: (text: string) => void;
+  /**
+   * "Save for tomorrow": the task is carried on with these words kept for its next sitting.
+   * Left out where nothing is stored, and the task is then simply carried on.
+   */
+  readonly carryOnWith?: (line: string) => void;
   /** Sends one session event to the store. */
   readonly send: (event: SessionEvent) => void;
   /** The same, for the finish control: settles when the store has applied or refused it. */

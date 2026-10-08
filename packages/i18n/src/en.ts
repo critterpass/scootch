@@ -6,6 +6,7 @@ import { enKeeping } from './en-keeping';
 import { enWorld } from './en-world';
 import { enCatch } from './en-catch';
 import { enCamera } from './en-camera';
+import { enFinishAndReturn } from './en-finish-and-return';
 
 /**
  * English interface strings, and the source of the key set. Lines Scootch speaks never go here.
@@ -264,4 +265,5 @@ export const en = {
   ...enWorld,
   ...enCatch,
   ...enCamera,
+  ...enFinishAndReturn,
 } as const;

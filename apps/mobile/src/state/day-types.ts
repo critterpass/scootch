@@ -68,7 +68,8 @@ export type DayEvent =
   /** "Guess 2 hours" on the set task: how long the person thinks the whole thing would take. */
   | { readonly type: 'guess_made'; readonly minutes: GuessMinutes }
   | { readonly type: 'session_set'; readonly minutes: number; readonly treat?: string | null }
-  | { readonly type: 'session'; readonly event: SessionEvent }
+  /** `line` comes with "Carry on tomorrow" alone: the words the person left for next time. */
+  | { readonly type: 'session'; readonly event: SessionEvent; readonly line?: string }
   | { readonly type: 'drawer'; readonly event: DrawerEvent }
   | {
       readonly type: 'thought_resolved';

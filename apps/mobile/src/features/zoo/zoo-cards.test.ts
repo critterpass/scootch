@@ -7,7 +7,7 @@ import {
   fixtureTask,
 } from '../reveal/registry/keep-fixtures';
 
-import { binderOpen, cardDataFor, cardSpokenLabel, isCaught } from './zoo-cards';
+import { binderOpen, cardDataFor, cardSpokenLabel, guessLine, isCaught } from './zoo-cards';
 
 const caught = fixtureMonsters(41);
 const wild = { ...fixtureMonster(99), number: null, caughtOn: null, caughtAt: null };
@@ -31,5 +31,43 @@ describe('a caught card', () => {
     };
     const label = cardSpokenLabel(cardDataFor(monster, fixtureTask(0)), 'en');
     expect(label).toBe('Molar, Epic, No. 001, Lurked 120 days, Dread 4/5, Caught in 9 minutes');
+  });
+});
+
+describe("a card's guess line", () => {
+  const took11 = { ...fixtureMonster(0), catchMinutes: 11 };
+
+  it('is absent with no guess, so the card is as it was', () => {
+    expect(guessLine(took11, 'en')).toBeNull();
+    expect(guessLine({ ...took11, guessMinutes: null }, 'en')).toBeNull();
+  });
+
+  it('prints a guess longer than the real time as two plain sentences', () => {
+    expect(guessLine({ ...took11, guessMinutes: 120 }, 'en')).toBe(
+      'Thought 2 hours. Took 11 minutes.',
+    );
+    expect(guessLine({ ...took11, guessMinutes: 120 }, 'vi')).toBe('Tưởng 2 tiếng. Mất 11 phút.');
+  });
+
+  it('prints a guess shorter than the real time the same way, with nothing added', () => {
+    expect(guessLine({ ...took11, guessMinutes: 30, catchMinutes: 95 }, 'en')).toBe(
+      'Thought 30 minutes. Took 1 hour 35 minutes.',
+    );
+    expect(guessLine({ ...took11, guessMinutes: 60, catchMinutes: 60 }, 'en')).toBe(
+      'Thought 1 hour. Took 1 hour.',
+    );
+  });
+
+  it('never weighs one number against the other, in either language', () => {
+    const banned = /faster|slower|only|just|nailed|nhanh|chậm|chỉ/i;
+    for (const language of ['en', 'vi'] as const) {
+      for (const guessMinutes of [30, 60, 120, 180, 360] as const) {
+        for (const catchMinutes of [1, 11, 60, 400]) {
+          const line = guessLine({ guessMinutes, catchMinutes }, language) ?? '';
+          expect(line).not.toMatch(banned);
+          expect(line.split('. ')).toHaveLength(2);
+        }
+      }
+    }
   });
 });

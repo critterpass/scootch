@@ -256,7 +256,7 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
         await resolveTranscript(ctx);
         return setChosenSession(ctx, event.minutes, event.treat ?? null);
       case 'session':
-        return applySession(ctx, event.event);
+        return applySession(ctx, event.event, event.line);
       case 'drawer':
         return drawerEvent(ctx, event.event);
       case 'drawer_item_removed':

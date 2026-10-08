@@ -48,6 +48,7 @@ export async function catchLateMonster(ctx: DayContext, task: TaskRow): Promise<
     carriedOverCount: task.carriedOver ? 1 : 0,
     shrinkCount: task.shrinkCount,
     sittings: await sittingsOf(ctx, task),
+    guessMinutes: task.guessMinutes ?? null,
   });
   const caughtBefore = (await repositories.monsters.all()).filter((one) => one.number !== null);
   await repositories.transaction(async () => {
@@ -60,6 +61,7 @@ export async function catchLateMonster(ctx: DayContext, task: TaskRow): Promise<
       daysLurked: stats.daysLurked,
       catchMinutes: stats.catchMinutes,
       dread: stats.dread,
+      guessMinutes: stats.guessMinutes ?? null,
     });
     // The finish seeded its plain piece with the task's own id.
     const piece = (await repositories.worldPieces.all()).find(

@@ -10,6 +10,7 @@ import { useBurstFrom, useHoldFinish } from '../screens/hold-finish';
 import type { ScreenProps } from '../screens/screen-props';
 import { deskMood } from '../screens/working-desk';
 import { workingMenu } from '../screens/working-menu';
+import { OpeningCard } from '../ui/opening-card';
 import { ParkedToast } from '../ui/parked-toast';
 import { SessionMenu, type SessionMenuItem } from '../ui/session-menu';
 
@@ -287,6 +288,13 @@ export function CatchScreen(props: ScreenProps) {
         />
       ) : null}
 
+      {model.opening && working && !cardUp ? (
+        // The user's own line first, over the catch's words, until it folds away.
+        <View pointerEvents="none" style={[styles.opening, { top: rowTop + ROW + 8 }]}>
+          <OpeningCard opening={model.opening} inks={inks} t={t} />
+        </View>
+      ) : null}
+
       {model.parkedNote ? (
         <ParkedToast
           thought={model.parkedNote}
@@ -341,6 +349,7 @@ export function CatchScreen(props: ScreenProps) {
 
 const styles = StyleSheet.create({
   fill: { flex: 1 },
+  opening: { position: 'absolute', left: 0, right: 0 },
   row: {
     position: 'absolute',
     left: 0,

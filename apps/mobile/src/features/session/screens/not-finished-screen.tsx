@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
 
 import type { SessionEvent } from '@scootch/domain';
 import type { StringKey } from '@scootch/i18n';
@@ -8,6 +8,7 @@ import { spacing } from '@scootch/tokens';
 import { Scootch } from '../../../art/Scootch';
 import { PaperCard, Stage, Words } from '../ui/drawn-parts';
 import { FilledButton, TextButton } from '../ui/controls';
+import { NextTimeSheet } from '../ui/next-time-sheet';
 import { SessionFrame } from '../ui/session-frame';
 import { SessionText } from '../ui/session-text';
 
@@ -44,8 +45,46 @@ const CHOICES: readonly {
 export function NotFinishedScreen({ model, actions, inks, t }: ScreenProps) {
   // Letting go deletes the task and its monster, so it is asked about once before it happens.
   const [lettingGo, setLettingGo] = useState(false);
+  // Carrying on offers one line for next time first. It is never offered after letting go.
+  const [carryingOn, setCarryingOn] = useState(model.nextTimeOpen === true);
   const choose = (event: SessionEvent) =>
-    event.type === 'chose_let_go' ? setLettingGo(true) : actions.send(event);
+    event.type === 'chose_let_go'
+      ? setLettingGo(true)
+      : event.type === 'chose_carry_on'
+        ? setCarryingOn(true)
+        : actions.send(event);
+  const carryOn = () => actions.send({ type: 'chose_carry_on' });
+  if (carryingOn) {
+    return (
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={styles.fill}
+      >
+        <SessionFrame
+          inks={inks}
+          testID="session-not-finished-next-time"
+          align="drawn"
+          footer={
+            <NextTimeSheet
+              inks={inks}
+              t={t}
+              onSave={(line) => (actions.carryOnWith ? actions.carryOnWith(line) : carryOn())}
+              onSkip={carryOn}
+            />
+          }
+        >
+          <Stage height={200} top={18}>
+            <Scootch
+              mood={model.quiet ? 'serious' : 'nudge'}
+              attitude={model.attitude}
+              reducedMotion={model.reducedMotion}
+              size={190}
+            />
+          </Stage>
+        </SessionFrame>
+      </KeyboardAvoidingView>
+    );
+  }
   return (
     <SessionFrame inks={inks} testID="session-not-finished-choices" align="drawn">
       <Stage height={240} top={18}>
@@ -135,6 +174,9 @@ export function NotFinishedScreen({ model, actions, inks, t }: ScreenProps) {
 }
 
 const styles = StyleSheet.create({
+  fill: {
+    flex: 1,
+  },
   // The board's list: 16 points in from the sides, 22 under the words.
   choices: {
     alignSelf: 'stretch',
