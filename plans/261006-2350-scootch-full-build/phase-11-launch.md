@@ -10,6 +10,7 @@ Goal: the release build works for a stranger, and Apple accepts it.
   tasks (one day in Vietnamese) including a deadline and a heavy one, a table with a second phone, the
   first offer, a trial, a share, a return after a gap.
 - Done when: it passes with video, and every finding is fixed or logged.
+- Status: waived by the founder, 8 Oct 2026; the release does not wait for it
 
 ### 2. Real-device audit
 - Do: on the founder's own phone, read back what the server holds for that

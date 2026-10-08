@@ -48,7 +48,8 @@ Feature flags keep unfinished work dark in prd.
 A release is a `v*` tag on a commit of main. Pushing the tag runs
 `deploy-prd.yml`: the helpline check, then prd's migrations, API and site, in
 that order. The App Store app is made from the same commit with
-`native-build.yml -f profile=prd`.
+`native-build.yml -f profile=prd`. The production API answers at
+`api.scootch.app`, the only address the App Store app calls.
 
 ### Keys
 

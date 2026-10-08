@@ -69,10 +69,11 @@ jobs:
       - name: Deploy the API
         working-directory: apps/api
         run: pnpm exec wrangler deploy --env prd --var "COMMIT_SHA:${GITHUB_SHA::7}"
+      # Longer than dev waits: the first deploy also waits for api.scootch.app's certificate.
       - name: Wait until prd serves this commit
         run: |
-          for attempt in $(seq 1 20); do
-            got=$(curl -s --max-time 10 https://scootch.bkdev98.workers.dev/v1/health || true)
+          for attempt in $(seq 1 60); do
+            got=$(curl -s --max-time 10 https://api.scootch.app/v1/health || true)
             case "$got" in *"\"commit\":\"${GITHUB_SHA::7}\""*) echo "$got"; exit 0 ;; esac
             sleep 3
           done

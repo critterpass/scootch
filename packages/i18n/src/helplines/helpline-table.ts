@@ -57,6 +57,8 @@ export const HELPLINE_DIRECTORY = 'https://findahelpline.com';
 
 const ALWAYS = { kind: 'always' } as const;
 const CHECKED = '2026-10-07';
+/** The day the founder read the two rows that had stayed open at their own sources. */
+const CHECKED_LATER = '2026-10-08';
 
 export const HELPLINES: readonly Helpline[] = [
   {
@@ -106,16 +108,13 @@ export const HELPLINES: readonly Helpline[] = [
     checkedOn: CHECKED,
   },
   {
-    // NOT VERIFIED AT ITS SOURCE: the official site would not load on 2026-10-07, and the number
-    // (and its long form, 1800-891-4416) was confirmed through two secondary sources only. It
-    // stays `null` until a person reads it on telemanas.mohfw.gov.in.
     regions: ['IN'],
     name: 'Tele-MANAS',
     number: '14416',
     reach: 'call',
     hours: ALWAYS,
     source: 'https://telemanas.mohfw.gov.in',
-    checkedOn: null,
+    checkedOn: CHECKED_LATER,
   },
   {
     // The national medical emergency number. It has no site of its own to name as a source.
@@ -154,10 +153,7 @@ export const HELPLINES: readonly Helpline[] = [
       from: '16:30',
       to: '20:30',
       timeZone: 'Asia/Ho_Chi_Minh',
-      // HOURS NOT VERIFIED AT THEIR SOURCE: the number was read on hyvongsong.com on 2026-10-07,
-      // but these hours come from a secondary source. They stay `null` until a person reads them
-      // on the service's own site.
-      checkedOn: null,
+      checkedOn: CHECKED_LATER,
     },
     source: 'https://hyvongsong.com',
     checkedOn: CHECKED,
