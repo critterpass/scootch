@@ -18,7 +18,7 @@ Goal: company without strangers, and surprise that does not wear out.
   the longest session length. One route reads the number. Rate limited per device.
 - Test: start and end; a start with no end expires; a serious or crisis
   session sends no beat.
-- Status: not started
+- Status: done — 591c3de
 
 ### 2. The line in the session
 - Do: in the working footer, "214 are hunting something right now",
