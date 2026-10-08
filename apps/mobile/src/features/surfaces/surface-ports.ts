@@ -42,4 +42,6 @@ export const SHARED_KEYS = {
   hunt: 'surfaces.hunt',
   /** The thing "Hunt at 9:00" was pressed for (`targets/_shared/MorningHunt.swift`). */
   morningHunt: 'surfaces.morning-hunt',
+  /** Things shared in from another app (`targets/_shared/SharedIn.swift`). */
+  sharedIn: 'surfaces.shared-in',
 } as const;

@@ -1,8 +1,9 @@
 import { addDays, type Id } from '@scootch/domain';
 
 import { biteTicked } from './bites';
-import type { DayContext } from './day-types';
+import type { DayContext, DayEvent } from './day-types';
 import { carryToTomorrow } from './rest-flow';
+import { takeSharedIn } from './shared-in';
 import { applySurfaceAction } from './surface-actions';
 
 /** How long "Turn it down for a week" lasts, counting today. */
@@ -44,4 +45,23 @@ export async function turnDown(ctx: DayContext, taskId: Id): Promise<void> {
   const softUntil = addDays(ctx.memory.state.localDate, TURNED_DOWN_DAYS - 1);
   await tasks.put({ ...task, softUntil });
   await ctx.refresh();
+}
+
+type FromOutside = Extract<
+  DayEvent,
+  { readonly type: 'thing_shared_in' | 'bite_ticked' | 'hunt_tomorrow' | 'monster_turned_down' }
+>;
+
+/** What was asked for outside the app, under a notification or on a share sheet. */
+export function applyFromOutside(ctx: DayContext, event: FromOutside): Promise<void> {
+  switch (event.type) {
+    case 'thing_shared_in':
+      return takeSharedIn(ctx, event.text, event.when);
+    case 'bite_ticked':
+      return biteTickedOutside(ctx, event.taskId, event.place);
+    case 'hunt_tomorrow':
+      return huntTomorrow(ctx, event.taskId);
+    case 'monster_turned_down':
+      return turnDown(ctx, event.taskId);
+  }
 }

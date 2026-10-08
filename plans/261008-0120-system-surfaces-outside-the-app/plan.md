@@ -57,6 +57,9 @@ any task here.
 | The control and the Action button with no app in front | A second control, "Hunt 10 min", from iOS 26. The one that opens Scootch stays for iOS 18 to 25 | An intent that needs its app only some of the time can open it from iOS 26; a control cannot choose between two intents as it is drawn |
 | Focus filter: "Only work monsters", "Home monsters stay quiet" | Not built. The filter has "Offer a hunt when this Focus starts" alone | Nothing says whether a thing is work or home; the task call would have to |
 | "Tomorrow's one thing" on the nightstand, as one StandBy screen | Two small widgets side by side | StandBy shows small widgets; there is no full-width one |
+| "NEW MONSTER", its name and "about 10 min" on the share sheet | The sheet shows the words it took as "NEW THING" and the two choices. The monster hatches in the app | The name and size come from the task call, which screens first; the sheet makes no call. A serious thing therefore never has a monster on the sheet either |
+| "Hunt it now" from the share sheet | It keeps the thing and says to open Scootch, where it becomes the one thing if the day is free | A share sheet cannot open its app or start a Live Activity |
+| "from Mail" | A chip for what was shared: words, a link, or read from a picture | A share sheet is not told which app it was opened from |
 
 ## Phases
 

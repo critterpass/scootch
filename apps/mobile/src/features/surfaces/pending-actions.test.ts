@@ -102,9 +102,12 @@ describe('what was asked about one thing', () => {
   });
 });
 
+const CRISIS_WORDS = 'Thinking about ending my life tonight';
+
 describe('the surface sync on a phone', () => {
   async function phone() {
-    const staged = await stagedPhone(stagedServer());
+    const server = stagedServer();
+    const staged = await stagedPhone(server);
     const shared = fakeShared();
     const { files, written } = fakeFiles();
     const cancelled: string[] = [];
@@ -125,7 +128,7 @@ describe('the surface sync on a phone', () => {
       now: () => staged.time.clock.now(),
       timeZone: () => 'Europe/London',
     });
-    return { ...staged, shared, written, sync, cancelled };
+    return { ...staged, shared, written, sync, cancelled, server };
   }
 
   it('starts the ten-minute session exactly once when the control asked for it', async () => {
@@ -258,6 +261,77 @@ describe('the surface sync on a phone', () => {
       tomorrow?: unknown;
     };
     expect(snapshot.tomorrow).toMatchObject({ taskId: id });
+  });
+
+  const sharedThing = (text: string, when: 'now' | 'tomorrow', id = when) =>
+    JSON.stringify([{ id, text, kind: 'text', when, at: MORNING }]);
+
+  it('says a thing shared for now to Scootch as a ramble, once, when the day is free', async () => {
+    const { store, shared, sync, server, until } = await phone();
+    shared.values.set(
+      SHARED_KEYS.sharedIn,
+      sharedThing('Re: the boiler is still making the noise', 'now'),
+    );
+    await sync.opened();
+    expect(shared.values.has(SHARED_KEYS.sharedIn)).toBe(false);
+    // The one thing is the one the task call found in the words.
+    await until(() => store.getState().pick.kind !== 'none');
+    expect(server.startCalls).toBe(1);
+    // The shared words themselves are not also parked: only what the call set aside is.
+    const parked = store.getState().drawer.items.map((item) => item.text);
+    expect(parked.join(' ')).not.toContain('boiler');
+    await sync.opened();
+    expect(server.startCalls).toBe(1);
+  });
+
+  it('keeps a thing shared for tomorrow in the drawer, unscreened, to come back tomorrow', async () => {
+    const { store, shared, sync, server } = await phone();
+    shared.values.set(SHARED_KEYS.sharedIn, sharedThing('Reply to the landlord', 'tomorrow'));
+    await sync.opened();
+    expect(server.startCalls).toBe(0);
+    expect(store.getState().drawer.items).toMatchObject([
+      { text: 'Reply to the landlord', screen: 'unscreened', returnOn: '2026-10-07' },
+    ]);
+  });
+
+  it('keeps a thing shared for now in the drawer when today already has its thing', async () => {
+    const { store, say, shared, sync, server } = await phone();
+    await say();
+    await store.dispatch({ type: 'one_thing_picked' });
+    await store.dispatch({ type: 'monster_met' });
+    const calls = server.startCalls;
+    shared.values.set(SHARED_KEYS.sharedIn, sharedThing('Reply to the landlord', 'now'));
+    await sync.opened();
+    expect(server.startCalls).toBe(calls);
+    expect(store.getState().today.kind).toBe('task_set');
+    expect(store.getState().drawer.items.map((item) => item.text)).toContain(
+      'Reply to the landlord',
+    );
+  });
+
+  it('never stores shared words that read as a crisis: the day turns to care', async () => {
+    const { store, shared, sync, server } = await phone();
+    shared.values.set(SHARED_KEYS.sharedIn, sharedThing(CRISIS_WORDS, 'tomorrow'));
+    await sync.opened();
+    expect(store.getState().today.kind).toBe('crisis');
+    expect(store.getState().drawer.items).toEqual([]);
+    expect(server.startCalls).toBe(0);
+    expect(shared.values.get(SHARED_KEYS.snapshot) ?? '').not.toContain(CRISIS_WORDS);
+  });
+
+  it('drops a shared thing with no words, an unknown choice or broken text', async () => {
+    const { store, shared, sync } = await phone();
+    const list = [
+      { id: 'a', text: '   ', when: 'now', at: MORNING },
+      { id: 'b', text: 'Something', when: 'someday', at: MORNING },
+      { id: 'c', when: 'now', at: MORNING },
+    ];
+    shared.values.set(SHARED_KEYS.sharedIn, JSON.stringify(list));
+    await sync.opened();
+    shared.values.set(SHARED_KEYS.sharedIn, '{not json');
+    await sync.opened();
+    expect(store.getState().drawer.items).toEqual([]);
+    expect(store.getState().today.kind).toBe('nothing_yet');
   });
 
   it('writes the snapshot and the monster picture when today changes, and only then', async () => {

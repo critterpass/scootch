@@ -311,3 +311,8 @@ state is designed or removed.
 | Siri | A hunt is already on | The board does not say. The answer is that hunt's own card and clock; nothing is begun twice |
 | Settings | "Start with Back Tap" row | The board lists Back Tap among the ways to start and draws no setting. One row under Calm, with one line of how, that opens Shortcuts |
 | Control Center | "Hunt 10 min" beside "Start 10 min" | The board draws one control. From iOS 26 there are two: the new one needs no app, the old one always opens Scootch |
+| Share sheet | Reading what was shared | The board draws the sheet with the thing on it. While a picture is being read there is a spinner in its place |
+| Share sheet | Nothing readable was shared | One plain line on the card, "There are no words here to keep.", and Cancel |
+| Share sheet | Kept | The board ends at the two buttons. After either, a tick and one plain line ("Kept. Open Scootch to start on it." or "Kept. It comes back tomorrow."), then the sheet closes by itself |
+| Share sheet | Crisis day | The two buttons read "Keep it for today" and "Keep it for tomorrow": no hunting or lurking words |
+| Share sheet | "Cancel" and "Let it lurk till tomorrow" as chips | The board draws both as bare words; a secondary action is a chip |

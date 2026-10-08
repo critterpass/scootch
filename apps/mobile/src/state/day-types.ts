@@ -103,6 +103,8 @@ export type DayEvent =
   | { readonly type: 'surface_action'; readonly action: SurfaceActionKind }
   /** The hunt record in the App Group, read as the app came to the front. */
   | { readonly type: 'hunt_adopted'; readonly hunt: HuntRecord }
+  /** A thing shared in from another app: its words, and whether it was for now or tomorrow. */
+  | { readonly type: 'thing_shared_in'; readonly text: string; readonly when: 'now' | 'tomorrow' }
   /** A bite was ticked under a monster's notification; `place` is 0 to 2. */
   | { readonly type: 'bite_ticked'; readonly taskId: Id; readonly place: number }
   /** "Tomorrow at 9:00" under a notification: today's thing waits for tomorrow and today rests. */

@@ -17,6 +17,7 @@ import { finishedThings } from '../world/landmarks';
 
 import { shareMonsterImages } from './monster-image';
 import { createPendingActions } from './pending-actions';
+import { createSharedIn } from './shared-in';
 import {
   SHARED_KEYS,
   type MonsterPainter,
@@ -100,6 +101,7 @@ function shownParts(
 export function createSurfaceSync(deps: SurfaceSyncDeps) {
   const { store, shared } = deps;
   const pending = createPendingActions(shared, deps.now);
+  const sharedIn = createSharedIn(shared);
   let queue: Promise<void> = Promise.resolve();
   let lastParts: readonly unknown[] | null = null;
   let lastJson: string | null = null;
@@ -257,6 +259,10 @@ export function createSurfaceSync(deps: SurfaceSyncDeps) {
      */
     async opened() {
       if (!store.getState().ready) return [];
+      // What was shared in from other apps is taken in first, in the order it was shared.
+      for (const thing of sharedIn.take()) {
+        await store.dispatch({ type: 'thing_shared_in', text: thing.text, when: thing.when });
+      }
       const actions = pending.take();
       for (const action of actions) {
         if (isDayAction(action.kind)) {
