@@ -24,6 +24,8 @@ export interface MaterialCardProps {
   readonly children?: ReactNode;
   /** Read out as one image. Left out, the card is decoration and is skipped. */
   readonly label?: string;
+  /** The drop under the card, where a screen lights it its own way. The finish's own when left out. */
+  readonly shadow?: string;
   readonly testID?: string;
 }
 
@@ -33,7 +35,7 @@ export interface MaterialCardProps {
  * light moves on the UI thread; where nothing may move the card lies level and still.
  */
 export function MaterialCard(props: MaterialCardProps) {
-  const { finish, width, height, radius = 22, children, label, testID } = props;
+  const { finish, width, height, radius = 22, children, label, shadow, testID } = props;
   const { reducedMotion } = useScreenStyle();
   const motion = useCardMotion({ mayMove: !reducedMotion, handled: false, width, height });
   const material = CARD_MATERIALS[finish];
@@ -73,7 +75,7 @@ export function MaterialCard(props: MaterialCardProps) {
         size,
         {
           borderRadius: radius,
-          boxShadow: `0 24px 40px -18px ${rgba(material.shadow[0], material.shadow[1])}`,
+          boxShadow: shadow ?? `0 24px 40px -18px ${rgba(material.shadow[0], material.shadow[1])}`,
         },
         tilt,
       ]}
