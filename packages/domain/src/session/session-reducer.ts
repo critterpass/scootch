@@ -1,7 +1,8 @@
-import type { Id, TaskRow } from '../contracts';
+import type { Id, NextStart, TaskRow } from '../contracts';
 import { MINUTE_MS, type Instant } from '../day';
 import { isQuietTask } from '../day/today-state';
 
+import { withoutNextStart } from './next-start';
 import { catchUp, isTimed, timerEffects, type LiveStep } from './session-clock';
 import { chooseAfterNotFinished, finish, leaveEarly, notFinished } from './session-endings';
 import type {
@@ -25,6 +26,8 @@ export interface SessionSetInput {
   readonly minutes: number;
   readonly shrinkCount?: number;
   readonly treat?: string | null;
+  /** The line the task holds for its next sitting, if one was left. */
+  readonly nextStart?: NextStart | null;
 }
 
 /** A session that is set and waiting for the start. */
@@ -44,6 +47,7 @@ export function sessionSet(input: SessionSetInput): LiveSession {
     heldFrom: null,
     stepShrinks: 0,
     thoughts: [],
+    ...(input.nextStart != null ? { nextStart: input.nextStart } : {}),
   };
 }
 
@@ -112,7 +116,8 @@ function act(state: LiveSession, event: SessionEvent, now: Instant): SessionStep
       const effects: SessionEffect[] = [{ kind: 'shrink_task', taskId: state.taskId }];
       if (full) effects.push({ kind: 'play_cue', cue: 'shrink' });
       const ask = { ...state.ask, shrinkCount: state.ask.shrinkCount + 1 };
-      return { state: { ...state, ask }, effects };
+      // A smaller task is a different ask: the line left for the old one goes with it.
+      return { state: { ...withoutNextStart(state), ask }, effects };
     }
     case 'started':
       return phase === 'set' ? start(state, now) : unchanged(state);

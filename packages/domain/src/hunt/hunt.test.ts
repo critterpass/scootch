@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
 import { HOUR_MS, MINUTE_MS } from '../day/local-time';
+import { taskRow } from '../day/test/rows';
 
-import { bittenScale, tickBite } from './bites';
+import { bittenScale, firstBite, sittingBites, tickBite } from './bites';
 import {
   HUNT_SMALLEST_MONSTER,
   beginHunt,
@@ -240,5 +241,72 @@ describe('bites', () => {
     expect(tickBite([], 3)).toBeNull();
     expect(tickBite([], -1)).toBeNull();
     expect(tickBite([], 0.5)).toBeNull();
+  });
+});
+
+describe('the first bite of a sitting', () => {
+  const pack = {
+    hatch: 'It hatched.',
+    start: 'Off we go.',
+    working: ['One.', 'Two.', 'Three.'],
+    pickedUp: 'Oh, hello.',
+    checkIn: 'How is it going?',
+    tinyNextStep: 'Find the address.',
+    twoMinutesLeft: 'Two minutes.',
+    timeUp: 'Time.',
+    caught: 'Caught.',
+    notFinished: 'You started.',
+  };
+  const bites = [
+    { text: 'Open the email.', minutes: 1 },
+    { text: 'Write two lines.', minutes: 4 },
+    { text: 'Press send.', minutes: 1 },
+  ];
+  const nextStart = { text: 'reply to the bit about Thursday', writtenOn: '2026-10-05' };
+  const own = { text: nextStart.text, minutes: null, own: true };
+
+  it('is the written one when no line was left', () => {
+    const task = taskRow({ lines: { ...pack, bites } });
+    expect(firstBite(task)).toEqual({ text: 'Open the email.', minutes: 1, own: false });
+    expect(sittingBites(task).map((bite) => bite.text)).toEqual(bites.map((bite) => bite.text));
+    expect(firstBite({ ...task, nextStart: null })).toEqual(firstBite(task));
+  });
+
+  it("is the user's own line in place of the written one, word for word", () => {
+    const task = taskRow({ lines: { ...pack, bites }, nextStart });
+    expect(firstBite(task)).toEqual(own);
+    expect(sittingBites(task)).toEqual([
+      own,
+      { text: 'Write two lines.', minutes: 4, own: false },
+      { text: 'Press send.', minutes: 1, own: false },
+    ]);
+  });
+
+  it('is the line alone when the task has no written bites', () => {
+    expect(sittingBites(taskRow({ lines: pack, nextStart }))).toEqual([own]);
+    expect(sittingBites(taskRow({ lines: null, nextStart }))).toEqual([own]);
+    // A serious task has no bites of its own, and still keeps the line it was left.
+    const serious = taskRow({
+      screen: 'serious',
+      nextStart,
+      lines: {
+        acknowledge: 'I am here.',
+        working: ['Still here.'],
+        tinyNextStep: 'Open the letter.',
+        done: 'Done.',
+        notFinished: 'That is fine.',
+      },
+    });
+    expect(sittingBites(serious)).toEqual([own]);
+  });
+
+  it('is nothing when there is neither', () => {
+    expect(firstBite(taskRow({ lines: pack }))).toBeNull();
+    expect(sittingBites(taskRow())).toEqual([]);
+  });
+
+  it('goes back to the written one once the line is cleared', () => {
+    const task = taskRow({ lines: { ...pack, bites }, nextStart });
+    expect(firstBite({ ...task, nextStart: null })?.text).toBe('Open the email.');
   });
 });

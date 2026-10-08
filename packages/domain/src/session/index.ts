@@ -4,5 +4,6 @@ export {
   checkInAt,
   warningAt,
 } from './session-clock';
+export * from './next-start';
 export * from './session-reducer';
 export * from './session-types';
