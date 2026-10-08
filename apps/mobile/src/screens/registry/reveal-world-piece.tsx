@@ -5,7 +5,7 @@ export const revealWorldPiece = keepState({
   id: 'reveal-world-piece',
   design: {
     board: SCOOTCH_BOARD,
-    section: '05 Hold to finish and rewards',
+    section: '05 The catch and rewards',
     screen: 'New world piece',
   },
   capture: { screen: 'reveal', step: 'piece' },

@@ -581,7 +581,7 @@
     "screen": "Hatched",
     "path": "design/renders/monsters-and-keepsakes/01-the-task-becomes-a-creature--hatched.png",
     "width": 393,
-    "height": 930
+    "height": 929
   },
   {
     "board": "Monsters and Keepsakes",
@@ -596,168 +596,232 @@
     "section": "01 The task becomes a creature",
     "screen": "Caught card · live",
     "path": "design/renders/monsters-and-keepsakes/01-the-task-becomes-a-creature--caught-card-live.png",
-    "width": 393,
+    "width": 392,
     "height": 581
   },
   {
     "board": "Monsters and Keepsakes",
-    "section": "02 The world",
+    "section": "02 The catch",
+    "screen": "Rolled per task",
+    "path": "design/renders/monsters-and-keepsakes/02-the-catch--rolled-per-task.png",
+    "width": 414,
+    "height": 1289
+  },
+  {
+    "board": "Monsters and Keepsakes",
+    "section": "02 The catch",
+    "screen": "The jar",
+    "path": "design/renders/monsters-and-keepsakes/02-the-catch--the-jar.png",
+    "width": 387,
+    "height": 1147
+  },
+  {
+    "board": "Monsters and Keepsakes",
+    "section": "02 The catch",
+    "screen": "The reel",
+    "path": "design/renders/monsters-and-keepsakes/02-the-catch--the-reel.png",
+    "width": 387,
+    "height": 1147
+  },
+  {
+    "board": "Monsters and Keepsakes",
+    "section": "02 The catch",
+    "screen": "The lasso",
+    "path": "design/renders/monsters-and-keepsakes/02-the-catch--the-lasso.png",
+    "width": 387,
+    "height": 1147
+  },
+  {
+    "board": "Monsters and Keepsakes",
+    "section": "02 The catch",
+    "screen": "The sticker",
+    "path": "design/renders/monsters-and-keepsakes/02-the-catch--the-sticker.png",
+    "width": 387,
+    "height": 1147
+  },
+  {
+    "board": "Monsters and Keepsakes",
+    "section": "02 The catch",
+    "screen": "The bubble",
+    "path": "design/renders/monsters-and-keepsakes/02-the-catch--the-bubble.png",
+    "width": 387,
+    "height": 1147
+  },
+  {
+    "board": "Monsters and Keepsakes",
+    "section": "02 The catch",
+    "screen": "The net",
+    "path": "design/renders/monsters-and-keepsakes/02-the-catch--the-net.png",
+    "width": 387,
+    "height": 1147
+  },
+  {
+    "board": "Monsters and Keepsakes",
+    "section": "02 The catch",
+    "screen": "The vacuum",
+    "path": "design/renders/monsters-and-keepsakes/02-the-catch--the-vacuum.png",
+    "width": 387,
+    "height": 1147
+  },
+  {
+    "board": "Monsters and Keepsakes",
+    "section": "02 The catch",
+    "screen": "The envelope",
+    "path": "design/renders/monsters-and-keepsakes/02-the-catch--the-envelope.png",
+    "width": 387,
+    "height": 1147
+  },
+  {
+    "board": "Monsters and Keepsakes",
+    "section": "03 The world",
     "screen": "Day one",
-    "path": "design/renders/monsters-and-keepsakes/02-the-world--day-one.png",
+    "path": "design/renders/monsters-and-keepsakes/03-the-world--day-one.png",
     "width": 387,
     "height": 916
   },
   {
     "board": "Monsters and Keepsakes",
-    "section": "02 The world",
+    "section": "03 The world",
     "screen": "One week",
-    "path": "design/renders/monsters-and-keepsakes/02-the-world--one-week.png",
+    "path": "design/renders/monsters-and-keepsakes/03-the-world--one-week.png",
     "width": 387,
     "height": 916
   },
   {
     "board": "Monsters and Keepsakes",
-    "section": "02 The world",
+    "section": "03 The world",
     "screen": "Three months",
-    "path": "design/renders/monsters-and-keepsakes/02-the-world--three-months.png",
+    "path": "design/renders/monsters-and-keepsakes/03-the-world--three-months.png",
     "width": 387,
     "height": 916
   },
   {
     "board": "Monsters and Keepsakes",
-    "section": "03 The week's song",
+    "section": "04 The week's song",
     "screen": "Building",
-    "path": "design/renders/monsters-and-keepsakes/03-the-week-s-song--building.png",
+    "path": "design/renders/monsters-and-keepsakes/04-the-week-s-song--building.png",
     "width": 387,
     "height": 916
   },
   {
     "board": "Monsters and Keepsakes",
-    "section": "03 The week's song",
+    "section": "04 The week's song",
     "screen": "Complete · live",
-    "path": "design/renders/monsters-and-keepsakes/03-the-week-s-song--complete-live.png",
+    "path": "design/renders/monsters-and-keepsakes/04-the-week-s-song--complete-live.png",
     "width": 387,
     "height": 934
   },
   {
     "board": "Monsters and Keepsakes",
-    "section": "03 The week's song",
+    "section": "04 The week's song",
     "screen": "Liner notes",
-    "path": "design/renders/monsters-and-keepsakes/03-the-week-s-song--liner-notes.png",
+    "path": "design/renders/monsters-and-keepsakes/04-the-week-s-song--liner-notes.png",
     "width": 374,
     "height": 641
   },
   {
     "board": "Monsters and Keepsakes",
-    "section": "03 The week's song",
+    "section": "04 The week's song",
     "screen": "Cover art",
-    "path": "design/renders/monsters-and-keepsakes/03-the-week-s-song--cover-art.png",
+    "path": "design/renders/monsters-and-keepsakes/04-the-week-s-song--cover-art.png",
     "width": 408,
     "height": 485
   },
   {
     "board": "Monsters and Keepsakes",
-    "section": "04 Made to share",
+    "section": "05 The binder",
+    "screen": "Binder · shelf",
+    "path": "design/renders/monsters-and-keepsakes/05-the-binder--binder-shelf.png",
+    "width": 387,
+    "height": 938
+  },
+  {
+    "board": "Monsters and Keepsakes",
+    "section": "05 The binder",
+    "screen": "Card · front and back",
+    "path": "design/renders/monsters-and-keepsakes/05-the-binder--card-front-and-back.png",
+    "width": 387,
+    "height": 938
+  },
+  {
+    "board": "Monsters and Keepsakes",
+    "section": "05 The binder",
+    "screen": "Pages · month complete · Plus",
+    "path": "design/renders/monsters-and-keepsakes/05-the-binder--pages-month-complete-plus.png",
+    "width": 387,
+    "height": 920
+  },
+  {
+    "board": "Monsters and Keepsakes",
+    "section": "06 Made to share",
     "screen": "The reveal · live",
-    "path": "design/renders/monsters-and-keepsakes/04-made-to-share--the-reveal-live.png",
+    "path": "design/renders/monsters-and-keepsakes/06-made-to-share--the-reveal-live.png",
     "width": 387,
     "height": 558
   },
   {
     "board": "Monsters and Keepsakes",
-    "section": "04 Made to share",
-    "screen": "Story · caught",
-    "path": "design/renders/monsters-and-keepsakes/04-made-to-share--story-caught.png",
-    "width": 355,
-    "height": 725
-  },
-  {
-    "board": "Monsters and Keepsakes",
-    "section": "04 Made to share",
-    "screen": "Story · now playing",
-    "path": "design/renders/monsters-and-keepsakes/04-made-to-share--story-now-playing.png",
-    "width": 355,
-    "height": 707
-  },
-  {
-    "board": "Monsters and Keepsakes",
-    "section": "04 Made to share",
-    "screen": "The binder · Plus",
-    "path": "design/renders/monsters-and-keepsakes/04-made-to-share--the-binder-plus.png",
+    "section": "06 Made to share",
+    "screen": "Share · composer",
+    "path": "design/renders/monsters-and-keepsakes/06-made-to-share--share-composer.png",
     "width": 387,
-    "height": 934
+    "height": 977
   },
   {
-    "board": "Plus Materials",
-    "section": "02 The sheet, dressed up",
-    "screen": "Plus sheet · Foil · Yearly",
-    "path": "design/renders/plus-materials/02-the-sheet-dressed-up--plus-sheet-foil-yearly.png",
-    "width": 393,
-    "height": 948
+    "board": "Monsters and Keepsakes",
+    "section": "06 Made to share",
+    "screen": "Caught · story · holo",
+    "path": "design/renders/monsters-and-keepsakes/06-made-to-share--caught-story-holo.png",
+    "width": 266,
+    "height": 553
   },
   {
-    "board": "Plus Materials",
-    "section": "02 The sheet, dressed up",
-    "screen": "Welcome · the card arrives",
-    "path": "design/renders/plus-materials/02-the-sheet-dressed-up--welcome-the-card-arrives.png",
-    "width": 393,
-    "height": 948
+    "board": "Monsters and Keepsakes",
+    "section": "06 Made to share",
+    "screen": "Monster · wanted · riso",
+    "path": "design/renders/monsters-and-keepsakes/06-made-to-share--monster-wanted-riso.png",
+    "width": 266,
+    "height": 571
   },
   {
-    "board": "Plus Materials",
-    "section": "03 The studio",
-    "screen": "Studio · live try-on",
-    "path": "design/renders/plus-materials/03-the-studio--studio-live-try-on.png",
-    "width": 393,
-    "height": 930
+    "board": "Monsters and Keepsakes",
+    "section": "06 Made to share",
+    "screen": "World · postcard · paper",
+    "path": "design/renders/monsters-and-keepsakes/06-made-to-share--world-postcard-paper.png",
+    "width": 266,
+    "height": 553
   },
   {
-    "board": "Plus Materials",
-    "section": "03 The studio",
-    "screen": "Your card · Settings",
-    "path": "design/renders/plus-materials/03-the-studio--your-card-settings.png",
-    "width": 393,
-    "height": 930
+    "board": "Monsters and Keepsakes",
+    "section": "06 Made to share",
+    "screen": "Song · record sleeve · velvet",
+    "path": "design/renders/monsters-and-keepsakes/06-made-to-share--song-record-sleeve-velvet.png",
+    "width": 266,
+    "height": 553
   },
   {
-    "board": "Plus Materials",
-    "section": "04 Made to share",
-    "screen": "Story · caught, riso",
-    "path": "design/renders/plus-materials/04-made-to-share--story-caught-riso.png",
-    "width": 360,
-    "height": 716
+    "board": "Monsters and Keepsakes",
+    "section": "06 Made to share",
+    "screen": "Sticker pack · Messages",
+    "path": "design/renders/monsters-and-keepsakes/06-made-to-share--sticker-pack-messages.png",
+    "width": 266,
+    "height": 571
   },
   {
-    "board": "Plus Materials",
-    "section": "04 Made to share",
-    "screen": "Trading card · foil",
-    "path": "design/renders/plus-materials/04-made-to-share--trading-card-foil.png",
-    "width": 300,
-    "height": 514
-  },
-  {
-    "board": "Plus Materials",
-    "section": "04 Made to share",
-    "screen": "Sticker sheet · die-cut",
-    "path": "design/renders/plus-materials/04-made-to-share--sticker-sheet-die-cut.png",
-    "width": 420,
-    "height": 616
-  },
-  {
-    "board": "Plus Materials",
-    "section": "04 Made to share",
+    "board": "Monsters and Keepsakes",
+    "section": "06 Made to share",
     "screen": "Receipt · today's done log",
-    "path": "design/renders/plus-materials/04-made-to-share--receipt-today-s-done-log.png",
-    "width": 290,
-    "height": 597
+    "path": "design/renders/monsters-and-keepsakes/06-made-to-share--receipt-today-s-done-log.png",
+    "width": 266,
+    "height": 572
   },
   {
-    "board": "Plus Materials",
-    "section": "04 Made to share",
+    "board": "Monsters and Keepsakes",
+    "section": "06 Made to share",
     "screen": "Poster · month, wrapped",
-    "path": "design/renders/plus-materials/04-made-to-share--poster-month-wrapped.png",
-    "width": 360,
-    "height": 716
+    "path": "design/renders/monsters-and-keepsakes/06-made-to-share--poster-month-wrapped.png",
+    "width": 266,
+    "height": 571
   },
   {
     "board": "Plus",
@@ -765,7 +829,7 @@
     "screen": "Locked controls · free and Plus",
     "path": "design/renders/plus/01-scootch-plus-where-it-lives--locked-controls-free-and-plus.png",
     "width": 1020,
-    "height": 1614
+    "height": 1615
   },
   {
     "board": "Plus",
@@ -773,7 +837,7 @@
     "screen": "First offer · after the third catch",
     "path": "design/renders/plus/01-scootch-plus-where-it-lives--first-offer-after-the-third-catch.png",
     "width": 393,
-    "height": 947
+    "height": 948
   },
   {
     "board": "Plus",
@@ -801,153 +865,169 @@
   },
   {
     "board": "Plus",
-    "section": "02 Scootch Plus · the sheet",
+    "section": "02 The sheet",
     "screen": "Locked control · One more",
-    "path": "design/renders/plus/02-scootch-plus-the-sheet--locked-control-one-more.png",
+    "path": "design/renders/plus/02-the-sheet--locked-control-one-more.png",
     "width": 387,
     "height": 916
   },
   {
     "board": "Plus",
-    "section": "02 Scootch Plus · the sheet",
-    "screen": "Plus sheet · Cheeky · Yearly",
-    "path": "design/renders/plus/02-scootch-plus-the-sheet--plus-sheet-cheeky-yearly.png",
+    "section": "02 The sheet",
+    "screen": "Plus sheet · live",
+    "path": "design/renders/plus/02-the-sheet--plus-sheet-live.png",
+    "width": 387,
+    "height": 995
+  },
+  {
+    "board": "Plus",
+    "section": "02 The sheet",
+    "screen": "Welcome · the card arrives",
+    "path": "design/renders/plus/02-the-sheet--welcome-the-card-arrives.png",
     "width": 387,
     "height": 934
   },
   {
     "board": "Plus",
-    "section": "02 Scootch Plus · the sheet",
-    "screen": "Plus sheet · Soft · Monthly",
-    "path": "design/renders/plus/02-scootch-plus-the-sheet--plus-sheet-soft-monthly.png",
+    "section": "04 The studio · ink, finish, trail",
+    "screen": "Studio · finish",
+    "path": "design/renders/plus/04-the-studio-ink-finish-trail--studio-finish.png",
     "width": 387,
-    "height": 916
+    "height": 938
   },
   {
     "board": "Plus",
-    "section": "02 Scootch Plus · the sheet",
-    "screen": "Plus sheet · Unhinged · Lifetime",
-    "path": "design/renders/plus/02-scootch-plus-the-sheet--plus-sheet-unhinged-lifetime.png",
+    "section": "04 The studio · ink, finish, trail",
+    "screen": "Studio · ink",
+    "path": "design/renders/plus/04-the-studio-ink-finish-trail--studio-ink.png",
     "width": 387,
-    "height": 916
+    "height": 920
   },
   {
     "board": "Plus",
-    "section": "03 Trial, renewal and turning it off",
+    "section": "04 The studio · ink, finish, trail",
+    "screen": "Studio · trail",
+    "path": "design/renders/plus/04-the-studio-ink-finish-trail--studio-trail.png",
+    "width": 387,
+    "height": 938
+  },
+  {
+    "board": "Plus",
+    "section": "04 The studio · ink, finish, trail",
+    "screen": "Your card · Settings",
+    "path": "design/renders/plus/04-the-studio-ink-finish-trail--your-card-settings.png",
+    "width": 387,
+    "height": 934
+  },
+  {
+    "board": "Plus",
+    "section": "05 Trial, renewal and turning it off",
     "screen": "Trial · started",
-    "path": "design/renders/plus/03-trial-renewal-and-turning-it-off--trial-started.png",
+    "path": "design/renders/plus/05-trial-renewal-and-turning-it-off--trial-started.png",
     "width": 387,
     "height": 916
   },
   {
     "board": "Plus",
-    "section": "03 Trial, renewal and turning it off",
+    "section": "05 Trial, renewal and turning it off",
     "screen": "Trial · the day before",
-    "path": "design/renders/plus/03-trial-renewal-and-turning-it-off--trial-the-day-before.png",
+    "path": "design/renders/plus/05-trial-renewal-and-turning-it-off--trial-the-day-before.png",
     "width": 387,
     "height": 934
   },
   {
     "board": "Plus",
-    "section": "03 Trial, renewal and turning it off",
+    "section": "05 Trial, renewal and turning it off",
     "screen": "Trial · last day",
-    "path": "design/renders/plus/03-trial-renewal-and-turning-it-off--trial-last-day.png",
+    "path": "design/renders/plus/05-trial-renewal-and-turning-it-off--trial-last-day.png",
     "width": 387,
     "height": 934
   },
   {
     "board": "Plus",
-    "section": "03 Trial, renewal and turning it off",
+    "section": "05 Trial, renewal and turning it off",
     "screen": "Renewal reminder",
-    "path": "design/renders/plus/03-trial-renewal-and-turning-it-off--renewal-reminder.png",
+    "path": "design/renders/plus/05-trial-renewal-and-turning-it-off--renewal-reminder.png",
     "width": 387,
     "height": 934
   },
   {
     "board": "Plus",
-    "section": "03 Trial, renewal and turning it off",
+    "section": "05 Trial, renewal and turning it off",
     "screen": "Renewal off · confirmed",
-    "path": "design/renders/plus/03-trial-renewal-and-turning-it-off--renewal-off-confirmed.png",
+    "path": "design/renders/plus/05-trial-renewal-and-turning-it-off--renewal-off-confirmed.png",
     "width": 387,
     "height": 934
   },
   {
     "board": "Plus",
-    "section": "04 Friends, gifts, lifetime, shelf and manage",
+    "section": "06 Friends, gifts, lifetime and manage",
     "screen": "Friend pass · host invites",
-    "path": "design/renders/plus/04-friends-gifts-lifetime-shelf-and-manage--friend-pass-host-invites.png",
+    "path": "design/renders/plus/06-friends-gifts-lifetime-and-manage--friend-pass-host-invites.png",
     "width": 387,
     "height": 916
   },
   {
     "board": "Plus",
-    "section": "04 Friends, gifts, lifetime, shelf and manage",
+    "section": "06 Friends, gifts, lifetime and manage",
     "screen": "Friend pass · free friend arrives",
-    "path": "design/renders/plus/04-friends-gifts-lifetime-shelf-and-manage--friend-pass-free-friend-arrives.png",
+    "path": "design/renders/plus/06-friends-gifts-lifetime-and-manage--friend-pass-free-friend-arrives.png",
     "width": 387,
     "height": 934
   },
   {
     "board": "Plus",
-    "section": "04 Friends, gifts, lifetime, shelf and manage",
+    "section": "06 Friends, gifts, lifetime and manage",
     "screen": "Gift · choosing",
-    "path": "design/renders/plus/04-friends-gifts-lifetime-shelf-and-manage--gift-choosing.png",
+    "path": "design/renders/plus/06-friends-gifts-lifetime-and-manage--gift-choosing.png",
     "width": 387,
     "height": 934
   },
   {
     "board": "Plus",
-    "section": "04 Friends, gifts, lifetime, shelf and manage",
+    "section": "06 Friends, gifts, lifetime and manage",
     "screen": "Gift · received",
-    "path": "design/renders/plus/04-friends-gifts-lifetime-shelf-and-manage--gift-received.png",
+    "path": "design/renders/plus/06-friends-gifts-lifetime-and-manage--gift-received.png",
     "width": 387,
     "height": 916
   },
   {
     "board": "Plus",
-    "section": "04 Friends, gifts, lifetime, shelf and manage",
+    "section": "06 Friends, gifts, lifetime and manage",
     "screen": "Gift · how it actually works",
-    "path": "design/renders/plus/04-friends-gifts-lifetime-shelf-and-manage--gift-how-it-actually-works.png",
+    "path": "design/renders/plus/06-friends-gifts-lifetime-and-manage--gift-how-it-actually-works.png",
     "width": 355,
     "height": 545
   },
   {
     "board": "Plus",
-    "section": "04 Friends, gifts, lifetime, shelf and manage",
+    "section": "06 Friends, gifts, lifetime and manage",
     "screen": "Lifetime · purchase moment",
-    "path": "design/renders/plus/04-friends-gifts-lifetime-shelf-and-manage--lifetime-purchase-moment.png",
+    "path": "design/renders/plus/06-friends-gifts-lifetime-and-manage--lifetime-purchase-moment.png",
     "width": 387,
     "height": 934
   },
   {
     "board": "Plus",
-    "section": "04 Friends, gifts, lifetime, shelf and manage",
-    "screen": "The shelf · inks, outfits, worlds",
-    "path": "design/renders/plus/04-friends-gifts-lifetime-shelf-and-manage--the-shelf-inks-outfits-worlds.png",
-    "width": 387,
-    "height": 916
-  },
-  {
-    "board": "Plus",
-    "section": "04 Friends, gifts, lifetime, shelf and manage",
+    "section": "06 Friends, gifts, lifetime and manage",
     "screen": "Manage",
-    "path": "design/renders/plus/04-friends-gifts-lifetime-shelf-and-manage--manage.png",
+    "path": "design/renders/plus/06-friends-gifts-lifetime-and-manage--manage.png",
     "width": 387,
     "height": 934
   },
   {
     "board": "Plus",
-    "section": "04 Friends, gifts, lifetime, shelf and manage",
+    "section": "06 Friends, gifts, lifetime and manage",
     "screen": "Cancel · Apple's sheet",
-    "path": "design/renders/plus/04-friends-gifts-lifetime-shelf-and-manage--cancel-apple-s-sheet.png",
+    "path": "design/renders/plus/06-friends-gifts-lifetime-and-manage--cancel-apple-s-sheet.png",
     "width": 387,
     "height": 934
   },
   {
     "board": "Plus",
-    "section": "04 Friends, gifts, lifetime, shelf and manage",
+    "section": "06 Friends, gifts, lifetime and manage",
     "screen": "Cancel · after Apple's sheet",
-    "path": "design/renders/plus/04-friends-gifts-lifetime-shelf-and-manage--cancel-after-apple-s-sheet.png",
+    "path": "design/renders/plus/06-friends-gifts-lifetime-and-manage--cancel-after-apple-s-sheet.png",
     "width": 387,
     "height": 934
   },
@@ -1121,57 +1201,57 @@
   },
   {
     "board": "Scootch",
-    "section": "05 Hold to finish and rewards",
-    "screen": "Hold to finish · live",
-    "path": "design/renders/scootch/05-hold-to-finish-and-rewards--hold-to-finish-live.png",
+    "section": "05 The catch and rewards",
+    "screen": "The vacuum · live",
+    "path": "design/renders/scootch/05-the-catch-and-rewards--the-vacuum-live.png",
     "width": 387,
     "height": 916
   },
   {
     "board": "Scootch",
-    "section": "05 Hold to finish and rewards",
+    "section": "05 The catch and rewards",
     "screen": "Released early",
-    "path": "design/renders/scootch/05-hold-to-finish-and-rewards--released-early.png",
+    "path": "design/renders/scootch/05-the-catch-and-rewards--released-early.png",
     "width": 387,
     "height": 916
   },
   {
     "board": "Scootch",
-    "section": "05 Hold to finish and rewards",
+    "section": "05 The catch and rewards",
     "screen": "New world piece",
-    "path": "design/renders/scootch/05-hold-to-finish-and-rewards--new-world-piece.png",
+    "path": "design/renders/scootch/05-the-catch-and-rewards--new-world-piece.png",
     "width": 387,
     "height": 916
   },
   {
     "board": "Scootch",
-    "section": "05 Hold to finish and rewards",
+    "section": "05 The catch and rewards",
     "screen": "Song bar added",
-    "path": "design/renders/scootch/05-hold-to-finish-and-rewards--song-bar-added.png",
+    "path": "design/renders/scootch/05-the-catch-and-rewards--song-bar-added.png",
     "width": 387,
     "height": 916
   },
   {
     "board": "Scootch",
-    "section": "05 Hold to finish and rewards",
+    "section": "05 The catch and rewards",
     "screen": "Surprise drop",
-    "path": "design/renders/scootch/05-hold-to-finish-and-rewards--surprise-drop.png",
+    "path": "design/renders/scootch/05-the-catch-and-rewards--surprise-drop.png",
     "width": 387,
     "height": 916
   },
   {
     "board": "Scootch",
-    "section": "05 Hold to finish and rewards",
+    "section": "05 The catch and rewards",
     "screen": "Real-world treat",
-    "path": "design/renders/scootch/05-hold-to-finish-and-rewards--real-world-treat.png",
+    "path": "design/renders/scootch/05-the-catch-and-rewards--real-world-treat.png",
     "width": 387,
     "height": 916
   },
   {
     "board": "Scootch",
-    "section": "05 Hold to finish and rewards",
+    "section": "05 The catch and rewards",
     "screen": "Your parked thoughts",
-    "path": "design/renders/scootch/05-hold-to-finish-and-rewards--your-parked-thoughts.png",
+    "path": "design/renders/scootch/05-the-catch-and-rewards--your-parked-thoughts.png",
     "width": 387,
     "height": 916
   },
@@ -1220,6 +1300,14 @@
     "section": "07 Settings and icon",
     "screen": "Settings",
     "path": "design/renders/scootch/07-settings-and-icon--settings.png",
+    "width": 387,
+    "height": 916
+  },
+  {
+    "board": "Scootch",
+    "section": "07 Settings and icon",
+    "screen": "Settings · scrolled",
+    "path": "design/renders/scootch/07-settings-and-icon--settings-scrolled.png",
     "width": 387,
     "height": 916
   },

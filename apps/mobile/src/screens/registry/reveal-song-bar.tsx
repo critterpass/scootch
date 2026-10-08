@@ -5,7 +5,7 @@ export const revealSongBar = keepState({
   id: 'reveal-song-bar',
   design: {
     board: SCOOTCH_BOARD,
-    section: '05 Hold to finish and rewards',
+    section: '05 The catch and rewards',
     screen: 'Song bar added',
   },
   capture: { screen: 'reveal', step: 'bar' },

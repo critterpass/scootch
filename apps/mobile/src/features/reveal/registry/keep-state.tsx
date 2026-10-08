@@ -17,8 +17,10 @@ const Captured = lazy(() =>
 export const KEEPSAKES_BOARD = 'Monsters and Keepsakes';
 export const SCOOTCH_BOARD = 'Scootch';
 export const PLUS_BOARD = 'Plus';
-/** The board that redrew everything that is shared. */
-export const MATERIALS_BOARD = 'Plus Materials';
+export const THE_WORLD = '03 The world';
+export const THE_SONG = "04 The week's song";
+export const THE_BINDER = '05 The binder';
+export const MADE_TO_SHARE = '06 Made to share';
 
 /** Which keeping screen a capture shows, and with how much in it. */
 export type KeepCapture =
