@@ -8,6 +8,7 @@ import {
   type Id,
 } from '@scootch/domain';
 
+import { forgetArrivedPage, moveArrivedPage } from './arrived-pages';
 import type { DayContext } from './day-types';
 import { park } from './task-rows';
 
@@ -31,7 +32,8 @@ export async function removeDrawerItem(ctx: DayContext, itemId: Id): Promise<voi
  * They are words nobody has screened; a thing that was heavy stays heavy until a screen says
  * otherwise. A task parked whole had its monster and its lines written for the old words, so they
  * go, and the new words are picked up fresh when the thing is swapped in. Reworded into something
- * already parked, the two become that one thing.
+ * already parked, the two become that one thing. A thing that arrived from a monster's page is the
+ * person's own once its words are: the page is forgotten.
  */
 export async function editDrawerItem(ctx: DayContext, itemId: Id, words: string): Promise<void> {
   const { drawerItems, forgetTask } = ctx.deps.repositories;
@@ -41,6 +43,7 @@ export async function editDrawerItem(ctx: DayContext, itemId: Id, words: string)
   const edited = editItem(item, words, localDate);
   if (edited === item) return;
   await forgetTask(itemId);
+  if (!sameThing(item.text, edited.text)) await forgetArrivedPage(ctx, itemId);
   const twin = (await drawerItems.all()).find(
     (one) => one.id !== itemId && sameThing(one.text, edited.text),
   );
@@ -82,6 +85,8 @@ export async function editWaitingTask(ctx: DayContext, taskId: Id, words: string
   if (text === '' || text === task.text) return;
   const { tasks, monsters } = ctx.deps.repositories;
   await monsters.removeWhere('taskId', taskId);
+  // New words are the person's own thing, not the one a monster's page named.
+  if (!sameThing(task.originalText, text)) await forgetArrivedPage(ctx, taskId);
   await tasks.put({
     ...task,
     text,
@@ -106,7 +111,9 @@ export async function swapWaitingTaskIn(ctx: DayContext, taskId: Id): Promise<vo
   if (current ? current.status !== 'set' : !hasStartLeft(today)) return;
   const { tasks, days, forgetTask } = ctx.deps.repositories;
   if (current) {
-    await park(ctx, [{ text: current.originalText, dueDate: current.dueDate }], current.screen);
+    const thing = { text: current.originalText, dueDate: current.dueDate };
+    const [aside] = await park(ctx, [thing], current.screen);
+    if (aside) await moveArrivedPage(ctx, current.id, aside.id);
     await forgetTask(current.id);
   }
   await tasks.put({ ...task, localDate, carriedOver: false, status: 'set' });

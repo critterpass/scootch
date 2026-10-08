@@ -11,7 +11,7 @@ Effort: high (permissions on a public page).
 ### 2. The phone tells the page
 - Do: when an adopted monster is caught, the phone tells its page, as it
   already does for a monster it shared itself.
-- Status: not started — waits for the app's link route
+- Status: done — see the commit that adds `apps/mobile/src/features/reveal/tell-arrived-page.ts`
 
 ### 3. The page keeps the kind line
 - Do: the kind line written when the monster arrives is kept with its page,

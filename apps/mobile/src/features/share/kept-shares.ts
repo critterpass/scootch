@@ -34,8 +34,21 @@ export const monsterPageKey = (seed: string) => `monster:${seed}`;
  */
 export const arrivedMonsterKey = (seed: string) => `arrived:${seed}`;
 
+/** The newest arrivals kept beside them. An older one's page is simply never told of its catch. */
+export const KEPT_ARRIVALS_LIMIT = 50;
+
+/** A page this phone put up: its token is the only way to take it down. */
+const holdsToken = (one: KeptShare) => one.unshareToken !== '';
+
+/**
+ * The kept pages with this one added or replaced. The pages this phone shared and the monsters
+ * that arrived are capped apart, so an arrival never pushes out a token.
+ */
 export function withShare(shares: readonly KeptShare[], share: KeptShare): readonly KeptShare[] {
-  return [...shares.filter((one) => one.key !== share.key), share].slice(-KEPT_SHARES_LIMIT);
+  const all = [...shares.filter((one) => one.key !== share.key), share];
+  const own = all.filter(holdsToken).slice(-KEPT_SHARES_LIMIT);
+  const arrived = all.filter((one) => !holdsToken(one)).slice(-KEPT_ARRIVALS_LIMIT);
+  return all.filter((one) => own.includes(one) || arrived.includes(one));
 }
 
 export function withoutShare(shares: readonly KeptShare[], key: string): readonly KeptShare[] {

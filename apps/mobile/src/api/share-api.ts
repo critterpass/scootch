@@ -33,7 +33,10 @@ export interface SharedPage {
 export interface ShareApi {
   shareCard(request: CardShareRequest): Promise<SharedPage>;
   unshareCard(id: string, unshareToken: string): Promise<void>;
-  /** Tells a shared monster's page that its monster was caught. */
+  /**
+   * Tells a shared monster's page that its monster was caught. An empty token is the phone that
+   * took the monster in from its page: it holds none, and the server knows it by its device.
+   */
   monsterCaught(id: string, unshareToken: string, catchMinutes: number): Promise<void>;
 }
 
@@ -60,7 +63,7 @@ export function createShareApi(http: HttpClient): ShareApi {
         `/v1/monster-page/${encodeURIComponent(id)}/caught`,
         { catchMinutes },
         done,
-        { headers: { [UNSHARE_TOKEN_HEADER]: unshareToken } },
+        unshareToken === '' ? {} : { headers: { [UNSHARE_TOKEN_HEADER]: unshareToken } },
       ),
   };
 }

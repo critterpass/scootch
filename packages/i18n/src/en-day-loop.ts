@@ -34,4 +34,8 @@ export const enDayLoop = {
   'arrive.ask.placeholder': 'The one thing',
   'arrive.ask.send': 'Make it today’s thing',
   'arrive.ask.send.hint': 'Takes it in as today’s one thing, with this monster.',
+  'arrive.ask.sub.parked':
+    'Its page keeps the words hidden. Type the one thing, and it waits in the drawer.',
+  'arrive.ask.send.parked': 'Put it in the drawer',
+  'arrive.ask.send.parked.hint': 'Keeps it in the drawer, with this monster.',
 } as const;

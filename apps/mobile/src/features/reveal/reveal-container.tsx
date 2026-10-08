@@ -31,6 +31,7 @@ import {
   type RevealEvent,
   type RevealState,
 } from './reveal-steps';
+import { tellArrivedPageOfCatch } from './tell-arrived-page';
 
 /** If what the finish wrote cannot be read back in this long, the reveal steps aside. */
 const GIVE_UP_MS = 4000;
@@ -135,14 +136,18 @@ export function RevealContainer() {
   }, [step, bar, musicOn, player]);
 
   // A caught monster that has its own page on the website: the page is told, so it reads caught.
+  // That is the page this phone shared for it, and the page it arrived from.
   const caughtSeed = monster && isCaught(monster) ? monster.spec.seed : null;
   const caughtMinutes = monster?.catchMinutes ?? null;
   useEffect(() => {
     if (caughtSeed === null || caughtMinutes === null) return;
-    void tellPageOfCatch(
-      { api: pages, kept: keychainKeptShares },
-      { seed: caughtSeed, catchMinutes: caughtMinutes },
-    ).catch(() => undefined);
+    const told = { api: pages, kept: keychainKeptShares };
+    const caught = { seed: caughtSeed, catchMinutes: caughtMinutes };
+    // One after the other: each marks its page told in the same kept list.
+    void tellPageOfCatch(told, caught)
+      .catch(() => undefined)
+      .then(() => tellArrivedPageOfCatch(told, caught))
+      .catch(() => undefined);
   }, [caughtSeed, caughtMinutes, pages]);
 
   if (!state || !step || !rows) return <View style={{ flex: 1 }} />;

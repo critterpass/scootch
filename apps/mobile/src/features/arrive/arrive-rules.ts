@@ -1,3 +1,5 @@
+import { DAY_MS, type Instant, type SettingsRow } from '@scootch/domain';
+
 import type { MonsterPage } from '../../api/monster-page-api';
 import { arrivedMonsterKey, withShare, type KeptShares } from '../share/kept-shares';
 import { SHARED_KEYS, type SharedStore } from '../surfaces/surface-ports';
@@ -67,20 +69,81 @@ export function monsterRouteOf(link: string): `/m/${string}` | null {
   return id === null ? null : `/m/${id}`;
 }
 
+/** A link kept longer than this is dropped unopened: whoever tapped it has long moved on. */
+export const KEPT_LINK_MS = 7 * DAY_MS;
+
+function dropBoth(shared: SharedStore): void {
+  shared.remove(SHARED_KEYS.clipLink);
+  shared.remove(SHARED_KEYS.clipLinkStoredAt);
+}
+
 /**
- * The link the App Clip was opened with, taken once: it is cleared before anything is done with
- * it, so it is never opened a second time. `null` when the clip kept none, or kept a link that is
- * not a monster's.
+ * The link that is waiting to be opened, left where it is: the one the App Clip was opened with,
+ * or one tapped while the app could not take it. It stays kept until its thing is on the phone
+ * or its page turns out to have nothing to give, so a launch with no connection does not lose
+ * the monster. A link that is not a monster's is dropped (the clip is only ever opened from a
+ * monster's link), and so is one kept for more than seven days. A link kept with no time is
+ * counted from now.
  */
-export function takeClipLink(shared: SharedStore): `/m/${string}` | null {
-  let stored: string | null;
+export function keptLink(shared: SharedStore, now: Instant): `/m/${string}` | null {
   try {
-    stored = shared.get(SHARED_KEYS.clipLink);
+    const stored = shared.get(SHARED_KEYS.clipLink);
     if (stored === null) return null;
-    shared.remove(SHARED_KEYS.clipLink);
-    shared.remove(SHARED_KEYS.clipLinkStoredAt);
+    const route = monsterRouteOf(stored);
+    // The clip writes the time as seconds since 1970.
+    const keptAt = Number(shared.get(SHARED_KEYS.clipLinkStoredAt) ?? Number.NaN) * 1000;
+    if (route === null || now - keptAt > KEPT_LINK_MS) {
+      dropBoth(shared);
+      return null;
+    }
+    if (!Number.isFinite(keptAt)) shared.set(SHARED_KEYS.clipLinkStoredAt, String(now / 1000));
+    return route;
   } catch {
     return null;
   }
-  return monsterRouteOf(stored);
+}
+
+/** The kept link is done with. With a route, only when it is that link which is kept. */
+export function dropKeptLink(shared: SharedStore, route?: `/m/${string}`): void {
+  try {
+    const stored = shared.get(SHARED_KEYS.clipLink);
+    if (stored === null) return;
+    if (route === undefined || monsterRouteOf(stored) === route) dropBoth(shared);
+  } catch {
+    // Looked at again the next time the app comes to the front.
+  }
+}
+
+/** A link that cannot be opened yet is kept where the clip keeps its own, to be opened later. */
+export function holdLink(shared: SharedStore, route: `/m/${string}`, now: Instant): void {
+  try {
+    if (monsterRouteOf(shared.get(SHARED_KEYS.clipLink) ?? '') === route) return;
+    shared.set(SHARED_KEYS.clipLink, `scootch:/${route}`);
+    shared.set(SHARED_KEYS.clipLinkStoredAt, String(now / 1000));
+  } catch {
+    // With no App Group there is nowhere to keep it.
+  }
+}
+
+/** What of the app decides whether a kept link may be opened yet. */
+export interface LinkGate {
+  readonly ready: boolean;
+  readonly settings: Pick<SettingsRow, 'firstLaunchDoneAt'>;
+  readonly today: { readonly kind: string };
+}
+
+/**
+ * A kept link waits for a phone that is ready for it: first launch is behind it, no world is
+ * waiting to be offered back, and the day is not a crisis day (nothing opens over the care
+ * screen). `restoreWaits` is whether a restore has been found and not yet answered.
+ */
+export function linkMayOpen(app: LinkGate, restoreWaits: boolean): boolean {
+  if (!app.ready || app.settings.firstLaunchDoneAt === null) return false;
+  return !restoreWaits && app.today.kind !== 'crisis';
+}
+
+/** True when reading the page failed because there is no such page, not for want of a connection. */
+export function isNoSuchPage(error: unknown): boolean {
+  const { status, code } = (error ?? {}) as { status?: unknown; code?: unknown };
+  return status === 404 || code === 'not_found';
 }

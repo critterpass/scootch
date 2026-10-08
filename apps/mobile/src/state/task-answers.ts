@@ -2,7 +2,7 @@ import type { TaskLabels, TaskRow, TaskScreen } from '@scootch/domain';
 
 import type { TaskCall, TaskCallOptions, TaskName, TaskRest } from '../api/task-client';
 
-import { keepArrivedPage } from './arrived-pages';
+import { handBack, keepArrivedPage } from './arrived-pages';
 import { enterCrisis, stopWithoutAWord } from './care-flow';
 import type { DayContext, Offer, Reveal } from './day-types';
 import { catchLateMonster } from './late-catch';
@@ -153,6 +153,7 @@ async function chooseInstead(ctx: DayContext, existing: TaskRow | null): Promise
   ctx.set({ pick: { kind: 'none' }, line: null, heardDeadlines: [] });
   pickForMe(ctx);
   if (ctx.memory.state.pick.kind !== 'picked_for_me' && offer) {
+    handBack(ctx.memory, offer);
     ctx.set({ returnedText: offer.text });
   }
 }

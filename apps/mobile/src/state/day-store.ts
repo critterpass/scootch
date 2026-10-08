@@ -110,6 +110,7 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
     screenAskedAt: null,
     stopWaiting: null,
     askingPending: false,
+    handedBack: null,
   };
   let usual: ClockTime = DEFAULT_USUAL_START;
   let queue: Promise<void> = Promise.resolve();
@@ -219,7 +220,7 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
     await openDay(ctx, localDate, opened);
 
     usual = usualStart(await repositories.sessions.all(), timeZone);
-    memory.offer = null;
+    memory.offer = memory.handedBack = null;
     memory.sessionRowId = null;
     memory.restPending = false;
     memory.turnedDown = [];

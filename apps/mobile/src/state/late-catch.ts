@@ -6,6 +6,7 @@ import {
   type TaskRow,
 } from '@scootch/domain';
 
+import { arrivedPageOf } from './arrived-pages';
 import { enterCrisis } from './care-flow';
 import type { DayContext, DayMemory } from './day-types';
 import { showsComedy } from './shows-comedy';
@@ -89,6 +90,8 @@ export async function askForFinished(ctx: DayContext): Promise<boolean> {
   if (!task || !(await ctx.deps.online().catch(() => false))) return false;
   asked.add(task.id);
   ctx.memory.askingPending = true;
+  // A thing that arrived from a monster's page and was finished unanswered is caught as that one.
+  const monsterPage = await arrivedPageOf(ctx, task.id);
   const call = ctx.deps.tasks
     .createTask(
       {
@@ -100,6 +103,7 @@ export async function askForFinished(ctx: DayContext): Promise<boolean> {
         localDate,
         timeZone: ctx.deps.timeZone(),
         overrideSerious: false,
+        ...(monsterPage === null ? {} : { monsterPage }),
       },
       treatNamed(ctx),
     )
