@@ -7,14 +7,8 @@ import type { ScootchProps } from '../../art/Scootch';
 import type { Translate } from '../../i18n/i18n-provider';
 import { lineFor } from '../../state/lines';
 import { dayWords } from '../drawer/day-words';
-import {
-  ChoiceDock,
-  DeadlineCard,
-  EnergyRead,
-  Headed,
-  QuietLink,
-  Stack,
-} from '../dump/dump-panels';
+import { ChoiceDock, DeadlineCard, Headed, QuietLink, Stack } from '../dump/dump-panels';
+import { EnergyGuess, EnergyRead } from '../dump/energy-read';
 import { Choosing } from '../dump/choosing';
 import { choosingScript, revealCapMs } from '../dump/choosing-script';
 import { restInDrawerLine } from '../dump/rest-in-drawer';
@@ -79,7 +73,7 @@ export function stageShown(stage: Drawable, env: StageEnv): StageDrawn {
         kind: 'panel',
         name: 'energy',
         body: <EnergyRead onAnswer={actions.answerEnergy} />,
-        footer: null,
+        footer: <EnergyGuess onGuess={() => actions.answerEnergy('guess')} />,
       },
     };
   }
