@@ -1,10 +1,12 @@
 import { z } from 'zod';
 
 import {
+  dayNotificationSchema,
+  heardTimeSchema,
+  inTheWaySchema,
   seriousLinePackSchema,
   sessionLinePackSchema,
   signedWordsSchema,
-  dayNotificationSchema,
 } from './ai-task-call';
 import { cardFinishSchema, cardRaritySchema, monsterSpecSchema, workModeSchema } from './art';
 import {
@@ -17,6 +19,7 @@ import {
   isoWeekSchema,
   languageSchema,
   taskTextSchema,
+  type ClockTime,
 } from './common';
 
 /**
@@ -49,6 +52,53 @@ export type LocalTable = (typeof LOCAL_TABLES)[number];
 export const taskScreenSchema = z.enum(['unscreened', 'pass', 'serious']);
 export type TaskScreen = z.infer<typeof taskScreenSchema>;
 
+/** The guess sheet's five steps, in minutes: 30 min, 1 hour, 2 hours, 3 hours and half a day. */
+export const GUESS_MINUTES = [30, 60, 120, 180, 360] as const;
+export const guessMinutesSchema = z.union([
+  z.literal(30),
+  z.literal(60),
+  z.literal(120),
+  z.literal(180),
+  z.literal(360),
+]);
+export type GuessMinutes = z.infer<typeof guessMinutesSchema>;
+
+/** The moments of a day a thing can be brought back after (or, for bed, before). */
+export const DAY_MOMENTS = ['coffee', 'lunch', 'work', 'dinner', 'bed'] as const;
+export const dayMomentSchema = z.enum(DAY_MOMENTS);
+export type DayMoment = z.infer<typeof dayMomentSchema>;
+
+/**
+ * When a set thing is brought back: at one of the day's moments, whose clock time is in the
+ * settings, or at a clock time the user picked. A task with none starts now.
+ */
+export const startCueSchema = z.discriminatedUnion('kind', [
+  z.object({ kind: z.literal('moment'), moment: dayMomentSchema }),
+  z.object({ kind: z.literal('time'), at: clockTimeSchema }),
+]);
+export type StartCue = z.infer<typeof startCueSchema>;
+
+/**
+ * The line the user left on "not finished" for the sitting after: their own words, shown back
+ * word for word, with the local day they were written on.
+ */
+export const nextStartSchema = z.object({
+  text: taskTextSchema,
+  writtenOn: isoDateSchema,
+});
+export type NextStart = z.infer<typeof nextStartSchema>;
+
+/**
+ * A time heard for the day. `watched` is false after "Don't watch it": the time is kept, and no
+ * length is capped by it and no nudge is sent for it.
+ */
+export const dayHeardTimeSchema = heardTimeSchema.extend({ watched: z.boolean() });
+export type DayHeardTime = z.infer<typeof dayHeardTimeSchema>;
+
+/** The word an odd hatch adds to a card's name. */
+export const oddWordSchema = z.enum(['tiny']);
+export type OddWord = z.infer<typeof oddWordSchema>;
+
 export const dayRowSchema = z.object({
   /** Primary key. */
   localDate: isoDateSchema,
@@ -61,6 +111,8 @@ export const dayRowSchema = z.object({
   openedAt: isoDateTimeSchema,
   morningLine: z.string().nullable(),
   energy: energySchema.nullable(),
+  /** A clock time the user said for this day. Null or absent on a day with none. */
+  heardTime: dayHeardTimeSchema.nullable().optional(),
 });
 export type DayRow = z.infer<typeof dayRowSchema>;
 
@@ -103,6 +155,20 @@ export const taskRowSchema = z.object({
    * week". Null or absent on a task nobody turned down.
    */
   softUntil: isoDateSchema.nullable().optional(),
+  /**
+   * How long the user thought it would take, asked before the start. Null or absent when no guess
+   * was made. It is printed beside the real time and never compared with it.
+   */
+  guessMinutes: guessMinutesSchema.nullable().optional(),
+  /** When the thing is brought back. Null or absent means now. */
+  startCue: startCueSchema.nullable().optional(),
+  /** The answer to "Anything in the way?". Null or absent when skipped or never asked. */
+  inTheWay: inTheWaySchema.nullable().optional(),
+  /**
+   * The line left for the next sitting, which is that sitting's first bite. Cleared at the catch
+   * and when the task is made smaller; gone with the row when the task is let go.
+   */
+  nextStart: nextStartSchema.nullable().optional(),
   createdAt: isoDateTimeSchema,
   finishedAt: isoDateTimeSchema.nullable(),
 });
@@ -158,6 +224,10 @@ export const monsterRowSchema = z.object({
   catchMinutes: z.number().int().min(1).nullable(),
   /** Derived at the catch from days lurked and shrink count, 1 to 5. */
   dread: z.number().int().min(1).max(5).nullable(),
+  /** Frozen at the catch: the task's guess. Null or absent when none was made. */
+  guessMinutes: guessMinutesSchema.nullable().optional(),
+  /** Frozen at the catch: the word an odd hatch added to the name. Null or absent on the rest. */
+  oddWord: oddWordSchema.nullable().optional(),
   finish: cardFinishSchema,
 });
 export type MonsterRow = z.infer<typeof monsterRowSchema>;
@@ -279,5 +349,55 @@ export const settingsRowSchema = z.object({
   /** The wallpaper last looked at, which the Shortcuts action draws each morning. */
   wallpaper: z.enum(['world', 'perched', 'night']),
   firstLaunchDoneAt: isoDateTimeSchema.nullable(),
+  /**
+   * The clock time of each day moment. They are fixed until the user changes them; nothing here
+   * is learned. Null or absent reads as `DEFAULT_DAY_MOMENT_TIMES`.
+   */
+  coffeeAt: clockTimeSchema.nullable().optional(),
+  lunchAt: clockTimeSchema.nullable().optional(),
+  workAt: clockTimeSchema.nullable().optional(),
+  dinnerAt: clockTimeSchema.nullable().optional(),
+  bedAt: clockTimeSchema.nullable().optional(),
+  /**
+   * Minutes before a heard time at which getting ready starts. Null or absent reads as
+   * `DEFAULT_GET_READY_LEAD_MINUTES`.
+   */
+  getReadyLeadMinutes: z.number().int().min(5).max(180).nullable().optional(),
+  /** The count of others in a session, in the session's footer. Null or absent is on. */
+  othersHunting: z.boolean().nullable().optional(),
 });
 export type SettingsRow = z.infer<typeof settingsRowSchema>;
+
+/** Where each day moment sits on the clock until the user moves it. */
+export const DEFAULT_DAY_MOMENT_TIMES: Readonly<Record<DayMoment, ClockTime>> = {
+  coffee: '09:00',
+  lunch: '13:10',
+  work: '17:30',
+  dinner: '19:30',
+  bed: '20:30',
+};
+export const DEFAULT_GET_READY_LEAD_MINUTES = 35;
+
+type HelperSettings = Pick<
+  SettingsRow,
+  'coffeeAt' | 'lunchAt' | 'workAt' | 'dinnerAt' | 'bedAt' | 'getReadyLeadMinutes' | 'othersHunting'
+>;
+
+/** The clock time of every day moment: the user's own where one is stored, else the default. */
+export function dayMomentTimes(settings: HelperSettings): Record<DayMoment, ClockTime> {
+  return {
+    coffee: settings.coffeeAt ?? DEFAULT_DAY_MOMENT_TIMES.coffee,
+    lunch: settings.lunchAt ?? DEFAULT_DAY_MOMENT_TIMES.lunch,
+    work: settings.workAt ?? DEFAULT_DAY_MOMENT_TIMES.work,
+    dinner: settings.dinnerAt ?? DEFAULT_DAY_MOMENT_TIMES.dinner,
+    bed: settings.bedAt ?? DEFAULT_DAY_MOMENT_TIMES.bed,
+  };
+}
+
+export function getReadyLeadMinutes(settings: HelperSettings): number {
+  return settings.getReadyLeadMinutes ?? DEFAULT_GET_READY_LEAD_MINUTES;
+}
+
+export function showsOthersHunting(settings: HelperSettings): boolean {
+  return settings.othersHunting ?? true;
+}

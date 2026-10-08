@@ -1,4 +1,10 @@
-import { settingsRowSchema, type Language, type SettingsRow } from '@scootch/domain';
+import {
+  DEFAULT_DAY_MOMENT_TIMES,
+  DEFAULT_GET_READY_LEAD_MINUTES,
+  settingsRowSchema,
+  type Language,
+  type SettingsRow,
+} from '@scootch/domain';
 
 import type { SqlDatabase } from '../table';
 
@@ -25,6 +31,13 @@ export function defaultSettings(language: Language): SettingsRow {
     iconPinned: 'cheeky',
     wallpaper: 'world',
     firstLaunchDoneAt: null,
+    coffeeAt: DEFAULT_DAY_MOMENT_TIMES.coffee,
+    lunchAt: DEFAULT_DAY_MOMENT_TIMES.lunch,
+    workAt: DEFAULT_DAY_MOMENT_TIMES.work,
+    dinnerAt: DEFAULT_DAY_MOMENT_TIMES.dinner,
+    bedAt: DEFAULT_DAY_MOMENT_TIMES.bed,
+    getReadyLeadMinutes: DEFAULT_GET_READY_LEAD_MINUTES,
+    othersHunting: true,
   };
 }
 
@@ -36,6 +49,11 @@ const BOOLEANS: ReadonlySet<string> = new Set([
   'canBeHaunted',
   'hideTableLabel',
   'worldCardOnHome',
+  'othersHunting',
+] satisfies (keyof StoredSettings)[]);
+
+const NUMBERS: ReadonlySet<string> = new Set([
+  'getReadyLeadMinutes',
 ] satisfies (keyof StoredSettings)[]);
 
 /** The key the finish method was kept under when it was the catch, two taps or saying "done". */
@@ -64,7 +82,8 @@ export function settingsRepository(db: SqlDatabase): SettingsRepository {
       if (before === 'double_tap' || before === 'voice') row.catchWith = 'hold';
       for (const { key, value } of stored) {
         if (!(key in row) || key === 'id') continue;
-        row[key] = BOOLEANS.has(key) ? value === '1' : value;
+        if (BOOLEANS.has(key)) row[key] = value === '1';
+        else row[key] = NUMBERS.has(key) ? Number(value) : value;
       }
       const checked = settingsRowSchema.safeParse(row);
       // A stored value the app no longer understands falls back to the defaults, never a crash.

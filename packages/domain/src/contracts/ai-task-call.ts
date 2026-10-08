@@ -4,12 +4,31 @@ import { decisionMetaSchema, screenInputResponseSchema } from './ai-labels';
 import { monsterBodyTypeSchema, workModeSchema } from './art';
 import {
   attitudeSchema,
+  clockTimeSchema,
   energySchema,
   isoDateSchema,
   languageSchema,
   lineSchema,
   taskTextSchema,
 } from './common';
+
+/**
+ * The answer to "Anything in the way?", asked once beside the energy. Skipping it is the same as
+ * never being asked. Never asked about, sent with or used on a serious task.
+ */
+export const inTheWaySchema = z.enum(['boring', 'scary', 'confusing', 'too_big']);
+export type InTheWay = z.infer<typeof inTheWaySchema>;
+
+/**
+ * A clock time the user said for today ("dentist at 3"): the time on the wall clock, and their own
+ * words for it. Only a time that was said or typed; nothing is read from a calendar.
+ */
+export const heardTimeSchema = z.object({
+  at: clockTimeSchema,
+  /** The user's own words, "dentist at 3". */
+  heardAs: z.string().min(1).max(80),
+});
+export type HeardTime = z.infer<typeof heardTimeSchema>;
 
 /**
  * task.create: the one call per task. It screens the text first, then returns
@@ -44,6 +63,8 @@ export const taskCreateRequestSchema = z.object({
    * body and seed. An id that names no wild monster changes nothing.
    */
   monsterPage: z.string().min(1).max(64).optional(),
+  /** What the user said is in the way, when they answered. Absent when skipped or never asked. */
+  inTheWay: inTheWaySchema.optional(),
 });
 export type TaskCreateRequest = z.infer<typeof taskCreateRequestSchema>;
 
