@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -38,25 +39,53 @@ import {
 } from './share-image';
 import { dayLog, monthBefore, monthWrap } from './share-logs';
 import type { ShareActions, ShareModel } from './share-panel';
+import { requestShare, SHARE_ROUTE, type ShareRequest } from './share-request';
 import { shareOfferedOn } from './share-rules';
 import { isCatch, standalonePicture, type ShareTarget } from './share-target';
 
 export interface ShareHandle {
-  /** The composer to draw, or `null` while it is shut. */
-  readonly panel: { readonly model: ShareModel; readonly actions: ShareActions } | null;
   /**
-   * Opens the composer. A task that may not be shared, and anything at all on a crisis day,
-   * opens nothing.
+   * Opens the composer, as a sheet over the screen that asked. A task that may not be shared,
+   * and anything at all on a crisis day, opens nothing.
    */
   readonly open: (target: ShareTarget) => void;
+}
+
+/**
+ * The way to the composer from a screen. `onLocked` is what a tap on a locked frame does there:
+ * a screen that may sell hands over its own way to the Plus sheet, and the reveal hands nothing.
+ */
+export function useShare(today: Pick<TodayState, 'kind'>, onLocked?: () => void): ShareHandle {
+  const router = useRouter();
+  const open = useCallback(
+    (target: ShareTarget) => {
+      // A month, the world and a week are the person's own, already made only of what may be
+      // shared; a catch and a wanted poster ask their task.
+      const own = target.kind === 'month' || target.kind === 'world' || target.kind === 'song';
+      if (own ? today.kind === 'crisis' : !shareOfferedOn(today, target.task)) return;
+      requestShare({ target, ...(onLocked ? { onLocked } : {}) });
+      router.push(SHARE_ROUTE);
+    },
+    [today, onLocked, router],
+  );
+  return useMemo(() => ({ open }), [open]);
 }
 
 /** The formats the composer offers for a catch: a poster belongs to a month, not to one catch. */
 const forACatch = (formats: readonly ShareFormat[]): ShareFormat[] =>
   formats.filter((format) => format !== 'poster');
 
-/** The composer's state for one screen, on the real phone. */
-export function useShare(language: Language, today: Pick<TodayState, 'kind'>): ShareHandle {
+/**
+ * The composer's state for one request, on the real phone: the picture as it will be sent, what
+ * it can be sent as, and where it goes. `null` when there is nothing to show (a crisis day, a
+ * month not read yet).
+ */
+export function useComposer(
+  language: Language,
+  today: Pick<TodayState, 'kind'>,
+  request: ShareRequest | null,
+  close: () => void,
+): { readonly model: ShareModel; readonly actions: ShareActions } | null {
   const { pages: api } = useTogether();
   const pages = useMemo<SharePages>(
     () => ({ api, kept: keychainKeptShares, site: siteBaseUrl() }),
@@ -65,8 +94,12 @@ export function useShare(language: Language, today: Pick<TodayState, 'kind'>): S
   const db = useSQLiteContext();
   const runtime = usePlusRuntime();
   const { look, member, unlocked, customer } = usePlusState();
-  const [target, setTarget] = useState<ShareTarget | null>(null);
-  const [format, setFormat] = useState<ShareFormat>('story');
+  const target = request?.target ?? null;
+  const onLocked = request?.onLocked;
+  const [format, setFormat] = useState<ShareFormat>(() =>
+    target && isCatch(target) ? target.format : 'story',
+  );
+  // It opens on the frame of the finish that is worn.
   const [frame, setFrame] = useState<ShareFrame>(() => frameOfFinish(look.finish));
   const [kept, setKept] = useState<Keepsakes | null>(null);
   const [hideTask, setHideTask] = useState(false);
@@ -75,23 +108,7 @@ export function useShare(language: Language, today: Pick<TodayState, 'kind'>): S
   const busy = useRef(false);
   const crisis = today.kind === 'crisis';
 
-  const open = useCallback(
-    (next: ShareTarget) => {
-      // A month, the world and a week are the person's own, already made only of what may be
-      // shared; a catch and a wanted poster ask their task.
-      const own = next.kind === 'month' || next.kind === 'world' || next.kind === 'song';
-      if (own ? today.kind === 'crisis' : !shareOfferedOn(today, next.task)) return;
-      setHideTask(false);
-      setNotice(null);
-      setPageUp(false);
-      setFormat(isCatch(next) ? next.format : 'story');
-      // It opens on the frame of the finish that is worn.
-      setFrame(frameOfFinish(look.finish));
-      setTarget(next);
-    },
-    [today, look.finish],
-  );
-  // The day's log and the month are read when the composer opens, and again for each new target.
+  // The day's log and the month are read when the composer opens.
   useEffect(() => {
     if (!target) return;
     let current = true;
@@ -145,10 +162,10 @@ export function useShare(language: Language, today: Pick<TodayState, 'kind'>): S
       return { id, locked: item !== null && item !== undefined && !mayWear(item, facts) };
     });
     const usable = frames.find((one) => one.id === frame)?.locked ? 'paper' : frame;
-    // A locked frame takes no touch: the composer is reached from the reveal, and nothing is
-    // sold there. The way to Plus is where it has always been.
+    // A locked frame asks the screen the composer was opened from. A screen that may sell opens
+    // the Plus sheet; the reveal gave no answer, and there a locked frame rests.
     const chooseFrame = (next: ShareFrame) => {
-      if (frames.find((one) => one.id === next)?.locked) return;
+      if (frames.find((one) => one.id === next)?.locked) return onLocked?.();
       setNotice(null);
       setFrame(next);
     };
@@ -164,7 +181,7 @@ export function useShare(language: Language, today: Pick<TodayState, 'kind'>): S
           busy.current = false;
         });
     };
-    const shared = { close: () => setTarget(null), setHideTask, setFrame: chooseFrame };
+    const shared = { close, setHideTask, setFrame: chooseFrame };
 
     if (!isCatch(target)) {
       // A picture that stands by itself: a wanted poster, or a month's poster. It has no page.
@@ -193,6 +210,7 @@ export function useShare(language: Language, today: Pick<TodayState, 'kind'>): S
           format: 'story' as const,
           formats: [],
           frame: usable,
+          framesOpen: onLocked !== undefined,
           frames: target.kind === 'month' ? [] : frames,
           framed: target.kind !== 'month',
           hideTask: target.kind === 'song' && hideTask,
@@ -266,6 +284,7 @@ export function useShare(language: Language, today: Pick<TodayState, 'kind'>): S
         format: shown,
         formats,
         frame: usable,
+        framesOpen: onLocked !== undefined,
         frames,
         framed: takesFrame(shown),
         hideTask,
@@ -292,7 +311,9 @@ export function useShare(language: Language, today: Pick<TodayState, 'kind'>): S
     crisis,
     customer.ownedItems,
     unlocked.capabilities,
+    onLocked,
+    close,
   ]);
 
-  return { panel, open };
+  return panel;
 }

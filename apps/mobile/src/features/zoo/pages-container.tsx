@@ -1,4 +1,4 @@
-import { useIsFocused, useLocalSearchParams, usePreventRemove, useRouter } from 'expo-router';
+import { useIsFocused, useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { View } from 'react-native';
 
@@ -6,7 +6,6 @@ import { useLanguage } from '../../i18n/i18n-provider';
 import { useToday } from '../../state/day-store-provider';
 import { useKeepsakes, usePlus } from '../../state/keepsakes';
 import { goBack } from '../../ui/motion/go-back';
-import { SharePanel } from '../share/share-panel';
 import { useShare } from '../share/use-share';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
@@ -30,10 +29,8 @@ export function PagesContainer() {
   const plus = usePlus();
   const current = monthOf(localDate);
   const [shown, setShown] = useState(params.month ?? current);
-  const share = useShare(language, today);
-  // The composer is drawn over the page, not pushed: a swipe back closes it first.
-  const { panel } = share;
-  usePreventRemove(panel !== null, () => panel?.actions.close());
+  // The pages are Plus, and Plus wears every frame: the composer has nothing locked to ask about.
+  const share = useShare(today);
   const pages = useMemo(
     () => monthPages(keepsakes?.monsters ?? [], localDate),
     [keepsakes, localDate],
@@ -44,7 +41,6 @@ export function PagesContainer() {
   }, [plus, router]);
 
   if (!keepsakes || !plus) return <View style={{ flex: 1, backgroundColor: palette.page }} />;
-  if (panel) return <SharePanel {...panel} />;
   const open = pages.some((page) => page.month === shown) ? shown : current;
   const openPage = pages.find((page) => page.month === open);
   const [year = 0, month = 1] = open.split('-').map(Number);

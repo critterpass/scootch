@@ -200,43 +200,45 @@ export function CardScreen({ model, actions }: { model: CardModel; actions: Card
           />
         </Animated.View>
       </View>
-      <View style={[styles.actions, { paddingBottom: Math.max(insets.bottom, 34) }]}>
-        <NightRound
-          size={52}
-          label={t('binder.card.previous')}
-          hint={t('binder.card.browse.hint')}
-          disabled={cards.length < 2}
-          onPress={() => go(-1)}
-          testID="binder-card-previous"
-        >
-          <NightArrow to="left" />
-        </NightRound>
-        <NightCapsule
-          tone="glass"
-          label={front ? t('binder.card.flip') : t('binder.card.front')}
-          hint={t('zoo.card.turn.hint')}
-          onPress={() => setTurn((count) => count + 1)}
-          testID="binder-card-flip"
-        />
-        {model.shareOffered ? (
+      <View style={[styles.actions, { paddingBottom: Math.max(insets.bottom, 30) }]}>
+        <View style={styles.dock}>
+          <NightRound
+            size={52}
+            label={t('binder.card.previous')}
+            hint={t('binder.card.browse.hint')}
+            disabled={cards.length < 2}
+            onPress={() => go(-1)}
+            testID="binder-card-previous"
+          >
+            <NightArrow to="left" />
+          </NightRound>
           <NightCapsule
-            tone="paper"
-            label={t('binder.card.share')}
-            hint={t('zoo.shareCard.hint')}
-            onPress={actions.share}
-            testID="binder-card-share"
+            tone="glass"
+            label={front ? t('binder.card.flip') : t('binder.card.front')}
+            hint={t('zoo.card.turn.hint')}
+            onPress={() => setTurn((count) => count + 1)}
+            testID="binder-card-flip"
           />
-        ) : null}
-        <NightRound
-          size={52}
-          label={t('binder.card.next')}
-          hint={t('binder.card.browse.hint')}
-          disabled={cards.length < 2}
-          onPress={() => go(1)}
-          testID="binder-card-next"
-        >
-          <NightArrow to="right" />
-        </NightRound>
+          {model.shareOffered ? (
+            <NightCapsule
+              tone="paper"
+              label={t('binder.card.share')}
+              hint={t('zoo.shareCard.hint')}
+              onPress={actions.share}
+              testID="binder-card-share"
+            />
+          ) : null}
+          <NightRound
+            size={52}
+            label={t('binder.card.next')}
+            hint={t('binder.card.browse.hint')}
+            disabled={cards.length < 2}
+            onPress={() => go(1)}
+            testID="binder-card-next"
+          >
+            <NightArrow to="right" />
+          </NightRound>
+        </View>
       </View>
     </View>
   );
@@ -271,5 +273,17 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.55)',
     boxShadow: '0 0 22px 12px rgba(0,0,0,0.45)',
   },
-  actions: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 20 },
+  actions: { paddingHorizontal: 14 },
+  // The dark stage's dock: one faint glass capsule that holds the way to browse, the flip and the
+  // one action, as every dock holds a screen's controls. Its corner is concentric with theirs.
+  dock: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+    padding: 7,
+    borderRadius: 33,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(255,255,255,0.14)',
+  },
 });

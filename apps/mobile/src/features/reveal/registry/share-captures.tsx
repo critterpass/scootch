@@ -76,6 +76,7 @@ export function capturedShare(
           canHideTask: false,
           pageOffered: true,
           linkOffered: false,
+          framesOpen: true,
         }}
         actions={SHARE_ACTIONS}
       />
@@ -119,6 +120,7 @@ export function capturedShare(
           canHideTask: format === 'sleeve',
           pageOffered: true,
           linkOffered: false,
+          framesOpen: true,
         }}
         actions={format === 'sleeve' ? { ...SHARE_ACTIONS, sound: nothing } : SHARE_ACTIONS}
       />
@@ -139,6 +141,7 @@ export function capturedShare(
           canHideTask: false,
           pageOffered: true,
           linkOffered: false,
+          framesOpen: true,
         }}
         actions={SHARE_ACTIONS}
       />
@@ -160,6 +163,7 @@ export function capturedShare(
         canHideTask: shown !== 'stickers',
         pageOffered: true,
         linkOffered: true,
+        framesOpen: true,
       }}
       actions={SHARE_ACTIONS}
     />

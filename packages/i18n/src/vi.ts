@@ -171,6 +171,12 @@ export const vi = {
 
   'keep.close': 'Đóng',
   'keep.close.hint': 'Quay lại',
+  'keep.tab.world': 'Thế giới',
+  'keep.tab.world.hint': 'Hiện thế giới của bạn',
+  'keep.tab.caught': 'Đã bắt',
+  'keep.tab.caught.hint': 'Hiện tất cả quái vật bạn đã bắt',
+  'keep.tab.song': 'Bài hát',
+  'keep.tab.song.hint': 'Hiện đĩa nhạc của tuần',
 
   'oneScreen.world.hint': 'Mở thế giới của bạn.',
 

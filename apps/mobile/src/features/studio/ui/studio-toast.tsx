@@ -6,6 +6,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fonts } from '@scootch/tokens';
 
 import { BOUNCE_CURVE, CROSSFADE_MS } from '../../../ui/motion/motion-tokens';
+import { useRouteSheet } from '../../../ui/native-bar';
+import { SHEET_TOP } from '../../../ui/sheet-frame';
 import { useScreenStyle } from '../../../ui/use-screen-style';
 
 /** The board's toast is ink with white words in both appearances, and a tomato tick. */
@@ -23,6 +25,8 @@ const DROP = { ms: 520, fromY: -24, fromScale: 0.92 } as const;
 export function StudioToast({ text }: { readonly text: string | null }) {
   const { reducedMotion, allowFontScaling, size } = useScreenStyle();
   const insets = useSafeAreaInsets();
+  // A sheet is already under the status bar: there the toast hangs from the sheet's own top.
+  const top = useRouteSheet() ? SHEET_TOP : insets.top;
   // The words stay while it fades out, after the screen has stopped giving them.
   const [words, setWords] = useState(text);
   const shown = useSharedValue(0);
@@ -58,7 +62,7 @@ export function StudioToast({ text }: { readonly text: string | null }) {
       accessibilityLiveRegion="polite"
       accessibilityLabel={words}
       testID="studio-toast"
-      style={[styles.toast, { top: insets.top + UNDER_BAR }, dropped]}
+      style={[styles.toast, { top: top + UNDER_BAR }, dropped]}
     >
       <View style={styles.badge}>
         <View style={styles.tick} />

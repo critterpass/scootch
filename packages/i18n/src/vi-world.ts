@@ -21,10 +21,6 @@ export const viWorld = {
   'world.lighthouse': 'Ngọn hải đăng',
   'world.lighthouse.hint': 'Cho biết nó là gì',
   'world.lighthouse.line': 'Ngọn hải đăng. Của bạn, mãi mãi.',
-  'world.caught': 'Đã bắt',
-  'world.caught.hint': 'Mở tất cả quái vật bạn đã bắt',
   'world.postcard': 'Gửi bưu thiếp',
   'world.postcard.hint': 'Mở phần chia sẻ với một tấm bưu thiếp của thế giới bạn',
-  'world.song': 'Bài hát',
-  'world.song.hint': 'Mở đĩa nhạc của tuần',
 } as const;

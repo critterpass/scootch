@@ -1,6 +1,6 @@
-import { RecordContainer } from '../features/record/record-container';
+import { KeepContainer } from '../features/keep/keep-container';
 
-/** This week's record: its bars, its liner notes and the play control. */
+/** The keeping place, on this week's record: its bars, its liner notes and the play control. */
 export default function RecordRoute() {
-  return <RecordContainer />;
+  return <KeepContainer initial="song" />;
 }

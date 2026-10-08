@@ -54,7 +54,7 @@ export function buildPostcard(data: PostcardData, options: PostcardOptions = {})
   const look = FRAME_LOOKS[frame];
   const wide = STORY.width - STORY.side * 2;
   const sub = { color: look.sub[0], alpha: look.sub[1] };
-  const month = (labels.months[data.month - 1] ?? '').slice(0, 3);
+  const month = labels.monthShort(data.month);
   const inner: Box = { x: VIEW.x + 6, y: VIEW.y + 6, w: VIEW.w - 12, h: VIEW.h - 12 };
   // The island stands at the foot of the view, a little wider than it, as the board crops it.
   const island = 300;
@@ -154,16 +154,18 @@ export function buildPostcard(data: PostcardData, options: PostcardOptions = {})
       alpha: 0.55,
       width: 1.5,
     },
-    ...[labels.things(data.things), '★', `${month} ${data.year}`.toUpperCase()].map((text, index) =>
-      textCommand(text, index === 1 ? { ...MARK, size: 9 } : MARK, {
+    // Two lines round a dot. The dot is drawn: a star or a bullet is not in every phone's font.
+    ...[labels.things(data.things), `${month} ${data.year}`.toUpperCase()].map((text, index) =>
+      textCommand(text, MARK, {
         x: postmark.x,
-        y: baseline(postmark.y - 14 + index * 10, MARK.size, MARK.size),
+        y: baseline(postmark.y - 14 + index * 20, MARK.size, MARK.size),
         maxWidth: postmark.r * 1.8,
         color: INK,
         alpha: 0.7,
         align: 'center',
       }),
     ),
+    fill(roundRect({ x: postmark.x - 1.6, y: postmark.y - 2.1, w: 3.2, h: 3.2 }, 1.6), INK, 0.7),
     { op: 'restore' },
   ];
 

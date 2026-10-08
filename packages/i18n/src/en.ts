@@ -173,6 +173,12 @@ export const en = {
 
   'keep.close': 'Close',
   'keep.close.hint': 'Goes back',
+  'keep.tab.world': 'World',
+  'keep.tab.world.hint': 'Shows your world',
+  'keep.tab.caught': 'Caught',
+  'keep.tab.caught.hint': 'Shows every monster you caught',
+  'keep.tab.song': 'Song',
+  'keep.tab.song.hint': 'Shows the week’s record',
 
   'oneScreen.world.hint': 'Opens your world.',
 

@@ -11,7 +11,6 @@ import { nativePcmPlayer } from '../record/native-pcm-player';
 import { barSound, trackKey } from '../record/record-audio';
 import { keychainKeptShares } from '../share/native-kept-shares';
 import { tellPageOfCatch } from '../share/share-flow';
-import { SharePanel } from '../share/share-panel';
 import { shareOfferedOn } from '../share/share-rules';
 import { useShare } from '../share/use-share';
 import { cardDataFor, isCaught } from '../zoo/zoo-cards';
@@ -49,7 +48,9 @@ export function RevealContainer() {
   const { reducedMotion, captured } = useScreenStyle();
   // Today is read back from storage after every store event, so a change in it is a reason to look again.
   const { keepsakes, chooseDrop } = useKeepsakes(today);
-  const share = useShare(language, today);
+  // The composer opens over the reveal as a sheet. Nothing is sold here: no way to Plus goes
+  // with it, and a locked frame rests.
+  const share = useShare(today);
   const { pages } = useTogether();
   const player = useMemo(() => nativePcmPlayer(), []);
   const [state, setState] = useState<RevealState | null>(null);
@@ -131,7 +132,6 @@ export function RevealContainer() {
     ).catch(() => undefined);
   }, [caughtSeed, caughtMinutes, pages]);
 
-  if (share.panel) return <SharePanel {...share.panel} />;
   if (!state || !step || !rows) return <View style={{ flex: 1 }} />;
 
   const send = (event: RevealEvent) => setState((before) => before && revealReducer(before, event));

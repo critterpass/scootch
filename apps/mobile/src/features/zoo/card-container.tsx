@@ -1,4 +1,4 @@
-import { useLocalSearchParams, usePreventRemove, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { View } from 'react-native';
 
@@ -6,7 +6,7 @@ import { useLanguage } from '../../i18n/i18n-provider';
 import { useToday } from '../../state/day-store-provider';
 import { useKeepsakes, usePlus } from '../../state/keepsakes';
 import { goBack } from '../../ui/motion/go-back';
-import { SharePanel } from '../share/share-panel';
+import { PLUS_SHEET } from '../plus/routes';
 import { shareOfferedOn } from '../share/share-rules';
 import { useShare } from '../share/use-share';
 
@@ -30,7 +30,13 @@ export function CardContainer() {
   const day = useToday();
   const { keepsakes } = useKeepsakes();
   const plus = usePlus();
-  const share = useShare(language, day.today);
+  // A locked frame in the composer asks about Plus, except on a day with something heavy in it,
+  // when nothing is sold and it rests.
+  const plusDoor = {
+    openPlus: () => router.push(PLUS_SHEET),
+  };
+  const door: { readonly openPlus?: () => void } = day.heavyToday ? {} : plusDoor;
+  const share = useShare(day.today, door.openPlus);
   const [shown, setShown] = useState(params.id ?? null);
   const sort = sortFrom(params.sort);
   const { month } = params;
@@ -47,12 +53,7 @@ export function CardContainer() {
   useEffect(() => {
     if (shown !== null) lookAt(shown);
   }, [shown]);
-  // The share panel is drawn over the card, not pushed: a swipe back closes it first.
-  const { panel } = share;
-  usePreventRemove(panel !== null, () => panel?.actions.close());
-
   if (!keepsakes) return <View style={{ flex: 1, backgroundColor: '#1C1A17' }} />;
-  if (panel) return <SharePanel {...panel} />;
   const index = Math.max(
     0,
     cards.findIndex((card) => card.id === shown),

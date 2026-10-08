@@ -19,8 +19,8 @@ import { SPRING_CURVE } from '../../ui/motion/motion-tokens';
 import { touchHaptic } from '../../ui/motion/press-spring';
 import { useFeel } from '../../ui/motion/use-feel';
 import { useScreenStyle } from '../../ui/use-screen-style';
+import { KeepContainer } from '../keep/keep-container';
 import { SettingsContainer } from '../settings/settings-container';
-import { WorldContainer } from '../world/world-container';
 
 import {
   HOME_PAGES,
@@ -225,7 +225,7 @@ export function HomePager({ children }: { readonly children: ReactNode }) {
         onScroll={follow}
         style={styles.fill}
       >
-        {page(HOME - 1, kept ? <WorldContainer /> : blank)}
+        {page(HOME - 1, kept ? <KeepContainer /> : blank)}
         {page(HOME, children)}
         {page(HOME + 1, kept ? <SettingsContainer /> : blank)}
       </Animated.ScrollView>

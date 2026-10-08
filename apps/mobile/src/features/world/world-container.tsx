@@ -1,63 +1,59 @@
-import { usePreventRemove, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
-import { useEffect, useRef, useState } from 'react';
-import { View } from 'react-native';
+import { useEffect, useState } from 'react';
 
 import type { Id } from '@scootch/domain';
 
 import { openRepositories } from '../../data/repositories';
 import { useToday } from '../../state/day-store-provider';
-import { useScreenStyle } from '../../ui/use-screen-style';
-import { useKeepsakes } from '../../state/keepsakes';
-import { useLanguage } from '../../i18n/i18n-provider';
-import { useHomePager, usePagerHold, usePageShown } from '../home-pager/home-pager-context';
-import { SharePanel } from '../share/share-panel';
+import type { Keepsakes } from '../../state/keepsakes';
+import { PLUS_SHEET } from '../plus/routes';
 import { useShare } from '../share/use-share';
 import { cardRoute } from '../zoo/binder-routes';
 import { lookAt } from '../zoo/last-looked';
 
-import { useLighthouse } from './use-lighthouse';
 import { finishedThings } from './landmarks';
-import { WorldScreen } from './world-screen';
+import { WorldPane } from './world-pane';
 import { worldScene } from './world-scene';
 import { arrivedToday } from './world-words';
 
 /** Scootch sleeps with everyone else from ten at night until six. */
 const isNight = (hour: number) => hour >= 22 || hour < 6;
 
+export interface WorldTabProps {
+  readonly keepsakes: Keepsakes;
+  /** Whether the world is the tab in view. */
+  readonly active: boolean;
+  /**
+   * Whether the world is being looked at: the tab in view, on a page that is on the screen. A
+   * piece lands only then, and Scootch stands still until then.
+   */
+  readonly shown: boolean;
+}
+
 /**
- * The world on the real phone, read from the phone's own tables each time it is opened. Beside
- * home it is a page kept ready out of sight: there it is read again each time it slides into view,
- * stands still until then, and closes by sliding home.
+ * The world's tab on the real phone. Beside home it is kept ready out of sight: there it stands
+ * still until it slides into view, and a piece that landed today is shown landing only once it is
+ * looked at.
  */
-export function WorldContainer() {
+export function WorldTab({ keepsakes, active, shown }: WorldTabProps) {
   const router = useRouter();
-  const pager = useHomePager();
-  const inView = usePageShown();
-  const visits = useRef(0);
-  const wasInView = useRef(inView);
-  if (inView && !wasInView.current) visits.current += 1;
-  wasInView.current = inView;
-  const { palette } = useScreenStyle();
   const { localDate, settings, heavyToday, today } = useToday();
-  const { language } = useLanguage();
-  const share = useShare(language, today);
-  // The composer is drawn over the world, not pushed: a swipe back closes it first, and the
-  // pages beside home stay where they are under it.
-  const { panel } = share;
-  usePreventRemove(panel !== null, () => panel?.actions.close());
-  usePagerHold(panel !== null);
-  // Someone who owns lifetime finds the lighthouse here, landed before the world is read.
-  const { landed } = useLighthouse();
-  const { keepsakes } = useKeepsakes(`${String(landed)}:${visits.current}`);
+  // A locked frame on the postcard asks about Plus, except on a day with something heavy in it,
+  // when nothing is sold and it rests.
+  const plusDoor = {
+    openPlus: () => router.push(PLUS_SHEET),
+  };
+  const door: { readonly openPlus?: () => void } = heavyToday ? {} : plusDoor;
+  const share = useShare(today, door.openPlus);
   const [landing, setLanding] = useState<Id | null>(null);
 
   // A piece that landed today pops in the first time the world is opened after it, and never
   // again: that it has been seen is kept with the day, so opening the app again does not replay it.
-  // It waits for the world to be looked at: a page out of sight has shown nobody anything.
+  // It waits for the world to be looked at: a tab out of sight has shown nobody anything.
   const db = useSQLiteContext();
   useEffect(() => {
-    if (!keepsakes || !inView) return undefined;
+    if (!shown) return undefined;
     const names = new Map(keepsakes.monsters.map((monster) => [monster.id, monster]));
     const arrival = arrivedToday(keepsakes.pieces, names, localDate);
     if (!arrival) return undefined;
@@ -74,17 +70,16 @@ export function WorldContainer() {
     return () => {
       current = false;
     };
-  }, [keepsakes, localDate, db, inView]);
-  // Slid out of sight, the landing is over: coming back does not play it a second time.
+  }, [keepsakes, localDate, db, shown]);
+  // Out of sight, the landing is over: coming back does not play it a second time.
   useEffect(() => {
-    if (!inView) setLanding(null);
-  }, [inView]);
+    if (!shown) setLanding(null);
+  }, [shown]);
 
-  if (!keepsakes) return <View style={{ flex: 1, backgroundColor: palette.page }} />;
-  if (panel) return <SharePanel {...panel} />;
   const things = finishedThings(keepsakes.pieces);
   return (
-    <WorldScreen
+    <WorldPane
+      active={active}
       model={{
         pieces: keepsakes.pieces,
         monsters: keepsakes.monsters,
@@ -92,13 +87,10 @@ export function WorldContainer() {
         attitude: settings.attitude,
         asleep: isNight(new Date().getHours()),
         landing,
-        calm: settings.motion === 'calm' || !inView,
+        calm: settings.motion === 'calm' || !shown,
         heavy: heavyToday,
       }}
       actions={{
-        close: () => (pager ? pager.show('home') : router.dismissTo('/')),
-        openZoo: () => router.push('/zoo'),
-        openRecord: () => router.push('/record'),
         // A postcard of the world as it is now: it names no task, and a crisis day sends nothing.
         ...(things > 0 && today.kind !== 'crisis'
           ? {

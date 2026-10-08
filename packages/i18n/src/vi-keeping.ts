@@ -50,8 +50,6 @@ export const viKeeping = {
   'binder.lurking': {
     other: 'Rình {count} ngày',
   },
-  'binder.openWorld': 'Mở thế giới',
-  'binder.openWorld.hint': 'Tới thế giới của bạn',
   'binder.sharePage': 'Khoe trang này',
   'binder.sharePage.hint': 'Mở phần chia sẻ cho trang của tháng này',
   'binder.pages': 'Các trang',

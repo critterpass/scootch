@@ -104,6 +104,9 @@ appId: app.scootch.dev
     timeout: 15000
 - assertVisible:
     id: 'haunt-send-close'
+# With nobody to haunt yet the sheet says what a haunt is, and offers the link that makes a friend.
+- assertVisible:
+    id: 'haunt-guide'
 - takeScreenshot: fresh-02-haunt-sheet-no-friends
 - tapOn:
     id: 'haunt-send-close'
