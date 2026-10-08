@@ -18,9 +18,9 @@ import { lacksVietnameseMarks, restoreMarks } from './vietnamese-marks';
  */
 export const screenInputQuestion = {
   instructions:
-    'The state is a note a person wrote to a to-do app, in English or Vietnamese. Which kind of note is it? Judge the real meaning, not single words: exaggerated everyday idioms about being busy, tired or annoyed are ordinary.',
+    'The state is a note a person wrote to a to-do app, in English or Vietnamese. Which kind of note is it? Judge the real meaning, not single words: exaggerated everyday idioms about being busy, tired or annoyed are ordinary. Crisis is only about harm to the writer themselves: a silly, angry or violent note about a thing, an animal or another person is not a crisis.',
   criteria: {
-    pass: 'An ordinary task or everyday worry. Includes figurative dark idioms with no real danger and routine errands such as a dentist checkup.',
+    pass: 'An ordinary task or everyday worry. Includes figurative dark idioms with no real danger, routine errands such as a dentist checkup, and absurd, jokey or angry notes about things, animals or other people.',
     serious:
       'A heavy life matter where jokes would hurt: serious illness, medical results or a diagnosis, a death or funeral, court or legal trouble, divorce or custody, a debt crisis or eviction. No sign the writer may harm themselves.',
     crisis:
@@ -47,7 +47,7 @@ export const screenThresholds = {
  */
 export const preparationQuestion = {
   instructions:
-    'The state is a note a person wrote to a to-do app, in English or Vietnamese, with or without accents. Could the writer be planning or preparing to end their life or seriously harm themselves? Look for indirect signs as well as plain words: a place, time or means chosen so as to be alone or unseen, hiding the plan from family, putting money, passwords or insurance in order for others to use afterwards, giving belongings or pets away for good, saying goodbye or sorry, or saying they will soon not be here or not be a problem. A sign counts unless the note itself gives it an ordinary reason.',
+    'The state is a note a person wrote to a to-do app, in English or Vietnamese, with or without accents. Could the writer be planning or preparing to end their life or seriously harm themselves? Look for indirect signs as well as plain words: a place, time or means chosen so as to be alone or unseen, hiding the plan from family, putting money, passwords or insurance in order for others to use afterwards, asking whether insurance pays out if a death looks like an accident, calling a list of errands the last things, telling someone what they meant to them, leaving keys or belongings where family will find them, giving belongings or pets away for good, saying goodbye or sorry, or saying they will soon not be here or not be a problem. A sign counts unless the note itself gives it an ordinary reason.',
   criteria: {
     no: 'No such sign, or each one has an ordinary reason in the note: a move, a trip, a new job, a hobby, a game, a story or song, a chore, an exaggerated idiom or joke about being busy or tired, or a heavy life matter (illness, a death in the family, debt) with no hint the writer may harm themselves.',
     yes: 'At least one sign of planning or preparing to end their own life or harm themselves, stated or indirect, with no ordinary reason given for it.',

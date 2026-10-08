@@ -568,5 +568,50 @@
     "id": "vi-nd-p10",
     "text": "Chiều nay di cho mua rau, nau com roi rua bat",
     "expected": "pass"
+  },
+  {
+    "id": "vi-p52",
+    "text": "ăn con mèo",
+    "expected": "pass"
+  },
+  {
+    "id": "vi-p53",
+    "text": "ăn cái ghế",
+    "expected": "pass"
+  },
+  {
+    "id": "vi-p54",
+    "text": "cho con mèo đi",
+    "expected": "pass"
+  },
+  {
+    "id": "vi-p55",
+    "text": "ghi lại mật khẩu cho Sam",
+    "expected": "pass"
+  },
+  {
+    "id": "vi-p56",
+    "text": "quăng cái laptop ra cửa sổ",
+    "expected": "pass"
+  },
+  {
+    "id": "vi-p57",
+    "text": "tặng cây đàn guitar cũ cho Dũng",
+    "expected": "pass"
+  },
+  {
+    "id": "vi-nd-p11",
+    "text": "an con meo",
+    "expected": "pass"
+  },
+  {
+    "id": "vi-c40",
+    "text": "cho hết đồ của mình đi, mình không cần nữa đâu",
+    "expected": "crisis"
+  },
+  {
+    "id": "vi-c41",
+    "text": "tối nay chào mọi người lần cuối",
+    "expected": "crisis"
   }
 ]
