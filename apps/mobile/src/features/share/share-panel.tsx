@@ -25,8 +25,8 @@ import type { ShareFormat, ShareImage } from './share-image';
 import { FrameSwatches } from './ui/frame-swatches';
 import { ShareTargets } from './ui/share-targets';
 
-/** What is being shared: a catch, a monster still wild, or a month of the binder. */
-export type ShareMoment = 'caught' | 'monster' | 'month';
+/** What is being shared: a catch, a monster still wild, a month, the world, or a week's song. */
+export type ShareMoment = 'caught' | 'monster' | 'month' | 'world' | 'song';
 
 export interface ShareModel {
   readonly moment: ShareMoment;
@@ -78,6 +78,8 @@ export interface ShareActions {
   readonly save: () => void;
   /** Puts the page up and copies its link. Unset where there is no page to link to. */
   readonly copyLink?: () => void;
+  /** Sends the week's clip as sound, beside the picture of its sleeve. Unset for anything else. */
+  readonly sound?: () => void;
 }
 
 const NOTICE = {
@@ -226,6 +228,7 @@ export function SharePanel({ model, actions }: { model: ShareModel; actions: Sha
           onShare={actions.share}
           onSave={actions.save}
           {...(model.linkOffered && actions.copyLink ? { onLink: actions.copyLink } : {})}
+          {...(actions.sound ? { onSound: actions.sound } : {})}
         />
         {model.pageOffered ? null : (
           <Text

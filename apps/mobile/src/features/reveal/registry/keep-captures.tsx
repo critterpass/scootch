@@ -1,21 +1,9 @@
-import { SHARE_FRAMES } from '@scootch/art';
 import type { Language } from '@scootch/i18n';
 import { offlineLine } from '@scootch/voice';
 
 import { RecordScreen } from '../../record/record-screen';
 import { ARM_REST_DEG } from '../../record/record-audio';
 import { weekView } from '../../record/record-week';
-import {
-  composePoster,
-  composeShareImage,
-  composeWanted,
-  formatsOffered,
-  takesFrame,
-  type ShareDress,
-  type ShareFormat,
-} from '../../share/share-image';
-import { dayLog, monthWrap } from '../../share/share-logs';
-import { SharePanel } from '../../share/share-panel';
 import { lighthousePiece } from '../../world/landmarks';
 import { WorldScreen } from '../../world/world-screen';
 import { monthPages, pageOfToday, shelfCards } from '../../zoo/binder';
@@ -37,6 +25,7 @@ import {
   fixtureTask,
 } from './keep-fixtures';
 import type { KeepCapture } from './keep-state';
+import { capturedShare } from './share-captures';
 
 /** Actions that do nothing: a capture is looked at, not used. */
 const nothing = () => undefined;
@@ -79,7 +68,12 @@ function capturedWorld(count: number, lighthouse = false) {
         pieces: lighthouse ? [...pieces, lighthousePiece(FIXTURE_MONDAY)] : pieces,
         monsters: asRows(fixtureMonsters(count)),
       }}
-      actions={{ close: nothing, openZoo: nothing, openRecord: nothing }}
+      actions={{
+        close: nothing,
+        openZoo: nothing,
+        openRecord: nothing,
+        sendPostcard: nothing,
+      }}
     />
   );
 }
@@ -176,97 +170,6 @@ function capturedRecord(language: Language, barCount: number) {
         reducedMotion: true,
       }}
       actions={{ close: nothing, togglePlay: nothing, shareWeek: nothing }}
-    />
-  );
-}
-
-/** The composer's four frames, with Holo and Velvet open: the member every capture shows has Plus. */
-const FRAMES = SHARE_FRAMES.map((id) => ({ id, locked: false }));
-const SHARE_ACTIONS = {
-  close: nothing,
-  setFormat: nothing,
-  setFrame: nothing,
-  setHideTask: nothing,
-  share: nothing,
-  unshare: nothing,
-  save: nothing,
-  copyLink: nothing,
-};
-
-function capturedShare(language: Language, format: ShareFormat | 'wanted') {
-  // A member wearing holo foil, with a few things caught today and the month they were caught in.
-  const monsters = fixtureMonsters(5);
-  const tasks = new Map(monsters.map((one, index) => [one.taskId, fixtureTask(index, language)]));
-  const first = fixtureMonster(0);
-  const [year = 2026, month = 1] = first.caughtOn.split('-').map(Number);
-  const dress: ShareDress = {
-    finish: 'holo',
-    member: 42,
-    plus: true,
-    day: dayLog(monsters, tasks, first.caughtOn, 'UTC', false),
-    month: monthWrap(monsters, tasks, year, month),
-    frame: 'holo',
-  };
-  const still = { language, hideTask: false, notice: null, pageUp: false } as const;
-  if (format === 'wanted') {
-    const wanted = { monster: first.spec, name: first.name, title: first.title, day: 12, since: 9 };
-    return (
-      <SharePanel
-        model={{
-          ...still,
-          moment: 'monster',
-          image: composeWanted(wanted, 'riso', language),
-          format: 'story',
-          formats: [],
-          frame: 'riso',
-          frames: FRAMES,
-          framed: true,
-          canHideTask: false,
-          pageOffered: true,
-          linkOffered: false,
-        }}
-        actions={SHARE_ACTIONS}
-      />
-    );
-  }
-  if (format === 'poster' && dress.month) {
-    return (
-      <SharePanel
-        model={{
-          ...still,
-          moment: 'month',
-          image: composePoster(dress.month, language),
-          format: 'story',
-          formats: [],
-          frame: 'paper',
-          frames: [],
-          framed: false,
-          canHideTask: false,
-          pageOffered: true,
-          linkOffered: false,
-        }}
-        actions={SHARE_ACTIONS}
-      />
-    );
-  }
-  const shown = format === 'poster' ? 'story' : format;
-  const card = cardDataFor(first, fixtureTask(0, language));
-  return (
-    <SharePanel
-      model={{
-        ...still,
-        moment: 'caught',
-        image: composeShareImage(shown, card, { hideTask: false, language }, dress),
-        format: shown,
-        formats: formatsOffered(dress).filter((one) => one !== 'poster'),
-        frame: 'holo',
-        frames: FRAMES,
-        framed: takesFrame(shown),
-        canHideTask: shown !== 'stickers',
-        pageOffered: true,
-        linkOffered: true,
-      }}
-      actions={SHARE_ACTIONS}
     />
   );
 }

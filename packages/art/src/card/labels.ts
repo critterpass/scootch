@@ -202,7 +202,7 @@ export const CARD_LABELS: Record<CardLanguage, CardLabels> = {
     wantedFor: (month) => `vì rình rập từ ${month.toLowerCase()}`,
     wantedVow: 'Hôm nay mình bắt nó. Nhớ nhắc mình nha.',
     wantedReward: 'Thưởng: một ly cà phê.',
-    myWorld: 'THẾ GIỚI CỦA MÌNH',
+    myWorld: 'THẾ GIỚI',
     greetingsFrom: 'Gửi lời chào từ',
     myWorldName: 'thế giới của mình.',
     things: (count) => `${count} VIỆC`,

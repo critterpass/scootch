@@ -12,13 +12,15 @@ export interface ShareTargetsProps {
   readonly onSave: () => void;
   /** Copies the link to the catch's page. Unset where there is no page to link to. */
   readonly onLink?: () => void;
+  /** Sends the week's clip as a sound file. Unset for anything but a week's song. */
+  readonly onSound?: () => void;
 }
 
 /**
  * Where the picture goes, side by side: the share sheet (the one filled action), Photos, and a
  * link to copy. At the large text sizes they stack.
  */
-export function ShareTargets({ onShare, onSave, onLink }: ShareTargetsProps) {
+export function ShareTargets({ onShare, onSave, onLink, onSound }: ShareTargetsProps) {
   const t = useT();
   const { palette, largeText, allowFontScaling, size } = useScreenStyle();
   const target = (
@@ -63,6 +65,9 @@ export function ShareTargets({ onShare, onSave, onLink }: ShareTargetsProps) {
       {target(t('share.share'), t('share.share.hint'), 'share-send', onShare, true)}
       {target(t('share.save'), t('share.save.hint'), 'share-save', onSave, false)}
       {onLink ? target(t('share.link'), t('share.link.hint'), 'share-link', onLink, false) : null}
+      {onSound
+        ? target(t('share.sound'), t('share.sound.hint'), 'share-sound', onSound, false)
+        : null}
     </View>
   );
 }

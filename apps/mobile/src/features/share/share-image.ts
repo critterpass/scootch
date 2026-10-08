@@ -2,7 +2,9 @@ import {
   buildCard,
   buildCaughtStory,
   buildPoster,
+  buildPostcard,
   buildReceipt,
+  buildSleeve,
   buildStickerSheet,
   buildTradingCard,
   buildWanted,
@@ -13,7 +15,9 @@ import {
   type CardTilt,
   type DrawCommand,
   type ScootchBody,
+  type PostcardData,
   type ShareFrame,
+  type SleeveData,
   type WantedData,
 } from '@scootch/art';
 import type { CardData, CardFinish } from '@scootch/domain';
@@ -74,6 +78,28 @@ export function composeWanted(
   language: CardLanguage,
 ): ShareImage {
   return buildWanted(wanted, { frame, language });
+}
+
+/** A postcard from the world, on a frame. */
+export function composePostcard(
+  postcard: PostcardData,
+  frame: ShareFrame,
+  language: CardLanguage,
+): ShareImage {
+  return buildPostcard(postcard, { frame, language });
+}
+
+/** The week's record in its sleeve, on a frame. With the task hidden the credits name no task. */
+export function composeSleeve(
+  sleeve: SleeveData,
+  frame: ShareFrame,
+  language: CardLanguage,
+  hideTask: boolean,
+): ShareImage {
+  const credits = hideTask
+    ? sleeve.credits.map((credit) => ({ ...credit, task: null }))
+    : sleeve.credits;
+  return buildSleeve({ ...sleeve, credits }, { frame, language });
 }
 
 /** One month's poster. */

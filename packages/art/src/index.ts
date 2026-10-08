@@ -39,6 +39,13 @@ export {
 } from './card/build-receipt';
 export { buildCaughtStory, type CaughtStoryOptions } from './card/build-caught-story';
 export { buildWanted, type WantedData, type WantedOptions } from './card/build-wanted';
+export { buildPostcard, type PostcardData, type PostcardOptions } from './card/build-postcard';
+export {
+  buildSleeve,
+  type SleeveCredit,
+  type SleeveData,
+  type SleeveOptions,
+} from './card/build-sleeve';
 export { FRAME_LOOKS, SHARE_FRAMES, STORY, type ShareFrame } from './card/share-frame';
 export { buildStickerSheet, type StickerSheetOptions } from './card/build-sticker-sheet';
 export { buildTradingCard, TRADING_CARD, type TradingCardOptions } from './card/build-trading-card';

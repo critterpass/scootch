@@ -7,8 +7,10 @@ import type { DrawCommand, TextCommand } from '../core/commands';
 import { specFromSeed } from '../core/spec-from-seed';
 import { estimateTextWidth } from '../core/text';
 import { buildCaughtStory } from './build-caught-story';
+import { buildPostcard } from './build-postcard';
 import { buildPoster, POSTER_MONSTERS } from './build-poster';
 import { buildReceipt, RECEIPT_ROWS } from './build-receipt';
+import { buildSleeve } from './build-sleeve';
 import { buildStickerSheet } from './build-sticker-sheet';
 import { buildStory } from './build-story';
 import { buildTradingCard } from './build-trading-card';
@@ -318,6 +320,64 @@ describe('the wanted poster', () => {
   it('fits a long name in both languages', () => {
     for (const language of ['en', 'vi'] as const) {
       fits(buildWanted({ ...wild, name: LONG, title: LONG }, { language }).commands);
+    }
+  });
+});
+
+describe('a postcard from the world', () => {
+  const world = { things: 71, month: 10, year: 2026, scene: [], sceneSize: 200 };
+
+  it('counts what lives there on the strip, the postmark and the sentence, and names no task', () => {
+    for (const frame of SHARE_FRAMES) {
+      const card = buildPostcard(world, { frame });
+      const words = printed(card.commands);
+      for (const part of [
+        'SCOOTCH · MY WORLD',
+        '71 THINGS',
+        'Greetings from',
+        'my world.',
+        'OCT 2026',
+        'one small hill.',
+        '71 / ∞',
+      ]) {
+        expect(words, `${frame}: ${part}`).toContain(part);
+      }
+      fits(card.commands);
+      expect(() => toSvg(card.commands, card)).not.toThrow();
+    }
+    fits(buildPostcard({ ...world, things: 1 }, { language: 'vi' }).commands);
+  });
+});
+
+describe("the week's record in its sleeve", () => {
+  const week = {
+    weekNumber: 41,
+    week: '2026-W41',
+    name: 'Molar and the Bin Bags',
+    credits: [
+      { position: 1, instrument: 'Keys', task: 'replied to Sam' },
+      { position: 2, instrument: 'Bassline', task: 'zzqx the dentist' },
+      { position: 7, instrument: 'Choir', task: null },
+    ],
+  };
+
+  it('credits each day with its instrument, and its task only where there is one', () => {
+    for (const frame of SHARE_FRAMES) {
+      const sleeve = buildSleeve(week, { frame });
+      const words = printed(sleeve.commands);
+      for (const part of ['SCOOTCH · WEEK 41', '3 BARS', 'SIDE A', 'MON', 'Keys', 'SUN', 'Choir']) {
+        expect(words, `${frame}: ${part}`).toContain(part);
+      }
+      expect(words).toContain('zzqx the dentist');
+      fits(sleeve.commands);
+      expect(() => toSvg(sleeve.commands, sleeve)).not.toThrow();
+    }
+  });
+
+  it('names the week alone before it has a name, and fits a long one', () => {
+    expect(printed(buildSleeve({ ...week, name: null }).commands)).toContain('WEEK 41');
+    for (const language of ['en', 'vi'] as const) {
+      fits(buildSleeve({ ...week, name: LONG }, { language }).commands);
     }
   });
 });

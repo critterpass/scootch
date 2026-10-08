@@ -158,7 +158,7 @@ export function frameStrip(
     const fitted = fitText(
       text.toUpperCase(),
       STRIP,
-      { maxWidth: wide * 0.62, minSize: 6, maxLines: () => 1 },
+      { maxWidth: wide * 0.62, minSize: 7, maxLines: () => 1 },
       measure,
     );
     return textCommand(fitted.lines[0] ?? '', fitted.style, {

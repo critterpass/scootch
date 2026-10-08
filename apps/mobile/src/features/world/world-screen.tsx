@@ -5,10 +5,12 @@ import type { Attitude, Id, IsoDate, MonsterRow, WorldPieceRow } from '@scootch/
 import { spacing } from '@scootch/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
+import { SendIcon } from '../../ui/icons';
 import { FadeAway } from '../../ui/motion/fade-away';
 import { PopIn } from '../../ui/motion/pop-in';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { FirstOffer } from '../plus/first-offer';
+import { QuietLink, QuietRow } from '../dump/dump-panels';
 import { Dock, KeepFrame } from '../reveal/ui/keep-frame';
 import { SessionText } from '../session/ui/session-text';
 
@@ -38,6 +40,8 @@ export interface WorldActions {
   readonly openRecord: () => void;
   /** Opens a resident's card. Left out, a resident answers the press and nothing opens. */
   readonly openMonster?: (monsterId: Id) => void;
+  /** Sends the world as a postcard. Left out (an empty world, a crisis day), there is no chip. */
+  readonly sendPostcard?: () => void;
 }
 
 /** How long Scootch stays pleased with himself after a tap. */
@@ -161,6 +165,17 @@ export function WorldScreen({ model, actions }: { model: WorldModel; actions: Wo
           >
             {told ?? sentence}
           </SessionText>
+          {actions.sendPostcard && !empty ? (
+            <QuietRow>
+              <QuietLink
+                label={t('world.postcard')}
+                hint={t('world.postcard.hint')}
+                onPress={actions.sendPostcard}
+                testID="world-postcard"
+                icon={<SendIcon color={palette.ink} />}
+              />
+            </QuietRow>
+          ) : null}
         </View>
       </ScrollView>
     </KeepFrame>

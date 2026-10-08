@@ -1,10 +1,17 @@
-import type { ShareFrame, WantedData } from '@scootch/art';
+import type { PostcardData, ShareFrame, SleeveData, WantedData } from '@scootch/art';
 import type { CardData, SignedWords, TaskRow } from '@scootch/domain';
 import type { Language } from '@scootch/i18n';
 
 import type { Keepsakes } from '../../state/keepsakes';
 
-import { composePoster, composeWanted, type ShareFormat, type ShareImage } from './share-image';
+import {
+  composePoster,
+  composePostcard,
+  composeSleeve,
+  composeWanted,
+  type ShareFormat,
+  type ShareImage,
+} from './share-image';
 import { monthWrap } from './share-logs';
 
 /** A catch to share: its story, its sticker sheet, its card or the receipt of its day. */
@@ -32,7 +39,23 @@ export interface MonthTarget {
   readonly month: number;
 }
 
-export type ShareTarget = CatchTarget | WantedTarget | MonthTarget;
+/** The world, to send as a postcard. It names no task. */
+export interface WorldTarget {
+  readonly kind: 'world';
+  readonly postcard: PostcardData;
+}
+
+/** A week's record, to share in its sleeve. Its credits carry only tasks that may be shared. */
+export interface SongTarget {
+  readonly kind: 'song';
+  readonly sleeve: SleeveData;
+  /** Sends the week's clip as sound, beside the picture. */
+  readonly sound: () => void;
+}
+
+/** A target with no formats and no page: one picture, the person's own. */
+export type AloneTarget = WantedTarget | MonthTarget | WorldTarget | SongTarget;
+export type ShareTarget = CatchTarget | AloneTarget;
 
 /** Whether a target is one catch, which has formats and can have a page. */
 export function isCatch(target: ShareTarget): target is CatchTarget {
@@ -41,15 +64,25 @@ export function isCatch(target: ShareTarget): target is CatchTarget {
 
 /**
  * The picture of a target that stands by itself, with the name its file is given: a wanted
- * poster on a frame, or a month's poster from what the phone keeps. `null` while the month has
- * not been read yet, or has nothing shareable in it.
+ * poster, a postcard or a record sleeve on a frame, or a month's poster from what the phone
+ * keeps. `null` while the month has not been read yet, or has nothing shareable in it.
  */
 export function standalonePicture(
-  target: WantedTarget | MonthTarget,
+  target: AloneTarget,
   frame: ShareFrame,
   language: Language,
   kept: Keepsakes | null,
+  hideTask: boolean,
 ): { readonly image: ShareImage; readonly name: string } | null {
+  if (target.kind === 'world') {
+    return { image: composePostcard(target.postcard, frame, language), name: 'scootch-world' };
+  }
+  if (target.kind === 'song') {
+    return {
+      image: composeSleeve(target.sleeve, frame, language, hideTask),
+      name: `scootch-${target.sleeve.week}`,
+    };
+  }
   if (target.kind === 'wanted') {
     return {
       image: composeWanted(target.wanted, frame, language),

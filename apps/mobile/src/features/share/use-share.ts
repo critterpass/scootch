@@ -85,14 +85,14 @@ export function useShare(language: Language, today: Pick<TodayState, 'kind'>): S
 
   const open = useCallback(
     (next: ShareTarget) => {
-      // A month's poster is the person's own and names no task; everything else asks the task.
-      if (next.kind === 'month' ? today.kind === 'crisis' : !shareOfferedOn(today, next.task)) {
-        return;
-      }
+      // A month, the world and a week are the person's own, already made only of what may be
+      // shared; a catch and a wanted poster ask their task.
+      const own = next.kind === 'month' || next.kind === 'world' || next.kind === 'song';
+      if (own ? today.kind === 'crisis' : !shareOfferedOn(today, next.task)) return;
       setHideTask(false);
       setNotice(null);
       setPageUp(false);
-      setFormat(next.kind === 'wanted' || next.kind === 'month' ? 'story' : next.format);
+      setFormat(isCatch(next) ? next.format : 'story');
       // It opens on the frame of the finish that is worn.
       setFrame(frameOfFinish(look.finish));
       setTarget(next);
@@ -178,7 +178,7 @@ export function useShare(language: Language, today: Pick<TodayState, 'kind'>): S
 
     if (!isCatch(target)) {
       // A picture that stands by itself: a wanted poster, or a month's poster. It has no page.
-      const alone = standalonePicture(target, usable, language, kept);
+      const alone = standalonePicture(target, usable, language, kept, hideTask);
       if (alone === null) return null;
       const { image: picture, name } = alone;
       const actions: ShareActions = {
@@ -194,18 +194,20 @@ export function useShare(language: Language, today: Pick<TodayState, 'kind'>): S
           once(async () => {
             setNotice(await savePicture(nativeShareDevice, picture, name));
           }, false),
+        ...(target.kind === 'song' ? { sound: target.sound } : {}),
       };
       return {
         model: {
-          moment: target.kind === 'wanted' ? ('monster' as const) : ('month' as const),
+          moment: target.kind === 'wanted' ? ('monster' as const) : target.kind,
           image: picture,
           format: 'story' as const,
           formats: [],
           frame: usable,
-          frames: target.kind === 'wanted' ? frames : [],
-          framed: target.kind === 'wanted',
-          hideTask: false,
-          canHideTask: false,
+          frames: target.kind === 'month' ? [] : frames,
+          framed: target.kind !== 'month',
+          hideTask: target.kind === 'song' && hideTask,
+          // Only a week's sleeve prints tasks; a poster, a postcard and a wanted poster name none.
+          canHideTask: target.kind === 'song',
           language,
           notice,
           pageUp: false,
