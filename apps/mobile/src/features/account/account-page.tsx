@@ -5,6 +5,7 @@ import { fonts, spacing } from '@scootch/tokens';
 
 import { Scootch } from '../../art/Scootch';
 import { useT } from '../../i18n/i18n-provider';
+import { CapsuleButton, GlassDock } from '../../ui/buttons';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { Page } from '../settings/page';
 import { Note, Row, Section, SwitchRow } from '../settings/rows';
@@ -13,6 +14,7 @@ import { OpenSeat, Seat } from '../table/seat';
 import { Words } from '../table/words';
 
 import { tidyName, type NameProblem } from './account-flow';
+import { AppleSignInButton } from './apple-sign-in-button';
 
 /** The quiet way on from a page that asks for an account. */
 export interface WayOn {
@@ -55,16 +57,19 @@ export function SignInPage({ busy, failed, onSignIn, wayOn, onClose }: SignInPag
       onClose={onClose}
       testID="account-sign-in"
       footer={
-        <ActionDock
-          quiet={quiet}
-          action={{
-            label: t('account.apple'),
-            hint: t('account.apple.hint'),
-            disabled: busy,
-            onPress: onSignIn,
-            testID: 'account-apple',
-          }}
-        />
+        // The dock's quiet way on, then Apple's own button as the action: Apple asks that Sign in
+        // with Apple be drawn as its button, with its logo and its words.
+        <GlassDock>
+          <View style={[styles.dockRow, largeText && styles.stacked]}>
+            <CapsuleButton {...quiet} tone="quiet" style={largeText ? undefined : styles.half} />
+            <AppleSignInButton
+              disabled={busy}
+              onPress={onSignIn}
+              testID="account-apple"
+              style={largeText ? undefined : styles.half}
+            />
+          </View>
+        </GlassDock>
       }
     >
       {largeText ? null : (
@@ -285,6 +290,9 @@ export function NamePage(props: NamePageProps) {
 }
 
 const styles = StyleSheet.create({
+  dockRow: { flexDirection: 'row', gap: spacing.xs },
+  stacked: { flexDirection: 'column', alignItems: 'stretch' },
+  half: { flexGrow: 1, flexBasis: 0 },
   figure: { alignItems: 'center' },
   said: { paddingHorizontal: 12 },
   preview: { flexDirection: 'row', padding: spacing.sm, gap: spacing.sm, borderRadius: 28 },
