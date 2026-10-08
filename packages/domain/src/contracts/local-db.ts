@@ -262,6 +262,10 @@ export const settingsRowSchema = z.object({
   keepTranscripts: z.boolean(),
   canBeHaunted: z.boolean(),
   hideTableLabel: z.boolean(),
+  /** What the app icon changes with: the attitude, the worn card finish, or nothing at all. */
+  iconFollows: z.enum(['attitude', 'finish', 'pinned']),
+  /** The icon that stays when the icon follows nothing (apps/mobile/src/features/look/icons.ts). */
+  iconPinned: z.string().min(1).max(24),
   firstLaunchDoneAt: isoDateTimeSchema.nullable(),
 });
 export type SettingsRow = z.infer<typeof settingsRowSchema>;

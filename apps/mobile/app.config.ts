@@ -4,6 +4,8 @@ import type { ConfigContext, ExpoConfig } from 'expo/config';
 // package's TypeScript source.
 import palettes from '../../packages/tokens/src/colors.json' with { type: 'json' };
 
+import { withAlternateAppIcons } from './plugins/with-alternate-app-icons.js';
+
 /** Two environments, dev and prd. `e2e-test` is the dev app as device runs install it. */
 type AppVariant = 'dev' | 'prd' | 'e2e-test';
 
@@ -107,7 +109,28 @@ const IOS_ENTITLEMENTS = {
   ],
 };
 
-export default ({ config }: ConfigContext): ExpoConfig => ({
+/**
+ * The nine icons the app can change to, by the names `src/features/look/icons.ts` asks for. The
+ * tenth, Cheeky, is the app's own icon.
+ */
+const ALTERNATE_ICONS = [
+  'soft',
+  'unhinged',
+  'paper',
+  'holo',
+  'chrome',
+  'jelly',
+  'glass',
+  'velvet',
+  'riso',
+].map((icon) => ({
+  name: `Icon-${icon}`,
+  light: `./assets/icons/${icon}.png`,
+  dark: `./assets/icons/${icon}-dark.png`,
+  tinted: `./assets/icons/${icon}-tinted.png`,
+}));
+
+const app = ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: variant.name,
   owner: 'critterpass',
@@ -115,7 +138,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   scheme: variant.scheme,
   version: '1.0.0',
   orientation: 'portrait',
-  // Placeholder art drawn by assets/render-app-icon.ts. iOS takes this file as it is (opaque).
+  // Drawn by assets/render-app-icon.ts: Cheeky, the attitude a phone starts with.
   icon: './assets/icon.png',
   userInterfaceStyle: 'automatic',
   // The native window behind every screen, shown before the first frame.
@@ -133,6 +156,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     appleTeamId: APPLE_TEAM_ID,
     deploymentTarget: IOS_DEPLOYMENT_TARGET,
     supportsTablet: false,
+    // The app's own icon in the three ways iOS shows one. The other nine are declared below.
+    icon: {
+      light: './assets/icons/cheeky.png',
+      dark: './assets/icons/cheeky-dark.png',
+      tinted: './assets/icons/cheeky-tinted.png',
+    },
     usesAppleSignIn: true,
     associatedDomains: [
       `applinks:${LINK_HOST}`,
@@ -252,3 +281,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     eas: { projectId: EAS_PROJECT_ID },
   },
 });
+
+export default (context: ConfigContext): ExpoConfig =>
+  withAlternateAppIcons(app(context), ALTERNATE_ICONS);
