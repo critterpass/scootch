@@ -10,6 +10,7 @@ import {
 } from '../reveal/registry/keep-fixtures';
 
 import {
+  cardOut,
   monthPages,
   pageOfToday,
   pocketStat,
@@ -134,5 +135,23 @@ describe('the monsters still wild', () => {
   it('are none on a crisis day, and none whose task is gone', () => {
     expect(wildOnes([uncaught(0)], tasks(waiting(0)), '2026-10-08', true)).toEqual([]);
     expect(wildOnes([uncaught(0)], tasks(), '2026-10-08', false)).toEqual([]);
+  });
+});
+
+describe('the card that is out of its pocket', () => {
+  const cards = shelfCards(asRows(caught), 'newest', false);
+  const third = cards[2]!;
+
+  it('is the card of the thing a Lock Screen link asked for', () => {
+    expect(cardOut(cards, null, third.taskId)).toBe(third.id);
+  });
+
+  it('stays the card the arrows moved to, whatever the link asked for', () => {
+    expect(cardOut(cards, cards[5]!.id, third.taskId)).toBe(cards[5]!.id);
+  });
+
+  it('is the first of the order when the thing has no caught card', () => {
+    expect(cardOut(cards, null, 'no-such-thing')).toBeNull();
+    expect(cardOut(cards, null, null)).toBeNull();
   });
 });

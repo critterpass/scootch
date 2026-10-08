@@ -10,7 +10,7 @@ import { PLUS_SHEET } from '../plus/routes';
 import { shareOfferedOn } from '../share/share-rules';
 import { useShare } from '../share/use-share';
 
-import { monthPages, shelfCards, SHELF_SORTS, type ShelfSort } from './binder';
+import { cardOut, monthPages, shelfCards, SHELF_SORTS, type ShelfSort } from './binder';
 import { CardScreen } from './card-screen';
 import { lookAt } from './last-looked';
 import { cardDataFor } from './zoo-cards';
@@ -20,12 +20,17 @@ const sortFrom = (value: unknown): ShelfSort =>
 
 /**
  * One card out of its pocket, on the real phone. It is opened from the shelf, from a month's
- * page or from a resident of the world, and the arrows browse the cards it was opened among: the
- * shelf in the order it was in, or that month's page.
+ * page, from a resident of the world or from the caught card on the Lock Screen, and the arrows
+ * browse the cards it was opened among: the shelf in the order it was in, or that month's page.
  */
 export function CardContainer() {
   const router = useRouter();
-  const params = useLocalSearchParams<{ id?: string; sort?: string; month?: string }>();
+  const params = useLocalSearchParams<{
+    id?: string;
+    task?: string;
+    sort?: string;
+    month?: string;
+  }>();
   const { language } = useLanguage();
   const day = useToday();
   const { keepsakes } = useKeepsakes();
@@ -37,7 +42,7 @@ export function CardContainer() {
   };
   const door: { readonly openPlus?: () => void } = day.heavyToday ? {} : plusDoor;
   const share = useShare(day.today, door.openPlus);
-  const [shown, setShown] = useState(params.id ?? null);
+  const [chosen, setShown] = useState(params.id ?? null);
   const sort = sortFrom(params.sort);
   const { month } = params;
 
@@ -49,6 +54,7 @@ export function CardContainer() {
     }
     return shelfCards(monsters, sort, plus);
   }, [keepsakes, month, sort, plus, day.localDate]);
+  const shown = cardOut(cards, chosen, params.task ?? null);
   // The shelf underneath follows the card that is out, so it is there on the way back.
   useEffect(() => {
     if (shown !== null) lookAt(shown);

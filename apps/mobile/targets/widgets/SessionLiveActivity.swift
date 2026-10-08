@@ -22,12 +22,15 @@ struct HuntContent {
     private let isToday: Bool
     private let caught: SessionActivityAttributes.CaughtCard?
 
-    init(context: ActivityViewContext<SessionActivityAttributes>, now: Date = Date()) {
-        let state = context.state
+    /// `isStale` is whether the system is drawing the activity again past its stale date.
+    init(
+        attributes: SessionActivityAttributes, state: SessionActivityAttributes.ContentState,
+        isStale: Bool, now: Date = Date()
+    ) {
         let stored = SurfaceSnapshot.load()
         let nowMs = now.timeIntervalSince1970 * 1000
         let end = state.endDate.timeIntervalSince1970 * 1000
-        let taskId = context.attributes.taskId ?? state.hunt?.taskId ?? stored.taskId ?? ""
+        let taskId = attributes.taskId ?? state.hunt?.taskId ?? stored.taskId ?? ""
         // An activity with no record is a plain running session that ends at its end date.
         let start = min(stored.taskId == taskId ? (stored.sessionStartedAt ?? nowMs) : nowMs, end)
         let record =
@@ -44,7 +47,7 @@ struct HuntContent {
                 monsterScale: HuntRecord.smallestMonster)
         snapshot = stored
         self.now = now
-        taskTitle = context.attributes.taskTitle
+        taskTitle = attributes.taskTitle
         offline = state.offline ?? false
         lines = stored.huntLines(for: taskId)
         lurker = stored.lurker(for: taskId)
@@ -52,7 +55,7 @@ struct HuntContent {
         caught = state.caught
         // The app's last update is the line. Once that has gone stale, the line planned for this
         // moment is, when the snapshot still describes this session.
-        let planned = context.isStale && isToday ? stored.sessionLine(at: now) : nil
+        let planned = isStale && isToday ? stored.sessionLine(at: now) : nil
         stateLine = planned ?? state.line
     }
 
@@ -138,6 +141,17 @@ struct HuntContent {
         }
     }
 
+    /// A caught monster has a card. A serious task has none, and neither has a task without one.
+    var hasCard: Bool { !serious && monsterName != nil }
+
+    /// Where a tap on the activity lands: the session while it runs, and once it is caught the
+    /// card, or the one screen when there is no card. The session's own screen has nothing left
+    /// to show by then.
+    var destination: URL {
+        guard phase == .caught || phase == .caughtCollapsed else { return SurfaceLinks.session }
+        return hasCard ? SurfaceLinks.card(ofTask: record.taskId) : SurfaceLinks.home
+    }
+
     /// The monster is the picture while it is being run down; Scootch otherwise.
     var showsMonster: Bool {
         monsterPicture != nil && (clockRuns || phase == .stoppedEarly) && phase != .parked
@@ -149,7 +163,7 @@ private let gold = Color(red: 1.0, green: 0.78, blue: 0.30)
 /// The picture at the left: the monster at the size the hunt has brought it to, or Scootch.
 struct HuntTile: View {
     let content: HuntContent
-    var side: CGFloat = 56
+    var side: CGFloat = 48
 
     var body: some View {
         ZStack {
@@ -210,7 +224,7 @@ struct HuntClock: View {
 struct RaceBar: View {
     let content: HuntContent
     private let pips = 12
-    private let runner: CGFloat = 22
+    private let runner: CGFloat = 20
 
     var body: some View {
         GeometryReader { geometry in
@@ -221,12 +235,12 @@ struct RaceBar: View {
                 if content.phase != .starting && !content.serious {
                     SurfaceArt(source: .baked(content.snapshot.pose("Working")))
                         .frame(width: runner, height: runner)
-                        .offset(x: (width - runner) * content.view.progress, y: -7)
+                        .offset(x: (width - runner) * content.view.progress, y: -4)
                 }
             }
             .frame(width: width, height: geometry.size.height, alignment: .bottomLeading)
         }
-        .frame(height: 28)
+        .frame(height: 24)
     }
 
     private var track: some View {
@@ -268,6 +282,8 @@ struct HuntPill: View {
     var primary = false
     /// A shorter pill, where the Lock Screen's height is nearly spent.
     var slim = false
+    /// On the caught card's light finishes, where the way on is ink and the other is paper.
+    var onPaper = false
 
     var body: some View {
         Text(label)
@@ -276,8 +292,14 @@ struct HuntPill: View {
             .minimumScaleFactor(0.75)
             .frame(maxWidth: .infinity)
             .padding(.vertical, slim ? 7 : 10)
-            .background(Capsule().fill(primary ? Color.white : Color.white.opacity(0.16)))
-            .foregroundStyle(primary ? SurfaceColor.ink : Color.white)
+            .padding(.horizontal, 6)
+            .background(Capsule().fill(fill))
+            .foregroundStyle(primary == onPaper ? Color.white : SurfaceColor.ink)
+    }
+
+    private var fill: Color {
+        if onPaper { return primary ? SurfaceColor.ink : Color.white.opacity(0.7) }
+        return primary ? Color.white : Color.white.opacity(0.16)
     }
 }
 
@@ -285,42 +307,46 @@ struct HuntPill: View {
 /// app's to do, which open it.
 struct HuntButtons: View {
     let content: HuntContent
+    /// Shorter pills, under the race or the receipt on the Lock Screen.
+    var slim = false
+    /// On the caught card's own finish.
+    var onPaper = false
 
     var body: some View {
         HStack(spacing: 8) {
             switch content.phase {
             case .starting:
-                Button(intent: NotYetIntent()) { HuntPill(label: content.text("Not yet")) }
+                Button(intent: NotYetIntent()) { pill("Not yet") }
             case .running, .lastMinutes:
-                Button(intent: ParkThoughtIntent()) { HuntPill(label: content.text("Park a thought")) }
-                Button(intent: StuckIntent()) { HuntPill(label: content.text("I'm stuck")) }
+                Button(intent: ParkThoughtIntent()) { pill("Park a thought") }
+                Button(intent: StuckIntent()) { pill("I'm stuck") }
             case .parked:
-                Button(intent: ParkThoughtIntent()) { HuntPill(label: content.text("Park another")) }
-                Button(intent: StuckIntent()) { HuntPill(label: content.text("I'm stuck")) }
+                Button(intent: ParkThoughtIntent()) { pill("Park another") }
+                Button(intent: StuckIntent()) { pill("I'm stuck") }
             case .stuck:
-                Button(intent: FirstLineIntent()) {
-                    HuntPill(label: content.text("Give me a first line"), primary: true)
-                }
-                Button(intent: MakeSmallerIntent()) { HuntPill(label: content.text("Make it smaller")) }
+                Button(intent: FirstLineIntent()) { pill("Give me a first line", primary: true) }
+                Button(intent: MakeSmallerIntent()) { pill("Make it smaller") }
             case .overtime:
-                Button(intent: FinishIntent()) { HuntPill(label: content.text("Finish"), primary: true) }
-                Button(intent: FiveMoreIntent()) { HuntPill(label: content.text("5 more")) }
+                Button(intent: FinishIntent()) { pill("Finish", primary: true) }
+                Button(intent: FiveMoreIntent()) { pill("5 more") }
             case .caught:
                 // No monster, no card: a serious task has nothing to share.
-                if !content.serious && content.monsterName != nil {
-                    Link(destination: SurfaceLinks.cards) {
-                        HuntPill(label: content.text("Share card"), primary: true)
-                    }
+                if content.hasCard {
+                    Link(destination: content.destination) { pill("Share card", primary: true) }
                 }
-                Link(destination: SurfaceLinks.home) { HuntPill(label: content.text("Next thing")) }
+                Link(destination: SurfaceLinks.home) { pill("Next thing") }
             case .stoppedEarly:
-                Button(intent: TomorrowIntent()) { HuntPill(label: content.text("Tomorrow 9:00")) }
-                Button(intent: KeepHereIntent()) { HuntPill(label: content.text("Keep it here")) }
+                Button(intent: TomorrowIntent()) { pill("Tomorrow 9:00") }
+                Button(intent: KeepHereIntent()) { pill("Keep it here") }
             case .caughtCollapsed:
                 EmptyView()
             }
         }
         .buttonStyle(.plain)
+    }
+
+    private func pill(_ label: String, primary: Bool = false) -> HuntPill {
+        HuntPill(label: content.text(label), primary: primary, slim: slim, onPaper: onPaper)
     }
 }
 
@@ -335,7 +361,7 @@ struct ParkedReceipt: View {
             Spacer(minLength: 0)
         }
         .padding(.horizontal, 12)
-        .padding(.vertical, 9)
+        .padding(.vertical, 7)
         .background(
             RoundedRectangle(cornerRadius: 12, style: .continuous)
                 .fill(SurfaceColor.accent.opacity(0.22)))
@@ -349,32 +375,50 @@ struct ParkedReceipt: View {
     }
 }
 
-/// The caught card in the finish the person wears. Its shine is drawn still.
+/// The caught card: the whole activity in the finish the person wears, the monster on its own
+/// panel and the two ways on beside its name. Its shine is drawn still.
 struct CaughtCard: View {
     let content: HuntContent
 
     var body: some View {
         let finish = content.snapshot.finish
         let dark = FinishFill.isDark(finish)
-        VStack(alignment: .leading, spacing: 4) {
-            HStack(alignment: .top) {
+        HStack(spacing: 12) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .fill(Color.white.opacity(dark ? 0.14 : 0.45))
+                if let picture = content.monsterPicture {
+                    SurfaceArt(source: .picture(picture)).padding(10)
+                }
+            }
+            .frame(width: 96)
+            VStack(alignment: .leading, spacing: 0) {
                 Text(caption)
                     .font(.caption2.weight(.bold).monospaced())
                     .tracking(0.8)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
                     .opacity(0.7)
-                Spacer(minLength: 8)
-                if let picture = content.monsterPicture {
-                    SurfaceArt(source: .picture(picture)).frame(width: 54, height: 54)
-                }
+                // A long name takes a second line, and the line under it gives one up.
+                Text(content.title)
+                    .font(.title3.weight(.heavy))
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.8)
+                    .padding(.top, 3)
+                    .layoutPriority(1)
+                Text(content.line).font(.footnote).lineLimit(2).opacity(0.8).padding(.top, 2)
+                Spacer(minLength: 6)
+                HuntButtons(content: content, slim: true, onPaper: !dark)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .layoutPriority(2)
             }
-            Text(content.title).font(.title3.weight(.heavy)).lineLimit(1)
-            Text(content.line).font(.subheadline).lineLimit(2).opacity(0.8)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
+        .frame(height: HuntLockScreenView.tallest - 24)
         .foregroundStyle(dark ? Color.white : SurfaceColor.ink)
-        .padding(14)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
         .background(FinishFill(finish: finish))
-        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 
     private var caption: String {
@@ -385,31 +429,62 @@ struct CaughtCard: View {
     }
 }
 
-/// The Lock Screen activity in every state of the hunt.
+/// The Lock Screen activity in every state of the hunt. A Live Activity is cut off past 160
+/// points, so every state is kept inside that at the default text size.
 struct HuntLockScreenView: View {
+    /// The height the caught card is drawn at, just inside what the Lock Screen shows.
+    static let tallest: CGFloat = 156
+
     let content: HuntContent
 
     var body: some View {
         Group {
-            switch content.phase {
-            case .caught: caught
-            case .caughtCollapsed: collapsed
-            default: running
+            if content.phase == .caught && content.hasCard {
+                CaughtCard(content: content)
+            } else {
+                plain.foregroundStyle(.white).padding(.horizontal, 16).padding(.vertical, 12)
             }
         }
-        .foregroundStyle(.white)
-        .padding(16)
+        // Larger text would push the buttons out of the card.
+        .dynamicTypeSize(...DynamicTypeSize.large)
+    }
+
+    @ViewBuilder private var plain: some View {
+        switch content.phase {
+        case .caughtCollapsed: collapsed
+        // The race and the receipt leave room for one line and the shorter buttons.
+        case .starting, .running, .lastMinutes, .overtime:
+            VStack(spacing: 8) {
+                header
+                RaceBar(content: content)
+                HuntButtons(content: content, slim: true)
+            }
+        case .parked:
+            VStack(spacing: 8) {
+                header
+                ParkedReceipt(content: content)
+                HuntButtons(content: content, slim: true)
+            }
+        // Stuck, stopped early, and caught with no monster and so no card: the words and the ways on.
+        case .stuck, .stoppedEarly, .caught:
+            VStack(spacing: 12) {
+                header
+                HuntButtons(content: content)
+            }
+        }
     }
 
     private var header: some View {
         HStack(alignment: .center, spacing: 12) {
             HuntTile(content: content)
-            VStack(alignment: .leading, spacing: 2) {
+            VStack(alignment: .leading, spacing: 1) {
                 HStack(spacing: 6) {
                     Text(content.title).font(.headline).lineLimit(1)
                     if content.offline && content.clockRuns {
                         Text(content.text("OFFLINE"))
                             .font(.caption2.weight(.bold).monospaced())
+                            .lineLimit(1)
+                            .fixedSize()
                             .padding(.horizontal, 5)
                             .padding(.vertical, 2)
                             .background(Capsule().fill(Color.white.opacity(0.16)))
@@ -418,42 +493,16 @@ struct HuntLockScreenView: View {
                 Text(content.line)
                     .font(.subheadline)
                     .foregroundStyle(.white.opacity(0.72))
-                    .lineLimit(2)
+                    .lineLimit(content.phase == .parked ? 1 : 2)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             HuntClock(content: content)
         }
     }
 
-    private var running: some View {
-        VStack(spacing: 12) {
-            header
-            if content.phase != .stuck && content.phase != .stoppedEarly {
-                RaceBar(content: content)
-            }
-            if content.phase == .parked { ParkedReceipt(content: content) }
-            HuntButtons(content: content)
-        }
-    }
-
-    @ViewBuilder private var caught: some View {
-        if content.serious || content.monsterName == nil {
-            // No monster, so no card: the plain words and the way on.
-            VStack(spacing: 12) {
-                header
-                HuntButtons(content: content)
-            }
-        } else {
-            VStack(spacing: 12) {
-                CaughtCard(content: content)
-                HuntButtons(content: content)
-            }
-        }
-    }
-
     private var collapsed: some View {
         HStack(spacing: 12) {
-            if !content.serious, let picture = content.monsterPicture {
+            if content.hasCard, let picture = content.monsterPicture {
                 SurfaceArt(source: .picture(picture))
                     .padding(5)
                     .frame(width: 40, height: 52)
@@ -463,19 +512,22 @@ struct HuntLockScreenView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
             }
             VStack(alignment: .leading, spacing: 2) {
-                Text(content.title).font(.headline).lineLimit(1)
-                if !content.serious && content.monsterName != nil {
+                // A long name takes a second line before it is cut short.
+                Text(content.title).font(.headline).lineLimit(2).minimumScaleFactor(0.85)
+                if content.hasCard {
                     Text(
                         content.text("No. %@", content.cardNumber) + " · "
                             + content.text("caught %@", content.caughtClock)
                     )
                     .font(.caption.monospaced())
                     .foregroundStyle(.white.opacity(0.6))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            if !content.serious && content.monsterName != nil {
-                Link(destination: SurfaceLinks.cards) {
+            if content.hasCard {
+                Link(destination: content.destination) {
                     HuntPill(label: content.text("Share"), primary: true).frame(width: 84)
                 }
             }
@@ -537,8 +589,15 @@ struct HuntMinimal: View {
     }
 }
 
+extension HuntContent {
+    init(context: ActivityViewContext<SessionActivityAttributes>, now: Date = Date()) {
+        self.init(
+            attributes: context.attributes, state: context.state, isStale: context.isStale, now: now)
+    }
+}
+
 /// The hunt's Live Activity on the Lock Screen and in the Dynamic Island. A tap anywhere but the
-/// buttons opens the session. On an Apple Watch the system shows the compact views in the Smart
+/// buttons opens the session, or the card once the hunt is caught. On an Apple Watch the system shows the compact views in the Smart
 /// Stack by itself.
 struct SessionLiveActivity: Widget {
     /// The table, while the session is at one and its clock still runs.
@@ -563,7 +622,7 @@ struct SessionLiveActivity: Widget {
             }
             .activityBackgroundTint(SurfaceColor.glass.opacity(0.78))
             .activitySystemActionForegroundColor(.white)
-            .widgetURL(SurfaceLinks.session)
+            .widgetURL(content.destination)
         } dynamicIsland: { context in
             let content = HuntContent(context: context)
             let seated = table(context, content)
@@ -628,7 +687,7 @@ struct SessionLiveActivity: Widget {
                 }
             }
             .keylineTint(content.phase == .overtime ? gold : SurfaceColor.accent)
-            .widgetURL(SurfaceLinks.session)
+            .widgetURL(content.destination)
         }
     }
 }

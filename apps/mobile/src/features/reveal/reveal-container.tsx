@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+import { useIsFocused, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { View } from 'react-native';
 
@@ -107,14 +107,17 @@ export function RevealContainer() {
     [taskId, follows, player, router, dispatch],
   );
   const over = (ready && finished === null) || (state !== null && revealOver(state));
+  // Leaving closes whatever is on top. A page a surface's link opened over the reveal (the caught
+  // card, from the Lock Screen) stays: the reveal leaves once it is the screen in front again.
+  const focused = useIsFocused();
   useEffect(() => {
-    if (over) leave();
-  }, [over, leave]);
+    if (over && focused) leave();
+  }, [over, focused, leave]);
   useEffect(() => {
-    if (state !== null) return undefined;
+    if (state !== null || !focused) return undefined;
     const timer = setTimeout(leave, GIVE_UP_MS);
     return () => clearTimeout(timer);
-  }, [state, leave]);
+  }, [state, focused, leave]);
 
   const step = state ? currentStep(state) : null;
   const bar = rows ? barOfFinish(rows) : null;

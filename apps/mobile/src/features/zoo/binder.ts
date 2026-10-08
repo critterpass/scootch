@@ -1,5 +1,11 @@
 import { CARD_LABELS, formatCardDate, type CardLanguage } from '@scootch/art';
-import { dayOfLurking, type IsoDate, type MonsterRow, type TaskRow } from '@scootch/domain';
+import {
+  dayOfLurking,
+  type Id,
+  type IsoDate,
+  type MonsterRow,
+  type TaskRow,
+} from '@scootch/domain';
 
 import { showsComedy } from '../../state/shows-comedy';
 
@@ -36,6 +42,20 @@ export function shelfCards(
   const caught = monsters.filter(isCaught);
   const order = sortNeedsPlus(sort) && !plus ? ORDER.newest : ORDER[sort];
   return caught.sort((a, b) => order(a, b) || newestFirst(a, b));
+}
+
+/**
+ * The card that is out of its pocket: the one last shown, or the one a link asked for. The Lock
+ * Screen's caught card knows the thing its monster came from, not the card, and asks by that
+ * (`targets/widgets/SurfaceStyle.swift`). `null` is the first card of the order.
+ */
+export function cardOut(
+  cards: readonly CaughtMonster[],
+  shown: Id | null,
+  taskId: Id | null,
+): Id | null {
+  if (shown !== null || taskId === null) return shown;
+  return cards.find((card) => card.taskId === taskId)?.id ?? null;
 }
 
 /** The one number that matters for the order the shelf is in, as a pocket writes it. */
