@@ -28,4 +28,8 @@ export const enCompany = {
   'settings.getReady.lead': 'Before the time',
   'settings.getReady.less': 'Five minutes less',
   'settings.getReady.more': 'Five minutes more',
+
+  'privacy.hunting': 'Sessions are counted, nothing else',
+  'privacy.hunting.sub':
+    'When a session starts and ends, your phone tells the server only that this device is in a session. No task, name or label is sent. The server keeps one row for the device with the time it started: removed when the session ends, forgotten after three hours, and deleted with “Delete everything”. Switch it off with “Others hunting” in Settings.',
 } as const;

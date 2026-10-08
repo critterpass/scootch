@@ -25,12 +25,12 @@ Goal: company without strangers, and surprise that does not wear out.
   rounded and refreshed once a minute. Absent offline, on a serious task,
   under 20 people, at a table, and when switched off by a new row in
   Settings.
-- Status: not started
+- Status: done — eea1b7f
 
 ### 3. Privacy
 - Do: the privacy page in the app and on the website say what a beat sends
   and keeps, and match the code.
-- Status: not started
+- Status: done — pull request #166
 
 ### 4. Odd weeks
 - Do: a rule on the phone that turns about one week in six odd, from the

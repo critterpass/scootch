@@ -28,4 +28,8 @@ export const viCompany = {
   'settings.getReady.lead': 'Trước giờ hẹn',
   'settings.getReady.less': 'Bớt năm phút',
   'settings.getReady.more': 'Thêm năm phút',
+
+  'privacy.hunting': 'Chỉ đếm phiên, không gì khác',
+  'privacy.hunting.sub':
+    'Khi một phiên bắt đầu và kết thúc, điện thoại chỉ báo cho máy chủ rằng thiết bị này đang trong phiên. Không gửi việc, tên hay nhãn nào. Máy chủ giữ một dòng cho thiết bị kèm giờ bắt đầu: gỡ khi phiên kết thúc, quên sau ba tiếng, và bị xoá cùng “Xoá tất cả”. Tắt bằng “Những người đang săn” trong Cài đặt.',
 } as const;
