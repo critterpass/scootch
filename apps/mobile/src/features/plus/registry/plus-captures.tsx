@@ -279,6 +279,8 @@ export function Captured({ capture }: { readonly capture: PlusCapture }) {
             monster: { spec: fixtureMonster(0).spec, name: fixtureMonster(0).name },
             busy: false,
             notice: null,
+            plusPlace: false,
+            plusOffered: false,
             toast: null,
           }}
           actions={{

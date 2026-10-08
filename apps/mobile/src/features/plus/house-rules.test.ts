@@ -156,6 +156,8 @@ describe('the house rules', () => {
         // on the way in.
         'features/plus/moment-containers.tsx: pickFinish={() => router.push(STUDIO_ROUTE)}',
         'features/record/record-container.tsx: openPlus: () => router.push(PLUS_SHEET),',
+        // The studio's finishes, for someone Plus would dress: beside the price of one, all of them.
+        'features/studio/studio-container.tsx: openPlus: () => router.push(PLUS_SHEET),',
         'features/table/lobby-containers.tsx: onLocked={() => router.push(PLUS_SHEET)}',
         // A locked frame on the postcard, in the composer the world opens.
         'features/world/world-container.tsx: openPlus: () => router.push(PLUS_SHEET),',
@@ -188,7 +190,9 @@ describe('the house rules', () => {
     expect(card).toMatch(/selling: showsSelling\(day\)/);
     const page = readFileSync(path.join(SOURCE, 'features/plus/manage-screen.tsx'), 'utf8');
     expect(page).toMatch(/model\.selling \? \{ onPress: actions\.seePlus \} : \{ inert: true \}/);
-    expect(page).toMatch(/\{model\.selling \? \(\s*<Row\s+label=\{t\('studio\.title'\)\}/);
+    expect(page).toMatch(
+      /\{model\.selling \? \(\s*<Section>\s*<Row\s+label=\{t\('studio\.title'\)\}/,
+    );
   });
 
   it('reaches no selling route from first launch, a session, the reveal or the care screens', () => {

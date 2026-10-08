@@ -8,7 +8,9 @@ import { useToday } from '../../state/day-store-provider';
 import { useKeepsakes } from '../../state/keepsakes';
 import { lineWithNoTask } from '../../state/lines';
 import { usePlusRuntime, usePlusState } from '../../state/plus-context';
+import { showsSelling } from '../../state/shows-comedy';
 import type { Offerings } from '../plus/purchases-port';
+import { PLUS_SHEET } from '../plus/routes';
 
 import {
   itemOf,
@@ -41,7 +43,8 @@ export function StudioContainer() {
   const params = useLocalSearchParams<{ tab?: string }>();
   const { port, store } = usePlusRuntime();
   const { customer, unlocked, look, member } = usePlusState();
-  const { settings } = useToday();
+  const day = useToday();
+  const { settings } = day;
   const { keepsakes } = useKeepsakes();
   const [tab, setTab] = useState<StudioKind>(() => kindFrom(params.tab));
   const [trying, setTrying] = useState<Look>(look);
@@ -102,6 +105,12 @@ export function StudioContainer() {
   const homeLine = useMemo(() => lineWithNoTask('waiting', settings), [settings]);
 
   const looks = { worn: look, trying };
+  // Plus wears every finish. For someone it would dress, the finishes tab keeps a way to the
+  // sheet beside the price of one; on a day with something heavy in it, nothing is sold.
+  const plusPlace = tab === 'finish' && !unlocked.plus;
+  const plusDoor = {
+    openPlus: () => router.push(PLUS_SHEET),
+  };
   return (
     <StudioScreen
       model={{
@@ -118,10 +127,13 @@ export function StudioContainer() {
         monster,
         busy,
         notice,
+        plusPlace,
+        plusOffered: plusPlace && !mayWear(focus, facts),
         toast,
       }}
       actions={{
         close: () => (router.canGoBack() ? router.back() : router.replace('/')),
+        ...(showsSelling(day) ? plusDoor : {}),
         showTab: setTab,
         tryOn: (item) => {
           // The rule decides what a pick puts on, whatever the screen drew.

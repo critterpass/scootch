@@ -98,6 +98,17 @@ export function Page({ title, barTitle, onClose, testID, menu, footer, children 
     ),
   }));
 
+  // Once the list has moved, a hairline says where the bar ends and the list goes under it.
+  const edge = useAnimatedStyle(() => ({
+    opacity: interpolate(scrolled.value, [2, 14], [0, 1], Extrapolation.CLAMP),
+  }));
+  const hairline = (
+    <Animated.View
+      pointerEvents="none"
+      style={[styles.edge, { backgroundColor: `${palette.ink}1F` }, edge]}
+    />
+  );
+
   // The board's 30 points under a dock, never less than the home bar's own clear space. `kept` is
   // the part of that space the frame around the page already keeps clear.
   const dockOver = (kept: number) =>
@@ -145,6 +156,7 @@ export function Page({ title, barTitle, onClose, testID, menu, footer, children 
           close={close}
           menu={menuItem}
         />
+        {hairline}
         {list}
         {dockOver(0)}
       </View>
@@ -175,6 +187,7 @@ export function Page({ title, barTitle, onClose, testID, menu, footer, children 
           </Animated.Text>
         )}
       </CornerBar>
+      {hairline}
       {list}
       {dockOver(insets.bottom)}
     </SafeFrame>
@@ -193,6 +206,8 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   between: { marginLeft: 0 },
+  // No height of its own in the column: the list starts where it always did.
+  edge: { height: StyleSheet.hairlineWidth, marginBottom: -StyleSheet.hairlineWidth, zIndex: 1 },
   content: { padding: spacing.md, paddingBottom: spacing.xxl, gap: spacing.lg },
   footer: { paddingHorizontal: DOCK_GUTTER, paddingTop: spacing.sm },
   // The title shrinks towards its leading edge, where the bar's small one will not be: it fades

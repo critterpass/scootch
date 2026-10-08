@@ -1,6 +1,6 @@
 # The keeping tabs, sheets that fit, one share composer, and Plus polish
 
-Status: in progress · Created 8 Oct 2026 · Follows
+Status: built, not yet seen on a device · Created 8 Oct 2026 · Follows
 [Plus, the binder, sharing and settings, as redrawn](../261008-1021-plus-binder-share-settings-as-redrawn/plan.md).
 
 Notes from the founder's phone on the build of 8 Oct 2026. Everything here is
@@ -38,12 +38,12 @@ JavaScript only.
 
 | # | Phase | Status |
 |---|---|---|
-| 01 | Sheets: a page sheet and a fitted sheet; the Plus sheet | |
-| 02 | Haunt: the chip, the fitted sheet, the guide | |
-| 03 | Share: one composer as a sheet, the dark stage's dock, the postmark | |
-| 04 | The keeping tabs and their movement | |
-| 05 | Settings pictures, Your card without Plus, the studio's way to Plus | |
-| 06 | Registry, walks, undesigned states | |
+| 01 | Sheets: a page sheet and a fitted sheet; the Plus sheet | done |
+| 02 | Haunt: the chip, the fitted sheet, the guide | done |
+| 03 | Share: one composer as a sheet, the dark stage's dock, the postmark | done |
+| 04 | The keeping tabs and their movement | done |
+| 05 | Settings pictures, Your card without Plus, the studio's way to Plus | done |
+| 06 | Registry, walks, undesigned states | done; the device run follows the merge |
 
 ## Done when
 

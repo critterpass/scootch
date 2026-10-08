@@ -28,8 +28,8 @@ export interface HauntSendPageProps {
     readonly name: string;
     readonly line: string;
   } | null;
-  /** Friends who take haunts. */
-  readonly friends: readonly Friend[];
+  /** Friends who take haunts; `null` while the server is being asked, when nothing is said yet. */
+  readonly friends: readonly Friend[] | null;
   readonly to: string | null;
   readonly dare: HauntDare;
   readonly anonymous: boolean;
@@ -59,10 +59,14 @@ const CARD_FITS_FROM = 760;
 export function HauntSendPage(props: HauntSendPageProps) {
   const t = useT();
   const { height } = useWindowDimensions();
-  const { friends, to, monster } = props;
+  const { to, monster } = props;
+  const friends = props.friends ?? [];
   const friend = friends.find((one) => one.accountId === to);
   const name = friend?.displayName ?? null;
-  const nobody = friends.length === 0;
+  // Nobody to haunt is said only once the server has answered: until then the sheet keeps its
+  // heading and its way out, and neither the guide nor the choices flash by.
+  const asking = props.friends === null;
+  const nobody = !asking && friends.length === 0;
   const notNow = {
     label: t('haunt.notNow'),
     hint: t('haunt.notNow.hint'),
@@ -98,6 +102,8 @@ export function HauntSendPage(props: HauntSendPageProps) {
             },
           })}
     />
+  ) : asking ? (
+    <SheetDock quiet={notNow} />
   ) : (
     <SheetDock
       quiet={notNow}
@@ -147,7 +153,7 @@ export function HauntSendPage(props: HauntSendPageProps) {
           steps={[t('haunt.guide.invite'), t('haunt.guide.send'), t('haunt.guide.theirs')]}
         />
       ) : null}
-      {nobody || props.sent ? null : (
+      {nobody || asking || props.sent ? null : (
         <>
           {friends.length < 2 ? null : (
             <ChipChoice

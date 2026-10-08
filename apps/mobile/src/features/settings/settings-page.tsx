@@ -95,7 +95,13 @@ export function SettingsPage(props: SettingsPageProps) {
       <Section label={`${t('brand.name')} ${t('brand.plus')}`}>
         <Row
           first
-          leading={<CardThumb finish={props.card.finish} number={props.card.number} />}
+          // Someone who is not a member sees the foil Plus comes in; a member, the card they wear.
+          leading={
+            <CardThumb
+              finish={props.card.plan === null ? 'holo' : props.card.finish}
+              number={props.card.plan === null ? null : props.card.number}
+            />
+          }
           label={props.card.plan === null ? t('settings.plus.free') : t('plus.card.title')}
           hint={t('settings.plus.hint')}
           {...(props.card.plan === null ? {} : { value: t(`plus.plan.${props.card.plan}`) })}

@@ -3,7 +3,7 @@ import { Image, StyleSheet } from 'react-native';
 import type { CardFinish, SettingsRow } from '@scootch/domain';
 
 import { useT } from '../../i18n/i18n-provider';
-import { FinishThumb } from '../settings/look-thumbs';
+import { FinishThumb, THUMB_SLOT, WallpaperThumb } from '../settings/look-thumbs';
 import { Row, Section } from '../settings/rows';
 
 import { ICON_PICTURES, iconLabel } from './icon-pictures';
@@ -61,6 +61,7 @@ export function LookSection({
         testID="settings-card-finish"
       />
       <Row
+        leading={<WallpaperThumb kind={wallpaper} />}
         label={t('look.wallpaper')}
         hint={t('look.wallpaper.hint')}
         value={t(`wallpaper.${wallpaper}`)}
@@ -79,5 +80,6 @@ export function LookSection({
 }
 
 const styles = StyleSheet.create({
-  icon: { width: 36, height: 36, borderRadius: 9, marginRight: 12 },
+  // The icon stands in the same slot as every other picture in the group.
+  icon: { width: THUMB_SLOT, height: THUMB_SLOT, borderRadius: 8 },
 });
