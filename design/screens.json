@@ -1328,6 +1328,182 @@
     "height": 485
   },
   {
+    "board": "Starting Helpers",
+    "section": "01 Before you start",
+    "screen": "Task set · ends at",
+    "path": "design/renders/starting-helpers/01-before-you-start--task-set-ends-at.png",
+    "width": 393,
+    "height": 948
+  },
+  {
+    "board": "Starting Helpers",
+    "section": "01 Before you start",
+    "screen": "Guess sheet",
+    "path": "design/renders/starting-helpers/01-before-you-start--guess-sheet.png",
+    "width": 393,
+    "height": 930
+  },
+  {
+    "board": "Starting Helpers",
+    "section": "01 Before you start",
+    "screen": "When sheet · try it",
+    "path": "design/renders/starting-helpers/01-before-you-start--when-sheet-try-it.png",
+    "width": 393,
+    "height": 930
+  },
+  {
+    "board": "Starting Helpers",
+    "section": "01 Before you start",
+    "screen": "Task set · guess and when",
+    "path": "design/renders/starting-helpers/01-before-you-start--task-set-guess-and-when.png",
+    "width": 393,
+    "height": 930
+  },
+  {
+    "board": "Starting Helpers",
+    "section": "02 Getting in",
+    "screen": "Cue notification",
+    "path": "design/renders/starting-helpers/02-getting-in--cue-notification.png",
+    "width": 387,
+    "height": 934
+  },
+  {
+    "board": "Starting Helpers",
+    "section": "02 Getting in",
+    "screen": "Energy step · try it",
+    "path": "design/renders/starting-helpers/02-getting-in--energy-step-try-it.png",
+    "width": 387,
+    "height": 934
+  },
+  {
+    "board": "Starting Helpers",
+    "section": "02 Getting in",
+    "screen": "Bites sheet · try it",
+    "path": "design/renders/starting-helpers/02-getting-in--bites-sheet-try-it.png",
+    "width": 387,
+    "height": 934
+  },
+  {
+    "board": "Starting Helpers",
+    "section": "03 After the catch",
+    "screen": "Caught card · stat line",
+    "path": "design/renders/starting-helpers/03-after-the-catch--caught-card-stat-line.png",
+    "width": 387,
+    "height": 593
+  },
+  {
+    "board": "Starting Helpers",
+    "section": "03 After the catch",
+    "screen": "Share story · guessed long",
+    "path": "design/renders/starting-helpers/03-after-the-catch--share-story-guessed-long.png",
+    "width": 266,
+    "height": 567
+  },
+  {
+    "board": "Starting Helpers",
+    "section": "03 After the catch",
+    "screen": "Share story · guessed short",
+    "path": "design/renders/starting-helpers/03-after-the-catch--share-story-guessed-short.png",
+    "width": 266,
+    "height": 550
+  },
+  {
+    "board": "Starting Helpers",
+    "section": "03 After the catch",
+    "screen": "The stat line",
+    "path": "design/renders/starting-helpers/03-after-the-catch--the-stat-line.png",
+    "width": 335,
+    "height": 454
+  },
+  {
+    "board": "Starting Helpers",
+    "section": "04 Not finished",
+    "screen": "Next time, start with…",
+    "path": "design/renders/starting-helpers/04-not-finished--next-time-start-with.png",
+    "width": 387,
+    "height": 916
+  },
+  {
+    "board": "Starting Helpers",
+    "section": "04 Not finished",
+    "screen": "Session opening · your line first",
+    "path": "design/renders/starting-helpers/04-not-finished--session-opening-your-line-first.png",
+    "width": 387,
+    "height": 934
+  },
+  {
+    "board": "Starting Helpers",
+    "section": "05 A time heard",
+    "screen": "Time heard",
+    "path": "design/renders/starting-helpers/05-a-time-heard--time-heard.png",
+    "width": 387,
+    "height": 916
+  },
+  {
+    "board": "Starting Helpers",
+    "section": "05 A time heard",
+    "screen": "Task set · ends before",
+    "path": "design/renders/starting-helpers/05-a-time-heard--task-set-ends-before.png",
+    "width": 387,
+    "height": 916
+  },
+  {
+    "board": "Starting Helpers",
+    "section": "05 A time heard",
+    "screen": "Get-ready notification",
+    "path": "design/renders/starting-helpers/05-a-time-heard--get-ready-notification.png",
+    "width": 387,
+    "height": 934
+  },
+  {
+    "board": "Starting Helpers",
+    "section": "06 Company",
+    "screen": "Session · footer",
+    "path": "design/renders/starting-helpers/06-company--session-footer.png",
+    "width": 387,
+    "height": 916
+  },
+  {
+    "board": "Starting Helpers",
+    "section": "06 Company",
+    "screen": "Session · footer absent",
+    "path": "design/renders/starting-helpers/06-company--session-footer-absent.png",
+    "width": 387,
+    "height": 916
+  },
+  {
+    "board": "Starting Helpers",
+    "section": "07 Odd week",
+    "screen": "Hatch · tiny",
+    "path": "design/renders/starting-helpers/07-odd-week--hatch-tiny.png",
+    "width": 387,
+    "height": 934
+  },
+  {
+    "board": "Starting Helpers",
+    "section": "07 Odd week",
+    "screen": "Catch · the ninth",
+    "path": "design/renders/starting-helpers/07-odd-week--catch-the-ninth.png",
+    "width": 387,
+    "height": 934
+  },
+  {
+    "board": "Starting Helpers",
+    "section": "07 Odd week",
+    "screen": "Odd week rules",
+    "path": "design/renders/starting-helpers/07-odd-week--odd-week-rules.png",
+    "width": 335,
+    "height": 356
+  },
+  {
+    "board": "Starting Helpers",
+    "section": "08 Widgets at rest",
+    "screen": "Small and medium · nothing waiting",
+    "path": "design/renders/starting-helpers/08-widgets-at-rest--small-and-medium-nothing-waiting.png",
+    "width": 387,
+    "height": 916
+  },
+  {
     "board": "System Surfaces",
     "section": "01 Live Activities",
     "screen": "Lock Screen · working",
