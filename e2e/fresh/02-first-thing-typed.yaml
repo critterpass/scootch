@@ -129,11 +129,10 @@ appId: app.scootch.dev
       - assertVisible: 'Start with the first one.'
       - tapOn:
           id: 'bite-0'
+      # The tick's own mark sits inside the row, which iOS reads as one element: the note proves it.
       - extendedWaitUntil:
-          visible:
-            id: 'bite-0-ticked'
+          visible: "1 down. Tick the next when it's done."
           timeout: 15000
-      - assertVisible: "1 down. Tick the next when it's done."
       - takeScreenshot: one-screen-task-set-bites-sheet--en-light-default
       # A tap on the shade above the sheet closes it.
       - tapOn:

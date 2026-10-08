@@ -98,7 +98,6 @@ export function BitesSheet({ open, name, rows, onTick, onClose }: BitesSheetProp
                 ) : null}
               </View>
               <View
-                testID={`bite-${row.place}-${row.ticked ? 'ticked' : 'open'}`}
                 style={[
                   styles.tick,
                   row.ticked
