@@ -8,6 +8,7 @@ import {
   type TaskRow,
 } from '@scootch/domain';
 
+import { moveArrivedPage } from './arrived-pages';
 import type { DayContext } from './day-types';
 import { setSession } from './session-flow';
 import { shrinkTask } from './smaller';
@@ -54,15 +55,17 @@ export async function swapItemIn(ctx: DayContext, itemId: Id): Promise<boolean> 
   const { oneThing } = result;
   // A task that was parked whole comes back as itself, with its monster and its lines.
   const whole = await repositories.tasks.get(itemId);
-  await repositories.tasks.put(
+  const task: TaskRow =
     whole && whole.status !== 'finished'
       ? { ...whole, localDate: oneThing.localDate, carriedOver: false, status: 'set' }
       : {
           ...newTask(ctx, oneThing.text, oneThing.source, oneThing.screen),
           firstMentionedOn: oneThing.firstMentionedOn,
           dueDate: oneThing.dueDate,
-        },
-  );
+        };
+  await repositories.tasks.put(task);
+  // A thing that arrived from a monster's page and waited here is still that monster's.
+  await moveArrivedPage(ctx, itemId, task.id);
   ctx.memory.restPending = false;
   ctx.memory.turnedDown = [];
   drawerEvent(ctx, { type: 'swapped_in' });

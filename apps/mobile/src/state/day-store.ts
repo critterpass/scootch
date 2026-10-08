@@ -36,6 +36,9 @@ import { applySurfaceAction, noticePickUp } from './surface-actions';
 import { cancelOneThing, parkStartedTask } from './way-out';
 import { beFunny, cancelTaskCall, fetchPending, resolveTranscript, submitText } from './task-flow';
 
+/** Where a real phone keeps the pages of things that arrived, made beside the store it is for. */
+export { arrivedPagesStore } from './arrived-pages';
+
 export interface DayStore {
   readonly getState: () => DayState;
   readonly subscribe: (listener: () => void) => () => void;

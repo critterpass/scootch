@@ -29,12 +29,13 @@ export async function unansweredThoughts(ctx: Reading, taskId: Id): Promise<Park
 /**
  * Into the drawer. "Tomorrow" gives the thought tomorrow's date, so it is brought back that
  * morning like any dated thing; a thought nobody chose about is undated and fades in its time.
+ * Answers the id of the item it is now, new or mentioned again.
  */
 export async function intoDrawer(
   ctx: DayContext,
   text: string,
   when: 'tomorrow' | 'whenever',
-): Promise<void> {
+): Promise<Id | null> {
   const { repositories, nextId } = ctx.deps;
   const today = ctx.memory.state.localDate;
   const tomorrow = addDays(today, 1);
@@ -56,6 +57,7 @@ export async function intoDrawer(
       when === 'tomorrow' && sameThing(item.text, thing.text) && item.dueDate === tomorrow;
     await repositories.drawerItems.put(early ? { ...item, returnOn: tomorrow } : item);
   }
+  return drawer.find((item) => sameThing(item.text, thing.text))?.id ?? null;
 }
 
 /**

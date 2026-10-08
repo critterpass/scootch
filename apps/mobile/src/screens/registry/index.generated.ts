@@ -65,6 +65,7 @@ export * from './look-wallpaper-empty-world';
 export * from './look-wallpaper-photos-refused';
 export * from './monster-hatched';
 export * from './monster-hatching';
+export * from './monster-link-asks';
 export * from './monster-shrunk';
 export * from './morning-back-after-a-month';
 export * from './morning-back-after-a-while';

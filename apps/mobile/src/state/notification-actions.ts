@@ -56,7 +56,7 @@ type FromOutside = Extract<
 export function applyFromOutside(ctx: DayContext, event: FromOutside): Promise<void> {
   switch (event.type) {
     case 'thing_shared_in':
-      return takeSharedIn(ctx, event.text, event.when);
+      return takeSharedIn(ctx, event.text, event.when, event.monsterPage);
     case 'bite_ticked':
       return biteTickedOutside(ctx, event.taskId, event.place);
     case 'hunt_tomorrow':

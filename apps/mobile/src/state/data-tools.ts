@@ -51,7 +51,11 @@ export function createAppDataTools(deps: {
   const pages = createShareApi(deps.http);
   const leftovers: Leftovers = {
     kept: keychainKeptShares,
-    unshare: (share) => pages.unshareCard(share.id, share.unshareToken),
+    // A page that arrived from the website is not this phone's to take down: it is only forgotten.
+    unshare: (share) =>
+      share.unshareToken === ''
+        ? Promise.resolve()
+        : pages.unshareCard(share.id, share.unshareToken),
     cancelChargeReminders: () => syncChargeReminders(nativeNotifications, [], systemClock.now()),
   };
   return {

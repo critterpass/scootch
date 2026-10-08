@@ -2,6 +2,7 @@ import { ExtensionStorage } from '@bacons/apple-targets';
 import { drawAsImage, Group, ImageFormat } from '@shopify/react-native-skia';
 import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
+import { router } from 'expo-router';
 import { File, Paths, type Directory } from 'expo-file-system';
 
 import { buildMonster, buildScootch, VIEW_SIZE } from '@scootch/art';
@@ -113,7 +114,13 @@ export const skiaWorldPainter: WorldPainter = {
 };
 
 type NativeParts =
-  'shared' | 'files' | 'painter' | 'worldPainter' | 'cancelNotification' | 'friendsTables';
+  | 'shared'
+  | 'files'
+  | 'painter'
+  | 'worldPainter'
+  | 'cancelNotification'
+  | 'friendsTables'
+  | 'openRoute';
 
 /** The surface sync on the real phone: the App Group, Skia's painters and the phone's own ports. */
 export function createNativeSurfaceSync(deps: Omit<SurfaceSyncDeps, NativeParts>): SurfaceSync {
@@ -125,5 +132,6 @@ export function createNativeSurfaceSync(deps: Omit<SurfaceSyncDeps, NativeParts>
     worldPainter: skiaWorldPainter,
     cancelNotification: cancelNativeNotification,
     friendsTables: friendsTablesSeen.get,
+    openRoute: (route) => router.push(route),
   });
 }

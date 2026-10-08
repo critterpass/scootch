@@ -44,4 +44,7 @@ export const SHARED_KEYS = {
   morningHunt: 'surfaces.morning-hunt',
   /** Things shared in from another app (`targets/_shared/SharedIn.swift`). */
   sharedIn: 'surfaces.shared-in',
+  /** The link the App Clip was opened with, and when it kept it (`targets/app-clip`). */
+  clipLink: 'clip.invocation-url',
+  clipLinkStoredAt: 'clip.invocation-stored-at',
 } as const;

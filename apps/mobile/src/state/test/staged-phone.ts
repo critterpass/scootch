@@ -1,4 +1,5 @@
 import type {
+  TaskCreateRequest,
   TaskCreateNameResponse,
   TaskCreatePackResponse,
   TaskCreateStartResponse,
@@ -12,6 +13,7 @@ import { openRepositories } from '../../data/repositories';
 import { openTestDatabase, type TestDatabase } from '../../data/test/open-test-database';
 import { createEffectsRunner } from '../../effects/effects-runner';
 import { ALL_ON, fakeDevice, fakeTime } from '../../effects/test/fake-adapters';
+import { arrivedPagesStore } from '../arrived-pages';
 import { createDayStore, type DayStore } from '../day-store';
 
 // 10:00 on 6 October in London, the day and zone of the recorded task call.
@@ -33,6 +35,8 @@ export interface StagedServer {
   name: () => Promise<TaskCreateNameResponse>;
   pack: (treat: string | null) => Promise<TaskCreatePackResponse>;
   startCalls: number;
+  /** Every stage one request, as it was sent. */
+  asked: TaskCreateRequest[];
   lineCalls: number;
   nameCalls: number;
   packCalls: number;
@@ -46,6 +50,7 @@ export function stagedServer(changes: Partial<StagedServer> = {}): StagedServer 
     name: () => Promise.reject(new Error('no name route')),
     pack: () => Promise.reject(new Error('no pack route')),
     startCalls: 0,
+    asked: [],
     lineCalls: 0,
     nameCalls: 0,
     packCalls: 0,
@@ -94,8 +99,9 @@ export async function stagedPhone(
     timeZone: () => phone.timeZone ?? 'Europe/London',
     nextId: () => `id-${at}-${(ids += 1)}`,
     tasks: createStagedTaskClient({
-      taskCreateStart: () => {
+      taskCreateStart: (request) => {
         server.startCalls += 1;
+        server.asked.push(request);
         return server.startStage ? server.startStage() : Promise.resolve(server.start);
       },
       taskCreateLines: () => {
@@ -116,6 +122,7 @@ export async function stagedPhone(
     phoneLanguage: () => 'en',
     plus: () => phone.plus ?? false,
     timers: time.timers,
+    arrivedPages: arrivedPagesStore(data.db),
     ...(phone.onFailure ? { onFailure: phone.onFailure } : {}),
   });
   await store.start();

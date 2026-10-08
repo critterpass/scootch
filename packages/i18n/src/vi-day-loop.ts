@@ -1,4 +1,7 @@
-/** Vietnamese interface strings for resting the day, the ways back and the wait for Scootch. */
+/**
+ * Vietnamese interface strings for resting the day, the ways back, the wait for Scootch and a
+ * monster's link.
+ */
 export const viDayLoop = {
   'oneScreen.failed': 'Việc đó chưa làm được. Không mất gì cả. Bạn thử lại lần nữa nha.',
   'pick.picked': 'Scootch chọn',
@@ -25,4 +28,10 @@ export const viDayLoop = {
   'notification.huntNextBite': 'Săn miếng tiếp theo ngay',
   'notification.tomorrowAtNine': 'Ngày mai lúc 9:00',
   'notification.turnDown': 'Nói nhỏ lại trong một tuần',
+  'arrive.opening': 'Đang mở link…',
+  'arrive.ask.title': '{name} nở ra từ việc gì?',
+  'arrive.ask.sub': 'Trang của nó giấu phần chữ. Gõ việc đó vào đây, và nó là việc của hôm nay.',
+  'arrive.ask.placeholder': 'Một việc thôi',
+  'arrive.ask.send': 'Lấy làm việc hôm nay',
+  'arrive.ask.send.hint': 'Nhận nó làm một việc của hôm nay, cùng con quái này.',
 } as const;

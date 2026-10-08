@@ -4,6 +4,7 @@ import { asksToChoose } from '@scootch/voice';
 import { careGate } from '../api/care-gate';
 import type { TaskCall } from '../api/task-client';
 
+import { arrivedPageOf } from './arrived-pages';
 import { endQuiet, enterCrisis, isQuietDay } from './care-flow';
 import type { DayContext, Offer } from './day-types';
 import { pickForMe } from './pick-flow';
@@ -26,6 +27,7 @@ function requestFor(ctx: DayContext, offer: Offer, canChoose = false): TaskCreat
     timeZone: ctx.deps.timeZone(),
     overrideSerious: false,
     ...(canChoose ? { canChoose } : {}),
+    ...(offer.monsterPage === undefined ? {} : { monsterPage: offer.monsterPage }),
   };
 }
 
@@ -197,6 +199,8 @@ export async function fetchPending(ctx: DayContext): Promise<void> {
 
   ctx.memory.askingPending = true;
   const text = await wordsToAsk(ctx, task);
+  // A thing that arrived from a monster's page is still that monster's, however late it is asked.
+  const monsterPage = await arrivedPageOf(ctx, task.id);
   const asked = ctx.deps.tasks
     .createTask(
       {
@@ -208,6 +212,7 @@ export async function fetchPending(ctx: DayContext): Promise<void> {
         localDate,
         timeZone: ctx.deps.timeZone(),
         overrideSerious: task.seriousOverridden,
+        ...(monsterPage === null ? {} : { monsterPage }),
       },
       treatNamed(ctx),
     )
