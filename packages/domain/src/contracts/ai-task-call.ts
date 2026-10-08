@@ -38,6 +38,12 @@ export const taskCreateRequestSchema = z.object({
   canChoose: z.boolean().optional(),
   /** True asks for stage one only; the answer is then `taskCreateStartResponseSchema`. */
   staged: z.boolean().optional(),
+  /**
+   * The id of a monster made on the website (`scootch.app/m/<id>`), when the text is the thing
+   * that monster was hatched from. A passed text then keeps that monster: its name, card line,
+   * body and seed. An id that names no wild monster changes nothing.
+   */
+  monsterPage: z.string().min(1).max(64).optional(),
 });
 export type TaskCreateRequest = z.infer<typeof taskCreateRequestSchema>;
 

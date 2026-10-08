@@ -32,6 +32,9 @@ import {
   type Field,
 } from './voice-check';
 
+/** What is written for a monster that arrives already named: its kind line and its hatch line. */
+const adoptedFields = nameFields.filter(({ key }) => key === 'title' || key === 'hatch');
+
 type Written = { readonly texts: Map<string, string>; readonly voice: VoiceCheckSummary };
 
 export type TaskNameResult = {
@@ -60,7 +63,7 @@ function reasonOf(error: unknown): string {
  */
 async function writeChecked(
   context: TaskCreateContext,
-  { oneThing, language, attitude, bodyType, seed }: ContinuationPayload,
+  { oneThing, language, attitude, bodyType, seed, adopted }: ContinuationPayload,
   job: {
     readonly tool: string;
     readonly parts: readonly (readonly Field[])[];
@@ -72,7 +75,8 @@ async function writeChecked(
 ): Promise<Written> {
   const config = { apiKey: context.env.DEEPSEEK_API_KEY };
   const slots = job.parts.flatMap(slotsOf);
-  const offlineName = offlineMonsterName(language, bodyType, seed);
+  // A monster that arrived with its name keeps it in the offline lines too.
+  const offlineName = adopted?.name ?? offlineMonsterName(language, bodyType, seed);
   const offline = (slot: { slot: string; kind: LineKind }) =>
     offlineFor(slot, language, attitude, offlineName);
   const named =
@@ -206,21 +210,26 @@ export async function writeName(
   context: TaskCreateContext,
   payload: ContinuationPayload,
 ): Promise<TaskNameResult> {
+  // A monster made on the website keeps its name, card line and seed: only its kind line and its
+  // hatch line are written, about that name.
+  const { adopted } = payload;
   const { texts, voice } = await writeChecked(context, payload, {
-    tool: 'write_name',
-    parts: [nameFields],
-    monsterName: null,
+    tool: adopted ? 'write_kind_and_hatch' : 'write_name',
+    parts: [adopted ? adoptedFields : nameFields],
+    monsterName: adopted?.name ?? null,
     maxTokens: 400,
   });
   const at = (slot: string) => texts.get(slot) ?? '';
   const words = {
-    name: at('monster.name'),
+    name: adopted?.name ?? at('monster.name'),
     title: at('monster.title'),
-    flavourText: at('monster.flavourText'),
+    flavourText: adopted?.flavourText ?? at('monster.flavourText'),
   };
   // The words are vouched for as they leave: with the seed the monster will be drawn from.
   const secret = shareSigningSecret(context.env);
-  const signing = { seed: crypto.randomUUID(), language: payload.language };
+  const signing = adopted
+    ? { seed: adopted.seed, language: adopted.language }
+    : { seed: crypto.randomUUID(), language: payload.language };
   const signed =
     secret === undefined
       ? {}

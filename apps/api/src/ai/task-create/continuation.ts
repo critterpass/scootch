@@ -24,6 +24,18 @@ export const continuationPayloadSchema = z.object({
   seed: z.number().int().min(0),
   /** The monster's name once it has been written: what the pack is asked with. */
   monsterName: z.string().min(1).max(60).optional(),
+  /**
+   * A monster made on the website that this thing keeps: its own name, card line and seed, in the
+   * language they were written in. Read from the server's own record, never from the phone.
+   */
+  adopted: z
+    .object({
+      name: z.string().min(1).max(60),
+      flavourText: z.string().min(1).max(160),
+      seed: z.string().min(1).max(64),
+      language: languageSchema,
+    })
+    .optional(),
 });
 export type ContinuationPayload = z.infer<typeof continuationPayloadSchema>;
 
