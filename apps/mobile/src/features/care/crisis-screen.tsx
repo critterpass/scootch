@@ -1,10 +1,10 @@
 import { useLocales } from 'expo-localization';
-import { Redirect, useRouter } from 'expo-router';
+import { Redirect } from 'expo-router';
 import { useState } from 'react';
 import { Linking, View } from 'react-native';
 
 import { systemClock } from '../../effects/native-adapters';
-import { useToday } from '../../state/day-store-provider';
+import { useDispatch, useToday } from '../../state/day-store-provider';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
 import { CrisisView } from './crisis-view';
@@ -17,9 +17,10 @@ export function openLink(url: string): void {
 }
 
 /**
- * Where a crisis day lands, and stays: there is no override and no way round it for the rest of
- * the day. On any other day this route has nothing to show and goes back to the one screen; the
- * helplines themselves are always in Settings.
+ * Where a crisis lands: real help first, and nothing of the day behind it. Nothing gets round it
+ * but the person closing it; then the day's things are back in plain company, and this route,
+ * with nothing left to show, goes back to the one screen. The helplines themselves are always in
+ * Settings.
  */
 export function CrisisScreen() {
   const { ready, today } = useToday();
@@ -27,7 +28,7 @@ export function CrisisScreen() {
   const region = useLocales()[0]?.regionCode ?? null;
   const [sitting, setSitting] = useState(false);
   const now = useNow(systemClock);
-  const router = useRouter();
+  const dispatch = useDispatch();
 
   if (!ready) return <View style={{ flex: 1, backgroundColor: palette.page }} />;
   if (today.kind !== 'crisis') return <Redirect href="/" />;
@@ -41,7 +42,7 @@ export function CrisisScreen() {
       onDirectory={() => openLink(HELPLINE_DIRECTORY)}
       onText={() => openLink('sms:')}
       onSit={() => setSitting(true)}
-      onMore={() => router.push('/settings')}
+      onClose={() => void dispatch({ type: 'care_closed' }).catch(() => undefined)}
     />
   );
 }

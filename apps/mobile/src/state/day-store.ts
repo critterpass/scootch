@@ -3,7 +3,7 @@ import { DRAWER_CLOSED, currentScootchDay, isoFromInstant, type ClockTime } from
 import { defaultSettings } from '../data/repositories/settings';
 import type { EffectSwitches, ScreenSink } from '../effects/adapters';
 
-import { NOTHING_SAID, askReminder, crisisInWords, setSeriousAside } from './care-flow';
+import { NOTHING_SAID, applyCareEvent, crisisInWords, setSeriousAside } from './care-flow';
 import { DEFAULT_USUAL_START, usualStart } from './day-notifications';
 import {
   editDrawerItem,
@@ -229,7 +229,9 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
   }
 
   async function handle(event: DayEvent): Promise<void> {
-    // A crisis day takes no events but the app's own comings and goings; nothing overrides it.
+    // A crisis day takes no events but the app's own comings and goings, and its own way out:
+    // the care screen being closed. Nothing else gets round it.
+    if (event.type === 'care_closed') return applyCareEvent(ctx, event);
     if (memory.state.today.kind === 'crisis' && !PASSIVE_EVENTS.includes(event.type)) return;
     if (memory.state.notice === 'failed' && !PASSIVE_EVENTS.includes(event.type)) {
       set({ notice: null });
@@ -283,7 +285,7 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
         await resolveTranscript(ctx);
         return setSeriousAside(ctx);
       case 'reminder_asked':
-        return askReminder(ctx);
+        return applyCareEvent(ctx, event);
       case 'settings_changed':
         await repositories.settings.write(event.changes);
         set({ settings: await repositories.settings.read(deps.phoneLanguage()) });

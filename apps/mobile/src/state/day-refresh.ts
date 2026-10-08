@@ -56,9 +56,12 @@ export async function readToday(
       ? asked.at
       : null;
   if (asked !== null && reminderAt === null) await repositories.careReminder.clear();
-  // Something heavy is around: a serious task today, or one waiting in the drawer.
+  // Something heavy is around: a serious task today, one waiting in the drawer, or the quiet
+  // after the care screen was closed.
   const heavyToday =
-    tasks.some((one) => one.screen === 'serious') || items.some((one) => one.screen === 'serious');
+    day?.status === 'quiet' ||
+    tasks.some((one) => one.screen === 'serious') ||
+    items.some((one) => one.screen === 'serious');
   // A task carried on to tomorrow waits there, and the day that is resting says so.
   const tomorrow = await repositories.tasks.where('localDate', addDays(localDate, 1));
   set({

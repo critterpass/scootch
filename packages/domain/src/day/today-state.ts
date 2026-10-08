@@ -88,7 +88,8 @@ export function todayState(input: TodayInput): TodayState {
     if (session) return { kind: 'in_session', task, session };
     return { kind: 'task_set', task, startsLeft: left };
   }
-  if (input.day?.status === 'done' || tasks.length > 0) {
+  // A day whose care screen was closed rests as a finished one does, until something is typed.
+  if (input.day?.status === 'done' || input.day?.status === 'quiet' || tasks.length > 0) {
     return { kind: 'done_for_today', startsLeft: left };
   }
   return { kind: 'nothing_yet', startsLeft: left };

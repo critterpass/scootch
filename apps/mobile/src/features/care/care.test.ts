@@ -223,8 +223,99 @@ describe('a crisis day', () => {
     expect(state.session).toBeNull();
     expect(phone.time.armed()).toEqual([]);
     expect(phone.data.dump()).not.toContain(explicitPhrase);
-    // Nothing more is taken for the rest of the day.
+    // Nothing more is taken while the care screen is up.
     await phone.session({ type: 'finish_tapped' });
     expect(phone.store.getState().today).toEqual({ kind: 'crisis' });
+  });
+});
+
+describe('closing the care screen', () => {
+  const stage = (phone: Phone) => stageOf({ ...phone.store.getState(), energyAsked: false });
+  const dayStatus = async (phone: Phone) =>
+    (await phone.repositories.days.get(phone.store.getState().localDate))?.status;
+
+  it('goes back to a resting home, and the next thing typed is screened fresh', async () => {
+    const server = careServer(crisis);
+    const phone = await carePhone(server);
+    await phone.type(heavyWords);
+    expect(phone.store.getState().today.kind).toBe('crisis');
+
+    await phone.store.dispatch({ type: 'care_closed' });
+
+    const closed = phone.store.getState();
+    // The day rests, as a finished one does: Scootch says nothing until he is spoken to.
+    expect(closed.today.kind).toBe('done_for_today');
+    expect(closed.heavyToday).toBe(true);
+    expect(await dayStatus(phone)).toBe('quiet');
+    expect(stage(phone)).toMatchObject({ kind: 'home', rested: true });
+    expect(await comedyOnThePhone(phone)).toEqual(NOTHING);
+
+    server.answer = pass;
+    await phone.type('Email the dentist');
+    await phone.runner.settled();
+
+    const after = phone.store.getState();
+    expect(await dayStatus(phone)).toBe('open');
+    expect(after.heavyToday).toBe(false);
+    expect(taskOf(after.today).screen).toBe('pass');
+    expect(showsComedy(taskOf(after.today), 'joke')).toBe(true);
+  });
+
+  it('keeps plain company with the thing that was there, and asks about nothing meanwhile', async () => {
+    const server = careServer(pass);
+    const phone = await carePhone(server);
+    await phone.type('Email the dentist');
+    await phone.store.dispatch({ type: 'one_thing_picked' });
+    await phone.sit();
+    await phone.session({ type: 'thought_parked', text: `and then ${explicitPhrase}` });
+    await phone.runner.settled();
+    expect(phone.store.getState().today).toEqual({ kind: 'crisis' });
+
+    await phone.store.dispatch({ type: 'care_closed' });
+    await phone.runner.settled();
+
+    // The thing is back, with no monster, no joke, no card and nothing to share.
+    const state = phone.store.getState();
+    const task = taskOf(state.today);
+    expect(task.screen).toBe('unscreened');
+    for (const what of ['monster', 'joke', 'card', 'share', 'notification'] as const) {
+      expect(showsComedy(task, what)).toBe(false);
+    }
+    expect(stage(phone)).toMatchObject({ kind: 'task_set', monster: null });
+    expect(shareOffered(task)).toBe(false);
+    expect(state.session).toBeNull();
+
+    // Opening the app again asks the server nothing while the day is quiet.
+    const asked = server.requests.length;
+    await phone.store.dispatch({ type: 'app_foregrounded' });
+    await phone.store.dispatch({ type: 'connection_returned' });
+    await phone.runner.settled();
+    expect(server.requests).toHaveLength(asked);
+    expect(await dayStatus(phone)).toBe('quiet');
+  });
+
+  it('opens again for words that are a crisis, and can be closed again', async () => {
+    const phone = await carePhone(careServer(crisis));
+    await phone.type(heavyWords);
+    await phone.store.dispatch({ type: 'care_closed' });
+    expect(phone.store.getState().today.kind).toBe('done_for_today');
+
+    await phone.type(heavyWords);
+    expect(phone.store.getState().today).toEqual({ kind: 'crisis' });
+    expect(stage(phone)).toEqual({ kind: 'care' });
+
+    await phone.store.dispatch({ type: 'care_closed' });
+    expect(phone.store.getState().today.kind).toBe('done_for_today');
+  });
+
+  it('does nothing on a day that is not a crisis day', async () => {
+    const phone = await carePhone(careServer(pass));
+    await phone.type('Email the dentist');
+    await phone.store.dispatch({ type: 'one_thing_picked' });
+
+    await phone.store.dispatch({ type: 'care_closed' });
+
+    expect(taskOf(phone.store.getState().today).screen).toBe('pass');
+    expect(await dayStatus(phone)).toBe('open');
   });
 });
