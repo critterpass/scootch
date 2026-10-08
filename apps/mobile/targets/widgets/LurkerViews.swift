@@ -335,8 +335,8 @@ struct PlainMediumView: View {
     }
 }
 
-/// The small widget's layouts: the lurker, the plain day, and on the nightstand after ten
-/// tomorrow's one thing. StandBy is a Plus surface: without Plus it is a locked preview.
+/// The small widget's layouts: the lurker, Scootch at rest, the plain day, and on the nightstand
+/// after ten tomorrow's one thing. StandBy is a Plus surface: without Plus it is a locked preview.
 struct LurkerWidgetView: View {
     @Environment(\.widgetFamily) private var family
     let entry: SurfaceEntry
@@ -361,6 +361,8 @@ struct LurkerWidgetView: View {
             NightlightView(entry: entry, thing: thing)
         } else if entry.showsLurker, let lurker = entry.lurker {
             LurkerSmallView(entry: entry, lurker: lurker, look: look)
+        } else if let rest = entry.rest {
+            RestSmallView(entry: entry, rest: rest, look: look).widgetURL(SurfaceLinks.world)
         } else {
             PlainSmallView(entry: entry, look: look).widgetURL(PlainDay(entry).destination)
         }
@@ -412,7 +414,7 @@ private struct LineupMonster: View {
 }
 
 /// The medium widget: up to four lurkers standing on the floor, the one that has waited longest
-/// first. With nothing lurking it is the plain day.
+/// first. With nothing lurking it is Scootch at rest, or the plain day.
 struct LurkersLineupView: View {
     let entry: SurfaceEntry
     let look: SurfaceLook
@@ -472,6 +474,9 @@ struct LurkersWidgetView: View {
                         !entry.snapshot.lurkers.isEmpty
                     {
                         LurkersLineupView(entry: entry, look: look)
+                    } else if let rest = entry.rest {
+                        RestMediumView(entry: entry, rest: rest, look: look)
+                            .widgetURL(SurfaceLinks.world)
                     } else {
                         PlainMediumView(entry: entry, look: look)
                             .widgetURL(PlainDay(entry).destination)

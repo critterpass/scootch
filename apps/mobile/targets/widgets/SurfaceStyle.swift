@@ -115,6 +115,10 @@ extension SurfaceSnapshot.Lurker {
     var picture: UIImage? { SurfaceSnapshot.picture(named: image) }
 }
 
+extension SurfaceSnapshot.AtRest {
+    var picture: UIImage? { SurfaceSnapshot.picture(named: image) }
+}
+
 /// Where a tap on a surface lands. Each is a route the app's router already has.
 enum SurfaceLinks {
     static var scheme: String {
