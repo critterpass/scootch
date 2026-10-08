@@ -56,7 +56,7 @@ export const viKeeping = {
   'binder.page.fill': '{count}/{of}',
   'binder.page.complete': 'Đủ bộ',
   'binder.tab.hint': 'Mở trang của tháng đó',
-  'binder.leaf': '{page} / {of}',
+  'binder.leaf': '{page}/{of}',
   'binder.leaf.spoken': '{month}, trang {page} trên {of}',
   'binder.leaf.back': 'Trang trước',
   'binder.leaf.back.hint': 'Lật lại một trang',

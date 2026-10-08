@@ -101,6 +101,10 @@ appId: app.scootch.dev
 - runFlow:
     file: ../tour-support/shot.yaml
     env:
+      NAME: share-page--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
       NAME: share-wanted--en-light-default
 - runFlow:
     file: ../tour-support/shot.yaml

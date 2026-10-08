@@ -5,7 +5,6 @@ import { localDateTime } from '@scootch/domain';
 
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { useToday } from '../../state/day-store-provider';
-import { useKeepsakes } from '../../state/keepsakes';
 import { useLighthouse } from '../world/use-lighthouse';
 import { plusLine } from '../../state/lines';
 import type { NoTaskSlot } from '@scootch/voice';
@@ -13,10 +12,8 @@ import { usePlusRuntime, usePlusState } from '../../state/plus-context';
 
 import { throughAppleSheet } from './apple-sheet';
 import { longDate } from './dates';
-import { useKeptWeeks } from './kept-records';
 import { LastDay, RenewalOff } from './moments';
 import { nextPlanDate, planLine } from './plan-line';
-import { RecordShelf } from './record-shelf';
 import { PLUS_RENEWAL_OFF, STUDIO_ROUTE } from './routes';
 import { Welcome } from './welcome';
 import { goHome } from '../navigation/go-home';
@@ -114,20 +111,4 @@ export function RenewalOffContainer() {
       close={moment.close}
     />
   );
-}
-
-/** The record shelf on the real phone: the kept weeks, named from the phone's own tables. */
-export function RecordShelfContainer() {
-  const router = useRouter();
-  const t = useT();
-  const { weeks } = useKeptWeeks();
-  const { keepsakes } = useKeepsakes();
-  const records = [...weeks].reverse().map((week) => ({
-    week,
-    name:
-      keepsakes?.weekRecords.find((record) => record.week === week)?.name ??
-      t('record.week', { number: Number(week.slice(-2)) }),
-    bars: keepsakes?.bars.filter((bar) => bar.week === week).length ?? 0,
-  }));
-  return <RecordShelf records={records} close={() => router.dismissTo('/record')} />;
 }

@@ -206,6 +206,15 @@ export const enPlus = {
   'record.keep.hint': 'Keeps this week’s record on your shelf',
   'recordShelf.title': 'Record shelf',
   'recordShelf.empty': 'Records you keep stand here.',
+  'recordShelf.empty.how':
+    'Keep a week from \u201cThis week\u2019s song\u201d and its record stands here, ready to play.',
+  'recordShelf.count': {
+    one: '{count} record kept',
+    other: '{count} records kept',
+  },
+  'recordShelf.tap': 'Tap to play',
+  'recordShelf.play.hint': 'Slides the record out of its sleeve and plays that week',
+  'recordShelf.stop.hint': 'Stops the record and slides it back',
   'recordShelf.bars': {
     one: '{count} bar',
     other: '{count} bars',
