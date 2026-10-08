@@ -44,13 +44,14 @@ appId: app.scootch.dev
 - assertVisible:
     id: 'settings-attitude-note'
 - takeScreenshot: fresh-05-attitude-soft
-# Tables live behind one row. A fresh phone has never signed in: the row reads "Off", and its page
-# says so and offers the sign-in, with the two switches a seat follows already there.
+# Tables live behind one row. A fresh phone has never signed in: the row reads "Off" under its
+# name (one label, as a screen reader says it), and its page says so and offers the sign-in, with
+# the two switches a seat follows already there.
 - scrollUntilVisible:
     element:
       id: 'settings-tables'
     direction: DOWN
-- assertVisible: 'Off'
+- assertVisible: 'Tables. Off'
 - tapOn:
     id: 'settings-tables'
 - extendedWaitUntil:
