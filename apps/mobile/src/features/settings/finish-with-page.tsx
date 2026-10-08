@@ -1,120 +1,138 @@
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import type { SettingsRow } from '@scootch/domain';
+import type { MonsterRow, SettingsRow } from '@scootch/domain';
 import { fonts, radius, spacing } from '@scootch/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
-import { useScreenStyle } from '../../ui/use-screen-style';
-
-import { Page } from './page';
-import { Note, Row } from './rows';
+import { useAppearance } from '../../screens/registry/support/forced-variant';
+import { usePlusState } from '../../state/plus-context';
 import { PressSpring } from '../../ui/motion/press-spring';
+import { useScreenStyle } from '../../ui/use-screen-style';
+import { sessionInks } from '../session/ui/session-inks';
 
-type FinishWith = SettingsRow['finishWith'];
+import { HoldPreview, Preview, RolledPreview, STAND_IN } from './catch-with-previews';
+import { Page } from './page';
+import { Note } from './rows';
 
-const METHODS = [
+type CatchWith = SettingsRow['catchWith'];
+
+const WAYS = [
+  { id: 'rolled', label: 'finishWith.rolled', sub: 'finishWith.rolled.sub' },
   { id: 'hold', label: 'finishWith.hold', sub: 'finishWith.hold.sub' },
-  { id: 'double_tap', label: 'finishWith.tapTwice', sub: 'finishWith.tapTwice.sub' },
-  { id: 'voice', label: 'finishWith.sayDone', sub: 'finishWith.sayDone.sub' },
-] as const satisfies readonly { id: FinishWith; label: string; sub: string }[];
-
-/** How long the preview keeps "tap again to confirm" up before it starts over. */
-const PREVIEW_RESET_MS = 2500;
+] as const satisfies readonly { id: CatchWith; label: string; sub: string }[];
 
 export interface FinishWithPageProps {
-  readonly finishWith: FinishWith;
-  readonly onChoose: (finishWith: FinishWith) => void;
+  readonly catchWith: CatchWith;
+  /** Today's monster, drawn in the previews; `null` draws a stand-in. */
+  readonly monster: MonsterRow | null;
+  readonly onChoose: (catchWith: CatchWith) => void;
   readonly onClose: () => void;
 }
 
 /**
- * "Finish with": the catch, tap twice, or say "done". A catch is a gesture, which is hard for some
- * hands, and the reward is the same whichever is chosen. The control underneath is a preview of
- * the tapped finish: it finishes nothing. The catch has none, since it changes with the task.
+ * "Catch with": who a session opens on. Rolled puts the monster and its catch on the screen with
+ * Scootch in the corner; Hold puts Scootch at work on the screen with the monster in the corner
+ * and the hold to finish at the foot. Each is drawn as the session draws it, and in a session a
+ * tap on the corner swaps them, so this only chooses which comes first.
  */
-export function FinishWithPage({ finishWith, onChoose, onClose }: FinishWithPageProps) {
-  const { palette } = useScreenStyle();
+export function FinishWithPage({ catchWith, monster, onChoose, onClose }: FinishWithPageProps) {
+  const { palette, allowFontScaling, size, largeText } = useScreenStyle();
   const t = useT();
+  const scheme = useAppearance();
+  const { ink } = usePlusState().look;
+  const inks = useMemo(() => sessionInks(scheme, ink), [scheme, ink]);
+  const shown = monster ?? STAND_IN;
   return (
     <Page title={t('settings.finishWith')} onClose={onClose} testID="finish-with">
-      <View
-        accessibilityRole="radiogroup"
-        style={[styles.group, { backgroundColor: palette.surface }]}
-      >
-        {METHODS.map((method, index) => (
-          <Row
-            key={method.id}
-            first={index === 0}
-            kind="choice"
-            selected={method.id === finishWith}
-            label={t(method.label)}
-            sub={t(method.sub)}
-            hint={t('finishWith.choose.hint')}
-            onPress={() => onChoose(method.id)}
-            testID={`finish-with-${method.id}`}
-          />
-        ))}
+      <View accessibilityRole="radiogroup" style={largeText ? styles.stacked : styles.pair}>
+        {WAYS.map((way) => {
+          const selected = way.id === catchWith;
+          return (
+            <PressSpring
+              key={way.id}
+              accessibilityRole="radio"
+              accessibilityState={{ selected }}
+              accessibilityLabel={`${t(way.label)}. ${t(way.sub)}`}
+              accessibilityHint={t('finishWith.choose.hint')}
+              feedback="choice"
+              onPress={() => onChoose(way.id)}
+              testID={`finish-with-${way.id}`}
+              style={[
+                styles.card,
+                largeText ? null : styles.half,
+                {
+                  backgroundColor: palette.surface,
+                  borderColor: selected ? palette.ink : 'transparent',
+                },
+              ]}
+            >
+              <Preview inks={inks} style={styles.preview}>
+                {(width) =>
+                  way.id === 'rolled' ? (
+                    <RolledPreview width={width} monster={shown} inks={inks} />
+                  ) : (
+                    <HoldPreview width={width} monster={shown} inks={inks} />
+                  )
+                }
+              </Preview>
+              <View style={styles.title}>
+                <Text
+                  allowFontScaling={allowFontScaling}
+                  style={[styles.label, { color: palette.ink, fontSize: size(17) }]}
+                >
+                  {t(way.label)}
+                </Text>
+                <View
+                  style={[styles.mark, { borderColor: selected ? palette.ink : palette.muted }]}
+                >
+                  {selected ? (
+                    <View style={[styles.dot, { backgroundColor: palette.ink }]} />
+                  ) : null}
+                </View>
+              </View>
+              <Text
+                allowFontScaling={allowFontScaling}
+                style={[styles.sub, { color: palette.muted, fontSize: size(14) }]}
+              >
+                {t(way.sub)}
+              </Text>
+            </PressSpring>
+          );
+        })}
       </View>
-      <Note text={t('finishWith.same')} />
-      <FinishPreview finishWith={finishWith} />
+      <Note text={t('finishWith.swap')} />
     </Page>
   );
 }
 
-/** The finish control as the session will show it, with nothing behind it. */
-function FinishPreview({ finishWith }: { readonly finishWith: FinishWith }) {
-  const { palette, allowFontScaling, size } = useScreenStyle();
-  const t = useT();
-  const [stage, setStage] = useState<'idle' | 'going'>('idle');
-  useEffect(() => setStage('idle'), [finishWith]);
-  useEffect(() => {
-    if (stage === 'idle') return undefined;
-    const timer = setTimeout(() => setStage('idle'), PREVIEW_RESET_MS);
-    return () => clearTimeout(timer);
-  }, [stage]);
-
-  if (finishWith === 'hold') return null;
-  const label = t(stage === 'going' ? 'session.finish.tapConfirm' : 'session.finish.tap');
-  return (
-    <View style={styles.preview}>
-      <Text
-        allowFontScaling={allowFontScaling}
-        style={[styles.previewLabel, { color: palette.muted, fontSize: size(15) }]}
-      >
-        {t('finishWith.preview')}
-      </Text>
-      <PressSpring
-        accessibilityRole="button"
-        accessibilityLabel={label}
-        accessibilityHint={t('finishWith.preview.hint')}
-        testID="finish-with-preview"
-        onPress={() => setStage(stage === 'idle' ? 'going' : 'idle')}
-        style={[styles.control, { backgroundColor: palette.tomato }]}
-      >
-        <Text
-          allowFontScaling={allowFontScaling}
-          style={[styles.controlLabel, { color: palette.onTomato, fontSize: size(17) }]}
-        >
-          {label}
-        </Text>
-      </PressSpring>
-      {finishWith === 'voice' ? <Note text={t('finishWith.sayDone.note')} /> : null}
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
-  group: { borderRadius: radius.lg, overflow: 'hidden' },
-  preview: { gap: spacing.sm, marginTop: spacing.lg, alignItems: 'stretch' },
-  previewLabel: { fontFamily: fonts.body, textAlign: 'center' },
-  control: {
-    minHeight: 56,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
+  pair: { flexDirection: 'row', alignItems: 'stretch', gap: spacing.sm },
+  stacked: { gap: spacing.sm },
+  half: { flex: 1 },
+  card: {
+    borderRadius: radius.lg,
+    borderWidth: 2,
+    padding: spacing.sm,
+    gap: spacing.xs,
+  },
+  preview: { borderRadius: radius.lg - spacing.sm / 2, marginBottom: spacing.xs },
+  title: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.xs,
+  },
+  label: { flexShrink: 1, fontFamily: fonts.heading, fontWeight: '700' },
+  mark: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  controlLabel: { fontFamily: fonts.heading, fontWeight: '700', textAlign: 'center' },
+  dot: { width: 10, height: 10, borderRadius: 5 },
+  sub: { fontFamily: fonts.body, paddingHorizontal: spacing.xs, paddingBottom: spacing.xs },
 });

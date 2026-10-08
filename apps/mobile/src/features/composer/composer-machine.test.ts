@@ -186,6 +186,40 @@ describe('typing', () => {
     const { state } = run(ready, [{ type: 'keyboard_tapped' }, { type: 'voice_tapped' }]);
     expect(state.mode).toBe('voice');
   });
+
+  it('goes back to hold-to-talk when the keyboard is put away with nothing typed', () => {
+    const empty = run(ready, [{ type: 'keyboard_tapped' }, { type: 'keyboard_dismissed' }]);
+    expect(empty.state).toMatchObject({ mode: 'voice', phase: 'idle', text: '' });
+    const spaces = run(ready, [
+      { type: 'keyboard_tapped' },
+      { type: 'text_changed', text: '  ' },
+      { type: 'keyboard_dismissed' },
+    ]);
+    expect(spaces.state).toMatchObject({ mode: 'voice', text: '' });
+  });
+
+  it('keeps the field when the keyboard is put away over typed words, or mid-send', () => {
+    const typed = run(ready, [
+      { type: 'keyboard_tapped' },
+      { type: 'text_changed', text: 'drink some water' },
+      { type: 'keyboard_dismissed' },
+    ]);
+    expect(typed.state).toMatchObject({ mode: 'typing', text: 'drink some water' });
+    expect(typed.sent).toEqual([]);
+
+    const sending = run(ready, [
+      { type: 'keyboard_tapped' },
+      { type: 'text_changed', text: 'drink some water' },
+      { type: 'send_tapped' },
+      { type: 'keyboard_dismissed' },
+    ]);
+    expect(sending.state).toMatchObject({ mode: 'typing', phase: 'sending' });
+  });
+
+  it('stays a field without a microphone, however the keyboard goes', () => {
+    const { state } = run(initialComposer('refused'), [{ type: 'keyboard_dismissed' }]);
+    expect(state.mode).toBe('typing');
+  });
 });
 
 describe('without a microphone', () => {

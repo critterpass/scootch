@@ -16,7 +16,6 @@ import { opensOnSession } from '../../state/session-relaunch';
 
 import { sessionView, NOTHING_PASSED } from './session-view';
 import { MORNING, phone } from './test/phone';
-import { SAID_DONE } from './voice-finish-trigger';
 
 const pass = passFixture.response as TaskCreatePass;
 const serious = seriousFixture.response as TaskCreateResponse;
@@ -24,7 +23,7 @@ const serious = seriousFixture.response as TaskCreateResponse;
 const FINISHES: Record<string, readonly SessionEvent[]> = {
   hold: [{ type: 'hold_started' }, { type: 'hold_completed' }],
   double_tap: [{ type: 'double_tapped' }],
-  voice: [SAID_DONE],
+  voice: [{ type: 'said_done' }],
 };
 
 describe('finishing a session', () => {
@@ -117,7 +116,6 @@ describe('finishing a session', () => {
       burst: state.burst,
       treat: state.treat,
       parkedThoughts: state.parkedThoughts,
-      finishWith: 'hold',
       passed: NOTHING_PASSED,
     });
     expect(view).toEqual({ kind: 'moment', quiet: true });

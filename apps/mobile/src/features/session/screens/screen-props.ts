@@ -6,10 +6,18 @@ import type { ShownLine } from '../../../state/day-types';
 import type { SessionView } from '../session-view';
 import type { SessionInks } from '../ui/session-inks';
 
+/** The two a session can be about: the task's monster and its catch, or Scootch at work. */
+export type SessionFace = 'monster' | 'scootch';
+
 /** What a session that ends in a catch draws beside the session itself. */
 export interface CatchModel {
   /** The catch this task rolled. */
   readonly kind: CatchKind;
+  /**
+   * Who the session opens on: the monster and its catch, or Scootch at work with the hold to
+   * finish. A tap on whoever sits in the corner swaps them.
+   */
+  readonly opensOn: SessionFace;
   /** How many monsters the binder already holds; `null` until that has been read. */
   readonly caughtCount: number | null;
   /** The other monsters caught this month, oldest first. */
@@ -43,7 +51,9 @@ export interface SessionModel {
   readonly parkOpen: boolean;
   /** The thought just parked, shown for a moment. */
   readonly parkedNote: string | null;
-  /** The task's catch, when its monster can be caught by hand; `null` when the finish is tapped. */
+  /** Where the hold ring starts, for a capture of a ring let go of early. */
+  readonly holdStartsAt: number;
+  /** The task's catch, when its monster can be caught by hand; `null` when the finish is held. */
   readonly catch: CatchModel | null;
   /** The developer control that ends the timer in a few seconds is on show. */
   readonly developerEnd: boolean;

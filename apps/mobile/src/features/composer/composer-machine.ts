@@ -36,6 +36,8 @@ export type ComposerEvent =
   | { readonly type: 'recognition_failed'; readonly reason: 'refused' | 'unavailable' | 'nothing' }
   | { readonly type: 'keyboard_tapped' }
   | { readonly type: 'voice_tapped' }
+  /** The keyboard was put away without sending: the field lost the keyboard's attention. */
+  | { readonly type: 'keyboard_dismissed' }
   | { readonly type: 'text_changed'; readonly text: string }
   | { readonly type: 'send_tapped' }
   | { readonly type: 'sent' }
@@ -182,6 +184,15 @@ export function composerReducer(state: ComposerState, event: ComposerEvent): Com
     case 'voice_tapped':
       return state.phase === 'idle' && canListen(state.voice)
         ? stay({ ...state, mode: 'voice', notice: null })
+        : stay(state);
+    case 'keyboard_dismissed':
+      // Put away with nothing typed, the field has no more to do: the capsule is hold-to-talk
+      // again, as it was. Words already typed stay in the field, where they can be seen and sent.
+      return state.mode === 'typing' &&
+        state.phase === 'idle' &&
+        state.text.trim() === '' &&
+        canListen(state.voice)
+        ? stay({ ...state, mode: 'voice', text: '', notice: null })
         : stay(state);
     case 'text_changed':
       return stay({ ...state, text: event.text, notice: null });

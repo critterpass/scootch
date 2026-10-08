@@ -129,16 +129,17 @@ export function SettingsContainer() {
   );
 }
 
-/** "Finish with", wired to the setting the session reads. */
+/** "Catch with", wired to the setting the session reads. */
 export function FinishWithContainer() {
-  const { settings } = useToday();
+  const { settings, monster } = useToday();
   const dispatch = useDispatch();
   const router = useRouter();
   return (
     <FinishWithPage
-      finishWith={settings.finishWith}
-      onChoose={(finishWith) =>
-        void dispatch({ type: 'settings_changed', changes: { finishWith } }).catch(() => undefined)
+      catchWith={settings.catchWith}
+      monster={monster}
+      onChoose={(catchWith) =>
+        void dispatch({ type: 'settings_changed', changes: { catchWith } }).catch(() => undefined)
       }
       onClose={() => goBack(router, '/settings')}
     />

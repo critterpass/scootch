@@ -210,6 +210,29 @@ describe('local storage', () => {
     expect((await repositories.tasks.all()).map((row) => row.shrinkCount)).toEqual([2]);
   });
 
+  it('opens sessions on the hold for someone who had chosen a finish with no gesture', async () => {
+    const { db } = await openTestDatabase();
+    const { settings } = openRepositories(db);
+    expect((await settings.read('en')).catchWith).toBe('rolled');
+
+    // What an earlier app stored: the catch as `hold`, and the two finishes that are gone.
+    const store = (value: string) =>
+      db.runAsync(
+        'INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT (key) DO UPDATE SET value = excluded.value',
+        ['finishWith', value],
+      );
+    await store('hold');
+    expect((await settings.read('en')).catchWith).toBe('rolled');
+    await store('double_tap');
+    expect((await settings.read('en')).catchWith).toBe('hold');
+    await store('voice');
+    expect((await settings.read('en')).catchWith).toBe('hold');
+
+    // A choice made on the new page is the one that counts from then on.
+    await settings.write({ catchWith: 'rolled' });
+    expect((await settings.read('en')).catchWith).toBe('rolled');
+  });
+
   it('keeps settings beside the stored interface language, with defaults for the rest', async () => {
     const { db } = await openTestDatabase();
     const { settings } = openRepositories(db);

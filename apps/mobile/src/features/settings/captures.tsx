@@ -53,7 +53,7 @@ export function SettingsBackupOff() {
 }
 
 export function FinishWithCapture() {
-  return <FinishWithPage finishWith="double_tap" onChoose={nothing} onClose={nothing} />;
+  return <FinishWithPage catchWith="rolled" monster={null} onChoose={nothing} onClose={nothing} />;
 }
 
 function Privacy({

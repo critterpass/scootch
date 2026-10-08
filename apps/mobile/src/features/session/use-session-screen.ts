@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+import { useIsFocused, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AccessibilityInfo } from 'react-native';
 
@@ -27,7 +27,6 @@ import {
   type Passed,
 } from './session-view';
 import { BURST_HOLD_MS } from './ui/burst-shapes';
-import { SAID_DONE, voiceFinishTrigger } from './voice-finish-trigger';
 
 /** How often Scootch says another of his working lines. */
 const WORKING_LINE_EVERY_MS = 90_000;
@@ -104,14 +103,15 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
   const phase = session?.phase ?? null;
 
   // A catch is a gesture on a moving drawing: it needs a monster, a finger that can find it and
-  // motion that may play. Otherwise the finish is two taps.
+  // motion that may play. Otherwise the finish is the hold alone.
   const screenReader = useScreenReader();
   const canCatch = catchable({
     monster: monster !== null,
     screenReader,
     reducedMotion: character.reducedMotion,
   });
-  const catches = canCatch && settings.finishWith === 'hold' && live?.tone === 'full';
+  const catches = canCatch && live?.tone === 'full';
+  const opensOn = settings.catchWith === 'rolled' ? 'monster' : 'scootch';
   // What is already kept is read once for the task: the binder's count and the month's page.
   const { keepsakes } = useKeepsakes(live?.taskId ?? null);
   const caught = useMemo(
@@ -126,15 +126,16 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
     const timer = setTimeout(() => setWaited(true), COACH_WAIT_MS);
     return () => clearTimeout(timer);
   }, []);
-  const coach = catches && !coached && caught !== null && caught.length === 0;
-  const startHeld = catches && !coached && (coach || (caught === null && !waited));
+  // A session that opens on Scootch has no catch in front of it to explain.
+  const explains = catches && opensOn === 'monster' && !coached;
+  const coach = explains && caught !== null && caught.length === 0;
+  const startHeld = explains && (coach || (caught === null && !waited));
   const now = useNow(phase !== null && TICKING.includes(phase));
   const view = sessionView({
     session,
     burst,
     treat,
     parkedThoughts,
-    finishWith: settings.finishWith,
     passed,
     catchable: canCatch,
     coach,
@@ -151,9 +152,12 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
   // A finish hands over to the reveal: the card, the world piece, the bar. The treat and the
   // parked thoughts follow when it comes back.
   const router = useRouter();
+  // Only from the session's own screen: with a page a surface's link opened over it, the replace
+  // would take that page's place instead.
+  const focused = useIsFocused();
   useEffect(() => {
-    if (view.kind === 'reveal') router.replace('/reveal');
-  }, [view.kind, router]);
+    if (view.kind === 'reveal' && focused) router.replace('/reveal');
+  }, [view.kind, focused, router]);
 
   // Arriving here with a session that is set means Start was tapped: the session begins, unless
   // catching has still to be explained, and then the card's own Start begins it.
@@ -195,13 +199,6 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
     return () => clearTimeout(timer);
   }, [parkedNote]);
 
-  // A spoken "done" is heard only while the finish is on show, and only when it was chosen.
-  const listening = view.kind === 'finish' && settings.finishWith === 'voice';
-  useEffect(() => {
-    if (!listening || voiceFinishTrigger === null) return undefined;
-    return voiceFinishTrigger.listen(() => send(SAID_DONE));
-  }, [listening, send]);
-
   // VoiceOver hears the minutes left once a minute, not once a second.
   const left = live ? minutesLeft(live, now) : 0;
   const ticking = phase !== null && TICKING.includes(phase);
@@ -228,10 +225,12 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
     reducedMotion: character.reducedMotion,
     parkOpen,
     parkedNote,
+    holdStartsAt: 0,
     catch:
       catches && live
         ? {
             kind: catchFor(live.taskId),
+            opensOn,
             caughtCount: caught ? caught.length : null,
             monthMates: (caught ?? []).filter(
               (mate) => mate.caughtOn?.slice(0, 7) === localDate.slice(0, 7),

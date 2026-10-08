@@ -257,7 +257,11 @@ export const settingsRowSchema = z.object({
   motion: z.enum(['full', 'calm']),
   quietHoursStart: clockTimeSchema,
   quietHoursEnd: clockTimeSchema,
-  finishWith: z.enum(['hold', 'double_tap', 'voice']),
+  /**
+   * Who a session opens on: the task's monster and its rolled catch, or Scootch at work with the
+   * hold to finish. Either is one tap from the other while the session runs.
+   */
+  catchWith: z.enum(['rolled', 'hold']),
   /** Keep a ramble's transcript for seven days instead of dropping it once the one thing is picked. */
   keepTranscripts: z.boolean(),
   canBeHaunted: z.boolean(),

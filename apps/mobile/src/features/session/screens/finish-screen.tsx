@@ -1,32 +1,32 @@
-import { useEffect, useRef, useState, type ComponentRef } from 'react';
-import { AccessibilityInfo, Pressable, StyleSheet, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { spacing } from '@scootch/tokens';
 
-import { useHoldControl } from '../use-hold-control';
 import { BurstMarks } from '../ui/burst-marks';
 import { Characters } from '../ui/characters';
 import { Stage, Words } from '../ui/drawn-parts';
-import { FilledButton, RoundButton, TextButton } from '../ui/controls';
+import { RoundButton, TextButton } from '../ui/controls';
 import { SessionFrame } from '../ui/session-frame';
 import { SessionText } from '../ui/session-text';
 
+import { HoldFinishBlock, useBurstFrom, useHoldFinish } from './hold-finish';
 import type { ScreenProps } from './screen-props';
 
 /** How long the catch plays before a tap anywhere may pass it. */
 const PASS_AFTER_MS = 400;
 
 /**
- * Time is up, or the person is done early, and the finish is two taps: Scootch's line and the
- * control, which asks for a second tap. It is the finish of everyone who chose it or chose to say
- * "done", and of anyone whose monster cannot be caught by hand. "Not finished" sits beside
- * finishing once time is up.
+ * Time is up, or the person is done early, and the monster cannot be caught by hand here:
+ * Scootch's line and the hold to finish. Holding fills the ring and letting go drains it with a
+ * kind word. "Not finished" sits beside finishing once time is up.
  *
  * The same screen then plays the catch: the burst goes up from the control, its label reads
  * "Done", Scootch celebrates and the monster is caught. It passes by itself; a tap anywhere passes
  * it sooner. The finish's own sound and tap were played by the finish and are not played again.
  */
-export function FinishScreen({ model, actions, inks, t }: ScreenProps) {
+export function FinishScreen(props: ScreenProps) {
+  const { model, actions, inks, t } = props;
   const { view } = model;
   const timeUp = view.kind === 'finish' && view.timeUp;
   const caught = view.kind === 'caught';
@@ -35,42 +35,24 @@ export function FinishScreen({ model, actions, inks, t }: ScreenProps) {
   const wasTimeUp = useRef(timeUp);
   if (view.kind === 'finish') wasTimeUp.current = view.timeUp;
   const keepsRow = caught && wasTimeUp.current;
-  // A tap anywhere passes the catch, but not the tail of the taps that made the finish.
+  // A tap anywhere passes the catch, but not the tail of the hold that made the finish.
   const [mayPass, setMayPass] = useState(false);
   useEffect(() => {
     if (!caught) return setMayPass(false);
     const timer = setTimeout(() => setMayPass(true), PASS_AFTER_MS);
     return () => clearTimeout(timer);
   }, [caught]);
-  // Where the burst goes up from: the middle of the finish control, found as the catch begins.
-  const controlRef = useRef<ComponentRef<typeof View>>(null);
-  const [burstFrom, setBurstFrom] = useState<{ x: number; y: number } | null | undefined>();
-  useEffect(() => {
-    if (!caught) return setBurstFrom(undefined);
-    const control = controlRef.current;
-    if (!control) return setBurstFrom(null);
-    control.measureInWindow((x: number, y: number, width: number, height: number) =>
-      setBurstFrom(width > 0 ? { x: x + width / 2, y: y + height / 2 } : null),
-    );
-    return undefined;
-  }, [caught]);
-  const hold = useHoldControl('double_tap', actions.sendFinish, 0, view.kind === 'caught');
-  const tap = () => {
-    hold.input({ type: 'tapped', at: Date.now() });
-    if (hold.caption !== 'confirm') {
-      AccessibilityInfo.announceForAccessibility(t('session.finish.tapConfirm'));
-    }
-  };
+  const finish = useHoldFinish(props);
+  const burstFrom = useBurstFrom(finish);
 
   return (
     <SessionFrame
       inks={inks}
-      testID="session-finish-tap"
+      testID="session-finish-hold"
       align="drawn"
-      footerInset={24}
       corner={
         // Nothing to go back to once time is up, or once the thing is caught.
-        timeUp || view.kind === 'caught' ? null : (
+        timeUp || caught ? null : (
           <RoundButton
             label={t('session.finish.keepGoing')}
             hint={t('session.finish.keepGoing.hint')}
@@ -106,22 +88,7 @@ export function FinishScreen({ model, actions, inks, t }: ScreenProps) {
       }
       footer={
         <View style={styles.footer}>
-          <View ref={controlRef} collapsable={false}>
-            <FilledButton
-              tone="tomato"
-              label={t(
-                caught
-                  ? 'session.finish.done'
-                  : hold.caption === 'confirm'
-                    ? 'session.finish.tapConfirm'
-                    : 'session.finish.tap',
-              )}
-              hint={t('session.finish.tap.hint')}
-              testID="session-finish-tap-button"
-              inks={inks}
-              onPress={tap}
-            />
-          </View>
+          <HoldFinishBlock finish={finish} inks={inks} t={t} />
           {timeUp || keepsRow ? (
             // Set apart from the finish control, so reaching for one does not land on the other.
             <View
@@ -144,8 +111,8 @@ export function FinishScreen({ model, actions, inks, t }: ScreenProps) {
     >
       <Stage height={250} top={16}>
         <Characters
-          mood={caught ? 'celebrating' : 'waiting'}
-          monsterMood={caught ? 'caught' : 'idle'}
+          mood={finish.scootchMood}
+          monsterMood={finish.monsterMood}
           attitude={model.attitude}
           monster={model.monster}
           reducedMotion={model.reducedMotion}
@@ -168,19 +135,16 @@ export function FinishScreen({ model, actions, inks, t }: ScreenProps) {
 }
 
 const styles = StyleSheet.create({
-  // The board's hold block: 22 points between the button and its caption, ending 44 from the foot.
+  // The board's hold block ends 44 points from the foot.
   footer: {
     alignItems: 'stretch',
-    gap: 22,
     paddingBottom: 10,
   },
   unseen: {
     opacity: 0,
   },
+  // The caption's own 22 points, and a step more.
   apart: {
-    marginTop: spacing.lg,
-  },
-  centred: {
-    textAlign: 'center',
+    marginTop: spacing.lg + 22,
   },
 });

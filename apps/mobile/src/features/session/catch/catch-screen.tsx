@@ -1,41 +1,33 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  StyleSheet,
-  View,
-  type GestureResponderEvent,
-  type LayoutChangeEvent,
-} from 'react-native';
+import { StyleSheet, View, type LayoutChangeEvent } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useCue } from '../../../state/day-store-provider';
 import { CORNER } from '../../../ui/corner-bar';
 import { GlassGroup } from '../../../ui/glass-surface';
+import { useBurstFrom, useHoldFinish } from '../screens/hold-finish';
 import type { ScreenProps } from '../screens/screen-props';
-import { WorkingFooter } from '../screens/working-footer';
+import { deskMood } from '../screens/working-desk';
 import { workingMenu } from '../screens/working-menu';
-import { BurstMarks } from '../ui/burst-marks';
-import type { ParkComposerHandle } from '../ui/park-composer';
 import { ParkedToast } from '../ui/parked-toast';
 import { SessionMenu, type SessionMenuItem } from '../ui/session-menu';
 
+import { CatchBoard } from './catch-board';
 import { AskSheet, CoachCard } from './catch-cards';
-import { catchStage, gestureUnlocked, trapProgress, type CatchAnswer } from './catch-flow';
+import { catchStage, type CatchAnswer } from './catch-flow';
+import { CatchFoot } from './catch-foot';
 import { CAPTION_AT, DRAWN_IN } from './catch-kinds';
-import { CatchTopRow, ROW } from './catch-top-row';
+import { CatchTopRow, CORNER_SEAT, ROW, scootchMood, type Seated } from './catch-top-row';
 import { catchWords } from './catch-words';
 import { CatchWordsBlock } from './catch-words-block';
+import { CaughtOver } from './caught-over';
+import { SwapFlyers, useFaceSwap, useSwapLayers } from './face-swap';
 import { fitBoard, type BoardFit } from './fit-board';
-import { STAGE } from './math';
-import type { SceneTouch } from './rig';
-import { SCENES } from './scenes';
+import { MONSTER_SIZE } from './parts';
+import { ScootchDesk } from './scootch-desk';
 import { useSceneHost } from './use-scene-host';
 
-/** How long the catch has played before a tap anywhere may pass it. */
-const PASS_AFTER_MS = 400;
 /** The gap the board leaves under the corner row before the words, and before the coach card. */
 const UNDER_ROW = 18;
 const COACH_UNDER_ROW = 46;
@@ -45,12 +37,25 @@ const WORDS_ROOM = 58;
 const PARK_ROOM = 54;
 /** The air kept between the words and the drawing. */
 const WORDS_AIR = 12;
+/** The board's footers end 34 points above the screen's edge, and never nearer it than 12. */
+const DRAWN_FOOT = 34;
+const LEAST_FOOT = 12;
+/** How far in from the sides a card or a field sits at the foot. */
+const CARD_INSET = 14;
 
 /**
- * The session of a task whose monster is caught by hand, from the first minute to the catch. The
- * task stays the headline while the timer runs, and the trap setting itself is one quiet line
- * under it. When time is up Scootch asks whether the thing was really done: only a yes unlocks the
- * gesture, and "Not yet" gives more time. The same screen then plays the catch.
+ * The session of a task whose monster can be caught by hand, from the first minute to the catch.
+ * It has two faces, and a tap on whoever sits in the corner swaps them.
+ *
+ * With the monster on the screen the task stays the headline while the timer runs, and the trap
+ * setting itself is one quiet line under it. When time is up Scootch asks whether the thing was
+ * really done: only a yes unlocks the gesture, and "Not yet" gives more time.
+ *
+ * With Scootch on the screen he works on his shrinking disc as the board draws him, the monster
+ * waits in the corner beside its name, and the finish is the hold: time up, or "I'm done", brings
+ * the button to the foot, and holding it until it bursts is the whole answer.
+ *
+ * Either way the same screen then plays the catch.
  */
 export function CatchScreen(props: ScreenProps) {
   const { model, actions, inks, t } = props;
@@ -76,6 +81,9 @@ export function CatchScreen(props: ScreenProps) {
     sendFinish: actions.sendFinish,
   });
 
+  const finish = useHoldFinish(props);
+  const heldFrom = useBurstFrom(finish);
+
   const [size, setSize] = useState<{ width: number; height: number } | null>(null);
   const onLayout = useCallback((event: LayoutChangeEvent) => {
     const { width, height } = event.nativeEvent.layout;
@@ -84,27 +92,41 @@ export function CatchScreen(props: ScreenProps) {
     );
   }, []);
   const fitted = useRef<BoardFit>({ scale: 1, left: 0, top: 0 });
-
-  // A touch on the drawing, handed to the scene in the board's points.
-  const touch = useRef<SceneTouch | null>(null);
-  const toBoard = (event: GestureResponderEvent) => {
-    const { locationX, locationY } = event.nativeEvent;
-    const { scale: by, left, top } = fitted.current;
-    return [(locationX - left) / by, (locationY - top) / by] as const;
-  };
-
-  // A tap anywhere passes the catch, but not the tail of the gesture that made it.
-  const caught = stage === 'caught';
-  const [mayPass, setMayPass] = useState(false);
-  useEffect(() => {
-    if (!caught) return setMayPass(false);
-    const timer = setTimeout(() => setMayPass(true), PASS_AFTER_MS);
-    return () => clearTimeout(timer);
-  }, [caught]);
+  const kindNow = model.catch?.kind ?? 'jar';
+  const rowTop = insets.top + CORNER.top;
+  const swap = useFaceSwap({
+    opensOn: model.catch?.opensOn ?? 'monster',
+    still: model.reducedMotion,
+    places: () => {
+      if (!size) return null;
+      const { scale, top } = fitted.current;
+      const drawn = DRAWN_IN[kindNow];
+      return {
+        corner: {
+          x: CORNER.side + CORNER_SEAT / 2,
+          y: rowTop + ROW / 2,
+          size: CORNER_SEAT,
+        },
+        // The middle of what the catch draws, and a monster the size the catch draws its own.
+        scene: {
+          x: size.width / 2,
+          y: top + ((drawn.top + drawn.bottom) / 2) * scale,
+          size: MONSTER_SIZE * scale,
+        },
+      };
+    },
+  });
+  // Scootch's own screen ends where the board's does.
+  const deskFoot = insets.bottom + Math.max(LEAST_FOOT, DRAWN_FOOT - insets.bottom);
+  const layers = useSwapLayers(swap.turn);
+  // Who the screen is turning to: the row, the words and the foot follow at once, and the two
+  // themselves take the length of the flight.
+  const shown = swap.pending ?? swap.face;
+  const atWork = shown === 'scootch';
+  const swapping = swap.pending !== null;
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [wordsTall, setWordsTall] = useState(0);
-  const park = useRef<ParkComposerHandle | null>(null);
   // Whether the pill is coming back from the field (it settles out of the field's width) or
   // turning up for the first time (it fades in).
   const fieldWasUp = useRef(false);
@@ -122,7 +144,7 @@ export function CatchScreen(props: ScreenProps) {
   // it is the way to "Not finished", which is never out of reach.
   const menu: SessionMenuItem[] | null = working
     ? workingMenu(props)
-    : timeUp && (stage === 'waiting' || stage === 'ready')
+    : timeUp && (atWork || stage === 'waiting' || stage === 'ready')
       ? [
           {
             label: t('session.notFinished'),
@@ -134,19 +156,40 @@ export function CatchScreen(props: ScreenProps) {
       : null;
 
   const at = CAPTION_AT[kind];
-  const footerUp = working !== null && (model.parkOpen || stuck);
-  // "Park a thought" sits under the two lines for as long as there is quiet work to interrupt:
+  const cardUp = working !== null && (model.parkOpen || stuck);
+  // Each face is drawn while it has the screen and for the length of a swap either way.
+  const sceneOn = swap.face === 'monster' || swapping;
+  const deskOn = swap.face === 'scootch' || swapping;
+  // With Scootch at work the foot is his: "Park a thought" sits there, as the board draws it.
+  const footerUp = working !== null && (cardUp || deskOn);
+  // Over the catch it sits under the two lines for as long as there is quiet work to interrupt:
   // not in the last two minutes, which are for the finish, and not under a card or the field.
-  const parkShown = working !== null && stage === 'setting' && !footerUp && !working.twoMinutesLeft;
+  const parkShown =
+    working !== null && sceneOn && stage === 'setting' && !cardUp && !working.twoMinutesLeft;
   // The words are given the room they turn out to need, and never less than the board's own: a
   // headline of two lines with the pill under it is taller than one line, and the drawing keeps
   // clear of all of it. The room only ever grows, so the drawing never jumps back mid-catch.
   const wordsRoom = Math.max(WORDS_ROOM + (parkShown ? PARK_ROOM : 0), wordsTall + WORDS_AIR);
   // The drawing takes a touch only while there is a catch to try: never under a card or a sheet.
   const touchable =
-    (stage === 'setting' || stage === 'waiting' || stage === 'ready') && !footerUp && !menuOpen;
-  const Scene = SCENES[kind];
-  const rowTop = insets.top + CORNER.top;
+    swap.face === 'monster' &&
+    !swapping &&
+    (stage === 'setting' || stage === 'waiting' || stage === 'ready') &&
+    !cardUp &&
+    !menuOpen;
+  // The two change places while there is work or a finish to swap: not before the start, not once
+  // the monster is caught, and not from under a field, a card or a held button.
+  const maySwap =
+    stage !== 'coach' && stage !== 'caught' && !model.parkOpen && finish.hold.caption !== 'holding';
+  // Mid-swap both wait in the corner unseen, so whoever lands there is already drawn.
+  const seat = (who: 'monster' | 'scootch'): Seated =>
+    swap.face !== who ? (swap.flying ? 'unseen' : 'seen') : swapping ? 'unseen' : 'away';
+  const finishing = view.kind === 'finish' || view.kind === 'caught';
+  const rootID = !atWork
+    ? `session-catch-${stage}`
+    : finishing
+      ? 'session-finish-hold'
+      : 'session-running';
   const foot = Math.max(insets.bottom, 12);
   // The board is fitted to this phone so the catch keeps its size: it stays clear of the top row
   // and of the words, which sit above the drawing or below it.
@@ -155,63 +198,60 @@ export function CatchScreen(props: ScreenProps) {
         top: rowTop + ROW + (at === 'top' ? UNDER_ROW + wordsRoom : 0),
         bottom: size.height - foot - (at === 'bottom' ? 10 + wordsRoom : 0),
       })
-    : fitted.current;
-  fitted.current = fit;
+    : null;
+  if (fit) fitted.current = fit;
+  const caught = stage === 'caught';
 
   return (
     <View
       style={[styles.fill, { backgroundColor: inks.page }]}
-      testID={`session-catch-${stage}`}
+      ref={swap.rootRef}
+      testID={rootID}
       onLayout={onLayout}
     >
-      <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, scene.joltStyle]}>
-        {size ? (
-          <View
-            style={[
-              styles.board,
-              {
-                // A view is scaled about its middle, so its corner is set back by half the change.
-                left: fit.left - (STAGE.width * (1 - fit.scale)) / 2,
-                top: fit.top - (STAGE.height * (1 - fit.scale)) / 2,
-                transform: [{ scale: fit.scale }],
-              },
-            ]}
-          >
-            <Scene
-              kind={kind}
-              monster={monster}
-              inks={inks}
-              t={t}
-              progress={trapProgress(stage, model.fraction)}
-              ready={gestureUnlocked(stage)}
-              ended={firstStage === 'caught'}
-              still={model.reducedMotion}
-              caughtCount={model.catch.caughtCount}
-              monthMates={model.catch.monthMates}
-              monthName={model.catch.monthName}
-              host={scene.host}
-              touch={touch}
-            />
-          </View>
-        ) : null}
-      </Animated.View>
-
-      <View
-        style={StyleSheet.absoluteFill}
-        testID="session-catch-scene"
-        accessibilityHint={t('session.catch.scene.hint')}
-        onStartShouldSetResponder={() => touchable}
-        onResponderTerminationRequest={() => false}
-        onResponderGrant={(event) => touch.current?.down(...toBoard(event))}
-        onResponderMove={(event) => touch.current?.move(...toBoard(event))}
-        onResponderRelease={(event) => touch.current?.up(...toBoard(event))}
-        onResponderTerminate={(event) => touch.current?.up(...toBoard(event))}
+      <CatchBoard
+        model={model}
+        inks={inks}
+        t={t}
+        catching={model.catch}
+        stage={stage}
+        fit={fit}
+        drawn={sceneOn}
+        ended={firstStage === 'caught'}
+        host={scene.host}
+        jolt={scene.joltStyle}
+        layer={layers.scene}
+        // With Scootch on the screen there is no drawing to touch, and his own controls are there.
+        inReach={swap.face === 'monster' && !swapping}
+        touchable={touchable}
       />
+
+      {size && deskOn ? (
+        <ScootchDesk
+          {...props}
+          screen={size}
+          top={rowTop + ROW}
+          foot={deskFoot}
+          finish={finish}
+          swapping={swapping}
+          scootchAway={swap.flying || swap.pending === 'scootch'}
+          scootchRef={swap.deskRef}
+          layer={layers.desk}
+        />
+      ) : null}
 
       <GlassGroup style={[styles.row, { top: rowTop, paddingHorizontal: CORNER.side }]}>
         <CatchTopRow
           {...props}
           stage={stage}
+          face={shown}
+          seats={{ scootch: seat('scootch'), monster: seat('monster') }}
+          monsterMood={finish.monsterMood}
+          onSwap={() => {
+            if (!maySwap) return;
+            setMenuOpen(false);
+            swap.swap();
+          }}
           stuck={stuck}
           twoMinutesLeft={working?.twoMinutesLeft === true}
           hasMenu={menu !== null}
@@ -220,41 +260,31 @@ export function CatchScreen(props: ScreenProps) {
         />
       </GlassGroup>
 
-      {stage === 'coach' || (footerUp && at === 'bottom') ? null : (
-        <CatchWordsBlock
-          place={at === 'top' ? { top: rowTop + ROW + UNDER_ROW } : { bottom: foot + 10 }}
-          headline={headline}
-          sub={sub}
-          inks={inks}
-          t={t}
-          park={parkShown ? { onPress: actions.openPark, back: fieldWasUp.current } : null}
-          onTall={(tall) => setWordsTall((before) => Math.max(before, Math.ceil(tall)))}
-        />
+      {!sceneOn || stage === 'coach' || (cardUp && at === 'bottom') ? null : (
+        // The catch's words come and go with its drawing.
+        <Animated.View
+          pointerEvents={swapping ? 'none' : 'box-none'}
+          style={[StyleSheet.absoluteFill, layers.scene]}
+        >
+          <CatchWordsBlock
+            place={at === 'top' ? { top: rowTop + ROW + UNDER_ROW } : { bottom: foot + 10 }}
+            headline={headline}
+            sub={sub}
+            inks={inks}
+            t={t}
+            park={parkShown ? { onPress: actions.openPark, back: fieldWasUp.current } : null}
+            onTall={(tall) => setWordsTall((before) => Math.max(before, Math.ceil(tall)))}
+          />
+        </Animated.View>
       )}
 
       {footerUp ? (
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          pointerEvents="box-none"
-          style={StyleSheet.absoluteFill}
-        >
-          {model.parkOpen ? (
-            // A touch anywhere above the dock closes it. Words already there are parked.
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={t('session.park.close')}
-              accessibilityHint={t('session.park.close.hint')}
-              testID="session-park-cancel"
-              onPress={() => (park.current ? park.current.close() : actions.closePark())}
-              style={styles.fill}
-            />
-          ) : (
-            <View pointerEvents="none" style={styles.fill} />
-          )}
-          <View style={[styles.footer, { paddingBottom: foot }]}>
-            <WorkingFooter {...props} park={park} />
-          </View>
-        </KeyboardAvoidingView>
+        <CatchFoot
+          {...props}
+          inset={cardUp ? CARD_INSET : 0}
+          bottom={deskOn ? deskFoot : foot}
+          layer={cardUp ? null : layers.desk}
+        />
       ) : null}
 
       {model.parkedNote ? (
@@ -275,7 +305,7 @@ export function CatchScreen(props: ScreenProps) {
       ) : null}
 
       {stage === 'coach' ? <CoachCard {...props} top={rowTop + ROW + COACH_UNDER_ROW} /> : null}
-      {stage === 'asking' ? (
+      {stage === 'asking' && !atWork ? (
         <AskSheet
           {...props}
           bottom={Math.max(insets.bottom, 8)}
@@ -285,24 +315,25 @@ export function CatchScreen(props: ScreenProps) {
       ) : null}
 
       {caught ? (
-        <>
-          <BurstMarks
-            kind="catch"
-            inks={inks}
-            reducedMotion={model.reducedMotion}
-            controlAt={size ? { x: size.width / 2, y: size.height * 0.4 } : null}
-          />
-          {mayPass ? (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={t('session.skip')}
-              accessibilityHint={t('session.skip.hint')}
-              testID="session-caught-pass"
-              onPress={actions.passCaught}
-              style={StyleSheet.absoluteFill}
-            />
-          ) : null}
-        </>
+        <CaughtOver
+          {...props}
+          // Out of the held button, or out of the middle of the catch.
+          burstFrom={atWork ? heldFrom : size ? { x: size.width / 2, y: size.height * 0.4 } : null}
+        />
+      ) : null}
+
+      {swap.flight ? (
+        <SwapFlyers
+          flight={swap.flight}
+          turn={swap.turn}
+          model={model}
+          // He flies as he will land: at work on the disc, or as the catch has him in his corner.
+          mood={
+            swap.pending === 'scootch'
+              ? deskMood(model, finishing ? finish : null)
+              : scootchMood(stage, stuck, working?.twoMinutesLeft === true)
+          }
+        />
       ) : null}
     </View>
   );
@@ -310,7 +341,6 @@ export function CatchScreen(props: ScreenProps) {
 
 const styles = StyleSheet.create({
   fill: { flex: 1 },
-  board: { position: 'absolute', width: STAGE.width, height: STAGE.height },
   row: {
     position: 'absolute',
     left: 0,
@@ -320,5 +350,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  footer: { paddingHorizontal: 14, paddingTop: 8 },
 });

@@ -1,7 +1,7 @@
 appId: app.scootch.dev
 ---
-# The fresh-user walk, step three: from a set task, start a session, park a thought, and finish by
-# tapping twice. It ends on the first screen of the reveal. It carries on from the step before it, on the one screen with today's one thing
+# The fresh-user walk, step three: from a set task, start a session, park a thought, swap Scootch
+# and the monster and back, and finish by holding. It ends on the first screen of the reveal. It carries on from the step before it, on the one screen with today's one thing
 # set; nothing is cleared and nothing is seeded. A flow cannot wait ten minutes, so it turns on the
 # developer control that ends the running session's timer in a few seconds. That control is reached
 # the way a developer reaches it, through the "Developer tools" row of Settings, and is not in the
@@ -10,7 +10,7 @@ appId: app.scootch.dev
     visible:
       id: 'one-action'
     timeout: 90000
-# Finishing with two taps is a setting: Settings, then "Finish with".
+# Who a session opens on is a setting: Settings, then "Catch with". Hold opens it on Scootch.
 - tapOn:
     id: 'more-button'
     waitToSettleTimeoutMs: 0
@@ -44,10 +44,12 @@ appId: app.scootch.dev
     id: 'settings-finish-with'
 - extendedWaitUntil:
     visible:
-      id: 'finish-with-double_tap'
+      id: 'finish-with-hold'
     timeout: 15000
+- takeScreenshot: fresh-03-catch-with
 - tapOn:
-    id: 'finish-with-double_tap'
+    id: 'finish-with-hold'
+- takeScreenshot: fresh-03-catch-with-hold
 - tapOn:
     id: 'finish-with-close'
 # The developer tools are the last row of Settings in the developer app.
@@ -115,6 +117,27 @@ appId: app.scootch.dev
       id: 'session-park-input'
     timeout: 15000
 - takeScreenshot: fresh-03-thought-parked
+# Where the task has a monster that can be caught, it sits in the corner: a tap swaps the two, so
+# the monster and its catch take the screen and Scootch the corner, and a second tap swaps back.
+- runFlow:
+    when:
+      visible:
+        id: 'session-corner-monster'
+    commands:
+      - tapOn:
+          id: 'session-scootch-button'
+      - extendedWaitUntil:
+          visible:
+            id: 'session-catch-setting'
+          timeout: 15000
+      - takeScreenshot: fresh-03-swapped-to-the-monster
+      - tapOn:
+          id: 'session-scootch-button'
+      - extendedWaitUntil:
+          visible:
+            id: 'session-running'
+          timeout: 15000
+      - takeScreenshot: fresh-03-swapped-back-to-scootch
 # Time is up a few seconds after the developer control is pressed. It lives in the corner menu,
 # with everything else that is not the work itself.
 - tapOn:
@@ -132,19 +155,13 @@ appId: app.scootch.dev
 - takeScreenshot: fresh-03-session-disc-late
 - extendedWaitUntil:
     visible:
-      id: 'session-finish-tap'
+      id: 'session-finish-hold'
     timeout: 30000
 - assertNotVisible: 'That sounds like a lot.*'
-# This install finishes with two taps, so the sentence must not ask for holding.
-- assertNotVisible: '.*[Pp]ress and hold.*'
 - takeScreenshot: fresh-03-time-up
-# Tap, then tap again to confirm. The second tap must come within four seconds of the first, and a
-# separate tap command on this screen returns later than that (the countdown never lets the
-# screen go quiet), so both taps are one command.
-- tapOn:
-    id: 'session-finish-tap-button'
-    repeat: 2
-    delay: 300
+# Hold until the ring is full: it fills in under two seconds, and a long press is held for longer.
+- longPressOn:
+    id: 'session-hold'
 # What the finish gave is shown next: the walk carries on in the step after this one.
 - extendedWaitUntil:
     visible:

@@ -40,7 +40,7 @@ website and the store listing.
 | It hatches | The task becomes a named monster; "too big" shrinks the task and the monster. The one other way to a smaller ask is the monster's three bites (section 5). A set task can be put down into the drawer from beside Start |
 | Start | A wheel sets the length, 5 to 180 minutes (10 unless turned), and Start begins it with a burst of sound and haptics. The named treat for afterwards is not asked for at present (founder, 7 Oct) |
 | Work beside | Scootch works next to you in a mode that matches the task; park a thought, ask for a tiny next step |
-| Finish | Catch the task's monster: each task rolls one of eight catches, the work sets its trap, and when time is up Scootch asks whether the thing was really done before the gesture unlocks (or tap twice, or say "done"); "not finished" is a normal outcome with three choices |
+| Finish | Catch the task's monster: each task rolls one of eight catches, the work sets its trap, and when time is up Scootch asks whether the thing was really done before the gesture unlocks. A tap on Scootch in the corner swaps the two: he works on the screen, the monster waits in the corner, and the finish is a hold; "not finished" is a normal outcome with three choices |
 | Keep it | A collectible card, a permanent piece in your world, one bar of the week's song |
 | Share | A story card that says what you did and how long it waited |
 | Home again | Scootch rests beside your world. The composer stays, so the next thing is simply said or typed, up to the day's limit |

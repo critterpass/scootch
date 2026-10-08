@@ -100,8 +100,7 @@ describe('a serious task', () => {
     await phone.sit();
     const running = store.getState();
     expect(running.session).toMatchObject({ phase: 'running', tone: 'quiet' });
-    const view = (state = store.getState()) =>
-      sessionView({ ...state, finishWith: state.settings.finishWith, passed: NOTHING_PASSED });
+    const view = (state = store.getState()) => sessionView({ ...state, passed: NOTHING_PASSED });
     expect(view()).toMatchObject({ kind: 'working', quiet: true });
     expect(await comedyOnThePhone(phone)).toEqual(NOTHING);
 

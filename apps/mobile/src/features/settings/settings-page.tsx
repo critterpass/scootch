@@ -17,10 +17,9 @@ import { CardThumb, SeatThumb } from './look-thumbs';
 import { Page } from './page';
 import { Note, Row, Section, SwitchRow } from './rows';
 
-const FINISH_LABELS = {
+const CATCH_LABELS = {
+  rolled: 'finishWith.rolled',
   hold: 'finishWith.hold',
-  double_tap: 'finishWith.tapTwice',
-  voice: 'finishWith.sayDone',
 } as const;
 /** The seat's ground in the Tables row: a shade under the page, in either appearance. */
 const SEAT_GROUND = { light: '#EDE7DD', dark: '#2E2A26' } as const;
@@ -187,7 +186,7 @@ export function SettingsPage(props: SettingsPageProps) {
         <Row
           label={t('settings.finishWith')}
           hint={t('settings.finishWith.hint')}
-          value={t(FINISH_LABELS[settings.finishWith])}
+          value={t(CATCH_LABELS[settings.catchWith])}
           onPress={() => onOpen('finish-with')}
           testID="settings-finish-with"
         />
