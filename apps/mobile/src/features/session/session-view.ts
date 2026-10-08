@@ -5,16 +5,16 @@ import {
   type ParkedThought,
   type SessionEvent,
   type SessionState,
-  type SettingsRow,
 } from '@scootch/domain';
 
 import type { ShownLine } from '../../state/day-types';
 
 /**
- * The control a finish is made with: the catch, or two taps. Saying "done" has no control of its
- * own.
+ * The control a finish is made with. `catch` is the session of a monster that can be caught by
+ * hand: its catch and the hold to finish are one tap apart on the same screen. `hold` is the hold
+ * to finish alone.
  */
-export type FinishControl = 'catch' | 'double_tap';
+export type FinishControl = 'catch' | 'hold';
 
 /** What the session screens show, worked out from the store's state and nothing else. */
 export type SessionView =
@@ -31,7 +31,7 @@ export type SessionView =
       readonly stuck: boolean;
       readonly twoMinutesLeft: boolean;
       readonly timeUp: boolean;
-      /** The session ends in a catch, so the work is shown as the trap setting itself. */
+      /** The monster can be caught by hand, so the work is shown on the catch's screen. */
       readonly trap: boolean;
     }
   | {
@@ -80,7 +80,6 @@ export interface SessionViewInput {
   readonly burst: 'start' | 'confetti' | null;
   readonly treat: string | null;
   readonly parkedThoughts: readonly ParkedThought[];
-  readonly finishWith: SettingsRow['finishWith'];
   readonly passed: Passed;
   /**
    * The reveal of a finish: `pending` hands over to it, `seen` comes back from it. Left out, there
@@ -98,7 +97,10 @@ export interface SessionViewInput {
 /** How long the finish screen stays up for the catch before the reveal takes over. */
 export const CAUGHT_HOLD_MS = 3200;
 
-/** A finish made on the finish control itself: a catch, or the second of two taps. */
+/**
+ * A finish made on the finish control itself: a catch, a hold, or the two taps that stand in for
+ * a hold under VoiceOver.
+ */
 export function finishedByHand(event: SessionEvent): boolean {
   return (
     event.type === 'caught' || event.type === 'hold_completed' || event.type === 'double_tapped'
@@ -108,7 +110,7 @@ export function finishedByHand(event: SessionEvent): boolean {
 /**
  * Whether the task's monster can be caught by hand. A catch is a gesture made on a moving
  * drawing: it needs a monster, a finger that can find it, and motion that may play. Without any
- * of them the finish is two taps, which needs none.
+ * of them the finish is the hold, which needs none.
  */
 export function catchable(facts: {
   readonly monster: boolean;
@@ -132,16 +134,11 @@ export function catchPlays(facts: {
 }
 
 /**
- * The control shown for a finish method. The catch took the hold's place and keeps its stored
- * name. Someone who chose to say "done" gets the tap-twice control, which needs no gesture
- * either, alone until a spoken "done" can be heard and beside it afterwards; so does anyone whose
- * monster cannot be caught by hand here.
+ * The control a session finishes with. Wherever the monster can be caught by hand the catch is
+ * there, with the hold beside it; anywhere else the hold is all there is.
  */
-export function finishControl(
-  finishWith: SettingsRow['finishWith'],
-  canCatch = true,
-): FinishControl {
-  return finishWith === 'hold' && canCatch ? 'catch' : 'double_tap';
+export function finishControl(canCatch: boolean): FinishControl {
+  return canCatch ? 'catch' : 'hold';
 }
 
 function afterTheEnd(input: SessionViewInput): SessionView {
@@ -158,7 +155,7 @@ function afterFinish(session: LiveSession, input: SessionViewInput): SessionView
   // A serious task has no ceremony: no reveal, and the treat is never handed over with one.
   if (!quiet && input.reveal === 'pending') {
     return input.caught === true && !passed.caught
-      ? { kind: 'caught', control: finishControl(input.finishWith, input.catchable === true) }
+      ? { kind: 'caught', control: finishControl(input.catchable === true) }
       : { kind: 'reveal' };
   }
   if (!quiet && treat !== null) {
@@ -184,8 +181,8 @@ export function sessionView(input: SessionViewInput): SessionView {
   if (session === null) return { kind: 'home' };
   const control =
     session.phase !== 'let_go' && session.tone === 'quiet'
-      ? 'double_tap'
-      : finishControl(input.finishWith, input.catchable === true);
+      ? 'hold'
+      : finishControl(input.catchable === true);
   switch (session.phase) {
     case 'let_go':
     case 'carried_over':

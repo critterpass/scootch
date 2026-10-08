@@ -119,6 +119,7 @@ export function fixtureModel(
     reducedMotion: true,
     parkOpen: false,
     parkedNote: null,
+    holdStartsAt: 0,
     catch: null,
     developerEnd: false,
     timeOf: (thought) => {

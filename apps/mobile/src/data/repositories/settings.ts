@@ -16,7 +16,7 @@ export function defaultSettings(language: Language): SettingsRow {
     motion: 'full',
     quietHoursStart: '21:00',
     quietHoursEnd: '08:30',
-    finishWith: 'hold',
+    catchWith: 'rolled',
     keepTranscripts: false,
     canBeHaunted: true,
     hideTableLabel: false,
@@ -36,6 +36,9 @@ const BOOLEANS: ReadonlySet<string> = new Set([
   'hideTableLabel',
 ] satisfies (keyof StoredSettings)[]);
 
+/** The key the finish method was kept under when it was the catch, two taps or saying "done". */
+const FINISH_WITH_BEFORE = 'finishWith';
+
 export interface SettingsRepository {
   /** The settings row. A field never written reads as its default. */
   read(phoneLanguage: Language): Promise<SettingsRow>;
@@ -54,6 +57,9 @@ export function settingsRepository(db: SqlDatabase): SettingsRepository {
         [],
       );
       const row: Record<string, unknown> = { ...defaultSettings(phoneLanguage) };
+      // Someone who had chosen to finish without the catch's gesture keeps a finish without it.
+      const before = stored.find(({ key }) => key === FINISH_WITH_BEFORE)?.value;
+      if (before === 'double_tap' || before === 'voice') row.catchWith = 'hold';
       for (const { key, value } of stored) {
         if (!(key in row) || key === 'id') continue;
         row[key] = BOOLEANS.has(key) ? value === '1' : value;

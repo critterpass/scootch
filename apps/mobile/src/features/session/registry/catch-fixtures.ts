@@ -2,7 +2,7 @@ import type { Language } from '@scootch/i18n';
 
 import type { Condition, ScreenState } from '../../../screens/registry/support/screen-state';
 import type { CatchKind } from '../catch/catch-kinds';
-import type { SessionModel } from '../screens/screen-props';
+import type { SessionFace, SessionModel } from '../screens/screen-props';
 import type { SessionView } from '../session-view';
 
 import { fixtureModel, mateMonster } from './fixtures';
@@ -24,6 +24,8 @@ export interface CatchStateInput {
   readonly id: string;
   readonly kind: CatchKind;
   readonly view: SessionView;
+  /** Who the session is on: the monster and its catch unless told otherwise. */
+  readonly face?: SessionFace;
   readonly conditions?: readonly Condition[];
   readonly changes?: (language: Language) => Partial<SessionModel>;
 }
@@ -45,6 +47,7 @@ export function catchState(input: CatchStateInput): ScreenState {
         fraction: 0.45,
         catch: {
           kind: input.kind,
+          opensOn: input.face ?? 'monster',
           caughtCount: 41,
           monthMates: ['sock', 'beetle', 'letter', 'slime', 'clock'].map(mateMonster),
           monthName: MONTH[language],
