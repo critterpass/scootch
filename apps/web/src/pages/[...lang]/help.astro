@@ -1,0 +1,189 @@
+---
+import Critter from '../../components/critter.astro';
+import RisingWords from '../../components/rising-words.astro';
+import { languagePaths, localPath, pagesFor, plainFor, preLaunch } from '../../copy';
+import SiteLayout from '../../layouts/site-layout.astro';
+import { scootchSvg } from '../../lib/drawings';
+import { VIETNAM, findAHelpline, helplineRows } from '../../lib/helplines';
+import '../../styles/help.css';
+
+export const getStaticPaths = languagePaths;
+const language = Astro.params.lang === 'vi' ? 'vi' : 'en';
+const copy = pagesFor(language).help;
+const support = plainFor(language).support;
+const lines = plainFor(language).helplines;
+const anchors = ['support', 'helplines', 'isnt', 'privacy', 'contact'];
+
+// The table the app reads. A reader in Vietnamese sees Vietnam first; nothing here jokes.
+const rows = helplineRows(language);
+const regions = [...new Set(rows.map((row) => row.region))];
+const countries = (language === 'vi' ? [VIETNAM, ...regions.filter((region) => region !== VIETNAM)] : regions).map(
+  (region) => ({ region, name: rows.find((row) => row.region === region)?.country ?? region }),
+);
+const [privacyBefore = '', privacyRest = ''] = copy.privacyLinks.split('{privacy}');
+const [privacyBetween = '', privacyAfter = ''] = privacyRest.split('{terms}');
+---
+
+<SiteLayout language={language} path="/help" title={copy.title} description={copy.description}>
+  <section class="band">
+    <div class="grain"></div>
+    <div class="wrap help-hero">
+      <div class="help-hero-words">
+        <p class="eyebrow">{copy.address}</p>
+        <h1 class="rise">
+          <RisingWords words={copy.words} marker />
+        </h1>
+        <div class="field" role="search">
+          <label class="sr-only" for="help-search">{copy.searchLabel}</label>
+          <input id="help-search" type="search" autocomplete="off" placeholder={copy.searchPlaceholder} data-help-search />
+          <span class="help-count" aria-live="polite" data-help-count data-one={copy.oneAnswer} data-many={copy.answers}>
+            {copy.search}
+          </span>
+        </div>
+      </div>
+      <Critter svg={scootchSvg('listening')} size="13.75rem" />
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap help-body">
+      <nav class="help-nav" aria-label={copy.title}>
+        {copy.nav.map((label, index) => <a href={`#${anchors[index]}`}>{label}</a>)}
+      </nav>
+      <div class="help-sections">
+        <div id="support" class="help-section">
+          <h2>{copy.questionsTitle}</h2>
+          {preLaunch && <p class="small">{support.notOutYet}</p>}
+          <div class="answers" data-help-answers>
+            {
+              support.questions.map((question, index) => (
+                <details open={index === 0}>
+                  <summary>
+                    <span class="tag tag-soft">{copy.tags[index]}</span>
+                    {question.q}
+                  </summary>
+                  <p>{question.a}</p>
+                </details>
+              ))
+            }
+            <p class="help-none" data-help-none hidden>
+              <Critter svg={scootchSvg('thinking')} size="4.5rem" />
+              {copy.none}
+            </p>
+          </div>
+        </div>
+
+        <div id="helplines" class="help-section">
+          <h2>{copy.helplinesTitle}</h2>
+          <div class="help-lines on-night" data-help-lines>
+            <p>{copy.helplinesBody}</p>
+            <div class="segmented" role="group" aria-label={copy.country}>
+              {
+                countries.map((country, index) => (
+                  <button type="button" aria-pressed={index === 0 ? 'true' : 'false'} data-country-pick={country.region}>
+                    {country.name}
+                  </button>
+                ))
+              }
+            </div>
+            <ul class="help-line-list">
+              {
+                rows.map((row) => (
+                  <li data-country={row.region} hidden={row.region !== countries[0]?.region}>
+                    <div>
+                      <strong>{row.name === '' ? lines.emergency : row.name}</strong>
+                      <span>{row.openDetail}</span>
+                    </div>
+                    <span class="help-line-links">
+                      {row.links.map((link) => <a href={link.href}>{link.label}</a>)}
+                    </span>
+                  </li>
+                ))
+              }
+            </ul>
+            <p class="small">
+              <a href={localPath(language, '/helplines')}>{copy.allHelplines}</a> ·
+              <a href={findAHelpline.href}>{findAHelpline.label}</a>
+            </p>
+          </div>
+        </div>
+
+        <div id="isnt" class="help-section">
+          <h2>{copy.isntTitle}</h2>
+          <div class="is-pair" data-reveal="stagger">
+            <div class="is-card">
+              <h3>{copy.is}</h3>
+              <ul class="ticks">{copy.isList.map((item) => <li>{item}</li>)}</ul>
+            </div>
+            <div class="is-card is-not">
+              <h3>{copy.isnt}</h3>
+              <ul class="dashes">{copy.isntList.map((item) => <li>{item}</li>)}</ul>
+            </div>
+          </div>
+        </div>
+
+        <div id="privacy" class="help-section">
+          <h2>{copy.privacyTitle}</h2>
+          <ul class="privacy-cards" data-reveal="stagger">
+            {
+              copy.privacy.map((card) => (
+                <li>
+                  <span class="eyebrow">{card.tag}</span>
+                  <h3>{card.title}</h3>
+                  <p>{card.body}</p>
+                </li>
+              ))
+            }
+          </ul>
+          <p class="small">
+            {privacyBefore}<a href={localPath(language, '/privacy')}>{copy.privacyLink}</a>{privacyBetween}<a
+              href={localPath(language, '/terms')}>{copy.termsLink}</a
+            >{privacyAfter}
+          </p>
+        </div>
+
+        <div id="contact" class="help-contact">
+          <div>
+            <h2>{copy.contactTitle}</h2>
+            <p>{copy.contactBody}</p>
+          </div>
+          <a class="button button-ink" href={`mailto:${copy.contactEmail}`} data-magnet>{copy.contactEmail}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</SiteLayout>
+
+<script>
+  // The search narrows the questions as it is typed; with one or two left, they open.
+  const search = document.querySelector<HTMLInputElement>('[data-help-search]');
+  const count = document.querySelector<HTMLElement>('[data-help-count]');
+  const none = document.querySelector<HTMLElement>('[data-help-none]');
+  const answers = [...document.querySelectorAll<HTMLDetailsElement>('[data-help-answers] details')];
+  const idle = count?.textContent ?? '';
+  search?.addEventListener('input', () => {
+    const asked = search.value.trim().toLowerCase();
+    const found = answers.filter((answer) => {
+      answer.hidden = asked !== '' && !answer.textContent.toLowerCase().includes(asked);
+      return !answer.hidden;
+    });
+    if (asked !== '' && found.length <= 2) for (const answer of found) answer.open = true;
+    if (none) none.hidden = found.length > 0;
+    if (count) {
+      const words = found.length === 1 ? count.dataset['one'] : count.dataset['many'];
+      count.textContent = asked === '' ? idle : (words ?? '').replace('{count}', String(found.length));
+    }
+  });
+
+  for (const lines of document.querySelectorAll<HTMLElement>('[data-help-lines]')) {
+    const picks = [...lines.querySelectorAll<HTMLButtonElement>('[data-country-pick]')];
+    for (const pick of picks) {
+      pick.addEventListener('click', () => {
+        for (const other of picks) other.setAttribute('aria-pressed', String(other === pick));
+        for (const row of lines.querySelectorAll<HTMLElement>('[data-country]')) {
+          row.hidden = row.dataset['country'] !== pick.dataset['countryPick'];
+        }
+      });
+    }
+  }
+</script>

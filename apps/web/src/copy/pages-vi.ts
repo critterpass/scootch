@@ -1,3 +1,5 @@
+import { helpVi } from './help-vi';
+
 import type { Loosen } from './en';
 import type { pagesEn } from './pages-en';
 
@@ -34,6 +36,16 @@ export const pagesVi = {
     yours: 'Bạn đã chia sẻ con này từ trình duyệt này.',
     offlineTitle: 'Tui chưa lấy được con quái này.',
     offlineBody: 'Bạn xem lại kết nối rồi tải lại trang nha.',
+    turnEyebrow: 'Tới lượt bạn',
+    turnTitle: 'Bạn cũng có một con đang rình hả?',
+    turnBody:
+      'Gõ cái việc bạn đang né. Hai giây là nó nở, và không có gì được giữ lại trừ khi bạn chia sẻ.',
+    turnField: 'Bạn đang né việc gì vậy?',
+    turnPlaceholder: 'vd: trả lời tin nhắn của mẹ',
+    turnHatch: 'Ấp nó',
+    turnExamples: ['trả lời tin nhắn của mẹ', 'đi tập gym', 'khai thuế', 'cọ nhà tắm'],
+    note: 'Người ấp ra con này đã chọn chia sẻ nó. Câu họ gõ chỉ hiện nếu họ để hiện, và trang này không nêu tên ai.',
+    address: 'scootch.app/vi/m',
   },
   caughtCard: {
     title: 'Một con quái đã bị bắt · Scootch',
@@ -64,14 +76,13 @@ export const pagesVi = {
     took: 'Làm mất {duration}.',
   },
   notFound: {
-    title: 'Trang này bị ăn mất rồi · Scootch',
-    eyebrow: '404 · một con Lạc Lối hoang xuất hiện',
-    headline: 'Trang này bị ăn mất rồi.',
-    body: 'Lạc Lối, Kẻ Ăn Trang, chỉ sống ở đây chứ không ở đâu khác. Trông nó khá đắc ý.',
-    cardName: 'Lạc Lối, Kẻ Ăn Trang',
-    cardFlavour: 'Ăn mất trang bạn cần. Vẫn còn đói.',
-    make: 'Ấp một con quái thay vậy',
+    title: 'Trang này đi lạc rồi · Scootch',
+    eyebrow: 'Không tìm thấy trang',
+    headline: 'Trang này đi lạc rồi. Y như mọi khi.',
+    body: 'Mới phút trước nó còn ở đây. Có khi Vớ Lẻ lấy mất rồi. Thử mấy chỗ này nha.',
     home: 'Về trang chủ',
+    make: 'Ấp một con quái',
+    help: 'Trợ giúp',
   },
   plus: {
     title: 'Scootch Plus · giá và nội quy',
@@ -139,6 +150,43 @@ export const pagesVi = {
     ],
     buy: 'Ở đây không có nút mua. Bạn mua Plus ngay trong app, qua Apple.',
     buySoon: 'Ở đây không có nút mua. Khi app ra mắt, bạn mua Plus ngay trong app, qua Apple.',
+    heroWords: ['Thêm', 'chút', 'Scootch.'],
+    heroSub:
+      'Mọi thứ quan trọng đều miễn phí, mãi mãi. Plus dành cho ai muốn bọn quái của mình bóng loáng như crôm.',
+    finishLabel: 'Chất liệu {n}',
+    fanLabel: 'Bảy chất liệu thẻ: Giấy, Riso, Thạch, Ánh kim, Crôm, Kính mờ và Nhung.',
+    finishes: ['Giấy', 'Riso', 'Thạch', 'Ánh kim', 'Crôm', 'Kính mờ', 'Nhung'],
+    plansTitle: 'Ba cách trả tiền',
+    picked: 'Gói nhiều người chọn nhất',
+    get: 'Tải app',
+    insideTitle: 'Trong cái hộp lấp lánh có gì',
+    finishesEyebrow: 'Chất liệu',
+    finishesTitle: 'Bảy chất liệu, làm từ ánh sáng',
+    finishesBody:
+      'Ánh kim, crôm, thạch, kính, nhung và riso. Thẻ, sticker và mọi thứ bạn chia sẻ đều mặc cái bạn chọn.',
+    answersTitle: 'Trả lời thật lòng',
+    answers: [
+      {
+        q: 'Có nhắc tui trước khi tính tiền không?',
+        a: 'Có. Trước mỗi lần tính tiền đều có lời nhắc, kể cả một ngày trước khi hết dùng thử, bằng lời lẽ rõ ràng, có ngày và số tiền.',
+      },
+      {
+        q: 'Huỷ thế nào?',
+        a: 'Trong phần cài đặt Apple: tên bạn, rồi Đăng ký, rồi Scootch. iPhone không có tạm dừng, chỉ có huỷ, và không ai bắt bạn giải thích.',
+      },
+      {
+        q: 'Nếu tui ngưng thì đồ của tui ra sao?',
+        a: 'Bạn giữ mọi thứ đã bắt được, mọi tấm thẻ và cả thế giới của bạn. Chất liệu nào bạn không mua lẻ thì quay về giấy, vậy thôi.',
+      },
+      {
+        q: 'Bản miễn phí có phải cái bẫy không?',
+        a: 'Không. Bắt đầu, trọn vòng một ngày, mọi thái độ và chia sẻ đều miễn phí, mãi mãi. Không có lời mời mua nào lúc mở app lần đầu, trên màn hình chính, trong một phiên, hay ở “Hôm nay vậy là xong”.',
+      },
+      {
+        q: 'Cái gì không mua được?',
+        a: 'Độ hiếm, gói ngẫu nhiên, xu, hay bù cho một ngày nghỉ. Bạn không mua được một con quái xịn hơn.',
+      },
+    ],
   },
   preLaunch: {
     comingSoon: 'Sắp có trên iPhone',
@@ -165,4 +213,5 @@ export const pagesVi = {
     maker: 'Lò ấp quái thì chạy được trên Android ngay bây giờ.',
     tryIt: 'Thử liền',
   },
+  ...helpVi,
 } as const satisfies Loosen<typeof pagesEn>;

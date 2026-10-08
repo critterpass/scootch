@@ -1,6 +1,5 @@
 ---
 import { t, type Language } from '@scootch/i18n';
-import { colors } from '@scootch/tokens';
 
 import { localPath, preLaunch, togetherFor } from '../copy';
 import { scootchSvg } from '../lib/drawings';
@@ -16,7 +15,7 @@ interface Props {
 }
 
 // A haunt: a monster a friend sent, with one of the preset dares. A haunt carries no words of the
-// sender's and nothing about a task, so this page has none to show. Always dark, whatever the
+// sender's and nothing about a task, so this page has none to show. Always night, whatever the
 // reader's scheme, so it feels like a little haunting.
 const { language } = Astro.props;
 const copy = togetherFor(language).haunt;
@@ -28,13 +27,12 @@ const dares = {
   race_you: t(language, 'haunt.dare.race_you'),
   tiny_bit: t(language, 'haunt.dare.tiny_bit'),
 };
-const dark = colors.dark;
-const night = `:root:has([data-haunt-page]){color-scheme:dark;--page:${dark.page};--surface:${dark.surface};--ink:${dark.ink};--muted:${dark.muted};--tomato:${dark.tomato};--on-tomato:${dark.onTomato};--riso-blob:${dark.risoBlob}}`;
 ---
 
 <SiteLayout language={language} path="/h" title={copy.title} description={copy.description} social={false}>
-  <style is:inline set:html={night} />
-  <section
+  <section class="band shared-band haunt on-night">
+    <div class="grain"></div>
+    <div
     class="wrap shared-page"
     data-haunt-page
     data-state="loading"
@@ -45,26 +43,21 @@ const night = `:root:has([data-haunt-page]){color-scheme:dark;--page:${dark.page
     <p class="lede" data-show="loading" aria-live="polite">{copy.loading}</p>
 
     <div class="shared-grid" data-show="waiting" hidden>
-      <div class="maker-stage">
-        <div class="blob">
-          <span class="drawing" role="img" aria-label={copy.monsterLabel} data-monster></span>
-        </div>
-      </div>
-      <div>
-        <p class="eyebrow tomato-text">{copy.eyebrow}</p>
+      <div class="shared-words">
+        <p class="eyebrow">{copy.eyebrow}</p>
         <h1 tabindex="-1" data-headline></h1>
         <p class="dare" data-dare></p>
         {
           preLaunch ? (
             <div class="actions">
-              <button type="button" class="button button-quiet" data-shoo>
+              <button type="button" class="button button-tomato" data-shoo>
                 {copy.shoo}
               </button>
               <AppStoreBadge language={language} />
             </div>
           ) : (
-            <OpenInApp language={language} kind="h" label={copy.catchIt} tone="button-tomato">
-              <button type="button" class="button button-quiet" data-shoo>
+            <OpenInApp language={language} kind="h" label={copy.catchIt}>
+              <button type="button" class="button button-tomato" data-shoo>
                 {copy.shoo}
               </button>
             </OpenInApp>
@@ -72,10 +65,14 @@ const night = `:root:has([data-haunt-page]){color-scheme:dark;--page:${dark.page
         }
         <p class="small" role="status" data-shoo-failed hidden>{copy.shooFailed}</p>
       </div>
+      <div class="ghost-stage">
+        <span class="ghost-glow" aria-hidden="true"></span>
+        <span class="drawing ghost" role="img" aria-label={copy.monsterLabel} data-monster></span>
+      </div>
     </div>
 
     <div class="wandered" data-show="shooed gone" hidden>
-      <span class="drawing" aria-hidden="true" set:html={scootchSvg('asleep')} />
+      <span class="drawing" aria-hidden="true" set:html={scootchSvg('asleep', { night: true })} />
       <h1 tabindex="-1" data-gone-title></h1>
       <p class="lede" data-gone-body></p>
       <div class="actions">
@@ -87,9 +84,10 @@ const night = `:root:has([data-haunt-page]){color-scheme:dark;--page:${dark.page
     <div data-show="missing" hidden>
       <NotFound language={language} focusable />
     </div>
-    <div data-show="offline" hidden>
+    <div class="shared-words" data-show="offline" hidden>
       <h1 tabindex="-1">{copy.offlineTitle}</h1>
       <p class="lede">{copy.offlineBody}</p>
+    </div>
     </div>
   </section>
 </SiteLayout>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"><script src="./web-fx.js"></script><style>html{scroll-behavior:smooth}body{margin:0;background:#F6F3EE;color:#1C1A17;font-family:-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}a{color:#1C1A17}a:hover{color:#F0562E}</style></helmet>
+<header style="position:sticky;top:0;z-index:40;background:rgba(246,243,238,.78);-webkit-backdrop-filter:blur(18px) saturate(160%);backdrop-filter:blur(18px) saturate(160%);box-shadow:0 .5px 0 rgba(28,26,23,.1)">
+<div style="max-width:1240px;margin:0 auto;padding:14px 28px;display:flex;align-items:center;gap:22px;flex-wrap:wrap">
+<a href="Scootch%20-%20Website%20v2.dc.html" style="text-decoration:none;color:#1C1A17;font:900 24px/1 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.03em">scootch<span style="color:#F0562E">.</span></a>
+<nav style="display:flex;gap:4px;flex-wrap:wrap;flex:1">
+<a href="Scootch%20Web%20-%20Monster.dc.html" style="text-decoration:none;color:#1C1A17;font:500 15px/1 -apple-system, system-ui, sans-serif;padding:10px 12px;border-radius:999px;transition:background .2s" style-hover="background:rgba(28,26,23,.07)">Monster maker</a>
+<a href="Scootch%20-%20Website%20v2.dc.html#hunt" style="text-decoration:none;color:#1C1A17;font:500 15px/1 -apple-system, system-ui, sans-serif;padding:10px 12px;border-radius:999px;transition:background .2s" style-hover="background:rgba(28,26,23,.07)">How it works</a>
+<a href="Scootch%20-%20Website%20v2.dc.html#tables" style="text-decoration:none;color:#1C1A17;font:500 15px/1 -apple-system, system-ui, sans-serif;padding:10px 12px;border-radius:999px;transition:background .2s" style-hover="background:rgba(28,26,23,.07)">Tables</a>
+<a href="Scootch%20Web%20-%20Plus.dc.html" style="text-decoration:none;color:#1C1A17;font:500 15px/1 -apple-system, system-ui, sans-serif;padding:10px 12px;border-radius:999px;transition:background .2s" style-hover="background:rgba(28,26,23,.07)">Plus</a>
+<a href="Scootch%20Web%20-%20Wall.dc.html" style="text-decoration:none;color:#1C1A17;font:500 15px/1 -apple-system, system-ui, sans-serif;padding:10px 12px;border-radius:999px;transition:background .2s" style-hover="background:rgba(28,26,23,.07)">The wall</a><a href="Scootch%20Web%20-%20Help.dc.html" style="text-decoration:none;color:#1C1A17;font:500 15px/1 -apple-system, system-ui, sans-serif;padding:10px 12px;border-radius:999px;transition:background .2s" style-hover="background:rgba(28,26,23,.07)">Help</a>
+</nav>
+<a data-press="1" data-magnet="1" href="Scootch%20Web%20-%20Get.dc.html" aria-label="Get Scootch on the App Store" style="display:inline-flex;align-items:center;gap:10px;height:48px;padding:0 16px 0 6px;border-radius:24px;background:#1C1A17;color:#F6F3EE;text-decoration:none;flex:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 10px 24px -12px rgba(28,26,23,.6)" style-hover="background:#2A2522"><div style="width:36px;height:36px;border-radius:9px;flex:none;position:relative;overflow:hidden;background:radial-gradient(120% 90% at 30% 15%,#FFB08F 0%,#F0562E 55%,#C63F22 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 6px 14px -6px rgba(240,86,46,.7)"><div style="position:absolute;left:50%;bottom:-6px;transform:translateX(-50%)"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="scootch" mood="scheming" still="{{ still }}" sound="off" style="width:41px;height:41px;flex:none" hint-size="41px,41px"></x-import></div></div><span style="font:700 15px/1 -apple-system, system-ui, sans-serif;letter-spacing:-.01em">Get the app</span><span style="width:22px;height:22px;border-radius:11px;background:#F0562E;color:#1C1A17;display:flex;align-items:center;justify-content:center;font:900 13px/1 ui-rounded, 'Nunito', system-ui, sans-serif">↓</span></a>
+</div>
+<div style="position:relative;height:3px;background:rgba(28,26,23,.06)"><div data-prog-fill="1" style="position:absolute;left:0;top:0;bottom:0;width:0%;background:linear-gradient(90deg,#FF8A63,#F0562E)"></div><div data-prog-run="1" style="position:absolute;left:0%;top:-3px;transform:translateX(-50%);pointer-events:none"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="scootch" mood="working" still="{{ still }}" sound="off" style="width:30px;height:30px;flex:none" hint-size="30px,30px"></x-import></div></div>
+</header>
+
+<section data-screen-label="Invites · switcher" style="position:relative;overflow:hidden;min-height:86vh;background:{{ pageBg }};transition:background .6s">
+<div data-grain="1" style="position:absolute;inset:0;opacity:.35;mix-blend-mode:multiply;pointer-events:none"></div>
+<div style="max-width:1240px;margin:0 auto;padding:36px 28px 96px;position:relative;display:flex;flex-direction:column;gap:40px">
+<div style="align-self:center;height:48px;border-radius:24px;padding:0 5px;display:flex;align-items:center;gap:2px;background:rgba(255,255,255,.6);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:inset 0 0 0 .5px rgba(28,26,23,.14),0 10px 24px -14px rgba(28,26,23,.35)"><sc-for list="{{ tabs }}" as="tb" hint-placeholder-count="3"><span onClick="{{ tb.pick }}" style="padding:0 18px;height:38px;border-radius:19px;display:flex;align-items:center;gap:8px;font:{{ tb.fw }} 15px -apple-system, system-ui, sans-serif;background:{{ tb.bg }};color:{{ tb.fg }};cursor:pointer;transition:background .25s,color .25s"><span style="font:700 10px/1 'JetBrains Mono', ui-monospace, monospace;opacity:.7">{{ tb.path }}</span>{{ tb.label }}</span></sc-for></div>
+
+<sc-if value="{{ isTable }}" hint-placeholder-val="{{ true }}"><div data-swap="1" style="display:flex;flex-wrap:wrap;gap:48px;align-items:center" data-screen-label="Table invite">
+<div style="flex:1 1 440px;min-width:0;display:flex;flex-direction:column;gap:20px">
+<span style="font:700 12px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.16em;color:#C63F22">SCOOTCH.APP/T/DEEP-WORK</span>
+<h1 style="margin:0;font:900 clamp(44px,6vw,84px)/.92 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.05em;text-wrap:balance">Hana saved you a seat.</h1>
+<p style="margin:0;max-width:520px;font:400 20px/1.45 -apple-system, system-ui, sans-serif;color:#4A443D;text-wrap:pretty">A quiet table for four, open until 11:30. Bring your own one thing. Nobody talks, nobody sees your list, everybody gets stuff done.</p>
+<div style="display:flex;gap:8px;flex-wrap:wrap"><span style="font:600 14px/1 -apple-system, system-ui, sans-serif;padding:10px 14px;border-radius:999px;background:#fff;box-shadow:inset 0 0 0 .5px rgba(28,26,23,.14)">Deep work</span><span style="font:600 14px/1 -apple-system, system-ui, sans-serif;padding:10px 14px;border-radius:999px;background:#fff;box-shadow:inset 0 0 0 .5px rgba(28,26,23,.14)">2 of 4 seated</span><span style="font:600 14px/1 -apple-system, system-ui, sans-serif;padding:10px 14px;border-radius:999px;background:#fff;box-shadow:inset 0 0 0 .5px rgba(28,26,23,.14)">until 11:30</span></div>
+<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><div data-press="1" data-magnet="1" onClick="{{ sit }}" style="height:58px;padding:0 26px;border-radius:29px;background:#1C1A17;color:#F6F3EE;display:flex;align-items:center;gap:10px;font:700 17px -apple-system, system-ui, sans-serif;cursor:pointer;box-shadow:0 18px 36px -16px rgba(28,26,23,.6)">{{ sitLabel }}</div><a href="Scootch%20-%20Website%20v2.dc.html" style="font:600 16px -apple-system, system-ui, sans-serif">What is this?</a></div>
+<span style="font:400 13.5px/1.45 -apple-system, system-ui, sans-serif;color:#6F6A62;max-width:500px">Opens straight into your saved seat in the app. If you don't have Scootch yet, the seat waits while you install it.</span>
+</div>
+<div style="flex:1 1 460px;min-width:0;border-radius:40px;background:linear-gradient(180deg,#F3EADC 0%,#E8DCC8 100%);position:relative;overflow:hidden;height:440px;box-shadow:inset 0 0 0 .5px rgba(28,26,23,.08),0 40px 70px -40px rgba(28,26,23,.5)">
+<div style="position:absolute;left:7%;right:7%;bottom:82px;height:26px;border-radius:8px;background:linear-gradient(180deg,#C9A57E,#B08A63);box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 18px 24px -14px rgba(28,26,23,.5)"></div>
+<div style="position:absolute;left:8%;right:8%;bottom:100px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:end;justify-items:center">
+<div style="display:flex;justify-content:center"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="scootch" work="writing" mood="working" tone="paper" still="{{ still }}" sound="off" style="width:150px;height:150px;flex:none" hint-size="150px,150px"></x-import></div>
+<div style="display:flex;justify-content:center"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="scootch" work="coding" mood="working" tone="paper" still="{{ still }}" sound="off" style="width:150px;height:150px;flex:none" hint-size="150px,150px"></x-import></div>
+<div style="display:flex;justify-content:center;position:relative;height:150px;align-items:flex-end"><sc-if value="{{ seated }}" hint-placeholder-val="{{ false }}"><div data-sitdown="1"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="scootch" mood="celebrate" still="{{ still }}" sound="off" style="width:150px;height:150px;flex:none" hint-size="150px,150px"></x-import></div></sc-if><sc-if value="{{ notSeated }}" hint-placeholder-val="{{ true }}"><div data-seat="1" style="width:92px;height:92px;margin-bottom:12px;border-radius:46px;box-shadow:inset 0 0 0 3px #F0562E;display:flex;align-items:center;justify-content:center;font:900 15px/1 ui-rounded, 'Nunito', system-ui, sans-serif;color:#C63F22;background:rgba(255,255,255,.5)">You?</div></sc-if></div>
+<div style="display:flex;justify-content:center;height:150px;align-items:flex-end"><div style="width:92px;height:92px;margin-bottom:12px;border-radius:46px;box-shadow:inset 0 0 0 2px rgba(28,26,23,.2);display:flex;align-items:center;justify-content:center;font:600 13px/1 -apple-system, system-ui, sans-serif;color:#6F6A62">open</div></div>
+</div>
+<div style="position:absolute;left:8%;right:8%;bottom:30px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));justify-items:center;font:600 14px/1.2 -apple-system, system-ui, sans-serif;text-align:center"><span>Hana · writing</span><span style="color:#5E574E">coding</span><span style="color:#C63F22">{{ youLabel }}</span><span style="color:#9A9288">open seat</span></div>
+</div>
+</div></sc-if>
+
+<sc-if value="{{ isGift }}" hint-placeholder-val="{{ false }}"><div data-swap="1" style="display:flex;flex-wrap:wrap;gap:48px;align-items:center" data-screen-label="Gift">
+<div style="flex:1 1 440px;min-width:0;display:flex;justify-content:center;perspective:1200px">
+<div onClick="{{ openGift }}" style="position:relative;width:340px;height:440px;cursor:pointer">
+<div data-giftcard="1" style="position:absolute;left:50%;bottom:{{ cardBottom }};margin-left:-120px;width:240px;height:340px;border-radius:22px;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.7),0 30px 60px -20px rgba(80,40,120,.5);transition:bottom .9s cubic-bezier(.34,1.56,.64,1);z-index:1"><div data-tilt="1" style="position:absolute;inset:0"><div style="position:absolute;inset:0;background:linear-gradient(135deg,#F3EDFB 0%,#E6F7F6 45%,#FBF1E4 100%)"></div><div data-holo="1" style="position:absolute;inset:0;background-image:repeating-linear-gradient(115deg,rgba(255,105,180,.5) 0%,rgba(100,215,255,.5) 5%,rgba(255,235,120,.5) 10%,rgba(150,120,255,.5) 15%,rgba(255,105,180,.5) 20%);background-size:300% 300%"></div><div style="position:absolute;inset:0;padding:18px;display:flex;flex-direction:column"><span style="font:900 24px/1 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.03em">Scootch Plus</span><span style="font:700 11px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.14em;margin-top:6px">ONE YEAR · FROM SAM</span><div style="flex:1;display:flex;align-items:flex-end;justify-content:center"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="scootch" mood="celebrate" still="{{ still }}" sound="off" style="width:190px;height:190px;flex:none" hint-size="190px,190px"></x-import></div></div><div data-glare="1" style="position:absolute;inset:0;pointer-events:none;mix-blend-mode:soft-light"></div></div></div>
+<div style="position:absolute;left:20px;right:20px;bottom:0;height:200px;border-radius:10px 10px 22px 22px;background:linear-gradient(180deg,#F26A44,#D9451F);box-shadow:inset 0 2px 0 rgba(255,255,255,.3),0 30px 50px -20px rgba(200,60,20,.6);z-index:2"><div style="position:absolute;left:50%;top:0;bottom:0;width:34px;margin-left:-17px;background:#FFD66B"></div></div>
+<div data-lid="1" style="position:absolute;left:8px;right:8px;bottom:186px;height:56px;border-radius:12px;background:linear-gradient(180deg,#F57B57,#E5532B);box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 10px 20px -8px rgba(200,60,20,.5);transform:{{ lidT }};transform-origin:left bottom;transition:transform .7s cubic-bezier(.34,1.56,.64,1);z-index:3"><div style="position:absolute;left:50%;top:0;bottom:0;width:36px;margin-left:-18px;background:#FFD66B"></div><div style="position:absolute;left:50%;top:-30px;width:80px;height:36px;margin-left:-40px;display:flex;justify-content:center;gap:4px"><div style="width:36px;height:30px;border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;box-shadow:inset 0 0 0 7px #FFD66B;transform:rotate(-24deg)"></div><div style="width:36px;height:30px;border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;box-shadow:inset 0 0 0 7px #FFD66B;transform:rotate(24deg)"></div></div></div>
+</div>
+</div>
+<div style="flex:1 1 440px;min-width:0;display:flex;flex-direction:column;gap:20px">
+<span style="font:700 12px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.16em;color:#C63F22">SCOOTCH.APP/GIFT</span>
+<h1 style="margin:0;font:900 clamp(44px,6vw,84px)/.92 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.05em;text-wrap:balance">{{ giftTitle }}</h1>
+<p style="margin:0;max-width:520px;font:400 20px/1.45 -apple-system, system-ui, sans-serif;color:#4A443D;text-wrap:pretty">"Thought your monsters deserved chrome. Love, Sam." Redeem it through Apple. No accounts get swapped, and nothing renews.</p>
+<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><div data-press="1" data-magnet="1" onClick="{{ openGift }}" style="height:58px;padding:0 26px;border-radius:29px;background:#1C1A17;color:#F6F3EE;display:flex;align-items:center;font:700 17px -apple-system, system-ui, sans-serif;cursor:pointer">{{ giftCta }}</div></div>
+<div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:18px;background:#fff;box-shadow:inset 0 0 0 .5px rgba(28,26,23,.12);max-width:420px"><span style="font:700 12px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.16em;color:#6F6A62">CODE</span><span style="font:700 17px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.12em;flex:1">{{ code }}</span><span data-press="1" onClick="{{ copy }}" style="font:650 14px -apple-system, system-ui, sans-serif;color:#C63F22;cursor:pointer">{{ copyLabel }}</span></div>
+</div>
+</div></sc-if>
+
+<sc-if value="{{ isHaunt }}" hint-placeholder-val="{{ false }}"><div data-swap="1" style="display:flex;flex-wrap:wrap;gap:48px;align-items:center;color:#F6F3EE" data-screen-label="Haunt">
+<div style="flex:1 1 440px;min-width:0;display:flex;flex-direction:column;gap:20px">
+<span style="font:700 12px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.16em;color:#FFB79F">SCOOTCH.APP/H/FORMHILDA</span>
+<h1 style="margin:0;font:900 clamp(44px,6vw,84px)/.92 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.05em;text-wrap:balance">{{ hauntTitle }}</h1>
+<p style="margin:0;max-width:520px;font:400 20px/1.45 -apple-system, system-ui, sans-serif;color:rgba(246,243,238,.78);text-wrap:pretty">{{ hauntLine }}</p>
+<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center"><div data-press="1" data-magnet="1" onClick="{{ shoo }}" style="height:58px;padding:0 26px;border-radius:29px;background:#F0562E;color:#1C1A17;display:flex;align-items:center;font:800 18px/1 ui-rounded, 'Nunito', system-ui, sans-serif;cursor:pointer">{{ shooLabel }}</div><a href="Scootch%20Web%20-%20Get.dc.html" style="font:600 16px -apple-system, system-ui, sans-serif;color:#F6F3EE">Catch it in the app</a></div>
+<span style="font:400 13.5px/1.45 -apple-system, system-ui, sans-serif;color:rgba(246,243,238,.6);max-width:500px">Haunts are friendly nudges between friends. One per day at most, and you can turn them off.</span>
+</div>
+<div style="flex:1 1 440px;min-width:0;height:460px;position:relative;display:flex;align-items:center;justify-content:center">
+<div style="position:absolute;width:360px;height:360px;border-radius:50%;background:radial-gradient(circle,rgba(180,200,255,.25),rgba(180,200,255,0) 70%)"></div>
+<div data-ghostwrap="1" style="position:relative;opacity:{{ ghostOp }};transform:scale({{ ghostScale }});transition:opacity .8s,transform .8s cubic-bezier(.34,1.56,.64,1)"><div data-anim="ghost"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="task" seed="form" type="note" mood="idle" on="dark" still="{{ still }}" sound="off" style="width:300px;height:300px;flex:none" hint-size="300px,300px"></x-import></div></div>
+<div style="position:absolute;right:8%;top:14%;padding:12px 16px;border-radius:20px 20px 6px 20px;background:#F6F3EE;color:#1C1A17;font:800 17px/1.25 ui-rounded, 'Nunito', system-ui, sans-serif;max-width:200px;box-shadow:0 20px 40px -20px rgba(0,0,0,.6)">{{ ghostSays }}</div>
+</div>
+</div></sc-if>
+</div>
+</section>
+<footer id="footer" style="background:#1C1A17;color:#F6F3EE">
+<div style="max-width:1240px;margin:0 auto;padding:64px 28px 40px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-wrap:wrap;gap:40px;justify-content:space-between">
+<div style="flex:1 1 280px;display:flex;flex-direction:column;gap:12px"><span style="font:900 28px/1 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.03em">scootch<span style="color:#F0562E">.</span></span><span style="font:400 15px/1.45 -apple-system, system-ui, sans-serif;color:rgba(246,243,238,.72);max-width:300px">Small things, one at a time, with someone quietly sitting next to you.</span></div>
+<div style="display:flex;flex-direction:column;gap:10px;font:400 15px/1.2 -apple-system, system-ui, sans-serif"><span style="font:700 12px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.12em;color:rgba(246,243,238,.6)">SCOOTCH</span><a href="Scootch%20Web%20-%20Help.dc.html#isnt" style="color:#F6F3EE;text-decoration:none">What Scootch is and isn't</a><a href="Scootch%20Web%20-%20Plus.dc.html" style="color:#F6F3EE;text-decoration:none">Plus</a><a href="Scootch%20Web%20-%20Wall.dc.html" style="color:#F6F3EE;text-decoration:none">The monster wall</a><a href="Scootch%20Web%20-%20Unwrapped.dc.html" style="color:#F6F3EE;text-decoration:none">Unwrapped</a><a href="Scootch%20Web%20-%20Invites.dc.html" style="color:#F6F3EE;text-decoration:none">Invites and gifts</a></div>
+<div style="display:flex;flex-direction:column;gap:10px;font:400 15px/1.2 -apple-system, system-ui, sans-serif"><span style="font:700 12px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.12em;color:rgba(246,243,238,.6)">HELP</span><a href="Scootch%20Web%20-%20Help.dc.html" style="color:#F6F3EE;text-decoration:none">Support and questions</a><a href="Scootch%20Web%20-%20Help.dc.html#helplines" style="color:#F6F3EE;text-decoration:none">Helplines</a><a href="Scootch%20Web%20-%20Help.dc.html#privacy" style="color:#F6F3EE;text-decoration:none">Privacy</a><a href="Scootch%20Web%20-%20Get.dc.html" style="color:#F6F3EE;text-decoration:none">Get the app · Android · Press</a></div>
+<div style="flex:1 1 280px;border-radius:24px;background:rgba(255,255,255,.07);padding:20px;display:flex;flex-direction:column;gap:8px"><span style="font:800 18px/1.2 ui-rounded, 'Nunito', system-ui, sans-serif">Having a really hard time?</span><span style="font:400 14.5px/1.45 -apple-system, system-ui, sans-serif;color:rgba(246,243,238,.78)">You deserve a real person. Find a free, confidential helpline in your country.</span><a href="Scootch%20Web%20-%20Help.dc.html#helplines" style="font:650 15px -apple-system, system-ui, sans-serif;color:#FFB79F">Find a helpline</a></div>
+</div>
+<div style="position:relative;display:flex;flex-direction:column;align-items:center;margin-top:24px">
+<div style="display:flex;gap:6vw;justify-content:center;margin-bottom:-2.4vw;position:relative;z-index:1"><div data-anim="peek"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="task" seed="dentist" type="tooth" mood="idle" on="dark" still="{{ still }}" sound="off" style="width:clamp(64px,9vw,128px);height:clamp(64px,9vw,128px);flex:none" hint-size="96px,96px"></x-import></div><div data-anim="peek"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="scootch" mood="proud" on="dark" still="{{ still }}" sound="off" style="width:clamp(80px,11vw,160px);height:clamp(80px,11vw,160px);flex:none" hint-size="120px,120px"></x-import></div><div data-anim="peek"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="task" seed="sock" type="sock" mood="idle" on="dark" still="{{ still }}" sound="off" style="width:clamp(64px,9vw,128px);height:clamp(64px,9vw,128px);flex:none" hint-size="96px,96px"></x-import></div></div>
+<span style="display:block;font:900 clamp(84px,19vw,280px)/.82 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.065em;color:#F6F3EE;text-align:center;user-select:none">scootch<span style="color:#F0562E">.</span></span>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:12px 24px;justify-content:space-between;padding-top:24px;border-top:1px solid rgba(246,243,238,.14);font:400 13px/1.45 -apple-system, system-ui, sans-serif;color:rgba(246,243,238,.62)"><span style="max-width:640px">Scootch is a support tool for starting things. It doesn't diagnose, treat or cure ADHD or anything else.</span><span>© 2026 Scootch · Made with mild panic</span></div>
+</div>
+</footer>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;boil&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;label&quot;:&quot;Motion&quot;}}">
+class Component extends DCLogic {
+  state = { tab: 'table', seated: false, gift: false, copied: false, shoo: 0 };
+  componentDidMount() { this._prev = { ...this.state }; const go = () => { if (window.ScootchWebFX) this._fx = ScootchWebFX.init({ still: this.props.boil === false }); else this._w = setTimeout(go, 60); }; go(); }
+  componentDidUpdate() {
+    const ps = this._prev || this.state, S = this.state; this._prev = { ...S };
+    const fx = window.ScootchWebFX, RM = this.props.boil === false || matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (S.tab !== ps.tab && !RM) requestAnimationFrame(() => document.querySelectorAll('[data-swap]').forEach(s => [...s.children].forEach((c, k) => c.animate([{ opacity: 0, transform: 'translateY(26px)' }, { opacity: 1, transform: 'none' }], { duration: 700, delay: k * 90, easing: 'cubic-bezier(.32,.72,0,1)', fill: 'backwards' }))));
+    if (S.seated && !ps.seated && !RM) requestAnimationFrame(() => { const d = document.querySelector('[data-sitdown]'); if (d) { d.animate([{ transform: 'translateY(-120px) scale(.6)', opacity: 0 }, { transform: 'translateY(8px) scale(1.05,.95)', opacity: 1, offset: .7 }, { transform: 'none' }], { duration: 700, easing: 'cubic-bezier(.34,1.56,.64,1)' }); fx && fx.burst(d, 20); } });
+    if (S.gift && !ps.gift && !RM) setTimeout(() => { const c = document.querySelector('[data-giftcard]'); fx && c && fx.burst(c, 26); }, 450);
+  }
+  componentWillUnmount() { clearTimeout(this._w); this._fx && this._fx(); }
+  renderVals() {
+    const S = this.state, set = o => () => this.setState(o);
+    const T = [['table', 'Table invite', '/t'], ['gift', 'Gift', '/gift'], ['haunt', 'Haunt', '/h']];
+    const dark = S.tab === 'haunt';
+    return {
+      still: this.props.boil === false ? 'true' : undefined,
+      pageBg: dark ? '#141019' : S.tab === 'gift' ? '#F6EDE6' : '#F6F3EE',
+      tabs: T.map(([id, label, path]) => ({ label, path, bg: S.tab === id ? '#1C1A17' : 'transparent', fg: S.tab === id ? '#F6F3EE' : '#1C1A17', fw: S.tab === id ? 650 : 500, pick: set({ tab: id }) })),
+      isTable: S.tab === 'table', isGift: S.tab === 'gift', isHaunt: dark,
+      seated: S.seated, notSeated: !S.seated, sit: set({ seated: true }), sitLabel: S.seated ? 'Seat taken · opening Scootch' : 'Sit down', youLabel: S.seated ? 'You · email' : 'your seat',
+      openGift: () => this.setState({ gift: true }), lidT: S.gift ? 'translate(-30px,-60px) rotate(-28deg)' : 'none', cardBottom: S.gift ? '150px' : '20px',
+      giftTitle: S.gift ? 'A year of Plus. For you.' : 'Sam sent you something.', giftCta: S.gift ? 'Redeem in the App Store' : 'Open it',
+      code: 'SCOOT-7KQ2-HYDRA', copyLabel: S.copied ? 'Copied' : 'Copy', copy: () => { try { navigator.clipboard.writeText('SCOOT-7KQ2-HYDRA'); } catch (e) {} this.setState({ copied: true }); },
+      hauntTitle: S.shoo >= 3 ? 'Formhilda has left. For now.' : 'Dana sent Formhilda to haunt you.',
+      hauntLine: S.shoo >= 3 ? "She'll float back tomorrow unless you catch her. Ten minutes and she's gone for good." : 'Formhilda ate three passport applications and has opinions about yours. Dana thinks today is the day.',
+      shoo: () => this.setState(s => ({ shoo: Math.min(3, s.shoo + 1) })), shooLabel: S.shoo >= 3 ? 'Shooed' : S.shoo ? 'Shoo harder' : 'Shoo it',
+      ghostOp: S.shoo >= 3 ? 0 : 1 - S.shoo * .2, ghostScale: (1 - S.shoo * .14).toFixed(2),
+      ghostSays: ['Box 1. Just box 1.', 'Rude. I live here now.', 'FINE. I am leaving. Slowly.', '…'][S.shoo]
+    };
+  }
+}
+</script>
+</body>
+</html>

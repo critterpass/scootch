@@ -74,7 +74,9 @@ test.describe('a table invite', () => {
     await answerApi(page, 'table-invite/gone234567', notFound, 404);
     await page.goto('/t/gone234567');
     await expect(state(page, 'invite')).toHaveAttribute('data-state', 'missing');
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('This page got eaten.');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+      'This page wandered off. Classic.',
+    );
 
     await answerApi(page, 'table-invite/abcdefgh23', down, 503);
     await page.goto('/t/abcdefgh23');

@@ -39,7 +39,11 @@ for (const [size, viewport] of Object.entries(sizes)) {
   for (const scheme of ['light', 'dark'] as const) {
     for (const language of ['en', 'vi']) {
       test(`home ${size} ${scheme} ${language}`, async ({ browser }) => {
-        const page = await browser.newPage({ viewport, colorScheme: scheme });
+        const page = await browser.newPage({
+          viewport,
+          colorScheme: scheme,
+          reducedMotion: 'reduce',
+        });
         await page.goto(language === 'en' ? '/' : '/vi/');
         await page.screenshot({
           path: `${out}/home-${size}-${scheme}-${language}.png`,
@@ -65,8 +69,9 @@ for (const [size, viewport] of Object.entries(sizes)) {
 /** One page in one size, once its fetched parts have settled. */
 function sheet(name: string, size: keyof typeof sizes, open: (page: Page) => Promise<void>): void {
   test(`${name} ${size}`, async ({ browser }) => {
-    const page = await browser.newPage({ viewport: sizes[size] });
+    const page = await browser.newPage({ viewport: sizes[size], reducedMotion: 'reduce' });
     await open(page);
+    // Reduce Motion, so that every section is in place rather than waiting to be scrolled to.
     await page.waitForTimeout(600);
     await page.screenshot({ path: `${out}/${name}-${size}.png`, fullPage: true });
   });
@@ -123,6 +128,17 @@ for (const size of ['desktop', 'phone'] as const) {
     sheet(plain, size, (page) => page.goto(`/${plain}`).then(() => undefined));
   }
   sheet('plus', size, (page) => page.goto('/plus').then(() => undefined));
+  sheet('plus-dark', size, async (page) => {
+    await page.emulateMedia({ colorScheme: 'dark' });
+    await page.goto('/plus');
+  });
+  for (const page of ['help', 'get', 'vi/help', 'vi/plus', 'no-such-page']) {
+    sheet(page.replace('/', '-'), size, (opened) => opened.goto(`/${page}`).then(() => undefined));
+  }
+  sheet('get-monster', size, async (page) => {
+    await answerApi(page, 'monster-page/*', wildMonster);
+    await page.goto('/get?m=molar-7f3k9x');
+  });
   sheet('privacy-vi', size, (page) => page.goto('/vi/privacy').then(() => undefined));
   sheet('android', size, (page) => page.goto('/android').then(() => undefined));
   sheet('pre-launch-hatched', size, async (page) => {

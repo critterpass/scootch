@@ -24,7 +24,9 @@ const lines = { ...pages.caughtCard, ...pages.story };
   description={pages.story.description}
   social={false}
 >
-  <section
+  <section class="band shared-band">
+    <div class="grain"></div>
+    <div
     class="wrap shared-page"
     data-story-page
     data-state="loading"
@@ -56,6 +58,7 @@ const lines = { ...pages.caughtCard, ...pages.story };
     <div data-show="offline" hidden>
       <h1 tabindex="-1">{pages.monster.offlineTitle}</h1>
       <p class="lede">{pages.monster.offlineBody}</p>
+    </div>
     </div>
   </section>
 </SiteLayout>

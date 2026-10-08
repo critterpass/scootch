@@ -66,6 +66,7 @@ export async function startMonsterPage(root: HTMLElement): Promise<void> {
   );
   find('[data-card-name]').textContent = monster.name;
   find('[data-card-badge]').textContent = status;
+  find('[data-card-badge]').classList.toggle('tag-tomato', caught);
   find('[data-card-typed]').textContent = monster.typed === null ? '' : `“${monster.typed}”`;
   find('[data-card-typed]').hidden = monster.typed === null;
   find('[data-card-flavour]').textContent = monster.flavourText;
@@ -86,7 +87,6 @@ export async function startMonsterPage(root: HTMLElement): Promise<void> {
   find('[data-eyebrow]').textContent = caught
     ? (lines['caughtEyebrow'] ?? '')
     : (lines['wildEyebrow'] ?? '');
-  find('[data-eyebrow]').classList.toggle('tomato-text', caught);
   find('[data-name]').textContent = monster.name;
   find('[data-flavour]').textContent = monster.flavourText;
 

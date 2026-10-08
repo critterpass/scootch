@@ -47,8 +47,9 @@ test('an unknown or unshared id shows the not-found monster', async ({ page }) =
   await answerApi(page, 'monster-page/gone-000000', notFound, 404);
   await page.goto('/vi/m/gone-000000');
 
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Trang này bị ăn mất rồi.');
-  await expect(page.locator('main')).toContainText('Lạc Lối, Kẻ Ăn Trang');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+    'Trang này đi lạc rồi. Y như mọi khi.',
+  );
   await expect(page.locator('[data-card]')).toBeHidden();
 });
 
@@ -66,7 +67,9 @@ test('the monster shared from this browser can be unshared from its page', async
 
   await page.getByRole('button', { name: 'Unshare' }).click();
 
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('This page got eaten.');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+    'This page wandered off. Classic.',
+  );
   expect(unsharedWith).toBe('Bearer the-token');
 });
 

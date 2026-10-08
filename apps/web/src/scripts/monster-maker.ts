@@ -158,7 +158,9 @@ export function startMonsterMaker(root: HTMLElement): void {
     }
     // A new state is announced by moving to its headline, except while the visitor is typing.
     if (state !== 'empty' && state !== 'hatching') {
-      root.querySelector<HTMLElement>(`[data-show~="${state}"] h1`)?.focus({ preventScroll: true });
+      root
+        .querySelector<HTMLElement>(`[data-show~="${state}"] h1[tabindex]`)
+        ?.focus({ preventScroll: true });
     }
   };
 
@@ -221,6 +223,15 @@ export function startMonsterMaker(root: HTMLElement): void {
     }
   };
 
+  // A monster's page hands over what was typed in its own field (`/?text=…`): it hatches here.
+  const handed = new URLSearchParams(location.search).get('text')?.trim().slice(0, 280) ?? '';
+  if (handed !== '') {
+    input.value = handed;
+    history.replaceState(null, '', location.pathname);
+    root.scrollIntoView();
+    void hatch();
+  }
+
   form.addEventListener('submit', (event) => {
     event.preventDefault();
     if (root.dataset['state'] !== 'hatching') void hatch();
@@ -246,8 +257,9 @@ export function startMonsterMaker(root: HTMLElement): void {
     if (!target) return;
     if (target.hasAttribute('data-example')) {
       input.value = target.textContent.trim();
-      input.focus();
+      if (root.dataset['state'] !== 'hatching') void hatch();
     } else if (target.dataset['action'] === 'reset') {
+      input.value = '';
       show('empty');
       input.focus();
     } else if (target.dataset['action'] === 'wake') {

@@ -20,7 +20,9 @@ const copy = togetherFor(language).invite;
 ---
 
 <SiteLayout language={language} path="/t" title={copy.title} description={copy.description} social={false}>
-  <section
+  <section class="band shared-band">
+    <div class="grain"></div>
+    <div
     class="wrap shared-page"
     data-invite-page
     data-state="loading"
@@ -30,8 +32,7 @@ const copy = togetherFor(language).invite;
     <p class="lede" data-show="loading" aria-live="polite">{copy.loading}</p>
 
     <div class="shared-grid invite" data-show="open closed" hidden>
-      <ul class="seats" aria-label={copy.seatsLabel} data-seats></ul>
-      <div>
+      <div class="shared-words">
         <p class="eyebrow" data-eyebrow></p>
         <h1 tabindex="-1" data-headline></h1>
 
@@ -75,14 +76,19 @@ const copy = togetherFor(language).invite;
           </div>
         </div>
       </div>
+      <div class="table-scene">
+        <ul class="seats" aria-label={copy.seatsLabel} data-seats></ul>
+        <span class="table-plank" aria-hidden="true"></span>
+      </div>
     </div>
 
     <div data-show="missing" hidden>
       <NotFound language={language} focusable />
     </div>
-    <div data-show="offline" hidden>
+    <div class="shared-words" data-show="offline" hidden>
       <h1 tabindex="-1">{copy.offlineTitle}</h1>
       <p class="lede">{copy.offlineBody}</p>
+    </div>
     </div>
   </section>
 </SiteLayout>

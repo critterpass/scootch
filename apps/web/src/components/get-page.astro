@@ -1,65 +1,160 @@
 ---
 import type { Language } from '@scootch/i18n';
 
-import { preLaunch, togetherFor } from '../copy';
+import { appStoreUrl, localPath, pagesFor, plainFor, preLaunch, togetherFor } from '../copy';
+import { scootchSvg } from '../lib/drawings';
+import { qrSvg } from '../lib/qr-code';
 import SiteLayout from '../layouts/site-layout.astro';
 import '../styles/together.css';
 
-import AppStoreBadge from './app-store-badge.astro';
+import Critter from './critter.astro';
 import NotFound from './not-found.astro';
 import OpenInApp from './open-in-app.astro';
+import RisingWords from './rising-words.astro';
+import WaitlistForm from './waitlist-form.astro';
 
 interface Props {
   language: Language;
 }
 
-// "Catch it in the app" lands here with the monster's id (`/get?m=<id>`). A phone gets one
-// button that opens the app with the monster; a wide screen gets a QR code of the monster's own
-// link, which the phone's camera opens in the app, and the link itself in plain text.
+// Where "Get the app" leads. On its own it is the way to the App Store: a button on a phone, a QR
+// code of this page on a wide screen. "Catch it in the app" lands here with a monster's id
+// (`/get?m=<id>`): the phone's button then opens the app with the monster, and the QR code is the
+// monster's own link. Android and the press kit live further down.
 const { language } = Astro.props;
-const copy = togetherFor(language).get;
+const pages = pagesFor(language);
+const copy = pages.get;
+const carry = togetherFor(language).get;
+const android = pages.android;
+const press = plainFor(language).press;
+const here = new URL(localPath(language, '/get'), Astro.site).href;
 ---
 
-<SiteLayout language={language} path="/get" title={copy.title} description={copy.description} social={false}>
-  <section
-    class="wrap shared-page"
-    data-get-page
-    data-state="loading"
-    data-language={language}
-    data-lines={JSON.stringify(copy)}
-  >
-    <p class="lede" data-show="loading" aria-live="polite">{copy.loading}</p>
+<SiteLayout language={language} path="/get" title={copy.title} description={copy.description}>
+  <section class="band shared-band">
+    <div class="grain"></div>
+    <div class="halftone get-halftone"></div>
+    <div
+      class="wrap shared-page"
+      data-get-page
+      data-state="loading"
+      data-language={language}
+      data-lines={JSON.stringify(carry)}
+    >
+      <p class="lede" data-show="loading" aria-live="polite">{carry.loading}</p>
 
-    <div class="wandered" data-show="found" hidden>
-      <p class="eyebrow">{copy.eyebrow}</p>
-      <h1 tabindex="-1" data-headline></h1>
-      <div class="phone-only">
-        <p class="lede">{copy.phoneBody}</p>
+      <div class="shared-grid" data-show="plain found" hidden>
+        <div class="shared-words">
+          <p class="eyebrow">{copy.eyebrow}</p>
+          <div data-show="plain" hidden>
+            <h1 class="rise" tabindex="-1">
+              <RisingWords words={copy.words} marker />
+            </h1>
+          </div>
+          <div data-show="found" hidden>
+            <h1 tabindex="-1" data-headline></h1>
+          </div>
+
+          {
+            preLaunch ? (
+              <>
+                <p class="lede">{copy.soonBody}</p>
+                <WaitlistForm language={language} intro="" />
+              </>
+            ) : (
+              <>
+                <div class="phone-only">
+                  <p class="lede" data-show="plain" hidden>{copy.phoneBody}</p>
+                  <p class="lede" data-show="found" hidden>{carry.phoneBody}</p>
+                  <div class="actions" data-show="plain" hidden>
+                    <a class="button button-ink" href={appStoreUrl}>
+                      {copy.store}
+                      <span class="arrow" aria-hidden="true">→</span>
+                    </a>
+                  </div>
+                  <div data-show="found" hidden>
+                    <OpenInApp language={language} kind="m" label={carry.open} showCode={false} />
+                  </div>
+                </div>
+                <div class="desk-only">
+                  <p class="lede" data-show="plain" hidden>{copy.deskBody}</p>
+                  <p class="lede" data-show="found" hidden>{carry.deskBody}</p>
+                </div>
+              </>
+            )
+          }
+          <p class="small" data-show="found" hidden>
+            {carry.orLink}
+            <a data-link></a>
+          </p>
+        </div>
         {
-          preLaunch ? (
-            <AppStoreBadge language={language} />
-          ) : (
-            <OpenInApp language={language} kind="m" label={copy.open} showCode={false} />
+          !preLaunch && (
+            <div class="shared-art tilt-space desk-only">
+              <div class="qr-card" data-lean>
+                <div class="qr-code">
+                  <span data-show="plain" set:html={qrSvg(here, copy.qrLabel)} hidden />
+                  <img alt={carry.qrLabel} width="220" height="220" data-qr data-show="found" hidden />
+                  <span class="app-icon"><Critter svg={scootchSvg('scheming')} /></span>
+                </div>
+                <p data-show="plain" hidden>{copy.qrCaption}</p>
+                <p data-show="found" hidden>{carry.deskTitle}</p>
+              </div>
+            </div>
           )
         }
       </div>
-      <div class="desk-only">
-        <p class="lede">{copy.deskBody}</p>
-        <img class="qr" alt={copy.qrLabel} width="220" height="220" data-qr />
-        <p class="desk-title">{copy.deskTitle}</p>
-      </div>
-      <p class="small">
-        {copy.orLink}
-        <a data-link></a>
-      </p>
-    </div>
 
-    <div data-show="missing" hidden>
-      <NotFound language={language} focusable />
+      <div data-show="missing" hidden>
+        <NotFound language={language} focusable />
+      </div>
+      <div class="shared-words" data-show="offline" hidden>
+        <h1 tabindex="-1">{carry.offlineTitle}</h1>
+        <p class="lede">{carry.offlineBody}</p>
+      </div>
     </div>
-    <div data-show="offline" hidden>
-      <h1 tabindex="-1">{copy.offlineTitle}</h1>
-      <p class="lede">{copy.offlineBody}</p>
+  </section>
+
+  <section id="android" class="band turn on-night">
+    <div class="grain"></div>
+    <span class="turn-glow turn-glow-green"></span>
+    <div class="wrap turn-grid">
+      <div class="turn-words">
+        <p class="eyebrow">{copy.androidEyebrow}</p>
+        <h2>{copy.androidTitle}</h2>
+        <p class="lede">{android.body}</p>
+      </div>
+      <div class="turn-form" data-reveal>
+        <WaitlistForm
+          language={language}
+          platform="android"
+          submit={android.submit}
+          note={android.note}
+          done={android.done}
+        />
+      </div>
+    </div>
+  </section>
+
+  <section id="press" class="band">
+    <div class="wrap stack press">
+      <div class="head-pair">
+        <div>
+          <p class="eyebrow">{copy.pressEyebrow}</p>
+          <h2>{copy.pressTitle}</h2>
+        </div>
+        <p class="lede">{press.intro}</p>
+      </div>
+      <ul class="press-cards" data-reveal="stagger">
+        {
+          press.sections.map((section) => (
+            <li>
+              <h3>{section.title}</h3>
+              <p>{section.body}</p>
+            </li>
+          ))
+        }
+      </ul>
     </div>
   </section>
 </SiteLayout>

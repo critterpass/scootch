@@ -15,7 +15,8 @@ import { chromium, type Browser, type Page } from 'playwright';
  *
  * A board marks its numbered sections and, inside them, each screen with `data-screen-label`. A screen
  * is a labelled element inside a labelled section; the sections themselves (and a board's title blocks)
- * are not rendered. Images go to `<out>/<board>/<section>--<screen>.png` at twice the design size, with a
+ * are not rendered. A board drawn as one whole page has sections and no screens: it is checked for
+ * rendering cleanly and adds nothing to the manifest. Images go to `<out>/<board>/<section>--<screen>.png` at twice the design size, with a
  * small margin for the device frame, and the manifest lists them in board and document order with the
  * screen's own size in design points.
  *
@@ -137,6 +138,12 @@ function measureScreens(page: Page): Promise<Measured[]> {
   });
 }
 
+/**
+ * Boards drawn as one whole page (the website's): their labelled parts are the page's own
+ * sections, with no screen inside them, so there is nothing to cut out.
+ */
+const pageBoards = new Set<string>();
+
 async function renderBoard(
   browser: Browser,
   origin: string,
@@ -163,6 +170,13 @@ async function renderBoard(
 
     // The drawn characters only paint while inside the viewport, so it must hold the tallest screen.
     const first = await measureScreens(page);
+    if (first.length === 0) {
+      if (problems.length > 0) {
+        throw new Error(`${file} did not render cleanly:\n  ${problems.join('\n  ')}`);
+      }
+      pageBoards.add(file);
+      return [];
+    }
     await page.setViewportSize({
       width: Math.max(1600, ...first.map((screen) => screen.width + 200)),
       height: Math.max(1000, ...first.map((screen) => screen.height + 200)),
@@ -234,7 +248,7 @@ async function main(argv: readonly string[]): Promise<void> {
     for (const file of boards) {
       const screens = await renderBoard(browser, origin, file, outDir);
       console.log(`${String(screens.length).padStart(4)}  ${boardName(file)}`);
-      if (screens.length === 0) empty.push(file);
+      if (screens.length === 0 && !pageBoards.has(file)) empty.push(file);
       all.push(...screens);
     }
   } finally {

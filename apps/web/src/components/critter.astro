@@ -1,0 +1,22 @@
+---
+interface Props {
+  /** The drawing, as inline SVG from `lib/drawings`. */
+  svg: string;
+  /** Its width, such as `6rem`. The stylesheet sets it when absent. */
+  size?: string;
+  class?: string;
+  /** What a screen reader says. A critter that only decorates has none. */
+  label?: string;
+}
+
+const { svg, size, label } = Astro.props;
+const style = size ? `--size:${size}` : undefined;
+---
+
+{
+  label ? (
+    <span class:list={['critter', Astro.props.class]} style={style} role="img" aria-label={label} set:html={svg} />
+  ) : (
+    <span class:list={['critter', Astro.props.class]} style={style} aria-hidden="true" set:html={svg} />
+  )
+}

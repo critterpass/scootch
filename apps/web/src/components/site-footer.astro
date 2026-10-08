@@ -2,8 +2,9 @@
 import type { Language } from '@scootch/i18n';
 
 import { brand, copyFor, localPath } from '../copy';
+import { monsterSvg, scootchSvg } from '../lib/drawings';
 
-import AppStoreBadge from './app-store-badge.astro';
+import Critter from './critter.astro';
 
 interface Props {
   language: Language;
@@ -20,42 +21,34 @@ const groups = [
   {
     title: copy.footer.scootch,
     links: [
-      { href: to('/what-scootch-is'), label: copy.footer.whatItIs },
+      { href: `${to('/help')}#isnt`, label: copy.footer.whatItIs },
       { href: to('/plus'), label: words.plus },
-      { href: to('/press'), label: copy.footer.press },
+      { href: to('/get'), label: copy.footer.getTheApp },
     ],
   },
   {
     title: copy.footer.help,
     links: [
-      { href: to('/support'), label: copy.footer.support },
+      { href: to('/help'), label: copy.footer.support },
       { href: to('/helplines'), label: copy.footer.helplines },
       { href: to('/privacy'), label: copy.footer.privacy },
       { href: to('/terms'), label: copy.footer.terms },
     ],
   },
-  {
-    title: copy.footer.elsewhere,
-    links: [
-      { href: to('/android'), label: copy.footer.android },
-      { href: to('/'), label: copy.nav.maker },
-    ],
-  },
 ];
 ---
 
-<footer class="site-footer">
+<footer class="site-footer on-night">
   <div class="wrap">
     <div class="footer-top">
       <div class="footer-brand">
         <a class="logo" href={to('/')} aria-label={words.name}>scootch<span>.</span></a>
         <p>{copy.footer.tagline}</p>
-        <AppStoreBadge language={language} />
       </div>
       {
         groups.map((group) => (
-          <details class="footer-group" open>
-            <summary>{group.title}</summary>
+          <div class="footer-group">
+            <h2>{group.title}</h2>
             <ul>
               {group.links.map((link) => (
                 <li>
@@ -63,32 +56,29 @@ const groups = [
                 </li>
               ))}
             </ul>
-          </details>
+          </div>
         ))
       }
-    </div>
-    <div class="care-bar">
-      <p class="care-ask">
-        {copy.footer.hardTime}{' '}
+      <div class="care-card">
+        <h2>{copy.footer.hardTime}</h2>
+        <p>{copy.footer.hardBody}</p>
         <a href={to('/helplines')}>{copy.footer.findHelpline}</a>
-      </p>
-      <p class="care-statement">{copy.footer.supportTool}</p>
+      </div>
+    </div>
+    <div class="footer-mark" aria-hidden="true">
+      <div class="footer-peek">
+        <Critter class="peek" svg={monsterSvg('tooth', 'dentist')} />
+        <Critter class="peek" svg={scootchSvg('pleased', { night: true })} />
+        <Critter class="peek" svg={monsterSvg('sock', 'sock')} />
+      </div>
+      <span class="wordmark">scootch<span>.</span></span>
     </div>
     <div class="footer-end">
-      <p>{copy.footer.copyright}</p>
-      <a href={localPath(other, path)} lang={other} hreflang={other}>{copy.footer.otherLanguage}</a>
+      <p>{copy.footer.supportTool}</p>
+      <p>
+        {copy.footer.copyright} ·
+        <a href={localPath(other, path)} lang={other} hreflang={other}>{copy.footer.otherLanguage}</a>
+      </p>
     </div>
   </div>
 </footer>
-
-<script>
-  // The footer groups are open lists on a wide screen and fold into rows on a phone.
-  const narrow = window.matchMedia('(max-width: 44rem)');
-  const fold = () => {
-    for (const group of document.querySelectorAll<HTMLDetailsElement>('.footer-group')) {
-      group.open = !narrow.matches;
-    }
-  };
-  fold();
-  narrow.addEventListener('change', fold);
-</script>

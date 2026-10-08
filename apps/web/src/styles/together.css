@@ -17,39 +17,71 @@
   }
 }
 
-/* The table: up to four seats, the last one saved for the reader. */
+/* The table: its seats in a row behind a plank, the last one ringed and saved for the reader. */
+.table-scene {
+  position: relative;
+  overflow: hidden;
+  border-radius: 2.5rem;
+  background: linear-gradient(180deg, #f3eadc 0%, #e8dcc8 100%);
+  color: #1c1a17;
+  padding: 3rem 5% 1.75rem;
+  box-shadow:
+    inset 0 0 0 0.5px rgb(28 26 23 / 0.08),
+    0 2.5rem 4.375rem -2.5rem rgb(28 26 23 / 0.5);
+}
 .seats {
+  position: relative;
+  z-index: 1;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.5rem 1rem;
-  padding: clamp(1.5rem, 4vw, 2.5rem);
-  border-radius: 2rem;
-  background: var(--soft);
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  align-items: end;
+  gap: 0 0.5rem;
 }
 .seat {
   display: grid;
+  grid-template-rows: 9.375rem auto auto;
   justify-items: center;
+  align-items: end;
   text-align: center;
+  font-size: 0.875rem;
+  line-height: 1.25;
   overflow-wrap: anywhere;
 }
 .seat .drawing {
-  width: min(100%, 9rem);
-  aspect-ratio: 1;
+  width: min(100%, 9.375rem);
+}
+.seat strong {
+  margin-top: 3.25rem;
+  font-weight: 600;
 }
 .seat span:last-child {
-  color: var(--muted);
-  font-size: 0.9375rem;
+  color: #5e574e;
 }
 .seat-saved .drawing {
-  width: min(70%, 6rem);
-  aspect-ratio: 1.3;
-  align-self: end;
+  width: min(100%, 5.75rem);
+  aspect-ratio: 1;
   margin-bottom: 0.75rem;
-  border: 0.125rem solid var(--tomato);
-  border-radius: 50% 50% 46% 46% / 62% 62% 38% 38%;
-  background: color-mix(in srgb, var(--tomato) 14%, var(--soft));
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 3px var(--tomato);
+  background: rgb(255 255 255 / 0.5);
 }
-[data-state='closed'] .seats {
+.seat-saved strong {
+  color: #c63f22;
+}
+.table-plank {
+  position: absolute;
+  left: 5%;
+  right: 5%;
+  top: 12.125rem;
+  height: 1.625rem;
+  border-radius: 0.5rem;
+  background: linear-gradient(180deg, #c9a57e, #b08a63);
+  box-shadow:
+    inset 0 2px 0 rgb(255 255 255 / 0.35),
+    0 1.125rem 1.5rem -0.875rem rgb(28 26 23 / 0.5);
+}
+[data-state='closed'] .table-scene {
   filter: grayscale(1);
   opacity: 0.55;
 }
@@ -57,37 +89,68 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 1rem 1.5rem;
-  margin-top: 1.5rem;
 }
 .desk-title {
   font: 800 1.1875rem var(--heading);
 }
 
-/* The haunt. */
+/* The haunt: night, with the monster adrift in a pale glow. */
+.haunt {
+  --night: #141019;
+  background: #141019;
+}
 .dare {
   display: inline-block;
-  margin-top: 1rem;
-  padding: 0.625rem 1rem;
-  border-radius: 1rem;
-  background: var(--soft);
-  font-weight: 700;
+  padding: 0.75rem 1rem;
+  border-radius: 1.25rem 1.25rem 1.25rem 0.375rem;
+  background: #f6f3ee;
+  color: #1c1a17;
+  font: 800 1.0625rem/1.25 var(--heading);
+}
+.ghost-stage {
+  position: relative;
+  min-height: min(28.75rem, 90vw);
+  display: grid;
+  place-items: center;
+}
+.ghost-glow {
+  position: absolute;
+  width: min(22.5rem, 80%);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(180 200 255 / 0.25), rgb(180 200 255 / 0) 70%);
+}
+.ghost {
+  position: relative;
+  width: min(18.75rem, 70%);
+  animation: ghost 4.2s ease-in-out infinite;
+}
+@keyframes ghost {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(-4deg);
+  }
+  33% {
+    transform: translate(0.625rem, -1.125rem) rotate(4deg);
+  }
+  66% {
+    transform: translate(-0.5rem, -0.375rem) rotate(-2deg);
+  }
 }
 .wandered {
   display: grid;
   justify-items: center;
   text-align: center;
-  max-width: 34rem;
+  gap: 1rem;
+  max-width: 36rem;
   margin-inline: auto;
 }
 .wandered .drawing {
   width: min(60%, 14rem);
-  margin-bottom: 1rem;
 }
 .wandered .actions {
   justify-content: center;
-}
-.wandered .small {
-  margin-top: 1rem;
+  margin-top: 0;
 }
 
 /* The record: the sleeve and its player on one side, the week's tracks on the other. */
@@ -195,24 +258,27 @@
 }
 
 @media (max-width: 44rem) {
-  .invite .seats {
-    order: 1;
+  .table-scene {
+    padding-inline: 3%;
+  }
+  .seat {
+    grid-template-rows: 6rem auto auto;
+    font-size: 0.75rem;
+  }
+  .seat strong {
+    margin-top: 2.75rem;
+  }
+  .seat-saved .drawing {
+    width: min(100%, 3.75rem);
+  }
+  .table-plank {
+    top: 8.75rem;
   }
 }
 @media (prefers-reduced-motion: reduce) {
   .disc.spinning {
     animation: none;
   }
-}
-
-/* The hand-off page's QR code: white behind it in either scheme, so any camera reads it. */
-.qr {
-  display: block;
-  width: min(100%, 13.75rem);
-  height: auto;
-  margin: 1.5rem auto 1rem;
-  border-radius: 1rem;
-  background: #fff;
 }
 
 /* The way into the app: the button, then the code to paste by hand. */

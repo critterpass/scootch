@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"><script src="./web-fx.js"></script><style>html{scroll-behavior:smooth}body{margin:0;background:#F6F3EE;color:#1C1A17;font-family:-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}a{color:#1C1A17}a:hover{color:#F0562E}input::placeholder{color:#9A9288}</style></helmet>
+<header style="position:sticky;top:0;z-index:40;background:rgba(246,243,238,.78);-webkit-backdrop-filter:blur(18px) saturate(160%);backdrop-filter:blur(18px) saturate(160%);box-shadow:0 .5px 0 rgba(28,26,23,.1)">
+<div style="max-width:1240px;margin:0 auto;padding:14px 28px;display:flex;align-items:center;gap:22px;flex-wrap:wrap">
+<a href="Scootch%20-%20Website%20v2.dc.html" style="text-decoration:none;color:#1C1A17;font:900 24px/1 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.03em">scootch<span style="color:#F0562E">.</span></a>
+<nav style="display:flex;gap:4px;flex-wrap:wrap;flex:1">
+<a href="Scootch%20Web%20-%20Monster.dc.html" style="text-decoration:none;color:#1C1A17;font:500 15px/1 -apple-system, system-ui, sans-serif;padding:10px 12px;border-radius:999px;transition:background .2s" style-hover="background:rgba(28,26,23,.07)">Monster maker</a>
+<a href="Scootch%20-%20Website%20v2.dc.html#hunt" style="text-decoration:none;color:#1C1A17;font:500 15px/1 -apple-system, system-ui, sans-serif;padding:10px 12px;border-radius:999px;transition:background .2s" style-hover="background:rgba(28,26,23,.07)">How it works</a>
+<a href="Scootch%20-%20Website%20v2.dc.html#tables" style="text-decoration:none;color:#1C1A17;font:500 15px/1 -apple-system, system-ui, sans-serif;padding:10px 12px;border-radius:999px;transition:background .2s" style-hover="background:rgba(28,26,23,.07)">Tables</a>
+<a href="Scootch%20Web%20-%20Plus.dc.html" style="text-decoration:none;color:#1C1A17;font:500 15px/1 -apple-system, system-ui, sans-serif;padding:10px 12px;border-radius:999px;transition:background .2s" style-hover="background:rgba(28,26,23,.07)">Plus</a>
+<a href="Scootch%20Web%20-%20Wall.dc.html" style="text-decoration:none;color:#1C1A17;font:500 15px/1 -apple-system, system-ui, sans-serif;padding:10px 12px;border-radius:999px;transition:background .2s" style-hover="background:rgba(28,26,23,.07)">The wall</a><a href="Scootch%20Web%20-%20Help.dc.html" style="background:rgba(28,26,23,.08);font-weight:650;text-decoration:none;color:#1C1A17;font:500 15px/1 -apple-system, system-ui, sans-serif;padding:10px 12px;border-radius:999px;transition:background .2s" style-hover="background:rgba(28,26,23,.07)">Help</a>
+</nav>
+<a data-press="1" data-magnet="1" href="Scootch%20Web%20-%20Get.dc.html" aria-label="Get Scootch on the App Store" style="display:inline-flex;align-items:center;gap:10px;height:48px;padding:0 16px 0 6px;border-radius:24px;background:#1C1A17;color:#F6F3EE;text-decoration:none;flex:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 10px 24px -12px rgba(28,26,23,.6)" style-hover="background:#2A2522"><div style="width:36px;height:36px;border-radius:9px;flex:none;position:relative;overflow:hidden;background:radial-gradient(120% 90% at 30% 15%,#FFB08F 0%,#F0562E 55%,#C63F22 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 6px 14px -6px rgba(240,86,46,.7)"><div style="position:absolute;left:50%;bottom:-6px;transform:translateX(-50%)"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="scootch" mood="scheming" still="{{ still }}" sound="off" style="width:41px;height:41px;flex:none" hint-size="41px,41px"></x-import></div></div><span style="font:700 15px/1 -apple-system, system-ui, sans-serif;letter-spacing:-.01em">Get the app</span><span style="width:22px;height:22px;border-radius:11px;background:#F0562E;color:#1C1A17;display:flex;align-items:center;justify-content:center;font:900 13px/1 ui-rounded, 'Nunito', system-ui, sans-serif">↓</span></a>
+</div>
+<div style="position:relative;height:3px;background:rgba(28,26,23,.06)"><div data-prog-fill="1" style="position:absolute;left:0;top:0;bottom:0;width:0%;background:linear-gradient(90deg,#FF8A63,#F0562E)"></div><div data-prog-run="1" style="position:absolute;left:0%;top:-3px;transform:translateX(-50%);pointer-events:none"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="scootch" mood="working" still="{{ still }}" sound="off" style="width:30px;height:30px;flex:none" hint-size="30px,30px"></x-import></div></div>
+</header>
+
+<section data-screen-label="Help · hero" style="position:relative;overflow:hidden">
+<div data-grain="1" style="position:absolute;inset:0;opacity:.35;mix-blend-mode:multiply;pointer-events:none"></div>
+<div style="max-width:1240px;margin:0 auto;padding:64px 28px 40px;position:relative;display:flex;flex-wrap:wrap;gap:32px;align-items:flex-end;justify-content:space-between">
+<div style="flex:1 1 560px;min-width:0;display:flex;flex-direction:column;gap:18px">
+<span style="font:700 12px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.16em;color:#C63F22">SCOOTCH.APP/HELP</span>
+<h1 style="margin:0;font:900 clamp(48px,7vw,100px)/.9 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.055em;display:flex;flex-wrap:wrap;gap:0 .22em"><span style="display:inline-block;overflow:hidden;vertical-align:top;padding:0 .12em .1em .04em;margin:0 -.12em -.1em -.04em"><span data-rise="1" style="display:inline-block">How</span></span><span style="display:inline-block;overflow:hidden;vertical-align:top;padding:0 .12em .1em .04em;margin:0 -.12em -.1em -.04em"><span data-rise="1" style="display:inline-block">can</span></span><span style="display:inline-block;overflow:hidden;vertical-align:top;padding:0 .12em .1em .04em;margin:0 -.12em -.1em -.04em"><span data-rise="1" style="display:inline-block">I</span></span><span style="display:inline-block;overflow:hidden;vertical-align:top;padding:0 .12em .1em .04em;margin:0 -.12em -.1em -.04em"><span data-rise="1" style="display:inline-block;position:relative;z-index:0">help?<span data-marker="1" style="position:absolute;left:-.04em;right:.02em;bottom:.1em;height:.24em;border-radius:.14em;background:#F0562E;opacity:.85;z-index:-1;transform:rotate(-1.2deg);transform-origin:left center"></span></span></span></h1>
+<div style="display:flex;gap:8px;padding:8px;border-radius:24px;background:#fff;box-shadow:0 0 0 .5px rgba(28,26,23,.14),0 24px 50px -24px rgba(28,26,23,.45);max-width:600px"><input value="{{ q }}" onChange="{{ onQ }}" placeholder="Search: cancel, widgets, tables…" aria-label="Search help" style="flex:1;min-width:0;border:0;outline:0;background:transparent;font:500 18px/1 -apple-system, system-ui, sans-serif;padding:0 14px;color:#1C1A17"></input><div style="height:52px;padding:0 18px;border-radius:18px;background:#1C1A17;color:#F6F3EE;display:flex;align-items:center;font:650 15px -apple-system, system-ui, sans-serif">{{ hits }}</div></div>
+</div>
+<x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="scootch" mood="listening" still="{{ still }}" sound="off" style="width:220px;height:220px;flex:none" hint-size="220px,220px"></x-import>
+</div>
+</section>
+
+<section data-screen-label="Help · body" style="position:relative">
+<div style="max-width:1240px;margin:0 auto;padding:24px 28px 100px;display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start">
+<nav style="flex:0 0 220px;position:sticky;top:96px;display:flex;flex-direction:column;gap:4px">
+<a href="#support" style="text-decoration:none;font:600 15px/1 -apple-system, system-ui, sans-serif;padding:12px 14px;border-radius:14px;color:#1C1A17;transition:background .2s" style-hover="background:rgba(28,26,23,.06)">Questions</a>
+<a href="#helplines" style="text-decoration:none;font:600 15px/1 -apple-system, system-ui, sans-serif;padding:12px 14px;border-radius:14px;color:#1C1A17;transition:background .2s" style-hover="background:rgba(28,26,23,.06)">Helplines</a>
+<a href="#isnt" style="text-decoration:none;font:600 15px/1 -apple-system, system-ui, sans-serif;padding:12px 14px;border-radius:14px;color:#1C1A17;transition:background .2s" style-hover="background:rgba(28,26,23,.06)">What Scootch is and isn't</a>
+<a href="#privacy" style="text-decoration:none;font:600 15px/1 -apple-system, system-ui, sans-serif;padding:12px 14px;border-radius:14px;color:#1C1A17;transition:background .2s" style-hover="background:rgba(28,26,23,.06)">Privacy, plainly</a>
+<a href="#contact" style="text-decoration:none;font:600 15px/1 -apple-system, system-ui, sans-serif;padding:12px 14px;border-radius:14px;color:#1C1A17;transition:background .2s" style-hover="background:rgba(28,26,23,.06)">Talk to a human</a>
+</nav>
+<div style="flex:1 1 560px;min-width:0;display:flex;flex-direction:column;gap:72px">
+
+<div id="support" style="display:flex;flex-direction:column;gap:18px;scroll-margin-top:100px">
+<h2 style="margin:0;font:900 clamp(32px,3.6vw,48px)/1 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.04em">Questions people actually ask</h2>
+<div style="display:flex;flex-direction:column;gap:10px">
+<sc-for list="{{ faq }}" as="f" hint-placeholder-count="6"><div style="border-radius:22px;background:#fff;box-shadow:inset 0 0 0 .5px rgba(28,26,23,.12);overflow:hidden;display:{{ f.disp }}"><div onClick="{{ f.toggle }}" style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 20px;cursor:pointer"><div style="display:flex;align-items:center;gap:12px"><span style="font:700 10px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.12em;padding:5px 7px;border-radius:6px;background:rgba(240,86,46,.14);color:#A63518">{{ f.tag }}</span><span style="font:650 17px/1.3 -apple-system, system-ui, sans-serif">{{ f.q }}</span></div><div style="width:30px;height:30px;flex:none;border-radius:15px;background:{{ f.btnBg }};display:flex;align-items:center;justify-content:center;transform:rotate({{ f.rot }});transition:transform .4s cubic-bezier(.34,1.56,.64,1),background .25s"><div style="position:relative;width:12px;height:12px"><div style="position:absolute;left:5px;top:0;width:2px;height:12px;border-radius:1px;background:{{ f.plus }}"></div><div style="position:absolute;top:5px;left:0;height:2px;width:12px;border-radius:1px;background:{{ f.plus }}"></div></div></div></div><div style="display:grid;grid-template-rows:{{ f.rows }};transition:grid-template-rows .45s cubic-bezier(.32,.72,0,1)"><div style="overflow:hidden"><p style="margin:0;padding:0 20px 20px;font:400 16px/1.55 -apple-system, system-ui, sans-serif;color:#4A443D">{{ f.a }}</p></div></div></div></sc-for>
+<sc-if value="{{ none }}" hint-placeholder-val="{{ false }}"><div style="border-radius:22px;background:#fff;padding:24px;display:flex;align-items:center;gap:14px;box-shadow:inset 0 0 0 .5px rgba(28,26,23,.12)"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="scootch" mood="thinking" still="{{ still }}" sound="off" style="width:72px;height:72px;flex:none" hint-size="72px,72px"></x-import><span style="font:500 16px/1.45 -apple-system, system-ui, sans-serif">I couldn't find that. Ask a human below, they're nice.</span></div></sc-if>
+</div>
+</div>
+
+<div id="helplines" style="display:flex;flex-direction:column;gap:18px;scroll-margin-top:100px">
+<h2 style="margin:0;font:900 clamp(32px,3.6vw,48px)/1 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.04em">If things feel really hard</h2>
+<div style="border-radius:32px;background:#1C1714;color:#F6F3EE;padding:28px;display:flex;flex-direction:column;gap:18px">
+<p style="margin:0;font:400 18px/1.5 -apple-system, system-ui, sans-serif;color:rgba(246,243,238,.85);max-width:600px">You deserve a real person, not a cartoon. These lines are free, confidential and open to anyone. If you're in danger right now, call your local emergency number.</p>
+<div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{ countries }}" as="c" hint-placeholder-count="5"><span data-press="1" onClick="{{ c.pick }}" style="font:600 14px/1 -apple-system, system-ui, sans-serif;padding:10px 14px;border-radius:999px;background:{{ c.bg }};color:{{ c.fg }};cursor:pointer;transition:background .2s">{{ c.label }}</span></sc-for></div>
+<div data-line="1" style="border-radius:22px;background:rgba(255,255,255,.08);padding:20px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between"><div style="display:flex;flex-direction:column;gap:6px"><span style="font:800 22px/1.15 ui-rounded, 'Nunito', system-ui, sans-serif">{{ line.name }}</span><span style="font:400 15px/1.4 -apple-system, system-ui, sans-serif;color:rgba(246,243,238,.75)">{{ line.how }}</span></div><span style="font:900 32px/1 ui-rounded, 'Nunito', system-ui, sans-serif;color:#FFB79F;letter-spacing:-.02em">{{ line.num }}</span></div>
+<span style="font:400 14px/1.45 -apple-system, system-ui, sans-serif;color:rgba(246,243,238,.65)">Somewhere else? findahelpline.com lists free services in most countries.</span>
+</div>
+</div>
+
+<div id="isnt" style="display:flex;flex-direction:column;gap:18px;scroll-margin-top:100px">
+<h2 style="margin:0;font:900 clamp(32px,3.6vw,48px)/1 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.04em">What Scootch is, and isn't</h2>
+<div data-reveal="stagger" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px">
+<div style="border-radius:28px;background:#fff;padding:24px;display:flex;flex-direction:column;gap:12px;box-shadow:inset 0 0 0 .5px rgba(28,26,23,.12)"><span style="font:800 20px/1 ui-rounded, 'Nunito', system-ui, sans-serif">Scootch is</span><sc-for list="{{ isList }}" as="i" hint-placeholder-count="4"><div style="display:flex;gap:10px;align-items:flex-start"><div style="width:20px;height:20px;flex:none;border-radius:10px;background:#F0562E;display:flex;align-items:center;justify-content:center;margin-top:1px"><div style="width:8px;height:4px;border-left:2px solid #1C1A17;border-bottom:2px solid #1C1A17;transform:translateY(-1px) rotate(-45deg)"></div></div><span style="font:400 16px/1.45 -apple-system, system-ui, sans-serif">{{ i }}</span></div></sc-for></div>
+<div style="border-radius:28px;background:#EFE9DF;padding:24px;display:flex;flex-direction:column;gap:12px"><span style="font:800 20px/1 ui-rounded, 'Nunito', system-ui, sans-serif">Scootch isn't</span><sc-for list="{{ isntList }}" as="i" hint-placeholder-count="4"><div style="display:flex;gap:10px;align-items:flex-start"><div style="width:20px;height:20px;flex:none;border-radius:10px;box-shadow:inset 0 0 0 1.5px rgba(28,26,23,.35);display:flex;align-items:center;justify-content:center;margin-top:1px"><div style="width:9px;height:1.8px;border-radius:1px;background:#6F6A62"></div></div><span style="font:400 16px/1.45 -apple-system, system-ui, sans-serif;color:#4A443D">{{ i }}</span></div></sc-for></div>
+</div>
+</div>
+
+<div id="privacy" style="display:flex;flex-direction:column;gap:18px;scroll-margin-top:100px">
+<h2 style="margin:0;font:900 clamp(32px,3.6vw,48px)/1 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.04em">Privacy, plainly</h2>
+<div data-reveal="stagger" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
+<sc-for list="{{ privacy }}" as="p" hint-placeholder-count="4"><div style="border-radius:24px;background:#fff;padding:20px;display:flex;flex-direction:column;gap:8px;box-shadow:inset 0 0 0 .5px rgba(28,26,23,.12);transition:transform .4s cubic-bezier(.34,1.56,.64,1)" style-hover="transform:translateY(-4px)"><span style="font:700 10.5px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.14em;color:#C63F22">{{ p.k }}</span><span style="font:800 18px/1.2 ui-rounded, 'Nunito', system-ui, sans-serif">{{ p.t }}</span><span style="font:400 15px/1.45 -apple-system, system-ui, sans-serif;color:#4A443D">{{ p.d }}</span></div></sc-for>
+</div>
+<span style="font:400 14px/1.45 -apple-system, system-ui, sans-serif;color:#6F6A62">The full privacy policy and terms are written in the same plain style, and we'll tell you before anything changes.</span>
+</div>
+
+<div id="contact" style="border-radius:32px;background:#F0562E;padding:30px;display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between;scroll-margin-top:100px;position:relative;overflow:hidden">
+<div style="display:flex;flex-direction:column;gap:8px;flex:1 1 320px;position:relative"><span style="font:900 30px/1.05 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.03em">Talk to a human</span><span style="font:500 16px/1.45 -apple-system, system-ui, sans-serif;max-width:420px">A real person replies within a working day. They won't make you explain yourself.</span></div>
+<a data-press="1" data-magnet="1" href="mailto:hello@scootch.app" style="height:56px;padding:0 24px;border-radius:28px;background:#1C1A17;color:#F6F3EE;display:flex;align-items:center;font:700 16px -apple-system, system-ui, sans-serif;text-decoration:none;position:relative">hello@scootch.app</a>
+</div>
+
+</div>
+</div>
+</section>
+<footer id="footer" style="background:#1C1A17;color:#F6F3EE">
+<div style="max-width:1240px;margin:0 auto;padding:64px 28px 40px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-wrap:wrap;gap:40px;justify-content:space-between">
+<div style="flex:1 1 280px;display:flex;flex-direction:column;gap:12px"><span style="font:900 28px/1 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.03em">scootch<span style="color:#F0562E">.</span></span><span style="font:400 15px/1.45 -apple-system, system-ui, sans-serif;color:rgba(246,243,238,.72);max-width:300px">Small things, one at a time, with someone quietly sitting next to you.</span></div>
+<div style="display:flex;flex-direction:column;gap:10px;font:400 15px/1.2 -apple-system, system-ui, sans-serif"><span style="font:700 12px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.12em;color:rgba(246,243,238,.6)">SCOOTCH</span><a href="Scootch%20Web%20-%20Help.dc.html#isnt" style="color:#F6F3EE;text-decoration:none">What Scootch is and isn't</a><a href="Scootch%20Web%20-%20Plus.dc.html" style="color:#F6F3EE;text-decoration:none">Plus</a><a href="Scootch%20Web%20-%20Wall.dc.html" style="color:#F6F3EE;text-decoration:none">The monster wall</a><a href="Scootch%20Web%20-%20Unwrapped.dc.html" style="color:#F6F3EE;text-decoration:none">Unwrapped</a><a href="Scootch%20Web%20-%20Invites.dc.html" style="color:#F6F3EE;text-decoration:none">Invites and gifts</a></div>
+<div style="display:flex;flex-direction:column;gap:10px;font:400 15px/1.2 -apple-system, system-ui, sans-serif"><span style="font:700 12px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.12em;color:rgba(246,243,238,.6)">HELP</span><a href="Scootch%20Web%20-%20Help.dc.html" style="color:#F6F3EE;text-decoration:none">Support and questions</a><a href="Scootch%20Web%20-%20Help.dc.html#helplines" style="color:#F6F3EE;text-decoration:none">Helplines</a><a href="Scootch%20Web%20-%20Help.dc.html#privacy" style="color:#F6F3EE;text-decoration:none">Privacy</a><a href="Scootch%20Web%20-%20Get.dc.html" style="color:#F6F3EE;text-decoration:none">Get the app · Android · Press</a></div>
+<div style="flex:1 1 280px;border-radius:24px;background:rgba(255,255,255,.07);padding:20px;display:flex;flex-direction:column;gap:8px"><span style="font:800 18px/1.2 ui-rounded, 'Nunito', system-ui, sans-serif">Having a really hard time?</span><span style="font:400 14.5px/1.45 -apple-system, system-ui, sans-serif;color:rgba(246,243,238,.78)">You deserve a real person. Find a free, confidential helpline in your country.</span><a href="Scootch%20Web%20-%20Help.dc.html#helplines" style="font:650 15px -apple-system, system-ui, sans-serif;color:#FFB79F">Find a helpline</a></div>
+</div>
+<div style="position:relative;display:flex;flex-direction:column;align-items:center;margin-top:24px">
+<div style="display:flex;gap:6vw;justify-content:center;margin-bottom:-2.4vw;position:relative;z-index:1"><div data-anim="peek"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="task" seed="dentist" type="tooth" mood="idle" on="dark" still="{{ still }}" sound="off" style="width:clamp(64px,9vw,128px);height:clamp(64px,9vw,128px);flex:none" hint-size="96px,96px"></x-import></div><div data-anim="peek"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="scootch" mood="proud" on="dark" still="{{ still }}" sound="off" style="width:clamp(80px,11vw,160px);height:clamp(80px,11vw,160px);flex:none" hint-size="120px,120px"></x-import></div><div data-anim="peek"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="task" seed="sock" type="sock" mood="idle" on="dark" still="{{ still }}" sound="off" style="width:clamp(64px,9vw,128px);height:clamp(64px,9vw,128px);flex:none" hint-size="96px,96px"></x-import></div></div>
+<span style="display:block;font:900 clamp(84px,19vw,280px)/.82 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.065em;color:#F6F3EE;text-align:center;user-select:none">scootch<span style="color:#F0562E">.</span></span>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:12px 24px;justify-content:space-between;padding-top:24px;border-top:1px solid rgba(246,243,238,.14);font:400 13px/1.45 -apple-system, system-ui, sans-serif;color:rgba(246,243,238,.62)"><span style="max-width:640px">Scootch is a support tool for starting things. It doesn't diagnose, treat or cure ADHD or anything else.</span><span>© 2026 Scootch · Made with mild panic</span></div>
+</div>
+</footer>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;boil&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;label&quot;:&quot;Motion&quot;}}">
+const FAQ = [
+  { tag: 'PLUS', q: 'How do I cancel Plus?', a: 'iPhone Settings › your name › Subscriptions › Scootch. Two taps. You keep every monster and card you caught.', kw: 'cancel plus subscription refund' },
+  { tag: 'APP', q: 'The Live Activity disappeared', a: 'iOS removes Live Activities after eight hours. Start a new hunt and it comes back. Check Settings › Scootch › Live Activities is on.', kw: 'live activity lock screen island disappeared' },
+  { tag: 'APP', q: 'How do I add the lurker widget?', a: 'Long-press your Home Screen, tap Edit › Add Widget, search Scootch and pick a size. Every monster in it is a button.', kw: 'widget home screen lurker add' },
+  { tag: 'TABLES', q: 'Can strangers at a table see my task?', a: 'No. They only see a one-word category written by Scootch, like "writing". You can hide even that in the table menu.', kw: 'tables strangers privacy task see' },
+  { tag: 'APP', q: 'Can the Action button start a hunt?', a: 'Yes. Settings › Action Button › Shortcut › Scootch: Start a hunt. Hold to start, hold again to park a thought.', kw: 'action button shortcut siri start' },
+  { tag: 'DATA', q: 'How do I delete everything?', a: 'Scootch › Settings › Privacy and data › Delete everything. It\'s instant and it\'s permanent, and the app tells you exactly what goes.', kw: 'delete data account privacy' }
+];
+const LINES = {
+  US: { label: 'United States', name: '988 Suicide & Crisis Lifeline', how: 'Call or text, 24/7', num: '988' },
+  UK: { label: 'UK', name: 'Samaritans', how: 'Call free, 24/7', num: '116 123' },
+  IE: { label: 'Ireland', name: 'Samaritans', how: 'Call free, 24/7', num: '116 123' },
+  CA: { label: 'Canada', name: '9-8-8 Suicide Crisis Helpline', how: 'Call or text, 24/7', num: '988' },
+  AU: { label: 'Australia', name: 'Lifeline', how: 'Call, 24/7', num: '13 11 14' }
+};
+class Component extends DCLogic {
+  state = { q: '', open: 0, c: 'US' };
+  componentDidMount() { this._prev = { ...this.state }; const go = () => { if (window.ScootchWebFX) this._fx = ScootchWebFX.init({ still: this.props.boil === false }); else this._w = setTimeout(go, 60); }; go(); }
+  componentDidUpdate() { const ps = this._prev || this.state; this._prev = { ...this.state }; if (ps.c !== this.state.c && this.props.boil !== false) { const l = document.querySelector('[data-line]'); l && l.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: 450, easing: 'cubic-bezier(.32,.72,0,1)' }); } }
+  componentWillUnmount() { clearTimeout(this._w); this._fx && this._fx(); }
+  renderVals() {
+    const S = this.state, q = S.q.trim().toLowerCase();
+    const match = f => !q || (f.q + ' ' + f.kw).toLowerCase().includes(q);
+    const n = FAQ.filter(match).length;
+    return {
+      still: this.props.boil === false ? 'true' : undefined,
+      q: S.q, onQ: e => this.setState({ q: e.target.value, open: -1 }), hits: q ? n + (n === 1 ? ' answer' : ' answers') : 'Search',
+      none: n === 0,
+      faq: FAQ.map((f, i) => { const on = S.open === i || (q && n <= 2 && match(f)); return { tag: f.tag, q: f.q, a: f.a, disp: match(f) ? 'block' : 'none', rows: on ? '1fr' : '0fr', rot: on ? '45deg' : '0deg', btnBg: on ? '#1C1A17' : 'rgba(28,26,23,.06)', plus: on ? '#fff' : '#1C1A17', toggle: () => this.setState(s => ({ open: s.open === i ? -1 : i })) }; }),
+      countries: Object.keys(LINES).map(k => ({ label: LINES[k].label, bg: S.c === k ? '#F6F3EE' : 'rgba(255,255,255,.1)', fg: S.c === k ? '#1C1A17' : '#F6F3EE', pick: () => this.setState({ c: k }) })),
+      line: LINES[S.c],
+      isList: ['A friendly companion for starting things', 'A way to make a scary task feel smaller', 'Quiet company while you work', 'Free, with no streaks to break'],
+      isntList: ['A diagnosis, treatment or cure for ADHD or anything else', 'A therapist or a crisis service', 'A productivity scoreboard', 'A replacement for people who care about you'],
+      privacy: [
+        { k: 'VOICE', t: 'Rambles stay rambles', d: 'Voice is turned into text on the phone where possible, then the audio is thrown away.' },
+        { k: 'TASKS', t: 'Your list is yours', d: 'Tasks never appear on the wall or at tables unless you choose to share them.' },
+        { k: 'SCREEN TIME', t: 'Blind by design', d: 'The distraction shield uses Apple\'s Screen Time. Scootch never learns which apps you picked.' },
+        { k: 'SELLING', t: 'Nothing, to anyone', d: 'No ads, no data brokers, no selling. Export or delete everything at any time.' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

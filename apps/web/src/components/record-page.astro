@@ -21,7 +21,9 @@ const lines = { ...copy, onlyShown: card.onlyShown, onlyShownBy: card.onlyShownB
 ---
 
 <SiteLayout language={language} path="/r" title={copy.title} description={copy.description} social={false}>
-  <section
+  <section class="band shared-band">
+    <div class="grain"></div>
+    <div
     class="wrap shared-page"
     data-record-page
     data-state="loading"
@@ -64,6 +66,7 @@ const lines = { ...copy, onlyShown: card.onlyShown, onlyShownBy: card.onlyShownB
     <div data-show="offline" hidden>
       <h1 tabindex="-1">{copy.offlineTitle}</h1>
       <p class="lede">{copy.offlineBody}</p>
+    </div>
     </div>
   </section>
 

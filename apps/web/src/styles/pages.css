@@ -1,68 +1,303 @@
 /* The pages of shared things, the plain pages and the pre-launch pieces. Sizes in rem, colours
    from the tokens, as in site.css. */
 
-/* Shared things: the card on one side, its words on the other. */
+/* Shared things: its words on one side, the thing itself on the other, on paper with tooth. */
+.shared-band {
+  min-height: min(78vh, 52rem);
+  display: flex;
+  align-items: center;
+}
+.shared-halftone {
+  left: -14vw;
+  top: -6vw;
+  opacity: 0.28;
+}
+.get-halftone {
+  right: -12vw;
+  top: -8vw;
+}
 .shared-page {
-  padding-block: clamp(2rem, 6vw, 5rem);
+  padding-block: clamp(2.5rem, 6vw, 4.5rem) clamp(3rem, 8vw, 6rem);
+  display: grid;
+  gap: 1.5rem;
 }
 .shared-page h1:focus,
 .waitlist-done:focus {
   outline: none;
 }
+.shared-page h1 {
+  font-size: clamp(2.75rem, 1.5rem + 4.4vw, 5.375rem);
+}
 .shared-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
-  gap: 2rem 3rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2.5rem 3.5rem;
   align-items: center;
 }
-.shared-grid .blob {
-  width: min(100%, 26rem);
+.shared-grid > * {
+  flex: 1 1 23.75rem;
+  min-width: 0;
 }
-.flavour {
-  font-style: italic;
+.shared-words {
+  flex-basis: 27.5rem;
+  display: grid;
+  gap: 1.25rem;
+  justify-items: start;
 }
+.shared-words > * {
+  max-width: 100%;
+}
+.shared-words .actions,
+.shared-words .waitlist {
+  margin-top: 0;
+}
+.shared-art {
+  display: grid;
+  justify-items: center;
+}
+.shared-art .monster-card {
+  width: min(100%, 20rem);
+  aspect-ratio: 320 / 452;
+}
+/* The monster comes first on its own page; its words follow. */
+[data-monster-page] .shared-art {
+  order: -1;
+}
+.card-stamp[aria-hidden] {
+  display: none;
+}
+[data-status='caught'] .card-stamp {
+  display: block;
+}
+.monster-card .card-typed:empty,
+.monster-card .card-typed[hidden] {
+  display: none;
+}
+/* What is known about a shared thing, as a row of small labels. */
 .facts {
-  margin: 1.5rem 0 0;
-  max-width: 30rem;
-  background: var(--surface);
-  border: 1px solid var(--hairline);
-  border-radius: 1.25rem;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 .facts > div {
   display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.75rem 1.125rem;
-}
-.facts > div + div {
-  border-top: 1px solid var(--hairline);
+  gap: 0.375rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: 1.25rem;
+  background: var(--surface);
+  box-shadow: inset 0 0 0 0.5px var(--hairline);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.2;
 }
 .facts dt {
   color: var(--muted);
+  font-weight: 500;
 }
 .facts dd {
   margin: 0;
-  font-weight: 700;
-  text-align: right;
   overflow-wrap: anywhere;
 }
-/* "Make your own" leads on a desktop, where the app cannot be opened; "Catch it" leads on a phone. */
-.action-make {
-  background: var(--ink);
-  color: var(--page);
-}
-.action-catch {
-  background: var(--soft);
-}
-[data-status='caught'] .card-badge {
+
+/* "Your turn": a night band with one field. Android on the Get page is the same band. */
+.turn-glow {
+  position: absolute;
+  right: -7.5rem;
+  top: -7.5rem;
+  width: 30rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
   background: var(--tomato);
-  color: var(--on-tomato);
+  filter: blur(7.5rem);
+  opacity: 0.35;
+}
+.turn-glow-green {
+  right: auto;
+  top: auto;
+  left: -7.5rem;
+  bottom: -10rem;
+  background: #7fb76a;
+  opacity: 0.25;
+}
+.turn-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2.5rem;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: clamp(3.5rem, 7vw, 5.5rem);
+}
+.turn-words {
+  flex: 1 1 28.75rem;
+  min-width: 0;
+  display: grid;
+  gap: 1rem;
+}
+.turn-words .lede {
+  max-width: 30rem;
+}
+.turn-form {
+  flex: 1 1 26.25rem;
+  min-width: 0;
+  max-width: 32.5rem;
+  display: grid;
+  gap: 0.75rem;
+}
+.turn .waitlist {
+  margin: 0;
+}
+.earlier {
+  display: grid;
+  gap: 2.25rem;
+  padding-block: clamp(4rem, 8vw, 6rem);
+}
+.earlier h2 {
+  font-size: clamp(2rem, 1.4rem + 2vw, 3.25rem);
+}
+.earlier-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14.375rem, 1fr));
+  gap: 1.25rem;
+}
+.earlier-card {
+  border-radius: 1.375rem;
+  background: var(--paper);
+  padding: 0.875rem;
+  display: grid;
+  gap: 0.625rem;
+  align-content: start;
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--ink) 8%, transparent),
+    0 1.5rem 2.5rem -1.5rem rgb(28 26 23 / 0.45);
+}
+.earlier-art {
+  position: relative;
+  overflow: hidden;
+  height: 10.625rem;
+  border-radius: 0.875rem;
+  background-image: radial-gradient(rgb(28 26 23 / 0.1) 1.3px, transparent 1.5px);
+  background-size: 0.6875rem 0.6875rem;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.earlier-art .tag {
+  position: absolute;
+  left: 0.625rem;
+  top: 0.625rem;
+}
+.earlier-card h3 {
+  font: 900 1.25rem/1.05 var(--heading);
+}
+.earlier-card p {
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+/* Not found: Scootch thinking in front of a very large 404. */
+.not-found {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2.5rem;
+  align-items: center;
+  justify-content: center;
+}
+.not-found-art {
+  flex: 1 1 26.25rem;
+  min-width: 0;
+  position: relative;
+  min-height: 23.75rem;
+  display: grid;
+  place-items: center;
+}
+.not-found-art > * {
+  grid-area: 1 / 1;
+}
+.not-found-number {
+  font: 900 clamp(10rem, 24vw, 18.75rem) / 1 var(--heading);
+  letter-spacing: -0.07em;
+  color: color-mix(in srgb, var(--riso-blob) 70%, var(--ink) 4%);
+}
+.not-found-art .lost-a {
+  place-self: start;
+  margin: 8% 0 0 4%;
+}
+.not-found-art .lost-b {
+  place-self: start end;
+  margin: 14% 6% 0 0;
+}
+.not-found-words {
+  flex: 1 1 25rem;
+  min-width: 0;
+  display: grid;
+  gap: 1.125rem;
+  justify-items: start;
+}
+.not-found-words h1 {
+  font-size: clamp(2.5rem, 1.4rem + 3.8vw, 4.75rem);
+}
+
+/* The Get page's QR code: white behind it in either scheme, so any camera reads it. */
+.qr-card {
+  width: 15rem;
+  border-radius: 2rem;
+  background: #fff;
+  color: #1c1a17;
+  padding: 1.375rem;
+  display: grid;
+  justify-items: center;
+  gap: 1rem;
+  text-align: center;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.2;
+  box-shadow:
+    0 0 0 0.5px rgb(28 26 23 / 0.1),
+    0 2.5rem 4.375rem -1.875rem rgb(28 26 23 / 0.45);
+}
+.qr-code {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+}
+.qr-code > span:first-child,
+.qr-code svg,
+.qr-code img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.qr-code .app-icon {
+  position: absolute;
+  --size: 3.25rem;
+  box-shadow: 0 0 0 0.3125rem #fff;
+}
+.press-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 1rem;
+}
+.press-cards li {
+  border-radius: 1.75rem;
+  background: var(--surface);
+  padding: 1.5rem;
+  display: grid;
+  gap: 0.625rem;
+  align-content: start;
+  box-shadow: inset 0 0 0 0.5px var(--hairline);
+}
+.press-cards p {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--text);
+  overflow-wrap: anywhere;
 }
 .share-status:empty {
   display: none;
-}
-.share-status {
-  margin-top: 0.75rem;
 }
 
 /* The caught card: the app's own card, leaning towards the pointer. */
@@ -272,16 +507,6 @@
   display: inline-flex;
   align-items: center;
 }
-.plus-plans {
-  list-style: none;
-  padding: 0;
-  max-width: 44rem;
-}
-.plan-note {
-  font-size: 0.8125rem;
-  font-weight: 700;
-}
-
 /* Before launch: no badge, one email field. */
 .coming-soon {
   display: inline-flex;
@@ -313,26 +538,10 @@
 }
 
 @media (max-width: 44rem) {
-  .shared-grid,
   .plain-pair,
   .rules,
   .ask {
     grid-template-columns: minmax(0, 1fr);
-  }
-  .shared-grid .blob {
-    width: 100%;
-    border-radius: 2rem;
-    aspect-ratio: auto;
-    padding: 1.5rem;
-  }
-  .action-catch {
-    background: var(--ink);
-    color: var(--page);
-    order: -1;
-  }
-  .action-make {
-    background: var(--soft);
-    color: var(--ink);
   }
   .tiles {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -340,12 +549,30 @@
   .waitlist .button {
     flex: 1 1 100%;
   }
-  .plus-plans {
-    grid-template-columns: minmax(0, 1fr);
+  .shared-band {
+    min-height: 0;
+  }
+  .not-found-art {
+    min-height: 16rem;
   }
 }
 @media (prefers-reduced-motion: reduce) {
   .tilt-card {
     transform: none !important;
   }
+}
+.shared-words [data-show]:not(h1, p, a, button) {
+  display: grid;
+  gap: 1.25rem;
+  justify-items: start;
+}
+.shared-words .open-in-app,
+.shared-words .phone-only > *,
+.shared-words .desk-only > * {
+  display: grid;
+  gap: 1.25rem;
+  justify-items: start;
+}
+.shared-words :is(.phone-only, .desk-only) > * + * {
+  margin-top: 1.25rem;
 }

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"><script src="./web-fx.js"></script><style>html{scroll-behavior:smooth}body{margin:0;background:#F6F3EE;color:#1C1A17;font-family:-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}a{color:#1C1A17}a:hover{color:#F0562E}input::placeholder{color:#9A9288}</style></helmet>
+<header style="position:sticky;top:0;z-index:40;background:rgba(246,243,238,.78);-webkit-backdrop-filter:blur(18px) saturate(160%);backdrop-filter:blur(18px) saturate(160%);box-shadow:0 .5px 0 rgba(28,26,23,.1)">
+<div style="max-width:1240px;margin:0 auto;padding:14px 28px;display:flex;align-items:center;gap:22px;flex-wrap:wrap">
+<a href="Scootch%20-%20Website%20v2.dc.html" style="text-decoration:none;color:#1C1A17;font:900 24px/1 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.03em">scootch<span style="color:#F0562E">.</span></a>
+<nav style="display:flex;gap:4px;flex-wrap:wrap;flex:1">
+<a href="Scootch%20Web%20-%20Monster.dc.html" style="background:rgba(28,26,23,.08);font-weight:650;text-decoration:none;color:#1C1A17;font:500 15px/1 -apple-system, system-ui, sans-serif;padding:10px 12px;border-radius:999px;transition:background .2s" style-hover="background:rgba(28,26,23,.07)">Monster maker</a>
+<a href="Scootch%20-%20Website%20v2.dc.html#hunt" style="text-decoration:none;color:#1C1A17;font:500 15px/1 -apple-system, system-ui, sans-serif;padding:10px 12px;border-radius:999px;transition:background .2s" style-hover="background:rgba(28,26,23,.07)">How it works</a>
+<a href="Scootch%20-%20Website%20v2.dc.html#tables" style="text-decoration:none;color:#1C1A17;font:500 15px/1 -apple-system, system-ui, sans-serif;padding:10px 12px;border-radius:999px;transition:background .2s" style-hover="background:rgba(28,26,23,.07)">Tables</a>
+<a href="Scootch%20Web%20-%20Plus.dc.html" style="text-decoration:none;color:#1C1A17;font:500 15px/1 -apple-system, system-ui, sans-serif;padding:10px 12px;border-radius:999px;transition:background .2s" style-hover="background:rgba(28,26,23,.07)">Plus</a>
+<a href="Scootch%20Web%20-%20Wall.dc.html" style="text-decoration:none;color:#1C1A17;font:500 15px/1 -apple-system, system-ui, sans-serif;padding:10px 12px;border-radius:999px;transition:background .2s" style-hover="background:rgba(28,26,23,.07)">The wall</a><a href="Scootch%20Web%20-%20Help.dc.html" style="text-decoration:none;color:#1C1A17;font:500 15px/1 -apple-system, system-ui, sans-serif;padding:10px 12px;border-radius:999px;transition:background .2s" style-hover="background:rgba(28,26,23,.07)">Help</a>
+</nav>
+<a data-press="1" data-magnet="1" href="Scootch%20Web%20-%20Get.dc.html" aria-label="Get Scootch on the App Store" style="display:inline-flex;align-items:center;gap:10px;height:48px;padding:0 16px 0 6px;border-radius:24px;background:#1C1A17;color:#F6F3EE;text-decoration:none;flex:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 10px 24px -12px rgba(28,26,23,.6)" style-hover="background:#2A2522"><div style="width:36px;height:36px;border-radius:9px;flex:none;position:relative;overflow:hidden;background:radial-gradient(120% 90% at 30% 15%,#FFB08F 0%,#F0562E 55%,#C63F22 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 6px 14px -6px rgba(240,86,46,.7)"><div style="position:absolute;left:50%;bottom:-6px;transform:translateX(-50%)"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="scootch" mood="scheming" still="{{ still }}" sound="off" style="width:41px;height:41px;flex:none" hint-size="41px,41px"></x-import></div></div><span style="font:700 15px/1 -apple-system, system-ui, sans-serif;letter-spacing:-.01em">Get the app</span><span style="width:22px;height:22px;border-radius:11px;background:#F0562E;color:#1C1A17;display:flex;align-items:center;justify-content:center;font:900 13px/1 ui-rounded, 'Nunito', system-ui, sans-serif">↓</span></a>
+</div>
+<div style="position:relative;height:3px;background:rgba(28,26,23,.06)"><div data-prog-fill="1" style="position:absolute;left:0;top:0;bottom:0;width:0%;background:linear-gradient(90deg,#FF8A63,#F0562E)"></div><div data-prog-run="1" style="position:absolute;left:0%;top:-3px;transform:translateX(-50%);pointer-events:none"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="scootch" mood="working" still="{{ still }}" sound="off" style="width:30px;height:30px;flex:none" hint-size="30px,30px"></x-import></div></div>
+</header>
+
+<section data-screen-label="Monster page · hero" style="position:relative;overflow:hidden">
+<div data-grain="1" style="position:absolute;inset:0;opacity:.35;mix-blend-mode:multiply;pointer-events:none"></div>
+<div style="position:absolute;left:-14vw;top:-6vw;width:56vw;height:56vw;max-width:800px;max-height:800px;border-radius:50%;background:radial-gradient(circle,rgba(240,86,46,.85) 28%,transparent 31%) 0 0/11px 11px;-webkit-mask-image:radial-gradient(circle,#000 30%,transparent 70%);mask-image:radial-gradient(circle,#000 30%,transparent 70%);opacity:.28"></div>
+<div style="max-width:1240px;margin:0 auto;padding:64px 28px 96px;display:flex;flex-wrap:wrap;gap:56px;align-items:center;position:relative">
+<div style="flex:1 1 380px;min-width:0;display:flex;justify-content:center;perspective:1200px">
+<div style="position:relative">
+<div style="position:absolute;left:50%;bottom:-26px;width:280px;height:30px;margin-left:-140px;border-radius:50%;background:rgba(28,26,23,.28);filter:blur(16px)"></div>
+<div data-cardwrap="1"><div data-tilt="1" style="width:320px;height:452px;border-radius:26px;position:relative;overflow:hidden;transform-style:preserve-3d;box-shadow:inset 0 0 0 1px rgba(255,255,255,.7),0 40px 70px -26px rgba(80,40,120,.55)">
+<div style="position:absolute;inset:0;background:linear-gradient(135deg,#F3EDFB 0%,#E6F7F6 45%,#FBF1E4 100%)"></div>
+<div data-holo="1" style="position:absolute;inset:0;background-image:repeating-linear-gradient(115deg,rgba(255,105,180,.5) 0%,rgba(100,215,255,.5) 5%,rgba(255,235,120,.5) 10%,rgba(150,120,255,.5) 15%,rgba(255,105,180,.5) 20%);background-size:300% 300%;opacity:.9"></div>
+<div style="position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,255,255,.95) 0 1px,transparent 1.6px),radial-gradient(circle,rgba(255,255,255,.7) 0 .8px,transparent 1.3px);background-size:13px 13px,7px 7px;background-position:0 0,3px 5px;mix-blend-mode:screen"></div>
+<div style="position:absolute;inset:0;padding:18px;display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;justify-content:space-between;align-items:center;font:700 10px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.14em;color:rgba(28,26,23,.68)"><span>SERIES 01 · MONEY</span><span style="padding:5px 7px;border-radius:6px;background:{{ tagBg }};color:#fff">{{ tag }}</span></div>
+<div style="height:232px;border-radius:16px;position:relative;overflow:hidden;background:#F6F3EE;box-shadow:inset 0 0 0 1px rgba(28,26,23,.1);display:flex;align-items:flex-end;justify-content:center"><div style="position:absolute;inset:0;background-image:radial-gradient(rgba(28,26,23,.12) 1.4px,transparent 1.6px);background-size:11px 11px"></div><div data-mon="1" style="position:relative;transform:scale({{ monScale }});transform-origin:bottom center;transition:transform .6s cubic-bezier(.34,1.56,.64,1)"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="task" seed="receipt" type="receipt" mood="idle" still="{{ still }}" sound="off" style="width:226px;height:226px;flex:none" hint-size="226px,226px"></x-import></div></div>
+<span style="font:900 28px/1 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.03em">The Receipt Hydra</span>
+<div style="display:flex;flex-direction:column;gap:6px;font:500 11.5px/1 'JetBrains Mono', ui-monospace, monospace">
+<div style="display:flex;gap:6px;align-items:baseline"><span>Lurked</span><div style="flex:1;border-bottom:1px dotted rgba(28,26,23,.45)"></div><span>11 days</span></div>
+<div style="display:flex;gap:6px;align-items:baseline"><span>{{ rowLabel }}</span><div style="flex:1;border-bottom:1px dotted rgba(28,26,23,.45)"></div><span>{{ rowValue }}</span></div>
+</div>
+<div style="margin-top:auto;display:flex;justify-content:space-between;font:700 10px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.12em;color:rgba(28,26,23,.68)"><span>ANA'S MONSTER</span><span>No. 0043</span></div>
+</div>
+<sc-if value="{{ isCaught }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;left:50%;top:36%;transform:translate(-50%,-50%) rotate(-14deg);padding:8px 16px;border:4px solid #F0562E;border-radius:14px;color:#F0562E;font:900 42px/1 ui-rounded, 'Nunito', system-ui, sans-serif;background:rgba(255,255,255,.78);z-index:4">CAUGHT</div></sc-if>
+<div data-glare="1" style="position:absolute;inset:0;pointer-events:none;mix-blend-mode:soft-light"></div>
+</div></div>
+</div>
+</div>
+<div style="flex:1 1 460px;min-width:0;display:flex;flex-direction:column;gap:20px">
+<span style="font:700 12px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.16em;color:#C63F22">SCOOTCH.APP/M/RECEIPT-HYDRA</span>
+<h1 style="margin:0;font:900 clamp(44px,6vw,86px)/.92 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.05em;text-wrap:balance">{{ title }}</h1>
+<p style="margin:0;max-width:540px;font:400 20px/1.45 -apple-system, system-ui, sans-serif;color:#4A443D;text-wrap:pretty">Grows a new head for every receipt you didn't keep. Weak against shoeboxes.</p>
+<div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{ chips }}" as="c" hint-placeholder-count="3"><span style="font:600 14px/1 -apple-system, system-ui, sans-serif;padding:10px 14px;border-radius:999px;background:#fff;box-shadow:inset 0 0 0 .5px rgba(28,26,23,.14)">{{ c }}</span></sc-for></div>
+<p style="margin:0;font:500 17px/1.45 -apple-system, system-ui, sans-serif;color:#1C1A17;max-width:520px">{{ lead }}</p>
+<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+<div data-press="1" data-magnet="1" onClick="{{ primary }}" style="height:56px;padding:0 24px;border-radius:28px;background:#F0562E;color:#1C1A17;display:flex;align-items:center;gap:10px;font:800 18px/1 ui-rounded, 'Nunito', system-ui, sans-serif;cursor:pointer;box-shadow:inset 0 -3px 0 rgba(28,26,23,.18),0 12px 26px -12px rgba(240,86,46,.8)">{{ primaryLabel }}</div>
+<div data-press="1" onClick="{{ secondary }}" style="height:56px;padding:0 22px;border-radius:28px;background:#fff;box-shadow:inset 0 0 0 .5px rgba(28,26,23,.2);display:flex;align-items:center;font:650 16px -apple-system, system-ui, sans-serif;cursor:pointer;transition:background .2s" style-hover="background:#F3E6D3">{{ secondaryLabel }}</div>
+</div>
+<span style="font:500 15px/1.4 -apple-system, system-ui, sans-serif;color:#C63F22;min-height:21px">{{ feedback }}</span>
+<span style="font:400 13.5px/1.45 -apple-system, system-ui, sans-serif;color:#6F6A62;max-width:520px">Ana chose to share this card. The task text is only shown if the owner says so, and strangers never see who made it.</span>
+</div>
+</div>
+</section>
+
+<section data-screen-label="Monster page · hatch yours" style="background:#1C1714;color:#F6F3EE;position:relative;overflow:hidden">
+<div data-grain="1" style="position:absolute;inset:0;opacity:.22;mix-blend-mode:overlay;pointer-events:none"></div>
+<div style="position:absolute;right:-120px;top:-120px;width:480px;height:480px;border-radius:50%;background:#F0562E;filter:blur(120px);opacity:.35"></div>
+<div style="max-width:1240px;margin:0 auto;padding:88px 28px;display:flex;flex-wrap:wrap;gap:40px;align-items:center;justify-content:space-between;position:relative">
+<div style="flex:1 1 460px;min-width:0;display:flex;flex-direction:column;gap:16px"><span style="font:700 12px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.16em;color:#FFB79F">YOUR TURN</span><h2 style="margin:0;font:900 clamp(34px,4.4vw,58px)/.96 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.045em;text-wrap:balance">Got a lurker of your own?</h2><p style="margin:0;font:400 18px/1.5 -apple-system, system-ui, sans-serif;color:rgba(246,243,238,.75);max-width:480px">Type the thing you've been avoiding. It hatches in two seconds, and nothing is kept unless you share it.</p></div>
+<div data-reveal="1" style="flex:1 1 420px;min-width:0;display:flex;flex-direction:column;gap:12px;max-width:520px">
+<div style="display:flex;gap:8px;padding:8px;border-radius:24px;background:#F6F3EE;box-shadow:0 30px 60px -24px rgba(0,0,0,.6)"><input value="{{ q }}" onChange="{{ onQ }}" placeholder="e.g. replying to mum" aria-label="What have you been avoiding?" style="flex:1;min-width:0;border:0;outline:0;background:transparent;font:500 18px/1 -apple-system, system-ui, sans-serif;padding:0 14px;color:#1C1A17"></input><a data-press="1" href="{{ hatchHref }}" style="height:54px;padding:0 22px;border-radius:18px;background:#F0562E;color:#1C1A17;display:flex;align-items:center;font:800 17px/1 ui-rounded, 'Nunito', system-ui, sans-serif;text-decoration:none;white-space:nowrap">Hatch it</a></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{ qChips }}" as="qc" hint-placeholder-count="4"><span data-press="1" onClick="{{ qc.pick }}" style="font:600 14px/1 -apple-system, system-ui, sans-serif;padding:10px 14px;border-radius:999px;background:rgba(255,255,255,.1);cursor:pointer;transition:background .2s" style-hover="background:rgba(255,255,255,.18)">{{ qc.label }}</span></sc-for></div>
+</div>
+</div>
+</section>
+
+<section data-screen-label="Monster page · more from the wall" style="position:relative">
+<div style="max-width:1240px;margin:0 auto;padding:96px 28px;display:flex;flex-direction:column;gap:36px">
+<div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between"><h2 style="margin:0;font:900 clamp(32px,4vw,52px)/.96 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.045em">Fresh from other people's lists</h2><a href="Scootch%20Web%20-%20Wall.dc.html" style="font:650 16px -apple-system, system-ui, sans-serif">See the whole wall →</a></div>
+<div data-reveal="stagger" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:20px;perspective:1200px">
+<sc-for list="{{ more }}" as="w" hint-placeholder-count="4"><a href="Scootch%20Web%20-%20Wall.dc.html" style="text-decoration:none;color:#1C1A17"><div data-tilt="1" style="border-radius:22px;background:#FBF8F3;position:relative;overflow:hidden;padding:14px;display:flex;flex-direction:column;gap:10px;box-shadow:inset 0 0 0 1px rgba(28,26,23,.08),0 24px 40px -24px rgba(28,26,23,.45)"><div style="height:170px;border-radius:14px;background:{{ w.bg }};display:flex;align-items:flex-end;justify-content:center;position:relative;overflow:hidden"><div style="position:absolute;inset:0;background-image:radial-gradient(rgba(28,26,23,.1) 1.3px,transparent 1.5px);background-size:11px 11px"></div><div style="position:relative"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="task" seed="{{ w.seed }}" type="{{ w.type }}" mood="idle" still="{{ still }}" sound="off" style="width:160px;height:160px;flex:none" hint-size="160px,160px"></x-import></div><span style="position:absolute;left:10px;top:10px;font:700 9.5px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.12em;padding:4px 6px;border-radius:5px;background:#1C1A17;color:#fff">WILD</span></div><span style="font:900 20px/1.05 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.02em">{{ w.name }}</span><span style="font:400 14px/1.4 -apple-system, system-ui, sans-serif;color:#6F6A62">{{ w.flavor }}</span><div data-glare="1" style="position:absolute;inset:0;pointer-events:none;mix-blend-mode:soft-light"></div></div></a></sc-for>
+</div>
+</div>
+</section>
+<footer id="footer" style="background:#1C1A17;color:#F6F3EE">
+<div style="max-width:1240px;margin:0 auto;padding:64px 28px 40px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-wrap:wrap;gap:40px;justify-content:space-between">
+<div style="flex:1 1 280px;display:flex;flex-direction:column;gap:12px"><span style="font:900 28px/1 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.03em">scootch<span style="color:#F0562E">.</span></span><span style="font:400 15px/1.45 -apple-system, system-ui, sans-serif;color:rgba(246,243,238,.72);max-width:300px">Small things, one at a time, with someone quietly sitting next to you.</span></div>
+<div style="display:flex;flex-direction:column;gap:10px;font:400 15px/1.2 -apple-system, system-ui, sans-serif"><span style="font:700 12px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.12em;color:rgba(246,243,238,.6)">SCOOTCH</span><a href="Scootch%20Web%20-%20Help.dc.html#isnt" style="color:#F6F3EE;text-decoration:none">What Scootch is and isn't</a><a href="Scootch%20Web%20-%20Plus.dc.html" style="color:#F6F3EE;text-decoration:none">Plus</a><a href="Scootch%20Web%20-%20Wall.dc.html" style="color:#F6F3EE;text-decoration:none">The monster wall</a><a href="Scootch%20Web%20-%20Unwrapped.dc.html" style="color:#F6F3EE;text-decoration:none">Unwrapped</a><a href="Scootch%20Web%20-%20Invites.dc.html" style="color:#F6F3EE;text-decoration:none">Invites and gifts</a></div>
+<div style="display:flex;flex-direction:column;gap:10px;font:400 15px/1.2 -apple-system, system-ui, sans-serif"><span style="font:700 12px/1 'JetBrains Mono', ui-monospace, monospace;letter-spacing:.12em;color:rgba(246,243,238,.6)">HELP</span><a href="Scootch%20Web%20-%20Help.dc.html" style="color:#F6F3EE;text-decoration:none">Support and questions</a><a href="Scootch%20Web%20-%20Help.dc.html#helplines" style="color:#F6F3EE;text-decoration:none">Helplines</a><a href="Scootch%20Web%20-%20Help.dc.html#privacy" style="color:#F6F3EE;text-decoration:none">Privacy</a><a href="Scootch%20Web%20-%20Get.dc.html" style="color:#F6F3EE;text-decoration:none">Get the app · Android · Press</a></div>
+<div style="flex:1 1 280px;border-radius:24px;background:rgba(255,255,255,.07);padding:20px;display:flex;flex-direction:column;gap:8px"><span style="font:800 18px/1.2 ui-rounded, 'Nunito', system-ui, sans-serif">Having a really hard time?</span><span style="font:400 14.5px/1.45 -apple-system, system-ui, sans-serif;color:rgba(246,243,238,.78)">You deserve a real person. Find a free, confidential helpline in your country.</span><a href="Scootch%20Web%20-%20Help.dc.html#helplines" style="font:650 15px -apple-system, system-ui, sans-serif;color:#FFB79F">Find a helpline</a></div>
+</div>
+<div style="position:relative;display:flex;flex-direction:column;align-items:center;margin-top:24px">
+<div style="display:flex;gap:6vw;justify-content:center;margin-bottom:-2.4vw;position:relative;z-index:1"><div data-anim="peek"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="task" seed="dentist" type="tooth" mood="idle" on="dark" still="{{ still }}" sound="off" style="width:clamp(64px,9vw,128px);height:clamp(64px,9vw,128px);flex:none" hint-size="96px,96px"></x-import></div><div data-anim="peek"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="scootch" mood="proud" on="dark" still="{{ still }}" sound="off" style="width:clamp(80px,11vw,160px);height:clamp(80px,11vw,160px);flex:none" hint-size="120px,120px"></x-import></div><div data-anim="peek"><x-import component-from-global-scope="scootch-critter" from="./critters.js" kind="task" seed="sock" type="sock" mood="idle" on="dark" still="{{ still }}" sound="off" style="width:clamp(64px,9vw,128px);height:clamp(64px,9vw,128px);flex:none" hint-size="96px,96px"></x-import></div></div>
+<span style="display:block;font:900 clamp(84px,19vw,280px)/.82 ui-rounded, 'Nunito', system-ui, sans-serif;letter-spacing:-.065em;color:#F6F3EE;text-align:center;user-select:none">scootch<span style="color:#F0562E">.</span></span>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:12px 24px;justify-content:space-between;padding-top:24px;border-top:1px solid rgba(246,243,238,.14);font:400 13px/1.45 -apple-system, system-ui, sans-serif;color:rgba(246,243,238,.62)"><span style="max-width:640px">Scootch is a support tool for starting things. It doesn't diagnose, treat or cure ADHD or anything else.</span><span>© 2026 Scootch · Made with mild panic</span></div>
+</div>
+</footer>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;cardState&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;wild&quot;,&quot;caught&quot;],&quot;default&quot;:&quot;wild&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;label&quot;:&quot;Card state&quot;},&quot;boil&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;label&quot;:&quot;Motion&quot;}}">
+const MORE = [
+  { name: 'Unread, the Ever-Bold', flavor: 'Has 4,000 cousins. Weak against “Mark all as read”.', type: 'envelope', seed: 'inbox', bg: '#EAF0F6' },
+  { name: 'Baron von Grout', flavor: 'Owns the bathroom now. Has a monocle.', type: 'slime', seed: 'grout', bg: '#EEF1E6' },
+  { name: 'Thirsty Fern', flavor: 'Dramatic. Has fainted twice this week.', type: 'weed', seed: 'fern', bg: '#F3EEDC' },
+  { name: 'Formhilda', flavor: 'Ate three passport applications. Weak against box 1.', type: 'note', seed: 'form', bg: '#F6E8E2' }
+];
+const QC = ['replying to mum', 'the gym', 'my taxes', 'the bathroom'];
+class Component extends DCLogic {
+  state = { q: '', sent: false, shoo: 0, high: 0 };
+  componentDidMount() { const go = () => { if (window.ScootchWebFX) this._fx = ScootchWebFX.init({ still: this.props.boil === false }); else this._w = setTimeout(go, 60); }; go(); }
+  componentWillUnmount() { clearTimeout(this._w); this._fx && this._fx(); }
+  renderVals() {
+    const S = this.state, caught = (this.props.cardState || 'wild') === 'caught';
+    const fx = () => window.ScootchWebFX;
+    const wrap = () => document.querySelector('[data-cardwrap]');
+    return {
+      still: this.props.boil === false ? 'true' : undefined,
+      isCaught: caught, tag: caught ? 'CAUGHT' : 'WILD', tagBg: caught ? '#F0562E' : '#1C1A17',
+      rowLabel: caught ? 'Caught in' : 'Status', rowValue: caught ? '10 min' : 'still out there',
+      title: caught ? 'Ana caught The Receipt Hydra.' : 'The Receipt Hydra',
+      chips: caught ? ['Lurked 11 days', 'Caught in 10 minutes', 'On the shelf, sulking'] : ['Lurking 11 days', 'Series 01 · Money', 'Still wild'],
+      lead: caught ? 'Eleven days of dread, gone in ten minutes. That deserves a high five.' : 'Ana is avoiding this one. You can send a little courage, or shoo it away for them.',
+      monScale: caught ? 1 : Math.max(.55, 1 - S.shoo * .15).toFixed(2),
+      primaryLabel: caught ? (S.high ? 'High five × ' + S.high : 'Send a high five') : (S.sent ? 'Courage sent' : 'Send courage'),
+      secondaryLabel: caught ? 'Hatch your own' : 'Shoo it',
+      primary: e => { const el = e.currentTarget; if (caught) { this.setState(s => ({ high: s.high + 1 })); fx() && fx().burst(el, 18); } else if (!S.sent) { this.setState({ sent: true }); fx() && fx().burst(el, 18); } },
+      secondary: () => { if (caught) { location.href = 'Scootch%20-%20Website%20v2.dc.html#maker'; return; } this.setState(s => ({ shoo: Math.min(3, s.shoo + 1) })); const w = wrap(); if (w) w.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-14px) rotate(-3deg)' }, { transform: 'translateX(12px) rotate(3deg)' }, { transform: 'translateX(-6px)' }, { transform: 'translateX(0)' }], { duration: 480 }); },
+      feedback: caught ? (S.high ? 'Ana will feel a tiny wave on her Lock Screen.' : '') : S.shoo >= 3 ? "It'll be back. They always are." : S.shoo ? 'Shoo! It flinched.' : S.sent ? 'Sent. Ana will see a tiny wave next to her monster.' : '',
+      q: S.q, onQ: e => this.setState({ q: e.target.value }), hatchHref: 'Scootch%20-%20Website%20v2.dc.html#maker',
+      qChips: QC.map(c => ({ label: c, pick: () => this.setState({ q: c }) })),
+      more: MORE
+    };
+  }
+}
+</script>
+</body>
+</html>

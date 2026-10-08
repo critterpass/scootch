@@ -48,6 +48,7 @@ const palette = `:root{color-scheme:light dark;${variables(colors.light)}}@media
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <link rel="preload" href="/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin />
     {
       social && (
         <>
@@ -85,5 +86,10 @@ const palette = `:root{color-scheme:light dark;${variables(colors.light)}}@media
     <SiteNav language={language} path={path} />
     <main id="main"><slot /></main>
     <SiteFooter language={language} path={path} />
+    <script>
+      import { startSiteFx } from '../scripts/site-fx';
+
+      startSiteFx();
+    </script>
   </body>
 </html>

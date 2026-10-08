@@ -53,10 +53,23 @@ test.describe('catch it in the app', () => {
     await expect(page.locator('[data-link]')).toHaveAttribute('href', /\/vi\/m\/molar-7f3k9x$/);
   });
 
-  test('with no monster, or one that was unshared, it is the not-found page', async ({ page }) => {
+  test('with no monster it is the way to the App Store, on a phone and on a wide screen', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/get');
-    await expect(page.locator('[data-get-page]')).toHaveAttribute('data-state', 'missing');
+    await expect(page.locator('[data-get-page]')).toHaveAttribute('data-state', 'plain');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Your monster is waiting.');
+    await expect(page.getByRole('link', { name: 'Get it on the App Store' })).toBeVisible();
 
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await expect(page.getByRole('link', { name: 'Get it on the App Store' })).toBeHidden();
+    await expect(
+      page.getByRole('img', { name: 'A QR code that opens this page on your phone' }),
+    ).toBeVisible();
+  });
+
+  test('a monster that was unshared gets the not-found page', async ({ page }) => {
     await answerApi(page, 'monster-page/gone-123456', notFound, 404);
     await page.goto('/get?m=gone-123456');
     await expect(page.locator('[data-get-page]')).toHaveAttribute('data-state', 'missing');

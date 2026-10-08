@@ -1,9 +1,12 @@
 ---
 import type { Language } from '@scootch/i18n';
 
-import { appStoreUrl, copyFor, localPath, pagesFor, preLaunch } from '../copy';
+import { copyFor, localPath, pagesFor, preLaunch } from '../copy';
+import { monsterSvg, stripMonsters } from '../lib/drawings';
 import SiteLayout from '../layouts/site-layout.astro';
 
+import Critter from './critter.astro';
+import MaterialLayers from './material-layers.astro';
 import NotFound from './not-found.astro';
 import WaitlistForm from './waitlist-form.astro';
 
@@ -14,76 +17,135 @@ interface Props {
 // One page for every shared monster: the browser fetches the monster named in the address and
 // fills this in. The Worker serves it at `/m/<id>` with that monster's link preview tags.
 const { language } = Astro.props;
+const site = copyFor(language);
 const pages = pagesFor(language);
 const copy = pages.monster;
 const lines = { ...copy, unshared: pages.share.unshared };
+const home = localPath(language, '/');
+const tints = ['#EAF0F6', '#F6EAD8', '#EEF1E6', '#F6E8E2'];
 ---
 
 <SiteLayout language={language} path="/m" title={copy.title} description={copy.description} social={false}>
-  <section
-    class="wrap shared-page"
-    data-monster-page
-    data-state="loading"
-    data-language={language}
-    data-lines={JSON.stringify(lines)}
-  >
-    <p class="lede" data-show="loading" aria-live="polite">{copy.loading}</p>
+  <section class="band shared-band">
+    <div class="grain"></div>
+    <div class="halftone shared-halftone"></div>
+    <div
+      class="wrap shared-page"
+      data-monster-page
+      data-state="loading"
+      data-language={language}
+      data-lines={JSON.stringify(lines)}
+    >
+      <p class="lede" data-show="loading" aria-live="polite">{copy.loading}</p>
 
-    <div class="shared-grid" data-show="found" hidden>
-      <div class="maker-stage">
-        <div class="blob">
-          <figure class="card card-large" role="img" data-card>
-            <div class="card-head">
-              <span class="card-name" data-card-name></span>
-              <span class="card-badge" data-card-badge></span>
+      <div class="shared-grid" data-show="found" hidden>
+        <div class="shared-art tilt-space">
+          <figure class="mcard monster-card" role="img" data-card data-lean data-finish="holo">
+            <MaterialLayers />
+            <div class="card-top">
+              <span>scootch.app</span>
+              <span class="tag" data-card-badge></span>
             </div>
-            <div class="card-art" data-card-art></div>
+            <div class="card-window"><div data-card-art></div></div>
+            <span class="card-name" data-card-name></span>
             <p class="card-typed" data-card-typed></p>
             <p class="card-flavour" data-card-flavour></p>
             <div class="card-foot">
               <span data-card-foot></span>
-              <strong>scootch.app</strong>
             </div>
+            <span class="card-stamp" aria-hidden="true">{copy.caught}</span>
+            <span class="mcard-glare"></span>
           </figure>
         </div>
-      </div>
-      <div>
-        <p class="eyebrow" data-eyebrow></p>
-        <h1 data-name tabindex="-1"></h1>
-        <p class="lede flavour" data-flavour></p>
-        <dl class="facts" data-facts></dl>
-        {
-          preLaunch && (
-            <WaitlistForm language={language} managed intro={pages.preLaunch.intro} />
-          )
-        }
-        <div class="actions actions-swap">
-          <a class="button action-make" href={localPath(language, '/')}>{copy.makeYourOwn}</a>
+        <div class="shared-words">
+          <p class="eyebrow" data-eyebrow></p>
+          <h1 data-name tabindex="-1"></h1>
+          <p class="lede flavour" data-flavour></p>
+          <dl class="facts" data-facts></dl>
           {
-            !preLaunch && (
-              <a class="button action-catch" href={appStoreUrl} data-catch>
-                {copy.catchIt}
-              </a>
+            preLaunch && (
+              <WaitlistForm language={language} managed intro={pages.preLaunch.intro} />
             )
           }
+          <div class="actions">
+            <a class="button button-tomato" href={`${home}#maker`} data-magnet>{copy.makeYourOwn}</a>
+            {
+              !preLaunch && (
+                <a class="button button-quiet" href={localPath(language, '/get')} data-catch>
+                  {copy.catchIt}
+                </a>
+              )
+            }
+          </div>
+          <p class="small" data-yours hidden>
+            {copy.yours}
+            <button type="button" class="link-button" data-action="unshare">{pages.share.unshare}</button>
+          </p>
+          <p class="small">{copy.note}</p>
         </div>
-        <p class="small" data-yours hidden>
-          {copy.yours}
-          <button type="button" class="link-button" data-action="unshare">{pages.share.unshare}</button>
-        </p>
+      </div>
+
+      <div data-show="missing" hidden>
+        <NotFound language={language} focusable />
+      </div>
+
+      <div class="shared-words" data-show="offline" hidden>
+        <h1 tabindex="-1">{copy.offlineTitle}</h1>
+        <p class="lede">{copy.offlineBody}</p>
+        <div class="actions">
+          <a class="button button-ink" href={home}>{site.nav.maker}</a>
+        </div>
       </div>
     </div>
+  </section>
 
-    <div data-show="missing" hidden>
-      <NotFound language={language} focusable />
-    </div>
-
-    <div data-show="offline" hidden>
-      <h1 tabindex="-1">{copy.offlineTitle}</h1>
-      <p class="lede">{copy.offlineBody}</p>
-      <div class="actions">
-        <a class="button button-ink" href={localPath(language, '/')}>{copyFor(language).nav.maker}</a>
+  <section class="band turn on-night">
+    <div class="grain"></div>
+    <span class="turn-glow"></span>
+    <div class="wrap turn-grid">
+      <div class="turn-words">
+        <p class="eyebrow">{copy.turnEyebrow}</p>
+        <h2>{copy.turnTitle}</h2>
+        <p class="lede">{copy.turnBody}</p>
       </div>
+      <div class="turn-form" data-reveal>
+        <form class="field" action={home} method="get" data-turn>
+          <label class="sr-only" for="turn-text">{copy.turnField}</label>
+          <input id="turn-text" name="text" type="text" maxlength="280" autocomplete="off" enterkeyhint="go" placeholder={copy.turnPlaceholder} />
+          <button type="submit" class="button button-tomato">{copy.turnHatch}</button>
+        </form>
+        <ul class="chips">
+          {
+            copy.turnExamples.map((example) => (
+              <li>
+                <button type="button" class="chip" data-turn-example>
+                  {example}
+                </button>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap earlier">
+      <h2>{site.strip.label}</h2>
+      <ul class="earlier-cards tilt-space" data-reveal="stagger">
+        {
+          stripMonsters.slice(0, 4).map((monster, index) => (
+            <li class="earlier-card">
+              <div class="earlier-art" style={`background-color:${tints[index]}`}>
+                <Critter svg={monsterSvg(monster.bodyType, monster.seed)} size="10rem" />
+                <span class="tag">{site.maker.wild}</span>
+              </div>
+              <h3>{site.strip.monsters[index]?.name}</h3>
+              <p>{site.strip.monsters[index]?.flavour}</p>
+            </li>
+          ))
+        }
+      </ul>
     </div>
   </section>
 </SiteLayout>
@@ -93,5 +155,16 @@ const lines = { ...copy, unshared: pages.share.unshared };
 
   for (const root of document.querySelectorAll<HTMLElement>('[data-monster-page]')) {
     void startMonsterPage(root);
+  }
+  // An example fills the field; the maker on the home page takes it from there.
+  for (const form of document.querySelectorAll<HTMLFormElement>('[data-turn]')) {
+    const input = form.querySelector('input');
+    for (const example of document.querySelectorAll('[data-turn-example]')) {
+      example.addEventListener('click', () => {
+        if (!input) return;
+        input.value = example.textContent.trim();
+        input.focus();
+      });
+    }
   }
 </script>

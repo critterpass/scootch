@@ -1,3 +1,5 @@
+import { helpEn } from './help-en';
+
 /** The words of the shared pages, the Plus page and the pages around launch, in English. */
 export const pagesEn = {
   share: {
@@ -31,6 +33,16 @@ export const pagesEn = {
     yours: 'You shared this one from this browser.',
     offlineTitle: 'I couldn’t fetch this monster.',
     offlineBody: 'Check your connection and load the page again.',
+    turnEyebrow: 'Your turn',
+    turnTitle: 'Got a lurker of your own?',
+    turnBody:
+      'Type the thing you’ve been avoiding. It hatches in two seconds, and nothing is kept unless you share it.',
+    turnField: 'What have you been avoiding?',
+    turnPlaceholder: 'e.g. replying to mum',
+    turnHatch: 'Hatch it',
+    turnExamples: ['replying to mum', 'the gym', 'my taxes', 'the bathroom'],
+    note: 'Whoever hatched this chose to share it. What they typed shows only if they left it showing, and the page names nobody.',
+    address: 'scootch.app/m',
   },
   caughtCard: {
     title: 'A caught monster · Scootch',
@@ -61,14 +73,13 @@ export const pagesEn = {
     took: 'Took {duration}.',
   },
   notFound: {
-    title: 'This page got eaten · Scootch',
-    eyebrow: '404 · a wild Lostling appeared',
-    headline: 'This page got eaten.',
-    body: 'Lostling, Eater of Pages, lives here and nowhere else. It looks pleased with itself.',
-    cardName: 'Lostling, Eater of Pages',
-    cardFlavour: 'Ate the page you wanted. Still hungry.',
-    make: 'Make a monster instead',
-    home: 'Go home',
+    title: 'This page wandered off · Scootch',
+    eyebrow: 'Page not found',
+    headline: 'This page wandered off. Classic.',
+    body: 'It was here a minute ago. Odd Sock may have taken it. Try one of these instead.',
+    home: 'Back home',
+    make: 'Hatch a monster',
+    help: 'Help',
   },
   plus: {
     title: 'Scootch Plus · prices and house rules',
@@ -132,6 +143,44 @@ export const pagesEn = {
     buy: 'There’s no buy button here. You buy Plus inside the app, through Apple.',
     buySoon:
       'There’s no buy button here. Once the app is out, you buy Plus inside it, through Apple.',
+    heroWords: ['A bit', 'more', 'Scootch.'],
+    heroSub:
+      'Everything that matters is free, for ever. Plus is for people who want their monsters in chrome.',
+    finishLabel: 'Finish {n}',
+    fanLabel:
+      'Seven card finishes: Paper, Riso, Jelly, Holo foil, Chrome, Frosted glass and Velvet.',
+    finishes: ['Paper', 'Riso', 'Jelly', 'Holo foil', 'Chrome', 'Frosted glass', 'Velvet'],
+    plansTitle: 'Three ways to pay',
+    picked: 'The one most people pick',
+    get: 'Get the app',
+    insideTitle: 'What’s inside the shiny box',
+    finishesEyebrow: 'Finishes',
+    finishesTitle: 'Seven materials, built from light',
+    finishesBody:
+      'Foil, chrome, jelly, glass, velvet and riso. Your cards, stickers and shares all wear the one you pick.',
+    answersTitle: 'Honest answers',
+    answers: [
+      {
+        q: 'Will you remind me before I’m charged?',
+        a: 'Yes. A reminder goes out before any money moves, including the day before a trial ends, in plain words, with the date and the amount.',
+      },
+      {
+        q: 'How do I cancel?',
+        a: 'In your Apple settings: your name, then Subscriptions, then Scootch. There’s no pause on iPhone, only cancel, and nobody asks you to explain yourself.',
+      },
+      {
+        q: 'What happens to my stuff if I stop?',
+        a: 'You keep everything you caught, every card and your whole world. Finishes you didn’t buy on their own go back to paper, and that’s it.',
+      },
+      {
+        q: 'Is the free version a trap?',
+        a: 'No. Starting, the whole day loop, every attitude and sharing are free, for ever. There’s no offer on first launch, on the one screen, in a session, or on “Done for today”.',
+      },
+      {
+        q: 'What can’t I buy?',
+        a: 'Rarity, random packs, coins, or making up for a day off. You can’t buy a better monster.',
+      },
+    ],
   },
   preLaunch: {
     comingSoon: 'Coming soon to iPhone',
@@ -158,4 +207,5 @@ export const pagesEn = {
     maker: 'The monster maker works on Android right now.',
     tryIt: 'Try it',
   },
+  ...helpEn,
 } as const;

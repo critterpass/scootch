@@ -1,4 +1,5 @@
 import type { SiteCopy } from './en';
+import { homeVi } from './home-vi';
 
 /**
  * The website's words in Vietnamese, written as a Vietnamese site would say them rather than word
@@ -13,6 +14,8 @@ export const vi = {
   nav: {
     label: 'Chính',
     maker: 'Lò ấp quái',
+    how: 'Cách dùng',
+    tables: 'Ngồi chung bàn',
     help: 'Trợ giúp',
     menu: 'Menu',
     getTheApp: 'Tải app',
@@ -20,27 +23,46 @@ export const vi = {
   },
   badge: { alt: 'Tải về trên App Store' },
   footer: {
-    tagline: 'Mỗi ngày một việc nhỏ, có người ngồi lặng lẽ bên cạnh.',
+    tagline: 'Từng việc nhỏ một, có người ngồi lặng lẽ bên cạnh.',
     scootch: 'Scootch',
     whatItIs: 'Scootch là gì và không là gì',
-    press: 'Tài liệu báo chí',
     help: 'Trợ giúp',
     support: 'Hỗ trợ và câu hỏi',
     helplines: 'Đường dây hỗ trợ',
     privacy: 'Quyền riêng tư',
     terms: 'Điều khoản',
-    elsewhere: 'Nơi khác',
-    android: 'Android: báo tui nha',
+    getTheApp: 'Tải app · Android · Báo chí',
     hardTime: 'Đang có chuyện rất khó khăn?',
-    findHelpline: 'Tìm đường dây hỗ trợ ở nước bạn',
+    hardBody:
+      'Bạn xứng đáng có một con người thật lắng nghe. Tìm đường dây hỗ trợ miễn phí, kín đáo ở nước bạn.',
+    findHelpline: 'Tìm đường dây hỗ trợ',
     supportTool:
       'Scootch là công cụ hỗ trợ để bắt đầu việc. Scootch không chẩn đoán, điều trị hay chữa ADHD hoặc bất cứ điều gì khác.',
     copyright: '© 2026 Scootch · Làm ra trong cơn hơi hoảng',
     otherLanguage: 'English',
   },
   maker: {
+    news: 'Mới',
+    newsLine: 'Ngồi chung bàn, thẻ ánh kim, và cuộc săn ngay trên màn hình khoá',
     headline: 'Bạn đang né việc gì vậy?',
-    sub: 'Gõ ra đi. Tui biến nó thành một con quái. Bạn sẽ thấy nhẹ hơn. Chắc vậy.',
+    sub: 'Gõ ra đi. Tui biến nó thành một con quái. Rồi mình cùng bắt nó, mỗi lần mười phút. Bạn sẽ thấy nhẹ hơn. Chắc vậy.',
+    bubble: 'Nói đi. Tui không phán xét đâu. Chút xíu thôi.',
+    typing: [
+      'email cho nha sĩ',
+      'khai thuế',
+      'trả lời tin nhắn của mẹ',
+      'cái kệ lung lay',
+      'đi tập gym',
+      'cái tờ đơn đó',
+    ],
+    hatchingTitle: 'Có gì đó đang nở…',
+    hold: 'Giữ để bắt',
+    holding: 'Giữ tiếp…',
+    holdIdle: 'Giữ để bắt nó. Trong app, mỗi con quái có một kiểu bắt riêng.',
+    holdEarly: 'Bắt đầu là tính rồi. Giữ thêm chút nữa.',
+    holdDone: 'Lần bắt nào cũng đã vậy đó.',
+    caught: 'Đã bắt',
+    onShelf: 'Trên kệ của bạn',
     fieldLabel: 'Cái việc bạn đang né',
     placeholder: 'vd: email cho nha sĩ',
     hatch: 'Ấp nó',
@@ -84,32 +106,8 @@ export const vi = {
       'Đường dây hỗ trợ khác nhau tuỳ từng nước. Trang đường dây hỗ trợ có số cho nơi bạn ở.',
     somethingElse: 'Làm con khác',
   },
-  demo: {
-    eyebrow: 'Diễn ra thế này',
-    headline: 'Từ “ôi thôi” tới bắt gọn, trong bốn chạm.',
-    beats: [
-      'Kể lể với Scootch chừng hai mươi giây.',
-      'Một việc quay lại, và nở ra.',
-      'Bắt đầu. Scootch mừng muốn xỉu.',
-      'Giữ nút để xong. Con quái là của bạn.',
-    ],
-  },
-  ideas: [
-    {
-      title: 'Mỗi ngày một việc.',
-      body: 'Cứ kể lể với tui. Tui chọn một việc, mấy việc còn lại cất vô ngăn kéo.',
-    },
-    {
-      title: 'Việc nào cũng có một con quái.',
-      body: 'Cái email cho nha sĩ hoá thành Răng Hàm. Bắt được là của bạn mãi mãi.',
-    },
-    {
-      title: 'Ngồi chung bàn, yên lặng.',
-      body: 'Ngồi cùng tối đa ba người bạn, ai làm việc nấy. Không chat.',
-    },
-  ],
   strip: {
-    headline: 'Vài con tui ấp sẵn từ trước.',
+    label: 'Vài con tui ấp sẵn từ trước',
     monsters: [
       {
         name: 'Thư Chưa Đọc, Kẻ Lì Đòn',
@@ -122,37 +120,5 @@ export const vi = {
       { name: 'Dương Xỉ Khát Nước', flavour: 'Hay làm quá. Tuần này xỉu hai lần rồi.' },
     ],
   },
-  prices: {
-    freeEyebrow: 'Miễn phí mãi mãi',
-    freeHeadline: 'Có đủ hết, mỗi ngày tới mười việc.',
-    free: [
-      'Mỗi ngày tới mười việc, mãi mãi',
-      'Con quái nào bắt được cũng giữ mãi',
-      'Ngồi bàn cùng bạn bè, và tự mở bàn hai chỗ',
-      'Đủ cả ba thái độ',
-      'Bài hát hằng tuần, và chia sẻ nó',
-    ],
-    plusEyebrow: 'Scootch Plus',
-    plusHeadline: 'Thêm chút Scootch, với một khoản nho nhỏ.',
-    plans: [
-      { name: 'Hằng tháng', price: '$5.99', detail: 'mỗi tháng' },
-      { name: 'Hằng năm', price: '$39.99', detail: '7 ngày đầu miễn phí' },
-      { name: 'Trọn đời', price: '$89.99', detail: 'một lần, mãi mãi' },
-    ],
-    plus: [
-      'Mỗi ngày tới hai mươi lăm việc',
-      'Mở bàn tới bốn chỗ',
-      'Giữ mọi bản thu hằng tuần',
-      'Cuốn sổ thẻ, có sắp xếp và thống kê',
-      'Widget cỡ đại và StandBy',
-    ],
-    reminder:
-      'Tui sẽ nhắc bạn một ngày trước mỗi lần tính tiền. Huỷ trong hai chạm ở phần cài đặt Apple.',
-    allAboutPlus: 'Tất cả về Plus',
-  },
-  who: {
-    eyebrow: 'Dành cho ai',
-    headline:
-      'Cho người có ADHD, và cho bất kỳ ai mà danh sách việc cần làm cũng có danh sách việc cần làm riêng. Nếu bắt đầu là phần khó nhất, tui là con thú của bạn.',
-  },
+  ...homeVi,
 } as const satisfies SiteCopy;

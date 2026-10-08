@@ -1,0 +1,28 @@
+---
+interface Props {
+  words: readonly string[];
+  /** Draws the marker stroke under the last word. */
+  marker?: boolean;
+  /** Sets the last word in rolling chrome. */
+  chrome?: boolean;
+}
+
+// A headline's words, each in its own box so that it can rise into place. The spaces between
+// them stay in the text, for anything that reads the headline rather than looks at it.
+const { words, marker = false, chrome = false } = Astro.props;
+const last = words.length - 1;
+---
+
+{
+  words.map((word, index) => (
+    <>
+      <span>
+        <span data-rise class:list={{ 'chrome-text': chrome && index === last }}>
+          {word}
+          {marker && index === last && <span class="marker" />}
+        </span>
+      </span>
+      {index < last && ' '}
+    </>
+  ))
+}
