@@ -98,3 +98,19 @@ appId: app.scootch.dev
     file: ../tour-support/shot.yaml
     env:
       NAME: share-poster--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: share-wanted--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: share-postcard--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: share-sleeve--en-light-default
+- runFlow:
+    file: ../tour-support/shot.yaml
+    env:
+      NAME: share-story--vi-dark-largest

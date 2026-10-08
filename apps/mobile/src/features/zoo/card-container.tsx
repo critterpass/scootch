@@ -77,7 +77,8 @@ export function CardContainer() {
             task,
             card: cardDataFor(monster, task),
             signed: monster.signed ?? null,
-            format: 'card',
+            // The composer opens on the story of the catch; the turning card is one format over.
+            format: 'story',
           });
         },
       }}

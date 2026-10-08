@@ -62,7 +62,9 @@ website and the store listing.
 
 - **Monsters and cards.** 20 body types chosen from the task's meaning, varied
   by ink, size, eyes, mouth and accessories. Cards carry real stats (days
-  lurked, catch time), rarity earned from the task, and flavour text.
+  lurked, catch time), rarity earned from the task, and flavour text. The
+  three tiers read Common, Rare and Epic, and in the binder rarity is the
+  card's material: paper, foil, and dark stock with dust on it.
 - **Lurkers and bites** (founder, 8 Oct). A hatched thing that is waiting
   (today's thing, or one carried to tomorrow) is a lurker: widgets show it
   with how long it has waited, and it is a button that starts ten minutes on
@@ -147,10 +149,13 @@ iOS has no pause; cancelling goes through Apple's sheet.
   no sign-up. "Catch it in the app" carries the monster through install.
 - Every shared card, story and record clip has its own page and carries
   scootch.app.
-- Five things to share, each in the ink and finish you wear: the story of a
-  catch, its trading card, a sticker sheet, the day's receipt and the month's
-  poster. All five are free; a serious or private task is on none of them and
-  a crisis day shares nothing.
+- Seven things to share, from one composer (founder, 8 Oct): the story of a
+  catch, a wanted poster for a monster still wild, a postcard of the world,
+  the week's record in its sleeve, a sticker sheet, the day's receipt and the
+  month's poster. A story is printed on one of four frames: Paper and Riso are
+  everyone's, Holo and Velvet belong to whoever may wear that finish. All
+  seven are free; a serious or private task is on none of them and a crisis
+  day shares nothing.
 
 ## 10. Scope
 
@@ -185,7 +190,7 @@ is complex and isolated:
 | "Someone always shows up around ten" at an empty table | Untrue with friends-only tables | Say the seats are saved, and offer the invite |
 | The in-app share story says "I finally emailed the dentist" | "Finally" is banned, and the website's version reads "Emailed the dentist. It waited 214 days. Took 9 minutes." | Use the website's three lines in the app too |
 | Settings has a "Sit with strangers" switch | Strangers are after launch | Leave it out |
-| Settings shows an attitude dial and four switches only | The app also needs language, Plus and helplines | Add three rows; log in `docs/undesigned-states.md` |
+| Settings draws no language or helplines row | The app needs both | Keep them in a last group; log in `docs/undesigned-states.md` |
 | "Catch it in the app" carries the monster through install | iOS has no deferred link of its own | The App Clip hands the monster to the app through the shared App Group; spike it in phase 10 |
 | "Send the link to my phone" by email or phone number | Needs a mail or text sender, and text costs money | QR code and email only (**open**) |
 | Helplines page lists six countries | Vietnam is missing, and the app launches in Vietnamese | Add verified Vietnamese helplines before launch |

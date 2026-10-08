@@ -1,6 +1,6 @@
 # Plus, the binder, sharing and settings, as redrawn
 
-Status: in progress · Created 8 Oct 2026 · Boards:
+Status: built, not yet seen on a device · Created 8 Oct 2026 · Boards:
 [Plus](../../design/Scootch%20-%20Plus.dc.html) sections 02 to 04 and 06,
 [Monsters and Keepsakes](../../design/Scootch%20-%20Monsters%20and%20Keepsakes.dc.html)
 sections 05 and 06,
@@ -50,13 +50,13 @@ first.
 | # | Phase | Status |
 |---|---|---|
 | 01 | The three boards, the screen list and the registry's references | done |
-| 02 | Rarity reads Common, Rare, Epic | todo |
-| 03 | The sheet and the welcome | todo |
-| 04 | The studio, a stage per tab | todo |
-| 05 | Your card and the settings page | todo |
-| 06 | The binder: shelf, card, pages | todo |
-| 07 | Made to share: the composer and seven things | todo |
-| 08 | Sheets, the fresh-user walk and a device run | todo |
+| 02 | Rarity reads Common, Rare, Epic | done |
+| 03 | The sheet and the welcome | done |
+| 04 | The studio, a stage per tab | done |
+| 05 | Your card and the settings page | done |
+| 06 | The binder: shelf, card, pages | done |
+| 07 | Made to share: the composer and seven things | done |
+| 08 | Sheets, the fresh-user walk and a device run | walk and tour extended; the device run is dispatched after the merge |
 
 ## Done when
 

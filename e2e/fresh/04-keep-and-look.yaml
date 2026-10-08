@@ -124,6 +124,23 @@ appId: app.scootch.dev
 - tapOn:
     id: 'binder-card-flip'
     waitToSettleTimeoutMs: 0
+# Sharing the card opens the one composer, on the story of the catch, and closes back to the card.
+- tapOn:
+    id: 'binder-card-share'
+    waitToSettleTimeoutMs: 0
+- extendedWaitUntil:
+    visible:
+      id: 'share-preview'
+    timeout: 15000
+- assertVisible:
+    id: 'share-frame-paper'
+- takeScreenshot: fresh-04-share-composer
+- tapOn:
+    id: 'share-close'
+- extendedWaitUntil:
+    visible:
+      id: 'zoo-card-face'
+    timeout: 15000
 - tapOn:
     id: 'zoo-card-close'
     waitToSettleTimeoutMs: 0
