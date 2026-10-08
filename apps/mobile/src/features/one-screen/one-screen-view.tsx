@@ -181,6 +181,7 @@ export function OneScreenView({
       onDiscard,
       company = null,
       extra = null,
+      helpers,
       figure: _,
       ...choices
     } = shown;
@@ -213,6 +214,7 @@ export function OneScreenView({
         minutes={choices.minutes}
         onStart={onStart}
         onDiscard={onDiscard}
+        helpers={helpers}
       />
     );
   } else if (shown.kind === 'panel') {

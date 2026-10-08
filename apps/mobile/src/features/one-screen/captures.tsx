@@ -9,6 +9,7 @@ import { FriendTablePillView } from '../table/friend-table-pill';
 import { TaskSetCompany } from '../table/task-set-company';
 
 import { OneScreenView, type OneScreenShown } from './one-screen-view';
+import type { TaskSetHelpers } from './task-set-helpers';
 
 // The one screen's states as the screen registry shows them: the view with fixed state and no
 // store behind it. Scootch's words still come from the offline pack, in the capture's language,
@@ -168,12 +169,39 @@ export function OneScreenThinking() {
   );
 }
 
+/** 15:32 on the capture's day, where the phone is: the board's own clock, so "Ends at" reads 15:42. */
+const CAPTURED_AT = new Date(2026, 9, 6, 15, 32).getTime();
+
+type HelpersCapture = 'guess' | 'guess-open' | 'guess-made' | 'bites-open';
+
+/** The helpers a capture draws. The bites' words are the warm-up examples, in its language. */
+function useCapturedHelpers(capture: HelpersCapture | undefined, bitten: boolean): TaskSetHelpers {
+  const { t } = useCapture();
+  const texts = [t('launch.chip.reply'), t('launch.chip.water'), t('launch.chip.email')];
+  const minutes = [1, 3, 1];
+  const rows = texts.map((text, place) => ({
+    place,
+    text,
+    minutes: minutes[place] ?? null,
+    ticked: place === 0,
+    opensCatch: place === texts.length - 1,
+  }));
+  return {
+    guess: { minutes: capture === 'guess-made' ? 120 : null, onGuess: nothing },
+    bites: bitten ? { name: 'Molar', rows, onTick: nothing } : null,
+    ...(capture === 'guess-open' ? { opened: 'guess' as const } : {}),
+    ...(capture === 'bites-open' ? { opened: 'bites' as const } : {}),
+  };
+}
+
 function TaskSet({
   offline,
   atTable = false,
+  helpers: capture,
 }: {
   readonly offline: boolean;
   readonly atTable?: boolean;
+  readonly helpers?: HelpersCapture;
 }) {
   const { voice, words, t } = useCapture();
   // With no connection the task is unscreened: plain company and its own words, no joke.
@@ -181,6 +209,8 @@ function TaskSet({
   const said = lineFor('hatch', task, voice);
   // An ordinary day with this task set: the day the company choice is drawn on.
   const day = { today: { kind: 'task_set' as const, task }, heavyToday: false };
+  // An unscreened task has no pack yet, so no bites; it still takes a guess.
+  const helpers = useCapturedHelpers(capture, !offline);
   return (
     <OneScreenView
       mood={said === null ? 'serious' : 'waiting'}
@@ -192,6 +222,8 @@ function TaskSet({
         taskText: said === null ? words : null,
         treat: '',
         minutes: 10,
+        endsFrom: CAPTURED_AT,
+        helpers,
         onTreat: nothing,
         onMinutes: nothing,
         onStart: nothing,
@@ -203,6 +235,36 @@ function TaskSet({
       }}
     />
   );
+}
+
+/** The set task with its helpers at rest: "Ends at" under the wheel, the Guess chip and the bites. */
+export function OneScreenTaskSetEndsAt() {
+  return <TaskSet offline={false} helpers="guess" />;
+}
+
+/** "How long would this take?", open over the set task. */
+export function OneScreenTaskSetGuessSheet() {
+  return <TaskSet offline={false} helpers="guess-open" />;
+}
+
+/** A guess made: the chip reads it back. */
+export function OneScreenTaskSetGuessMade() {
+  return <TaskSet offline={false} helpers="guess-made" />;
+}
+
+/** The bites, open over the set task, with the first one ticked. */
+export function OneScreenTaskSetBitesSheet() {
+  return <TaskSet offline={false} helpers="bites-open" />;
+}
+
+/** No connection: "Ends at" and the guess are the phone's own, and there are no bites to open. */
+export function OneScreenTaskSetHelpersOffline() {
+  return <TaskSet offline helpers="guess" />;
+}
+
+/** No connection, and the guess asked for: the sheet needs nothing from the server. */
+export function OneScreenTaskSetGuessSheetOffline() {
+  return <TaskSet offline helpers="guess-open" />;
 }
 
 export function OneScreenTaskSet() {

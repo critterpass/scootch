@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 
+import type { Instant } from '@scootch/domain';
 import { fonts, shadows } from '@scootch/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
@@ -10,6 +11,7 @@ import { SwipeAway } from '../../ui/swipe-away';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { WorldGlance } from '../world/world-thumbnail';
 
+import { EndsAtLine } from './ends-at-line';
 import { MinutesControl } from './minutes-control';
 
 /** The session lengths on the wheel, in minutes. */
@@ -32,20 +34,24 @@ export interface TaskSetChoicesProps {
   readonly onMinutes: (minutes: SessionMinutes) => void;
   /** The lengths on offer; the usual three when unset. */
   readonly options?: readonly number[];
+  /** The time "Ends at" is worked out from, held still: a capture's. Unset, the phone's clock. */
+  readonly endsFrom?: Instant;
 }
 
 /**
- * The choice before a start: how long to go for. The treat for afterwards is not asked for here;
- * a session set from elsewhere can still carry one.
+ * The choice before a start: how long to go for, and under it when that length would end. The
+ * treat for afterwards is not asked for here; a session set from elsewhere can still carry one.
  */
 export function TaskSetChoices({
   minutes,
   onMinutes,
   options = SESSION_MINUTES,
+  endsFrom,
 }: TaskSetChoicesProps) {
   return (
     <View style={styles.choices}>
       <MinutesControl minutes={minutes} options={options} onMinutes={onMinutes} />
+      <EndsAtLine minutes={minutes} {...(endsFrom === undefined ? {} : { now: endsFrom })} />
     </View>
   );
 }

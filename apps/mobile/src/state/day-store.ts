@@ -29,6 +29,7 @@ import { drawerEvent, setChosenSession } from './pick-flow';
 import { resolveThought } from './parked-thoughts';
 import { UNDER_WAY, applySession } from './session-flow';
 import { closeStraySessions, dayOfRunningSession, restoreSession } from './session-restore';
+import { guessMade } from './guess';
 import { adoptHunt } from './hunt-adoption';
 import { closeSession, followTableClock, shortenSession, turnWorkingLine } from './session-moments';
 import { applyFromOutside } from './notification-actions';
@@ -249,6 +250,8 @@ export function createDayStore(deps: DayStoreDeps): DayStore {
         return cancelTaskCall(ctx);
       case 'returned_text_taken':
         return set({ returnedText: null });
+      case 'guess_made':
+        return guessMade(ctx, event.minutes);
       case 'session_set':
         await resolveTranscript(ctx);
         return setChosenSession(ctx, event.minutes, event.treat ?? null);
