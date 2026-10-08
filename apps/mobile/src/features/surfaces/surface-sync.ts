@@ -35,6 +35,8 @@ export interface SurfaceSyncDeps {
   readonly files: SharedFiles;
   readonly painter: MonsterPainter;
   readonly worldPainter: WorldPainter;
+  /** The table the phone is seated at: a wave to one seat, and giving the seat up. */
+  readonly table?: { readonly wave: (seatId: string) => void; readonly leave: () => void };
   /** Takes back a notification a surface set, by its id. */
   readonly cancelNotification: (id: string) => Promise<void>;
   readonly plus: () => boolean;
@@ -267,6 +269,10 @@ export function createSurfaceSync(deps: SurfaceSyncDeps) {
       for (const action of actions) {
         if (isDayAction(action.kind)) {
           await store.dispatch({ type: 'surface_action', action: action.kind });
+        } else if (action.kind === 'leave_table') {
+          deps.table?.leave();
+        } else if (action.kind === 'wave') {
+          if (action.seatId !== null) deps.table?.wave(action.seatId);
         } else if (action.taskId !== null) {
           await aboutOneThing(action.kind, action.taskId, action.biteId);
         }

@@ -91,3 +91,14 @@
 "Offer a hunt" = "Mời săn";
 "When this Focus starts, the monster that has waited longest offers ten minutes." = "Khi chế độ Tập trung này bật, con quái chờ lâu nhất sẽ mời bạn mười phút.";
 "Offer a hunt when this Focus starts" = "Mời săn khi chế độ Tập trung này bật";
+"You" = "Bạn";
+"Someone" = "Ai đó";
+"waved" = "vừa vẫy";
+"done" = "xong rồi";
+"At a table" = "Đang ngồi bàn";
+"%lld at the table" = "%lld người ở bàn";
+"%@ waved" = "%@ vừa vẫy";
+"Nobody else has sat down yet" = "Chưa có ai khác ngồi xuống";
+"Wave back" = "Vẫy lại";
+"Leave table" = "Rời bàn";
+"Seat" = "Chỗ ngồi";

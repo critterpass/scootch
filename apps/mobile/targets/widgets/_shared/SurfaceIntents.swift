@@ -200,3 +200,37 @@ struct HuntAtNineIntent: LiveActivityIntent {
         return .result()
     }
 }
+
+/// "Wave back", at a table. The table is reached over the connection the open app holds, so
+/// this opens Scootch, which sends the wave.
+struct WaveIntent: LiveActivityIntent {
+    static let title: LocalizedStringResource = "Wave back"
+    static let openAppWhenRun = true
+    static let isDiscoverable = false
+
+    @Parameter(title: "Seat") var seatId: String
+
+    init() {}
+
+    init(seatId: String) {
+        self.seatId = seatId
+    }
+
+    func perform() async throws -> some IntentResult {
+        PendingSurfaceActions.record(.wave, seatId: seatId)
+        return .result()
+    }
+}
+
+/// "Leave table": the seat is given up and the session goes on alone. Like the wave, it is the
+/// open app that tells the table.
+struct LeaveTableIntent: LiveActivityIntent {
+    static let title: LocalizedStringResource = "Leave table"
+    static let openAppWhenRun = true
+    static let isDiscoverable = false
+
+    func perform() async throws -> some IntentResult {
+        PendingSurfaceActions.record(.leaveTable)
+        return .result()
+    }
+}

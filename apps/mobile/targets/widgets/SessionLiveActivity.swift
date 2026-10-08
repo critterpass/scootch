@@ -266,6 +266,8 @@ struct RaceBar: View {
 struct HuntPill: View {
     let label: String
     var primary = false
+    /// A shorter pill, where the Lock Screen's height is nearly spent.
+    var slim = false
 
     var body: some View {
         Text(label)
@@ -273,7 +275,7 @@ struct HuntPill: View {
             .lineLimit(1)
             .minimumScaleFactor(0.75)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 10)
+            .padding(.vertical, slim ? 7 : 10)
             .background(Capsule().fill(primary ? Color.white : Color.white.opacity(0.16)))
             .foregroundStyle(primary ? SurfaceColor.ink : Color.white)
     }
@@ -539,47 +541,91 @@ struct HuntMinimal: View {
 /// buttons opens the session. On an Apple Watch the system shows the compact views in the Smart
 /// Stack by itself.
 struct SessionLiveActivity: Widget {
+    /// The table, while the session is at one and its clock still runs.
+    private func table(
+        _ context: ActivityViewContext<SessionActivityAttributes>, _ content: HuntContent
+    ) -> TableContent? {
+        guard TableContent.shows(context.state, at: content.now), let table = context.state.table
+        else { return nil }
+        return TableContent(
+            table: table, end: context.state.endDate, now: content.now, snapshot: content.snapshot)
+    }
+
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: SessionActivityAttributes.self) { context in
-            HuntLockScreenView(content: HuntContent(context: context))
-                .activityBackgroundTint(SurfaceColor.glass.opacity(0.78))
-                .activitySystemActionForegroundColor(.white)
-                .widgetURL(SurfaceLinks.session)
+            let content = HuntContent(context: context)
+            Group {
+                if let seated = table(context, content) {
+                    TableLockScreenView(content: seated)
+                } else {
+                    HuntLockScreenView(content: content)
+                }
+            }
+            .activityBackgroundTint(SurfaceColor.glass.opacity(0.78))
+            .activitySystemActionForegroundColor(.white)
+            .widgetURL(SurfaceLinks.session)
         } dynamicIsland: { context in
             let content = HuntContent(context: context)
+            let seated = table(context, content)
             return DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
-                    HuntTile(content: content, side: 52)
+                    if let seated {
+                        TableSeatDiscs(content: seated).padding(.leading, 4)
+                    } else {
+                        HuntTile(content: content, side: 52)
+                    }
                 }
                 DynamicIslandExpandedRegion(.trailing) {
-                    HuntClock(content: content, font: .title3.weight(.heavy))
+                    if let seated {
+                        TableClock(content: seated).font(.title3.weight(.heavy))
+                    } else {
+                        HuntClock(content: content, font: .title3.weight(.heavy))
+                    }
                 }
                 DynamicIslandExpandedRegion(.center) {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(content.title).font(.headline).lineLimit(1)
-                        Text(content.line)
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(2)
+                        Text(seated?.headline ?? content.title).font(.headline).lineLimit(1)
+                        if let line = seated == nil ? content.line : seated?.subline {
+                            Text(line)
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(2)
+                        }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 DynamicIslandExpandedRegion(.bottom) {
-                    VStack(spacing: 8) {
-                        if content.clockRuns || content.phase == .overtime
-                            || content.phase == .starting
-                        {
-                            RaceBar(content: content)
+                    if let seated {
+                        TableIslandSeats(content: seated)
+                    } else {
+                        VStack(spacing: 8) {
+                            if content.clockRuns || content.phase == .overtime
+                                || content.phase == .starting
+                            {
+                                RaceBar(content: content)
+                            }
+                            HuntButtons(content: content)
                         }
-                        HuntButtons(content: content)
                     }
                 }
             } compactLeading: {
-                SurfaceArt(source: content.scootch).frame(width: 24, height: 24)
+                if let seated {
+                    TableSeatDiscs(content: seated)
+                } else {
+                    SurfaceArt(source: content.scootch).frame(width: 24, height: 24)
+                }
             } compactTrailing: {
-                HuntCompactTrailing(content: content).font(.caption.weight(.bold))
+                if let seated {
+                    TableClock(content: seated).font(.caption.weight(.bold)).frame(maxWidth: 44)
+                } else {
+                    HuntCompactTrailing(content: content).font(.caption.weight(.bold))
+                }
             } minimal: {
-                HuntMinimal(content: content).frame(width: 22, height: 22)
+                if let seated {
+                    Text("\(seated.table.seats.count)").font(.caption.weight(.heavy))
+                } else {
+                    HuntMinimal(content: content).frame(width: 22, height: 22)
+                }
             }
             .keylineTint(content.phase == .overtime ? gold : SurfaceColor.accent)
             .widgetURL(SurfaceLinks.session)

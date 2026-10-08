@@ -21,6 +21,9 @@ enum SurfaceAction: String, Sendable {
     case keepHere = "keep_here"
     /// That monster's messages at Soft for a week.
     case turnDown = "turn_down"
+    /// A wave to one seat at the table, and giving up the seat.
+    case wave
+    case leaveTable = "leave_table"
 }
 
 /// The list of asked-for actions in the App Group. An intent appends to it; the app reads the
@@ -32,6 +35,8 @@ enum PendingSurfaceActions {
         /// The thing it is about, and the bite when it is about one. Nil when it is about today.
         var taskId: String? = nil
         var biteId: String? = nil
+        /// The seat at the table it is about.
+        var seatId: String? = nil
         /// Milliseconds since 1970.
         let at: Double
     }
@@ -51,7 +56,8 @@ enum PendingSurfaceActions {
     /// False when there is no App Group to write to.
     @discardableResult
     static func record(
-        _ action: SurfaceAction, taskId: String? = nil, biteId: String? = nil, at date: Date = Date(),
+        _ action: SurfaceAction, taskId: String? = nil, biteId: String? = nil,
+        seatId: String? = nil, at date: Date = Date(),
         in defaults: UserDefaults? = AppGroup.defaults
     ) -> Bool {
         guard let defaults else { return false }
@@ -59,7 +65,7 @@ enum PendingSurfaceActions {
         list.append(
             Entry(
                 id: UUID().uuidString, kind: action.rawValue, taskId: taskId, biteId: biteId,
-                at: date.timeIntervalSince1970 * 1000))
+                seatId: seatId, at: date.timeIntervalSince1970 * 1000))
         guard let data = try? JSONEncoder().encode(Array(list.suffix(limit))),
             let json = String(data: data, encoding: .utf8)
         else { return false }

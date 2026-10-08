@@ -76,7 +76,7 @@ describe('pending actions from the system surfaces', () => {
     const fresh = { id: 'f', kind: 'stuck', at: MORNING + PENDING_ACTION_MAX_AGE_MS };
     const list = JSON.stringify([fresh, { id: 'x', kind: 'delete_everything', at: fresh.at }]);
     shared.values.set(SHARED_KEYS.pendingActions, list);
-    expect(pending.take()).toEqual([{ ...fresh, taskId: null, biteId: null }]);
+    expect(pending.take()).toEqual([{ ...fresh, taskId: null, biteId: null, seatId: null }]);
     shared.values.set(SHARED_KEYS.pendingActions, list);
     expect(pending.take()).toEqual([]);
     shared.values.set(SHARED_KEYS.pendingActions, '{not json');
@@ -89,15 +89,15 @@ describe('what was asked about one thing', () => {
     const shared = fakeShared();
     const pending = createPendingActions(shared.store, () => MORNING + 1000);
     const list = [
-      { id: 'b', kind: 'bite', taskId: 'task-1', biteId: 'bite-2', at: MORNING + 2 },
+      { id: 'b', kind: 'bite', taskId: 'task-1', biteId: 'bite-2', seatId: null, at: MORNING + 2 },
       { id: 'a', kind: 'hunt', taskId: 'task-1', at: MORNING + 1 },
       { id: 'c', kind: 'turn_down', taskId: 7, at: MORNING + 3 },
     ];
     shared.values.set(SHARED_KEYS.pendingActions, JSON.stringify(list));
     expect(pending.take()).toEqual([
-      { id: 'a', kind: 'hunt', taskId: 'task-1', biteId: null, at: MORNING + 1 },
-      { id: 'b', kind: 'bite', taskId: 'task-1', biteId: 'bite-2', at: MORNING + 2 },
-      { id: 'c', kind: 'turn_down', taskId: null, biteId: null, at: MORNING + 3 },
+      { id: 'a', kind: 'hunt', taskId: 'task-1', biteId: null, seatId: null, at: MORNING + 1 },
+      { id: 'b', kind: 'bite', taskId: 'task-1', biteId: 'bite-2', seatId: null, at: MORNING + 2 },
+      { id: 'c', kind: 'turn_down', taskId: null, biteId: null, seatId: null, at: MORNING + 3 },
     ]);
   });
 });
@@ -261,6 +261,38 @@ describe('the surface sync on a phone', () => {
       tomorrow?: unknown;
     };
     expect(snapshot.tomorrow).toMatchObject({ taskId: id });
+  });
+
+  it('sends a wave and gives up the seat when the Lock Screen asked, once each', async () => {
+    const staged = await stagedPhone(stagedServer());
+    const shared = fakeShared();
+    const asked: string[] = [];
+    const sync = createSurfaceSync({
+      store: staged.store,
+      repositories: openRepositories(staged.data.db),
+      shared: shared.store,
+      files: fakeFiles().files,
+      painter,
+      worldPainter,
+      cancelNotification: () => Promise.resolve(),
+      table: { wave: (seat) => asked.push(`wave ${seat}`), leave: () => asked.push('leave') },
+      plus: () => false,
+      accent: () => null,
+      finish: () => 'paper',
+      now: () => staged.time.clock.now(),
+      timeZone: () => 'Europe/London',
+    });
+    const list = [
+      { id: 'w', kind: 'wave', seatId: 'dana', at: MORNING },
+      { id: 'n', kind: 'wave', at: MORNING + 1 },
+      { id: 'l', kind: 'leave_table', at: MORNING + 2 },
+    ];
+    shared.values.set(SHARED_KEYS.pendingActions, JSON.stringify(list));
+    await sync.opened();
+    expect(asked).toEqual(['wave dana', 'leave']);
+    shared.values.set(SHARED_KEYS.pendingActions, JSON.stringify(list));
+    await sync.opened();
+    expect(asked).toEqual(['wave dana', 'leave']);
   });
 
   const sharedThing = (text: string, when: 'now' | 'tomorrow', id = when) =>

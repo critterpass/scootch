@@ -21,6 +21,8 @@ export type {
   SessionActivityStartOptions,
   SessionActivityState,
   SessionActivityStatus,
+  SessionActivityTable,
+  SessionActivityTableSeat,
   SessionActivityUpdateOptions,
 } from './src/ScootchLiveActivity.types';
 

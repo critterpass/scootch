@@ -91,3 +91,14 @@
 "Offer a hunt" = "Offer a hunt";
 "When this Focus starts, the monster that has waited longest offers ten minutes." = "When this Focus starts, the monster that has waited longest offers ten minutes.";
 "Offer a hunt when this Focus starts" = "Offer a hunt when this Focus starts";
+"You" = "You";
+"Someone" = "Someone";
+"waved" = "waved";
+"done" = "done";
+"At a table" = "At a table";
+"%lld at the table" = "%lld at the table";
+"%@ waved" = "%@ waved";
+"Nobody else has sat down yet" = "Nobody else has sat down yet";
+"Wave back" = "Wave back";
+"Leave table" = "Leave table";
+"Seat" = "Seat";

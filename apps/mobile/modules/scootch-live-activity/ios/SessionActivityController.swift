@@ -47,9 +47,14 @@ enum SessionActivityController {
 
     /// False when no activity has that id, for one the user or the system already removed.
     static func update(id: String, state: [String: Any], options: [String: Any]?) async throws -> Bool {
-        let content = try content(from: state, options: options)
         guard let activity = find(id) else { return false }
-        await activity.update(content)
+        // An update that says nothing of the table (a line turning, the clock moving) keeps the
+        // table that is there: only an update that names it, as a table or as none, changes it.
+        var whole = state
+        if whole["table"] == nil, let table = json(from: activity.content.state.table) {
+            whole["table"] = table
+        }
+        await activity.update(try content(from: whole, options: options))
         return true
     }
 
@@ -87,6 +92,7 @@ enum SessionActivityController {
                     "hunt": json(from: activity.content.state.hunt) ?? NSNull(),
                     "offline": activity.content.state.offline ?? NSNull(),
                     "caught": json(from: activity.content.state.caught) ?? NSNull(),
+                    "table": json(from: activity.content.state.table) ?? NSNull(),
                 ] as [String: Any],
                 "status": status(of: activity),
             ]
@@ -118,10 +124,14 @@ enum SessionActivityController {
             }
             caught = card
         }
+        // A table that cannot be read is left out: the session still shows as a hunt.
+        let table = state["table"].flatMap { given in
+            given is NSNull ? nil : value(SessionActivityAttributes.Table.self, from: given)
+        }
         return ActivityContent(
             state: SessionActivityAttributes.ContentState(
                 endDate: endDate, line: line, hunt: hunt, offline: state["offline"] as? Bool,
-                caught: caught),
+                caught: caught, table: table),
             staleDate: date(options?["staleDate"])
         )
     }

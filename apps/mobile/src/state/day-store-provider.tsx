@@ -125,6 +125,8 @@ function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
     painter: skiaMonsterPainter,
     worldPainter: skiaWorldPainter,
     cancelNotification: cancelNativeNotification,
+    // The table store is made just below; it is only asked once the app is running.
+    table: { wave: (to) => void together.table.nudge(to), leave: () => together.table.leave() },
     plus: unlocked,
     accent: () => {
       const { ink } = plus.store.getState().look;
