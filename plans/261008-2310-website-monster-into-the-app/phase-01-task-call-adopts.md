@@ -27,6 +27,8 @@ Effort: high (a cross-package contract and an AI route).
 - Do: the task eval asks for some of its samples with a monster's page and
   checks the name comes back unchanged and the hatch line passes the voice
   check.
-- Status: not started
+- Status: done — see the commit that adds `evals/task-create/adopted.mjs`. Run once against
+  dev on 8 Oct 2026: 10 of 10 monsters arrived as themselves, 20 of 20 written
+  lines passed the voice check, the name step took a median of 2.0 s
 
 Done when: the tests pass in CI and the eval run on main is green.

@@ -11,4 +11,10 @@ Effort: high (permissions on a public page).
 - Do: when an adopted monster is caught, the phone tells its page, as it
   already does for a monster it shared itself.
 
-Done when: a monster caught in the dev app reads CAUGHT on the dev site.
+### 3. The page keeps the kind line
+- Do: the kind line written when the monster arrives is kept with its page,
+  the page's read answers with it, and the website's card shows it.
+- Test: the read route; the page's card with and without one.
+
+Done when: a monster caught in the dev app reads CAUGHT on the dev site, with
+its kind line.

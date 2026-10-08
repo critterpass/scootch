@@ -14,7 +14,8 @@
     "eval:screen": "node evals/screen-input/run.mjs",
     "eval:labels": "tsx evals/labels/run.mjs",
     "eval:choose": "tsx evals/choose/run.mjs",
-    "eval:task": "tsx evals/task-create/run.mjs"
+    "eval:task": "tsx evals/task-create/run.mjs",
+    "eval:adopted": "tsx evals/task-create/adopted.mjs"
   },
   "dependencies": {
     "@scootch/domain": "workspace:*",
