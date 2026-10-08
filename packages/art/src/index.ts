@@ -32,6 +32,12 @@ export {
 } from './card/build-story';
 export { buildPoster, POSTER_MONSTERS, type PosterOptions } from './card/build-poster';
 export {
+  buildBinderPage,
+  PAGE_POCKETS,
+  type BinderPageOptions,
+  type BinderPocket,
+} from './card/build-binder-page';
+export {
   buildReceipt,
   RECEIPT_ROWS,
   type ReceiptOptions,

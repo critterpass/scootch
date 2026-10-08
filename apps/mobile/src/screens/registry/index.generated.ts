@@ -150,6 +150,7 @@ export * from './settings-finish-with';
 export * from './settings-page';
 export * from './settings-tables-row';
 export * from './share-card';
+export * from './share-page';
 export * from './share-postcard';
 export * from './share-poster';
 export * from './share-receipt';

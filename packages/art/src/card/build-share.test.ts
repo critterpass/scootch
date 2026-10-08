@@ -8,6 +8,7 @@ import { specFromSeed } from '../core/spec-from-seed';
 import { estimateTextWidth } from '../core/text';
 import { buildCaughtStory } from './build-caught-story';
 import { buildPostcard } from './build-postcard';
+import { buildBinderPage, PAGE_POCKETS } from './build-binder-page';
 import { buildPoster, POSTER_MONSTERS } from './build-poster';
 import { buildReceipt, RECEIPT_ROWS } from './build-receipt';
 import { buildSleeve } from './build-sleeve';
@@ -198,6 +199,47 @@ describe("the month's poster", () => {
   });
 });
 
+describe("the binder's leaf", () => {
+  const pocket = (index: number) => ({
+    monster: specFromSeed('sock', `p${index}`),
+    name: `Sock ${index}`,
+  });
+  const leaf = {
+    year: 2026,
+    month: 9,
+    caught: 22,
+    pockets: Array.from({ length: 12 }, (_, index) => pocket(index)),
+    stamped: true,
+  } as const;
+
+  it('prints the month, how full the leaf is and the names in its pockets', () => {
+    const words = printed(buildBinderPage(leaf).commands);
+    for (const part of [
+      'September',
+      '2026',
+      '9 / 9',
+      'Sock 0',
+      'Sock 8',
+      'COMPLETE',
+      '22 CAUGHT',
+    ]) {
+      expect(words).toContain(part);
+    }
+    // Nine to a leaf: the tenth is on the next one.
+    expect(words).not.toContain('Sock 9');
+    expect(PAGE_POCKETS).toBe(9);
+  });
+
+  it('wears the stamp only when it is told to, and leaves an empty sleeve empty', () => {
+    const part = buildBinderPage({ ...leaf, pockets: [pocket(0)], caught: 1, stamped: false });
+    const words = printed(part.commands);
+    expect(words).toContain('1 / 9');
+    expect(words).toContain('1 monster caught.');
+    expect(words).not.toContain('COMPLETE');
+    expect(printed(buildBinderPage({ ...leaf, language: 'vi' }).commands)).toContain('ĐỦ BỘ');
+  });
+});
+
 describe('every shared picture', () => {
   const pictures = (language: 'en' | 'vi') => [
     buildStory({ ...molar, name: LONG.slice(0, 60) }, { language, headline: LONG }),
@@ -219,6 +261,14 @@ describe('every shared picture', () => {
       monsters: [molar.monster],
       most: { kind: LONG, times: 999 },
       bestWeekday: 0,
+    }),
+    buildBinderPage({
+      language,
+      year: 2026,
+      month: 12,
+      caught: 1_234,
+      pockets: Array.from({ length: 9 }, () => ({ monster: molar.monster, name: LONG })),
+      stamped: true,
     }),
   ];
 

@@ -5,10 +5,12 @@ import type { Language } from '@scootch/i18n';
 import type { Keepsakes } from '../../state/keepsakes';
 
 import {
+  composePage,
   composePoster,
   composePostcard,
   composeSleeve,
   composeWanted,
+  type MonthFormat,
   type ShareFormat,
   type ShareImage,
 } from './share-image';
@@ -32,11 +34,13 @@ export interface WantedTarget {
   readonly wanted: WantedData;
 }
 
-/** One month of the binder, to share as its poster. */
+/** One month of the binder, to share as the leaf that is open or as its poster. */
 export interface MonthTarget {
   readonly kind: 'month';
   readonly year: number;
   readonly month: number;
+  /** The leaf of the month that was open, from 0. The first when it is not said. */
+  readonly leaf?: number;
 }
 
 /** The world, to send as a postcard. It names no task. */
@@ -73,6 +77,8 @@ export function standalonePicture(
   language: Language,
   kept: Keepsakes | null,
   hideTask: boolean,
+  /** The style a month goes out in. Nothing else has more than one. */
+  style: MonthFormat = 'poster',
 ): { readonly image: ShareImage; readonly name: string } | null {
   if (target.kind === 'world') {
     return { image: composePostcard(target.postcard, frame, language), name: 'scootch-world' };
@@ -92,7 +98,10 @@ export function standalonePicture(
   const wrap = kept ? monthWrap(kept.monsters, kept.tasks, target.year, target.month) : null;
   if (wrap === null) return null;
   return {
-    image: composePoster(wrap, language),
+    image:
+      style === 'page'
+        ? composePage(wrap, target.leaf ?? 0, language)
+        : composePoster(wrap, language),
     name: `scootch-${target.year}-${String(target.month).padStart(2, '0')}`,
   };
 }

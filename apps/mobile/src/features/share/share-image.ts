@@ -1,4 +1,5 @@
 import {
+  buildBinderPage,
   buildCard,
   buildCaughtStory,
   buildPoster,
@@ -11,6 +12,7 @@ import {
   CARD_BLEED,
   CARD_HEIGHT,
   CARD_WIDTH,
+  PAGE_POCKETS,
   type CardLanguage,
   type CardTilt,
   type DrawCommand,
@@ -33,7 +35,13 @@ export interface ShareImage {
 
 /** The five things to share. A story and a card are about one catch; the rest are the person's own. */
 export const SHARE_FORMATS = ['story', 'card', 'stickers', 'receipt', 'poster'] as const;
-export type ShareFormat = (typeof SHARE_FORMATS)[number];
+/**
+ * The two styles a month of the binder goes out in: the leaf as the binder shows it, and the
+ * month wrapped up as a poster.
+ */
+export const MONTH_FORMATS = ['page', 'poster'] as const;
+export type MonthFormat = (typeof MONTH_FORMATS)[number];
+export type ShareFormat = (typeof SHARE_FORMATS)[number] | MonthFormat;
 
 /** What the pictures wear and carry besides the catch itself. */
 export interface ShareDress {
@@ -105,6 +113,28 @@ export function composeSleeve(
 /** One month's poster. */
 export function composePoster(month: MonthWrap, language: CardLanguage): ShareImage {
   return buildPoster({ language, ...month });
+}
+
+/**
+ * One leaf of a month's page, as the binder shows it: nine pockets in the order they were
+ * caught. It is made of the same monsters the poster is, so one whose task may not be shared has
+ * no pocket on it. A leaf the month does not run to is its last.
+ */
+export function composePage(month: MonthWrap, leaf: number, language: CardLanguage): ShareImage {
+  // The wrap is newest first; a leaf is filled oldest first.
+  const inOrder = month.monsters
+    .map((monster, index) => ({ monster, name: month.names[index] ?? '' }))
+    .reverse();
+  const last = Math.max(0, Math.ceil(inOrder.length / PAGE_POCKETS) - 1);
+  const at = Math.min(Math.max(0, leaf), last);
+  return buildBinderPage({
+    language,
+    year: month.year,
+    month: month.month,
+    caught: month.caught,
+    pockets: inOrder.slice(at * PAGE_POCKETS, (at + 1) * PAGE_POCKETS),
+    stamped: at === 0 && inOrder.length >= PAGE_POCKETS,
+  });
 }
 
 export interface ShareImageOptions {

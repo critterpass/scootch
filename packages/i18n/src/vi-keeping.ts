@@ -122,6 +122,7 @@ export const viKeeping = {
   'share.format.stickers': 'Nhãn dán',
   'share.format.receipt': 'Hoá đơn',
   'share.format.poster': 'Áp phích',
+  'share.format.page': 'Trang',
   'share.format.hint': 'Xem ảnh này',
   'share.hideTask': 'Ẩn tên việc',
   'share.hideTask.hint': 'Không đưa chữ của bạn lên ảnh',

@@ -2,7 +2,9 @@ import { SHARE_FRAMES } from '@scootch/art';
 import type { Language } from '@scootch/i18n';
 
 import {
+  MONTH_FORMATS,
   composePostcard,
+  composePage,
   composePoster,
   composeShareImage,
   composeSleeve,
@@ -126,15 +128,18 @@ export function capturedShare(
       />
     );
   }
-  if (format === 'poster' && dress.month) {
+  if ((format === 'poster' || format === 'page') && dress.month) {
     return (
       <SharePanel
         model={{
           ...still,
           moment: 'month',
-          image: composePoster(dress.month, language),
-          format: 'story',
-          formats: [],
+          image:
+            format === 'page'
+              ? composePage(dress.month, 0, language)
+              : composePoster(dress.month, language),
+          format,
+          formats: MONTH_FORMATS,
           frame: 'paper',
           frames: [],
           framed: false,
@@ -147,7 +152,7 @@ export function capturedShare(
       />
     );
   }
-  const shown = format === 'poster' ? 'story' : format;
+  const shown = format === 'poster' || format === 'page' ? 'story' : format;
   const card = cardDataFor(first, fixtureTask(0, language));
   return (
     <SharePanel

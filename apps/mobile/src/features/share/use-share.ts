@@ -35,6 +35,8 @@ import {
   frameOfFinish,
   takesFrame,
   type ShareDress,
+  MONTH_FORMATS,
+  type MonthFormat,
   type ShareFormat,
 } from './share-image';
 import { dayLog, monthBefore, monthWrap } from './share-logs';
@@ -96,8 +98,9 @@ export function useComposer(
   const { look, member, unlocked, customer } = usePlusState();
   const target = request?.target ?? null;
   const onLocked = request?.onLocked;
+  // A month opens as the leaf the person was looking at; its poster is the other style.
   const [format, setFormat] = useState<ShareFormat>(() =>
-    target && isCatch(target) ? target.format : 'story',
+    target && isCatch(target) ? target.format : target?.kind === 'month' ? 'page' : 'story',
   );
   // It opens on the frame of the finish that is worn.
   const [frame, setFrame] = useState<ShareFrame>(() => frameOfFinish(look.finish));
@@ -185,12 +188,19 @@ export function useComposer(
 
     if (!isCatch(target)) {
       // A picture that stands by itself: a wanted poster, or a month's poster. It has no page.
-      const alone = standalonePicture(target, usable, language, kept, hideTask);
+      const ofMonth = target.kind === 'month';
+      const style: MonthFormat = format === 'poster' ? 'poster' : 'page';
+      const alone = standalonePicture(target, usable, language, kept, hideTask, style);
       if (alone === null) return null;
       const { image: picture, name } = alone;
       const actions: ShareActions = {
         ...shared,
-        setFormat: () => undefined,
+        // Only a month has more than one style to choose between.
+        setFormat: (next) => {
+          if (!ofMonth) return;
+          setNotice(null);
+          setFormat(next);
+        },
         unshare: () => undefined,
         share: () =>
           once(async () => {
@@ -207,12 +217,12 @@ export function useComposer(
         model: {
           moment: target.kind === 'wanted' ? ('monster' as const) : target.kind,
           image: picture,
-          format: 'story' as const,
-          formats: [],
+          format: ofMonth ? style : ('story' as const),
+          formats: ofMonth ? MONTH_FORMATS : [],
           frame: usable,
           framesOpen: onLocked !== undefined,
-          frames: target.kind === 'month' ? [] : frames,
-          framed: target.kind !== 'month',
+          frames: ofMonth ? [] : frames,
+          framed: !ofMonth,
           hideTask: target.kind === 'song' && hideTask,
           // Only a week's sleeve prints tasks; a poster, a postcard and a wanted poster name none.
           canHideTask: target.kind === 'song',

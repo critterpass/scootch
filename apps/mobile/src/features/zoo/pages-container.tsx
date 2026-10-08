@@ -52,9 +52,9 @@ export function PagesContainer() {
       actions={{
         close: () => goBack(router, '/zoo'),
         show: setShown,
-        // The page goes out as that month's poster, once there is something on it.
+        // The leaf that is open goes out, or the month's poster, once there is something on it.
         ...(openPage && openPage.cards.length > 0 && today.kind !== 'crisis'
-          ? { sharePage: () => share.open({ kind: 'month', year, month }) }
+          ? { sharePage: () => share.open({ kind: 'month', year, month, leaf: open.leaf }) }
           : {}),
         openCard: (monster) => {
           lookAt(monster.id);

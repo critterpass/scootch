@@ -127,6 +127,7 @@ export const enKeeping = {
   'share.format.stickers': 'Sticker',
   'share.format.receipt': 'Receipt',
   'share.format.poster': 'Poster',
+  'share.format.page': 'Page',
   'share.format.hint': 'Shows this picture',
   'share.hideTask': 'Hide the task',
   'share.hideTask.hint': 'Leaves your words off the picture',

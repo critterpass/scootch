@@ -24,6 +24,7 @@ import {
   type SharePages,
 } from './share-flow';
 import {
+  composePage,
   composeShareImage,
   composeWanted,
   finishOfFrame,
@@ -125,6 +126,12 @@ describe('a shared picture', () => {
           expect([format, word, words.includes(word)]).toEqual([format, word, false]);
         }
       }
+    }
+    // The binder's leaf writes monsters' names under its pockets, and never a task.
+    const leaf = texts(composePage(dress.month!, 0, 'en'));
+    expect(leaf).toContain(first.name);
+    for (const word of task.text.split(' ').filter((one) => one.length > 3)) {
+      expect(['page', word, leaf.includes(word)]).toEqual(['page', word, false]);
     }
     // The catch itself is still on its story and its card.
     for (const format of ['story', 'card'] as const) {
