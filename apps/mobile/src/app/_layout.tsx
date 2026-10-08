@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/react-native';
+import Constants from 'expo-constants';
 import { Stack } from 'expo-router';
 import { SQLiteProvider } from 'expo-sqlite';
 import type { ReactNode } from 'react';
@@ -23,7 +24,17 @@ import { usePalette } from '../ui/use-palette';
 
 // Crash reporting starts only when a DSN is set; with none, nothing is initialised or sent.
 const sentryDsn = process.env['EXPO_PUBLIC_SENTRY_DSN'];
-if (sentryDsn) Sentry.init({ dsn: sentryDsn });
+if (sentryDsn) {
+  const variant: unknown = Constants.expoConfig?.extra?.['appVariant'];
+  Sentry.init({
+    dsn: sentryDsn,
+    // Tells the dev app's reports from the App Store app's.
+    environment: typeof variant === 'string' ? variant : 'dev',
+    sendDefaultPii: false,
+    // A report carries what broke and where, never what the console printed on the way there.
+    beforeBreadcrumb: (breadcrumb) => (breadcrumb.category === 'console' ? null : breadcrumb),
+  });
+}
 
 /** The Motion and Haptics switches and the day's care, handed to everything that moves or taps. */
 function Feel({ children }: { readonly children: ReactNode }) {

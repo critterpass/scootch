@@ -25,7 +25,8 @@
       "env": {
         "APP_VARIANT": "dev",
         "ORG_GRADLE_PROJECT_reactNativeArchitectures": "arm64-v8a",
-        "EXPO_PUBLIC_REVENUECAT_IOS_KEY": "appl_HMRaaaHdbALieifvcYzASZIICtr"
+        "EXPO_PUBLIC_REVENUECAT_IOS_KEY": "appl_HMRaaaHdbALieifvcYzASZIICtr",
+        "EXPO_PUBLIC_SENTRY_DSN": "https://5977e142472646a22701dc82a3eb56eb@o4512220762800128.ingest.de.sentry.io/4512220828729424"
       }
     },
     "e2e-test": {
@@ -55,7 +56,8 @@
       "env": {
         "APP_VARIANT": "prd",
         "ORG_GRADLE_PROJECT_reactNativeArchitectures": "arm64-v8a",
-        "EXPO_PUBLIC_REVENUECAT_IOS_KEY": "appl_SpIZHjibSWsbxOEDBuKcrMejqVR"
+        "EXPO_PUBLIC_REVENUECAT_IOS_KEY": "appl_SpIZHjibSWsbxOEDBuKcrMejqVR",
+        "EXPO_PUBLIC_SENTRY_DSN": "https://5977e142472646a22701dc82a3eb56eb@o4512220762800128.ingest.de.sentry.io/4512220828729424"
       }
     }
   }
