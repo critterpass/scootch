@@ -1,7 +1,8 @@
-import { buildMonster, type MONSTER_BODIES, specFromSeed, toSvg } from '@scootch/art';
+import type { MONSTER_BODIES } from '@scootch/art';
 
 import { saveCardImage } from './card-image';
 import { getPath } from './get-page';
+import { showArt } from './live-art';
 import { monsterPath, shareMonster, unshareMonster } from './monster-sharing';
 import { startWaitlistForm } from './waitlist-form';
 
@@ -101,6 +102,7 @@ export function startMonsterMaker(root: HTMLElement): void {
       // Screened again on the way out: no card and no share for a heavy thing.
       last = undefined;
       find('[data-card-art]').replaceChildren();
+      delete find('[data-card-art]').dataset['art'];
       input.value = '';
       show('serious');
       return null;
@@ -178,8 +180,7 @@ export function startMonsterMaker(root: HTMLElement): void {
     last = monster;
     shared = undefined;
     shareStatus.replaceChildren();
-    const spec = specFromSeed(monster.bodyType, monster.seed);
-    find('[data-card-art]').innerHTML = toSvg(buildMonster(spec));
+    showArt(find('[data-card-art]'), { k: 'monster', body: monster.bodyType, seed: monster.seed });
     find('[data-card-name]').textContent = monster.name;
     find('[data-card-flavour]').textContent = monster.flavourText;
     find('[data-meet]').textContent = fill(lines['meet'] ?? '', { name: monster.name });
@@ -211,6 +212,7 @@ export function startMonsterMaker(root: HTMLElement): void {
       // A heavy text: no monster, and nothing of an earlier one stays on screen.
       last = undefined;
       find('[data-card-art]').replaceChildren();
+      delete find('[data-card-art]').dataset['art'];
       input.value = '';
       show('serious');
     } else if (outcome.result === 'nonsense') {

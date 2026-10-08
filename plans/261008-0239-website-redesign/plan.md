@@ -39,7 +39,6 @@ board. They wear the new shell and keep their own layout.
 | Help answers about features above, and "a person replies within a working day" | The reply promise is still open | The support page's existing answers; the write-to line promises nothing about time |
 | "Can I gift Plus? Yes" | Gifts are after launch | Left out |
 | Press kit downloads | None exist yet | The fact sheet and a line to write to; no dead download tiles |
-| Scootch and the monsters redraw their lines many times a second | — | Drawn still by the app's generator at bundle time, moved by the page (bobbing, peeking, shrinking), as before |
 | The world, on the Lock Screen, in a widget and on the poster | The world's generator lives in the app, not in the shared art | A shelf of caught monsters stands in |
 | Light pages only | The site follows the reader's light or dark setting | Dark is derived from the app's dark palette; logged in `docs/undesigned-states.md` |
 

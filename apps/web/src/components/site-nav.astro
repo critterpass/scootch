@@ -2,7 +2,7 @@
 import type { Language } from '@scootch/i18n';
 
 import { brand, copyFor, localPath, pagesFor, preLaunch } from '../copy';
-import { scootchSvg } from '../lib/drawings';
+import { scootchArt } from '../lib/drawings';
 
 import Critter from './critter.astro';
 
@@ -41,7 +41,7 @@ const get = preLaunch
       }
     </nav>
     <a class="get-capsule" href={get.href} aria-current={path === '/get' ? 'page' : undefined} data-magnet>
-      <span class="app-icon"><Critter svg={scootchSvg('scheming')} /></span>
+      <span class="app-icon"><Critter art={scootchArt('scheming')} /></span>
       {get.label}
       <span class="dot" aria-hidden="true">{get.mark}</span>
     </a>
@@ -61,7 +61,7 @@ const get = preLaunch
   <div class="scroll-line" aria-hidden="true">
     <div class="scroll-line-fill" data-scroll-fill></div>
     <div class="scroll-line-runner" data-scroll-runner>
-      <Critter svg={scootchSvg('working')} />
+      <Critter art={scootchArt('working')} />
     </div>
   </div>
 </header>

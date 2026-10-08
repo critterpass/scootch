@@ -394,6 +394,60 @@ a {
   color: color-mix(in srgb, var(--tomato-ink) 85%, var(--ink));
 }
 
+/* How a section lays out: words beside a picture, a headline beside its paragraph, a stack. */
+.split,
+.head-pair {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem 3.5rem;
+}
+.split {
+  align-items: center;
+  padding-block: clamp(4rem, 9vw, 6.875rem);
+}
+.split-words {
+  flex: 1 1 26.25rem;
+  min-width: 0;
+  display: grid;
+  gap: 1.25rem;
+  justify-items: start;
+}
+.split-art {
+  flex: 1 1 23.75rem;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+}
+.stack {
+  display: grid;
+  gap: clamp(2.5rem, 5vw, 3.5rem);
+  padding-block: clamp(4rem, 9vw, 6.875rem);
+}
+.head-pair {
+  align-items: flex-end;
+  justify-content: space-between;
+}
+.head-pair > div {
+  flex: 1 1 32.5rem;
+  min-width: 0;
+  display: grid;
+  gap: 1.125rem;
+}
+.head-pair > .lede {
+  flex: 1 1 22.5rem;
+}
+.head-single {
+  display: grid;
+  gap: 1.125rem;
+  max-width: 47.5rem;
+}
+.mono-note {
+  font: 700 0.75rem/1.2 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
 /* One field and its button in a single capsule. */
 .field,
 .maker-form {
@@ -1379,4 +1433,18 @@ a {
   to {
     background-position: 0 100%;
   }
+}
+
+/* A character that has come alive is drawn on a canvas laid over its still. */
+[data-art] {
+  position: relative;
+}
+[data-art] > canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+[data-art][data-live] > svg {
+  opacity: 0;
 }

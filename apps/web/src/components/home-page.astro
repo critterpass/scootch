@@ -2,7 +2,7 @@
 import type { Language } from '@scootch/i18n';
 
 import { brand, copyFor, fill, localPath, pagesFor, preLaunch } from '../copy';
-import { monsterSvg, scootchSvg, shelfMonsters, stripMonsters } from '../lib/drawings';
+import { monsterArt, scootchArt, shelfMonsters, stripMonsters } from '../lib/drawings';
 import SiteLayout from '../layouts/site-layout.astro';
 import '../styles/home.css';
 
@@ -21,9 +21,9 @@ const finishIds = ['paper', 'holo', 'chrome', 'jelly', 'glass', 'velvet', 'riso'
 const attitudeMoods = ['asleep', 'scheming', 'dramatic'] as const;
 const tileMoods = ['nudge', 'listening', 'thinking', 'working', 'pleased'] as const;
 const seatWork = ['email', 'writing', 'money', 'decluttering'] as const;
-const molar = () => monsterSvg('tooth', 'dentist');
-const hydra = () => monsterSvg('receipt', 'receipt');
-const shelf = () => shelfMonsters.map((monster) => monsterSvg(monster.bodyType, monster.seed));
+const molar = () => monsterArt('tooth', 'dentist');
+const hydra = () => monsterArt('receipt', 'receipt');
+const shelf = () => shelfMonsters.map((monster) => monsterArt(monster.bodyType, monster.seed));
 // The strip runs twice over so that it can loop without a seam.
 const strip = [...stripMonsters, ...stripMonsters].map((monster, index) => ({
   ...monster,
@@ -39,7 +39,7 @@ const strip = [...stripMonsters, ...stripMonsters].map((monster, index) => ({
       {
         strip.map((monster) => (
           <li>
-            <Critter svg={monsterSvg(monster.bodyType, monster.seed)} size="3.25rem" />
+            <Critter art={monsterArt(monster.bodyType, monster.seed)} size="3.25rem" />
             <span>{monster.name}</span>
             <i />
           </li>
@@ -75,7 +75,7 @@ const strip = [...stripMonsters, ...stripMonsters].map((monster, index) => ({
         <div class="hunt-stage" aria-hidden="true">
           <div class="session-card">
             <div class="session-top">
-              <span class="session-monster"><span data-h-mon><Critter svg={molar()} size="7.25rem" /></span></span>
+              <span class="session-monster"><span data-h-mon><Critter art={molar()} size="7.25rem" /></span></span>
               <div class="session-words">
                 <strong>{copy.hunt.task}</strong>
                 <span data-h-line>{copy.hunt.lines[0]}</span>
@@ -85,7 +85,7 @@ const strip = [...stripMonsters, ...stripMonsters].map((monster, index) => ({
             <div class="race">
               <div class="race-track"><div class="race-fill" data-h-fill></div></div>
               <div class="race-runner" data-h-run>
-                <Critter svg={scootchSvg('working', { night: true })} size="4rem" />
+                <Critter art={scootchArt('working', { night: true })} size="4rem" />
               </div>
             </div>
             <div class="session-buttons"><span>{copy.hunt.park}</span><span>{copy.hunt.stuck}</span></div>
@@ -94,7 +94,7 @@ const strip = [...stripMonsters, ...stripMonsters].map((monster, index) => ({
             <div class="mcard hunt-card" data-finish="holo">
               <MaterialLayers />
               <span class="card-top">{copy.hunt.cardTop}</span>
-              <div class="card-window"><Critter svg={molar()} /></div>
+              <div class="card-window"><Critter art={molar()} /></div>
               <strong>{copy.hunt.cardTitle}</strong>
               <p>{copy.hunt.cardBody}</p>
             </div>
@@ -136,7 +136,7 @@ const strip = [...stripMonsters, ...stripMonsters].map((monster, index) => ({
       </div>
       <div class="split-art">
         <div class="widget widget-large" aria-hidden="true">
-          <div class="widget-monster" data-lurk-monster><Critter svg={hydra()} size="12.5rem" /></div>
+          <div class="widget-monster" data-lurk-monster><Critter art={hydra()} size="12.5rem" /></div>
           <div class="widget-top">
             <span>{copy.lurk.lurking}</span>
             <span class="day-chip" data-lurk-chip data-lurk-day>{fill(copy.lurk.day, { n: '6' })}</span>
@@ -159,15 +159,15 @@ const strip = [...stripMonsters, ...stripMonsters].map((monster, index) => ({
       </div>
       <div class="surfaces-row" data-reveal="stagger">
         <div class="device" aria-hidden="true">
-          <div class="device-shelf">{shelf().map((svg) => <Critter svg={svg} />)}</div>
+          <div class="device-shelf">{shelf().map((svg) => <Critter art={svg} />)}</div>
           <span class="device-island"></span>
           <div class="device-clock">
             <span>{copy.surfaces.date}</span>
-            <strong>14:43<Critter svg={scootchSvg('scheming')} /></strong>
+            <strong>14:43<Critter art={scootchArt('scheming')} /></strong>
           </div>
           <div class="live-activity">
             <div class="live-top">
-              <span class="live-monster"><span data-shrinks><Critter svg={molar()} /></span></span>
+              <span class="live-monster"><span data-shrinks><Critter art={molar()} /></span></span>
               <div>
                 <strong>{copy.surfaces.task}</strong>
                 <span>{copy.surfaces.line}</span>
@@ -176,7 +176,7 @@ const strip = [...stripMonsters, ...stripMonsters].map((monster, index) => ({
             </div>
             <div class="live-race">
               <div class="live-track"></div>
-              <span class="live-runner"><Critter svg={scootchSvg('working', { night: true })} /></span>
+              <span class="live-runner"><Critter art={scootchArt('working', { night: true })} /></span>
             </div>
             <div class="live-buttons"><span>{copy.hunt.park}</span><span>{copy.hunt.stuck}</span></div>
           </div>
@@ -185,15 +185,15 @@ const strip = [...stripMonsters, ...stripMonsters].map((monster, index) => ({
           <div class="island-stage">
             <button type="button" class="island" data-island data-mode="compact" aria-label={copy.surfaces.islandLabel}>
               <span class="island-compact">
-                <Critter svg={scootchSvg('working', { night: true })} />
+                <Critter art={scootchArt('working', { night: true })} />
                 <span><b data-mins>8m</b><i class="island-ring"></i></span>
               </span>
               <span class="island-table">
-                {(['email', 'writing', 'money'] as const).map((work) => <Critter svg={scootchSvg('working', { work, night: true })} />)}
+                {(['email', 'writing', 'money'] as const).map((work) => <Critter art={scootchArt('working', { work, night: true })} />)}
                 <span><b data-mins>8m</b><small>{copy.surfaces.atTable}</small></span>
               </span>
               <span class="island-caught">
-                <Critter svg={scootchSvg('celebrating', { night: true })} />
+                <Critter art={scootchArt('celebrating', { night: true })} />
                 <span><b>{copy.surfaces.caught}</b><small>{copy.surfaces.caughtLine}</small></span>
               </span>
             </button>
@@ -201,14 +201,14 @@ const strip = [...stripMonsters, ...stripMonsters].map((monster, index) => ({
           </div>
           <div class="widget-pair tilt-space" aria-hidden="true">
             <div class="widget">
-              <div class="widget-monster"><Critter svg={hydra()} size="12.25rem" /></div>
+              <div class="widget-monster"><Critter art={hydra()} size="12.25rem" /></div>
               <span class="tag tag-tomato">{copy.surfaces.widgetDay}</span>
               <strong class="widget-task">{copy.surfaces.widgetTask}</strong>
             </div>
             <div class="mcard widget widget-shelf" data-finish="holo" data-lean>
               <MaterialLayers />
               <div class="shelf-count"><span>{copy.surfaces.shelf}</span><strong data-count="42">42</strong></div>
-              <div class="shelf-row">{shelf().slice(0, 3).map((svg) => <Critter svg={svg} />)}</div>
+              <div class="shelf-row">{shelf().slice(0, 3).map((svg) => <Critter art={svg} />)}</div>
               <span class="mcard-glare"></span>
             </div>
           </div>
@@ -243,7 +243,7 @@ const strip = [...stripMonsters, ...stripMonsters].map((monster, index) => ({
             seatWork.map((work, index) => (
               <li>
                 {index < 2 && <span class="wave-ring" />}
-                <Critter svg={scootchSvg('working', { work, paper: index > 0 })} />
+                <Critter art={scootchArt('working', { work, paper: index > 0 })} />
                 <span>{copy.tables.seats[index]}</span>
               </li>
             ))
@@ -277,12 +277,12 @@ const strip = [...stripMonsters, ...stripMonsters].map((monster, index) => ({
             <li class="note">
               {index < 2 ? (
                 <span class="note-face">
-                  <Critter svg={index === 0 ? molar() : hydra()} />
+                  <Critter art={index === 0 ? molar() : hydra()} />
                   <i />
                 </span>
               ) : (
                 <span class="note-face note-app">
-                  {attitudeMoods.map((mood, at) => <Critter class={`att-${at}`} svg={scootchSvg(mood)} />)}
+                  {attitudeMoods.map((mood, at) => <Critter class={`att-${at}`} art={scootchArt(mood)} />)}
                 </span>
               )}
               <div>
@@ -310,7 +310,7 @@ const strip = [...stripMonsters, ...stripMonsters].map((monster, index) => ({
             <div class="mcard finish-card" data-lean data-wears data-finish="holo" aria-hidden="true">
               <MaterialLayers />
               <div class="card-top"><span>{copy.prices.cardTop}</span><span>{copy.prices.cardNumber}</span></div>
-              <div class="finish-art"><Critter svg={scootchSvg('pleased')} /></div>
+              <div class="finish-art"><Critter art={scootchArt('pleased')} /></div>
               <strong data-finish-name>{copy.prices.finishes[1]}</strong>
               <span class="mcard-glare"></span>
             </div>
@@ -372,7 +372,7 @@ const strip = [...stripMonsters, ...stripMonsters].map((monster, index) => ({
           <span class="story-stamp" aria-hidden="true">{copy.share.storyStamp}</span>
           <div class="mcard story-mini" data-finish="holo" data-wears>
             <MaterialLayers />
-            <Critter svg={hydra()} />
+            <Critter art={hydra()} />
           </div>
           <strong aria-hidden="true">{copy.share.storyLine}</strong>
           <small aria-hidden="true">scootch.app</small>
@@ -392,7 +392,7 @@ const strip = [...stripMonsters, ...stripMonsters].map((monster, index) => ({
           <small>{copy.share.posterTitle}</small>
           <b class="chrome-text" data-count="42">42</b>
           <strong>{copy.share.posterLine}</strong>
-          <div class="poster-shelf">{shelf().map((svg) => <Critter svg={svg} />)}</div>
+          <div class="poster-shelf">{shelf().map((svg) => <Critter art={svg} />)}</div>
         </div>
       </div>
     </div>
@@ -414,7 +414,7 @@ const strip = [...stripMonsters, ...stripMonsters].map((monster, index) => ({
               <span class="eyebrow">{tile.tag}</span>
               <h3>{tile.title}</h3>
               <p>{tile.body}</p>
-              <Critter svg={scootchSvg(tileMoods[index] ?? 'pleased')} size="6rem" />
+              <Critter art={scootchArt(tileMoods[index] ?? 'pleased')} size="6rem" />
             </li>
           ))
         }
@@ -442,7 +442,7 @@ const strip = [...stripMonsters, ...stripMonsters].map((monster, index) => ({
             ) : (
               <>
                 <div class="app-tile">
-                  <span class="app-icon"><Critter svg={scootchSvg('scheming')} /></span>
+                  <span class="app-icon"><Critter art={scootchArt('scheming')} /></span>
                   <div><strong>{words.name}</strong><span>{copy.final.appLine}</span></div>
                   <a class="button button-ink" href={localPath(language, '/get')} data-magnet>
                     {copy.final.get}
@@ -456,7 +456,7 @@ const strip = [...stripMonsters, ...stripMonsters].map((monster, index) => ({
         </div>
         {preLaunch && <p class="small">{pagesFor(language).preLaunch.comingSoon}</p>}
       </div>
-      <Critter class="final-scootch" svg={scootchSvg('celebrating')} />
+      <Critter class="final-scootch" art={scootchArt('celebrating')} />
     </div>
   </section>
 </SiteLayout>

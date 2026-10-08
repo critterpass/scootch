@@ -211,4 +211,6 @@ export function startSiteFx(): void {
   if (stillPage()) return;
   arrive();
   leanToPointer();
+  // The characters come alive once the page is up: their drawing code is not needed to read it.
+  void import('./live-art').then((art) => art.startLiveArt());
 }

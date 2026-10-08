@@ -2,7 +2,7 @@
 import type { Language } from '@scootch/i18n';
 
 import { localPath, pagesFor } from '../copy';
-import { monsterSvg, scootchSvg } from '../lib/drawings';
+import { monsterArt, scootchArt } from '../lib/drawings';
 
 import Critter from './critter.astro';
 
@@ -19,9 +19,9 @@ const copy = pagesFor(language).notFound;
 <div class="not-found">
   <div class="not-found-art" aria-hidden="true">
     <span class="not-found-number">404</span>
-    <Critter class="bob lost-a" svg={monsterSvg('sock', 'sock')} size="5.625rem" />
-    <Critter class="bob lost-b" svg={monsterSvg('clock', 'later')} size="5rem" />
-    <Critter svg={scootchSvg('thinking')} size="min(16.25rem, 60vw)" />
+    <Critter class="bob lost-a" art={monsterArt('sock', 'sock')} size="5.625rem" />
+    <Critter class="bob lost-b" art={monsterArt('clock', 'later')} size="5rem" />
+    <Critter art={scootchArt('thinking')} size="min(16.25rem, 60vw)" />
   </div>
   <div class="not-found-words">
     <p class="eyebrow">{copy.eyebrow}</p>

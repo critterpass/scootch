@@ -2,7 +2,7 @@
 import type { Language } from '@scootch/i18n';
 
 import { copyFor, localPath, pagesFor, preLaunch } from '../copy';
-import { monsterSvg, stripMonsters } from '../lib/drawings';
+import { monsterArt, stripMonsters } from '../lib/drawings';
 import SiteLayout from '../layouts/site-layout.astro';
 
 import Critter from './critter.astro';
@@ -137,7 +137,7 @@ const tints = ['#EAF0F6', '#F6EAD8', '#EEF1E6', '#F6E8E2'];
           stripMonsters.slice(0, 4).map((monster, index) => (
             <li class="earlier-card">
               <div class="earlier-art" style={`background-color:${tints[index]}`}>
-                <Critter svg={monsterSvg(monster.bodyType, monster.seed)} size="10rem" />
+                <Critter art={monsterArt(monster.bodyType, monster.seed)} size="10rem" />
                 <span class="tag">{site.maker.wild}</span>
               </div>
               <h3>{site.strip.monsters[index]?.name}</h3>

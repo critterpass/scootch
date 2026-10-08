@@ -105,3 +105,16 @@ test('the nap after too many tries is a state, not an error', async ({ page }) =
     'Twelve monsters. I need a lie down.',
   );
 });
+
+test('the characters move, and stand still with Reduce Motion', async ({ page, browser }) => {
+  await page.goto('/');
+  // A character that has come alive is drawn on a canvas over its still.
+  await expect(page.locator('[data-maker] [data-art][data-live] canvas').first()).toBeVisible();
+
+  const still = await browser.newPage({ reducedMotion: 'reduce' });
+  await still.goto('/');
+  await expect(still.locator('[data-maker] [data-art] svg').first()).toBeVisible();
+  await still.waitForTimeout(500);
+  await expect(still.locator('[data-art] canvas')).toHaveCount(0);
+  await still.close();
+});

@@ -2,7 +2,7 @@
 import type { Language } from '@scootch/i18n';
 
 import { brand, copyFor, localPath } from '../copy';
-import { monsterSvg, scootchSvg } from '../lib/drawings';
+import { monsterArt, scootchArt } from '../lib/drawings';
 
 import Critter from './critter.astro';
 
@@ -67,9 +67,9 @@ const groups = [
     </div>
     <div class="footer-mark" aria-hidden="true">
       <div class="footer-peek">
-        <Critter class="peek" svg={monsterSvg('tooth', 'dentist')} />
-        <Critter class="peek" svg={scootchSvg('pleased', { night: true })} />
-        <Critter class="peek" svg={monsterSvg('sock', 'sock')} />
+        <Critter class="peek" art={monsterArt('tooth', 'dentist')} />
+        <Critter class="peek" art={scootchArt('pleased', { night: true })} />
+        <Critter class="peek" art={monsterArt('sock', 'sock')} />
       </div>
       <span class="wordmark">scootch<span>.</span></span>
     </div>

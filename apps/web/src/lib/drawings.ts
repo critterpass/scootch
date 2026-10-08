@@ -1,16 +1,14 @@
-import { buildMonster, buildScootch, type MONSTER_BODIES, specFromSeed, toSvg } from '@scootch/art';
+import { toSvg } from '@scootch/art';
 
-export type BodyType = keyof typeof MONSTER_BODIES;
-type ScootchMood = Parameters<typeof buildScootch>[0]['mood'];
+import { artFrame, type ArtSpec, type BodyType, type ScootchMood, type WorkMode } from './art-spec';
 
-/** One monster as inline SVG, drawn by the same generator as the app. */
-export function monsterSvg(bodyType: BodyType, seed: string): string {
-  return toSvg(buildMonster(specFromSeed(bodyType, seed)), {
-    idPrefix: `m-${bodyType}-${seed}-${drawn++}-`,
-  });
+export type { BodyType };
+
+/** A character as the page first shows it: its still as inline SVG, and what it takes to move it. */
+export interface Art {
+  readonly svg: string;
+  readonly spec: ArtSpec;
 }
-
-type WorkMode = NonNullable<Parameters<typeof buildScootch>[0]['workMode']>;
 
 export interface ScootchDrawing {
   /** What he is working at. Only the `working` mood shows it. */
@@ -23,14 +21,24 @@ export interface ScootchDrawing {
 
 let drawn = 0;
 
-/** Scootch in one mood, still, as inline SVG. Every drawing gets ids of its own. */
-export function scootchSvg(mood: ScootchMood, drawing: ScootchDrawing = {}): string {
-  const commands = buildScootch(
-    { mood, attitude: 'cheeky', workMode: drawing.work ?? null, reducedMotion: true },
-    {},
-    { tone: drawing.paper ? 'paper' : 'tomato', ground: drawing.night ? 'dark' : 'light' },
-  );
-  return toSvg(commands, { idPrefix: `s-${mood}-${drawn++}-` });
+/** Draws a character's still. Every drawing gets ids of its own. */
+function still(spec: ArtSpec): Art {
+  return { svg: toSvg(artFrame(spec, null).commands, { idPrefix: `a${drawn++}-` }), spec };
+}
+
+/** One monster, drawn by the same generator as the app. */
+export function monsterArt(body: BodyType, seed: string): Art {
+  return still({ k: 'monster', body, seed });
+}
+
+/** Scootch in one mood. */
+export function scootchArt(mood: ScootchMood, drawing: ScootchDrawing = {}): Art {
+  return still({ k: 'scootch', mood, ...drawing });
+}
+
+/** Scootch's still alone, where nothing moves: the pages of shared things, the link preview. */
+export function scootchSvg(mood: ScootchMood): string {
+  return scootchArt(mood).svg;
 }
 
 /**

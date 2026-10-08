@@ -2,7 +2,7 @@
 import type { Language } from '@scootch/i18n';
 
 import { copyFor, localPath, pagesFor, preLaunch } from '../copy';
-import { monsterSvg, scootchSvg } from '../lib/drawings';
+import { monsterArt, scootchArt } from '../lib/drawings';
 
 import Critter from './critter.astro';
 import MaterialLayers from './material-layers.astro';
@@ -146,11 +146,11 @@ const words = copy.headline.split(' ');
     <div class="maker-stage tilt-space">
       <div class="maker-idle" data-show="empty nap offline">
         <span class="maker-disc"></span>
-        <Critter class="bob float-a" svg={monsterSvg('receipt', 'receipt')} />
-        <Critter class="bob float-b" svg={monsterSvg('tooth', 'dentist')} />
-        <Critter class="bob float-c" svg={monsterSvg('sock', 'sock')} />
+        <Critter class="bob float-a" art={monsterArt('receipt', 'receipt')} />
+        <Critter class="bob float-b" art={monsterArt('tooth', 'dentist')} />
+        <Critter class="bob float-c" art={monsterArt('sock', 'sock')} />
         <p class="bubble" data-show="empty">{copy.bubble}</p>
-        <Critter class="maker-scootch" svg={scootchSvg('waiting')} />
+        <Critter class="maker-scootch" art={scootchArt('waiting')} />
       </div>
 
       <div class="maker-hatching" data-show="hatching" hidden>
@@ -197,7 +197,7 @@ const words = copy.headline.split(' ');
       </div>
 
       <div class="care-panel" data-show="serious" hidden>
-        <Critter svg={scootchSvg('serious')} size="7.5rem" />
+        <Critter art={scootchArt('serious')} size="7.5rem" />
         <h1 tabindex="-1">{copy.seriousTitle}</h1>
         <p>{copy.seriousBody}</p>
         <ul class="care-rows">
