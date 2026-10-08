@@ -1,10 +1,11 @@
 import {
   buildCard,
+  buildCaughtStory,
   buildPoster,
   buildReceipt,
   buildStickerSheet,
-  buildStory,
   buildTradingCard,
+  buildWanted,
   CARD_BLEED,
   CARD_HEIGHT,
   CARD_WIDTH,
@@ -12,6 +13,8 @@ import {
   type CardTilt,
   type DrawCommand,
   type ScootchBody,
+  type ShareFrame,
+  type WantedData,
 } from '@scootch/art';
 import type { CardData, CardFinish } from '@scootch/domain';
 
@@ -42,6 +45,40 @@ export interface ShareDress {
   readonly day: DayLog | null;
   /** Last month, wrapped, when it had catches. */
   readonly month: MonthWrap | null;
+  /** The frame a story is printed on. Paper when it is not said. */
+  readonly frame?: ShareFrame;
+}
+
+/** The frame that goes with a finish, for someone who wears it: the rest are printed on paper. */
+export function frameOfFinish(finish: CardFinish): ShareFrame {
+  if (finish === 'holo') return 'holo';
+  if (finish === 'flock') return 'velvet';
+  return finish === 'riso' ? 'riso' : 'paper';
+}
+
+/** The finish a frame is made of, which decides who may use it; `null` for the two that are everyone's. */
+export function finishOfFrame(frame: ShareFrame): CardFinish | null {
+  if (frame === 'holo') return 'holo';
+  return frame === 'velvet' ? 'flock' : null;
+}
+
+/** The formats printed on a frame. A sticker sheet, a card, a receipt and a poster are their own stock. */
+export function takesFrame(format: ShareFormat): boolean {
+  return format === 'story';
+}
+
+/** The wanted poster of a monster that is still wild, on a frame. */
+export function composeWanted(
+  wanted: WantedData,
+  frame: ShareFrame,
+  language: CardLanguage,
+): ShareImage {
+  return buildWanted(wanted, { frame, language });
+}
+
+/** One month's poster. */
+export function composePoster(month: MonthWrap, language: CardLanguage): ShareImage {
+  return buildPoster({ language, ...month });
 }
 
 export interface ShareImageOptions {
@@ -153,5 +190,9 @@ export function composeShareImage(
     });
   }
   if (format === 'poster' && dress.month) return buildPoster({ language, ...dress.month });
-  return buildStory(worn, { language, hideTask: options.hideTask });
+  return buildCaughtStory(worn, {
+    language,
+    hideTask: options.hideTask,
+    frame: dress.frame ?? 'paper',
+  });
 }

@@ -42,6 +42,8 @@ export interface ShareDevice {
   openShareSheet(uri: string, mimeType: string, link?: string): Promise<void>;
   /** Asks for permission to add to Photos if it has not been given, then saves. */
   saveToPhotos(uri: string): Promise<'saved' | 'refused'>;
+  /** Puts a line of text on the clipboard: the link to a page. Absent where there is none. */
+  copyText?(text: string): Promise<void>;
 }
 
 export interface CatchShare {
@@ -274,4 +276,35 @@ export async function shareWeekClip(
   const uri = await device.writeFile(`scootch-${week}.wav`, encodeWav(clip));
   await device.openShareSheet(uri, 'audio/wav');
   return 'shared';
+}
+
+/** Sends a picture that stands by itself (a wanted poster, a month's poster) to the share sheet. */
+export async function sharePicture(
+  device: ShareDevice,
+  image: ShareImage,
+  name: string,
+): Promise<'shared_picture'> {
+  await device.openShareSheet(await device.renderPng(image, name), 'image/png');
+  return 'shared_picture';
+}
+
+/** Saves a picture that stands by itself to Photos, after the phone's own permission prompt. */
+export async function savePicture(
+  device: ShareDevice,
+  image: ShareImage,
+  name: string,
+): Promise<'saved' | 'refused'> {
+  return device.saveToPhotos(await device.renderPng(image, name));
+}
+
+/**
+ * The link to a catch's page, putting the page up first if it is not there yet. `null` for a
+ * catch that can have no page, or a task that may not be shared: nothing is sent for those.
+ */
+export async function linkOfCatch(pages: SharePages, share: CatchShare): Promise<string | null> {
+  if (!shareOffered(share.task)) return null;
+  const signed = signatureOf(share);
+  if (signed === null) return null;
+  const page = await pageFor(pages, share, signed);
+  return sharedPageLink(pages.site, page.language, kindOf(share) === 'card' ? 'c' : 's', page.id);
 }

@@ -34,7 +34,7 @@ export type KeepCapture =
     }
   | { readonly screen: 'pages' }
   | { readonly screen: 'record'; readonly bars: number }
-  | { readonly screen: 'share'; readonly format: ShareFormat };
+  | { readonly screen: 'share'; readonly format: ShareFormat | 'wanted' };
 
 export interface KeepStateInput {
   readonly id: string;

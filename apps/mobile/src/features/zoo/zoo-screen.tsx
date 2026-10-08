@@ -47,6 +47,8 @@ export interface ZooActions {
   readonly openWorld: () => void;
   /** Shares this month's page. Unset, there is nothing on it to share yet. */
   readonly sharePage?: () => void;
+  /** Puts a monster that is still wild on its wanted poster. Unset, a wild pocket takes no touch. */
+  readonly shareWild?: (one: WildOne) => void;
 }
 
 const COLUMNS = 3;
@@ -238,8 +240,11 @@ export function ZooScreen({ model, actions }: { model: ZooModel; actions: ZooAct
               title={t('binder.stillWild')}
               lurking={t('binder.lurking', { count: item.one.day })}
               label={`${t('binder.stillWild')}. ${t('binder.lurking', { count: item.one.day })}`}
-              hint={t('binder.stillWild.hint')}
+              hint={
+                actions.shareWild ? t('binder.stillWild.share.hint') : t('binder.stillWild.hint')
+              }
               testID={`zoo-wild-${index}`}
+              {...(actions.shareWild ? { onPress: () => actions.shareWild?.(item.one) } : {})}
             />
           )
         }

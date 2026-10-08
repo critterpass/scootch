@@ -146,6 +146,7 @@ export * from './share-poster';
 export * from './share-receipt';
 export * from './share-stickers';
 export * from './share-story';
+export * from './share-wanted';
 export * from './studio-ink';
 export * from './studio-trail';
 export * from './studio-trying-on';

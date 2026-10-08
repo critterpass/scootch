@@ -51,6 +51,25 @@ export interface CardLabels {
   readonly mostCaught: (kind: string, times: number) => string;
   readonly bestDay: (weekday: string) => string;
   readonly longWeekdays: readonly [string, string, string, string, string, string, string];
+  /** The wanted poster of a monster that is still wild. */
+  readonly stillWild: string;
+  readonly seen: (days: string) => string;
+  readonly wanted: string;
+  readonly wantedFor: (month: string) => string;
+  /** The person's own words on the poster, and the joke under them. */
+  readonly wantedVow: string;
+  readonly wantedReward: string;
+  /** The postcard from the world. */
+  readonly myWorld: string;
+  readonly greetingsFrom: string;
+  readonly myWorldName: string;
+  readonly things: (count: number) => string;
+  readonly worldSentence: (count: number) => string;
+  /** The week's record in its sleeve. */
+  readonly sideA: string;
+  readonly weekOf: (number: number) => string;
+  readonly bars: (count: number) => string;
+  readonly pressPlay: string;
 }
 
 const EN_MONTHS = 'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split(' ');
@@ -113,6 +132,22 @@ export const CARD_LABELS: Record<CardLanguage, CardLabels> = {
     mostCaught: (kind, times) => `Most caught: ${kind}, ${plural(times, 'time', 'times')}.`,
     bestDay: (weekday) => `Best day: a ${weekday}, obviously.`,
     longWeekdays: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+    stillWild: 'STILL WILD',
+    seen: (days) => `SEEN ${days}`,
+    wanted: 'WANTED',
+    wantedFor: (month) => `for lurking since ${month}`,
+    wantedVow: 'I\u2019m catching it today. Hold me to it.',
+    wantedReward: 'Reward: one coffee.',
+    myWorld: 'MY WORLD',
+    greetingsFrom: 'Greetings from',
+    myWorldName: 'my world.',
+    things: (count) => plural(count, 'THING', 'THINGS'),
+    worldSentence: (count) =>
+      `${plural(count, 'thing', 'things')} done, all living on one small hill.`,
+    sideA: 'SIDE A',
+    weekOf: (number) => `WEEK ${number}`,
+    bars: (count) => plural(count, 'BAR', 'BARS'),
+    pressPlay: 'My week, as a song. Press play.',
   },
   vi: {
     rarity: { common: 'Thường', uncommon: 'Hiếm', rare: 'Sử thi' },
@@ -161,6 +196,21 @@ export const CARD_LABELS: Record<CardLanguage, CardLabels> = {
     mostCaught: (kind, times) => `Bắt nhiều nhất: ${kind}, ${times} lần.`,
     bestDay: (weekday) => `Ngày đỉnh nhất: ${weekday}, khỏi nói.`,
     longWeekdays: ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'],
+    stillWild: 'CÒN HOANG',
+    seen: (days) => `ĐÃ THẤY ${days}`,
+    wanted: 'TRUY NÃ',
+    wantedFor: (month) => `vì rình rập từ ${month.toLowerCase()}`,
+    wantedVow: 'Hôm nay mình bắt nó. Nhớ nhắc mình nha.',
+    wantedReward: 'Thưởng: một ly cà phê.',
+    myWorld: 'THẾ GIỚI CỦA MÌNH',
+    greetingsFrom: 'Gửi lời chào từ',
+    myWorldName: 'thế giới của mình.',
+    things: (count) => `${count} VIỆC`,
+    worldSentence: (count) => `${count} việc đã xong, cùng sống trên một ngọn đồi nhỏ.`,
+    sideA: 'MẶT A',
+    weekOf: (number) => `TUẦN ${number}`,
+    bars: (count) => `${count} NHỊP`,
+    pressPlay: 'Tuần của mình, thành một bài hát. Bấm nghe thử.',
   },
 };
 

@@ -1,4 +1,4 @@
-import { useIsFocused, useRouter } from 'expo-router';
+import { useIsFocused, usePreventRemove, useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { View } from 'react-native';
 
@@ -9,6 +9,9 @@ import { showsSelling } from '../../state/shows-comedy';
 import { goBack } from '../../ui/motion/go-back';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { PLUS_SHEET } from '../plus/routes';
+import { SharePanel } from '../share/share-panel';
+import { shareOfferedOn } from '../share/share-rules';
+import { useShare } from '../share/use-share';
 
 import { pageOfToday, shelfCards, sortNeedsPlus, wildOnes, type ShelfSort } from './binder';
 import { cardRoute, pagesRoute } from './binder-routes';
@@ -30,6 +33,10 @@ export function ZooContainer() {
   const { keepsakes } = useKeepsakes(focused);
   const plus = usePlus();
   const lastLooked = useLastLooked();
+  const share = useShare(language, day.today);
+  // The composer is drawn over the shelf, not pushed: a swipe back closes it first.
+  const { panel } = share;
+  usePreventRemove(panel !== null, () => panel?.actions.close());
   const [sort, setSort] = useState<ShelfSort>('newest');
   const monsters = keepsakes?.monsters;
   const cards = useMemo(() => shelfCards(monsters ?? [], sort, plus), [monsters, sort, plus]);
@@ -44,6 +51,8 @@ export function ZooContainer() {
   );
 
   if (!keepsakes) return <View style={{ flex: 1, backgroundColor: palette.page }} />;
+  if (panel) return <SharePanel {...panel} />;
+  const [year = 0, monthNumber = 1] = month.month.split('-').map(Number);
   const selling = showsSelling(day);
   const askAboutPlus = () => {
     if (selling) router.push(PLUS_SHEET);
@@ -63,6 +72,26 @@ export function ZooContainer() {
         sort: (next) => {
           if (sortNeedsPlus(next) && !plus) askAboutPlus();
           else setSort(next);
+        },
+        // The month's page goes out as its poster, once something on it may be shared.
+        ...(month.cards.length > 0 && !crisis
+          ? { sharePage: () => share.open({ kind: 'month', year, month: monthNumber }) }
+          : {}),
+        // A monster still wild goes on a wanted poster, unless its task is private.
+        shareWild: (one) => {
+          const task = keepsakes.tasks.get(one.monster.taskId) ?? null;
+          if (!task || !shareOfferedOn(day.today, task)) return;
+          share.open({
+            kind: 'wanted',
+            task,
+            wanted: {
+              monster: one.monster.spec,
+              name: one.monster.name,
+              title: one.monster.title,
+              day: one.day,
+              since: Number(task.firstMentionedOn.slice(5, 7)),
+            },
+          });
         },
         ...(plus
           ? { openPages: () => router.push(pagesRoute()) }

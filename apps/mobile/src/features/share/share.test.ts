@@ -10,17 +10,29 @@ import { createShareApi } from '../../api/share-api';
 import { memoryKeptShares, monsterPageKey, type KeptShare } from './kept-shares';
 import {
   cardShareRequest,
+  linkOfCatch,
   pageOffered,
   saveCatch,
+  savePicture,
   shareCatch,
   sharedPageOf,
+  sharePicture,
   shareWeekClip,
   tellPageOfCatch,
   unshareCatch,
   type ShareDevice,
   type SharePages,
 } from './share-flow';
-import { composeShareImage, formatsOffered, type ShareDress, type ShareImage } from './share-image';
+import {
+  composeShareImage,
+  composeWanted,
+  finishOfFrame,
+  formatsOffered,
+  frameOfFinish,
+  takesFrame,
+  type ShareDress,
+  type ShareImage,
+} from './share-image';
 import { dayLog, monthBefore, monthWrap } from './share-logs';
 import { shareOffered, shareOfferedOn } from './share-rules';
 
@@ -414,6 +426,58 @@ describe('sharing a catch', () => {
     expect(await saveCatch(allowed.device, { ...share, format: 'card' })).toBe('saved');
     expect(allowed.calls.saved).toEqual(['file:///scootch-card-1.png']);
     expect(await saveCatch(recorder('refused').device, share)).toBe('refused');
+  });
+
+  it('copies the link of a page it puts up, and has none for a task that may not be shared', async () => {
+    const { pages, sent } = website();
+    expect(await linkOfCatch(pages, share)).toBe(`${SITE}/s/molar-page1`);
+    expect(sent).toHaveLength(1);
+    // A monster with no signature has no page, and a private task is never sent anywhere.
+    expect(await linkOfCatch(pages, { ...share, signed: null })).toBeNull();
+    expect(
+      await linkOfCatch(pages, { ...share, task: { ...task, sharePrivate: true } }),
+    ).toBeNull();
+    expect(sent).toHaveLength(1);
+  });
+
+  it('sends a wanted poster as a picture alone, with the monster and never the task', async () => {
+    const wanted = { monster: card.monster, name: card.name, title: card.title, day: 12, since: 9 };
+    const poster = composeWanted(wanted, 'riso', 'en');
+    expect(texts(poster)).not.toContain('dentist');
+    const { calls, device } = recorder();
+    expect(await sharePicture(device, poster, 'scootch-wanted')).toBe('shared_picture');
+    expect(await savePicture(device, poster, 'scootch-wanted')).toBe('saved');
+    expect(calls.sheets).toEqual(['image/png file:///scootch-wanted.png']);
+    expect(calls.saved).toEqual(['file:///scootch-wanted.png']);
+  });
+
+  it('prints a story on a frame, opens on the frame of the finish that is worn, and frames nothing else', () => {
+    expect(
+      ['paper', 'riso', 'holo', 'flock', 'chrome', 'jelly', 'glass'].map((finish) =>
+        frameOfFinish(finish as ShareDress['finish']),
+      ),
+    ).toEqual(['paper', 'riso', 'holo', 'velvet', 'paper', 'paper', 'paper']);
+    // Paper and Riso are everyone's; the other two are a finish somebody has to be able to wear.
+    expect((['paper', 'riso', 'holo', 'velvet'] as const).map(finishOfFrame)).toEqual([
+      null,
+      null,
+      'holo',
+      'flock',
+    ]);
+    expect(
+      (['story', 'card', 'stickers', 'receipt', 'poster'] as const).filter(takesFrame),
+    ).toEqual(['story']);
+    const onVelvet = composeShareImage(
+      'story',
+      card,
+      { hideTask: true, language: 'en' },
+      {
+        ...plain,
+        frame: 'velvet',
+      },
+    );
+    const onPaper = composeShareImage('story', card, { hideTask: true, language: 'en' }, plain);
+    expect(JSON.stringify(onVelvet.commands)).not.toEqual(JSON.stringify(onPaper.commands));
   });
 
   it('has no path for a private, serious, unscreened or forgotten task', async () => {
