@@ -12,6 +12,8 @@ import { goBack } from '../../ui/motion/go-back';
 import { useHomePager, usePageShown } from '../home-pager/home-pager-context';
 import { accountThen, friendInviteLink } from '../table/table-rules';
 
+import { useAppIcon } from '../look/use-app-icon';
+
 import { FinishWithPage } from './finish-with-page';
 import { SettingsPage } from './settings-page';
 
@@ -23,6 +25,8 @@ const PAGES = {
   plus: '/plus/manage',
   tables: '/table-settings',
   'developer-tools': '/developer-tools',
+  icon: '/look/icon',
+  studio: '/studio',
 } as const satisfies Record<string, string>;
 
 /**
@@ -39,6 +43,7 @@ export function SettingsContainer() {
   const [musicWhenSilent, setMusicWhenSilent] = useMusicWhenSilent();
   const { api } = useTogether();
   const t = useT();
+  const appIcon = useAppIcon();
   const pager = useHomePager();
   // In view: on the screen, and with no other screen pushed over it.
   const inView = usePageShown();
@@ -94,6 +99,7 @@ export function SettingsContainer() {
       musicWhenSilent={musicWhenSilent}
       onMusicWhenSilent={setMusicWhenSilent}
       tableName={tableName}
+      look={{ icon: appIcon.icon, finish: appIcon.finish }}
       onInvite={invite}
       onChange={(changes) =>
         void dispatch({ type: 'settings_changed', changes }).catch(() => undefined)

@@ -57,6 +57,8 @@ export * from './launch-first-one-thing';
 export * from './launch-hello';
 export * from './launch-notifications-refused';
 export * from './launch-permissions';
+export * from './look-icon-picker';
+export * from './look-icon-picker-pinned';
 export * from './monster-hatched';
 export * from './monster-hatching';
 export * from './monster-shrunk';

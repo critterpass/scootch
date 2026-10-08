@@ -9,6 +9,8 @@ import { Scootch, type ScootchProps } from '../../art/Scootch';
 import { useT } from '../../i18n/i18n-provider';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
+import { LookSection, type LookFacts } from '../look/look-section';
+
 import { QuietHoursRows } from './quiet-hours';
 import { Page } from './page';
 import { Note, Row, Section, SwitchRow } from './rows';
@@ -46,8 +48,18 @@ export interface SettingsPageProps {
   readonly onMusicWhenSilent?: (on: boolean) => void;
   readonly onLanguage: (language: Language | null) => void;
   readonly onOpen: (
-    page: 'finish-with' | 'privacy' | 'helplines' | 'plus' | 'tables' | 'developer-tools',
+    page:
+      | 'finish-with'
+      | 'privacy'
+      | 'helplines'
+      | 'plus'
+      | 'tables'
+      | 'developer-tools'
+      | 'icon'
+      | 'studio',
   ) => void;
+  /** What the Look group shows as picked. Unset, the group is left out. */
+  readonly look?: LookFacts;
   /** The name the person's seat shows; `null` on a phone that is not signed in for tables. */
   readonly tableName?: string | null;
   /** Opens the share sheet with a friend link. Unset (a capture), the row does nothing. */
@@ -120,6 +132,10 @@ export function SettingsPage(props: SettingsPageProps) {
           testID="settings-attitude-note"
         />
       </View>
+
+      {props.look ? (
+        <LookSection look={props.look} follows={settings.iconFollows} onOpen={onOpen} />
+      ) : null}
 
       <Section label={t('settings.feel')}>
         <SwitchRow
