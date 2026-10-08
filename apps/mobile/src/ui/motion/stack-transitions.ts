@@ -166,7 +166,6 @@ const ROUTE_BAR: Readonly<Record<string, RouteBar>> = {
   world: 'frame',
   zoo: 'frame',
   record: 'frame',
-  studio: 'frame',
   'plus/manage': 'frame',
   'plus/records': 'frame',
 };

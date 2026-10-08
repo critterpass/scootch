@@ -1,6 +1,7 @@
 import { Canvas, Group, rect, rrect } from '@shopify/react-native-skia';
 import { useMemo, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle, useDerivedValue } from 'react-native-reanimated';
 
 import { buildMaterialParts, CARD_MATERIALS, MATERIAL_LIGHT, rgba } from '@scootch/art';
@@ -26,6 +27,11 @@ export interface MaterialCardProps {
   readonly label?: string;
   /** The drop under the card, where a screen lights it its own way. The finish's own when left out. */
   readonly shadow?: string;
+  /**
+   * True where the card can be leaned with a finger as well as with the phone. It sits in a page
+   * that scrolls, so a drag up or down stays the page's. It has no back and never turns over.
+   */
+  readonly handled?: boolean;
   readonly testID?: string;
 }
 
@@ -36,8 +42,16 @@ export interface MaterialCardProps {
  */
 export function MaterialCard(props: MaterialCardProps) {
   const { finish, width, height, radius = 22, children, label, shadow, testID } = props;
+  const handled = props.handled === true;
   const { reducedMotion } = useScreenStyle();
-  const motion = useCardMotion({ mayMove: !reducedMotion, handled: false, width, height });
+  const motion = useCardMotion({
+    mayMove: !reducedMotion,
+    handled,
+    width,
+    height,
+    besideScroll: true,
+    turns: false,
+  });
   const material = CARD_MATERIALS[finish];
   const parts = useMemo(
     () => buildMaterialParts({ x: 0, y: 0, w: width, h: height }, radius, material),
@@ -48,11 +62,13 @@ export function MaterialCard(props: MaterialCardProps) {
     [width, height, radius],
   );
   const { rx, ry } = motion;
+  const { scale } = motion;
   const tilt = useAnimatedStyle(() => ({
     transform: [
       { perspective: PERSPECTIVE },
       { rotateX: `${rx.value}deg` },
       { rotateY: `${ry.value}deg` },
+      { scale: scale.value },
     ],
   }));
   const slide = (MATERIAL_LIGHT.sheenSize - 1) * MATERIAL_LIGHT.perDegree;
@@ -65,7 +81,7 @@ export function MaterialCard(props: MaterialCardProps) {
     { translateY: -MATERIAL_LIGHT.perDegree * height * rx.value },
   ]);
   const size = { width, height };
-  return (
+  const card = (
     <Animated.View
       testID={testID}
       accessible={label !== undefined}
@@ -102,6 +118,7 @@ export function MaterialCard(props: MaterialCardProps) {
       </View>
     </Animated.View>
   );
+  return handled ? <GestureDetector gesture={motion.gesture}>{card}</GestureDetector> : card;
 }
 
 const styles = StyleSheet.create({

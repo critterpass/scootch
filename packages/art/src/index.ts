@@ -52,7 +52,7 @@ export {
   type MaterialParts,
 } from './card/build-material';
 export type { FinishMaterial, MaterialLayer, Tint } from './card/material';
-export { roundRect, type Box } from './card/shapes';
+export { dotScreen, roundRect, type Box } from './card/shapes';
 export type { CardTilt } from './card/foil';
 export { FOIL_BY_RARITY, FOIL_LIGHT, TILE_SHIMMER, type FoilStrength } from './card/foil-light';
 export { CARD_LABELS, type CardLabels, type CardLanguage } from './card/labels';

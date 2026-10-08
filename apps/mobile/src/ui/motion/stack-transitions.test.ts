@@ -140,13 +140,18 @@ describe("which screens wear the system's bar", () => {
   });
 
   it("gives the world, the zoo and the record a bar in the page's colour", () => {
-    for (const route of ['world', 'zoo', 'record', 'studio', 'plus/manage']) {
+    for (const route of ['world', 'zoo', 'record', 'plus/manage']) {
       expect(stackBar(route, true, inks)).toMatchObject({
         headerShown: true,
         headerTransparent: false,
         headerStyle: { backgroundColor: '#EEE' },
       });
     }
+  });
+
+  it('lets the studio draw its own bar, where its three tabs sit between the corners', () => {
+    expect(stackBar('studio', true, inks)).toEqual({ headerShown: false });
+    expect(stackMotion('studio', true).gestureEnabled).toBe(true);
   });
 
   it('leaves the one screen, the session, the reveal, care and every sheet without a bar', () => {

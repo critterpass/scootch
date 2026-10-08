@@ -90,6 +90,11 @@ export interface CardMotionOptions {
   readonly besideScroll?: boolean;
   /** Where the card starts, for one that arrives turned over. Face up at full size when left out. */
   readonly startsAt?: { readonly flip: number; readonly scale: number };
+  /**
+   * False for a card with nothing on its back: it still leans to a finger, and neither a tap nor a
+   * flick turns it over.
+   */
+  readonly turns?: boolean;
 }
 
 /** A travel no finger makes: a limit that is never reached. */
@@ -102,7 +107,7 @@ const clampHalf = (value: number): number => {
 
 /** Everything that moves a card, on the UI thread: the sway, the finger, the phone and the flip. */
 export function useCardMotion(options: CardMotionOptions): CardMotion {
-  const { mayMove, handled, width, height, besideScroll = false } = options;
+  const { mayMove, handled, width, height, besideScroll = false, turns = true } = options;
   const screen = useWindowDimensions();
   const rx = useSharedValue(0);
   const ry = useSharedValue(0);
@@ -190,7 +195,7 @@ export function useCardMotion(options: CardMotionOptions): CardMotion {
   const hitSlop = { left: -kept, right: -kept };
 
   const tap = useTapGesture({
-    enabled: handled,
+    enabled: handled && turns,
     hitSlop,
     maxDuration: 280,
     maxDistance: 8,
@@ -225,7 +230,7 @@ export function useCardMotion(options: CardMotionOptions): CardMotion {
       'worklet';
       if (event.canceled) return;
       const sideways = Math.abs(event.velocityX) > Math.abs(event.velocityY) * 1.5;
-      if (sideways && Math.abs(event.velocityX) > TILT.flingSpeed) {
+      if (turns && sideways && Math.abs(event.velocityX) > TILT.flingSpeed) {
         turn(event.velocityX > 0 ? 1 : -1);
       }
     },
