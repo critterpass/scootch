@@ -6,7 +6,7 @@ import { Scootch } from '../../art/Scootch';
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { CapsuleButton, RoundButton } from '../../ui/buttons';
 import { CornerBar } from '../../ui/corner-bar';
-import { MoreIcon } from '../../ui/icons';
+import { CloseIcon } from '../../ui/icons';
 import { SafeFrame } from '../../ui/safe-frame';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { QuietLink } from '../dump/dump-panels';
@@ -32,16 +32,16 @@ export interface CrisisViewProps {
   readonly onDirectory: () => void;
   readonly onText: () => void;
   readonly onSit: () => void;
-  /** Opens Settings, where the helplines page and everything else about the app live. */
-  readonly onMore?: () => void;
+  /** Closes the care screen: the day's things are back, in plain company. Nothing is asked. */
+  readonly onClose: () => void;
 }
 
 /**
- * A crisis day. Every task is hidden, nothing is funny, and real help comes first: the helplines
+ * The care screen. Every task is hidden, nothing is funny, and real help comes first: the helplines
  * of the person's region, then the directory, then someone they trust. The emergency number comes
  * first, then the lines that are open, then the closed ones, which say so and can still be called.
  * Scootch is here, still and quiet, and says nothing: the words on this screen are plain ones from
- * the catalogue.
+ * the catalogue. The cross in the corner closes it, as the board draws it, and asks nothing.
  */
 export function CrisisView({
   helplines,
@@ -52,27 +52,25 @@ export function CrisisView({
   onDirectory,
   onText,
   onSit,
-  onMore,
+  onClose,
 }: CrisisViewProps) {
   const { palette, allowFontScaling, size, largeText } = useScreenStyle();
   const t = useT();
   const { language } = useLanguage();
   return (
     <SafeFrame style={[styles.screen, { backgroundColor: palette.page }]} testID="care-screen">
-      {onMore ? (
-        <CornerBar
-          trailing={
-            <RoundButton
-              label={t('oneScreen.more')}
-              hint={t('oneScreen.more.hint')}
-              onPress={onMore}
-              testID="care-more"
-            >
-              <MoreIcon color={palette.ink} />
-            </RoundButton>
-          }
-        />
-      ) : null}
+      <CornerBar
+        leading={
+          <RoundButton
+            label={t('care.crisis.close')}
+            hint={t('care.crisis.close.hint')}
+            onPress={onClose}
+            testID="care-close"
+          >
+            <CloseIcon color={palette.ink} />
+          </RoundButton>
+        }
+      />
       <ScrollView contentContainerStyle={styles.content}>
         <View
           style={styles.figure}

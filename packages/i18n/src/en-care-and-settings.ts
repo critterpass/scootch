@@ -12,6 +12,8 @@ export const enCareAndSettings = {
   'care.crisis.sit': 'Just sit with me',
   'care.crisis.sit.hint': 'Stays on this screen, with nothing to do',
   'care.crisis.here': 'I\u2019m right here. Take your time.',
+  'care.crisis.close': 'Close',
+  'care.crisis.close.hint': 'Goes back to today. The helplines stay in Settings.',
 
   'oneScreen.more.hint': 'Opens Settings.',
   'settings.close': 'Close',

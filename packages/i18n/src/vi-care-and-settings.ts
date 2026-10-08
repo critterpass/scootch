@@ -12,6 +12,8 @@ export const viCareAndSettings = {
   'care.crisis.sit': 'Ngồi với mình thôi',
   'care.crisis.sit.hint': 'Ở lại màn hình này, không cần làm gì',
   'care.crisis.here': 'Mình ở ngay đây. Bạn cứ từ từ.',
+  'care.crisis.close': 'Đóng',
+  'care.crisis.close.hint': 'Quay lại hôm nay. Các đường dây hỗ trợ vẫn có trong Cài đặt.',
 
   'oneScreen.more.hint': 'Mở phần cài đặt.',
   'settings.close': 'Đóng',

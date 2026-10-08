@@ -52,8 +52,12 @@ export type TaskScreen = z.infer<typeof taskScreenSchema>;
 export const dayRowSchema = z.object({
   /** Primary key. */
   localDate: isoDateSchema,
-  /** `crisis` hides every task for the day; `done` is "Done for today". */
-  status: z.enum(['open', 'done', 'crisis']),
+  /**
+   * `crisis` hides every task until the care screen is closed or the day ends; `quiet` is a day
+   * whose care screen was closed, in plain company until the next thing is typed; `done` is
+   * "Done for today".
+   */
+  status: z.enum(['open', 'done', 'crisis', 'quiet']),
   openedAt: isoDateTimeSchema,
   morningLine: z.string().nullable(),
   energy: energySchema.nullable(),

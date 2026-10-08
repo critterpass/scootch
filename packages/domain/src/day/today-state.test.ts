@@ -154,6 +154,17 @@ describe('crisis', { timeout: 60_000 }, () => {
     );
   });
 
+  it('rests as a finished day does once the care screen was closed, with nothing set', () => {
+    const state = todayState({
+      localDate: TODAY,
+      day: dayRow({ status: 'quiet' }),
+      tasks: [],
+      sessions: [],
+      plus: false,
+    });
+    expect(state.kind).toBe('done_for_today');
+  });
+
   it('is the only way to hide a task that is set for today', () => {
     fc.assert(
       fc.property(

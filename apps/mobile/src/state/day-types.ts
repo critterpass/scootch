@@ -77,6 +77,8 @@ export type DayEvent =
   | { readonly type: 'one_thing_cancelled' }
   /** The store reported a change to Plus: today is worked out again. */
   | { readonly type: 'entitlement_changed' }
+  /** The care screen was closed. The day's things are back, in plain company. */
+  | { readonly type: 'care_closed' }
   /** "It's fine, be funny" on a serious task. It never does anything on a crisis day. */
   | { readonly type: 'be_funny_asked' }
   /** "Not today" on a serious task: it waits in the drawer and the day is quietly over. */
@@ -208,7 +210,10 @@ export interface DayState {
   /** The task's own lines for the treat and the parked thoughts, kept past its finish. */
   readonly afterLines: AfterLines;
   readonly drawer: { readonly open: boolean; readonly items: readonly DrawerItemRow[] };
-  /** A serious task is part of today (finished, set aside or open) or waits in the drawer. */
+  /**
+   * A serious task is part of today (finished, set aside or open) or waits in the drawer, or the
+   * care screen was closed and nothing has been typed since.
+   */
   readonly heavyToday: boolean;
   readonly settings: SettingsRow;
   /** Set by a system surface and cleared by the screen that acts on it. Absent means none. */

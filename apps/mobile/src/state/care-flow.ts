@@ -35,6 +35,42 @@ export async function enterCrisis(ctx: DayContext): Promise<void> {
 }
 
 /**
+ * The care screen was closed. The day's things come back, and Scootch keeps plain company until
+ * the next thing is typed: a thing that had its jokes and its monster waits for its screen again,
+ * as one typed with no connection does, and is not asked about while the day is quiet. Nothing is
+ * asked of the person and nothing is said about why they left.
+ */
+export async function leaveCrisis(ctx: DayContext): Promise<void> {
+  const { days, tasks } = ctx.deps.repositories;
+  const { localDate } = ctx.memory.state;
+  const day = await days.get(localDate);
+  if (day?.status !== 'crisis') return;
+  await days.put({ ...day, status: 'quiet' });
+  for (const task of await tasks.where('localDate', localDate)) {
+    if (task.status !== 'finished' && task.screen === 'pass') {
+      await tasks.put({ ...task, screen: 'unscreened' });
+    }
+  }
+  await ctx.refresh();
+}
+
+/** Whether the care screen was closed today and nothing has been typed since. */
+export async function isQuietDay(ctx: Pick<DayContext, 'deps' | 'memory'>): Promise<boolean> {
+  const day = await ctx.deps.repositories.days.get(ctx.memory.state.localDate);
+  return day?.status === 'quiet';
+}
+
+/**
+ * The next thing was typed: the quiet a closed care screen left is over, and what is typed is
+ * screened fresh. Does nothing on any other day.
+ */
+export async function endQuiet(ctx: DayContext): Promise<void> {
+  const { days } = ctx.deps.repositories;
+  const day = await days.get(ctx.memory.state.localDate);
+  if (day?.status === 'quiet') await days.put({ ...day, status: 'open' });
+}
+
+/**
  * Whatever was going on for a text stops, and nothing is said: its kept words go, a running
  * session ends with its timers, its Live Activity and its notifications, and nothing is granted.
  * A crisis and a rejected text both end this way.
@@ -150,4 +186,11 @@ export async function setSeriousAside(ctx: DayContext): Promise<void> {
     line: said === null ? null : { slot: 'notFinished', text: said },
   });
   await ctx.refresh();
+}
+
+type CareEvent = Extract<DayEvent, { readonly type: 'care_closed' | 'reminder_asked' }>;
+
+/** What the care screen's cross and a serious task's reminder row ask for. */
+export function applyCareEvent(ctx: DayContext, event: CareEvent): Promise<void> {
+  return event.type === 'care_closed' ? leaveCrisis(ctx) : askReminder(ctx);
 }

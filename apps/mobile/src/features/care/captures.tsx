@@ -37,6 +37,7 @@ function Crisis({
       onDirectory={nothing}
       onText={nothing}
       onSit={nothing}
+      onClose={nothing}
     />
   );
 }

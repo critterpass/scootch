@@ -88,8 +88,11 @@ website and the store listing.
 - **Serious mode.** Medical results, bereavement, legal trouble, debt crisis
   and similar: no monster, no joke, no card, no share, no burst. Plain words
   and quiet company. "It's fine, be funny" overrides it.
-- **Crisis.** Self-harm language hides every task for the day and shows
-  localised helplines first. No override.
+- **Crisis.** Self-harm language hides every task and shows localised
+  helplines first. "It's fine, be funny" never lifts it. The person can close
+  it, and is asked nothing: the day's things come back and Scootch keeps plain
+  company, with no monster, no joke and nothing sold, until the next thing is
+  typed, which is screened fresh. Left open, it ends with the day.
 - **No joke before the screen.** Scootch says nothing funny about a task until
   that task has been screened. With no connection, the phone can only catch
   explicit phrases, so offline Scootch keeps company in plain words and the

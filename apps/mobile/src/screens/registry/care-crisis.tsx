@@ -2,7 +2,7 @@ import { lazy } from 'react';
 
 import { standardVariants, type ScreenState } from './support/screen-state';
 
-/** A crisis day: every task hidden, the helplines of the region first, and no way round it. */
+/** The care screen: every task hidden, the helplines of the region first, and the cross to close it. */
 export const careCrisis: ScreenState = {
   id: 'care-crisis',
   design: {

@@ -4,7 +4,7 @@ import { asksToChoose } from '@scootch/voice';
 import { careGate } from '../api/care-gate';
 import type { TaskCall } from '../api/task-client';
 
-import { enterCrisis } from './care-flow';
+import { endQuiet, enterCrisis, isQuietDay } from './care-flow';
 import type { DayContext, Offer } from './day-types';
 import { pickForMe } from './pick-flow';
 import { applyCall, keepTranscript, treatNamed } from './task-answers';
@@ -48,6 +48,8 @@ export async function submitText(ctx: DayContext, offer: Offer): Promise<void> {
     await enterCrisis(ctx);
     return ctx.refresh();
   }
+  // The next thing typed after the care screen was closed: the quiet is over.
+  await endQuiet(ctx);
 
   // With nothing set and things parked, the words may be asking Scootch to choose among them.
   // The phrases the phone knows are answered here, with or without a connection; a looser
@@ -170,6 +172,8 @@ function needsScreen(ctx: DayContext, task: TaskRow): boolean {
  */
 export async function fetchPending(ctx: DayContext): Promise<void> {
   const { today, settings, localDate, monster } = ctx.memory.state;
+  // After the care screen was closed nothing is asked about until the next thing is typed.
+  if (await isQuietDay(ctx)) return;
   await sortOrphanWords(ctx);
   if (ctx.memory.restPending || ctx.memory.askingPending) return;
   // Today's task comes first; the finished ones nobody has screened are asked about after it.
