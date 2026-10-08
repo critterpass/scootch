@@ -51,6 +51,13 @@ export async function swapItemIn(ctx: DayContext, itemId: Id): Promise<boolean> 
 
   await repositories.drawerItems.remove(itemId);
   for (const item of result.drawer) await repositories.drawerItems.put(item);
+  // The thing it replaces keeps the page it arrived from, while its words are still its own.
+  const replaced = setTask(ctx);
+  const aside =
+    replaced && sameThing(replaced.text, replaced.originalText)
+      ? result.drawer.find((item) => sameThing(item.text, replaced.text))
+      : undefined;
+  if (replaced && aside) await moveArrivedPage(ctx, replaced.id, aside.id);
   if (result.replacedTaskId !== null) await repositories.forgetTask(result.replacedTaskId);
   const { oneThing } = result;
   // A task that was parked whole comes back as itself, with its monster and its lines.
@@ -133,7 +140,13 @@ export async function tooBig(ctx: DayContext): Promise<void> {
 export async function setTaskAside(ctx: DayContext): Promise<void> {
   const task = setTask(ctx);
   if (!task) return;
-  await park(ctx, [{ text: task.originalText, dueDate: task.dueDate }], task.screen);
+  const [aside] = await park(
+    ctx,
+    [{ text: task.originalText, dueDate: task.dueDate }],
+    task.screen,
+  );
+  // A thing that arrived from a monster's page is still that monster's while it waits.
+  if (aside) await moveArrivedPage(ctx, task.id, aside.id);
   await ctx.deps.repositories.forgetTask(task.id);
   ctx.set({ pick: { kind: 'none' }, line: null });
   await ctx.refresh();

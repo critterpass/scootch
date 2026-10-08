@@ -1,10 +1,27 @@
 import { describe, expect, it } from '@jest/globals';
 
 import { monsterPageFrom, type MonsterPage } from '../../api/monster-page-api';
-import { arrivedMonsterKey, memoryKeptShares } from '../share/kept-shares';
+import { ApiClientError } from '../../api/api-error';
+import {
+  KEPT_ARRIVALS_LIMIT,
+  KEPT_SHARES_LIMIT,
+  arrivedMonsterKey,
+  memoryKeptShares,
+  monsterPageKey,
+} from '../share/kept-shares';
 import { SHARED_KEYS, type SharedStore } from '../surfaces/surface-ports';
 
-import { arrivalFor, monsterRouteOf, pageIdFrom, rememberPage, takeClipLink } from './arrive-rules';
+import {
+  arrivalFor,
+  dropKeptLink,
+  holdLink,
+  isNoSuchPage,
+  keptLink,
+  linkMayOpen,
+  monsterRouteOf,
+  pageIdFrom,
+  rememberPage,
+} from './arrive-rules';
 
 /** A monster's page as `GET /v1/monster-page/:id` answers it. */
 const ANSWER = {
@@ -113,21 +130,57 @@ describe("the link a monster's page is opened by", () => {
   });
 });
 
-describe('the link the App Clip kept', () => {
-  it('is taken once and cleared, with the time it was kept', () => {
+describe('the link that is kept until it can be opened', () => {
+  const NOW = Date.parse('2026-10-08T10:00:00.000Z');
+  const DAY = 24 * 60 * 60 * 1000;
+  const keptAt = (instant: number) => String(instant / 1000);
+
+  it('is read without being cleared, so a launch with no connection does not lose it', () => {
     const shared = sharedStore({
       [SHARED_KEYS.clipLink]: 'https://scootch.app/vi/m/molar-7f3k9x',
-      [SHARED_KEYS.clipLinkStoredAt]: '1791456000',
+      [SHARED_KEYS.clipLinkStoredAt]: keptAt(NOW - 60_000),
       [SHARED_KEYS.snapshot]: '{}',
     });
-    expect(takeClipLink(shared)).toBe('/m/molar-7f3k9x');
-    expect([...shared.values.keys()]).toEqual([SHARED_KEYS.snapshot]);
-    expect(takeClipLink(shared)).toBeNull();
+    expect(keptLink(shared, NOW)).toBe('/m/molar-7f3k9x');
+    expect(keptLink(shared, NOW)).toBe('/m/molar-7f3k9x');
+    expect(shared.values.size).toBe(3);
   });
 
-  it('is cleared and opens nothing when it is not a monster’s', () => {
-    const shared = sharedStore({ [SHARED_KEYS.clipLink]: 'https://scootch.app/get' });
-    expect(takeClipLink(shared)).toBeNull();
+  it('is dropped by the link it is, and by no other', () => {
+    const shared = sharedStore({
+      [SHARED_KEYS.clipLink]: 'https://scootch.app/m/molar-7f3k9x',
+      [SHARED_KEYS.clipLinkStoredAt]: keptAt(NOW),
+      [SHARED_KEYS.snapshot]: '{}',
+    });
+    dropKeptLink(shared, '/m/slime-222222');
+    expect(keptLink(shared, NOW)).toBe('/m/molar-7f3k9x');
+    dropKeptLink(shared, '/m/molar-7f3k9x');
+    expect([...shared.values.keys()]).toEqual([SHARED_KEYS.snapshot]);
+  });
+
+  it('is dropped unopened after seven days, and kept on the seventh', () => {
+    const shared = sharedStore({
+      [SHARED_KEYS.clipLink]: 'https://scootch.app/m/molar-7f3k9x',
+      [SHARED_KEYS.clipLinkStoredAt]: keptAt(NOW - 7 * DAY),
+    });
+    expect(keptLink(shared, NOW)).toBe('/m/molar-7f3k9x');
+    expect(keptLink(shared, NOW + 1000)).toBeNull();
+    expect(shared.values.size).toBe(0);
+  });
+
+  it('is counted from now when the clip kept no time with it', () => {
+    const shared = sharedStore({ [SHARED_KEYS.clipLink]: 'https://scootch.app/m/molar-7f3k9x' });
+    expect(keptLink(shared, NOW)).toBe('/m/molar-7f3k9x');
+    expect(keptLink(shared, NOW + 7 * DAY)).toBe('/m/molar-7f3k9x');
+    expect(keptLink(shared, NOW + 7 * DAY + 1000)).toBeNull();
+  });
+
+  it('is dropped and opens nothing when it is not a monster’s', () => {
+    const shared = sharedStore({
+      [SHARED_KEYS.clipLink]: 'https://scootch.app/get',
+      [SHARED_KEYS.clipLinkStoredAt]: keptAt(NOW),
+    });
+    expect(keptLink(shared, NOW)).toBeNull();
     expect(shared.values.size).toBe(0);
   });
 
@@ -140,7 +193,38 @@ describe('the link the App Clip kept', () => {
       remove: () => undefined,
       reloadSurfaces: () => undefined,
     };
-    expect(takeClipLink(broken)).toBeNull();
+    expect(keptLink(broken, NOW)).toBeNull();
+    expect(() => dropKeptLink(broken)).not.toThrow();
+    expect(() => holdLink(broken, '/m/molar-7f3k9x', NOW)).not.toThrow();
+  });
+
+  it('keeps a link that has to wait where the clip keeps its own', () => {
+    const shared = sharedStore({});
+    holdLink(shared, '/m/molar-7f3k9x', NOW);
+    expect(keptLink(shared, NOW + DAY)).toBe('/m/molar-7f3k9x');
+    // Held again later, it keeps the time it was first kept.
+    holdLink(shared, '/m/molar-7f3k9x', NOW + 6 * DAY);
+    expect(keptLink(shared, NOW + 7 * DAY + 1000)).toBeNull();
+  });
+
+  it('waits for first launch, for a restore offer and for a crisis day to be over', () => {
+    const ready = {
+      ready: true,
+      settings: { firstLaunchDoneAt: '2026-10-01T09:00:00.000Z' },
+      today: { kind: 'nothing_yet' },
+    };
+    expect(linkMayOpen(ready, false)).toBe(true);
+    expect(linkMayOpen({ ...ready, settings: { firstLaunchDoneAt: null } }, false)).toBe(false);
+    expect(linkMayOpen(ready, true)).toBe(false);
+    expect(linkMayOpen({ ...ready, today: { kind: 'crisis' } }, false)).toBe(false);
+    expect(linkMayOpen({ ...ready, ready: false }, false)).toBe(false);
+  });
+
+  it('tells a page nobody has from a page that could not be reached', () => {
+    expect(isNoSuchPage(new ApiClientError('not_found', false, 404, 'No such page'))).toBe(true);
+    expect(isNoSuchPage(new ApiClientError('network', false, null, 'Unreachable'))).toBe(false);
+    expect(isNoSuchPage(new ApiClientError('timeout', false, null, 'Too slow'))).toBe(false);
+    expect(isNoSuchPage(new ApiClientError('internal', true, 503, 'Down'))).toBe(false);
   });
 });
 
@@ -167,5 +251,25 @@ describe('the page a monster arrived from', () => {
         taskShown: true,
       },
     ]);
+  });
+  it('never pushes out a page this phone shared, however many monsters arrive', async () => {
+    const own = Array.from({ length: KEPT_SHARES_LIMIT }, (_, index) => ({
+      key: monsterPageKey(`own-${index}`),
+      id: `own-page-${index}`,
+      unshareToken: `token-${index}`,
+      language: 'en' as const,
+      taskShown: false,
+    }));
+    const kept = memoryKeptShares(own);
+    for (let index = 0; index < KEPT_ARRIVALS_LIMIT + 10; index += 1) {
+      await rememberPage(kept, { ...wild, id: `page-${index}`, seed: `seed-${index}` });
+    }
+
+    const after = await kept.read();
+    expect(after.filter((one) => one.unshareToken !== '')).toEqual(own);
+    const arrived = after.filter((one) => one.unshareToken === '');
+    expect(arrived).toHaveLength(KEPT_ARRIVALS_LIMIT);
+    expect(arrived[0]?.id).toBe('page-10');
+    expect(arrived.at(-1)?.id).toBe(`page-${KEPT_ARRIVALS_LIMIT + 9}`);
   });
 });

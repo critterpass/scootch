@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 
 import { specFromSeed } from '@scootch/art';
@@ -18,6 +18,11 @@ export interface AskPageProps {
   readonly monster: Pick<MonsterPage, 'seed' | 'bodyType' | 'name' | 'flavourText'>;
   /** What the field starts with. */
   readonly typed?: string;
+  /**
+   * Whether the thing would be today's. On a day that has its thing, or has no start left, it
+   * waits in the drawer, and the page says that instead.
+   */
+  readonly forToday?: boolean;
   readonly onSend: (text: string) => void;
   readonly onClose: () => void;
 }
@@ -27,7 +32,7 @@ export interface AskPageProps {
  * for the thing. The card steps aside while the keyboard is up, so the question stays above the
  * field; the return key sends as the dock does.
  */
-export function AskPage({ monster, typed = '', onSend, onClose }: AskPageProps) {
+export function AskPage({ monster, typed = '', forToday = true, onSend, onClose }: AskPageProps) {
   const t = useT();
   const { palette, allowFontScaling, size } = useScreenStyle();
   const keyboardOpen = useKeyboardOpen();
@@ -37,8 +42,12 @@ export function AskPage({ monster, typed = '', onSend, onClose }: AskPageProps) 
     [monster.bodyType, monster.seed],
   );
   const words = text.trim();
+  // The dock and the return key are one send: a second tap on the way out sends nothing.
+  const sent = useRef(false);
   const send = () => {
-    if (words !== '') onSend(words);
+    if (words === '' || sent.current) return;
+    sent.current = true;
+    onSend(words);
   };
   return (
     <Page
@@ -47,8 +56,8 @@ export function AskPage({ monster, typed = '', onSend, onClose }: AskPageProps) 
       footer={
         <ActionDock
           action={{
-            label: t('arrive.ask.send'),
-            hint: t('arrive.ask.send.hint'),
+            label: t(forToday ? 'arrive.ask.send' : 'arrive.ask.send.parked'),
+            hint: t(forToday ? 'arrive.ask.send.hint' : 'arrive.ask.send.parked.hint'),
             disabled: words === '',
             onPress: send,
             testID: 'monster-link-send',
@@ -61,7 +70,7 @@ export function AskPage({ monster, typed = '', onSend, onClose }: AskPageProps) 
       )}
       <View style={styles.said}>
         <Words kind="headline">{t('arrive.ask.title', { name: monster.name })}</Words>
-        <Words kind="quiet">{t('arrive.ask.sub')}</Words>
+        <Words kind="quiet">{t(forToday ? 'arrive.ask.sub' : 'arrive.ask.sub.parked')}</Words>
       </View>
       <TextInput
         value={text}

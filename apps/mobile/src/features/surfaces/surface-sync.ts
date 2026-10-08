@@ -11,7 +11,7 @@ import {
 import type { Repositories } from '../../data/repositories';
 import type { DayStore } from '../../state/day-store';
 import type { DayState } from '../../state/day-types';
-import { takeClipLink } from '../arrive/arrive-rules';
+import { openKeptLink, type LinkPorts } from '../arrive/open-link';
 import type { FriendsTablesSeen } from '../table/friends-tables-seen';
 
 import { readHunt } from './hunt-store';
@@ -44,6 +44,8 @@ export interface SurfaceSyncDeps {
   readonly table?: { readonly wave: (seatId: string) => void; readonly leave: () => void };
   /** Opens one of the app's own routes, as a link to it does. */
   readonly openRoute?: (route: `/m/${string}`) => void;
+  /** What opening a monster's kept link needs beyond the store, the App Group and the clock. */
+  readonly arrivals?: Omit<LinkPorts, 'store' | 'shared' | 'now'>;
   /** Takes back a notification a surface set, by its id. */
   readonly cancelNotification: (id: string) => Promise<void>;
   readonly plus: () => boolean;
@@ -263,6 +265,25 @@ export function createSurfaceSync(deps: SurfaceSyncDeps) {
     return queue;
   };
 
+  const asked = new Set<string>();
+  /**
+   * A monster's link that was kept (the App Clip's, or one tapped during first launch) is opened
+   * once first launch is done and any restore offer is answered: its thing is taken in as a
+   * shared thing is, and only a page that hides its words is shown, to ask for them. The link
+   * stays kept until its thing is on the phone, so it is looked at every time.
+   */
+  const openKept = async () => {
+    const { arrivals } = deps;
+    if (arrivals === undefined) return;
+    const ports = { ...arrivals, store, shared, now: deps.now };
+    await openKeptLink(ports, (route) => {
+      // Its question is put once each time the app runs, not on every return to the front.
+      if (asked.has(route)) return;
+      asked.add(route);
+      deps.openRoute?.(route);
+    }).catch(() => undefined);
+  };
+
   return {
     /** Writes the snapshot now if it changed. Resolves when it is written. */
     sync,
@@ -271,7 +292,16 @@ export function createSurfaceSync(deps: SurfaceSyncDeps) {
     /** Follows the store until the returned function is called. */
     follow(): () => void {
       void sync();
-      return store.subscribe(() => void sync());
+      // First launch finishing is the moment a link that waited for it is opened.
+      let launching = false;
+      return store.subscribe(() => {
+        void sync();
+        const { ready, settings } = store.getState();
+        if (!ready) return;
+        const pending = settings.firstLaunchDoneAt === null;
+        if (launching && !pending) void openKept();
+        launching = pending;
+      });
     },
     /**
      * Called at launch and each time the app comes to the front: dispatches every pending action
@@ -284,9 +314,8 @@ export function createSurfaceSync(deps: SurfaceSyncDeps) {
       for (const thing of sharedIn.take()) {
         await store.dispatch({ type: 'thing_shared_in', text: thing.text, when: thing.when });
       }
-      // A monster's link the App Clip kept is opened once, as the link itself would be.
-      const kept = takeClipLink(shared);
-      if (kept !== null) deps.openRoute?.(kept);
+      // Not waited for: its page is read over the network, and what was asked for goes first.
+      void openKept();
       const actions = pending.take();
       for (const action of actions) {
         if (isDayAction(action.kind)) {

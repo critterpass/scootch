@@ -11,6 +11,7 @@ import {
 import { careGate } from '../api/care-gate';
 import type { SessionContext } from '../effects/adapters';
 
+import { moveArrivedPage } from './arrived-pages';
 import type { DayContext, DayEvent } from './day-types';
 import { NO_AFTER_LINES, lineFor } from './lines';
 import { park } from './task-rows';
@@ -174,7 +175,12 @@ export async function setSeriousAside(ctx: DayContext): Promise<void> {
   if (today.kind !== 'serious' || today.task.status !== 'set') return;
   const { task } = today;
   const { repositories } = ctx.deps;
-  await park(ctx, [{ text: task.originalText, dueDate: task.dueDate }], task.screen);
+  const [aside] = await park(
+    ctx,
+    [{ text: task.originalText, dueDate: task.dueDate }],
+    task.screen,
+  );
+  if (aside) await moveArrivedPage(ctx, task.id, aside.id);
   await repositories.forgetTask(task.id);
   await repositories.careReminder.clear();
   const day = await repositories.days.get(localDate);

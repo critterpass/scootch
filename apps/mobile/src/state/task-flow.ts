@@ -4,7 +4,7 @@ import { asksToChoose } from '@scootch/voice';
 import { careGate } from '../api/care-gate';
 import type { TaskCall } from '../api/task-client';
 
-import { arrivedPageOf } from './arrived-pages';
+import { arrivedPageOf, handBack, withHandedBackPage } from './arrived-pages';
 import { endQuiet, enterCrisis, isQuietDay } from './care-flow';
 import type { DayContext, Offer } from './day-types';
 import { pickForMe } from './pick-flow';
@@ -40,18 +40,19 @@ export const TASK_PATIENCE_MS = 8_000;
  * A ramble or a typed task. The phone's gate runs before anything is sent or written; the call
  * itself is not waited for here.
  */
-export async function submitText(ctx: DayContext, offer: Offer): Promise<void> {
+export async function submitText(ctx: DayContext, sent: Offer): Promise<void> {
   const { today } = ctx.memory.state;
   if (today.kind === 'crisis') return;
   // Another thing is taken on only while the day has a start left for it.
   if (!('task' in today) && !hasStartLeft(today)) return;
-  const gate = careGate(offer.text);
+  const gate = careGate(sent.text);
   if (gate === 'crisis') {
     await enterCrisis(ctx);
     return ctx.refresh();
   }
   // The next thing typed after the care screen was closed: the quiet is over.
   await endQuiet(ctx);
+  const offer = withHandedBackPage(ctx.memory, sent);
 
   // With nothing set and things parked, the words may be asking Scootch to choose among them.
   // The phrases the phone knows are answered here, with or without a connection; a looser
@@ -146,6 +147,8 @@ export function cancelTaskCall(ctx: DayContext): void {
   const { offer } = ctx.memory;
   if (ctx.memory.state.taskCall === 'idle' || offer === null) return;
   dropTaskCall(ctx);
+  // A thing that arrived from a monster's page is still that monster's if it is sent again as it is.
+  handBack(ctx.memory, offer);
   ctx.set({ returnedText: offer.text, notice: null });
 }
 

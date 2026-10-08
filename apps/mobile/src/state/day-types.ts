@@ -284,6 +284,8 @@ export interface DayMemory {
   stopWaiting: (() => void) | null;
   /** A waiting task is being asked about right now, so it is not asked about twice. */
   askingPending: boolean;
+  /** Words a cancel handed back to the composer that arrived from a monster's page, and the page. */
+  handedBack: { readonly text: string; readonly monsterPage: string } | null;
 }
 
 export interface DayContext {

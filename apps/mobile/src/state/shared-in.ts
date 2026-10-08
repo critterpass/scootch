@@ -1,13 +1,25 @@
+import { hasStartLeft } from '@scootch/domain';
+
 import { careGate } from '../api/care-gate';
 
-import { keepArrivedPage } from './arrived-pages';
+import { keepArrivedPage, pageInHand } from './arrived-pages';
 import { enterCrisis } from './care-flow';
-import type { DayContext } from './day-types';
+import type { DayContext, DayState } from './day-types';
 import { intoDrawer } from './parked-thoughts';
 import { submitText } from './task-flow';
 
 /** The most of a shared thing that is sent to be read: a page of words, never a whole document. */
 export const SHARED_TEXT_MAX = 1200;
+
+/**
+ * Whether a thing taken in now would be today's: nothing is set, offered or being asked about,
+ * and the day has a start left for it. Otherwise it waits in the drawer.
+ */
+export function takenOnToday(day: Pick<DayState, 'today' | 'taskCall' | 'pick'>): boolean {
+  const { today, taskCall, pick } = day;
+  if (today.kind !== 'nothing_yet' || taskCall !== 'idle' || pick.kind !== 'none') return false;
+  return hasStartLeft(today);
+}
 
 /**
  * A thing shared in from another app is taken in. The share sheet only kept the words; every
@@ -21,7 +33,9 @@ export const SHARED_TEXT_MAX = 1200;
  *   and whenever when today already has its thing, has no start left or is a crisis day.
  *
  * A thing that arrives from a monster's page on the website is taken in the same way. Its page
- * goes with it, to the task call or into the drawer, and with nothing else.
+ * goes with it, to the task call or into the drawer, and with nothing else. A page whose thing is
+ * already here (being asked about, set, parked or finished) is not taken in a second time,
+ * however often its link is opened.
  */
 export async function takeSharedIn(
   ctx: DayContext,
@@ -35,9 +49,8 @@ export async function takeSharedIn(
     await enterCrisis(ctx);
     return ctx.refresh();
   }
-  const { today, taskCall, pick } = ctx.memory.state;
-  const free = today.kind === 'nothing_yet' && taskCall === 'idle' && pick.kind === 'none';
-  if (when === 'now' && free) {
+  if (monsterPage !== undefined && (await pageInHand(ctx, monsterPage))) return;
+  if (when === 'now' && takenOnToday(ctx.memory.state)) {
     await submitText(ctx, {
       text: words,
       source: 'ramble',
@@ -45,7 +58,7 @@ export async function takeSharedIn(
       transcriptId: null,
       ...(monsterPage === undefined ? {} : { monsterPage }),
     });
-    // A day with no start left takes nothing on: the thing is kept instead of lost.
+    // Words that only asked Scootch to choose set nothing: the thing is kept instead of lost.
     if (ctx.memory.state.taskCall !== 'idle') return;
   }
   const parked = await intoDrawer(ctx, words, when === 'tomorrow' ? 'tomorrow' : 'whenever');

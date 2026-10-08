@@ -33,6 +33,7 @@ import {
   systemClock,
   systemTimers,
 } from '../effects/native-adapters';
+import { nativeLinkPorts } from '../features/arrive/native-link-ports';
 import { purchaseStateOf } from '../features/plus/entitlement';
 import { revenueCatPurchases } from '../features/plus/revenuecat-port';
 import { nativeShareDevice } from '../features/share/native-share-device';
@@ -136,6 +137,7 @@ function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
     finish: () => plus.store.getState().look.finish,
     now: () => systemClock.now(),
     timeZone,
+    arrivals: nativeLinkPorts({ db, http, backup: data.backup }),
   });
   // Tables, friends and haunts: the same device token, and one connection to one table.
   const together = createTogetherRuntime({
@@ -182,14 +184,11 @@ export function DayStoreProvider({ children }: { readonly children: ReactNode })
       .catch(() => undefined)
       .then(() => data.keepUp());
 
-    void AccessibilityInfo.isReduceMotionEnabled()
-      .then((reduced) => {
-        motion.reduced = reduced;
-      })
-      .catch(() => undefined);
-    const reduceMotion = AccessibilityInfo.addEventListener('reduceMotionChanged', (reduced) => {
+    const setReduced = (reduced: boolean) => {
       motion.reduced = reduced;
-    });
+    };
+    void AccessibilityInfo.isReduceMotionEnabled().then(setReduced, () => undefined);
+    const reduceMotion = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduced);
     const appState = AppState.addEventListener('change', (next) => {
       if (next === 'active') {
         send({ type: 'app_foregrounded' });
@@ -247,7 +246,8 @@ export function useCue(): (cue: string) => void {
   return useContext(CueContext);
 }
 
-function useDayStore(): DayStore {
+/** The day store itself, for what must go on after the screen that began it has gone. */
+export function useDayStore(): DayStore {
   const store = useContext(DayStoreContext);
   if (!store) throw new Error('The day store is read outside its provider');
   return store;

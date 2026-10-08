@@ -34,4 +34,8 @@ export const viDayLoop = {
   'arrive.ask.placeholder': 'Một việc thôi',
   'arrive.ask.send': 'Lấy làm việc hôm nay',
   'arrive.ask.send.hint': 'Nhận nó làm một việc của hôm nay, cùng con quái này.',
+  'arrive.ask.sub.parked':
+    'Trang của nó giấu phần chữ. Gõ việc đó vào đây, và nó chờ trong ngăn kéo.',
+  'arrive.ask.send.parked': 'Cất vào ngăn kéo',
+  'arrive.ask.send.parked.hint': 'Cất nó vào ngăn kéo, cùng con quái này.',
 } as const;
