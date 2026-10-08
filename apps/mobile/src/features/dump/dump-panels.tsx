@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import type { Energy } from '@scootch/domain';
 import { fonts, radius, spacing } from '@scootch/tokens';
 
 import { useLanguage, useT } from '../../i18n/i18n-provider';
@@ -173,43 +172,6 @@ export function DeadlineCard({ said, back, keepLabel, onKeep, onToday }: Deadlin
   );
 }
 
-const ENERGIES: readonly Energy[] = ['low', 'medium', 'fine'];
-
-/** The battery question: three taps, or Scootch guesses from how the words were written. */
-export function EnergyRead({
-  onAnswer,
-}: {
-  readonly onAnswer: (energy: Energy | 'guess') => void;
-}) {
-  const { largeText } = useScreenStyle();
-  const t = useT();
-  return (
-    <View testID="energy-read" style={styles.energy}>
-      <Headed label={t('brand.name')} heading={t('energy.ask')} />
-      <View accessibilityRole="radiogroup" style={[styles.energyRow, largeText && styles.stacked]}>
-        {ENERGIES.map((energy) => (
-          <CapsuleButton
-            key={energy}
-            label={t(`energy.${energy}`)}
-            hint={t('energy.hint')}
-            tone="quiet"
-            onPress={() => onAnswer(energy)}
-            testID={`energy-${energy}`}
-            style={largeText ? undefined : styles.half}
-          />
-        ))}
-      </View>
-      <CapsuleButton
-        label={t('energy.guess')}
-        hint={t('energy.hint')}
-        tone="quiet"
-        onPress={() => onAnswer('guess')}
-        testID="energy-guess"
-      />
-    </View>
-  );
-}
-
 export interface QuietLinkProps extends Pick<
   CapsuleButtonProps,
   'label' | 'hint' | 'onPress' | 'testID'
@@ -284,8 +246,6 @@ const styles = StyleSheet.create({
   cardChoices: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   mark: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   markText: { fontFamily: fonts.heading, fontWeight: '700', fontSize: 14 },
-  energy: { gap: spacing.md },
-  energyRow: { flexDirection: 'row', gap: spacing.sm },
   link: { alignSelf: 'flex-start' },
   chip: { borderRadius: 999, paddingHorizontal: 14, paddingVertical: 8.75, overflow: 'hidden' },
   chipInner: { flexDirection: 'row', alignItems: 'center', gap: 8 },
