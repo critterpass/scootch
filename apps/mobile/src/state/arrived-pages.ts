@@ -153,8 +153,13 @@ export function withHandedBackPage(memory: DayMemory, offer: Offer): Offer {
   return { ...offer, monsterPage: back.monsterPage };
 }
 
-/** Whether this page's thing is already being asked about, or on the phone. */
+/**
+ * Whether this page's thing is already being asked about, or on the phone. The offer names its
+ * page long after its answer came, so it counts only while the answer is still waited for; from
+ * then on a page is in hand only while a task or a drawer item really holds it.
+ */
 export async function pageInHand(ctx: DayContext, page: string): Promise<boolean> {
-  if (ctx.memory.offer?.monsterPage === page) return true;
+  const asking = ctx.memory.state.taskCall !== 'idle';
+  if (asking && ctx.memory.offer?.monsterPage === page) return true;
   return (await holderOfPage(ctx.deps, page)) !== null;
 }

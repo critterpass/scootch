@@ -11,6 +11,7 @@ import {
 import type { Repositories } from '../../data/repositories';
 import type { DayStore } from '../../state/day-store';
 import type { DayState } from '../../state/day-types';
+import { sessionIsUp } from '../arrive/arrive-rules';
 import { openKeptLink, type LinkPorts } from '../arrive/open-link';
 import type { FriendsTablesSeen } from '../table/friends-tables-seen';
 
@@ -269,8 +270,9 @@ export function createSurfaceSync(deps: SurfaceSyncDeps) {
   /**
    * A monster's link that was kept (the App Clip's, or one tapped during first launch) is opened
    * once first launch is done and any restore offer is answered: its thing is taken in as a
-   * shared thing is, and only a page that hides its words is shown, to ask for them. The link
-   * stays kept until its thing is on the phone, so it is looked at every time.
+   * shared thing is, and only a page that hides its words is shown, to ask for them, and never
+   * over a session. The link stays kept until its thing is on the phone, so it is looked at
+   * every time.
    */
   const openKept = async () => {
     const { arrivals } = deps;
@@ -292,15 +294,16 @@ export function createSurfaceSync(deps: SurfaceSyncDeps) {
     /** Follows the store until the returned function is called. */
     follow(): () => void {
       void sync();
-      // First launch finishing is the moment a link that waited for it is opened.
-      let launching = false;
+      // First launch finishing, and a session's screens coming down, are the moments a link
+      // that waited for them is opened.
+      let waited = false;
       return store.subscribe(() => {
         void sync();
-        const { ready, settings } = store.getState();
+        const { ready, settings, session } = store.getState();
         if (!ready) return;
-        const pending = settings.firstLaunchDoneAt === null;
-        if (launching && !pending) void openKept();
-        launching = pending;
+        const waits = settings.firstLaunchDoneAt === null || sessionIsUp(session);
+        if (waited && !waits) void openKept();
+        waited = waits;
       });
     },
     /**

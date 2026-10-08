@@ -15,6 +15,7 @@ import {
   linkMayOpen,
   pageIdFrom,
   rememberPage,
+  sessionIsUp,
 } from './arrive-rules';
 
 /** What opening a monster's link needs of the phone. */
@@ -62,6 +63,8 @@ const restoreWaiting = (ports: Pick<LinkPorts, 'restoreWaits'>) =>
  */
 export async function takeIn(ports: LinkPorts, page: MonsterPage, text: string): Promise<boolean> {
   const { store, shared, kept, holders } = ports;
+  // A crisis day takes nothing in. The link is left as it is, to be asked about another day.
+  if (store.getState().today.kind === 'crisis') return false;
   const settle = async () => {
     if ((await holderOfPage(holders, page.id)) === null) return false;
     dropKeptLink(shared, `/m/${page.id}`);
@@ -97,6 +100,8 @@ export async function takeIn(ports: LinkPorts, page: MonsterPage, text: string):
  * - A page that cannot be reached leaves a kept link kept, for the next time the app comes to
  *   the front. An id nobody has and a monster already caught end it.
  * - A page whose thing is already on the phone takes nothing in again.
+ * - While a session's screens are up, a page that hides its words is not asked about: the link
+ *   is kept until the session is over. Words a page shows are still taken in underneath.
  */
 export async function openLink(ports: LinkPorts, part: string | undefined): Promise<Opened> {
   const { store, shared } = ports;
@@ -130,6 +135,11 @@ export async function openLink(ports: LinkPorts, part: string | undefined): Prom
   const { today, heavyToday } = store.getState();
   const arrival = arrivalFor(page, { crisis: today.kind === 'crisis', heavy: heavyToday });
   if (arrival.kind === 'take_in') return { kind: 'home', taken: takeIn(ports, page, arrival.text) };
+  // Nothing is asked over a session: the link is kept, and asks once the session is over.
+  if (arrival.kind === 'ask' && sessionIsUp(store.getState().session)) {
+    holdLink(shared, route, ports.now());
+    return HOME;
+  }
   return arrival;
 }
 
