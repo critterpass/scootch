@@ -197,6 +197,7 @@ export function CardStep({ model, actions, t }: RevealStepProps) {
             language={model.language}
             cardWidth={cardWidth}
             motion={motion}
+            guessMinutes={model.monster?.guessMinutes ?? null}
             stamped={!moving}
             testID="reveal-card-face"
             {...(moving

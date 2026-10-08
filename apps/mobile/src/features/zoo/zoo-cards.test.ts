@@ -1,5 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
+import { buildCard, CARD_LABELS } from '@scootch/art';
+
 import {
   asRows,
   fixtureMonster,
@@ -56,6 +58,21 @@ describe("a card's guess line", () => {
     expect(guessLine({ ...took11, guessMinutes: 60, catchMinutes: 60 }, 'en')).toBe(
       'Thought 1 hour. Took 1 hour.',
     );
+  });
+
+  it("is the same line the reveal's card prints, from the one set of words", () => {
+    for (const language of ['en', 'vi'] as const) {
+      const monster = { ...took11, guessMinutes: 120 as const };
+      const line = guessLine(monster, language);
+      expect(line).toBe(
+        CARD_LABELS[language].thoughtTook(
+          CARD_LABELS[language].durationLong(2, 0),
+          CARD_LABELS[language].durationLong(0, 11),
+        ),
+      );
+      const drawn = buildCard(cardDataFor(monster, null), { language, guessMinutes: 120 });
+      expect(drawn.some((command) => command.op === 'text' && command.text === line)).toBe(true);
+    }
   });
 
   it('never weighs one number against the other, in either language', () => {

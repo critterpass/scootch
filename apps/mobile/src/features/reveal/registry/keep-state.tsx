@@ -26,7 +26,12 @@ export const MADE_TO_SHARE = '06 Made to share';
 
 /** Which keeping screen a capture shows, and with how much in it. */
 export type KeepCapture =
-  | { readonly screen: 'reveal'; readonly step: RevealStep }
+  | {
+      readonly screen: 'reveal';
+      readonly step: RevealStep;
+      /** The catch's monster carries this guess, made before starting. */
+      readonly guessMinutes?: GuessMinutes;
+    }
   | { readonly screen: 'world'; readonly pieces: number; readonly lighthouse?: boolean }
   | {
       readonly screen: 'zoo';

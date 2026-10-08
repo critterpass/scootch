@@ -3,7 +3,9 @@
  * Lời Scootch nói không nằm ở đây.
  */
 export const viFinishAndReturn = {
-  'binder.card.thoughtTook': 'Tưởng {thought}. Mất {took}.',
+  'share.guess': 'Hiện dự đoán',
+  'share.guess.note': 'Tưởng bao lâu, mất bao lâu.',
+  'share.guess.hint': 'In thời gian bạn tưởng bên cạnh thời gian thật',
   'session.nextTime.title': 'Lần sau, bắt đầu bằng…',
   'session.nextTime.sub':
     'Không bắt buộc. Lần sau mình sẽ cho bạn xem nó trước tiên, đúng từng chữ.',

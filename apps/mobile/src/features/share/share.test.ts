@@ -20,19 +20,23 @@ import {
   shareWeekClip,
   tellPageOfCatch,
   unshareCatch,
+  type CatchShare,
   type ShareDevice,
   type SharePages,
 } from './share-flow';
 import {
+  composeCardImage,
   composePage,
   composeShareImage,
   composeWanted,
   finishOfFrame,
   formatsOffered,
   frameOfFinish,
+  guessOffered,
   takesFrame,
   type ShareDress,
   type ShareImage,
+  type ShareImageOptions,
 } from './share-image';
 import { dayLog, monthBefore, monthWrap } from './share-logs';
 import { shareOffered, shareOfferedOn } from './share-rules';
@@ -523,5 +527,56 @@ describe('sharing a catch', () => {
     expect(await shareWeekClip(device, silence, '2026-W41')).toBe('shared');
     expect(calls.written).toEqual(['scootch-2026-W41.wav:444']);
     expect(calls.sheets).toEqual(['audio/wav file:///scootch-2026-W41.wav']);
+  });
+});
+
+describe('the guess line on a shared story', () => {
+  const GUESS = /Thought \d+ (minutes|hours?)\. Took \d+/;
+  const still = { hideTask: true, language: 'en' } as const;
+
+  it('offers its switch only for the story of a catch that had a guess', () => {
+    expect(guessOffered('story', 120)).toBe(true);
+    expect(guessOffered('story', null)).toBe(false);
+    expect(guessOffered('story', undefined)).toBe(false);
+    for (const format of ['card', 'stickers', 'receipt', 'poster', 'page'] as const) {
+      expect(guessOffered(format, 120)).toBe(false);
+    }
+  });
+
+  it('prints the line on the story with a guess, and the story as it always was without one', () => {
+    const on = composeShareImage('story', card, { ...still, guessMinutes: 120 }, plain);
+    expect(texts(on)).toMatch(GUESS);
+    // Switched off, and with no guess at all, the picture is the one the app made before.
+    const before = composeShareImage('story', card, still, plain);
+    expect(composeShareImage('story', card, { ...still, guessMinutes: null }, plain)).toEqual(
+      before,
+    );
+    expect(texts(before)).not.toMatch(GUESS);
+    // No other picture of the catch prints it.
+    for (const format of ['card', 'stickers'] as const) {
+      expect(
+        texts(composeShareImage(format, card, { ...still, guessMinutes: 120 }, plain)),
+      ).not.toMatch(GUESS);
+    }
+    expect(texts(composeCardImage(card, { ...still, guessMinutes: 120 }))).toMatch(GUESS);
+    expect(composeCardImage(card, { ...still, guessMinutes: null })).toEqual(
+      composeCardImage(card, still),
+    );
+  });
+
+  it('sends and saves the picture the composer shows: with the line, or without it once it is switched off', async () => {
+    // The composer hands the guess over on the share itself, beside the task's switch.
+    type Guessed = CatchShare & Pick<ShareImageOptions, 'guessMinutes'>;
+    const share = { task, card, signed, format: 'story', dress: plain, ...still } as const;
+    const on: Guessed = { ...share, guessMinutes: 120 };
+    const off: Guessed = { ...share, guessMinutes: null };
+    const withLine = recorder();
+    await shareCatch(withLine.device, website().pages, on);
+    await saveCatch(withLine.device, on);
+    expect(withLine.calls.drawn.map((image) => GUESS.test(texts(image)))).toEqual([true, true]);
+    const without = recorder();
+    await shareCatch(without.device, website().pages, off);
+    await saveCatch(without.device, share);
+    expect(without.calls.drawn.map((image) => GUESS.test(texts(image)))).toEqual([false, false]);
   });
 });

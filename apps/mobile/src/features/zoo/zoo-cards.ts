@@ -6,7 +6,6 @@ import {
   type MonsterRow,
   type TaskRow,
 } from '@scootch/domain';
-import { t } from '@scootch/i18n';
 
 /** A monster with its card: every card field was frozen at the catch. */
 export type CaughtMonster = MonsterRow & {
@@ -77,10 +76,7 @@ export function guessLine(
 ): string | null {
   const pair = guessAndReal(monster);
   if (pair === null) return null;
-  const { durationLong } = CARD_LABELS[language];
+  const { durationLong, thoughtTook } = CARD_LABELS[language];
   const plain = (minutes: number) => durationLong(Math.floor(minutes / 60), minutes % 60);
-  return t(language, 'binder.card.thoughtTook', {
-    thought: plain(pair.thoughtMinutes),
-    took: plain(pair.tookMinutes),
-  });
+  return thoughtTook(plain(pair.thoughtMinutes), plain(pair.tookMinutes));
 }

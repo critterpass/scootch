@@ -45,8 +45,9 @@ const NO_REVEAL_ACTIONS = {
 };
 
 /** One step of the reveal, for the catch of the first fixture monster on a Tuesday. */
-function capturedReveal(step: RevealStep, language: Language) {
-  const monster = fixtureMonster(1);
+function capturedReveal(step: RevealStep, language: Language, guessMinutes?: GuessMinutes) {
+  const caught = fixtureMonster(1);
+  const monster = guessMinutes === undefined ? caught : { ...caught, guessMinutes };
   const model: RevealModel = {
     step,
     language,
@@ -190,7 +191,7 @@ function capturedRecord(language: Language, barCount: number) {
 export function Captured({ capture, language }: { capture: KeepCapture; language: Language }) {
   switch (capture.screen) {
     case 'reveal':
-      return capturedReveal(capture.step, language);
+      return capturedReveal(capture.step, language, capture.guessMinutes);
     case 'world':
       return capturedWorld(capture.pieces, capture.lighthouse);
     case 'zoo':

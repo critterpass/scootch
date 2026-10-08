@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Switch, Text, useWindowDimensions, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -10,7 +10,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { ShareFrame } from '@scootch/art';
 import type { Language } from '@scootch/i18n';
-import { fonts, shadows, spacing } from '@scootch/tokens';
+import { fonts, spacing } from '@scootch/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
 import { CloseButton, CORNER, CornerBar } from '../../ui/corner-bar';
@@ -25,6 +25,7 @@ import { Segmented } from '../zoo/ui/segmented';
 import type { ShareFormat, ShareImage } from './share-image';
 import { FrameSwatches } from './ui/frame-swatches';
 import { ShareDock } from './ui/share-dock';
+import { SwitchCard } from './ui/switch-card';
 
 /** What is being shared: a catch, a monster still wild, a month, the world, or a week's song. */
 export type ShareMoment = 'caught' | 'monster' | 'month' | 'world' | 'song';
@@ -46,6 +47,8 @@ export interface ShareModel {
   readonly hideTask: boolean;
   /** Whether the picture or its page can carry the task's words, so the switch means something. */
   readonly canHideTask: boolean;
+  /** Set only for a story whose catch had a guess: whether its line is on the picture. */
+  readonly guess?: boolean;
   readonly language: Language;
   /** What the last press came to, said in the interface's own words. */
   readonly notice:
@@ -75,6 +78,8 @@ export interface ShareActions {
   readonly setFormat: (format: ShareFormat) => void;
   readonly setFrame: (frame: ShareFrame) => void;
   readonly setHideTask: (hide: boolean) => void;
+  /** Puts the guess line on the story or takes it off. Unset where no picture prints one. */
+  readonly setGuess?: (show: boolean) => void;
   readonly share: () => void;
   /** Takes the catch's page off the website. */
   readonly unshare: () => void;
@@ -182,32 +187,24 @@ export function SharePanel({ model, actions }: { model: ShareModel; actions: Sha
         />
       ) : null}
       {model.canHideTask ? (
-        <View style={[styles.card, { backgroundColor: palette.surface }]}>
-          <View style={styles.words}>
-            <Text
-              allowFontScaling={allowFontScaling}
-              maxFontSizeMultiplier={1.6}
-              style={[styles.hide, { color: palette.ink, fontSize: size(16) }]}
-            >
-              {t('share.hideTask')}
-            </Text>
-            <Text
-              allowFontScaling={allowFontScaling}
-              maxFontSizeMultiplier={1.8}
-              style={[styles.hideNote, { color: palette.muted, fontSize: size(13) }]}
-            >
-              {t('share.hideTask.note')}
-            </Text>
-          </View>
-          <Switch
-            accessibilityLabel={t('share.hideTask')}
-            accessibilityHint={t('share.hideTask.hint')}
-            testID="share-hide-task"
-            value={model.hideTask}
-            onValueChange={actions.setHideTask}
-            trackColor={{ true: palette.tomato }}
-          />
-        </View>
+        <SwitchCard
+          label={t('share.hideTask')}
+          note={t('share.hideTask.note')}
+          hint={t('share.hideTask.hint')}
+          testID="share-hide-task"
+          value={model.hideTask}
+          onChange={actions.setHideTask}
+        />
+      ) : null}
+      {model.guess !== undefined && actions.setGuess ? (
+        <SwitchCard
+          label={t('share.guess')}
+          note={t('share.guess.note')}
+          hint={t('share.guess.hint')}
+          testID="share-guess"
+          value={model.guess}
+          onChange={actions.setGuess}
+        />
       ) : null}
       {model.pageOffered ? null : (
         <Text
@@ -317,17 +314,5 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     boxShadow: '0 24px 40px -22px rgba(28,26,23,0.5)',
   },
-  card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    borderRadius: 22,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    boxShadow: shadows.card,
-  },
-  words: { flex: 1, gap: 1 },
-  hide: { fontFamily: fonts.body, fontWeight: '500' },
-  hideNote: { fontFamily: fonts.body },
   small: { fontFamily: fonts.body, textAlign: 'center' },
 });

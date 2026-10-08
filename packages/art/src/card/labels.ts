@@ -1,4 +1,4 @@
-import type { CardFinish, CardRarity } from '@scootch/domain';
+import { guessAndReal, type CardFinish, type CardRarity } from '@scootch/domain';
 
 export type CardLanguage = 'en' | 'vi';
 
@@ -14,6 +14,8 @@ export interface CardLabels {
   readonly duration: (hours: number, minutes: number) => string;
   /** The long form in a story sentence: "9 minutes". */
   readonly durationLong: (hours: number, minutes: number) => string;
+  /** The guess and the real time, both in the long form: "Thought 2 hours. Took 11 minutes." */
+  readonly thoughtTook: (thought: string, took: string) => string;
   readonly caughtBy: (date: string) => string;
   readonly notCaughtYet: string;
   readonly stamp: string;
@@ -97,6 +99,7 @@ export const CARD_LABELS: Record<CardLanguage, CardLabels> = {
       ]
         .filter((part) => part !== '')
         .join(' '),
+    thoughtTook: (thought, took) => `Thought ${thought}. Took ${took}.`,
     caughtBy: (date) => `Caught by you · ${date}`,
     notCaughtYet: 'Not caught yet',
     stamp: 'CAUGHT',
@@ -170,6 +173,7 @@ export const CARD_LABELS: Record<CardLanguage, CardLabels> = {
     duration: (h, m) => (h === 0 ? `${m} phút` : m === 0 ? `${h} giờ` : `${h} giờ ${m} phút`),
     durationLong: (h, m) =>
       h === 0 ? `${m} phút` : m === 0 ? `${h} tiếng` : `${h} tiếng ${m} phút`,
+    thoughtTook: (thought, took) => `Tưởng ${thought}. Mất ${took}.`,
     caughtBy: (date) => `Bạn bắt được · ${date}`,
     notCaughtYet: 'Chưa bắt được',
     stamp: 'ĐÃ BẮT',
@@ -239,4 +243,23 @@ export function formatCardDate(isoDate: string, language: CardLanguage): string 
 /** Splits whole minutes into hours and minutes. */
 export function splitMinutes(total: number): [hours: number, minutes: number] {
   return [Math.floor(total / 60), total % 60];
+}
+
+/**
+ * The one line printed for a guess made before starting: "Thought 2 hours. Took 11 minutes."
+ * Always those two sentences in plain units, whichever number is the larger, and `null` with no
+ * guess: nothing is then printed at all.
+ */
+export function thoughtTookLine(
+  times: {
+    readonly guessMinutes?: number | null | undefined;
+    readonly catchMinutes: number | null;
+  },
+  language: CardLanguage,
+): string | null {
+  const pair = guessAndReal(times);
+  if (pair === null) return null;
+  const labels = CARD_LABELS[language];
+  const plain = (minutes: number) => labels.durationLong(...splitMinutes(minutes));
+  return labels.thoughtTook(plain(pair.thoughtMinutes), plain(pair.tookMinutes));
 }

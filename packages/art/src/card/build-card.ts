@@ -1,4 +1,4 @@
-import type { CardData, CardFinish } from '@scootch/domain';
+import type { CardData, CardFinish, GuessMinutes } from '@scootch/domain';
 
 import { buildMonster } from '../core/build-monster';
 import { VIEW_SIZE, type DrawCommand } from '../core/commands';
@@ -12,11 +12,11 @@ import {
 } from '../core/text';
 import { buildScootch } from '../scootch/build-scootch';
 import { oneLine, pushLines, type LinePlace } from './card-lines';
-import { buildTiles, TILE_HEIGHT } from './card-tiles';
+import { buildGuessTile, buildTiles, GUESS_TILE_HEIGHT, TILE_HEIGHT } from './card-tiles';
 import type { CardFinishInks } from './finish';
 import * as finishes from './finishes/index.generated';
 import { buildFoil, FLAT, type CardTilt } from './foil';
-import { CARD_LABELS, formatCardDate, type CardLanguage } from './labels';
+import { CARD_LABELS, formatCardDate, thoughtTookLine, type CardLanguage } from './labels';
 import { dashedRule, dotScreen, fill, placed, roundRect, type Box } from './shapes';
 import { buildStamp, stampCentre } from './stamp';
 
@@ -33,6 +33,11 @@ export interface CardOptions {
   readonly hideTask?: boolean;
   /** A monster not caught yet: no stamp, no catch time, "Not caught yet". */
   readonly wild?: boolean;
+  /**
+   * The guess made before starting. With one, a caught card prints "Thought 2 hours. Took 11
+   * minutes." under its stats; absent or `null`, the card is drawn as it always was.
+   */
+  readonly guessMinutes?: GuessMinutes | null;
   /** The language of the few fixed labels. English when left out. */
   readonly language?: CardLanguage;
   /** Where the light falls on the foil, from device motion. Flat when left out. */
@@ -196,8 +201,22 @@ export function buildCardLayers(data: CardData, options: CardOptions = {}): Card
     }),
   );
 
+  // The guess and the real time, when a guess was made: one tile under the stats.
+  const guessed = options.wild
+    ? null
+    : thoughtTookLine(
+        { guessMinutes: options.guessMinutes, catchMinutes: data.catchMinutes },
+        language,
+      );
+  const guessTop = tileY + TILE_HEIGHT + GAP;
+  if (guessed !== null) {
+    out.push(
+      ...buildGuessTile(guessed, inks, measure, { left: LEFT, top: guessTop, width: WIDTH }),
+    );
+  }
+
   // Flavour text takes what is left above the foot, shrinking before it is ever cut.
-  const flavourTop = tileY + TILE_HEIGHT + GAP;
+  const flavourTop = guessed === null ? guessTop : guessTop + GUESS_TILE_HEIGHT + GAP;
   const room = RULE_Y - GAP + 2 - flavourTop;
   lines(
     data.flavourText,
