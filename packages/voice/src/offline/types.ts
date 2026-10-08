@@ -85,6 +85,53 @@ export type NoTaskSlot = (typeof noTaskSlots)[number];
 
 export type NoTaskLines = Readonly<Record<NoTaskSlot, string>>;
 
+/**
+ * What Scootch says around the helpers for starting and returning, when no route wrote the line:
+ * with no connection, and wherever the words are the same for every task. One fixed line per slot.
+ */
+export const helperSlots = [
+  /** Over the guess sheet's wheel. */
+  'guessAsk',
+  /** Under it: what a guess is. */
+  'guessNote',
+  /** Said back when "Anything in the way?" is answered, one per answer. */
+  'inTheWayBoring',
+  'inTheWayScary',
+  'inTheWayConfusing',
+  'inTheWayTooBig',
+  /** The cue's notification. It opens with `{cue}`, where the phone puts the cue's own words. */
+  'cue',
+  /** Under a time said back: what Scootch will do about it. */
+  'timeHeardPlan',
+  /** Over the field for a line left on "not finished". */
+  'nextTimeAsk',
+  'nextTimeNote',
+  /** Under the line the person left, when a sitting opens on it. It never holds their words. */
+  'nextStartOpening',
+  /** Under the three bites: none ticked, some ticked (`{count}` is how many), all ticked. */
+  'bitesStart',
+  'bitesNext',
+  'bitesLast',
+  /** On the widgets with nothing waiting; `{name}` is the monster that joined the world last. */
+  'widgetRest',
+  'widgetJoined',
+] as const;
+export type HelperSlot = (typeof helperSlots)[number];
+
+export type HelperLines = Readonly<Record<HelperSlot, string>>;
+
+/** The helpers a heavy task still shows, in plain words: no monster says them. */
+export const plainHelperSlots = [
+  'cue',
+  'timeHeardPlan',
+  'nextTimeAsk',
+  'nextTimeNote',
+  'nextStartOpening',
+] as const satisfies readonly HelperSlot[];
+export type PlainHelperSlot = (typeof plainHelperSlots)[number];
+
+export type PlainHelperLines = Readonly<Record<PlainHelperSlot, string>>;
+
 /** The plain-words lines for a heavy task: company, no comedy. */
 export type PlainLines = {
   readonly acknowledge: string;
@@ -104,6 +151,15 @@ export type OfflinePack = {
   readonly lines: Readonly<Record<Attitude, OfflineLines>>;
   readonly plain: PlainLines;
   readonly noTask: Readonly<Record<Attitude, NoTaskLines>>;
+  readonly helpers: Readonly<Record<Attitude, HelperLines>>;
+  readonly plainHelpers: PlainHelperLines;
+  /**
+   * Says a heard clock time back, in the user's own words for the thing and the time ("Dentist
+   * at 3."). The same plain words at every attitude and for a heavy day.
+   */
+  readonly timeSaidBack: (heardAs: string) => string;
+  /** The one nudge before a heard time, from Scootch and no monster. It never says "leave". */
+  readonly getReady: (heardAs: string) => string;
   /** "Name, Title" names for a monster whose own name failed the check. */
   readonly monsterNames: readonly [string, ...string[]];
   readonly monsterTitles: readonly [string, ...string[]];

@@ -1,5 +1,6 @@
 import {
   attitudeSchema,
+  inTheWaySchema,
   languageSchema,
   monsterBodyTypeSchema,
   taskTextSchema,
@@ -24,6 +25,8 @@ export const continuationPayloadSchema = z.object({
   seed: z.number().int().min(0),
   /** The monster's name once it has been written: what the pack is asked with. */
   monsterName: z.string().min(1).max(60).optional(),
+  /** What the user said is in the way, for the writer. Never set for a heavy task. */
+  inTheWay: inTheWaySchema.optional(),
   /**
    * A monster made on the website that this thing keeps: its own name, card line and seed, in the
    * language they were written in. Read from the server's own record, never from the phone.

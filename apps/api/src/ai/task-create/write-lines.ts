@@ -6,7 +6,7 @@ import {
   type TaskCreateLinesResponse,
   type TaskCreatePackResponse,
 } from '@scootch/domain';
-import { offlineMonsterName, type LineKind } from '@scootch/voice';
+import { cueSlot, offlineMonsterName, type LineKind } from '@scootch/voice';
 
 import { ApiError } from '../../errors';
 import { noteTakenIn } from '../../sharing/shared-monsters';
@@ -19,7 +19,7 @@ import { writerSystem } from './line-briefs';
 import { rewritePrompt, taskPrompt, treatPrompt } from './prompt';
 import {
   bitesAt,
-  checkWritten,
+  checkSlot,
   failuresIn,
   listAt,
   nameFields,
@@ -68,7 +68,7 @@ function reasonOf(error: unknown): string {
  */
 async function writeChecked(
   context: TaskCreateContext,
-  { oneThing, language, attitude, bodyType, seed, adopted }: ContinuationPayload,
+  { oneThing, language, attitude, bodyType, seed, adopted, inTheWay }: ContinuationPayload,
   job: {
     readonly tool: string;
     readonly parts: readonly (readonly Field[])[];
@@ -104,6 +104,7 @@ async function writeChecked(
             attitude,
             seed + index,
             fields.map(({ key }) => key),
+            inTheWay,
           ),
           prompt: [
             taskPrompt(oneThing),
@@ -165,6 +166,7 @@ async function writeChecked(
           attitude,
           seed,
           job.parts.flatMap((fields) => fields.map(({ key }) => key)),
+          inTheWay,
         ),
         prompt: rewritePrompt(
           language,
@@ -180,8 +182,9 @@ async function writeChecked(
       const accepted = new Map<string, string>();
       for (const { slot, kind } of asked) {
         const text = tidied(rewritten.output[slot] ?? '', kind, attitude);
-        if (checkWritten({ text, kind, language, attitude }, job.treat).ok)
+        if (checkSlot(slot, { text, kind, language, attitude }, job.treat).ok) {
           accepted.set(slot, text);
+        }
       }
       // A new name is used only with the lines written for it: all of them, or none.
       if (!nameFailed || accepted.size === asked.length) {
@@ -245,8 +248,8 @@ export async function writeName(
 }
 
 /**
- * The second part of stage two: every other session line and the day's notifications, about the
- * monster already named. The treat line names the treat when one is passed in, and otherwise
+ * The second part of stage two: every other session line, the day's notifications and the cue's,
+ * about the monster already named. The treat line names the treat when one is passed in, and otherwise
  * keeps the placeholder the phone fills.
  */
 export async function writePack(
@@ -263,6 +266,7 @@ export async function writePack(
   });
   const at = (slot: string) => texts.get(`lines.${slot}`) ?? '';
   const bites = bitesAt(texts);
+  const cue = texts.get(cueSlot) ?? '';
   const response = taskCreatePackResponseSchema.parse({
     lines: {
       start: at('start'),
@@ -281,9 +285,11 @@ export async function writePack(
           : at('treatHandOver').replaceAll(treatPlaceholder, treat),
       parkedThoughts: at('parkedThoughts'),
       releasedEarly: at('releasedEarly'),
+      nextStartOpening: at('nextStartOpening'),
       ...(bites === undefined ? {} : { bites }),
     },
     notifications: listAt(texts, 'notifications').map((text) => ({ text })),
+    cueNotification: { text: cue },
   });
   return { response, voice };
 }
@@ -300,6 +306,7 @@ export async function writeLines(
       monster: name.monster,
       lines: { hatch: name.hatch, ...pack.response.lines },
       notifications: pack.response.notifications,
+      cueNotification: pack.response.cueNotification,
     }),
     voice: {
       attempts: Math.max(name.voice.attempts, pack.voice.attempts),

@@ -1,3 +1,4 @@
+import { viHelpers } from './vi-helpers';
 import type { OfflinePack } from './types';
 
 /** Written in Vietnamese. Soft speaks as "mình"; Cheeky and Unhinged speak as "tui". */
@@ -228,6 +229,7 @@ export const viOffline: OfflinePack = {
       eveningReceipt: '{count}. XONG {count} VIỆC. Tui in hoá đơn rồi đóng khung luôn.',
     },
   },
+  ...viHelpers,
   monsterNames: [
     'Lấp Ló, Người Giữ Chìa Khoá Gầm Bàn',
     'Tần Ngần, Thủ Kho Của Mấy Việc Dở Dang',

@@ -66,12 +66,12 @@ afterEach(() => {
 describe('the task call in two stages', () => {
   it('answers stage one with the task, the rest and the labels, before anything is written', async () => {
     const { stageOne, body } = await start();
-    const { monster, lines, notifications, ...first } = passFixture.response;
+    const { monster, lines, notifications, cueNotification, ...first } = passFixture.response;
 
     expect(body).toEqual({ ...first, continuation: body.continuation });
     expect(Object.keys(JSON.parse(stageOne.raw) as object)).not.toContain('monster');
     expect(writerCalls(stageOne.doubles)).toEqual([]);
-    expect([monster, lines, notifications]).not.toContain(undefined);
+    expect([monster, lines, notifications, cueNotification]).not.toContain(undefined);
     expect(Date.parse(body.continuation.expiresAt) - Date.now()).toBeLessThanOrEqual(
       continuationLifetimeMs,
     );
@@ -95,13 +95,14 @@ describe('the task call in two stages', () => {
     );
 
     expect(stageTwo.response.status).toBe(200);
-    const { monster, lines, notifications } = passFixture.response;
+    const { monster, lines, notifications, cueNotification } = passFixture.response;
     const answer = taskCreateLinesResponseSchema.parse(JSON.parse(stageTwo.raw));
     expect(answer).toEqual({
       // The words come with the server's signature for them.
       monster: { ...monster, signed: answer.monster.signed },
       lines,
       notifications,
+      cueNotification,
     });
     expect(answer.monster.signed).toMatchObject({ language: 'en' });
     expect(stageTwo.response.headers.get('X-Voice-Check')).toBe(
@@ -168,6 +169,7 @@ describe('the task call in two stages', () => {
     expect(pack).toEqual({
       lines: { ...rest, treatHandOver: rest.treatHandOver?.replace('{treat}', 'a flat white') },
       notifications,
+      cueNotification: passFixture.response.cueNotification,
     });
     expect(pack.lines.treatHandOver).toContain('a flat white');
     // The pack is written about the monster already named.

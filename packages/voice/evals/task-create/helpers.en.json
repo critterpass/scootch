@@ -1,0 +1,88 @@
+{
+  "inTheWay": [
+    {
+      "id": "en-way-01",
+      "text": "email the landlord about the broken boiler",
+      "inTheWay": "scary"
+    },
+    {
+      "id": "en-way-02",
+      "text": "ring the dentist to book a checkup",
+      "inTheWay": "scary"
+    },
+    {
+      "id": "en-way-03",
+      "text": "fill in the parking permit form",
+      "inTheWay": "confusing"
+    },
+    {
+      "id": "en-way-04",
+      "text": "set up the new router",
+      "inTheWay": "confusing"
+    },
+    {
+      "id": "en-way-05",
+      "text": "do the expenses spreadsheet",
+      "inTheWay": "boring"
+    },
+    {
+      "id": "en-way-06",
+      "text": "fold the laundry",
+      "inTheWay": "boring"
+    },
+    {
+      "id": "en-way-07",
+      "text": "clear out the garage",
+      "inTheWay": "too_big"
+    },
+    {
+      "id": "en-way-08",
+      "text": "write the second chapter of the dissertation",
+      "inTheWay": "too_big"
+    }
+  ],
+  "heardTime": [
+    {
+      "id": "en-time-01",
+      "text": "I have the dentist at three, and I still need to reply to Sam about the flat",
+      "at": "15:00"
+    },
+    {
+      "id": "en-time-02",
+      "text": "school pick-up is at 3:30 today, before that I want to send the invoice and water the plants",
+      "at": "15:30"
+    },
+    {
+      "id": "en-time-03",
+      "text": "got a call with the bank at half two. need to find the statement and tidy the desk",
+      "at": "14:30"
+    },
+    {
+      "id": "en-time-04",
+      "text": "I have to leave at 4pm, so just one thing: hoover the lounge",
+      "at": "16:00"
+    },
+    {
+      "id": "en-time-05",
+      "text": "dentist at 3 on Friday, and I need to reply to Sam about the flat",
+      "at": null,
+      "date": "2026-10-09"
+    },
+    {
+      "id": "en-time-06",
+      "text": "tomorrow at 10 the car goes in for its MOT, today I just need to do the laundry",
+      "at": null,
+      "date": "2026-10-07"
+    },
+    {
+      "id": "en-time-07",
+      "text": "need to email the landlord about the boiler and return the shoes",
+      "at": null
+    },
+    {
+      "id": "en-time-08",
+      "text": "I want to spend 3 hours on the slides and then book a haircut",
+      "at": null
+    }
+  ]
+}

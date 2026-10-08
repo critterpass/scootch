@@ -10,9 +10,13 @@
 // (banned words, the user's worth, missed days, off-limits topics, limits), instructions that are
 // true to the app's controls, the language, no date the ramble does not give, the name-first and
 // pack contracts, the new line slots with the treat named, three bites that pass the same voice
-// check with their minutes, and, where the case lists them, a body that fits. It exits non-zero under 96% on the checks, under 85% on body fit, or on a contract
+// check with their minutes, the cue's notification (it opens with its placeholder, said once, and
+// passes the check with the longest cue in place), the line under a note left for next time (there,
+// inside the check, and quoting nothing: the note never leaves the phone), and, where the case
+// lists them, a body that fits. It exits non-zero under 96% on the checks, under 85% on body fit, or on a contract
 // failure. EVAL_CONCURRENCY=1 gives the true latency. No ramble is heavy: the care screen has its
-// own eval.
+// own eval. The starting helpers' own cases (what is in the way, a time heard) run after these,
+// from `helpers.mjs`; EVAL_HELPERS=off leaves them out.
 import { writeFileSync } from 'node:fs';
 
 import {
@@ -45,6 +49,8 @@ import {
   startTask,
   waits,
 } from '../shared.mjs';
+
+import { runHelpers } from './helpers.mjs';
 
 const allAttitudes = ['soft', 'cheeky', 'unhinged'];
 const asked = process.env.EVAL_ATTITUDES ?? allAttitudes.join(',');
@@ -88,8 +94,10 @@ function failedChecks(testCase, language, attitude, answer) {
   );
   if (reasons.has('untrue_control')) failed.push('instructions');
   if (reasons.has('treat_not_named')) failed.push('slots: treat not named');
+  if (reasons.has('cue_not_named')) failed.push('slots: cue not said back');
   const voice = [...reasons].filter(
-    (reason) => !['wrong_language', 'untrue_control', 'treat_not_named'].includes(reason),
+    (reason) =>
+      !['wrong_language', 'untrue_control', 'treat_not_named', 'cue_not_named'].includes(reason),
   );
   if (voice.length > 0) failed.push(`voice: ${voice.join(' ')}`);
   if (
@@ -107,6 +115,10 @@ function failedChecks(testCase, language, attitude, answer) {
   }
   // The writer's bites are dropped whole when one of them fails, so their absence is the failure.
   if (lines.bites?.length !== 3) failed.push('slots: no bites');
+  if (answer.cueNotification === undefined) failed.push('slots: no cue line');
+  if (lines.nextStartOpening === undefined) failed.push('slots: no line for a kept note');
+  // The note it sits under is the person's and stays on the phone: the line quotes nothing.
+  else if (/["“”«»]/.test(lines.nextStartOpening)) failed.push('slots: kept note quoted');
 
   const heard = [
     ...deadlines,
@@ -183,6 +195,7 @@ async function runOne(language, token, testCase, attitude) {
     monster: name.data.monster,
     lines: { hatch: name.data.hatch, ...pack.data.lines },
     notifications: pack.data.notifications,
+    cueNotification: pack.data.cueNotification,
   };
   return {
     ...result,
@@ -254,8 +267,11 @@ for (const language of languages) {
   all.push(...results);
 }
 
+const helpers =
+  process.env.EVAL_HELPERS === 'off' ? { passed: true, results: [] } : await runHelpers();
+
 if (process.env.EVAL_OUTPUT !== undefined) {
-  writeFileSync(process.env.EVAL_OUTPUT, JSON.stringify(all, null, 1));
+  writeFileSync(process.env.EVAL_OUTPUT, JSON.stringify([...all, ...helpers.results], null, 1));
 }
 
 const count = (check) =>
@@ -288,6 +304,8 @@ if (count('contract') > 0) {
   process.exitCode = 1;
 } else if (bodyFit < bodyBar) {
   console.error(`FAIL: body fit ${(bodyFit * 100).toFixed(1)}% is under ${bodyBar * 100}%`);
+  process.exitCode = 1;
+} else if (!helpers.passed) {
   process.exitCode = 1;
 } else {
   console.log('PASS');

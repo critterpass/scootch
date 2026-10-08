@@ -57,7 +57,7 @@ export function startTask(
   language,
   token,
   text,
-  { attitude = 'cheeky', source = 'typed', canChoose = false, monsterPage } = {},
+  { attitude = 'cheeky', source = 'typed', canChoose = false, monsterPage, helpers = {} } = {},
 ) {
   return post(
     '/v1/task-create',
@@ -73,6 +73,8 @@ export function startTask(
       ...(canChoose ? { canChoose } : {}),
       // The website monster this thing was hatched from, when it arrives from one.
       ...(monsterPage === undefined ? {} : { monsterPage }),
+      // What the starting helpers add to the call: what is in the way, and the phone's clock.
+      ...helpers,
       staged: true,
     },
     token,

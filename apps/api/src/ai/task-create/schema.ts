@@ -10,6 +10,11 @@ const heardDate = z.object({
   date: z.string().describe('Your reading of it as YYYY-MM-DD.'),
 });
 
+const heardTime = z.object({
+  heardAs: z.string().describe("The person's exact words for the time, copied from the note."),
+  thing: z.string().nullish().describe('What is at that time, in their words, when they say.'),
+});
+
 const things = z.array(z.string()).default([]);
 
 /** The things a note names, sorted: what the fast pick returns. Nothing in it is in Scootch's voice. */
@@ -18,6 +23,8 @@ export const pickOutputSchema = z.object({
   oneThingDue: heardDate.nullish(),
   parked: things,
   dated: z.array(heardDate.extend({ text: z.string() })).default([]),
+  /** A clock time said for today. Lenient: a misshapen one reads as none, and the pick stands. */
+  timeToday: heardTime.nullish().catch(null),
 });
 export type PickOutput = z.infer<typeof pickOutputSchema>;
 

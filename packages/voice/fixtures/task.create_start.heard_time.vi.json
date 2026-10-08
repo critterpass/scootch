@@ -1,0 +1,46 @@
+{
+  "route": "task.create_start",
+  "case": "heard_time",
+  "request": {
+    "language": "vi",
+    "attitude": "cheeky",
+    "energy": "medium",
+    "text": "3 giờ chiều nay phải đi khám răng, còn phải trả lời tin nhắn của Sâm vụ căn hộ với đặt lịch bảo dưỡng xe",
+    "source": "ramble",
+    "localDate": "2026-10-08",
+    "timeZone": "Asia/Ho_Chi_Minh",
+    "overrideSerious": false,
+    "staged": true,
+    "localTime": "13:12"
+  },
+  "response": {
+    "verdict": "pass",
+    "answeredBy": "jev",
+    "seriousOverridden": false,
+    "energy": "medium",
+    "oneThing": {
+      "text": "Trả lời tin nhắn của Sâm vụ căn hộ.",
+      "dueDate": null
+    },
+    "parked": [
+      {
+        "text": "Đặt lịch bảo dưỡng xe"
+      }
+    ],
+    "deadlines": [],
+    "labels": {
+      "workMode": "calling",
+      "bodyType": "phone",
+      "fitsTenMinutes": true,
+      "sharePrivate": false
+    },
+    "heardTime": {
+      "at": "15:00",
+      "heardAs": "khám răng 3 giờ chiều nay"
+    },
+    "continuation": {
+      "token": "eyJwYXlsb2FkIjoicmVjb3JkZWQifQ.c2lnbmF0dXJl",
+      "expiresAt": "2026-10-08T12:22:00.000Z"
+    }
+  }
+}

@@ -65,6 +65,11 @@ export const taskCreateRequestSchema = z.object({
   monsterPage: z.string().min(1).max(64).optional(),
   /** What the user said is in the way, when they answered. Absent when skipped or never asked. */
   inTheWay: inTheWaySchema.optional(),
+  /**
+   * The user's wall clock as the text was sent, so "at 3" resolves to the next three still ahead
+   * today. Absent, the server reads its own clock in `timeZone`.
+   */
+  localTime: clockTimeSchema.optional(),
 });
 export type TaskCreateRequest = z.infer<typeof taskCreateRequestSchema>;
 
@@ -178,6 +183,12 @@ export const sessionLinePackSchema = z.object({
   /** Said when the hold to finish is let go too soon. Kind, never a telling-off. */
   releasedEarly: lineSchema.optional(),
   /**
+   * Said under the line the user left for this sitting ("Next time, start with…"), which the
+   * phone shows above it word for word. Plain company; it never holds or rewords their line.
+   * Absent on packs written before it existed.
+   */
+  nextStartOpening: lineSchema.optional(),
+  /**
    * The task in three bites, in the order they are done; the third finishes it. All three or
    * none: absent on packs written before bites existed and when the writer's were not kept.
    */
@@ -187,6 +198,12 @@ export const sessionLinePackSchema = z.object({
 /** Where a `treatHandOver` line names the treat until a real treat is filled in. */
 export const treatPlaceholder = '{treat}';
 export type SessionLinePack = z.infer<typeof sessionLinePackSchema>;
+
+/**
+ * Where a cue's notification says the cue back. The line opens with it, and the phone puts the
+ * cue's own words there as the opening of a sentence ("After lunch", "At 3:30").
+ */
+export const cuePlaceholder = '{cue}';
 
 /** The plain-words pack for a serious task: company, no comedy. */
 export const seriousLinePackSchema = z.object({
@@ -205,6 +222,27 @@ export type SeriousLinePack = z.infer<typeof seriousLinePackSchema>;
  */
 export const dayNotificationSchema = z.object({ text: z.string().min(1).max(140) });
 export type DayNotification = z.infer<typeof dayNotificationSchema>;
+
+/**
+ * What an answer may carry for the helpers around the start. Every one is optional: an answer
+ * made before they existed, and a pack stored on a phone since then, has none.
+ */
+const heardTimeField = {
+  /**
+   * A clock time the text gives for today, worked out in code from the user's own words and
+   * their clock. `heardAs` is the thing and the time as they said them ("dentist at three"), or
+   * the time alone when no thing came with it. A time said for another day is a deadline.
+   */
+  heardTime: heardTimeSchema.optional(),
+};
+const cueNotificationField = {
+  /**
+   * The notification for the moment the user asked to be brought back at. It opens with
+   * `cuePlaceholder`. It takes one of the day's places; it never adds a message.
+   */
+  cueNotification: dayNotificationSchema.optional(),
+};
+export const taskHelperFieldsSchema = z.object({ ...heardTimeField, ...cueNotificationField });
 
 /**
  * Who screened the text, with the screen route's own fields and values. Any judge but `jev`
@@ -231,9 +269,14 @@ const passSchema = taskJudgeSchema.extend({
   lines: sessionLinePackSchema,
   /** Soft: at most one. Cheeky and Unhinged: at most three. */
   notifications: z.array(dayNotificationSchema).max(3),
+  ...heardTimeField,
+  ...cueNotificationField,
 });
 
-/** No monster, no joke, no card, no share, no burst, and no notifications. */
+/**
+ * No monster, no joke, no card, no share, no burst, and no notifications. The plain words for a
+ * cue the user sets, and for a line they left, are the offline pack's: nothing is written here.
+ */
 const seriousSchema = taskJudgeSchema.extend({
   verdict: z.literal('serious'),
   energy: energySchema,
@@ -241,6 +284,7 @@ const seriousSchema = taskJudgeSchema.extend({
   parked: z.array(parkedItemSchema).max(30),
   deadlines: z.array(heardDeadlineSchema).max(10),
   lines: seriousLinePackSchema,
+  ...heardTimeField,
 });
 
 /** Every task is hidden for the day and the phone shows its helplines first. */

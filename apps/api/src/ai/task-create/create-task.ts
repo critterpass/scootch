@@ -138,6 +138,7 @@ async function plainTask(
       done: plain.done,
       notFinished: plain.notFinished,
     },
+    ...(sorted.heardTime === null ? {} : { heardTime: sorted.heardTime }),
   };
 }
 
@@ -173,6 +174,8 @@ function held<T>(work: Promise<T>): Promise<T> {
  * "It's fine, be funny" lifts a serious verdict only when a judge that can be trusted gave it:
  * never a text nobody screened, one only the fallback cleared, or one whose marks were not read.
  * Every answer says who judged (`answeredBy`, and `reason` when the text is unscreened).
+ * What the person said is in the way reaches the writer only: never the pick, which starts before
+ * the screen has answered, and never a heavy task.
  *
  * The text goes to the models and nowhere else: it is not logged and not stored.
  */
@@ -221,7 +224,14 @@ export async function startTask(
     : labelsFor(decideContext(context), oneThing));
   // Only now, with the words through the screen, is the monster's page read.
   const kept = await monsterToKeep(context, request.monsterPage);
-  const labels = kept === null ? read : { ...read, bodyType: kept.bodyType };
+  // What is in the way is never used on a text the screen called heavy, lifted or not.
+  const inTheWay = serious ? undefined : request.inTheWay;
+  const labels = {
+    ...read,
+    ...(kept === null ? {} : { bodyType: kept.bodyType }),
+    // "Too big" is the answer the shrink offer exists for, whatever the size label read.
+    ...(inTheWay === 'too_big' ? { fitsTenMinutes: false } : {}),
+  };
   return {
     verdict: 'pass',
     response: {
@@ -236,6 +246,7 @@ export async function startTask(
         line: offlinePacks[language].deadline(attitude, deadline.text, deadline.heardAs),
       })),
       labels,
+      ...(sorted.heardTime === null ? {} : { heardTime: sorted.heardTime }),
     },
     payload: {
       oneThing,
@@ -243,6 +254,7 @@ export async function startTask(
       attitude,
       bodyType: labels.bodyType,
       seed: seedOf(oneThing, language, attitude, request.localDate),
+      ...(inTheWay === undefined ? {} : { inTheWay }),
       ...(kept === null
         ? {}
         : {

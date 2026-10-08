@@ -1,0 +1,46 @@
+{
+  "route": "task.create_start",
+  "case": "heard_time",
+  "request": {
+    "language": "en",
+    "attitude": "cheeky",
+    "energy": "medium",
+    "text": "I have the dentist at three, and I still need to reply to Sam about the flat and book the car in for its MOT",
+    "source": "ramble",
+    "localDate": "2026-10-08",
+    "timeZone": "Europe/London",
+    "overrideSerious": false,
+    "staged": true,
+    "localTime": "13:12"
+  },
+  "response": {
+    "verdict": "pass",
+    "answeredBy": "jev",
+    "seriousOverridden": false,
+    "energy": "medium",
+    "oneThing": {
+      "text": "Reply to Sam about the flat.",
+      "dueDate": null
+    },
+    "parked": [
+      {
+        "text": "Book the car in for its MOT"
+      }
+    ],
+    "deadlines": [],
+    "labels": {
+      "workMode": "calling",
+      "bodyType": "phone",
+      "fitsTenMinutes": true,
+      "sharePrivate": false
+    },
+    "heardTime": {
+      "at": "15:00",
+      "heardAs": "dentist at three"
+    },
+    "continuation": {
+      "token": "eyJwYXlsb2FkIjoicmVjb3JkZWQifQ.c2lnbmF0dXJl",
+      "expiresAt": "2026-10-08T12:22:00.000Z"
+    }
+  }
+}

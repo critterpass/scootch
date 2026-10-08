@@ -1,3 +1,4 @@
+import { enHelpers } from './en-helpers';
 import type { OfflinePack } from './types';
 
 export const enOffline: OfflinePack = {
@@ -225,6 +226,7 @@ export const enOffline: OfflinePack = {
       eveningReceipt: '{count}. {count} DONE. I have printed a receipt and framed it.',
     },
   },
+  ...enHelpers,
   monsterNames: [
     'Lurk, Keeper of the Thing by the Door',
     'Fidget, Tenant of the Back of the Shelf',

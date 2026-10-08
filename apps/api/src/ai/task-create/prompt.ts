@@ -13,6 +13,7 @@ function things(language: Language): string {
         "2. parked: every OTHER thing the note names that has no date, each as a short plain phrase in the person's words. Nothing the note does not name. No duplicates, no jokes.",
         '3. dated: every OTHER thing the note gives a day or a date for. `text` is the thing. `heardAs` is the person\'s exact words for the date, copied letter for letter from the note ("due on Friday"). `date` is your reading of it as YYYY-MM-DD; code checks it. If the note gives no day or date, `dated` is empty. Never invent or assume a date, and never turn "soon" or "this week" into one.',
         '4. oneThingDue: only when the note gives a day or a date for the one thing itself: {heardAs, date} as above. Otherwise null.',
+        '5. timeToday: only when the note says a clock time TODAY for something the person has to be at (an appointment, a call, a pick-up, leaving the house): {heardAs, thing}. `heardAs` is their exact words for the time, copied letter for letter from the note ("at three", "at half two", "3pm"). `thing` is what is at that time, in at most three of their own words ("dentist"), or null when they say a time and not what it is. Otherwise null. A time said for another day ("dentist at 3 on Friday") is not this: that thing belongs in `dated` with its day. A thing that only happens at that time is not a to-do: leave it out of `parked`, and pick it as oneThing only when the note names nothing else. Never work out or change the time yourself; code reads it.',
         'Spelling, in every thing you write: fix plain typos, and when the note is Vietnamese typed without its tone marks, write it with them ("viet bai luan" becomes "Viết bài luận"). Never change which thing it is, and never translate it. `heardAs` alone stays letter for letter.',
       ].join('\n')
     : [
@@ -20,6 +21,7 @@ function things(language: Language): string {
         '2. parked: mọi việc KHÁC có trong ghi chú mà không kèm ngày, mỗi việc một cụm ngắn bằng lời của người viết. Không thêm việc ghi chú không nhắc. Không trùng, không đùa.',
         '3. dated: mọi việc KHÁC mà ghi chú có nói ngày hay hạn. `text` là cái việc. `heardAs` là đúng lời người viết nói về ngày đó, chép nguyên từng chữ từ ghi chú ("trước thứ sáu"). `date` là ngày bạn hiểu, dạng YYYY-MM-DD; code sẽ kiểm tra lại. Ghi chú không nói ngày nào thì `dated` để rỗng. Không bịa, không đoán ngày, không biến "sớm" hay "tuần này" thành một ngày.',
         '4. oneThingDue: chỉ khi ghi chú nói ngày hay hạn cho chính việc được chọn: {heardAs, date} như trên. Không thì null.',
+        '5. timeToday: chỉ khi ghi chú nói một giờ cụ thể trong HÔM NAY cho một chuyện người viết phải có mặt (lịch hẹn, cuộc gọi, đi đón ai, giờ phải ra khỏi nhà): {heardAs, thing}. `heardAs` là đúng lời người viết nói về giờ đó, chép nguyên từng chữ từ ghi chú ("lúc 3 giờ chiều", "3h", "ba rưỡi"). `thing` là chuyện gì vào giờ đó, tối đa ba chữ của chính người viết ("khám răng"), hoặc null khi họ chỉ nói giờ mà không nói chuyện gì. Không có thì null. Giờ nói cho một ngày khác ("3 giờ chiều thứ sáu đi khám răng") không thuộc mục này: việc đó nằm trong `dated` cùng ngày của nó. Chuyện chỉ diễn ra vào giờ đó không phải việc cần làm: đừng đưa vào `parked`, và chỉ chọn làm oneThing khi ghi chú không nhắc việc nào khác. Không tự tính hay đổi giờ; code sẽ đọc.',
         'Chính tả, trong mọi việc bạn viết: sửa lỗi gõ rõ ràng, và khi ghi chú là tiếng Việt gõ không dấu thì viết lại cho đủ dấu ("viet bai luan" thành "Viết bài luận"). Không đổi sang việc khác, không dịch. Riêng `heardAs` giữ nguyên từng chữ.',
       ].join('\n');
 }
@@ -51,13 +53,13 @@ export function plainSystem(language: Language): string {
     ? [
         'You help a person with a to-do note about something heavy: health, loss, legal trouble or money trouble. Plain, kind words only. No jokes, no characters, no exclamation marks, no advice and no comment on the person.',
         `# ${job.en}\n${things('en')}`,
-        `5. tinyNextStep: the smallest concrete first step of the one thing, as a plain instruction of at most ${step} words ("Write down the questions you want to ask first.").`,
+        `6. tinyNextStep: the smallest concrete first step of the one thing, as a plain instruction of at most ${step} words ("Write down the questions you want to ask first.").`,
         'Write in English.',
       ].join('\n\n')
     : [
         'Bạn giúp một người có ghi chú việc cần làm về một chuyện nặng nề: sức khoẻ, mất mát, pháp lý hoặc tiền bạc. Chỉ nói thường, nhẹ nhàng. Không đùa, không nhân vật, không chấm than, không khuyên nhủ, không nhận xét về người viết.',
         `# ${job.vi}\n${things('vi')}`,
-        `5. tinyNextStep: bước đầu tiên nhỏ nhất, cụ thể, của việc được chọn, viết như một lời chỉ dẫn thường, tối đa ${step} chữ ("Ghi trước ra giấy mấy câu bạn muốn hỏi bác sĩ.").`,
+        `6. tinyNextStep: bước đầu tiên nhỏ nhất, cụ thể, của việc được chọn, viết như một lời chỉ dẫn thường, tối đa ${step} chữ ("Ghi trước ra giấy mấy câu bạn muốn hỏi bác sĩ.").`,
         'Viết bằng tiếng Việt.',
       ].join('\n\n');
 }

@@ -1,0 +1,88 @@
+{
+  "inTheWay": [
+    {
+      "id": "vi-way-01",
+      "text": "gửi email cho chủ nhà về cái bình nóng lạnh bị hư",
+      "inTheWay": "scary"
+    },
+    {
+      "id": "vi-way-02",
+      "text": "gọi nha sĩ đặt lịch khám",
+      "inTheWay": "scary"
+    },
+    {
+      "id": "vi-way-03",
+      "text": "điền tờ khai đăng ký tạm trú",
+      "inTheWay": "confusing"
+    },
+    {
+      "id": "vi-way-04",
+      "text": "cài cái router mới",
+      "inTheWay": "confusing"
+    },
+    {
+      "id": "vi-way-05",
+      "text": "nhập bảng chi tiêu tháng này",
+      "inTheWay": "boring"
+    },
+    {
+      "id": "vi-way-06",
+      "text": "gấp đống quần áo",
+      "inTheWay": "boring"
+    },
+    {
+      "id": "vi-way-07",
+      "text": "dọn cái nhà kho",
+      "inTheWay": "too_big"
+    },
+    {
+      "id": "vi-way-08",
+      "text": "viết chương hai của luận văn",
+      "inTheWay": "too_big"
+    }
+  ],
+  "heardTime": [
+    {
+      "id": "vi-time-01",
+      "text": "3 giờ chiều nay phải đi khám răng, còn phải trả lời tin nhắn của Sâm vụ căn hộ",
+      "at": "15:00"
+    },
+    {
+      "id": "vi-time-02",
+      "text": "4 rưỡi chiều đón con, trước đó muốn gửi hoá đơn cho khách với tưới cây",
+      "at": "16:30"
+    },
+    {
+      "id": "vi-time-03",
+      "text": "2h chiều có cuộc gọi với ngân hàng. cần tìm cái sao kê với dọn bàn làm việc",
+      "at": "14:00"
+    },
+    {
+      "id": "vi-time-04",
+      "text": "15h phải ra khỏi nhà, nên chỉ làm một việc thôi: hút bụi phòng khách",
+      "at": "15:00"
+    },
+    {
+      "id": "vi-time-05",
+      "text": "thứ sáu khám răng lúc 3 giờ, còn hôm nay phải trả lời tin nhắn của Sâm",
+      "at": null,
+      "date": "2026-10-09"
+    },
+    {
+      "id": "vi-time-06",
+      "text": "10 giờ sáng mai đem xe đi bảo dưỡng, hôm nay chỉ cần giặt đồ",
+      "at": null,
+      "date": "2026-10-07"
+    },
+    {
+      "id": "vi-time-07",
+      "text": "phải gửi email cho chủ nhà vụ bình nóng lạnh với trả đôi giày",
+      "at": null
+    },
+    {
+      "id": "vi-time-08",
+      "text": "muốn dành 3 tiếng làm slide rồi đặt lịch cắt tóc",
+      "at": null
+    }
+  ]
+}
