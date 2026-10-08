@@ -7,9 +7,9 @@ import { Scootch } from '../../art/Scootch';
 import { useT } from '../../i18n/i18n-provider';
 import { useCharacterMotion } from '../../ui/motion/use-feel';
 import { useScreenStyle } from '../../ui/use-screen-style';
-import { KeepFrame } from '../reveal/ui/keep-frame';
 import { SessionText } from '../session/ui/session-text';
 import { CardThumb } from '../settings/look-thumbs';
+import { Page } from '../settings/page';
 import { Row, Section } from '../settings/rows';
 import { inkOf } from '../studio/catalogue';
 import type { Look } from '../studio/look';
@@ -105,11 +105,10 @@ export function ManageScreen({ model, actions }: { model: ManageModel; actions: 
   const ink = inkOf(look.ink);
   const wearing = `${t(`finish.${look.finish}`)} · ${ink.code}`;
   return (
-    <KeepFrame
+    <Page
       testID="plus-manage"
       title={plan === null ? t('brand.plus') : t('plus.card.title')}
-      close={{ label: t('keep.close'), hint: t('plus.done.hint'), onPress: actions.close }}
-      closeTestID="plus-manage-close"
+      onClose={actions.close}
     >
       {plan === null ? (
         <>
@@ -243,7 +242,7 @@ export function ManageScreen({ model, actions }: { model: ManageModel; actions: 
       <SessionText face="caption" color={palette.muted}>
         {t('plus.manage.keeps', { count: FREE_STARTS_PER_DAY })}
       </SessionText>
-    </KeepFrame>
+    </Page>
   );
 }
 

@@ -125,7 +125,6 @@ export function SettingsContainer() {
           : router.push(PAGES[page])
       }
       onClose={() => (pager ? pager.show('home') : goBack(router, '/'))}
-      homeIsBeside={pager !== null}
     />
   );
 }
