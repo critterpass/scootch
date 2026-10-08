@@ -79,6 +79,7 @@ const palette = `:root{color-scheme:light dark;${variables(colors.light)}}@media
         </>
       )
     }
+    <slot name="head" />
     <style is:inline set:html={palette} />
   </head>
   <body>
