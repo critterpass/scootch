@@ -32,6 +32,7 @@ export type KeepCapture =
       readonly plus: boolean;
       readonly open?: boolean;
     }
+  | { readonly screen: 'pages' }
   | { readonly screen: 'record'; readonly bars: number }
   | { readonly screen: 'share'; readonly format: ShareFormat };
 

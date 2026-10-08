@@ -6,13 +6,12 @@ import { View } from 'react-native';
 import type { Id } from '@scootch/domain';
 
 import { openRepositories } from '../../data/repositories';
-import { useLanguage } from '../../i18n/i18n-provider';
 import { useToday } from '../../state/day-store-provider';
 import { useScreenStyle } from '../../ui/use-screen-style';
-import { useHomePager, usePagerHold, usePageShown } from '../home-pager/home-pager-context';
-import { SharePanel } from '../share/share-panel';
-import { MonsterDetail } from '../zoo/monster-detail';
-import { useOpenedCard } from '../zoo/use-opened-card';
+import { useKeepsakes } from '../../state/keepsakes';
+import { useHomePager, usePageShown } from '../home-pager/home-pager-context';
+import { cardRoute } from '../zoo/binder-routes';
+import { lookAt } from '../zoo/last-looked';
 
 import { useLighthouse } from './use-lighthouse';
 import { WorldScreen } from './world-screen';
@@ -34,16 +33,12 @@ export function WorldContainer() {
   const wasInView = useRef(inView);
   if (inView && !wasInView.current) visits.current += 1;
   wasInView.current = inView;
-  const { language } = useLanguage();
   const { palette } = useScreenStyle();
   const { localDate, settings, heavyToday } = useToday();
   // Someone who owns lifetime finds the lighthouse here, landed before the world is read.
   const { landed } = useLighthouse();
-  const opened = useOpenedCard(`${String(landed)}:${visits.current}`);
-  const { keepsakes, shown } = opened;
+  const { keepsakes } = useKeepsakes(`${String(landed)}:${visits.current}`);
   const [landing, setLanding] = useState<Id | null>(null);
-  // A card being handled, or the share panel over it, keeps the pages from sliding under it.
-  usePagerHold(shown !== null || opened.sharePanel !== null);
 
   // A piece that landed today pops in the first time the world is opened after it, and never
   // again: that it has been seen is kept with the day, so opening the app again does not replay it.
@@ -74,16 +69,6 @@ export function WorldContainer() {
   }, [inView]);
 
   if (!keepsakes) return <View style={{ flex: 1, backgroundColor: palette.page }} />;
-  if (opened.sharePanel) return <SharePanel {...opened.sharePanel} />;
-  // A resident's card is the same screen the zoo opens: the card to handle and its sharing. It is opened over the world and closed back to it.
-  if (shown) {
-    return (
-      <MonsterDetail
-        model={{ card: shown.card, language, shareOffered: shown.shareOffered }}
-        actions={{ close: opened.close, share: shown.share }}
-      />
-    );
-  }
   return (
     <WorldScreen
       model={{
@@ -100,7 +85,11 @@ export function WorldContainer() {
         close: () => (pager ? pager.show('home') : router.dismissTo('/')),
         openZoo: () => router.push('/zoo'),
         openRecord: () => router.push('/record'),
-        openMonster: opened.open,
+        // A resident's card is the binder's: the same card, out of its pocket, pushed over the world.
+        openMonster: (monsterId) => {
+          lookAt(monsterId);
+          router.push(cardRoute(monsterId));
+        },
       }}
     />
   );

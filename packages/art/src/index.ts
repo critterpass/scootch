@@ -52,10 +52,16 @@ export {
   type MaterialParts,
 } from './card/build-material';
 export type { FinishMaterial, MaterialLayer, Tint } from './card/material';
+export { RARITY_LOOKS, type RarityLook } from './card/rarity-look';
 export { dotScreen, roundRect, type Box } from './card/shapes';
 export type { CardTilt } from './card/foil';
 export { FOIL_BY_RARITY, FOIL_LIGHT, TILE_SHIMMER, type FoilStrength } from './card/foil-light';
-export { CARD_LABELS, type CardLabels, type CardLanguage } from './card/labels';
+export {
+  CARD_LABELS,
+  formatCardDate,
+  type CardLabels,
+  type CardLanguage,
+} from './card/labels';
 export { buildMonster, MONSTER_BODIES, type MonsterLife } from './core/build-monster';
 export { BOIL_FRAMES, BOIL_PER_SECOND, boilFrame, MAX_JITTER, type BoilFrame } from './core/pen';
 export { rgba } from './core/rgba';

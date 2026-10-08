@@ -1,59 +1,74 @@
-import { useRouter } from 'expo-router';
+import { useIsFocused, useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { View } from 'react-native';
 
 import { useLanguage } from '../../i18n/i18n-provider';
 import { useToday } from '../../state/day-store-provider';
+import { useKeepsakes, usePlus } from '../../state/keepsakes';
+import { showsSelling } from '../../state/shows-comedy';
 import { goBack } from '../../ui/motion/go-back';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { PLUS_SHEET } from '../plus/routes';
-import { SharePanel } from '../share/share-panel';
 
-import { useOpenedCard } from './use-opened-card';
-import { zooCards, type BinderSort } from './zoo-cards';
-import { sortAfter, ZooScreen } from './zoo-screen';
+import { pageOfToday, shelfCards, sortNeedsPlus, wildOnes, type ShelfSort } from './binder';
+import { cardRoute, pagesRoute } from './binder-routes';
+import { lookAt, useLastLooked } from './last-looked';
+import { ZooScreen } from './zoo-screen';
 
-/** The zoo on the real phone. */
+/**
+ * The binder's shelf on the real phone. Every card is here for everyone; the other three orders
+ * and the month pages are Plus, and without it a tap on one asks about Plus, except on a day with
+ * something heavy in it, when nothing is sold and those controls rest.
+ */
 export function ZooContainer() {
   const router = useRouter();
   const { language } = useLanguage();
   const { palette } = useScreenStyle();
-  const { localDate, heavyToday } = useToday();
-  const opened = useOpenedCard();
-  const { keepsakes, plus, shown } = opened;
-  const [sort, setSort] = useState<BinderSort | null>(null);
-  const cards = useMemo(
-    () => zooCards(keepsakes?.monsters ?? [], plus, sort),
-    [keepsakes, plus, sort],
+  const day = useToday();
+  // Read again whenever the shelf comes back into view: a catch may have happened since.
+  const focused = useIsFocused();
+  const { keepsakes } = useKeepsakes(focused);
+  const plus = usePlus();
+  const lastLooked = useLastLooked();
+  const [sort, setSort] = useState<ShelfSort>('newest');
+  const monsters = keepsakes?.monsters;
+  const cards = useMemo(() => shelfCards(monsters ?? [], sort, plus), [monsters, sort, plus]);
+  const crisis = day.today.kind === 'crisis';
+  const wild = useMemo(
+    () => (keepsakes ? wildOnes(keepsakes.monsters, keepsakes.tasks, day.localDate, crisis) : []),
+    [keepsakes, day.localDate, crisis],
+  );
+  const month = useMemo(
+    () => pageOfToday(monsters ?? [], day.localDate),
+    [monsters, day.localDate],
   );
 
-  const plusDoor = {
-    openPlus: () => router.push(PLUS_SHEET),
-  };
   if (!keepsakes) return <View style={{ flex: 1, backgroundColor: palette.page }} />;
-  if (opened.sharePanel) return <SharePanel {...opened.sharePanel} />;
+  const selling = showsSelling(day);
+  const askAboutPlus = () => {
+    if (selling) router.push(PLUS_SHEET);
+  };
+  const toWorld = () => goBack(router, '/world');
   return (
     <ZooScreen
-      model={{
-        cards,
-        language,
-        plus,
-        sort,
-        today: localDate,
-        open: shown ? { card: shown.card, shareOffered: shown.shareOffered } : null,
-      }}
+      model={{ cards, wild, language, plus, sort, month, lastLooked }}
       actions={{
         // Back to the world it was opened from, whether that is a page beside home or a screen.
-        close: () => goBack(router, '/world'),
-        openCard: (monster) => opened.open(monster.id),
-        closeCard: opened.close,
-        nextSort: () => setSort(sortAfter),
-        // Nothing sells near something heavy: on such a day the locked controls do nothing.
-        ...(heavyToday ? {} : plusDoor),
-        shareCard: () => shown?.share(),
-        shareMonster: (monster) => {
-          if (!opened.shareOf(monster)) opened.open(monster.id);
+        close: toWorld,
+        openWorld: toWorld,
+        openCard: (monster) => {
+          lookAt(monster.id);
+          router.push(cardRoute(monster.id, { sort }));
         },
+        sort: (next) => {
+          if (sortNeedsPlus(next) && !plus) askAboutPlus();
+          else setSort(next);
+        },
+        ...(plus
+          ? { openPages: () => router.push(pagesRoute()) }
+          : selling
+            ? { openPages: askAboutPlus }
+            : {}),
       }}
     />
   );

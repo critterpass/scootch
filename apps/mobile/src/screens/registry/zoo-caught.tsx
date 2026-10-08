@@ -1,6 +1,6 @@
 import { PLUS_BOARD, keepState } from '../../features/reveal/registry/keep-state';
 
-/** The zoo in the free app: every card, and the binder drawn locked. */
+/** The binder's shelf in the free app: every card, with its other orders and its pages tagged Plus. */
 export const zooCaught = keepState({
   id: 'zoo-caught',
   design: {

@@ -9,7 +9,10 @@ import { dayLog, monthWrap } from '../../share/share-logs';
 import { SharePanel } from '../../share/share-panel';
 import { lighthousePiece } from '../../world/landmarks';
 import { WorldScreen } from '../../world/world-screen';
-import { cardDataFor, zooCards } from '../../zoo/zoo-cards';
+import { monthPages, pageOfToday, shelfCards } from '../../zoo/binder';
+import { CardScreen } from '../../zoo/card-screen';
+import { PagesScreen } from '../../zoo/pages-screen';
+import { cardDataFor } from '../../zoo/zoo-cards';
 import { ZooScreen } from '../../zoo/zoo-screen';
 import type { RevealModel } from '../reveal-model';
 import { RevealScreen } from '../reveal-screen';
@@ -72,31 +75,72 @@ function capturedWorld(count: number, lighthouse = false) {
   );
 }
 
+/** The day every binder capture is taken on: the Thursday of the fixtures' week. */
+const BINDER_TODAY = '2026-10-08';
+
 function capturedZoo(
   language: Language,
   options: { count: number; plus: boolean; open?: boolean },
 ) {
-  const cards = zooCards(asRows(fixtureMonsters(options.count)), options.plus);
+  const monsters = asRows(fixtureMonsters(options.count));
+  const cards = shelfCards(monsters, 'newest', options.plus);
   const first = cards[0];
+  if (options.open && first) {
+    return (
+      <CardScreen
+        model={{
+          cards,
+          index: 0,
+          taskLine: fixtureTask(0, language).text,
+          language,
+          shareOffered: true,
+        }}
+        actions={{ close: nothing, show: nothing, share: nothing }}
+      />
+    );
+  }
+  // With cards on the shelf, two monsters are still wild, as the board draws them.
+  const wild =
+    options.count === 0
+      ? []
+      : [3, 12].map((day, index) => ({
+          monster: { ...fixtureMonster(40 + index), caughtOn: null, caughtAt: null, number: null },
+          day,
+        }));
   return (
     <ZooScreen
       model={{
         cards,
+        wild,
         language,
         plus: options.plus,
-        sort: null,
-        open:
-          options.open && first
-            ? { card: cardDataFor(first, fixtureTask(0, language)), shareOffered: true }
-            : null,
+        sort: 'newest',
+        month: pageOfToday(monsters, BINDER_TODAY),
+        lastLooked: first?.id ?? null,
       }}
       actions={{
         close: nothing,
         openCard: nothing,
-        closeCard: nothing,
-        nextSort: nothing,
-        shareCard: nothing,
+        sort: nothing,
+        openPages: nothing,
+        openWorld: nothing,
+        sharePage: nothing,
       }}
+    />
+  );
+}
+
+/** The month pages on a month that filled its nine pockets, so the stamp shows. */
+function capturedPages(language: Language) {
+  const full = Array.from({ length: 11 }, (_, index) => ({
+    ...fixtureMonster(index),
+    caughtOn: '2026-09-12' as const,
+  }));
+  const pages = monthPages([...asRows(full), ...asRows(fixtureMonsters(4))], BINDER_TODAY);
+  return (
+    <PagesScreen
+      model={{ pages, shown: '2026-09', current: '2026-10', language }}
+      actions={{ close: nothing, show: nothing, openCard: nothing, sharePage: nothing }}
     />
   );
 }
@@ -178,6 +222,8 @@ export function Captured({ capture, language }: { capture: KeepCapture; language
         plus: capture.plus,
         open: capture.open === true,
       });
+    case 'pages':
+      return capturedPages(language);
     case 'record':
       return capturedRecord(language, capture.bars);
     case 'share':

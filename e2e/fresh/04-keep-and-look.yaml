@@ -103,8 +103,11 @@ appId: app.scootch.dev
     visible:
       id: 'zoo'
     timeout: 15000
+# The shelf: this month's page above it, and the binder's other orders tagged Plus.
 - assertVisible:
-    id: 'zoo-open-binder'
+    id: 'binder-month'
+- assertVisible:
+    id: 'binder-sort-longest'
 - takeScreenshot: zoo-binder--en-light-default
 - tapOn:
     id: 'zoo-tile-0'
@@ -113,8 +116,21 @@ appId: app.scootch.dev
       id: 'zoo-card-face'
     timeout: 15000
 - takeScreenshot: fresh-04-caught-card
+# The card turns over for its field notes, and back.
+- tapOn:
+    id: 'binder-card-flip'
+    waitToSettleTimeoutMs: 0
+- takeScreenshot: fresh-04-caught-card-field-notes
+- tapOn:
+    id: 'binder-card-flip'
+    waitToSettleTimeoutMs: 0
 - tapOn:
     id: 'zoo-card-close'
+    waitToSettleTimeoutMs: 0
+- extendedWaitUntil:
+    visible:
+      id: 'zoo'
+    timeout: 15000
 - tapOn:
     id: 'zoo-close'
 # The record: today's bar is on it.

@@ -4,6 +4,7 @@ export * from './account-name-refused';
 export * from './account-sign-in';
 export * from './account-sign-in-cancelled';
 export * from './backup-restore-offer';
+export * from './binder-pages';
 export * from './camera-after-ask';
 export * from './camera-after-kept';
 export * from './camera-after-minutes-only';
