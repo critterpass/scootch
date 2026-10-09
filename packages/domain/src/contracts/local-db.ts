@@ -117,6 +117,16 @@ export const dayRowSchema = z.object({
 export type DayRow = z.infer<typeof dayRowSchema>;
 
 /**
+ * The session pack as a task keeps it. `cueNotification` is the message for the moment the user
+ * asked to be brought back at, as the task call wrote it, opening with `cuePlaceholder`. Null or
+ * absent when the answer carried none, and on a pack stored before it existed.
+ */
+export const storedSessionLinesSchema = sessionLinePackSchema.extend({
+  cueNotification: dayNotificationSchema.nullable().optional(),
+});
+export type StoredSessionLines = z.infer<typeof storedSessionLinesSchema>;
+
+/**
  * One thing for one day. Letting a task go deletes its row, its monster and
  * its sessions: it leaves no trace. A crisis text is never stored as a task.
  */
@@ -143,7 +153,7 @@ export const taskRowSchema = z.object({
   sharePrivate: z.boolean().nullable(),
   shrinkCount: z.number().int().min(0),
   /** The stored result of the task call; `null` until it has run. */
-  lines: z.union([sessionLinePackSchema, seriousLinePackSchema]).nullable(),
+  lines: z.union([storedSessionLinesSchema, seriousLinePackSchema]).nullable(),
   notifications: z.array(dayNotificationSchema),
   /**
    * Which of the three bites in `lines` have been ticked, by their place (0 to 2). Null or absent

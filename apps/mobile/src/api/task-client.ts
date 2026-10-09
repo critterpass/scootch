@@ -64,6 +64,8 @@ export type TaskRest =
       /** `null` when the server sent no lines: the offline pack speaks instead. */
       readonly lines: SessionLinePack | null;
       readonly notifications: readonly DayNotification[];
+      /** The message for a cue, opening with `cuePlaceholder`; unset or `null` when none came. */
+      readonly cueNotification?: DayNotification | null;
     }
   | { readonly verdict: 'serious'; readonly lines: SeriousLinePack };
 
@@ -122,6 +124,7 @@ export function createTaskClient(api: Pick<ScootchApi, 'screenInput' | 'taskCrea
               labels: answer.labels,
               lines: answer.lines,
               notifications: answer.notifications,
+              cueNotification: answer.cueNotification ?? null,
             }
           : { verdict: 'serious', lines: answer.lines };
       return { first, rest: Promise.resolve(rest) };

@@ -6,10 +6,13 @@ import {
   type Attitude,
   type ClockTime,
   type DayMoment,
+  type DayNotification,
   type Instant,
   type IsoDate,
+  type SessionLinePack,
   type SettingsRow,
   type StartCue,
+  type StoredSessionLines,
   type TaskRow,
   type TimedNotification,
   type TodayState,
@@ -115,13 +118,38 @@ export function cueTimed(input: CueTimedInput): TimedNotification[] {
   return back.ahead ? [{ kind: 'cue', at: back.at }] : [];
 }
 
+/** The pack as the task keeps it, with the cue's message the same answer wrote, if it wrote one. */
+export function withCueLine(
+  lines: SessionLinePack,
+  cueNotification: DayNotification | null | undefined,
+): StoredSessionLines {
+  return cueNotification == null ? lines : { ...lines, cueNotification };
+}
+
+/** The cue's message the task call wrote for this thing, when it opens on the cue exactly once. */
+function writtenCue(task: Pick<TaskRow, 'lines'> | null | undefined): string | null {
+  const lines = task?.lines ?? null;
+  if (lines === null || !('hatch' in lines)) return null;
+  const text = lines.cueNotification?.text ?? null;
+  if (text === null || !text.startsWith(cuePlaceholder)) return null;
+  return text.split(cuePlaceholder).length === 2 ? text : null;
+}
+
 /**
- * What the cue's message says: the offline pack's line in the given voice with the cue said back
- * at its opening, or the plain line, which no monster signs, for a heavy thing.
+ * What the cue's message says, with the cue said back at its opening: the line the task call
+ * wrote for this thing when `written` holds one, otherwise the offline pack's line in the given
+ * voice. A heavy thing gets the plain line, which no monster signs, whatever was written.
  */
-export function cueWords(language: Language, voice: Attitude | 'plain', cue: StartCue): string {
+export function cueWords(
+  language: Language,
+  voice: Attitude | 'plain',
+  cue: StartCue,
+  written?: Pick<TaskRow, 'lines'> | null,
+): string {
+  const own = voice === 'plain' ? null : writtenCue(written);
   const line =
-    voice === 'plain' ? helperLine(language, 'plain', 'cue') : helperLine(language, voice, 'cue');
+    own ??
+    (voice === 'plain' ? helperLine(language, 'plain', 'cue') : helperLine(language, voice, 'cue'));
   return line.replaceAll(cuePlaceholder, cueSaid(language, cue));
 }
 

@@ -9,6 +9,7 @@ import { catchLateMonster } from './late-catch';
 import { sortKeptWords } from './late-words';
 import { hatchedInThisWeek } from './odd-hatch';
 import { pickForMe } from './pick-flow';
+import { withCueLine } from './start-cue';
 import { fallbackCopy, monsterFor, newTask, park } from './task-rows';
 
 /** A ramble's words are kept while its one thing is being picked, once they are known to be safe to keep. */
@@ -85,7 +86,7 @@ async function applyRest(
   const pass = rest?.verdict === 'pass' ? rest : null;
   const written: TaskRow = {
     ...task,
-    lines: pass?.lines ?? task.lines,
+    lines: pass?.lines ? withCueLine(pass.lines, pass.cueNotification) : task.lines,
     notifications: pass ? [...pass.notifications] : task.notifications,
     workMode: known.workMode,
     fitsTenMinutes: known.fitsTenMinutes,
