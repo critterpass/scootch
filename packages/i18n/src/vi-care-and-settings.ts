@@ -101,8 +101,7 @@ export const viCareAndSettings = {
   'settings.tables': 'Bàn',
   'settings.tables.hint': 'Mở mọi thứ về bàn',
   'settings.tables.off': 'Tắt',
-  'settings.tables.signedOut':
-    'Máy này chưa bật bàn. Đăng nhập là bật; làm một mình thì không bao giờ cần.',
+  'settings.tables.signedOut': 'Máy này chưa bật bàn. Đăng nhập là bật.',
   'settings.tables.signedIn': 'Đã đăng nhập bằng Apple',
   'settings.tables.atTheTable': 'Ở bàn',
   'settings.tables.rename.hint': 'Đổi tên hiện trên chỗ ngồi của bạn',

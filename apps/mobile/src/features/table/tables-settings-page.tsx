@@ -4,7 +4,7 @@ import { radius, spacing } from '@scootch/tokens';
 
 import type { WhoCanSit } from '../../api/together-api';
 import { useT } from '../../i18n/i18n-provider';
-import { CapsuleButton } from '../../ui/buttons';
+import { CapsuleButton, GlassDock } from '../../ui/buttons';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { AppleSignInButton } from '../account/apple-sign-in-button';
 import { Page } from '../settings/page';
@@ -28,7 +28,9 @@ export interface TablesSettingsPageProps {
   /** `null` on a phone that is not signed in, `undefined` until the account has been read. */
   readonly account: TablesAccount | null | undefined;
   readonly prefs: TablePrefs;
-  readonly notice: 'sign_out_failed' | 'delete_failed' | 'failed' | null;
+  readonly notice: 'sign_in_failed' | 'sign_out_failed' | 'delete_failed' | 'failed' | null;
+  /** Apple's sign-in sheet is up. */
+  readonly signingIn?: boolean;
   /** The question before the account is deleted is on the screen. */
   readonly asking: boolean;
   readonly onPref: (key: keyof TablePrefs, on: boolean) => void;
@@ -44,7 +46,10 @@ export interface TablesSettingsPageProps {
   readonly onClose: () => void;
 }
 
+const PROMISES = ['firstName', 'tasks', 'once'] as const;
+
 const NOTICES = {
+  sign_in_failed: 'account.apple.failed',
   sign_out_failed: 'account.signOut.failed',
   delete_failed: 'settings.tables.delete.failed',
   failed: 'table.failed',
@@ -53,20 +58,48 @@ const NOTICES = {
 /**
  * Everything about tables in one place, as the board draws it: the name a seat shows, who can sit
  * down, what the table sees, the people the person knows, and the account's two ways out, worded
- * plainly. Signed out, it says tables are off and offers the same sign-in a table would.
+ * plainly. Signed out, it says tables are off, makes the three promises a sign-in makes, and signs
+ * in from here: the button opens Apple's sheet at once.
  */
 export function TablesSettingsPage(props: TablesSettingsPageProps) {
   const t = useT();
   const { account, prefs } = props;
   return (
     <>
-      <Page title={t('settings.tables')} onClose={props.onClose} testID="table-settings">
+      <Page
+        title={t('settings.tables')}
+        onClose={props.onClose}
+        testID="table-settings"
+        {...(account === null
+          ? {
+              footer: (
+                <GlassDock>
+                  <AppleSignInButton
+                    disabled={props.signingIn === true}
+                    onPress={props.onSignIn}
+                    testID="table-settings-sign-in"
+                  />
+                </GlassDock>
+              ),
+            }
+          : {})}
+      >
         {account === undefined ? null : account === null ? (
           <>
             <Words kind="quiet" testID="table-settings-off">
               {t('settings.tables.signedOut')}
             </Words>
-            <AppleSignInButton onPress={props.onSignIn} testID="table-settings-sign-in" />
+            <Section>
+              {PROMISES.map((promise, index) => (
+                <Row
+                  key={promise}
+                  first={index === 0}
+                  kind="fact"
+                  label={t(`account.promise.${promise}`)}
+                  sub={t(`account.promise.${promise}.sub`)}
+                />
+              ))}
+            </Section>
           </>
         ) : (
           <>

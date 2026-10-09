@@ -32,13 +32,15 @@ export function AccountContainer() {
   const { today } = useToday();
   const dispatch = useDispatch();
   const router = useRouter();
-  const { next, rename } = useLocalSearchParams<{ next?: string; rename?: string }>();
+  const params = useLocalSearchParams<{ next?: string; rename?: string; suggested?: string }>();
+  const { next, rename } = params;
   // Opened to change the name: the name step is shown once more, for someone who has one.
   const [renamed, setRenamed] = useState(false);
   const { palette } = useScreenStyle();
   const [prefs, changePref] = useTablePrefs();
   const [account, setAccount] = useState<AccountView | null | undefined>(undefined);
-  const [suggested, setSuggested] = useState('');
+  // Signed in elsewhere just before, the first name Apple handed over comes along.
+  const [suggested, setSuggested] = useState(params.suggested ?? '');
   const [busy, setBusy] = useState(false);
   const [failed, setFailed] = useState(false);
   const [cancelled, setCancelled] = useState(false);
