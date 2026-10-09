@@ -17,13 +17,26 @@ import { PressSpring } from '../../../ui/motion/press-spring';
  * a device flow can walk the list without knowing what is registered. Typing in `registry-filter`
  * keeps only the rows whose name contains the words, so a flow can open one state without
  * scrolling a thousand rows; both ids then describe the rows that are left.
+ *
+ * `registry-states` takes a comma-separated list of state id prefixes and keeps only the rows whose
+ * name starts with one of them, so a device capture can take just the states a change touched.
+ * Unlike the filter it keeps its words when a state is closed. Empty means every row.
  */
 export default function RegistryBrowser() {
   const palette = colors[useColorScheme() === 'dark' ? 'dark' : 'light'];
   const [query, setQuery] = useState('');
+  const [states, setStates] = useState('');
   // Coming back from a state starts the list whole again, so a flow never types into leftovers.
   useFocusEffect(useCallback(() => setQuery(''), []));
-  const shown = captures.filter((capture) => capture.name.includes(query.trim().toLowerCase()));
+  const prefixes = states
+    .split(',')
+    .map((prefix) => prefix.trim().toLowerCase())
+    .filter((prefix) => prefix !== '');
+  const shown = captures.filter(
+    (capture) =>
+      capture.name.includes(query.trim().toLowerCase()) &&
+      (prefixes.length === 0 || prefixes.some((prefix) => capture.name.startsWith(prefix))),
+  );
 
   return (
     <SafeFrame style={[styles.screen, { backgroundColor: palette.page }]}>
@@ -31,6 +44,7 @@ export default function RegistryBrowser() {
         testID="registry-list"
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
       >
         <View style={styles.header}>
           <Text accessibilityRole="header" style={[styles.title, { color: palette.ink }]}>
@@ -49,6 +63,17 @@ export default function RegistryBrowser() {
           autoCorrect={false}
           selectTextOnFocus
           placeholder="Filter"
+          placeholderTextColor={palette.muted}
+          style={[styles.filter, { backgroundColor: palette.surface, color: palette.ink }]}
+        />
+        <TextInput
+          testID="registry-states"
+          accessibilityLabel="Only these state ids, comma separated"
+          value={states}
+          onChangeText={setStates}
+          autoCapitalize="none"
+          autoCorrect={false}
+          placeholder="State id prefixes"
           placeholderTextColor={palette.muted}
           style={[styles.filter, { backgroundColor: palette.surface, color: palette.ink }]}
         />

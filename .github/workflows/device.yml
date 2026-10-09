@@ -39,6 +39,12 @@ on:
         type: choice
         options: [run, capture, video]
         default: run
+      states:
+        description: >-
+          Capture only these screen states (e2e/sheets): a comma-separated list of state id
+          prefixes, empty for every state
+        type: string
+        default: ''
       pr:
         description: Pull request number to comment on (optional)
         type: string
@@ -46,7 +52,7 @@ on:
 
 # Dispatching the same flows on the same branch again replaces the older run.
 concurrency:
-  group: device-${{ github.ref_name }}-${{ inputs.platform }}-${{ inputs.mode }}-${{ inputs.flows }}
+  group: device-${{ github.ref_name }}-${{ inputs.platform }}-${{ inputs.mode }}-${{ inputs.flows }}-${{ inputs.states }}
   cancel-in-progress: true
 
 permissions:
@@ -106,6 +112,7 @@ jobs:
         env:
           FLOWS: ${{ inputs.flows }}
           MODE: ${{ inputs.mode }}
+          MAESTRO_STATES: ${{ inputs.states }}
           JS_COMMIT: ${{ steps.settings.outputs.js_commit }}
         with:
           api-level: 35
@@ -185,6 +192,7 @@ jobs:
           BUILD_URL: ${{ steps.build.outputs.url }}
           FLOWS: ${{ inputs.flows }}
           MODE: ${{ inputs.mode }}
+          MAESTRO_STATES: ${{ inputs.states }}
           JS_COMMIT: ${{ steps.settings.outputs.js_commit }}
         run: tools/scripts/device-ios.sh "$BUILD_URL" "$RUNNER_TEMP/bundle" "$RUNNER_TEMP/out" "$FLOWS"
       # One sheet per registered screen state (e2e/sheets), added to the artifact under sheets/.
