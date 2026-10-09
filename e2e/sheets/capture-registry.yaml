@@ -68,10 +68,15 @@ appId: app.scootch.dev
       - waitForAnimationToEnd:
           timeout: 3000
       - takeScreenshot: ${output.name}
+      # The way back is a strip over the status bar. The system keeps touches in the status bar
+      # itself (the top 54 points, the island and the clock), so press the strip's lowest rows,
+      # where it reaches below the status bar and before any control of the screen under it.
       - tapOn:
-          id: 'registry-state-close'
+          point: '50%,7%'
+      # The list keeps its place while a state is open, so its count has scrolled away by now: wait
+      # for the list itself.
       - extendedWaitUntil:
           visible:
-            id: 'registry-count'
+            id: 'registry-list'
           timeout: 15000
       - evalScript: ${output.row = output.row + 1}
