@@ -18,7 +18,8 @@ const { language } = Astro.props;
 const copy = copyFor(language);
 const words = brand(language);
 const finishIds = ['paper', 'holo', 'chrome', 'jelly', 'glass', 'velvet', 'riso'] as const;
-const attitudeMoods = ['asleep', 'scheming', 'dramatic'] as const;
+// A notification carries the app's icon, and each attitude has its own.
+const attitudeIcons = ['soft', 'cheeky', 'unhinged'] as const;
 const tileMoods = ['nudge', 'listening', 'thinking', 'working', 'pleased'] as const;
 const seatWork = ['email', 'writing', 'money', 'decluttering'] as const;
 const molar = () => monsterArt('tooth', 'dentist');
@@ -282,7 +283,9 @@ const strip = [...stripMonsters, ...stripMonsters].map((monster, index) => ({
                 </span>
               ) : (
                 <span class="note-face note-app">
-                  {attitudeMoods.map((mood, at) => <Critter class={`att-${at}`} art={scootchArt(mood)} />)}
+                  {attitudeIcons.map((icon, at) => (
+                    <img class={`att-${at}`} src={`/icons/${icon}.png`} alt="" width="192" height="192" />
+                  ))}
                 </span>
               )}
               <div>
@@ -442,7 +445,7 @@ const strip = [...stripMonsters, ...stripMonsters].map((monster, index) => ({
             ) : (
               <>
                 <div class="app-tile">
-                  <span class="app-icon"><Critter art={scootchArt('scheming')} /></span>
+                  <img class="app-icon" src="/icons/cheeky.png" alt="" width="192" height="192" />
                   <div><strong>{words.name}</strong><span>{copy.final.appLine}</span></div>
                   <a class="button button-ink" href={localPath(language, '/get')} data-magnet>
                     {copy.final.get}
@@ -456,7 +459,7 @@ const strip = [...stripMonsters, ...stripMonsters].map((monster, index) => ({
         </div>
         {preLaunch && <p class="small">{pagesFor(language).preLaunch.comingSoon}</p>}
       </div>
-      <Critter class="final-scootch" art={scootchArt('celebrating')} />
+      <Critter class="final-scootch" art={scootchArt('celebrating', { night: true })} />
     </div>
   </section>
 </SiteLayout>
