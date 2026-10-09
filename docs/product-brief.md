@@ -2,7 +2,7 @@
 
 The source of truth for what Scootch is. It wins over a design board when they
 disagree. Decided with the founder on 6 Oct 2026; home, the task set and the
-drawer's gestures on 7 Oct 2026.
+drawer's gestures on 7 Oct 2026; the starting helpers on 8 Oct 2026.
 
 ## 1. What it is
 
@@ -36,12 +36,13 @@ website and the store listing.
 | Morning | Scootch opens with a fresh, specific line and waits |
 | Ramble | Hold to talk or type for twenty seconds; one thing comes back, the rest is parked in a drawer. "Pick for me", said or typed, has Scootch offer one of the parked things instead |
 | Deadline heard | A real date in the ramble is said out loud and brought back on its own day |
-| Energy | Low, medium or fine; the one thing is picked to fit it |
+| Time heard | A time today in the ramble ("dentist at three") is said back. Sessions end in time to get ready, and one nudge says so. "Don't watch it" turns both off |
+| Energy | Low, medium or fine; the one thing is picked to fit it. One optional row asks what is in the way (boring, scary, confusing, too big) and shapes the first bite and the words |
 | It hatches | The task becomes a named monster; "too big" shrinks the task and the monster. The one other way to a smaller ask is the monster's three bites (section 5). A set task can be put down into the drawer from beside Start |
-| Start | A wheel sets the length, 5 to 180 minutes (10 unless turned), and Start begins it with a burst of sound and haptics. The named treat for afterwards is not asked for at present (founder, 7 Oct) |
+| Start | A wheel sets the length, 5 to 180 minutes (10 unless turned), and Start begins it with a burst of sound and haptics. A line under the wheel says when it would end. Two optional chips sit in the dock: Guess (how long it would take) and When (now, after a moment of the day, or a time: Scootch brings it back then, in one message that is the start button) The named treat for afterwards is not asked for at present (founder, 7 Oct) |
 | Work beside | Scootch works next to you in a mode that matches the task; park a thought, ask for a tiny next step |
-| Finish | Catch the task's monster: each task rolls one of eight catches, the work sets its trap, and when time is up Scootch asks whether the thing was really done before the gesture unlocks. A tap on Scootch in the corner swaps the two: he works on the screen, the monster waits in the corner, and the finish is a hold; "not finished" is a normal outcome with three choices |
-| Keep it | A collectible card, a permanent piece in your world, one bar of the week's song |
+| Finish | Catch the task's monster: each task rolls one of eight catches, the work sets its trap, and when time is up Scootch asks whether the thing was really done before the gesture unlocks. A tap on Scootch in the corner swaps the two: he works on the screen, the monster waits in the corner, and the finish is a hold; "not finished" is a normal outcome with three choices. Carrying it on can leave one line for next time, shown first and word for word when the next sitting opens |
+| Keep it | A collectible card, a permanent piece in your world, one bar of the week's song. A card whose thing was guessed says "Thought 2 hours. Took 11 minutes.", the same however it went |
 | Share | A story card that says what you did and how long it waited |
 | Home again | Scootch rests beside your world. The composer stays, so the next thing is simply said or typed, up to the day's limit |
 
@@ -71,7 +72,14 @@ website and the store listing.
   it. A parked thing never lurks; the drawer stays closed. A monster's
   notification opens into three bites, steps under five minutes written with
   the task. Ticking a bite shrinks the monster and earns nothing; the last
-  one opens the catch in the app. A serious task has neither.
+  one opens the catch in the app. The bites also open from the set task.
+  A serious task has neither.
+- **Odd weeks.** About one week in six, one hatch and one catch come out a
+  little different (three tiny monsters; a teacup catch). Never announced,
+  never earned or bought; the card keeps a word after the name.
+- **Company.** A running session can say how many others are hunting
+  something right now: a number only, absent under twenty, at a table, on a
+  serious task, offline, or when switched off in Settings.
 - **The world.** Every finished thing adds a permanent piece. It never shrinks.
 - **The record.** Each finished day adds one bar and one instrument; on Sunday
   the week is a full track with a name and cover written by the AI. A week
@@ -201,3 +209,4 @@ is complex and isolated:
 | The poster is "delivered on the 1st" | The brief keeps Unwrapped for after launch | The month's poster is drawn on the phone from what the phone already keeps, so it ships; the website's Unwrapped still waits |
 | "A person writes back within two working days" | The founder is that person | Keep the promise only if the founder accepts it (**open**) |
 | The weekly sentence shows in the free world | The brief puts the Scootch that learns you in Plus | Free users see it once a month, Plus weekly (**open**) |
+| The Starting Helpers board draws a "Treat after this" row, three length pills and a story headed "I finally…" | The treat is not asked for, the length is the wheel, and "finally" is banned | Build none of the three; the board map in the starting helpers plan says so |
