@@ -88,9 +88,9 @@
   "fitsTheGap": [
     {
       "id": "en-fit-01",
-      "text": "dentist at 3:30, before that I should write the essay intro and reply to Sam about the flat",
+      "text": "dentist at 3:30, before that I should write the whole essay and reply to Sam about the flat",
       "localTime": "14:20",
-      "avoid": "essay intro"
+      "avoid": "whole essay"
     },
     {
       "id": "en-fit-02",

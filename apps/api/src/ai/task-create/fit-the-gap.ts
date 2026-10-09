@@ -1,15 +1,17 @@
 import {
   DEFAULT_GET_READY_LEAD_MINUTES,
   type HeardTime,
+  type Language,
   type TaskCreateRequest,
   type TaskLabels,
 } from '@scootch/domain';
+import { groundedShare } from '@scootch/voice';
 
 import { decideContext, type TaskCreateContext } from './context';
 import { wallClockMinutes } from './heard-times';
 import { labelsFor } from './labels';
 import { pickToFit } from './pick';
-import { sameTask, type SortedThings } from './things';
+import { type SortedThings } from './things';
 
 /** Under this many minutes before getting ready, the one thing should be one that fits. */
 export const shortGapUnder = 60;
@@ -33,6 +35,11 @@ export function minutesBeforeGetReady(heardTime: HeardTime, request: Clock): num
 /** Whether the gap is short enough to steer the pick, and long enough for a thing that fits. */
 export function asksForAFit(gapMinutes: number | null): gapMinutes is number {
   return gapMinutes !== null && gapMinutes >= fitsMinutes && gapMinutes < shortGapUnder;
+}
+
+/** One wording holds nearly all of the other's words: "Write the essay" and "Write the whole essay". */
+function sameThing(a: string, b: string, language: Language): boolean {
+  return groundedShare(a, b, language) >= 0.8 || groundedShare(b, a, language) >= 0.8;
 }
 
 export type Picked = { readonly sorted: SortedThings; readonly labels: TaskLabels };
@@ -63,13 +70,13 @@ export async function fitTheGap(
   if (!fitted.fitsTenMinutes) return first;
 
   const { language } = request;
-  const kept = [...again.parked, ...again.dated].some((one) =>
-    sameTask(one.text, tooLong, language),
-  );
+  // The first one thing, however the second pick worded it, is in the drawer once.
+  const others = again.parked.filter((one) => !sameThing(one.text, tooLong, language));
+  const dated = again.dated.some((one) => sameThing(one.text, tooLong, language));
   return {
     sorted: {
       ...again,
-      parked: kept ? again.parked : [{ text: tooLong }, ...again.parked].slice(0, 30),
+      parked: dated ? others : [{ text: tooLong }, ...others].slice(0, 30),
       heardTime: heard,
     },
     labels: fitted,

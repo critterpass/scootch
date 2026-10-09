@@ -88,9 +88,9 @@
   "fitsTheGap": [
     {
       "id": "vi-fit-01",
-      "text": "3 rưỡi chiều khám răng, trước đó phải viết phần mở bài luận và nhắn chị Hạnh vụ họp lớp",
+      "text": "3 rưỡi chiều khám răng, trước đó phải viết cả bài luận và nhắn chị Hạnh vụ họp lớp",
       "localTime": "14:20",
-      "avoid": "mở bài luận"
+      "avoid": "cả bài luận"
     },
     {
       "id": "vi-fit-02",

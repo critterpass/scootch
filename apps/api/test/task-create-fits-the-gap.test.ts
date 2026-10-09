@@ -6,6 +6,7 @@ import {
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { asksForAFit, minutesBeforeGetReady } from '../src/ai/task-create/fit-the-gap';
+import { pickSystem } from '../src/ai/task-create/prompt';
 
 import type { Reply } from './ai-providers';
 import {
@@ -199,6 +200,42 @@ describe('a time heard today, with little left before getting ready', () => {
 
     expect(picks).toHaveLength(2);
     expect(answer.oneThing.text).toBe(rambles.en.long);
+  });
+
+  it('keeps the first pick, and answers within the contract, when the second strays off the note', async () => {
+    // Recorded from the fast pick on an English note about an essay: it wrote the essay in Vietnamese.
+    const strayed = {
+      ...pickOf('en', 'short'),
+      oneThing: 'Viết bài luận intro before the dentist.',
+    };
+    const { answer, picks } = await start(
+      [pickOf('en', 'long'), strayed],
+      request('en', { localTime: '14:20' }),
+    );
+
+    expect(picks).toHaveLength(2);
+    expect(answer.oneThing.text).toBe(rambles.en.long);
+  });
+
+  it('puts the long thing in the drawer once, however the second pick worded it', async () => {
+    const reworded = {
+      ...pickOf('en', 'short'),
+      parked: ['Write the essay intro before the dentist.'],
+    };
+    const { answer } = await start(
+      [pickOf('en', 'long'), reworded],
+      request('en', { localTime: '14:20' }),
+    );
+
+    expect(answer.oneThing.text).toBe(rambles.en.short);
+    expect(answer.parked).toEqual([{ text: rambles.en.long }]);
+  });
+
+  it('never shows the English pick a Vietnamese wording to copy', () => {
+    // An English note about an essay was once picked as "Viết bài luận …", off the note, after
+    // the prompt's spelling example turned "viet bai luan" into it.
+    expect(pickSystem('en')).not.toMatch(/[ăâđêôơưạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ]/i);
+    expect(pickSystem('en')).toMatch(/note's own language/);
   });
 
   it('never asks again about a heavy note', async () => {
