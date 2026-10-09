@@ -44,7 +44,7 @@ import { homeParts } from './home-company';
 import { holdsWords, homeStarts, stageOf } from './one-screen-stage';
 import { OneScreenView, type OneScreenShown } from './one-screen-view';
 import { stageShown } from './stage-shown';
-import { taskSetShown } from './task-set-shown';
+import { taskSetShown, useTaskSetChoice } from './task-set-shown';
 import { useHeldWords } from './use-held-words';
 import { useReturnedText } from './use-returned-text';
 import { sentWordsAreStale, useForgetSentWords } from './use-sent-words';
@@ -102,7 +102,7 @@ function useOneScreenDrawn({
   const network = useNetworkState();
   const playCue = useCue();
   const keyboardOpen = useKeyboardOpen();
-  const [chosenMinutes, setMinutes] = useState<number | null>(null);
+  const choice = useTaskSetChoice();
   const [treat, setTreat] = useState('');
   // Alone or at a table, once chosen; until then someone with a seat starts at their table.
   const [chosenCompany, setCompany] = useState<Company | null>(null);
@@ -111,7 +111,7 @@ function useOneScreenDrawn({
   // The drawer was opened from the words that wait for tomorrow: they are marked out in it.
   const [waitingMarked, markWaiting] = useState(false);
   // The first words of the day wait for the battery question; after that they go straight on.
-  const heldWords = useHeldWords({ energyNeeded: day.energyNeeded, dispatch });
+  const heldWords = useHeldWords(day, dispatch);
 
   const send = (event: DayEvent) => void dispatch(event).catch(() => undefined);
   const attitude: Attitude = settings.attitude;
@@ -229,10 +229,9 @@ function useOneScreenDrawn({
       t,
       voice,
       connection,
-      chosenMinutes,
+      ...choice,
       treat,
       onTreat: setTreat,
-      onMinutes: setMinutes,
       company: chosenCompany ?? (seated ? 'table' : 'alone'),
       onCompany: setCompany,
       // A seat already held is gone back to; otherwise the lobby finds or opens one.
@@ -253,6 +252,7 @@ function useOneScreenDrawn({
       parked: drawer.items.length,
       hatchExtra: <HatchHauntLink />,
       cue: playCue,
+      inTheWay: heldWords.inTheWay,
       actions: {
         answerEnergy: heldWords.answer,
         cancel: () => send({ type: 'one_thing_cancelled' }),

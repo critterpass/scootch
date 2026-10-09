@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 
-import type { Attitude, Energy, Id, IsoDate } from '@scootch/domain';
+import type { Attitude, Energy, Id, InTheWay, IsoDate } from '@scootch/domain';
+import { inTheWayLine } from '@scootch/voice';
 import type { Language } from '@scootch/i18n';
 
 import type { ScootchProps } from '../../art/Scootch';
@@ -49,6 +50,11 @@ export interface StageEnv {
   readonly cue?: (name: string) => void;
   /** A quiet control under the hatched monster's words: "Haunt a friend", when it is offered. */
   readonly hatchExtra?: ReactNode;
+  /** "Anything in the way?" under the battery, and its answer; `null` or unset where not asked. */
+  readonly inTheWay?: {
+    readonly answer: InTheWay | null;
+    readonly onAnswer: (answer: InTheWay | null) => void;
+  } | null;
   readonly actions: StageActions;
 }
 
@@ -66,13 +72,16 @@ export function stageShown(stage: Drawable, env: StageEnv): StageDrawn {
   const { t, language, attitude, actions } = env;
   const voice = { language, attitude };
   if (stage.kind === 'energy') {
+    const asked = env.inTheWay ?? null;
+    const said = asked?.answer ?? null;
     return {
       mood: 'thinking',
-      line: null,
+      // Scootch answers what is in the way; nothing is said until something is picked.
+      line: said === null ? null : inTheWayLine(language, attitude, said),
       shown: {
         kind: 'panel',
         name: 'energy',
-        body: <EnergyRead onAnswer={actions.answerEnergy} />,
+        body: <EnergyRead onAnswer={actions.answerEnergy} inTheWay={asked} />,
         footer: <EnergyGuess onGuess={() => actions.answerEnergy('guess')} />,
       },
     };

@@ -3,6 +3,7 @@ import { addDays, type Id } from '@scootch/domain';
 import { biteTicked } from './bites';
 import type { DayContext, DayEvent } from './day-types';
 import { carryToTomorrow } from './rest-flow';
+import { cueCleared, cueSaved } from './start-cue';
 import { takeSharedIn } from './shared-in';
 import { applySurfaceAction } from './surface-actions';
 
@@ -52,15 +53,20 @@ const FROM_OUTSIDE = [
   'bite_ticked',
   'hunt_tomorrow',
   'monster_turned_down',
+  'cue_saved',
+  'cue_cleared',
 ] as const;
 type FromOutside = Extract<DayEvent, { readonly type: (typeof FROM_OUTSIDE)[number] }>;
 
-/** True for what was asked for outside the app, and for a bite ticked on its sheet inside it. */
+/**
+ * True for what was asked for outside the app, and for what the set task's own helpers ask for
+ * inside it: a bite ticked on its sheet, a cue saved or taken off.
+ */
 export function isFromOutside(event: DayEvent): event is FromOutside {
   return (FROM_OUTSIDE as readonly string[]).includes(event.type);
 }
 
-/** What was asked for outside the app, under a notification or on a share sheet. */
+/** What was asked for outside the app, under a notification or on a share sheet, or by a helper. */
 export function applyFromOutside(ctx: DayContext, event: FromOutside): Promise<void> {
   switch (event.type) {
     case 'thing_shared_in':
@@ -71,5 +77,9 @@ export function applyFromOutside(ctx: DayContext, event: FromOutside): Promise<v
       return huntTomorrow(ctx, event.taskId);
     case 'monster_turned_down':
       return turnDown(ctx, event.taskId);
+    case 'cue_saved':
+      return cueSaved(ctx, event.cue);
+    case 'cue_cleared':
+      return cueCleared(ctx);
   }
 }

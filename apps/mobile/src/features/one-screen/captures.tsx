@@ -10,6 +10,7 @@ import { TaskSetCompany } from '../table/task-set-company';
 
 import { capturedTask } from './captured-task';
 import { OneScreenView, type OneScreenShown } from './one-screen-view';
+import type { CueBack } from './ends-at-line';
 import type { TaskSetHelpers } from './task-set-helpers';
 
 // The one screen's states as the screen registry shows them: the view with fixed state and no
@@ -154,10 +155,16 @@ export function TaskSet({
   offline,
   atTable = false,
   helpers = UNTOUCHED,
+  cue,
+  onSave,
 }: {
   readonly offline: boolean;
   readonly atTable?: boolean;
   readonly helpers?: TaskSetHelpers;
+  /** A cue picked: the line under the wheel says when the thing comes back. */
+  readonly cue?: CueBack;
+  /** Set while that cue is not yet kept: the dock is "Start now" and "Save for later". */
+  readonly onSave?: () => void;
 }) {
   const { voice, words, t } = useCapture();
   // With no connection the task is unscreened: plain company and its own words, no joke.
@@ -178,6 +185,8 @@ export function TaskSet({
         minutes: 10,
         endsFrom: CAPTURED_AT,
         helpers,
+        ...(cue === undefined ? {} : { cue }),
+        ...(onSave === undefined ? {} : { onSave }),
         onTreat: nothing,
         onMinutes: nothing,
         onStart: nothing,

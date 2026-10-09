@@ -1,0 +1,41 @@
+/**
+ * The When chip of a set task, its sheet and the two ways on from it; and "Anything in the way?"
+ * under the battery. Interface words only: what Scootch says back is the voice's.
+ */
+export const enWhen = {
+  'when.chip': 'When',
+  'when.chip.hint': 'Opens when this should come back. It can be left alone.',
+  'when.chip.set.hint': 'When this comes back. Opens it, to change it.',
+  'when.title': 'When should I bring it back?',
+  'when.now': 'Now',
+  'when.now.hint': 'Nothing is saved for later: it starts when you start it.',
+  'when.after': 'After something',
+  'when.moment.coffee': 'After coffee',
+  'when.moment.lunch': 'After lunch',
+  'when.moment.work': 'After work',
+  'when.moment.dinner': 'After dinner',
+  'when.moment.bed': 'Before bed',
+  'when.moment.spoken': '{moment}, around {clock}',
+  'when.moment.hint': 'Picks this moment of the day.',
+  'when.atTime': 'At a time',
+  'when.atTime.hint': 'Picks a time on the clock.',
+  'when.atTime.said': 'At {clock}',
+  'when.earlier': 'Half an hour earlier',
+  'when.later': 'Half an hour later',
+  'when.confirm': 'Bring it back {cue}',
+  'when.confirm.hint': 'Closes this with that time picked.',
+  'when.back': 'Back {cue}, around {clock}',
+  'when.back.time': 'Back at {clock}',
+  'when.startNow': 'Start now',
+  'when.save': 'Save for later',
+  'when.save.hint': 'Leaves this set. One message brings it back then.',
+
+  'inTheWay.ask': 'Anything in the way?',
+  'inTheWay.skip': 'Skip',
+  'inTheWay.skip.hint': 'Takes this question away. Nothing is kept.',
+  'inTheWay.boring': 'Boring',
+  'inTheWay.scary': 'Scary',
+  'inTheWay.confusing': 'Confusing',
+  'inTheWay.too_big': 'Too big',
+  'inTheWay.hint': 'Tells Scootch what makes this hard to start. Tap again to take it back.',
+} as const;

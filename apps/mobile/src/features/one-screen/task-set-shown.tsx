@@ -1,4 +1,6 @@
-import { startRefused, type Attitude } from '@scootch/domain';
+import { useState } from 'react';
+
+import { dayMomentTimes, startRefused, type Attitude, type StartCue } from '@scootch/domain';
 import type { Language } from '@scootch/i18n';
 
 import type { ScootchProps } from '../../art/Scootch';
@@ -31,12 +33,25 @@ export interface TaskSetEnv {
   readonly treat: string;
   readonly onTreat: (treat: string) => void;
   readonly onMinutes: (minutes: number) => void;
+  /** A cue picked on the When sheet and not yet saved; `null` while none is. */
+  readonly chosenCue: StartCue | null;
+  readonly onCue: (cue: StartCue | null) => void;
   /** Alone or at a table, as the person last chose; unset, the task starts alone. */
   readonly company?: Company;
   readonly onCompany?: (company: Company) => void;
   /** "Start at a table" was tapped: on to a seat, with the chosen length. */
   readonly onTable?: (minutes: number) => void;
   readonly dispatch: (event: DayEvent) => Promise<void>;
+}
+
+/** What the person picked on the set task and has not yet started or saved: the length and the cue. */
+export function useTaskSetChoice(): Pick<
+  TaskSetEnv,
+  'chosenMinutes' | 'onMinutes' | 'chosenCue' | 'onCue'
+> {
+  const [chosenMinutes, onMinutes] = useState<number | null>(null);
+  const [chosenCue, onCue] = useState<StartCue | null>(null);
+  return { chosenMinutes, onMinutes, chosenCue, onCue };
 }
 
 export interface TaskSetDrawn {
@@ -57,7 +72,17 @@ export function taskSetShown(
   const said = own ?? wordsWhileUnscreened(stage.task, 'set', connection, voice);
   const smallest = day.morning.kind === 'smallest_ask' ? day.morning.minutes : null;
   const minutes = env.chosenMinutes ?? smallest ?? 10;
+  // A cue picked and not yet saved is shown over the one kept; "Now" takes either away.
+  const kept = stage.task.startCue ?? null;
+  const cue = env.chosenCue ?? kept;
+  const unsaved = env.chosenCue !== null && !sameCue(env.chosenCue, kept);
+  const moments = dayMomentTimes(day.settings);
+  const pickCue = (picked: StartCue | null) => {
+    env.onCue(picked);
+    if (picked === null && kept !== null) send({ type: 'cue_cleared' });
+  };
   const start = async () => {
+    env.onCue(null);
     await dispatch({ type: 'session_set', minutes, treat: treat.trim() || null });
     await dispatch({ type: 'session', event: { type: 'started' } });
   };
@@ -83,6 +108,18 @@ export function taskSetShown(
       options: minuteOptions(smallest),
       onTreat: env.onTreat,
       onMinutes: env.onMinutes,
+      ...(cue === null ? {} : { cue: { cue, moments, localDate: day.localDate } }),
+      // "Save for later" keeps the cue with the thing, which stays set, and plans its one message.
+      ...(unsaved && env.chosenCue !== null && !off
+        ? {
+            onSave: () => {
+              const saved = env.chosenCue;
+              if (saved === null) return;
+              env.onCue(null);
+              send({ type: 'cue_saved', cue: saved });
+            },
+          }
+        : {}),
       // Start that would be refused is drawn off, with the reason, instead of doing nothing.
       onStart: off
         ? null
@@ -131,6 +168,7 @@ export function taskSetShown(
               onGuess: (guess) => send({ type: 'guess_made', minutes: guess }),
             }
           : null,
+        when: { cue, moments, onCue: pickCue },
         // The ticks are the notification's own: kept in the same place, and the last opens the catch.
         bites:
           bites === null
@@ -144,4 +182,11 @@ export function taskSetShown(
       extra: <TogetherLinks day={day} task={stage.task} monster={day.monster} />,
     },
   };
+}
+
+function sameCue(a: StartCue, b: StartCue | null): boolean {
+  if (b === null || a.kind !== b.kind) return false;
+  return a.kind === 'moment'
+    ? b.kind === 'moment' && a.moment === b.moment
+    : b.kind === 'time' && a.at === b.at;
 }
