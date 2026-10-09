@@ -241,4 +241,33 @@ describe('the task waiting for tomorrow, as a row in the drawer', () => {
     const next = await stagedPhone(stagedServer({ online: false }), app.data, MORNING + DAY_MS);
     expect(next.task()).toMatchObject({ id: waiting.id, text: 'ring the bank about the card' });
   });
+
+  it('is reworded and leaves behind the line kept for next time', async () => {
+    const app = await stagedPhone(stagedServer());
+    await app.say('ring the bank', 'typed');
+    await app.store.dispatch({ type: 'one_thing_picked' });
+    await app.store.dispatch({ type: 'monster_met' });
+    await app.store.dispatch({ type: 'session_set', minutes: 10 });
+    await app.store.dispatch({ type: 'session', event: { type: 'started' } });
+    app.time.advanceTo(MORNING + 10 * 60_000);
+    await app.store.dispatch({ type: 'session', event: { type: 'not_finished' } });
+    await app.store.dispatch({
+      type: 'session',
+      event: { type: 'chose_carry_on' },
+      line: 'find the card number',
+    });
+    await app.store.dispatch({ type: 'session_closed' });
+    const waiting = app.store.getState().waitingForTomorrow;
+    if (!waiting) throw new Error('the task waits for tomorrow');
+    expect(waiting.nextStart?.text).toBe('find the card number');
+
+    await app.store.dispatch({
+      type: 'waiting_task_edited',
+      taskId: waiting.id,
+      text: 'cancel the old card',
+    });
+    expect(app.store.getState().waitingForTomorrow?.nextStart ?? null).toBeNull();
+    const next = await stagedPhone(stagedServer({ online: false }), app.data, MORNING + DAY_MS);
+    expect(next.task()?.nextStart ?? null).toBeNull();
+  });
 });
