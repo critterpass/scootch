@@ -70,4 +70,4 @@ any screen. Read `docs/tech-decisions.md`: the local database and contracts sect
   at, when, a time heard, next time), what you keep (section 5: the guess
   line on a card, odd weeks, bites on request), and the board's two outdated
   drawings in section 11. Founder approved, 8 Oct 2026.
-- Status: not started
+- Status: done — with this change
