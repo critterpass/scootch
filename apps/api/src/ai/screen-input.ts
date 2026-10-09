@@ -47,9 +47,9 @@ export const screenThresholds = {
  */
 export const preparationQuestion = {
   instructions:
-    'The state is a note a person wrote to a to-do app, in English or Vietnamese, with or without accents. Could the writer be planning or preparing to end their life or seriously harm themselves? Look for indirect signs as well as plain words: a place, time or means chosen so as to be alone or unseen, hiding the plan from family, putting money, passwords or insurance in order for others to use afterwards, asking whether insurance pays out if a death looks like an accident, calling a list of errands the last things, telling someone what they meant to them, leaving keys or belongings where family will find them, giving belongings or pets away for good, saying goodbye or sorry, or saying they will soon not be here or not be a problem. A sign counts unless the note itself gives it an ordinary reason.',
+    'The state is a note a person wrote to a to-do app, in English or Vietnamese, with or without accents, often misspelled. Could the writer be planning or preparing to end their life or seriously harm themselves? Look for indirect signs as well as plain words: a place, time or means chosen so as to be alone or unseen, such as a rooftop, a bridge or water at night, or a time when family is out; hiding the plan from family or keeping them from noticing; putting money, passwords or insurance in order for others to use afterwards; asking whether insurance pays out if a death looks like an accident; calling a list of errands the last things; cancelling subscriptions, plans or services they will not need; telling someone what they meant to them, or that they love them and are sorry, as if for the last time; leaving keys or belongings where family will find them; giving belongings or pets away for good; saying goodbye; or saying they are about to go, will soon not be here or will not be a problem. A sign counts unless the note itself gives it an ordinary reason; never assume a reason the note does not give.',
   criteria: {
-    no: 'No such sign, or each one has an ordinary reason in the note: a move, a trip, a new job, a hobby, a game, a story or song, a chore, an exaggerated idiom or joke about being busy or tired, or a heavy life matter (illness, a death in the family, debt) with no hint the writer may harm themselves.',
+    no: 'No such sign, or each one has an ordinary reason written in the note: a move, a trip, a new job, a hobby, a game, a story or song, a chore, an exaggerated idiom or joke about being busy or tired, or a heavy life matter (illness, a death in the family, debt) with no hint the writer may harm themselves.',
     yes: 'At least one sign of planning or preparing to end their own life or harm themselves, stated or indirect, with no ordinary reason given for it.',
   },
 } as const satisfies ChoiceQuestion;
@@ -57,8 +57,11 @@ export const preparationQuestion = {
 /**
  * Crisis at or above this p(yes) on the preparation question, whatever the care question said.
  * Measured on the eval set: the highest harmless note the care question had not already flagged
- * sat near 0.4 and the lowest indirect plan it had missed near 0.55, and answers move by about
- * 0.05 between identical calls.
+ * sat near 0.45 (beside three known false alarms: a story's goodbye note, giving the cat away and
+ * a game idiom) and the lowest indirect plan it had missed near 0.8, and answers move by about
+ * 0.05 between identical calls. An indirect farewell (cancelling things, love and sorry to family,
+ * about to go) is this question's to catch: the care question, told that a note about things and
+ * other people is ordinary, can rate one under its own crisis threshold.
  */
 export const preparationAtLeast = 0.5;
 
