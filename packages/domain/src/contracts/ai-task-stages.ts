@@ -3,6 +3,7 @@ import { z } from 'zod';
 import {
   dayNotificationSchema,
   heardDeadlineSchema,
+  taskHelperFieldsSchema,
   monsterCopySchema,
   oneThingSchema,
   parkedItemSchema,
@@ -50,6 +51,8 @@ export const taskCreateStartPassSchema = taskJudgeSchema.extend({
   deadlines: z.array(heardDeadlineSchema).max(10),
   labels: taskLabelsSchema,
   continuation: taskContinuationSchema,
+  /** A clock time heard for today; see `taskHelperFieldsSchema`. */
+  heardTime: taskHelperFieldsSchema.shape.heardTime,
 });
 export type TaskCreateStartPass = z.infer<typeof taskCreateStartPassSchema>;
 
@@ -63,7 +66,10 @@ export const taskCreateStartResponseSchema = z.discriminatedUnion('verdict', [
 ]);
 export type TaskCreateStartResponse = z.infer<typeof taskCreateStartResponseSchema>;
 
-/** Stage two, `POST /v1/task-create/lines`: the continuation and nothing else. */
+/**
+ * Stage two, `POST /v1/task-create/lines`: the continuation and nothing else. What stage one was
+ * told is in the way rides in the continuation, so no later stage is sent it.
+ */
 export const taskCreateLinesRequestSchema = z.object({
   continuation: taskContinuationSchema.shape.token,
 });
@@ -75,6 +81,7 @@ export const taskCreateLinesResponseSchema = z.object({
   lines: sessionLinePackSchema,
   /** Soft: at most one. Cheeky and Unhinged: at most three. */
   notifications: z.array(dayNotificationSchema).max(3),
+  cueNotification: taskHelperFieldsSchema.shape.cueNotification,
 });
 export type TaskCreateLinesResponse = z.infer<typeof taskCreateLinesResponseSchema>;
 
@@ -108,5 +115,6 @@ export const taskCreatePackResponseSchema = z.object({
   lines: sessionLinePackSchema.omit({ hatch: true }),
   /** Soft: at most one. Cheeky and Unhinged: at most three. */
   notifications: z.array(dayNotificationSchema).max(3),
+  cueNotification: taskHelperFieldsSchema.shape.cueNotification,
 });
 export type TaskCreatePackResponse = z.infer<typeof taskCreatePackResponseSchema>;

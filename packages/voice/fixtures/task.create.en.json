@@ -71,7 +71,8 @@
       ],
       "treatHandOver": "A deal is a deal: {treat}. Drip can watch from the bucket.",
       "parkedThoughts": "Here are the thoughts you parked. I kept them dry, away from the sink.",
-      "releasedEarly": "Slipped off the button. Drip nearly cheered. Hold it again whenever you like."
+      "releasedEarly": "Slipped off the button. Drip nearly cheered. Hold it again whenever you like.",
+      "nextStartOpening": "Your note is up top, in your own words. Start there. I'm right beside you."
     },
     "notifications": [
       {
@@ -83,6 +84,9 @@
       {
         "text": "Drip is learning the drums. One phone call ends the tour."
       }
-    ]
+    ],
+    "cueNotification": {
+      "text": "{cue}, you said. Drip is waiting by the sink."
+    }
   }
 }

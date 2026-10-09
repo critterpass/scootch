@@ -68,7 +68,8 @@
       ],
       "treatHandOver": "Hứa là làm: {treat}. Lồng Lộn ngồi trong thau mà ngó.",
       "parkedThoughts": "Mấy ý bạn gửi tạm đây. Tui cất xa cái máy giặt, khô ráo hết.",
-      "releasedEarly": "Tuột khỏi nút rồi. Lồng Lộn suýt vỗ tay. Thích thì giữ nút lần nữa."
+      "releasedEarly": "Tuột khỏi nút rồi. Lồng Lộn suýt vỗ tay. Thích thì giữ nút lần nữa.",
+      "nextStartOpening": "Lời nhắn của bạn nằm ngay phía trên đó. Bắt đầu từ đó đi, tui ngồi kế bên."
     },
     "notifications": [
       {
@@ -80,6 +81,9 @@
       {
         "text": "Máy giặt lên sóng phát thanh phường rồi. Một cuộc gọi là tắt đài."
       }
-    ]
+    ],
+    "cueNotification": {
+      "text": "{cue}, bạn dặn vậy mà. Lồng Lộn có mặt rồi nè."
+    }
   }
 }

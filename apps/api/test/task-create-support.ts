@@ -33,6 +33,8 @@ export function linesOutputOf(response: TaskCreatePass) {
     ...response.monster,
     ...response.lines,
     notifications: response.notifications.map(({ text }) => text),
+    // The cue's notification is answered under its own key, as one line.
+    ...(response.cueNotification === undefined ? {} : { cue: response.cueNotification.text }),
   };
 }
 
