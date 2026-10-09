@@ -6,7 +6,7 @@ import { helperLine } from '@scootch/voice';
 import seriousFixture from '../../../../packages/voice/fixtures/task.create.serious.en.json';
 import { DEFAULT_ACTION, askOf } from '../features/surfaces/notification-responses';
 
-import { MORNING, stagedPhone, stagedServer } from './test/staged-phone';
+import { MORNING, recordedLines, stagedPhone, stagedServer } from './test/staged-phone';
 
 type Phone = Awaited<ReturnType<typeof stagedPhone>>;
 
@@ -31,6 +31,10 @@ function todays(app: Phone) {
   return app.device.scheduled().filter((one) => one.at < TOMORROW);
 }
 
+/** A server whose line pack wrote no message for a cue: the offline line says it. */
+const { cueNotification: recordedCue, ...unwritten } = recordedLines;
+const withoutCueLine = () => stagedServer({ lines: () => Promise.resolve(unwritten) });
+
 const cueText = (attitude: Attitude | 'plain') =>
   (attitude === 'plain'
     ? helperLine('en', 'plain', 'cue')
@@ -39,7 +43,7 @@ const cueText = (attitude: Attitude | 'plain') =>
 
 describe('a cue saved for later', () => {
   it('takes one of the day’s places at Soft: one message in all, at the cue, saying it back', async () => {
-    const app = await stagedPhone(stagedServer(), undefined, EARLY);
+    const app = await stagedPhone(withoutCueLine(), undefined, EARLY);
     await taskSet(app, 'soft');
     expect(todays(app)).toHaveLength(1);
     const own = todays(app)[0]?.text;
@@ -61,7 +65,7 @@ describe('a cue saved for later', () => {
   });
 
   it('replaces a message at Cheeky and never adds one', async () => {
-    const app = await stagedPhone(stagedServer(), undefined, EARLY);
+    const app = await stagedPhone(withoutCueLine(), undefined, EARLY);
     await taskSet(app, 'cheeky');
     const before = todays(app).length;
     expect(before).toBe(3);
@@ -72,7 +76,7 @@ describe('a cue saved for later', () => {
   });
 
   it('is taken away with its message by "Now"', async () => {
-    const app = await stagedPhone(stagedServer(), undefined, EARLY);
+    const app = await stagedPhone(withoutCueLine(), undefined, EARLY);
     await taskSet(app, 'cheeky');
     await app.store.dispatch({ type: 'cue_saved', cue: LUNCH });
     await app.store.dispatch({ type: 'cue_cleared' });
@@ -81,7 +85,7 @@ describe('a cue saved for later', () => {
   });
 
   it('is spent by starting: the cue and its message are gone', async () => {
-    const app = await stagedPhone(stagedServer(), undefined, EARLY);
+    const app = await stagedPhone(withoutCueLine(), undefined, EARLY);
     await taskSet(app, 'soft');
     await app.store.dispatch({ type: 'cue_saved', cue: LUNCH });
     await app.store.dispatch({ type: 'session_set', minutes: 25 });
@@ -91,7 +95,7 @@ describe('a cue saved for later', () => {
   });
 
   it('starts the session from one tap on its message, with no screen on the way', async () => {
-    const app = await stagedPhone(stagedServer(), undefined, EARLY);
+    const app = await stagedPhone(withoutCueLine(), undefined, EARLY);
     await taskSet(app, 'soft');
     await app.store.dispatch({ type: 'cue_saved', cue: LUNCH });
     const [message] = todays(app);
@@ -120,6 +124,34 @@ describe('a cue saved for later', () => {
     expect(planned).toHaveLength(1);
     expect(planned[0]).toMatchObject({ at: LUNCH_AT, text: cueText('plain') });
     expect(planned[0]?.from).toBeUndefined();
+  });
+});
+
+describe("the cue's own words", () => {
+  // The recorded pack wrote one; without it the test would compare against no line at all.
+  const written = (recordedCue?.text ?? 'no recorded cue line').replace('{cue}', 'After lunch');
+
+  it('are the ones the task call wrote, kept with the thing, with the cue said back', async () => {
+    const app = await stagedPhone(stagedServer(), undefined, EARLY);
+    await taskSet(app, 'cheeky');
+    await app.store.dispatch({ type: 'cue_saved', cue: LUNCH });
+    expect(todays(app).filter((one) => one.at === LUNCH_AT)).toEqual([
+      expect.objectContaining({ text: written, taskId: app.task().id }),
+    ]);
+    expect(todays(app).some((one) => one.text === cueText('cheeky'))).toBe(false);
+
+    // Opened again, offline: the line was stored with the thing.
+    const again = await stagedPhone(stagedServer({ online: false }), app.data, EARLY + 60_000);
+    expect(todays(again).filter((one) => one.at === LUNCH_AT)[0]?.text).toBe(written);
+  });
+
+  it('give way to the soft offline line once the monster is turned down', async () => {
+    const app = await stagedPhone(stagedServer(), undefined, EARLY);
+    await taskSet(app, 'cheeky');
+    await app.store.dispatch({ type: 'cue_saved', cue: LUNCH });
+    await app.store.dispatch({ type: 'monster_turned_down', taskId: app.task().id });
+    const [cue] = todays(app).filter((one) => one.at === LUNCH_AT);
+    expect(cue?.text).toBe(cueText('soft'));
   });
 });
 

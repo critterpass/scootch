@@ -1,9 +1,17 @@
 import type { CardLanguage } from '@scootch/art';
-import type { CardData, SignedWords, TaskRow } from '@scootch/domain';
+import type {
+  CardData,
+  GuessMinutes,
+  MonsterRow,
+  OddWord,
+  SignedWords,
+  TaskRow,
+} from '@scootch/domain';
 import { encodeWav, type Stereo } from '@scootch/sound';
 
 import type { CardShareRequest, ShareApi } from '../../api/share-api';
 import { refusalOf } from '../../api/together-api';
+import { drawnCard } from '../zoo/zoo-cards';
 
 import {
   cardShareKey,
@@ -61,6 +69,29 @@ export interface CatchShare {
   readonly dress: ShareDress;
   readonly hideTask: boolean;
   readonly language: CardLanguage;
+  /**
+   * The guess frozen onto the monster at the catch, for the story's line; unset or `null` when
+   * there is none or the composer's switch took it out. It is drawn, never posted.
+   */
+  readonly guessMinutes?: GuessMinutes | null;
+  /**
+   * The word an odd hatch gave the monster, as its card prints it: "Molar (tiny)". Only the
+   * picture prints it; the page is posted with the plain name its signature covers.
+   */
+  readonly oddWord?: OddWord | null;
+}
+
+/** The stored monster a card was frozen from: it keeps what the card does not, the guess and an odd word. */
+export function frozenWith(
+  monsters: readonly MonsterRow[],
+  card: Pick<CardData, 'monster' | 'number'>,
+): MonsterRow | undefined {
+  return monsters.find((one) => one.spec.seed === card.monster.seed && one.number === card.number);
+}
+
+/** The card as the picture draws it; the page is posted with `share.card`, as it was signed. */
+export function drawnOf(share: Pick<CatchShare, 'card' | 'oddWord' | 'language'>): CardData {
+  return drawnCard(share.card, share.oddWord, share.language);
 }
 
 /** The page a format goes with; `null` for a picture that stands by itself. */
@@ -183,16 +214,17 @@ interface Shared {
 async function pictureOf(device: ShareDevice, share: CatchShare): Promise<Shared | null> {
   if (!shareOffered(share.task)) return null;
   const name = `scootch-${share.format}-${share.card.number}`;
+  const card = drawnOf(share);
   if (share.format === 'card' && device.renderVideo) {
     try {
-      const frames = composeCardTurn(share.card, share, share.dress);
+      const frames = composeCardTurn(card, share, share.dress);
       const uri = await device.renderVideo(frames, name, CARD_TURN.framesPerSecond);
       return { uri, mimeType: 'video/mp4' };
     } catch {
       // The picture below is shared instead.
     }
   }
-  const image = composeShareImage(share.format, share.card, share, share.dress);
+  const image = composeShareImage(share.format, card, share, share.dress);
   return { uri: await device.renderPng(image, name), mimeType: 'image/png' };
 }
 

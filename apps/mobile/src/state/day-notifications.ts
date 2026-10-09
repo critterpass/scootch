@@ -217,7 +217,7 @@ export function dayNotifications(input: DayNotificationsInput): PlannedText[] {
       if (one.kind === 'cue' && cue !== null) {
         const voice = one.plain ? 'plain' : turnedDown ? 'soft' : attitude;
         const from = one.plain || !input.monster ? {} : { from: input.monster };
-        const text = cueWords(settings.language, voice, cue);
+        const text = cueWords(settings.language, voice, cue, turnedDown ? null : task);
         planned.push({ at: one.at, text, taskId: task.id, ...from });
         continue;
       }

@@ -40,6 +40,7 @@ function nameFirst(
         monster: whole.monster ?? null,
         lines: whole.lines ?? null,
         notifications: whole.notifications ?? [],
+        cueNotification: whole.cueNotification ?? null,
       };
     }
     const pack = await api
@@ -51,6 +52,7 @@ function nameFirst(
       monster: answer.monster,
       lines: pack === null ? null : { ...pack.lines, hatch: answer.hatch },
       notifications: pack?.notifications ?? [],
+      cueNotification: pack?.cueNotification ?? null,
     };
   });
   // The store reads the failure when it is ready to; until then it must not be unhandled.

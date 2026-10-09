@@ -36,7 +36,6 @@ import {
   takesFrame,
   type ShareDress,
   type ShareImage,
-  type ShareImageOptions,
 } from './share-image';
 import { dayLog, monthBefore, monthWrap } from './share-logs';
 import { shareOffered, shareOfferedOn } from './share-rules';
@@ -566,10 +565,9 @@ describe('the guess line on a shared story', () => {
 
   it('sends and saves the picture the composer shows: with the line, or without it once it is switched off', async () => {
     // The composer hands the guess over on the share itself, beside the task's switch.
-    type Guessed = CatchShare & Pick<ShareImageOptions, 'guessMinutes'>;
     const share = { task, card, signed, format: 'story', dress: plain, ...still } as const;
-    const on: Guessed = { ...share, guessMinutes: 120 };
-    const off: Guessed = { ...share, guessMinutes: null };
+    const on: CatchShare = { ...share, guessMinutes: 120 };
+    const off: CatchShare = { ...share, guessMinutes: null };
     const withLine = recorder();
     await shareCatch(withLine.device, website().pages, on);
     await saveCatch(withLine.device, on);
@@ -578,5 +576,28 @@ describe('the guess line on a shared story', () => {
     await shareCatch(without.device, website().pages, off);
     await saveCatch(without.device, share);
     expect(without.calls.drawn.map((image) => GUESS.test(texts(image)))).toEqual([false, false]);
+  });
+});
+
+describe('a catch from an odd hatch', () => {
+  it('prints its word on the picture and posts the plain name its signature covers', async () => {
+    const share: CatchShare = {
+      task,
+      card,
+      signed,
+      format: 'card',
+      dress: plain,
+      hideTask: false,
+      language: 'en',
+      oddWord: 'tiny',
+    };
+    const phone = recorder();
+    const site = website();
+    expect(await shareCatch(phone.device, site.pages, share)).toBe('shared');
+    expect(phone.calls.drawn.map(texts).join('\n')).toContain(`${card.name} (tiny)`);
+    const posted = site.sent.find((one) => one.path === '/v1/card-share')?.body as {
+      card: { name: string };
+    };
+    expect(posted.card.name).toBe(card.name);
   });
 });

@@ -85,11 +85,13 @@ export function createScootchApi(http: HttpClient): ScootchApi {
         '/v1/task-create/lines',
         { continuation },
         (json) => {
-          const { monster, lines, notifications } = taskLinesAnswerSchema.parse(json);
+          const { monster, lines, notifications, cueNotification } =
+            taskLinesAnswerSchema.parse(json);
           return {
             ...(monster ? { monster } : {}),
             ...(lines ? { lines } : {}),
             ...(notifications ? { notifications } : {}),
+            ...(cueNotification ? { cueNotification } : {}),
           };
         },
         { timeoutMs: TASK_CREATE_TIMEOUT_MS },

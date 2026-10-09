@@ -80,7 +80,8 @@ export function taskSetShown(
     { ...day, timeZone: getCalendars()[0]?.timeZone ?? 'UTC', now: Date.now() },
     { usual: 10, smallest, lengths: options },
   );
-  const minutes = env.chosenMinutes ?? opening.minutes;
+  // A length kept with a cue or a bite is where the wheel stands until it is turned again.
+  const minutes = env.chosenMinutes ?? stage.task.chosenMinutes ?? opening.minutes;
   // A cue picked and not yet saved is shown over the one kept; "Now" takes either away.
   const kept = stage.task.startCue ?? null;
   const cue = env.chosenCue ?? kept;
@@ -126,7 +127,7 @@ export function taskSetShown(
               const saved = env.chosenCue;
               if (saved === null) return;
               env.onCue(null);
-              send({ type: 'cue_saved', cue: saved });
+              send({ type: 'cue_saved', cue: saved, minutes });
             },
           }
         : {}),
@@ -186,7 +187,8 @@ export function taskSetShown(
             : {
                 name: monster?.row.name ?? null,
                 rows: bites,
-                onTick: (place) => send({ type: 'bite_ticked', taskId: stage.task.id, place }),
+                onTick: (place) =>
+                  send({ type: 'bite_ticked', taskId: stage.task.id, place, minutes }),
               },
       },
       extra: <TogetherLinks day={day} task={stage.task} monster={day.monster} />,

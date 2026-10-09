@@ -4,6 +4,7 @@ import {
   editItem,
   hasStartLeft,
   mentionAgain,
+  nextStartAfter,
   sameThing,
   type Id,
 } from '@scootch/domain';
@@ -77,6 +78,8 @@ export async function removeWaitingTask(ctx: DayContext, taskId: Id): Promise<vo
  * The task waiting for tomorrow is reworded. It still comes back in the morning, in the new
  * words. They are words nobody has screened (a serious task stays serious), and its monster and
  * its lines were written for the old ones, so they go and are written again when it is asked for.
+ * The line left for next time was written for the old words too: new words are a different ask,
+ * as a smaller task is, so it goes.
  */
 export async function editWaitingTask(ctx: DayContext, taskId: Id, words: string): Promise<void> {
   const task = ctx.memory.state.waitingForTomorrow;
@@ -94,6 +97,7 @@ export async function editWaitingTask(ctx: DayContext, taskId: Id, words: string
     screen: task.screen === 'serious' ? 'serious' : 'unscreened',
     lines: null,
     shrinkCount: 0,
+    nextStart: nextStartAfter(task.nextStart, 'made_smaller'),
   });
   await ctx.refresh();
 }
