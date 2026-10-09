@@ -6,6 +6,9 @@
 //   A time heard: stage one only, asked at eleven in the morning on the phone's clock. A clock
 //   time said for today comes back as that time, in words the ramble has; a time said for another
 //   day comes back as that day's deadline and never as a time for today; no time, no heard time.
+//   Fits the gap: stage one only, a time heard for today with under an hour left before getting
+//   ready (the lead is the request's, 35 minutes when it sends none), and a note naming one long
+//   thing and one short one. The one thing must fit ten minutes and must not be the long thing.
 // It reports per case and fails under 90% on either set, or on any answer off the contract. No
 // ramble is heavy: a heavy task is never asked what is in the way, and the care screen has its
 // own eval.
@@ -118,7 +121,31 @@ async function heardTime(language, token, testCase) {
   return { ...result, failed, answer: start.data };
 }
 
-/** Runs both sets in every language asked for. Returns whether the run passed. */
+async function fitsTheGap(language, token, testCase) {
+  const result = { id: testCase.id, language, kind: 'fits the gap', note: testCase.localTime };
+  const first = await startTask(language, token, testCase.text, {
+    source: 'ramble',
+    helpers: {
+      localTime: testCase.localTime,
+      ...(testCase.getReadyLeadMinutes === undefined
+        ? {}
+        : { getReadyLeadMinutes: testCase.getReadyLeadMinutes }),
+    },
+  });
+  const start = taskCreateStartResponseSchema.safeParse(first.json);
+  if (first.status !== 200 || !start.success) return { ...result, failed: ['contract'] };
+  if (start.data.verdict !== 'pass')
+    return { ...result, failed: [`verdict:${start.data.verdict}`] };
+
+  const failed = [];
+  const { heardTime: heard, oneThing, labels } = start.data;
+  if (heard === undefined) failed.push('time: not heard');
+  if (!labels.fitsTenMinutes) failed.push('fit: one thing does not fit ten minutes');
+  if (isGroundedIn(testCase.avoid, oneThing.text, language)) failed.push('fit: the long thing');
+  return { ...result, failed, answer: start.data };
+}
+
+/** Runs every set in every language asked for. Returns whether the run passed. */
 export async function runHelpers() {
   const all = [];
   for (const language of languages) {
@@ -129,6 +156,7 @@ export async function runHelpers() {
           inTheWay(language, token, testCase, attitudes[index % attitudes.length]),
       ),
       ...cases.heardTime.map((testCase) => (token) => heardTime(language, token, testCase)),
+      ...cases.fitsTheGap.map((testCase) => (token) => fitsTheGap(language, token, testCase)),
     ]);
     console.table(
       results.map(({ id, kind, note, attitude, failed }) => ({
@@ -144,7 +172,7 @@ export async function runHelpers() {
 
   let passed = !all.some(({ failed }) => failed.includes('contract'));
   if (!passed) console.error('FAIL: a starting-helper answer did not match the contract');
-  for (const kind of ['in the way', 'time heard']) {
+  for (const kind of ['in the way', 'time heard', 'fits the gap']) {
     const of = all.filter((result) => result.kind === kind);
     const ok = of.filter(({ failed }) => failed.length === 0).length;
     console.log(`starting helpers, ${kind}: ${share(ok, of.length)} passed`);

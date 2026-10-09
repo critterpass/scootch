@@ -26,6 +26,7 @@ import {
   type VoiceCheckSummary,
 } from './context';
 import type { ContinuationPayload } from './continuation';
+import { fitTheGap } from './fit-the-gap';
 import { asksForAPick, guessEnergy, labelsFor } from './labels';
 import { ownWordsAtMost, pickThings } from './pick';
 import { notePrompt, plainSystem } from './prompt';
@@ -217,11 +218,16 @@ export async function startTask(
     return { verdict: 'choose', response: { verdict: 'choose', ...judge } };
   }
 
-  const sorted = await picking;
+  const picked = await picking;
+  const first = {
+    sorted: picked,
+    labels: await (early !== null && picked.oneThing.text === text
+      ? early
+      : labelsFor(decideContext(context), picked.oneThing.text)),
+  };
+  // Little time before getting ready asks for a thing that fits; never on a text called heavy.
+  const { sorted, labels: read } = serious ? first : await fitTheGap(context, request, first);
   const oneThing = sorted.oneThing.text;
-  const read = await (early !== null && oneThing === text
-    ? early
-    : labelsFor(decideContext(context), oneThing));
   // Only now, with the words through the screen, is the monster's page read.
   const kept = await monsterToKeep(context, request.monsterPage);
   // What is in the way is never used on a text the screen called heavy, lifted or not.

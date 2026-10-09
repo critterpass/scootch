@@ -15,7 +15,7 @@ import {
 } from './in-the-way';
 import { pickForMe } from './pick-flow';
 import { applyCall, keepTranscript, treatNamed } from './task-answers';
-import { keepHeardTime } from './heard-time';
+import { getReadyLeadField, keepHeardTime } from './heard-time';
 import { askForFinished } from './late-catch';
 import { setWithoutAnswer, sortOrphanWords, wordsToAsk } from './late-words';
 
@@ -34,6 +34,7 @@ function requestFor(ctx: DayContext, offer: Offer, canChoose = false): TaskCreat
     timeZone: ctx.deps.timeZone(),
     overrideSerious: false,
     ...localTimeField(ctx),
+    ...getReadyLeadField(ctx),
     ...inTheWayField(offer),
     ...(canChoose ? { canChoose } : {}),
     ...(offer.monsterPage === undefined ? {} : { monsterPage: offer.monsterPage }),

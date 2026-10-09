@@ -5,7 +5,7 @@ import { ApiError } from '../../errors';
 import { generate } from '../deepseek';
 
 import { record, unwritable, type TaskCreateContext } from './context';
-import { notePrompt, pickSystem } from './prompt';
+import { fitTheGapNote, notePrompt, pickSystem } from './prompt';
 import { pickOutputSchema, type PickOutput } from './schema';
 import { oneThingProblem, sortThings, type OneThingProblem, type SortedThings } from './things';
 
@@ -16,6 +16,7 @@ async function ask(
   context: TaskCreateContext,
   request: TaskCreateRequest,
   problem?: OneThingProblem,
+  steer?: string,
 ): Promise<PickOutput> {
   const generated = await generate(
     { apiKey: context.env.DEEPSEEK_API_KEY },
@@ -23,11 +24,14 @@ async function ask(
       // Choosing among things the note already names is selection, not writing.
       tier: 'fast',
       system: pickSystem(request.language),
-      prompt: notePrompt(
-        request,
-        request.energy === 'guess' ? 'unknown' : request.energy,
-        problem === undefined ? undefined : [{ slot: 'oneThing', reasons: [problem] }],
-      ),
+      prompt: [
+        notePrompt(
+          request,
+          request.energy === 'guess' ? 'unknown' : request.energy,
+          problem === undefined ? undefined : [{ slot: 'oneThing', reasons: [problem] }],
+        ),
+        ...(steer === undefined ? [] : [steer]),
+      ].join('\n\n'),
       tool: { name: 'pick_task', description: "Return today's one thing and the rest, sorted." },
       schema: pickOutputSchema,
       maxTokens: 900,
@@ -81,4 +85,33 @@ export async function pickThings(
   }
   if (problem !== null) throw unwritable(context, problem);
   return sortThings(output, request);
+}
+
+/**
+ * The pick asked once more for a thing that fits the minutes left before getting ready, with the
+ * first one thing turned down. `null` when no model answers or its one thing cannot be used: the
+ * first pick then stands.
+ */
+export async function pickToFit(
+  context: TaskCreateContext,
+  request: TaskCreateRequest,
+  gapMinutes: number,
+  tooLong: string,
+): Promise<SortedThings | null> {
+  const asked = { ...request, declined: [...(request.declined ?? []), tooLong].slice(-10) };
+  try {
+    const output = await ask(
+      context,
+      asked,
+      undefined,
+      fitTheGapNote(request.language, gapMinutes),
+    );
+    return oneThingProblem(output.oneThing, asked) === null ? sortThings(output, request) : null;
+  } catch (error) {
+    console.warn('task not picked to fit', {
+      requestId: context.requestId,
+      reason: error instanceof ApiError ? error.code : 'internal',
+    });
+    return null;
+  }
 }

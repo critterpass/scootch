@@ -212,6 +212,7 @@ function useOneScreenDrawn({
       settings,
       language,
       reminderAt: day.reminderAt,
+      heardTime: day.heardTimeAsked ? day.heardTime : null,
       now: Date.now(),
       dispatch,
     });
