@@ -5,6 +5,10 @@ appId: app.scootch.dev
 # through the more button on the one screen, and reads the list from the app itself:
 # `registry-count` holds the number of rows and `registry-name-<n>` the name of the n-th, so a new
 # registry file needs no change here. Each image is named `<state id>--<variant>`.
+# With MAESTRO_STATES (a comma-separated list of state id prefixes; the device workflow's `states`
+# input) it captures only the rows whose name starts with one of them. With MAESTRO_VARIANTS (a
+# comma-separated list of variant names, such as en-light-default; the `variants` input) it takes
+# only those variants. Empty or unset: every row.
 - launchApp:
     clearState: true
 # A clean install meets first launch before the one screen: say hello, keep the attitude and skip
@@ -15,22 +19,37 @@ appId: app.scootch.dev
     timeout: 90000
 - tapOn:
     id: 'launch-hello-next'
+- extendedWaitUntil:
+    visible:
+      id: 'launch-attitude-confirm'
+    timeout: 30000
 - tapOn:
     id: 'launch-attitude-confirm'
+- extendedWaitUntil:
+    visible:
+      id: 'launch-permission-skip'
+    timeout: 30000
 - tapOn:
     id: 'launch-permission-skip'
+- extendedWaitUntil:
+    visible:
+      id: 'launch-permission-skip'
+    timeout: 30000
 - tapOn:
     id: 'launch-permission-skip'
 - extendedWaitUntil:
     visible:
       id: 'more-button'
-    timeout: 15000
+    timeout: 60000
 - tapOn:
     id: 'more-button'
 - scrollUntilVisible:
     element:
       id: 'developer-tools'
     direction: DOWN
+    timeout: 120000
+    # Centred, so the row is not left at the screen's lower edge, where it counts as not visible.
+    centerElement: true
 - tapOn:
     id: 'developer-tools'
 - extendedWaitUntil:
@@ -43,9 +62,69 @@ appId: app.scootch.dev
     visible:
       id: 'registry-count'
     timeout: 15000
+- evalScript: "${output.states = typeof MAESTRO_STATES === 'undefined' ? '' : MAESTRO_STATES.trim()}"
+- evalScript: "${output.variants = typeof MAESTRO_VARIANTS === 'undefined' ? '' : MAESTRO_VARIANTS.trim()}"
+# The first time the keyboard is used, iOS may stop to explain sliding a finger across the letters,
+# and what was typed before it came up is lost. So the words are typed, the notice is dismissed if
+# it came up, and they are typed again whole; the check after the count then fails the run at once
+# if the list is still not narrowed, instead of capturing everything until the time limit.
+- runFlow:
+    when:
+      true: ${output.states !== ''}
+    commands:
+      - tapOn:
+          id: 'registry-states'
+      - inputText: ${output.states}
+      - runFlow:
+          when:
+            visible: 'Continue'
+          commands:
+            - tapOn: 'Continue'
+            - tapOn:
+                id: 'registry-states'
+            - eraseText: 400
+            - inputText: ${output.states}
+- runFlow:
+    when:
+      true: ${output.variants !== ''}
+    commands:
+      - tapOn:
+          id: 'registry-variants'
+      - inputText: ${output.variants}
+      - runFlow:
+          when:
+            visible: 'Continue'
+          commands:
+            - tapOn: 'Continue'
+            - tapOn:
+                id: 'registry-variants'
+            - eraseText: 400
+            - inputText: ${output.variants}
+# Closes the keyboard, which would otherwise cover the list.
+- runFlow:
+    when:
+      true: ${output.states !== '' || output.variants !== ''}
+    commands:
+      - pressKey: Enter
 - copyTextFrom:
     id: 'registry-count'
 - evalScript: ${output.count = Number(maestro.copiedText); output.row = 0}
+# Proof that the lists took effect: the first row must match them, or the run fails here.
+- runFlow:
+    when:
+      true: ${output.states !== '' || output.variants !== ''}
+    commands:
+      - copyTextFrom:
+          id: 'registry-name-0'
+      - evalScript: |
+          ${(function () {
+            var name = maestro.copiedText;
+            var states = output.states === '' ? [] : output.states.toLowerCase().split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+            var variants = output.variants === '' ? [] : output.variants.toLowerCase().split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+            var okState = states.length === 0 || states.some(function (s) { return name.indexOf(s) === 0; });
+            var okVariant = variants.length === 0 || variants.some(function (v) { return name.slice(-v.length - 2) === '--' + v; });
+            if (!okState || !okVariant) throw new Error('The list is not narrowed: first row is ' + name);
+          })()}
 - repeat:
     while:
       true: ${output.row < output.count}
@@ -61,10 +140,13 @@ appId: app.scootch.dev
       - evalScript: ${output.name = maestro.copiedText}
       - tapOn:
           id: registry-row-${output.name}
+      # A state drawn as a sheet is a window of its own, and the marker under it is then hidden
+      # from the device: wait for the marker, and go on without it after eight seconds.
       - extendedWaitUntil:
           visible:
             id: registry-state-${output.name}
-          timeout: 15000
+          timeout: 8000
+          optional: true
       - waitForAnimationToEnd:
           timeout: 3000
       - takeScreenshot: ${output.name}
@@ -73,6 +155,16 @@ appId: app.scootch.dev
       # where it reaches below the status bar and before any control of the screen under it.
       - tapOn:
           point: '50%,7%'
+      - waitForAnimationToEnd:
+          timeout: 3000
+      # With a sheet open the first press closes the sheet, and the second the state.
+      - runFlow:
+          when:
+            notVisible:
+              id: 'registry-list'
+          commands:
+            - tapOn:
+                point: '50%,7%'
       # The list keeps its place while a state is open, so its count has scrolled away by now: wait
       # for the list itself.
       - extendedWaitUntil:
