@@ -9,7 +9,14 @@ import {
   fixtureTask,
 } from '../reveal/registry/keep-fixtures';
 
-import { binderOpen, cardDataFor, cardSpokenLabel, guessLine, isCaught } from './zoo-cards';
+import {
+  binderOpen,
+  cardDataFor,
+  cardSpokenLabel,
+  drawnCard,
+  guessLine,
+  isCaught,
+} from './zoo-cards';
 
 const caught = fixtureMonsters(41);
 const wild = { ...fixtureMonster(99), number: null, caughtOn: null, caughtAt: null };
@@ -33,6 +40,20 @@ describe('a caught card', () => {
     };
     const label = cardSpokenLabel(cardDataFor(monster, fixtureTask(0)), 'en');
     expect(label).toBe('Molar, Epic, No. 001, Lurked 120 days, Dread 4/5, Caught in 9 minutes');
+  });
+});
+
+describe('a card from an odd hatch', () => {
+  const card = cardDataFor(fixtureMonster(0), fixtureTask(0));
+
+  it('is drawn with its word after the name, as the binder prints it', () => {
+    expect(drawnCard(card, 'tiny', 'en')).toEqual({ ...card, name: 'Molar (tiny)' });
+    expect(drawnCard(card, 'tiny', 'vi').name).toBe('Molar (tí hon)');
+  });
+
+  it('is drawn as it is with no word', () => {
+    expect(drawnCard(card, null, 'en')).toBe(card);
+    expect(drawnCard(card, undefined, 'en')).toBe(card);
   });
 });
 

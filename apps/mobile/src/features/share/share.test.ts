@@ -578,3 +578,26 @@ describe('the guess line on a shared story', () => {
     expect(without.calls.drawn.map((image) => GUESS.test(texts(image)))).toEqual([false, false]);
   });
 });
+
+describe('a catch from an odd hatch', () => {
+  it('prints its word on the picture and posts the plain name its signature covers', async () => {
+    const share: CatchShare = {
+      task,
+      card,
+      signed,
+      format: 'card',
+      dress: plain,
+      hideTask: false,
+      language: 'en',
+      oddWord: 'tiny',
+    };
+    const phone = recorder();
+    const site = website();
+    expect(await shareCatch(phone.device, site.pages, share)).toBe('shared');
+    expect(phone.calls.drawn.map(texts).join('\n')).toContain(`${card.name} (tiny)`);
+    const posted = site.sent.find((one) => one.path === '/v1/card-share')?.body as {
+      card: { name: string };
+    };
+    expect(posted.card.name).toBe(card.name);
+  });
+});

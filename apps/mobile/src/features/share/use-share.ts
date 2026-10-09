@@ -17,6 +17,8 @@ import { mayWear } from '../studio/rules';
 import { keychainKeptShares } from './native-kept-shares';
 import { nativeShareDevice } from './native-share-device';
 import {
+  drawnOf,
+  frozenWith,
   linkOfCatch,
   pageOffered,
   saveCatch,
@@ -243,11 +245,9 @@ export function useComposer(
     const formats = forACatch(formatsOffered(dress));
     // A format that can no longer be made (the day's log is gone) falls back to the story.
     const shown = formats.includes(format) ? format : 'story';
-    // The guess was frozen onto the monster at the catch; the card itself does not carry it.
-    const guess =
-      kept?.monsters.find(
-        (one) => one.spec.seed === caught.card.monster.seed && one.number === caught.card.number,
-      )?.guessMinutes ?? null;
+    // The guess and an odd hatch's word were frozen onto the monster; the card does not carry them.
+    const frozen = frozenWith(kept?.monsters ?? [], caught.card);
+    const guess = frozen?.guessMinutes ?? null;
     const guessed = guessOffered(shown, guess);
     // The picture that is sent is composed from this share, so the guess goes out with it.
     const share: CatchShare = {
@@ -257,6 +257,7 @@ export function useComposer(
       hideTask,
       language,
       guessMinutes: guessed && showGuess ? guess : null,
+      oddWord: frozen?.oddWord ?? null,
     };
     const page = pageOffered(share);
     const actions: ShareActions = {
@@ -302,7 +303,7 @@ export function useComposer(
     return {
       model: {
         moment: 'caught' as const,
-        image: composeShareImage(shown, caught.card, share, share.dress),
+        image: composeShareImage(shown, drawnOf(share), share, share.dress),
         format: shown,
         formats,
         frame: usable,

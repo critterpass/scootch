@@ -13,7 +13,7 @@ import { keychainKeptShares } from '../share/native-kept-shares';
 import { tellPageOfCatch } from '../share/share-flow';
 import { shareOfferedOn } from '../share/share-rules';
 import { useShare } from '../share/use-share';
-import { cardDataFor, isCaught } from '../zoo/zoo-cards';
+import { cardDataFor, drawnCard, isCaught } from '../zoo/zoo-cards';
 
 import type { RevealActions, RevealModel } from './reveal-model';
 import { RevealScreen } from './reveal-screen';
@@ -161,7 +161,8 @@ export function RevealContainer() {
     attitude: settings.attitude,
     reducedMotion,
     tilting: !captured && !reducedMotion,
-    card,
+    // Drawn with an odd hatch's word; the share below posts the plain name the server signed.
+    card: card && drawnCard(card, monster?.oddWord, language),
     monster,
     line: line?.slot === 'caught' ? line.text : null,
     piece,

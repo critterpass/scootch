@@ -4,8 +4,10 @@ import {
   isUnlocked,
   type CardData,
   type MonsterRow,
+  type OddWord,
   type TaskRow,
 } from '@scootch/domain';
+import { t } from '@scootch/i18n';
 
 /** A monster with its card: every card field was frozen at the catch. */
 export type CaughtMonster = MonsterRow & {
@@ -49,6 +51,20 @@ export function cardDataFor(monster: CaughtMonster, task: Pick<TaskRow, 'text'> 
     finish: monster.finish,
     caughtOn: monster.caughtOn,
   };
+}
+
+/**
+ * The card as the phone draws it: a monster from an odd hatch has its word after its name,
+ * "Molar (tiny)", as the binder prints it. Only the picture changes. The server signed the plain
+ * name, so what is posted for a page keeps `card` as it is, and the page prints the plain name.
+ */
+export function drawnCard(
+  card: CardData,
+  oddWord: OddWord | null | undefined,
+  language: CardLanguage,
+): CardData {
+  if (oddWord == null) return card;
+  return { ...card, name: t(language, `card.oddName.${oddWord}`, { name: card.name }) };
 }
 
 /** What a screen reader says for a card, as one element: its name, its rarity and its stats. */
