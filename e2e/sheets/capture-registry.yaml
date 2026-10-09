@@ -68,8 +68,10 @@ appId: app.scootch.dev
       - waitForAnimationToEnd:
           timeout: 3000
       - takeScreenshot: ${output.name}
+      # The way back is a strip across the status bar. Its centre is the Dynamic Island, which takes
+      # no touch, so press the strip's left end, clear of the island and of any control below it.
       - tapOn:
-          id: 'registry-state-close'
+          point: '6%,3%'
       - extendedWaitUntil:
           visible:
             id: 'registry-count'
