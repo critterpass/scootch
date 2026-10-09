@@ -7,11 +7,13 @@ import { ParkComposer, type ParkComposerHandle } from '../ui/park-composer';
 import { ParkPill } from '../ui/park-pill';
 import { StuckCard } from '../ui/stuck-card';
 
+import { OthersHuntingLine, useOthersHuntingWatch } from './others-hunting-line';
 import type { ScreenProps } from './screen-props';
 
 /**
  * What sits at the foot of the session at work. Running, it is the one glass pill, "Park a
- * thought", and for the last two minutes nothing at all; the stuck card and the park field take
+ * thought", with how many others are hunting over it when that is shown, and for the last two
+ * minutes nothing at all; the stuck card and the park field take
  * its place when they are up. A serious task has its plain dock: stop, and done.
  */
 export function WorkingFooter({
@@ -21,6 +23,7 @@ export function WorkingFooter({
   t,
   park,
 }: ScreenProps & { readonly park: RefObject<ParkComposerHandle | null> }) {
+  useOthersHuntingWatch();
   const { view } = model;
   if (view.kind !== 'working') return null;
   if (model.parkOpen) {
@@ -84,7 +87,12 @@ export function WorkingFooter({
   if (view.twoMinutesLeft) return null;
   // In flow at the foot, the pill leaves at once and the field takes its room; back from the
   // field it settles out of the field's width.
-  return <ParkPill inks={inks} t={t} onPress={actions.openPark} back />;
+  return (
+    <>
+      <OthersHuntingLine inks={inks} t={t} />
+      <ParkPill inks={inks} t={t} onPress={actions.openPark} back />
+    </>
+  );
 }
 
 const styles = StyleSheet.create({

@@ -31,6 +31,10 @@ export const plainVi = {
       ['Thứ bạn gõ vào lò ấp quái trên web', '24 giờ, trừ khi bạn chia sẻ tấm thẻ'],
       ['Thẻ và bản nhạc đã chia sẻ', 'Tới khi bạn gỡ chia sẻ'],
       ['Nhãn ở bàn', 'Trong lúc bạn còn ngồi'],
+      [
+        'Việc bạn đang trong một phiên',
+        'Khi một phiên bắt đầu và kết thúc, điện thoại chỉ báo cho chúng tôi rằng thiết bị này đang trong phiên: không có việc, tên hay nhãn nào. Chúng tôi giữ một dòng cho thiết bị kèm giờ bắt đầu. Dòng đó được gỡ khi phiên kết thúc, quên sau ba tiếng, và bị xóa cùng Xóa mọi thứ. Tắt bằng Những người đang săn trong Cài đặt',
+      ],
       ['Số liệu phân tích', 'Chỉ là số đếm, không có mã quảng cáo, 13 tháng'],
       [
         'Báo cáo sự cố',
@@ -49,7 +53,7 @@ export const plainVi = {
     deleteBody:
       'Trong app: Cài đặt › Quyền riêng tư và dữ liệu › Xóa mọi thứ. Mọi thứ biến mất khỏi điện thoại và máy chủ của chúng tôi trong vòng 30 ngày. Xóa dữ liệu không hủy Plus; việc đó nằm trong cài đặt Apple.',
     questions: 'Thắc mắc: privacy@scootch.app.',
-    updated: 'Cập nhật lần cuối ngày 8 tháng 10 năm 2026.',
+    updated: 'Cập nhật lần cuối ngày 9 tháng 10 năm 2026.',
   },
   terms: {
     title: 'Điều khoản, nói dễ hiểu · Scootch',

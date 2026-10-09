@@ -101,6 +101,8 @@ describe('the session in the screen registry', () => {
       'session-opening-no-label',
       'session-opening-serious',
       'session-opening-your-line',
+      'session-others-hunting',
+      'session-others-hunting-absent',
       'session-park-a-thought',
       'session-parked-thoughts',
       'session-quiet',

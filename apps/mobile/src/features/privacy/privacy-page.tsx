@@ -36,7 +36,7 @@ export interface PrivacyPageProps {
 
 /**
  * Privacy and data, in plain answers: what happens to a ramble, that nothing is used to train
- * models, and the two things that are the person's to do: take their data, or delete all of it.
+ * models, what a session tells the server, and the two things that are the person's to do: take their data, or delete all of it.
  * The camera rows are drawn only on a phone that has the camera.
  */
 export function PrivacyPage(props: PrivacyPageProps) {
@@ -88,6 +88,12 @@ export function PrivacyPage(props: PrivacyPageProps) {
           label={t('privacy.neverTrained')}
           value={t('privacy.always')}
           testID="privacy-never-trained"
+        />
+        <Row
+          kind="fact"
+          label={t('privacy.hunting')}
+          sub={t('privacy.hunting.sub')}
+          testID="privacy-hunting"
         />
       </Section>
       <Section label={t('privacy.yours')}>

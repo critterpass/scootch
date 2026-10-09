@@ -2,6 +2,8 @@ import { useIsFocused, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Linking, Share } from 'react-native';
 
+import type { SettingsRow } from '@scootch/domain';
+
 import { useMusicWhenSilent } from '../../effects/sound-mode';
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { developerToolsAllowed } from '../../screens/registry/support/developer-tools';
@@ -17,6 +19,7 @@ import { accountThen, friendInviteLink } from '../table/table-rules';
 
 import { useAppIcon } from '../look/use-app-icon';
 
+import { DayHelperSheetModal, type DayHelperSheet } from './day-helper-sheets';
 import { FinishWithPage } from './finish-with-page';
 import { SettingsPage } from './settings-page';
 
@@ -56,6 +59,7 @@ export function SettingsContainer() {
   const inView = usePageShown();
   const focused = useIsFocused() && inView;
   const [tableName, setTableName] = useState<string | null>(null);
+  const [sheet, setSheet] = useState<DayHelperSheet | null>(null);
 
   // Read again whenever Settings comes back into view: the tables page can sign in or out.
   useEffect(() => {
@@ -99,33 +103,43 @@ export function SettingsContainer() {
     openStudio: () => router.push(STUDIO_ROUTE),
   };
   const studio: { readonly openStudio?: () => void } = showsSelling(day) ? studioDoor : {};
+  const change = (changes: Partial<Omit<SettingsRow, 'id'>>) =>
+    void dispatch({ type: 'settings_changed', changes }).catch(() => undefined);
   return (
-    <SettingsPage
-      settings={settings}
-      onStudio={studio.openStudio}
-      chosenLanguage={chosen}
-      // Scootch's own words, from the offline pack: with both stores off there is no spare copy.
-      backupLine={
-        backupOff ? lineWithNoTask('backupOff', { language, attitude: settings.attitude }) : null
-      }
-      developerTools={developerToolsAllowed()}
-      musicWhenSilent={musicWhenSilent}
-      onMusicWhenSilent={setMusicWhenSilent}
-      tableName={tableName}
-      look={{ icon: appIcon.icon, finish: appIcon.finish }}
-      card={{ plan: customer.activePlan, number: member.number, finish: appIcon.finish }}
-      onInvite={invite}
-      onChange={(changes) =>
-        void dispatch({ type: 'settings_changed', changes }).catch(() => undefined)
-      }
-      onOpen={(page) =>
-        // Back Tap, the Action button and automations are set up in Shortcuts, not here.
-        page === 'shortcuts'
-          ? void Linking.openURL('shortcuts://').catch(() => undefined)
-          : router.push(PAGES[page])
-      }
-      onClose={() => (pager ? pager.show('home') : goBack(router, '/'))}
-    />
+    <>
+      <SettingsPage
+        settings={settings}
+        onStudio={studio.openStudio}
+        chosenLanguage={chosen}
+        // Scootch's own words, from the offline pack: with both stores off there is no spare copy.
+        backupLine={
+          backupOff ? lineWithNoTask('backupOff', { language, attitude: settings.attitude }) : null
+        }
+        developerTools={developerToolsAllowed()}
+        musicWhenSilent={musicWhenSilent}
+        onMusicWhenSilent={setMusicWhenSilent}
+        tableName={tableName}
+        look={{ icon: appIcon.icon, finish: appIcon.finish }}
+        card={{ plan: customer.activePlan, number: member.number, finish: appIcon.finish }}
+        onInvite={invite}
+        onChange={change}
+        onOpen={(page) => {
+          // The day's times are sheets over this page; Back Tap, the Action button and automations
+          // are set up in Shortcuts, not here.
+          if (page === 'day-moments' || page === 'get-ready') setSheet(page);
+          else if (page === 'shortcuts')
+            void Linking.openURL('shortcuts://').catch(() => undefined);
+          else router.push(PAGES[page]);
+        }}
+        onClose={() => (pager ? pager.show('home') : goBack(router, '/'))}
+      />
+      <DayHelperSheetModal
+        open={sheet}
+        settings={settings}
+        onChange={change}
+        onClose={() => setSheet(null)}
+      />
+    </>
   );
 }
 

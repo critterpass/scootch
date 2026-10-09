@@ -27,6 +27,10 @@ export const plainEn = {
       ['Web monster-maker input', '24 hours, unless you share the card'],
       ['Shared cards and records', 'Until unshared'],
       ['Table label', 'While seated'],
+      [
+        'That a session is on',
+        'When a session starts and ends, your phone tells us only that this device is in a session: no task, name or label. We keep one row for the device with the time it started. It is removed when the session ends, forgotten after three hours, and deleted with Delete everything. Switch it off with Others hunting in Settings',
+      ],
       ['Analytics', 'Counts only, no ad ids, 13 months'],
       [
         'Crash reports',
@@ -45,7 +49,7 @@ export const plainEn = {
     deleteBody:
       'In the app: Settings › Privacy and data › Delete everything. It’s gone from your phone and our servers within 30 days. Deleting doesn’t cancel Plus; that’s in your Apple settings.',
     questions: 'Questions: privacy@scootch.app.',
-    updated: 'Last updated 8 October 2026.',
+    updated: 'Last updated 9 October 2026.',
   },
   terms: {
     title: 'Terms, in plain words · Scootch',
