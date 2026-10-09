@@ -84,5 +84,44 @@
       "text": "I want to spend 3 hours on the slides and then book a haircut",
       "at": null
     }
+  ],
+  "fitsTheGap": [
+    {
+      "id": "en-fit-01",
+      "text": "dentist at 3:30, before that I should write the essay intro and reply to Sam about the flat",
+      "localTime": "14:20",
+      "avoid": "essay intro"
+    },
+    {
+      "id": "en-fit-02",
+      "text": "school pick-up at 3:30. I want to clear out the whole garage, and I need to text mum back",
+      "localTime": "14:20",
+      "avoid": "garage"
+    },
+    {
+      "id": "en-fit-03",
+      "text": "call with the bank at 3:30, I have to do the whole tax return and find the bank statement",
+      "localTime": "14:20",
+      "avoid": "tax return"
+    },
+    {
+      "id": "en-fit-04",
+      "text": "leaving at 4pm for the airport. I should repaint the bedroom, and water the plants",
+      "localTime": "14:50",
+      "avoid": "repaint the bedroom"
+    },
+    {
+      "id": "en-fit-05",
+      "text": "haircut at half three, need to write the quarterly report and book the vet",
+      "localTime": "14:20",
+      "getReadyLeadMinutes": 20,
+      "avoid": "quarterly report"
+    },
+    {
+      "id": "en-fit-06",
+      "text": "physio at 5, I need to sort out the whole loft and send Priya the photos",
+      "localTime": "15:45",
+      "avoid": "loft"
+    }
   ]
 }

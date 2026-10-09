@@ -84,5 +84,44 @@
       "text": "muốn dành 3 tiếng làm slide rồi đặt lịch cắt tóc",
       "at": null
     }
+  ],
+  "fitsTheGap": [
+    {
+      "id": "vi-fit-01",
+      "text": "3 rưỡi chiều khám răng, trước đó phải viết phần mở bài luận và nhắn chị Hạnh vụ họp lớp",
+      "localTime": "14:20",
+      "avoid": "mở bài luận"
+    },
+    {
+      "id": "vi-fit-02",
+      "text": "3 rưỡi đón con, muốn dọn hết cái nhà kho với nhắn tin lại cho mẹ",
+      "localTime": "14:20",
+      "avoid": "nhà kho"
+    },
+    {
+      "id": "vi-fit-03",
+      "text": "3 rưỡi có cuộc gọi với ngân hàng, phải làm xong cả tờ khai thuế và tìm sao kê ngân hàng",
+      "localTime": "14:20",
+      "avoid": "tờ khai thuế"
+    },
+    {
+      "id": "vi-fit-04",
+      "text": "4 giờ chiều ra sân bay. định sơn lại phòng ngủ, với tưới mấy chậu cây",
+      "localTime": "14:50",
+      "avoid": "sơn lại phòng ngủ"
+    },
+    {
+      "id": "vi-fit-05",
+      "text": "3 rưỡi cắt tóc, cần viết báo cáo quý và đặt lịch thú y cho con mèo",
+      "localTime": "14:20",
+      "getReadyLeadMinutes": 20,
+      "avoid": "báo cáo quý"
+    },
+    {
+      "id": "vi-fit-06",
+      "text": "5 giờ chiều đi vật lý trị liệu, phải dọn hết gác xép và gửi ảnh cho Vy",
+      "localTime": "15:45",
+      "avoid": "gác xép"
+    }
   ]
 }

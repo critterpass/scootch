@@ -21,7 +21,7 @@ const mostThingWords = 5;
 export type OneThingProblem = 'empty' | 'too_long' | 'not_in_text' | 'declined';
 
 /** Two wordings of the same task: each one's words are nearly all in the other. */
-function sameTask(a: string, b: string, language: Language): boolean {
+export function sameTask(a: string, b: string, language: Language): boolean {
   return groundedShare(a, b, language) >= 0.8 && groundedShare(b, a, language) >= 0.8;
 }
 

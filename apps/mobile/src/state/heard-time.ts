@@ -10,6 +10,7 @@ import {
   type Instant,
   type IsoDate,
   type SettingsRow,
+  type TaskCreateRequest,
   type TimedNotification,
 } from '@scootch/domain';
 import type { Language } from '@scootch/i18n';
@@ -48,6 +49,11 @@ export async function keepHeardTime(ctx: DayContext, first: TaskFirstStage): Pro
   if (!day) return;
   await days.put({ ...day, heardTime: kept });
   ctx.set({ heardTimeAsked: true });
+}
+
+/** The lead the person set for getting ready, so a time heard in the words picks what fits before it. */
+export function getReadyLeadField(ctx: DayContext): Pick<TaskCreateRequest, 'getReadyLeadMinutes'> {
+  return { getReadyLeadMinutes: getReadyLeadMinutes(ctx.memory.state.settings) };
 }
 
 /** "Good" keeps the time watched; "Don't watch it" keeps it unwatched: no capped length, no nudge. */

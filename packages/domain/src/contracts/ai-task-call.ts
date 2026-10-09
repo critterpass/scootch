@@ -70,6 +70,12 @@ export const taskCreateRequestSchema = z.object({
    * today. Absent, the server reads its own clock in `timeZone`.
    */
   localTime: clockTimeSchema.optional(),
+  /**
+   * Minutes before a heard time at which the user gets ready, from their settings. With a time
+   * heard for today and little left before getting ready, the one thing is one that fits. Absent
+   * reads as the settings' default.
+   */
+  getReadyLeadMinutes: z.number().int().min(5).max(180).optional(),
 });
 export type TaskCreateRequest = z.infer<typeof taskCreateRequestSchema>;
 

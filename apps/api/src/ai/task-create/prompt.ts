@@ -144,3 +144,13 @@ export function rewritePrompt(
     }:\n${list}`,
   ].join('\n\n');
 }
+
+/**
+ * Asked once more when a time is heard today and little is left before getting ready: the one
+ * thing should be one done in ten minutes, and the first pick, too long for that, is not it.
+ */
+export function fitTheGapNote(language: Language, gapMinutes: number): string {
+  return language === 'vi'
+    ? `Còn ${gapMinutes} phút nữa là phải chuẩn bị đi. Chọn làm oneThing một việc làm xong được trong mười phút, trước lúc đó. Việc đã từ chối thì quá dài cho chừng ấy thời gian.`
+    : `There are ${gapMinutes} minutes left before getting ready to go. Pick as oneThing a thing that can be done in ten minutes, before then. The turned-down one is too long for that.`;
+}
