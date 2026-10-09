@@ -95,6 +95,11 @@ export interface ScootchBuildOptions {
   readonly ground?: ScootchGround;
   /** The ink he is printed in, when it is not tomato. The paper Scootch stays paper. */
   readonly body?: ScootchBody;
+  /**
+   * Leaves out what floats around him (the sleep marks, the dots, the stars), for a picture
+   * whose surface draws them itself in an ink that follows light and dark. Drawn when absent.
+   */
+  readonly withoutEffects?: boolean;
 }
 
 /**
@@ -175,6 +180,7 @@ export function buildScootch(
     draw();
     kept.push([from, pen.commands.length]);
   };
+  if (options.withoutEffects === true) e.fx = e.fx === 'laptop' ? 'laptop' : null;
   const behind = options.confettiBehind === true && e.fx === 'confetti';
   if (behind) inTone(() => drawEffect(pen, e, frame, fxBeat, moving.time, inks));
 

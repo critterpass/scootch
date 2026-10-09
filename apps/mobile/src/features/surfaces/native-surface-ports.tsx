@@ -87,9 +87,15 @@ export const skiaMonsterPainter: MonsterPainter = {
 
 /** Draws the island as the world screen does, as one still picture. */
 export const skiaWorldPainter: WorldPainter = {
-  async paint(pieces, monsters, pixels, asleep) {
+  async paint(pieces, monsters, pixels, asleep, withoutEffects) {
     const image = await drawAsImage(
-      <IslandStill pieces={pieces} monsters={monsters} side={pixels} asleep={asleep} />,
+      <IslandStill
+        pieces={pieces}
+        monsters={monsters}
+        side={pixels}
+        asleep={asleep}
+        withoutEffects={withoutEffects === true}
+      />,
       { width: pixels, height: pixels },
     );
     return image ? image.encodeToBytes(ImageFormat.PNG) : null;
