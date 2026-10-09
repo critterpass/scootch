@@ -71,6 +71,7 @@ export async function readToday(
   set({
     heavyToday,
     today,
+    heardTime: day?.heardTime ?? null,
     reminderAt,
     waitingForTomorrow:
       tomorrow.find((one) => one.carriedOver && one.status !== 'finished') ?? null,
@@ -99,6 +100,7 @@ export async function readToday(
       // Soft while something heavy is around.
       heavyToday,
       reminderAt,
+      heardTime: day?.heardTime ?? null,
       monster: monster ? { name: monster.name, image: monsterImageName(monster) } : null,
       // What a receipt may list: a serious thing is never on one.
       doneToday: tasks.filter(

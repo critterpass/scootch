@@ -1,4 +1,5 @@
 import type {
+  DayHeardTime,
   HuntRecord,
   DrawerEvent,
   DrawerItemRow,
@@ -47,6 +48,8 @@ export type DayEvent =
   | { readonly type: 'one_thing_picked' }
   /** A heard date is answered: it stays parked for its day, or is swapped in for today. */
   | { readonly type: 'deadline_answered'; readonly text: string; readonly choice: 'park' | 'today' }
+  /** A heard time said back is answered: "Good" keeps it watched, "Don't watch it" does not. */
+  | { readonly type: 'heard_time_answered'; readonly watched: boolean }
   /** "Swap in" on a drawer item, or "Fine, that one": it becomes today's one thing. */
   | { readonly type: 'drawer_item_swapped_in'; readonly itemId: Id }
   /** A parked thing swiped away or ticked off in the drawer: it leaves with no trace. */
@@ -176,6 +179,7 @@ export type PickStep =
 const PICK_EVENTS = [
   'one_thing_picked',
   'deadline_answered',
+  'heard_time_answered',
   'drawer_item_swapped_in',
   'pick_for_me',
   'pick_dropped',
@@ -224,6 +228,10 @@ export interface DayState {
   readonly waitingForTomorrow: TaskRow | null;
   /** Dates heard in the last ramble, each with the line that says it out loud. */
   readonly heardDeadlines: readonly HeardDeadline[];
+  /** The time heard for today, as the day keeps it. Absent means none. */
+  readonly heardTime?: DayHeardTime | null;
+  /** The last answer heard that time, and it has not been answered: it is said back. */
+  readonly heardTimeAsked?: boolean;
   readonly line: ShownLine | null;
   readonly burst: 'start' | 'confetti' | null;
   readonly treat: string | null;

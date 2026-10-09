@@ -2,6 +2,7 @@ import type {
   DayNotification,
   Energy,
   HeardDeadline,
+  HeardTime,
   MonsterCopy,
   OneThing,
   ParkedItem,
@@ -26,6 +27,8 @@ export type TaskFirstStage =
       readonly oneThing: OneThing;
       readonly parked: readonly ParkedItem[];
       readonly deadlines: readonly HeardDeadline[];
+      /** A clock time the words gave for today ("dentist at 3"), worked out from the phone's clock. */
+      readonly heardTime?: HeardTime;
       /** Known at once from the staged call, so a monster can be drawn before it has a name. */
       readonly labels?: TaskLabels;
       /**
@@ -104,6 +107,7 @@ export function createTaskClient(api: Pick<ScootchApi, 'screenInput' | 'taskCrea
         oneThing: answer.oneThing,
         parked: answer.parked,
         deadlines: answer.deadlines,
+        ...(answer.heardTime === undefined ? {} : { heardTime: answer.heardTime }),
         ...trustedJudge(answer.answeredBy),
       };
       // A pass the trusted judge did not give brings nothing funny with it.

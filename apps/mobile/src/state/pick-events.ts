@@ -7,6 +7,7 @@ import {
   swapItemIn,
   tooBig,
 } from './pick-flow';
+import { heardTimeAnswered } from './heard-time';
 import { afterPicked, dropTaskCall, resolveTranscript } from './task-flow';
 
 /**
@@ -17,9 +18,11 @@ export async function applyPickEvent(ctx: DayContext, event: PickEvent): Promise
   switch (event.type) {
     case 'one_thing_picked':
       await resolveTranscript(ctx);
-      ctx.set({ heardDeadlines: [] });
+      ctx.set({ heardDeadlines: [], heardTimeAsked: false });
       afterPicked(ctx);
       return;
+    case 'heard_time_answered':
+      return heardTimeAnswered(ctx, event.watched);
     case 'deadline_answered': {
       deadlineAnswered(ctx, event.text);
       const itemId = event.choice === 'today' ? await deadlineItem(ctx, event.text) : null;

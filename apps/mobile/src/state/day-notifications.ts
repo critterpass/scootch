@@ -7,6 +7,7 @@ import {
   notificationPlan,
   type Attitude,
   type ClockTime,
+  type DayHeardTime,
   type Instant,
   type IsoDate,
   type NotificationVolume,
@@ -20,6 +21,7 @@ import { noTaskLine, offlineLine, offlinePacks } from '@scootch/voice';
 import type { NotificationSender } from '../effects/adapters';
 import type { PlannedText } from '../effects/effects-runner';
 
+import { getReadyAlone, getReadyText, getReadyTimed } from './heard-time';
 import { lineFor } from './lines';
 import { showsComedy } from './shows-comedy';
 import { cueTimed, cueWords } from './start-cue';
@@ -57,6 +59,8 @@ export interface DayNotificationsInput {
   readonly doneToday?: number;
   /** The phone's clock: a cue whose time has gone by today is not planned. Unset, none has. */
   readonly now?: Instant;
+  /** A time heard for today: while watched and ahead, one nudge to get ready before it. */
+  readonly heardTime?: DayHeardTime | null;
 }
 
 /** When the day's receipt is sent on a finished day. */
@@ -165,7 +169,9 @@ export function dayNotifications(input: DayNotificationsInput): PlannedText[] {
     const at = input.reminderAt ?? null;
     const reminder =
       at === null ? [] : [{ at, text: offlinePacks[settings.language].plain.reminder }];
-    return [...reminder, ...plainCue(input)];
+    // The nudge to get ready takes the one place a soft day has: a cue that day gives way to it.
+    const nudge = getReadyAlone(input, 'soft');
+    return [...reminder, ...(nudge.length > 0 ? nudge : plainCue(input))];
   }
   // Quiet after a serious task today, and for a task nobody has screened yet.
   const quiet =
@@ -179,7 +185,7 @@ export function dayNotifications(input: DayNotificationsInput): PlannedText[] {
   };
   const planned: PlannedText[] = [...sessionEnd(input), ...eveningReceipt(input, attitude)];
 
-  const timed = cueTimed({ ...input, now: input.now });
+  const timed = [...getReadyTimed(input), ...cueTimed({ ...input, now: input.now })];
   const comedy = today.kind === 'task_set' && showsComedy(today.task, 'notification');
   if (today.kind === 'task_set' && today.task.status === 'set' && (comedy || timed.length > 0)) {
     const { task } = today;
@@ -203,6 +209,11 @@ export function dayNotifications(input: DayNotificationsInput): PlannedText[] {
       : { taskId: task.id };
     const cue = task.startCue ?? null;
     for (const one of plan.notifications) {
+      // The nudge to get ready is Scootch's own, with nothing under it.
+      if (one.kind === 'get_ready') {
+        planned.push(...getReadyText(one.at, settings.language, input.heardTime));
+        continue;
+      }
       if (one.kind === 'cue' && cue !== null) {
         const voice = one.plain ? 'plain' : turnedDown ? 'soft' : attitude;
         const from = one.plain || !input.monster ? {} : { from: input.monster };
@@ -215,6 +226,8 @@ export function dayNotifications(input: DayNotificationsInput): PlannedText[] {
         : lines[one.ordinal]?.text;
       if (text !== undefined) planned.push({ at: one.at, text, ...sender });
     }
+  } else {
+    planned.push(...getReadyAlone(input, attitude));
   }
 
   for (let ahead = 1; ahead <= PLAN_AHEAD_DAYS; ahead += 1) {

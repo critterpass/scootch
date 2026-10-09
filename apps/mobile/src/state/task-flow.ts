@@ -15,6 +15,7 @@ import {
 } from './in-the-way';
 import { pickForMe } from './pick-flow';
 import { applyCall, keepTranscript, treatNamed } from './task-answers';
+import { keepHeardTime } from './heard-time';
 import { askForFinished } from './late-catch';
 import { setWithoutAnswer, sortOrphanWords, wordsToAsk } from './late-words';
 
@@ -131,6 +132,7 @@ async function applyAnswer(
   if (ctx.memory.offer !== offer || ctx.memory.state.taskCall === 'idle') return;
   if (call !== null) {
     await applyCall(ctx, call, null);
+    await keepHeardTime(ctx, call.first);
   } else {
     await setWithoutAnswer(ctx, offer);
     await keepTranscript(ctx, offer);

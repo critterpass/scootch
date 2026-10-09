@@ -1,5 +1,6 @@
 import {
   hasStartLeft,
+  type DayHeardTime,
   type DrawerItemRow,
   type HeardDeadline,
   type MonsterRow,
@@ -56,6 +57,8 @@ export type Stage =
       readonly quiet: boolean;
       readonly reveal: Reveal | null;
       readonly deadline: HeardDeadline | null;
+      /** A time heard in the words, said back until it is answered. Absent means none. */
+      readonly heardTime?: DayHeardTime | null;
     }
   | {
       readonly kind: 'hatch';
@@ -77,7 +80,15 @@ export type Stage =
 
 export type StageInput = Pick<
   DayState,
-  'today' | 'pick' | 'morning' | 'monster' | 'heardDeadlines' | 'drawer' | 'waitingForTomorrow'
+  | 'today'
+  | 'pick'
+  | 'morning'
+  | 'monster'
+  | 'heardDeadlines'
+  | 'drawer'
+  | 'waitingForTomorrow'
+  | 'heardTime'
+  | 'heardTimeAsked'
 > & {
   /** The person's words are held back until the battery question is answered. */
   readonly energyAsked: boolean;
@@ -136,6 +147,7 @@ export function stageOf(input: StageInput): Stage {
       quiet,
       reveal: quiet ? null : pick.reveal,
       deadline: input.heardDeadlines[0] ?? null,
+      heardTime: input.heardTimeAsked === true ? (input.heardTime ?? null) : null,
     };
   }
   if (pick.kind === 'hatching' && showsComedy(task, 'monster')) {

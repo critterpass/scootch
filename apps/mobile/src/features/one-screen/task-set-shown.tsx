@@ -1,3 +1,4 @@
+import { getCalendars } from 'expo-localization';
 import { useState } from 'react';
 
 import { dayMomentTimes, startRefused, type Attitude, type StartCue } from '@scootch/domain';
@@ -7,6 +8,7 @@ import type { ScootchProps } from '../../art/Scootch';
 import type { Translate } from '../../i18n/i18n-provider';
 import type { useToday } from '../../state/day-store-provider';
 import type { DayEvent } from '../../state/day-types';
+import { openingLength } from '../../state/heard-time';
 import { lineFor } from '../../state/lines';
 import { HatchFigure } from '../monster/hatch-figure';
 import { wordsWhileUnscreened, type Connection } from '../offline/waiting-words';
@@ -71,7 +73,14 @@ export function taskSetShown(
   const own = lineFor('hatch', stage.task, voice);
   const said = own ?? wordsWhileUnscreened(stage.task, 'set', connection, voice);
   const smallest = day.morning.kind === 'smallest_ask' ? day.morning.minutes : null;
-  const minutes = env.chosenMinutes ?? smallest ?? 10;
+  const options = minuteOptions(smallest);
+  // With a watched time ahead today, the wheel opens at the longest length that ends before
+  // getting ready; it can still be turned past it.
+  const opening = openingLength(
+    { ...day, timeZone: getCalendars()[0]?.timeZone ?? 'UTC', now: Date.now() },
+    { usual: 10, smallest, lengths: options },
+  );
+  const minutes = env.chosenMinutes ?? opening.minutes;
   // A cue picked and not yet saved is shown over the one kept; "Now" takes either away.
   const kept = stage.task.startCue ?? null;
   const cue = env.chosenCue ?? kept;
@@ -105,7 +114,8 @@ export function taskSetShown(
       taskText: own === null || carried ? stage.task.text : null,
       treat,
       minutes,
-      options: minuteOptions(smallest),
+      options,
+      ...(opening.beforeGetReady ? { beforeGetReady: true } : {}),
       onTreat: env.onTreat,
       onMinutes: env.onMinutes,
       ...(cue === null ? {} : { cue: { cue, moments, localDate: day.localDate } }),

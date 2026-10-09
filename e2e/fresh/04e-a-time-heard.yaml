@@ -1,0 +1,60 @@
+appId: app.scootch.dev
+---
+# The fresh-user walk, between steps four and five: a thing typed with a time in it. It carries
+# on from the step before it, on home at rest; nothing is cleared and nothing is seeded. The words
+# name a time late in the day so it is still ahead whenever the walk runs (a run in the last
+# minutes before midnight would find it gone by, and nothing would be said back). Scootch says the
+# time back on the one thing, "Good" keeps it watched, and the set task's line under the wheel
+# ends "then you get ready".
+- extendedWaitUntil:
+    visible:
+      id: 'composer'
+    timeout: 90000
+- runFlow:
+    when:
+      visible:
+        id: 'composer-switch'
+    commands:
+      - tapOn:
+          id: 'composer-switch'
+          waitToSettleTimeoutMs: 0
+- extendedWaitUntil:
+    visible:
+      id: 'composer-input'
+    timeout: 15000
+- tapOn:
+    id: 'composer-input'
+- inputText: 'reply to Sam about the flat, dentist at 23:55'
+- tapOn:
+    id: 'composer-send'
+- extendedWaitUntil:
+    visible:
+      id: 'time-heard'
+    timeout: 60000
+- assertVisible:
+    id: 'time-heard-unwatched'
+- takeScreenshot: dump-time-heard--en-light-default
+- tapOn:
+    id: 'time-heard-good'
+- extendedWaitUntil:
+    notVisible:
+      id: 'time-heard'
+    timeout: 15000
+- tapOn:
+    id: 'one-thing-accept'
+- runFlow:
+    when:
+      visible:
+        id: 'hatch-catch'
+    commands:
+      - tapOn:
+          id: 'hatch-catch'
+- extendedWaitUntil:
+    visible:
+      id: 'one-action'
+    timeout: 60000
+# The wheel opens at the longest length that ends before getting ready; the line says so.
+- assertVisible:
+    id: 'task-set-ends-at'
+    text: '.*then you get ready'
+- takeScreenshot: one-screen-task-set-before-a-time--en-light-default

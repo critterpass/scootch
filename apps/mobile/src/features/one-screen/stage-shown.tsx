@@ -14,6 +14,7 @@ import { Choosing } from '../dump/choosing';
 import { choosingScript, revealCapMs } from '../dump/choosing-script';
 import { restInDrawerLine } from '../dump/rest-in-drawer';
 import { RevealGate } from '../dump/reveal-gate';
+import { TimeHeardCard } from '../dump/time-heard-card';
 
 import { hatchShown } from './hatch-shown';
 import type { Stage } from './one-screen-stage';
@@ -135,6 +136,7 @@ export function stageShown(stage: Drawable, env: StageEnv): StageDrawn {
 
   if (stage.kind === 'one_thing') {
     const { task, quiet, deadline } = stage;
+    const heardTime = stage.heardTime ?? null;
     // A serious task gets its plain words and no reveal.
     const script = quiet
       ? null
@@ -174,6 +176,13 @@ export function stageShown(stage: Drawable, env: StageEnv): StageDrawn {
                   onToday={() => actions.answerDeadline(deadline.text, 'today')}
                 />
               ) : null}
+              {heardTime === null ? null : (
+                <TimeHeardCard
+                  heardTime={heardTime}
+                  language={language}
+                  voice={quiet || task.screen === 'serious' ? 'plain' : attitude}
+                />
+              )}
             </Stack>
           </Choosing>
         ),

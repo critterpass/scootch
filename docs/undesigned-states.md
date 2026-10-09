@@ -442,3 +442,8 @@ state is designed or removed.
 | Settings, day moments | A sheet of the five moments (Coffee, Lunch, After work, Dinner, Bed), each with the quiet hours' two round buttons, ten minutes at a time | No board draws it. Built from the quiet hours sheet; ten minutes keeps the defaults (13:10) reachable |
 | Settings, get ready | A sheet with one row, "Before the time", from 5 to 180 minutes in steps of five, 35 at first | No board draws it. Built from the quiet hours sheet |
 | Privacy and data | A fact row under Tasks, "Sessions are counted, nothing else", saying what a beat sends and keeps | The privacy board predates the count of others hunting |
+| One thing, time heard | No connection: the time said back and the plan are the offline pack's, on the same card | The board draws the card with a connection only |
+| One thing, time heard | A serious thing with a time in it: the same card with the plan in plain words, no joke | The board draws the card on an ordinary thing only |
+| Task set, ends before | No connection: the capped length and "then you get ready" are worked out on the phone | The board draws the line with a connection only |
+| Task set, ends before | Under five minutes before getting ready, or a time not watched or gone by: the wheel opens as on any day and the line is the plain "Ends at" | The board draws a gap with room in it |
+| Session, get ready | During a running session the nudge to get ready is a notification, not the Live Activity's line | The Live Activity's timed lines turn every three minutes and are read in the snapshot and surface sync, both past the file cap; carrying the heard time there is its own change |

@@ -28,6 +28,8 @@ export interface EndsAtLineProps {
   readonly now?: Instant;
   /** A cue picked or kept: the line says when the thing comes back instead, while that is ahead. */
   readonly cue?: CueBack | undefined;
+  /** A watched time is ahead today: "Ends at 13:40, then you get ready". */
+  readonly beforeGetReady?: boolean;
 }
 
 /** A cue, and what it needs to be placed on the day. */
@@ -42,7 +44,7 @@ export interface CueBack {
  * under the wheel. It follows the wheel and the clock, and is read out with the length. With a cue
  * still ahead it says when the thing comes back: "Back after lunch, around 13:10".
  */
-export function EndsAtLine({ minutes, now: held, cue }: EndsAtLineProps) {
+export function EndsAtLine({ minutes, now: held, cue, beforeGetReady = false }: EndsAtLineProps) {
   const { palette, allowFontScaling, size } = useScreenStyle();
   const t = useT();
   const [read, setRead] = useState(() => Date.now());
@@ -63,7 +65,13 @@ export function EndsAtLine({ minutes, now: held, cue }: EndsAtLineProps) {
   return (
     <Text
       testID="task-set-ends-at"
-      accessibilityLabel={backLine ?? t('taskSet.endsAt.spoken', { minutes, clock })}
+      accessibilityLabel={
+        backLine ??
+        t(beforeGetReady ? 'taskSet.endsAtGetReady.spoken' : 'taskSet.endsAt.spoken', {
+          minutes,
+          clock,
+        })
+      }
       accessibilityLiveRegion="polite"
       allowFontScaling={allowFontScaling}
       style={[
@@ -71,7 +79,7 @@ export function EndsAtLine({ minutes, now: held, cue }: EndsAtLineProps) {
         { color: palette.muted, fontSize: size(SIZE), lineHeight: size(SIZE) * 1.3 },
       ]}
     >
-      {backLine ?? t('taskSet.endsAt', { clock })}
+      {backLine ?? t(beforeGetReady ? 'taskSet.endsAtGetReady' : 'taskSet.endsAt', { clock })}
     </Text>
   );
 }
