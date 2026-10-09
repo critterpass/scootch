@@ -196,6 +196,22 @@ test.describe('the caught card', () => {
     await expect(page.getByRole('link', { name: 'Make your own monster' })).toBeVisible();
   });
 
+  test('prints the guess under its stats only when the card was shared with one', async ({
+    page,
+  }) => {
+    const guessed = { ...sharedCard, card: { ...sharedCard.card, guessMinutes: 120 } };
+    await answerApi(page, 'shared-card/molar-042', { ...guessed, id: 'molar-042' });
+    await page.goto('/c/molar-042');
+    const card = page.locator('[data-card]');
+    await expect(card).toContainText('Thought 2 hours. Took 9 minutes.');
+    await expect(card).toHaveAttribute('aria-label', /Thought 2 hours\. Took 9 minutes\.$/);
+
+    // A card shared without a guess, or before guesses were kept, is drawn as it always was.
+    await tilt(page);
+    await expect(card).not.toContainText('Thought');
+    await expect(card).not.toHaveAttribute('aria-label', /Thought/);
+  });
+
   test('stays still with Reduce Motion', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     const card = await tilt(page);
@@ -203,5 +219,30 @@ test.describe('the caught card', () => {
     await expect(card).toHaveAttribute('data-tilt', 'off');
     await expect(card).not.toHaveAttribute('style', /rotate/);
     await expect(page.getByText('Move your pointer over the card to tilt it.')).toBeHidden();
+  });
+});
+
+test.describe('the share story', () => {
+  const story = { ...sharedCard, kind: 'story' };
+  const guessed = { ...story, card: { ...story.card, guessMinutes: 30 } };
+
+  test('prints the guess under the headline, in each language', async ({ page }) => {
+    await answerApi(page, 'shared-story/molar-043', guessed);
+    await page.goto('/s/molar-043');
+    const line = page.locator('[data-thought-took]');
+    await expect(line).toBeVisible();
+    await expect(line).toHaveText('Thought 30 minutes. Took 9 minutes.');
+
+    await page.goto('/vi/s/molar-043');
+    await expect(line).toBeVisible();
+    await expect(line).toHaveText(/^Tưởng .+\. Mất .+\.$/);
+  });
+
+  test('has no guess line for a story shared without one', async ({ page }) => {
+    await answerApi(page, 'shared-story/molar-044', story);
+    await page.goto('/s/molar-044');
+    await expect(page.locator('[data-did]')).toHaveText('Emailed the dentist.');
+    await expect(page.locator('[data-thought-took]')).toBeHidden();
+    await expect(page.locator('main')).not.toContainText('Thought');
   });
 });

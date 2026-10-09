@@ -577,6 +577,51 @@ describe('the guess line on a shared story', () => {
     await saveCatch(without.device, share);
     expect(without.calls.drawn.map((image) => GUESS.test(texts(image)))).toEqual([false, false]);
   });
+
+  it('posts the guess for the page only while its switch is on', async () => {
+    const share = { task, card, signed, format: 'story', dress: plain, ...still } as const;
+    expect(cardShareRequest({ ...share, guessMinutes: 120 }, signed).card.guessMinutes).toBe(120);
+    for (const off of [{ ...share, guessMinutes: null }, share]) {
+      expect(cardShareRequest(off, signed).card).not.toHaveProperty('guessMinutes');
+    }
+    // A guess the card itself carries never travels without the switch.
+    const carried = { ...share, card: { ...card, guessMinutes: 60 as const }, guessMinutes: null };
+    expect(cardShareRequest(carried, signed).card).not.toHaveProperty('guessMinutes');
+
+    // Switching it off after the page went up puts up a page without it.
+    const { device } = recorder();
+    const { pages, sent } = website();
+    await shareCatch(device, pages, { ...share, guessMinutes: 120 });
+    await shareCatch(device, pages, { ...share, guessMinutes: 120 });
+    await shareCatch(device, pages, { ...share, guessMinutes: null });
+    expect(sent.map((one) => `${one.method} ${one.path}`)).toEqual([
+      'POST /v1/card-share',
+      'DELETE /v1/card-share/molar-page1',
+      'POST /v1/card-share',
+    ]);
+    expect(sent[0]?.body).toMatchObject({ card: { guessMinutes: 120 } });
+    expect(sent[2]?.body).not.toHaveProperty('card.guessMinutes');
+  });
+
+  it.each([
+    ['serious', { ...task, screen: 'serious' as const }],
+    ['private', { ...task, sharePrivate: true }],
+  ])('never posts the guess of a %s task', async (_, flagged) => {
+    const share: CatchShare = {
+      task: flagged,
+      card,
+      signed,
+      format: 'story',
+      dress: plain,
+      ...still,
+      guessMinutes: 120,
+    };
+    expect(cardShareRequest(share, signed).card).not.toHaveProperty('guessMinutes');
+    const { device } = recorder();
+    const { pages, sent } = website();
+    expect(await shareCatch(device, pages, share)).toBe('not_offered');
+    expect(sent).toEqual([]);
+  });
 });
 
 describe('a catch from an odd hatch', () => {

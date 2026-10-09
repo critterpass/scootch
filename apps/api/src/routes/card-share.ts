@@ -48,6 +48,10 @@ const notSigned = () => refusal('words_not_signed', 'A page is made only from wo
  * exactly those words, the monster's seed and the language; they are the server's own comedy and
  * are not screened again. What the person typed is: a task line left showing goes through the
  * care screen, and one that is not clearly fine, or that no model could screen, is not stored.
+ *
+ * The card's numbers are the phone's own and are not signed, and neither is the guess printed
+ * beside the catch time: it is one of the guess sheet's five steps or absent, so it carries no
+ * words, and the time it is set against is no more signed than it is.
  */
 export const cardShareRoute: RouteDefinition = {
   method: 'POST',

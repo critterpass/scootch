@@ -159,6 +159,53 @@ describe('POST /v1/card-share', () => {
     expect((await call(`/v1/shared-card/${id}`)).status).toBe(404);
   });
 
+  it('keeps a guess from the guess sheet with the card and gives it back with the page', async () => {
+    const device = await registerDevice();
+    for (const [kind, read] of [
+      ['story', 'shared-story'],
+      ['card', 'shared-card'],
+    ] as const) {
+      const guessed = { ...card, taskLine: null, guessMinutes: 120 };
+      const { response } = await asPhone(device, '/v1/card-share', { body: post(kind, guessed) });
+      expect(response.status).toBe(200);
+      const { id } = await response.json<{ id: string }>();
+      const page = await (await call(`/v1/${read}/${id}`)).json();
+      expect(page).toMatchObject({ kind, card: { guessMinutes: 120, catchMinutes: 9 } });
+    }
+  });
+
+  it('gives back a card shared without a guess with no guess at all', async () => {
+    const device = await registerDevice();
+    const { response } = await asPhone(device, '/v1/card-share', { body: post('story') });
+    const { id } = await response.json<{ id: string }>();
+    const page = await (await call(`/v1/shared-story/${id}`)).json<{ card: object }>();
+    expect(page.card).not.toHaveProperty('guessMinutes');
+  });
+
+  it('reads a page stored before guesses were kept as it always was', async () => {
+    await env.DB.prepare(
+      `INSERT INTO shared_cards (id, kind, language, payload, created_at)
+       VALUES ('molar-old', 'story', 'en', ?, '2026-10-06T08:00:00.000Z')`,
+    )
+      .bind(JSON.stringify({ card: sharedCard.card, sharerName: null, headline: null }))
+      .run();
+    const page = await call('/v1/shared-story/molar-old');
+    expect(page.status).toBe(200);
+    expect(await page.json()).toMatchObject({ card: sharedCard.card });
+  });
+
+  it.each([45, 0, -30, 121, '120', null, 99999])(
+    'refuses a guess that is not one of the guess sheet’s steps (%j)',
+    async (guessMinutes) => {
+      const device = await registerDevice();
+      const { response } = await asPhone(device, '/v1/card-share', {
+        body: post('story', { ...card, guessMinutes }),
+      });
+      expect(response.status).toBe(400);
+      expect(await stored()).toEqual([]);
+    },
+  );
+
   it('has no field for a name, an account or anything else beside the card', async () => {
     const device = await registerDevice();
     for (const extra of [{ sharerName: 'Priya' }, { accountId: 'a' }, { headline: 'x' }]) {
