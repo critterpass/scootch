@@ -32,6 +32,28 @@ describe('buildScootch', () => {
     );
   });
 
+  it('can leave out what floats around him, and nothing else', () => {
+    const asleep = {
+      mood: 'asleep',
+      attitude: 'cheeky',
+      workMode: null,
+      reducedMotion: true,
+    } as const;
+    // A sleep mark is a stroke 2.4 wide in the marks' ink.
+    const marks = (commands: ReturnType<typeof buildScootch>) =>
+      commands.filter((command) => command.op === 'stroke' && command.width === 2.4);
+    const withMarks = buildScootch(asleep);
+    const without = buildScootch(asleep, undefined, { withoutEffects: true });
+    expect(marks(withMarks)).toHaveLength(3);
+    expect(marks(without)).toHaveLength(0);
+    expect(without).toEqual(withMarks.filter((command) => !marks(withMarks).includes(command)));
+    // The desk is part of him, not something floating: it stays.
+    const working = { ...asleep, mood: 'working' } as const;
+    expect(buildScootch(working, undefined, { withoutEffects: true })).toEqual(
+      buildScootch(working),
+    );
+  });
+
   it('draws every mood of the contract at every attitude, moving and still', () => {
     expect(Object.keys(SCOOTCH_MOODS).sort()).toEqual([...moods].sort());
     for (const mood of moods) {

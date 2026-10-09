@@ -1,4 +1,4 @@
-import type { Attitude, Language, MonsterRow, WorldPieceRow } from '@scootch/domain';
+import type { MonsterRow, SettingsRow, WorldPieceRow } from '@scootch/domain';
 
 import { helperLine } from '@scootch/voice';
 
@@ -59,8 +59,7 @@ export interface SurfaceAtRest {
 
 /** What the widgets say and show at rest, in the person's language. The words are offline lines. */
 export function atRest(
-  language: Language,
-  attitude: Attitude,
+  { language, attitude }: Pick<SettingsRow, 'language' | 'attitude'>,
   piece?: NewestPiece | null,
 ): SurfaceAtRest {
   const resident = piece?.resident ?? null;
@@ -138,10 +137,11 @@ export async function shareWorldImages(
     asleep: boolean,
     shown: readonly WorldPieceRow[] = pieces,
     pixels = WORLD_IMAGE_PIXELS,
+    withoutEffects = false,
   ): Promise<string | null> => {
     try {
       if (files.exists(name)) return name;
-      const bytes = await painter.paint(shown, monsters, pixels, asleep);
+      const bytes = await painter.paint(shown, monsters, pixels, asleep, withoutEffects);
       if (bytes === null) return null;
       await files.write(name, bytes);
       return name;
@@ -161,7 +161,8 @@ export async function shareWorldImages(
     // The perched wallpaper is then drawn without him by the Shortcuts action.
   }
   // The newest piece is drawn as an island of its own: the painter stands a world's only
-  // resident beside Scootch, with sand between them.
+  // resident beside Scootch, with sand between them. It is drawn without the sleep marks, which
+  // the widget draws over it in its own ink, so they read on a dark page as on a light one.
   const resident = latest?.monsterId
     ? (monsters.find((monster) => monster.id === latest.monsterId)?.name ?? null)
     : null;
@@ -171,7 +172,7 @@ export async function shareWorldImages(
     scootch,
     newest:
       latest && rest
-        ? { resident, image: await one(rest, true, [latest], REST_IMAGE_PIXELS) }
+        ? { resident, image: await one(rest, true, [latest], REST_IMAGE_PIXELS, true) }
         : null,
   };
 }
