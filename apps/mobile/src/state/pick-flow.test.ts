@@ -38,7 +38,11 @@ describe('the staged task call', () => {
     answer(recordedLines);
     await sent;
     expect(app.store.getState().monster).toMatchObject({ name: recordedLines.monster.name });
-    expect(app.task().lines).toEqual(recordedLines.lines);
+    // The cue's own words ride with the stored lines, so a cue saved later can use them.
+    expect(app.task().lines).toEqual({
+      ...recordedLines.lines,
+      cueNotification: recordedLines.cueNotification,
+    });
     expect(server.startCalls).toBe(1);
     expect(server.lineCalls).toBe(1);
   });
