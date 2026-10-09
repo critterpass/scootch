@@ -74,8 +74,11 @@ export type DayEvent =
   | { readonly type: 'task_set_aside' }
   /** "Guess 2 hours" on the set task: how long the person thinks the whole thing would take. */
   | { readonly type: 'guess_made'; readonly minutes: GuessMinutes }
-  /** "Save for later" on the set task: it comes back at this cue, with one message. */
-  | { readonly type: 'cue_saved'; readonly cue: StartCue }
+  /**
+   * "Save for later" on the set task: it comes back at this cue, with one message. `minutes` is the
+   * length on the wheel, kept for the start the message makes.
+   */
+  | { readonly type: 'cue_saved'; readonly cue: StartCue; readonly minutes?: number }
   /** "Now" on the When sheet: the thing has no cue and no message of its own. */
   | { readonly type: 'cue_cleared' }
   | { readonly type: 'session_set'; readonly minutes: number; readonly treat?: string | null }
@@ -132,8 +135,16 @@ export type DayEvent =
       readonly when: 'now' | 'tomorrow';
       readonly monsterPage?: string;
     }
-  /** A bite was ticked under a monster's notification; `place` is 0 to 2. */
-  | { readonly type: 'bite_ticked'; readonly taskId: Id; readonly place: number }
+  /**
+   * A bite was ticked under a monster's notification or on the set task; `place` is 0 to 2. From
+   * the set task, `minutes` is the length on the wheel, kept for the start the last bite makes.
+   */
+  | {
+      readonly type: 'bite_ticked';
+      readonly taskId: Id;
+      readonly place: number;
+      readonly minutes?: number;
+    }
   /** "Tomorrow at 9:00" under a notification: today's thing waits for tomorrow and today rests. */
   | { readonly type: 'hunt_tomorrow'; readonly taskId: Id }
   /** "Turn it down for a week": that thing's monster sends its messages at Soft for seven days. */

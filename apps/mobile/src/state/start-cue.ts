@@ -54,11 +54,26 @@ function waitingTask(today: TodayState): TaskRow | null {
  * "Save for later": the cue is kept with today's thing, which stays set. The day's plan is read
  * again from storage, and that is where its one message comes from; a later cue replaces this one.
  */
-export async function cueSaved(ctx: DayContext, cue: StartCue): Promise<void> {
+export async function cueSaved(ctx: DayContext, cue: StartCue, minutes?: number): Promise<void> {
   const task = waitingTask(ctx.memory.state.today);
   if (task === null) return;
-  await ctx.deps.repositories.tasks.put({ ...task, startCue: cue });
+  const kept = minutes === undefined ? {} : { chosenMinutes: minutes };
+  await ctx.deps.repositories.tasks.put({ ...task, startCue: cue, ...kept });
   await ctx.refresh();
+}
+
+/**
+ * The length on the wheel is kept with today's thing while it is set and not begun, for the start
+ * a cue's message or the last bite makes. Nothing is kept for any other thing.
+ */
+export async function keepChosenMinutes(
+  ctx: DayContext,
+  taskId: string,
+  minutes: number | undefined,
+): Promise<void> {
+  const task = waitingTask(ctx.memory.state.today);
+  if (minutes === undefined || task?.id !== taskId || task.chosenMinutes === minutes) return;
+  await ctx.deps.repositories.tasks.put({ ...task, chosenMinutes: minutes });
 }
 
 /** "Now": the thing has no cue, and so no message of its own. */

@@ -1,7 +1,7 @@
 import type { DayContext, SurfaceActionKind, SurfaceRequest } from './day-types';
 import { applySession, currentTask, setSession } from './session-flow';
 
-/** The session a control or the Action button starts. */
+/** The session a control or the Action button starts when no length was kept with the thing. */
 export const SURFACE_SESSION_MINUTES = 10;
 
 const TIMED: readonly string[] = ['running', 'stuck', 'holding'];
@@ -29,8 +29,11 @@ export async function applySurfaceAction(
     }
     const startable =
       today.kind === 'task_set' || (today.kind === 'serious' && today.session === null);
-    if (!startable || !currentTask(ctx)) return;
-    if (session?.phase !== 'set') setSession(ctx, SURFACE_SESSION_MINUTES, null);
+    const task = currentTask(ctx);
+    if (!startable || !task) return;
+    // The length chosen on the wheel, when it was kept with a cue or a bite; ten minutes otherwise.
+    const minutes = task.chosenMinutes ?? SURFACE_SESSION_MINUTES;
+    if (session?.phase !== 'set') setSession(ctx, minutes, null);
     return applySession(ctx, { type: 'started' });
   }
   if (action === 'brain_dump') {

@@ -13,6 +13,7 @@ export function tasksRepository(db: SqlDatabase): Table<TaskRow> {
       'startCue',
       'inTheWay',
       'nextStart',
+      'chosenMinutes',
     ]),
     key: 'id',
     booleans: ['seriousOverridden', 'carriedOver', 'fitsTenMinutes', 'sharePrivate'],

@@ -179,6 +179,12 @@ export const taskRowSchema = z.object({
    * and when the task is made smaller; gone with the row when the task is let go.
    */
   nextStart: nextStartSchema.nullable().optional(),
+  /**
+   * The length chosen on the wheel, kept when a cue is saved or a bite is ticked on the set task. A
+   * start from the cue's message or from the last bite runs for it. Null or absent when none was
+   * kept: such a start runs for ten minutes.
+   */
+  chosenMinutes: z.number().int().positive().nullable().optional(),
   createdAt: isoDateTimeSchema,
   finishedAt: isoDateTimeSchema.nullable(),
 });

@@ -198,7 +198,10 @@ describe('the fields the starting helpers store', () => {
           11, 2, 'paper');
     `);
 
-    expect(await database.migrate()).toEqual(['0008-add-starting-helper-fields']);
+    expect(await database.migrate()).toEqual([
+      '0008-add-starting-helper-fields',
+      '0009-add-task-chosen-minutes',
+    ]);
     const repositories = openRepositories(database.db);
 
     // Each reads as that app read it: the new fields are not there at all, not even as null.

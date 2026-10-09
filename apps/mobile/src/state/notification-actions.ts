@@ -3,7 +3,7 @@ import { addDays, type Id } from '@scootch/domain';
 import { biteTicked } from './bites';
 import type { DayContext, DayEvent } from './day-types';
 import { carryToTomorrow } from './rest-flow';
-import { cueCleared, cueSaved } from './start-cue';
+import { cueCleared, cueSaved, keepChosenMinutes } from './start-cue';
 import { takeSharedIn } from './shared-in';
 import { applySurfaceAction } from './surface-actions';
 
@@ -21,8 +21,14 @@ function waitingToday(ctx: DayContext, taskId: Id) {
  * was the last of the three, the thing is done but for the catch, and the catch is the app's: the
  * session begins, and on its screen "I'm done" is where Scootch asks whether it really is.
  */
-export async function biteTickedOutside(ctx: DayContext, taskId: Id, place: number): Promise<void> {
+export async function biteTickedOutside(
+  ctx: DayContext,
+  taskId: Id,
+  place: number,
+  minutes?: number,
+): Promise<void> {
   if (ctx.memory.state.today.kind === 'crisis') return;
+  await keepChosenMinutes(ctx, taskId, minutes);
   const last = await biteTicked(ctx, taskId, place);
   if (last && waitingToday(ctx, taskId)) await applySurfaceAction(ctx, 'start_session');
 }
@@ -72,13 +78,13 @@ export function applyFromOutside(ctx: DayContext, event: FromOutside): Promise<v
     case 'thing_shared_in':
       return takeSharedIn(ctx, event.text, event.when, event.monsterPage);
     case 'bite_ticked':
-      return biteTickedOutside(ctx, event.taskId, event.place);
+      return biteTickedOutside(ctx, event.taskId, event.place, event.minutes);
     case 'hunt_tomorrow':
       return huntTomorrow(ctx, event.taskId);
     case 'monster_turned_down':
       return turnDown(ctx, event.taskId);
     case 'cue_saved':
-      return cueSaved(ctx, event.cue);
+      return cueSaved(ctx, event.cue, event.minutes);
     case 'cue_cleared':
       return cueCleared(ctx);
   }
