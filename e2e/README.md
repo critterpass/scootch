@@ -35,6 +35,7 @@ gh workflow run device.yml --ref <branch> \
 | `build_url` | The `e2e-test` build to install. iOS: leave it empty to take the newest build whose native fingerprint is this commit's, or give a simulator `.tar.gz` to install that one instead. Android: the `.apk`, required. The workflow never starts a build. |
 | `flows` | A folder (every `.yaml` in it, in name order) or one file, under `e2e/`. Default `e2e/fresh`. |
 | `mode` | `run` reports pass or fail. `capture` also keeps every `takeScreenshot` image under `screens/` in the artifact. `video` is `capture` plus a screen recording of each flow under `video/` (iOS), for looking at motion. |
+| `states` | Optional, for `flows=e2e/sheets`. A comma-separated list of state id prefixes (`odd-,session-opening`): only the registry rows whose name starts with one of them are captured. Empty captures every state, which is too long for one job (about 215 states at about 65 s each), so a change captures the states it touched. The workflow passes it to Maestro as `MAESTRO_STATES`, and the flow types it into the registry's `registry-states` field. |
 | `pr` | Optional. The pull request that gets one comment with the pass or fail table and a link to the artifact. |
 
 Dispatch, note the run id and stop: do not wait for the run inside a working session. Dispatching

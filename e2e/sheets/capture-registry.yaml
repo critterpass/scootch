@@ -5,6 +5,8 @@ appId: app.scootch.dev
 # through the more button on the one screen, and reads the list from the app itself:
 # `registry-count` holds the number of rows and `registry-name-<n>` the name of the n-th, so a new
 # registry file needs no change here. Each image is named `<state id>--<variant>`.
+# With MAESTRO_STATES (a comma-separated list of state id prefixes; the device workflow's `states`
+# input) it captures only the rows whose name starts with one of them. Empty or unset: every row.
 - launchApp:
     clearState: true
 # A clean install meets first launch before the one screen: say hello, keep the attitude and skip
@@ -24,7 +26,7 @@ appId: app.scootch.dev
 - extendedWaitUntil:
     visible:
       id: 'more-button'
-    timeout: 15000
+    timeout: 60000
 - tapOn:
     id: 'more-button'
 - scrollUntilVisible:
@@ -43,6 +45,15 @@ appId: app.scootch.dev
     visible:
       id: 'registry-count'
     timeout: 15000
+- evalScript: "${output.states = typeof MAESTRO_STATES === 'undefined' ? '' : MAESTRO_STATES.trim()}"
+- runFlow:
+    when:
+      true: ${output.states !== ''}
+    commands:
+      - tapOn:
+          id: 'registry-states'
+      - inputText: ${output.states}
+      - pressKey: Enter
 - copyTextFrom:
     id: 'registry-count'
 - evalScript: ${output.count = Number(maestro.copiedText); output.row = 0}
