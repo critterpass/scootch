@@ -2,6 +2,7 @@ import { getCalendars } from 'expo-localization';
 
 import {
   dayMomentTimes,
+  type DayHeardTime,
   type Instant,
   type Language,
   type SettingsRow,
@@ -11,6 +12,8 @@ import {
 import { reminderTime } from '../../state/care-flow';
 import type { DayEvent } from '../../state/day-types';
 import { lineFor } from '../../state/lines';
+import { Stack } from '../dump/dump-panels';
+import { TimeHeardCard } from '../dump/time-heard-card';
 import type { OneScreenShown } from '../one-screen/one-screen-view';
 
 import { SeriousPanel } from './serious-panel';
@@ -24,6 +27,8 @@ export interface SeriousShownInput {
   readonly settings: SettingsRow;
   readonly language: Language;
   readonly reminderAt: Instant | null;
+  /** A time heard in the words and not answered yet: said back in plain words, with its answers. */
+  readonly heardTime?: Pick<DayHeardTime, 'heardAs'> | null;
   readonly now: Instant;
   readonly dispatch: (event: DayEvent) => Promise<void>;
   /** The When sheet drawn open, for the screen registry. */
@@ -50,21 +55,31 @@ export function seriousShown(input: SeriousShownInput): OneScreenShown {
     start: settings.quietHoursStart,
     end: settings.quietHoursEnd,
   });
+  const panel = (
+    <SeriousPanel
+      taskText={task.text}
+      said={lineFor('acknowledge', task, voice)}
+      tinyStep={lineFor('tinyNextStep', task, voice)}
+      reminderTime={offered === null ? null : clock(offered, language)}
+      remindedAt={input.reminderAt === null ? null : clock(input.reminderAt, language)}
+      onTinyStep={sit}
+      onRemind={() => send({ type: 'reminder_asked' })}
+      onBeFunny={() => send({ type: 'be_funny_asked' })}
+    />
+  );
+  const heard = input.heardTime ?? null;
   return {
     kind: 'panel',
     name: 'serious',
-    body: (
-      <SeriousPanel
-        taskText={task.text}
-        said={lineFor('acknowledge', task, voice)}
-        tinyStep={lineFor('tinyNextStep', task, voice)}
-        reminderTime={offered === null ? null : clock(offered, language)}
-        remindedAt={input.reminderAt === null ? null : clock(input.reminderAt, language)}
-        onTinyStep={sit}
-        onRemind={() => send({ type: 'reminder_asked' })}
-        onBeFunny={() => send({ type: 'be_funny_asked' })}
-      />
-    ),
+    body:
+      heard === null ? (
+        panel
+      ) : (
+        <Stack>
+          {panel}
+          <TimeHeardCard heardTime={heard} language={language} voice="plain" />
+        </Stack>
+      ),
     footer: (
       <SeriousFooter
         cue={task.startCue ?? null}

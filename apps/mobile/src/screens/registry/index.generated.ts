@@ -34,6 +34,7 @@ export * from './care-crisis-unknown-region';
 export * from './care-crisis-vietnam';
 export * from './care-helplines';
 export * from './care-serious';
+export * from './care-serious-time-heard';
 export * from './care-serious-when-kept';
 export * from './care-serious-when-sheet';
 export * from './composer-empty-recording';
