@@ -38,6 +38,8 @@ export interface TaskSetChoicesProps {
   readonly endsFrom?: Instant;
   /** A cue picked or kept: the line under the wheel says when the thing comes back. */
   readonly cue?: CueBack;
+  /** A watched time is ahead today: the line under the wheel adds "then you get ready". */
+  readonly beforeGetReady?: boolean;
 }
 
 /**
@@ -50,6 +52,7 @@ export function TaskSetChoices({
   options = SESSION_MINUTES,
   endsFrom,
   cue,
+  beforeGetReady = false,
 }: TaskSetChoicesProps) {
   return (
     <View style={styles.choices}>
@@ -57,6 +60,7 @@ export function TaskSetChoices({
       <EndsAtLine
         minutes={minutes}
         cue={cue}
+        beforeGetReady={beforeGetReady}
         {...(endsFrom === undefined ? {} : { now: endsFrom })}
       />
     </View>

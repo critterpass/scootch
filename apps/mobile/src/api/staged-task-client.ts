@@ -76,6 +76,7 @@ export function createStagedTaskClient(api: StagedApi): TaskClient {
         oneThing: start.oneThing,
         parked: start.parked,
         deadlines: start.deadlines,
+        ...(start.heardTime === undefined ? {} : { heardTime: start.heardTime }),
         ...trustedJudge(start.answeredBy),
       };
       if (start.verdict === 'serious') {

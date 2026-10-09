@@ -6,13 +6,8 @@ import { Linking, View } from 'react-native';
 import { FREE_STARTS_PER_DAY, hasStartLeft, startsAllowed, type Attitude } from '@scootch/domain';
 
 import { useLanguage, useT } from '../../i18n/i18n-provider';
-import {
-  useCue,
-  useDispatch,
-  useDrawer,
-  useSession,
-  useToday,
-} from '../../state/day-store-provider';
+import { useCue, useDispatch, useDrawer, useSession } from '../../state/day-store-provider';
+import { useTodayHeard } from '../../state/heard-time-hooks';
 import type { DayEvent } from '../../state/day-types';
 import { usePlus } from '../../state/keepsakes';
 import { lineWithNoTask } from '../../state/lines';
@@ -88,7 +83,7 @@ function useOneScreenDrawn({
   warmUp,
   notificationsRefused,
 }: OneScreenProps): ReactElement | null | typeof COVERED {
-  const day = useToday();
+  const day = useTodayHeard();
   const { today, settings, taskCall, notice, localDate } = day;
   const { line: shownLine } = useSession();
   const drawer = useDrawer();

@@ -121,17 +121,50 @@ export interface DeadlineCardProps {
 
 /** A heard date, said before the person sees anything parked, with its two answers. */
 export function DeadlineCard({ said, back, keepLabel, onKeep, onToday }: DeadlineCardProps) {
-  const { palette, allowFontScaling, size, largeText } = useScreenStyle();
   const t = useT();
   return (
+    <HeardCard testID="deadline-heard" mark={t('deadline.mark')} said={said} under={back}>
+      <CapsuleButton
+        label={keepLabel}
+        hint={t('deadline.keep.hint')}
+        onPress={onKeep}
+        testID="deadline-keep"
+      />
+      <CapsuleButton
+        label={t('deadline.today')}
+        hint={t('deadline.today.hint')}
+        tone="quiet"
+        onPress={onToday}
+        testID="deadline-today"
+      />
+    </HeardCard>
+  );
+}
+
+export interface HeardCardProps {
+  readonly testID: string;
+  /** What the mark before it is read out as: "Deadline". */
+  readonly mark: string;
+  /** What was heard, said back in a few words. */
+  readonly said: string;
+  /** The sentence under it. */
+  readonly under: string;
+  /** Its answers, side by side; they stack at large text. */
+  readonly children: ReactNode;
+}
+
+/** Something heard in the words, said back on the one thing with its answers: a date, a time. */
+export function HeardCard({ testID, mark, said, under, children }: HeardCardProps) {
+  const { palette, allowFontScaling, size, largeText } = useScreenStyle();
+  return (
     <View
-      testID="deadline-heard"
+      testID={testID}
       style={[styles.card, { backgroundColor: palette.surface, borderColor: palette.tomato }]}
     >
       <View style={styles.cardHead}>
         <View
           accessible
-          accessibilityLabel={t('deadline.mark')}
+          accessibilityLabel={mark}
           style={[styles.mark, { backgroundColor: palette.tomato }]}
         >
           <Text allowFontScaling={false} style={[styles.markText, { color: palette.page }]}>
@@ -140,6 +173,7 @@ export function DeadlineCard({ said, back, keepLabel, onKeep, onToday }: Deadlin
         </View>
         <View style={styles.cardWords}>
           <Text
+            testID={`${testID}-said`}
             allowFontScaling={allowFontScaling}
             style={[styles.cardSaid, { color: palette.ink, fontSize: size(SUB_SIZE) }]}
           >
@@ -149,25 +183,11 @@ export function DeadlineCard({ said, back, keepLabel, onKeep, onToday }: Deadlin
             allowFontScaling={allowFontScaling}
             style={[styles.sub, { color: palette.muted, fontSize: size(SMALL_SIZE) }]}
           >
-            {back}
+            {under}
           </Text>
         </View>
       </View>
-      <View style={[styles.cardChoices, largeText && styles.stacked]}>
-        <CapsuleButton
-          label={keepLabel}
-          hint={t('deadline.keep.hint')}
-          onPress={onKeep}
-          testID="deadline-keep"
-        />
-        <CapsuleButton
-          label={t('deadline.today')}
-          hint={t('deadline.today.hint')}
-          tone="quiet"
-          onPress={onToday}
-          testID="deadline-today"
-        />
-      </View>
+      <View style={[styles.cardChoices, largeText && styles.stacked]}>{children}</View>
     </View>
   );
 }
