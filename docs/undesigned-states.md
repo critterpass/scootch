@@ -453,3 +453,7 @@ state is designed or removed.
 | Widgets, small and medium | At rest, with a quiet piece newest: the piece is drawn and never named, and the medium has no second line | A quiet piece is never named anywhere |
 | Widgets, small and medium | At rest, with an empty world or no picture the phone could draw: Scootch asleep on the sand alone | The board draws a world with a piece in it; built from the baked drawing |
 | Widgets, small and medium | Crisis day: the one calm label, with no rest line and no picture | The board draws no crisis state; the crisis day's widget is as it already was |
+| One screen, serious | The When chip above "Not today" and "Sit with it", in the interface's plain words; a cue picked on the sheet is kept at once, and its message is the plain line no monster signs | No board draws helpers on the serious screen. It has no "Save for later" beside "Sit with it", so picking is keeping; "Now" takes the cue away |
+| One screen, serious | No "Ends at" | The serious screen has no length control: a quiet sitting is always ten minutes, and "Sit with it" says so |
+| One screen, serious | No guess, no bites and no "in the way" | Decided: a heavy thing gets none of the helpers that carry a number or a monster |
+| One screen, serious | The plain "time heard" card is not shown on the live serious screen yet | The card belongs to the waiting lane, which had not reached main when the When chip was added |
