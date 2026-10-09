@@ -29,8 +29,9 @@ back in.
   share composer takes it out. The headline stays the website's three lines,
   not the board's "I finally…". The website's card page prints
   the same line from the same signed values.
-- Status: partly done — 1e120d8. Done: the line on the story, the composer's toggle. Left: the line
-  on the website's card page, which reads the shared card contract, and that carries no guess.
+- Status: done — 1e120d8, 603427a. The shared card contract carries an optional guess, posted
+  only with the story's switch on; the story page prints the line under its headline, the card
+  page on the card under its stats.
 
 ### 3. Leaving a line
 - Do: on "not finished", after Carry on tomorrow, a sheet: "Next time,

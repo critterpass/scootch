@@ -12,6 +12,8 @@ export interface KeptShare {
   readonly language: Language;
   /** Whether the page shows the task's words. */
   readonly taskShown: boolean;
+  /** Whether the page prints the guess line. Absent on a page put up without one. */
+  readonly guessShown?: boolean;
   /** For a monster's own page: whether the server has been told of its catch. */
   readonly caughtTold?: boolean;
 }

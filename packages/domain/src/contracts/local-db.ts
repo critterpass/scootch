@@ -13,6 +13,7 @@ import {
   attitudeSchema,
   clockTimeSchema,
   energySchema,
+  guessMinutesSchema,
   idSchema,
   isoDateSchema,
   isoDateTimeSchema,
@@ -51,17 +52,6 @@ export type LocalTable = (typeof LOCAL_TABLES)[number];
 /** `unscreened` is a task typed with no connection: plain company until it is screened. */
 export const taskScreenSchema = z.enum(['unscreened', 'pass', 'serious']);
 export type TaskScreen = z.infer<typeof taskScreenSchema>;
-
-/** The guess sheet's five steps, in minutes: 30 min, 1 hour, 2 hours, 3 hours and half a day. */
-export const GUESS_MINUTES = [30, 60, 120, 180, 360] as const;
-export const guessMinutesSchema = z.union([
-  z.literal(30),
-  z.literal(60),
-  z.literal(120),
-  z.literal(180),
-  z.literal(360),
-]);
-export type GuessMinutes = z.infer<typeof guessMinutesSchema>;
 
 /** The moments of a day a thing can be brought back after (or, for bed, before). */
 export const DAY_MOMENTS = ['coffee', 'lunch', 'work', 'dinner', 'bed'] as const;

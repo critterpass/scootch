@@ -23,6 +23,17 @@ export type SessionMinutes = z.infer<typeof sessionMinutesSchema>;
 export const screenVerdictSchema = z.enum(['pass', 'serious', 'crisis', 'reject']);
 export type ScreenVerdict = z.infer<typeof screenVerdictSchema>;
 
+/** The guess sheet's five steps, in minutes: 30 min, 1 hour, 2 hours, 3 hours and half a day. */
+export const GUESS_MINUTES = [30, 60, 120, 180, 360] as const;
+export const guessMinutesSchema = z.union([
+  z.literal(30),
+  z.literal(60),
+  z.literal(120),
+  z.literal(180),
+  z.literal(360),
+]);
+export type GuessMinutes = z.infer<typeof guessMinutesSchema>;
+
 /** A calendar day in the user's local time, `YYYY-MM-DD`. */
 export const isoDateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'expected YYYY-MM-DD');
 export type IsoDate = z.infer<typeof isoDateSchema>;

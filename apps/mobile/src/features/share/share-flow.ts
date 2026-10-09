@@ -71,7 +71,7 @@ export interface CatchShare {
   readonly language: CardLanguage;
   /**
    * The guess frozen onto the monster at the catch, for the story's line; unset or `null` when
-   * there is none or the composer's switch took it out. It is drawn, never posted.
+   * there is none or the composer's switch took it out. The page prints it as the picture does.
    */
   readonly guessMinutes?: GuessMinutes | null;
   /**
@@ -118,6 +118,12 @@ const taskShown = (share: CatchShare) =>
   kindOf(share) === 'card' && !share.hideTask && share.card.taskLine !== null;
 
 /**
+ * Whether the page will print the guess line: when the picture does, and never for a task that
+ * may not be shared, whatever the composer handed over.
+ */
+const guessShown = (share: CatchShare) => share.guessMinutes != null && shareOffered(share.task);
+
+/**
  * The signature a page can be made with: the one stored with the monster, when it is for the
  * monster as the card draws it. A monster hatched before words were signed, or one the phone
  * named itself, has none.
@@ -138,14 +144,21 @@ export function pageOffered(share: Pick<CatchShare, 'card' | 'signed' | 'format'
 /**
  * What is posted for a page: the card as the page draws it, the signature for its words with the
  * language they were written in, and the task's stored care verdict. The task line is taken off
- * unless the page shows it.
+ * unless the page shows it, and the guess goes only with a picture that prints its line.
  */
 export function cardShareRequest(share: CatchShare, signed: SignedWords): CardShareRequest {
   const stored = share.task?.screen;
+  // A guess the card itself carries is never posted: only the composer's, with the switch on.
+  const { guessMinutes: _carried, ...card } = share.card;
+  const guess = guessShown(share) ? share.guessMinutes : null;
   return {
     kind: kindOf(share),
     language: signed.language,
-    card: { ...share.card, taskLine: taskShown(share) ? share.card.taskLine : null },
+    card: {
+      ...card,
+      taskLine: taskShown(share) ? share.card.taskLine : null,
+      ...(guess != null ? { guessMinutes: guess } : {}),
+    },
     // An unscreened or forgotten task is never offered; if one came this far the server refuses it.
     screen: stored === 'pass' || stored === 'serious' ? stored : 'reject',
     signature: signed.signature,
@@ -176,10 +189,20 @@ async function pageFor(
   // The page is in the language its words were written and signed in.
   const { language } = signed;
   const up = (await pages.kept.read()).find((one) => one.key === key);
-  if (up && up.language === language && up.taskShown === taskShown(share)) return up;
+  const same =
+    up?.language === language &&
+    up.taskShown === taskShown(share) &&
+    (up.guessShown === true) === guessShown(share);
+  if (up && same) return up;
   if (up) await takeDown(pages, up);
   const page = await pages.api.shareCard(cardShareRequest(share, signed));
-  const kept: KeptShare = { key, ...page, language, taskShown: taskShown(share) };
+  const kept: KeptShare = {
+    key,
+    ...page,
+    language,
+    taskShown: taskShown(share),
+    guessShown: guessShown(share),
+  };
   try {
     await pages.kept.write(withShare(await pages.kept.read(), kept));
   } catch (error) {

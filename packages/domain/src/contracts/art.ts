@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { attitudeSchema, isoDateSchema } from './common';
+import { attitudeSchema, guessMinutesSchema, isoDateSchema } from './common';
 
 /**
  * The 30 work modes, in the order of the Characters board. The art package's
@@ -219,5 +219,10 @@ export const cardDataSchema = z.object({
   flavourText: z.string().min(1).max(160),
   finish: cardFinishSchema,
   caughtOn: isoDateSchema,
+  /**
+   * The guess made before starting, only on a shared story or card whose sharer left its line
+   * showing: the page then prints "Thought 2 hours. Took 11 minutes." Absent everywhere else.
+   */
+  guessMinutes: guessMinutesSchema.optional(),
 });
 export type CardData = z.infer<typeof cardDataSchema>;

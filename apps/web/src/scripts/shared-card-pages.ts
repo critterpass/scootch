@@ -57,6 +57,17 @@ function dayInWords(isoDate: string, language: string, long: boolean): string {
   }).format(new Date(`${isoDate}T00:00:00Z`));
 }
 
+/**
+ * "Thought 2 hours. Took 11 minutes.", in the card's own words, when the sharer left the guess
+ * showing; `null` for a card shared without one, which the page shows as it always did.
+ */
+function thoughtTook(card: CardData, language: 'en' | 'vi'): string | null {
+  if (card.guessMinutes === undefined) return null;
+  const labels = CARD_LABELS[language];
+  const long = (minutes: number) => labels.durationLong(Math.floor(minutes / 60), minutes % 60);
+  return labels.thoughtTook(long(card.guessMinutes), long(card.catchMinutes));
+}
+
 function onlyShown(lines: Record<string, string>, sharerName: string | null): string {
   return sharerName === null
     ? (lines['onlyShown'] ?? '')
@@ -87,13 +98,19 @@ export async function startCaughtCardPage(root: HTMLElement): Promise<void> {
   document.title = `${fill(lines['home'] ?? '', { name: short })} · Scootch`;
   const holder = find('[data-card]');
   // The stamp hangs over the card's edge, so the drawing space is a little wider than the card.
-  holder.innerHTML = toSvg(buildCard(card, { language }), {
+  // With a guess, the card prints its line under the stats, as the app's card does.
+  holder.innerHTML = toSvg(buildCard(card, { language, guessMinutes: card.guessMinutes ?? null }), {
     width: CARD_WIDTH + CARD_BLEED,
     height: CARD_HEIGHT,
   });
   holder.setAttribute(
     'aria-label',
-    fill(lines['cardLabel'] ?? '', { name: card.name, duration, flavour: card.flavourText }),
+    [
+      fill(lines['cardLabel'] ?? '', { name: card.name, duration, flavour: card.flavourText }),
+      thoughtTook(card, language),
+    ]
+      .filter((part) => part !== null)
+      .join(' '),
   );
   find('[data-eyebrow]').textContent =
     sharerName === null
@@ -145,6 +162,11 @@ export async function startStoryPage(root: HTMLElement): Promise<void> {
   find('[data-took]').textContent = fill(lines['took'] ?? '', {
     duration: labels.durationLong(Math.floor(card.catchMinutes / 60), card.catchMinutes % 60),
   });
+  // Under the headline, as the story picture prints it; a story shared without one has no line.
+  const guessed = thoughtTook(card, language);
+  const guessLine = find('[data-thought-took]');
+  guessLine.textContent = guessed ?? '';
+  guessLine.hidden = guessed === null;
   find('[data-monster]').innerHTML = toSvg(buildMonster(card.monster));
   find('[data-only-shown]').textContent = onlyShown(lines, sharerName);
   showState(root, 'found');
