@@ -1,5 +1,5 @@
 import type { CardLanguage } from '@scootch/art';
-import type { CardData, SignedWords, TaskRow } from '@scootch/domain';
+import type { CardData, GuessMinutes, SignedWords, TaskRow } from '@scootch/domain';
 import { encodeWav, type Stereo } from '@scootch/sound';
 
 import type { CardShareRequest, ShareApi } from '../../api/share-api';
@@ -61,6 +61,11 @@ export interface CatchShare {
   readonly dress: ShareDress;
   readonly hideTask: boolean;
   readonly language: CardLanguage;
+  /**
+   * The guess frozen onto the monster at the catch, for the story's line; unset or `null` when
+   * there is none or the composer's switch took it out. It is drawn, never posted.
+   */
+  readonly guessMinutes?: GuessMinutes | null;
 }
 
 /** The page a format goes with; `null` for a picture that stands by itself. */

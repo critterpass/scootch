@@ -39,7 +39,6 @@ import {
   MONTH_FORMATS,
   type MonthFormat,
   type ShareFormat,
-  type ShareImageOptions,
 } from './share-image';
 import { dayLog, monthBefore, monthWrap } from './share-logs';
 import type { ShareActions, ShareModel } from './share-panel';
@@ -251,7 +250,7 @@ export function useComposer(
       )?.guessMinutes ?? null;
     const guessed = guessOffered(shown, guess);
     // The picture that is sent is composed from this share, so the guess goes out with it.
-    const share: CatchShare & Pick<ShareImageOptions, 'guessMinutes'> = {
+    const share: CatchShare = {
       ...caught,
       format: shown,
       dress: { ...dress, frame: usable },
