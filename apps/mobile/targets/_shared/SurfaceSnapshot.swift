@@ -104,6 +104,19 @@ struct SurfaceSnapshot: Codable, Equatable, Sendable {
         let morning: String
     }
 
+    /// Scootch at rest, as the small and medium widgets show a day with nothing waiting: asleep
+    /// beside the world's newest piece. The app writes it only when no thing is set or lurking,
+    /// and never on a crisis day.
+    struct AtRest: Codable, Equatable, Sendable {
+        /// What the small widget says, and the medium one's first line.
+        let line: String
+        /// The medium widget's second line: what joined the world last. Nil while nothing lives
+        /// in the world, and for a quiet piece.
+        let joined: String?
+        /// The picture of Scootch asleep beside that piece, in the App Group container.
+        let image: String?
+    }
+
     let version: Int
     let state: DayState
     /// The one thing's id and its words for a hunt. Both nil whenever `task` is.
@@ -150,6 +163,9 @@ struct SurfaceSnapshot: Codable, Equatable, Sendable {
     /// The ink the person wears, as a six-digit hex colour. Nil is tomato, and so is a snapshot
     /// written before there were inks.
     let accent: String?
+    /// Scootch at rest. Nil whenever a thing is set or lurking, on a crisis day, and in a
+    /// snapshot written before the widgets drew it.
+    let atRest: AtRest?
 
     /// What every surface shows before the app has written anything, or after a version it
     /// cannot read: nothing yet, in plain words.
@@ -160,7 +176,8 @@ struct SurfaceSnapshot: Codable, Equatable, Sendable {
         language: Locale.preferredLanguages.first?.hasPrefix("vi") == true ? "vi" : "en",
         weekBars: 0, worldThings: 0, plus: false, lurkers: [], bites: [], finish: "paper",
         shelf: 0, latestCatch: nil, caughtThisWeek: nil, worldImage: nil, worldNightImage: nil,
-        scootchImage: nil, wallpaper: nil, tomorrow: nil, friendsTables: nil, dayEndsAt: .greatestFiniteMagnitude, accent: nil)
+        scootchImage: nil, wallpaper: nil, tomorrow: nil, friendsTables: nil, dayEndsAt: .greatestFiniteMagnitude, accent: nil,
+        atRest: nil)
 
     /// Nil when the text is not a snapshot of the version this code reads.
     static func decode(_ json: String) -> SurfaceSnapshot? {
@@ -184,6 +201,7 @@ struct SurfaceSnapshot: Codable, Equatable, Sendable {
     /// to write the new one, nothing of yesterday is shown: it is a day with nothing yet. The
     /// lurkers go too, because whether each may still be shown is the app's to decide for the
     /// new day, and what waited for tomorrow is no longer tomorrow's; what was caught stays caught.
+    /// Scootch stays at rest only when nothing was carried on: a thing that was is waiting now.
     func shown(at date: Date) -> SurfaceSnapshot {
         guard date >= dayEnd else { return self }
         return SurfaceSnapshot(
@@ -195,7 +213,8 @@ struct SurfaceSnapshot: Codable, Equatable, Sendable {
             caughtThisWeek: caughtThisWeek, worldImage: worldImage,
             worldNightImage: worldNightImage, scootchImage: scootchImage, wallpaper: wallpaper,
             tomorrow: nil, friendsTables: friendsTables,
-            dayEndsAt: .greatestFiniteMagnitude, accent: accent)
+            dayEndsAt: .greatestFiniteMagnitude, accent: accent,
+            atRest: tomorrow == nil ? atRest : nil)
     }
 
     /// The lurker that has waited longest, which a control or the Action button hunts.

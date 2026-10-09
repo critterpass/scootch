@@ -144,6 +144,64 @@ describe('the shared snapshot', () => {
   });
 });
 
+describe('Scootch at rest', () => {
+  const newestPiece = { resident: 'Molar', image: 'surface-world-0badf00d-rest.png' };
+  const noTask: TodayState = { kind: 'nothing_yet', startsLeft: 1 };
+  const done: TodayState = { kind: 'done_for_today', startsLeft: 0 };
+
+  it('says nothing is waiting and what joined the world last, with no task and on a finished day', () => {
+    for (const today of [noTask, done]) {
+      expect(snapshot(today, { newestPiece }).atRest).toEqual({
+        line: 'Nothing waiting.',
+        joined: 'Molar moved in.',
+        image: 'surface-world-0badf00d-rest.png',
+      });
+    }
+  });
+
+  it('says it in the language the person chose', () => {
+    const made = snapshot(done, { newestPiece, settings: defaultSettings('vi') });
+    expect(made.atRest).toMatchObject({
+      line: 'Không có gì đang chờ.',
+      joined: 'Molar vừa dọn vào ở.',
+    });
+  });
+
+  it('names nobody in an empty world, and never a quiet piece', () => {
+    expect(snapshot(noTask).atRest).toEqual({
+      line: 'Nothing waiting.',
+      joined: null,
+      image: null,
+    });
+    const quiet = { resident: null, image: 'surface-world-0badf00d-rest.png' };
+    expect(snapshot(done, { newestPiece: quiet }).atRest).toEqual({
+      line: 'Nothing waiting.',
+      joined: null,
+      image: 'surface-world-0badf00d-rest.png',
+    });
+  });
+
+  it('is not at rest while a monster lurks or the one thing is set', () => {
+    const waiting = [waitingThing('a', 'Odd Sock', '2026-10-05')];
+    expect(snapshot(noTask, { newestPiece, waiting }).atRest).toBeNull();
+    expect(snapshot(done, { newestPiece, waiting }).atRest).toBeNull();
+    const set: TodayState = { kind: 'task_set', task: taskRow(), startsLeft: 1 };
+    expect(snapshot(set, { newestPiece }).atRest).toBeNull();
+    const serious: TodayState = { kind: 'serious', task: seriousTask(), session: null };
+    expect(snapshot(serious, { newestPiece }).atRest).toBeNull();
+  });
+
+  it('carries no line, no name and no picture of it on a crisis day', () => {
+    const made = snapshot({ kind: 'crisis' }, { newestPiece });
+    expect(made.atRest).toBeNull();
+    expect(made.line).toBeNull();
+    const written = JSON.stringify(made);
+    expect(written).not.toContain('Molar');
+    expect(written).not.toContain('Nothing waiting');
+    expect(written).not.toContain('-rest.png');
+  });
+});
+
 describe("tomorrow's one thing", () => {
   const resting: TodayState = { kind: 'done_for_today', startsLeft: 0 };
   const carried = (task = {}) => ({

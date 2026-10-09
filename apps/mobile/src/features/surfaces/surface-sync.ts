@@ -210,6 +210,7 @@ export function createSurfaceSync(deps: SurfaceSyncDeps) {
       worldImage: world.day,
       worldNightImage: world.night,
       scootchImage: world.scootch,
+      newestPiece: world.newest,
       wallpaper: state.settings.wallpaper,
       friendsTables: friends && {
         asOf: friends.at,

@@ -17,6 +17,8 @@ export interface IslandStillProps {
   readonly side: number;
   /** Scootch asleep in the middle, as on a finished day; otherwise pleased with it all. */
   readonly asleep: boolean;
+  /** Leaves out what floats around Scootch, for a surface that draws the sleep marks itself. */
+  readonly withoutEffects?: boolean;
 }
 
 /**
@@ -24,7 +26,7 @@ export interface IslandStillProps {
  * standing between what is behind him and what is in front. Scootch is drawn in tomato, like
  * every drawing of him outside the app's own screens.
  */
-export function IslandStill({ pieces, monsters, side, asleep }: IslandStillProps) {
+export function IslandStill({ pieces, monsters, side, asleep, withoutEffects }: IslandStillProps) {
   const unit = side / ISLAND_SPACE;
   const { drawing, scootchScale } = useMemo(() => {
     const layout = layoutIsland(inLandingOrder(pieces, monsters));
@@ -35,14 +37,18 @@ export function IslandStill({ pieces, monsters, side, asleep }: IslandStillProps
   }, [pieces, monsters]);
   const scootch = useMemo(
     () =>
-      buildScootch({
-        mood: asleep ? 'asleep' : 'pleased',
-        attitude: 'cheeky',
-        workMode: null,
-        reducedMotion: true,
-        hat: null,
-      }),
-    [asleep],
+      buildScootch(
+        {
+          mood: asleep ? 'asleep' : 'pleased',
+          attitude: 'cheeky',
+          workMode: null,
+          reducedMotion: true,
+          hat: null,
+        },
+        undefined,
+        { withoutEffects: withoutEffects === true },
+      ),
+    [asleep, withoutEffects],
   );
   return (
     <Group>
