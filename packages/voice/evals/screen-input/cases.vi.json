@@ -613,5 +613,40 @@
     "id": "vi-c41",
     "text": "tối nay chào mọi người lần cuối",
     "expected": "crisis"
+  },
+  {
+    "id": "vi-c42",
+    "text": "hủy hết mấy gói trả tiền hàng tháng, gửi con mèo cho Linh nuôi luôn. nhắn ba là con thương ba, con xin lỗi. con sắp đi rồi",
+    "expected": "crisis"
+  },
+  {
+    "id": "vi-c43",
+    "text": "Tặng hết sách với cây đàn cho thằng Khoa, cắt gói cước điện thoại, không cần nữa. Nói với mẹ con thương mẹ nhiều, con xin lỗi mẹ. Thứ bảy lúc cả nhà về quê thì con đi.",
+    "expected": "crisis"
+  },
+  {
+    "id": "vi-c44",
+    "text": "hũy gói spotify với icloud khỏi gia hạn nửa, trả cái xe cho anh Tuấn. nhắn chị Hai là em thương chị, xin lổi chị vì tất cả. em sắp đi rồi đừng chờ em",
+    "expected": "crisis"
+  },
+  {
+    "id": "vi-nd-c11",
+    "text": "huy the tap gym voi netflix, khoi can nua. nhan me la em thuong me nhieu lam, em xin loi. chu nhat luc ca nha di le em di",
+    "expected": "crisis"
+  },
+  {
+    "id": "vi-nd-c12",
+    "text": "tra het do muon cho ban, dong the ngan hang. noi voi ba me con thuong ba me, con xin loi vi tat ca. con sap di roi",
+    "expected": "crisis"
+  },
+  {
+    "id": "vi-p58",
+    "text": "hủy gói gym với netflix trước khi chuyển vô Sài Gòn, nhắn mẹ là con thương mẹ, tới nơi con gọi liền",
+    "expected": "pass"
+  },
+  {
+    "id": "vi-nd-p12",
+    "text": "nhan me xin loi vi hom qua con ve tre, con thuong me. nho huy goi spotify dung thu truoc khi bi tru tien",
+    "expected": "pass"
   }
 ]
