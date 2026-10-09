@@ -105,8 +105,7 @@ export const enCareAndSettings = {
   'settings.tables': 'Tables',
   'settings.tables.hint': 'Opens everything about tables',
   'settings.tables.off': 'Off',
-  'settings.tables.signedOut':
-    'Tables are off on this phone. Signing in turns them on; working alone never needs it.',
+  'settings.tables.signedOut': 'Tables are off on this phone. Signing in turns them on.',
   'settings.tables.signedIn': 'Signed in with Apple',
   'settings.tables.atTheTable': 'At the table',
   'settings.tables.rename.hint': 'Changes the name your seat shows',

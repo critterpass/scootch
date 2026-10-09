@@ -1,6 +1,6 @@
 import { togetherState } from '../../features/table/registry/together-state';
 
-/** Settings, Tables, on a phone that is not signed in: tables are off, with the same sign-in. */
+/** Settings, Tables, on a phone that is not signed in: tables are off, and it signs in from here. */
 export const tableSettingsSignedOut = togetherState({
   id: 'table-settings-signed-out',
   design: null,

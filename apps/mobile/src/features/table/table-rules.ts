@@ -22,6 +22,9 @@ export const accountThen = (next: string) => `/account?next=${encodeURIComponent
 export const FRIENDS_ACCEPTED = '/friends?accepted=1' as Href;
 export const TABLE_SETTINGS = '/table-settings' as Href;
 export const TABLE_QUIETED = '/table-quieted' as Href;
+/** The name step for an account just made, offering Apple's first name, then back to `next`. */
+export const nameThen = (next: string, suggested: string) =>
+  `/account?next=${encodeURIComponent(next)}&suggested=${encodeURIComponent(suggested)}` as Href;
 /** The name step alone, for someone who already has an account, then back to `next`. */
 export const renameThen = (next: string) =>
   `/account?rename=1&next=${encodeURIComponent(next)}` as Href;

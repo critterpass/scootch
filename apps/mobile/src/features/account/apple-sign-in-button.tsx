@@ -1,5 +1,5 @@
 import * as AppleAuthentication from 'expo-apple-authentication';
-import { Platform, StyleSheet, View, type ViewProps } from 'react-native';
+import { Platform, Pressable, StyleSheet, View, type ViewProps } from 'react-native';
 
 import { useT } from '../../i18n/i18n-provider';
 import { CapsuleButton, CONTROL_HEIGHT } from '../../ui/buttons';
@@ -11,6 +11,13 @@ export interface AppleSignInButtonProps {
   readonly testID?: string;
   readonly style?: ViewProps['style'];
 }
+
+/**
+ * The height the system button is drawn at. Apple sizes the button's words by its height, so at a
+ * full control's height they stand larger than every other label; drawn shorter inside a capsule of
+ * its own colour, they read at the size of the labels beside it.
+ */
+const WORDS_HEIGHT = 38;
 
 /** True for a page dark enough that Apple's white button is the one to stand on it. */
 function isDark(hex: string): boolean {
@@ -46,32 +53,47 @@ export function AppleSignInButton({
       </View>
     );
   }
+  const white = isDark(palette.page);
   return (
-    <View
-      // The system button has no disabled state of its own: while Apple's sheet is up it is dimmed
-      // and takes no touches.
-      pointerEvents={disabled ? 'none' : 'auto'}
-      accessibilityState={{ disabled }}
-      style={[styles.frame, disabled && styles.dimmed, style]}
-    >
-      <AppleAuthentication.AppleAuthenticationButton
-        buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
-        buttonStyle={
-          isDark(palette.page)
-            ? AppleAuthentication.AppleAuthenticationButtonStyle.WHITE
-            : AppleAuthentication.AppleAuthenticationButtonStyle.BLACK
-        }
-        cornerRadius={CONTROL_HEIGHT / 2}
+    <View style={style}>
+      <Pressable
+        // The capsule around the system button is part of it: a touch anywhere on it signs in.
+        // Only the system button is read out. It has no disabled state of its own: while Apple's
+        // sheet is up the whole capsule is dimmed and takes no touches.
+        accessible={false}
         onPress={onPress}
-        style={styles.button}
-        {...(testID === undefined ? {} : { testID })}
-      />
+        pointerEvents={disabled ? 'none' : 'auto'}
+        style={[
+          styles.frame,
+          { backgroundColor: white ? '#FFFFFF' : '#000000' },
+          disabled && styles.dimmed,
+        ]}
+      >
+        <AppleAuthentication.AppleAuthenticationButton
+          buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+          buttonStyle={
+            white
+              ? AppleAuthentication.AppleAuthenticationButtonStyle.WHITE
+              : AppleAuthentication.AppleAuthenticationButtonStyle.BLACK
+          }
+          cornerRadius={0}
+          onPress={onPress}
+          style={styles.button}
+          {...(testID === undefined ? {} : { testID })}
+        />
+      </Pressable>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  frame: { height: CONTROL_HEIGHT },
+  frame: {
+    height: CONTROL_HEIGHT,
+    borderRadius: CONTROL_HEIGHT / 2,
+    paddingHorizontal: CONTROL_HEIGHT / 4,
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
   dimmed: { opacity: 0.45 },
-  button: { flex: 1 },
+  button: { height: WORDS_HEIGHT },
 });
