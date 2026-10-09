@@ -1,6 +1,6 @@
 # Phase 05: Waiting mode
 
-Status: not started · Tasks: 3 · Needs: 02, 03
+Status: done · Tasks: 3 · Needs: 02, 03
 Owns: `apps/mobile/src/features/dump/` (a heard-time panel),
 `apps/mobile/src/features/one-screen/minutes-control.tsx`,
 `apps/mobile/src/screens/registry/dump-time-heard.tsx`,
@@ -19,7 +19,7 @@ no Calendar.
   "Don't watch it" keeps the time unwatched: no capped length, no nudge. The one thing offered is one whose ten-minute fit or
   bites fit the gap; when nothing fits, Scootch keeps plain company and
   offers nothing.
-- Status: not started
+- Status: done — 1e26523
 
 ### 2. A length that ends in time
 - Do: with a heard time today, the wheel opens at the longest length that
@@ -27,7 +27,7 @@ no Calendar.
   get ready".
   The user can still turn it past; nothing blocks.
 - Test: the wheel's opening value for gaps of 8, 45 and 240 minutes.
-- Status: not started
+- Status: done — 1e26523
 
 ### 3. The get-ready nudge
 - Do: one notification at the get-ready time, from Scootch and not a
@@ -36,7 +36,7 @@ no Calendar.
   second one, never "leave now".
 - Done when: sheets both languages; the fresh-user walk types a time and
   sees the capped length.
-- Status: not started
+- Status: done — 1e26523
 
 ## Risks
 
