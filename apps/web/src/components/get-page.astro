@@ -3,12 +3,10 @@ import type { Language } from '@scootch/i18n';
 
 import { appStoreUrl, localPath, pagesFor, plainFor, preLaunch, togetherFor } from '../copy';
 import { appBanner, appBannerName } from '../lib/app-links';
-import { scootchArt } from '../lib/drawings';
 import { qrSvg } from '../lib/qr-code';
 import SiteLayout from '../layouts/site-layout.astro';
 import '../styles/together.css';
 
-import Critter from './critter.astro';
 import NotFound from './not-found.astro';
 import OpenInApp from './open-in-app.astro';
 import RisingWords from './rising-words.astro';
@@ -116,7 +114,7 @@ const banner = { name: appBannerName, content: appBanner, monsters: localPath(la
                 <div class="qr-code">
                   <span data-show="plain" set:html={qrSvg(here, copy.qrLabel)} hidden />
                   <img alt={carry.qrLabel} width="220" height="220" data-qr data-show="found" hidden />
-                  <span class="app-icon"><Critter art={scootchArt('scheming')} /></span>
+                  <img class="app-icon" src="/icons/cheeky.png" alt="" width="192" height="192" />
                 </div>
                 <p data-show="plain" hidden>{copy.qrCaption}</p>
                 <p data-show="found" hidden>{carry.deskTitle}</p>

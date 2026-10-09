@@ -1231,12 +1231,13 @@
   box-shadow: 0 0 0 2px #faf7f2;
 }
 .note-app {
-  border-radius: 0.8125rem;
-  background: var(--tomato);
+  border-radius: 22.5%;
   overflow: hidden;
 }
-.note-app .critter {
+.note-app img {
   display: none;
+  width: 100%;
+  height: 100%;
 }
 [data-attitude='0'] .att-0,
 [data-attitude='1'] .att-1,
@@ -1700,17 +1701,22 @@ button:hover > .swatch {
   bottom: -0.875rem;
 }
 
-/* 10 The last call: tomato in both schemes, with the dark ink on it. */
+/* 10 The last call: ink in both schemes, as the app's icon is, with a warm glow behind Scootch.
+   Tomato on tomato lost him. */
 .final {
-  background: var(--tomato);
-  color: #1c1a17;
-  --ink: #1c1a17;
-  --page: #f6f3ee;
+  background:
+    radial-gradient(circle at 78% 72%, rgb(240 86 46 / 0.38), rgb(240 86 46 / 0) min(32rem, 70vw)),
+    #1c1a17;
+  color: #f6f3ee;
+  --ink: #f6f3ee;
+  --page: #1c1a17;
+  /* The footer below is ink too: a hairline keeps the two apart. */
+  box-shadow: inset 0 -1px 0 rgb(246 243 238 / 0.1);
 }
 .final-dots {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle, rgb(28 26 23 / 0.14) 30%, transparent 33%) 0 0 / 0.75rem
+  background: radial-gradient(circle, rgb(246 243 238 / 0.07) 30%, transparent 33%) 0 0 / 0.75rem
     0.75rem;
   -webkit-mask-image: linear-gradient(90deg, transparent, #000);
   mask-image: linear-gradient(90deg, transparent, #000);
@@ -1741,7 +1747,7 @@ button:hover > .swatch {
   max-width: 32.5rem;
 }
 .final .small {
-  color: rgb(28 26 23 / 0.75);
+  color: rgb(246 243 238 / 0.7);
 }
 .final .actions {
   margin: 0;
@@ -1754,13 +1760,13 @@ button:hover > .swatch {
   gap: 0.75rem 1rem;
   padding: 0.75rem;
   border-radius: 1.875rem;
-  background: rgb(255 255 255 / 0.28);
+  background: rgb(255 255 255 / 0.08);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
   backdrop-filter: blur(20px) saturate(160%);
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.55),
-    0 0 0 0.5px rgb(28 26 23 / 0.14),
-    0 1.5rem 3.125rem -1.5rem rgb(28 26 23 / 0.5);
+    inset 0 1px 0 rgb(255 255 255 / 0.14),
+    0 0 0 0.5px rgb(255 255 255 / 0.1),
+    0 1.5rem 3.125rem -1.5rem rgb(0 0 0 / 0.6);
 }
 .app-tile .app-icon {
   --size: 4rem;
@@ -1777,12 +1783,12 @@ button:hover > .swatch {
 .app-tile div span {
   font-size: 0.84375rem;
   font-weight: 600;
-  color: rgb(28 26 23 / 0.75);
+  color: rgb(246 243 238 / 0.7);
 }
 .final .button-ink {
   min-height: 3.25rem;
-  background: #1c1a17;
-  color: #f6f3ee;
+  background: var(--tomato);
+  color: var(--on-tomato);
   box-shadow: none;
 }
 .final-or {

@@ -998,18 +998,11 @@ a {
   flex: none;
   width: var(--size);
   height: var(--size);
-  border-radius: 25%;
-  background: radial-gradient(120% 90% at 30% 15%, #ffb08f 0%, #f0562e 55%, #c63f22 100%);
+  display: block;
+  border-radius: 22.5%;
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.35),
-    0 0.375rem 0.875rem -0.375rem rgb(240 86 46 / 0.7);
-}
-.app-icon > .critter {
-  position: absolute;
-  left: 50%;
-  bottom: -16%;
-  width: 114%;
-  translate: -50% 0;
+    0 0 0 0.5px rgb(28 26 23 / 0.14),
+    0 0.375rem 0.875rem -0.375rem rgb(28 26 23 / 0.6);
 }
 .scroll-line {
   position: relative;
