@@ -819,6 +819,8 @@ a {
 
 /* A monster's card: a window with the monster in it, its name, a line, and two stamped corners. */
 .monster-card {
+  /* The card is a figure: the browser's own 40px side margins would push it off centre. */
+  margin: 0;
   width: min(100%, 18.75rem);
   aspect-ratio: 300 / 420;
   display: flex;

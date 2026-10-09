@@ -1805,6 +1805,32 @@ button:hover > .swatch {
   .maker-stage {
     min-height: 0;
   }
+  /* On a phone the caught card fits inside the timer card it replaces, rather than spilling over
+     the steps above it: it takes the timer card's height and its width follows. */
+  .hunt-caught {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inset: -0.75rem 0;
+  }
+  .hunt-card {
+    width: auto;
+    height: 100%;
+    max-height: 25rem;
+    max-width: 100%;
+  }
+  .hunt-card .card-window {
+    min-height: 0;
+  }
+  /* Two small widgets side by side, as on a Home Screen, each giving up a little width. */
+  .widget-pair {
+    flex-wrap: nowrap;
+  }
+  .widget-pair > .widget {
+    flex: 0 1 11.25rem;
+    width: auto;
+    min-width: 0;
+  }
   /* Once something has hatched it comes first: the card is the answer to the tap. */
   .maker:is([data-state='hatching'], [data-state='hatched'], [data-state='serious']) .maker-stage {
     order: -1;
