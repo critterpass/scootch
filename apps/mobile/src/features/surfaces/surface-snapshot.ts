@@ -369,10 +369,7 @@ export function buildSurfaceSnapshot(input: SurfaceSnapshotInput): SurfaceSnapsh
     };
   }
   const waiting = lurkers(input);
-  const rest =
-    waiting.lurkers.length > 0
-      ? null
-      : atRest(settings.language, settings.attitude, input.newestPiece);
+  const rest = waiting.lurkers.length > 0 ? null : atRest(settings, input.newestPiece);
   if (today.kind === 'nothing_yet') {
     const line = lineWithNoTask('waiting', settings);
     return { ...base, ...empty, ...waiting, state: 'nothing_yet', line, atRest: rest };

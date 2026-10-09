@@ -23,13 +23,18 @@ export interface MonsterPainter {
   paint(spec: MonsterSpec, pixels: number): Promise<Uint8Array | null>;
 }
 
-/** Draws the world with Scootch in the middle of it, awake or asleep, to PNG bytes. `null` when it could not. */
+/**
+ * Draws the world with Scootch in the middle of it, awake or asleep, to PNG bytes. `null` when it
+ * could not. `withoutEffects` leaves out what floats around him, for a widget that draws the
+ * sleep marks itself in an ink that follows light and dark.
+ */
 export interface WorldPainter {
   paint(
     pieces: readonly WorldPieceRow[],
     monsters: readonly MonsterRow[],
     pixels: number,
     asleep: boolean,
+    withoutEffects?: boolean,
   ): Promise<Uint8Array | null>;
   /** Scootch alone, pleased, for the wallpaper he is perched on. */
   paintScootch(pixels: number): Promise<Uint8Array | null>;
