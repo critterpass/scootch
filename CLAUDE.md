@@ -41,8 +41,11 @@ Precedence: product brief > phase file > design board > older notes.
 
 ## This Mac
 
-- No full typecheck, lint or test suites locally. No Docker. No simulators or
-  emulators. Device runs are GitHub Actions only.
+- No full typecheck, lint or test suites locally. No Docker. No Android emulator.
+- iOS flows run on the local simulator only through
+  `tools/scripts/device-ios-local.sh <flow or folder>`: one shared simulator,
+  queued, erased each run. Iterate there; the pull request's device run is
+  still on GitHub Actions. Never create another simulator.
 - Installs go through `tools/scripts/lane-install.sh`.
 - Kill only a process id you started. Never `pkill -f` or `killall`.
 - Never `git stash`. Never fetch run screenshots into the repository.

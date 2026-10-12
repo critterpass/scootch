@@ -28,7 +28,7 @@ Each rule here exists because the opposite cost real time on CritterPass. The
 | Rule | Learned from |
 |---|---|
 | No full typecheck, lint or test suite locally. Run the one test file in hand; CI runs the rest | A typecheck took ten minutes with thirteen lanes |
-| Device runs happen on GitHub Actions only. No simulators or emulators here | Simulators grew to 12 GB and the disk hit zero |
+| Local device runs use one iOS simulator, through `device-ios-local.sh` only: erased each run, queued, newest three builds and five run outputs kept. No Android emulator. The pull request's device run is still on GitHub | Simulators grew to 12 GB and the disk hit zero |
 | No Docker | The stack has none; keep it that way |
 | Lane worktrees live on the external lanes volume; remove them when their pull request merges | Finished worktrees held 4 to 6 GB each |
 | Installs go through one queue, two at a time | Thirty-seven parallel installs deadlocked the volume |

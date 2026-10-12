@@ -1,7 +1,8 @@
 # Device flows
 
-Maestro flows that prove the app on a real Android emulator or iOS simulator. They run on GitHub
-Actions only (`.github/workflows/device.yml`), never on a developer's machine.
+Maestro flows that prove the app on a real Android emulator or iOS simulator. A pull request's
+proof is a run on GitHub Actions (`.github/workflows/device.yml`); while working, iOS flows run on a
+Mac's simulator the same way (see Running on a Mac).
 
 - `e2e/fresh/` is the fresh-user walk: one new install, walked the way a new person meets the app.
   **Every feature extends this folder** with its next numbered step (`02-…`, `03-…`); a feature
@@ -41,6 +42,31 @@ gh workflow run device.yml --ref <branch> \
 
 Dispatch, note the run id and stop: do not wait for the run inside a working session. Dispatching
 the same flows on the same branch again cancels the older run.
+
+## Running on a Mac
+
+For quick iteration on a Mac with Xcode and an iOS simulator runtime. It does what an iOS run on
+GitHub does (the `e2e-test` build for this checkout's native fingerprint, this checkout's JavaScript
+swapped in, a clean install) and writes the same output.
+
+```sh
+tools/scripts/device-ios-local.sh e2e/fresh                       # a folder
+tools/scripts/device-ios-local.sh e2e/fresh/02-first-thing-typed.yaml
+MODE=video tools/scripts/device-ios-local.sh e2e/fresh             # capture or video, as above
+```
+
+- Uncommitted changes under `apps/` and `packages/` are included; the `js-commit` label then reads
+  `<commit>-local`.
+- One simulator, `Scootch local`, is erased before every run. Runs queue for it, one at a time.
+- The newest three builds are kept in `~/Library/Caches/scootch/e2e-builds`, and the newest five
+  run outputs in `~/Library/Caches/scootch/device-runs` (or `OUT=<dir>`), never in the repository.
+- A flow in `e2e/fresh/` carries on from the one before it: run the folder, not a later file alone.
+- Needs, once: `brew install openjdk@17`, then Maestro at the version in `device.yml`
+  (`MAESTRO_VERSION=<version> curl -fsSL https://get.maestro.mobile.dev | bash`), with
+  `JAVA_HOME=/opt/homebrew/opt/openjdk@17` and `$JAVA_HOME/bin` and `~/.maestro/bin` on the `PATH`;
+  and `gh` signed in, to find the build.
+- A native change still needs its `e2e-test` build from `native-build.yml` first; with no build for
+  the fingerprint the script stops and says so.
 
 ## Builds
 

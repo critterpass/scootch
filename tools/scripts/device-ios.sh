@@ -9,7 +9,10 @@
 # e2e-test variant already builds them off; this keeps a run from ever loading published
 # JavaScript) and the app is re-signed ad hoc.
 #
-# Env: DEVICE (default "iPhone 17"), and JS_COMMIT and MODE, read by device-run-flows.sh.
+# The build url may also be a local file (device-ios-local.sh keeps a downloaded one).
+#
+# Env: DEVICE (default "iPhone 17"); SIM_UDID, an erased simulator to use instead of a new one;
+# and JS_COMMIT and MODE, read by device-run-flows.sh.
 set -euo pipefail
 
 build_url=$1
@@ -20,7 +23,11 @@ here=$(cd "$(dirname "$0")" && pwd)
 work=${RUNNER_TEMP:-$(mktemp -d)}/ios-app
 mkdir -p "$work/app" "$out_dir"
 
-curl -fsSL --retry 3 -o "$work/app.tar.gz" "$build_url"
+if [ -f "$build_url" ]; then
+  cp "$build_url" "$work/app.tar.gz"
+else
+  curl -fsSL --retry 3 -o "$work/app.tar.gz" "$build_url"
+fi
 tar -xzf "$work/app.tar.gz" -C "$work/app" && rm "$work/app.tar.gz"
 # The archive holds the App Clip beside the app: take the app itself, never the first one found.
 app=""
@@ -50,8 +57,13 @@ codesign --verify --deep "$app"
 
 runtime=$(xcrun simctl list runtimes -j |
   jq -r '[.runtimes[] | select(.isAvailable and .platform == "iOS")] | sort_by(.version | split(".") | map(tonumber)) | last | .identifier')
-udid=$(xcrun simctl create "Scootch device run" "${DEVICE:-iPhone 17}" "$runtime")
-echo "Simulator ${DEVICE:-iPhone 17} on $runtime ($udid)"
+if [ -n "${SIM_UDID:-}" ]; then
+  udid=$SIM_UDID
+  echo "Simulator $udid (given)"
+else
+  udid=$(xcrun simctl create "Scootch device run" "${DEVICE:-iPhone 17}" "$runtime")
+  echo "Simulator ${DEVICE:-iPhone 17} on $runtime ($udid)"
+fi
 xcrun simctl boot "$udid"
 xcrun simctl bootstatus "$udid" -b >/dev/null
 xcrun simctl status_bar "$udid" override --time 9:41 --batteryState charged --batteryLevel 100 \
