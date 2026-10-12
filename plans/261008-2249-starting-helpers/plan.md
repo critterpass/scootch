@@ -1,6 +1,6 @@
 # Starting helpers
 
-Status: planned, nothing built · Created 8 Oct 2026 · Board:
+Status: built and released (v1.0.0-rc.6 on 12 Oct 2026; App Store build from 2ae2c3d submitted) except the two items under "Left" · Created 8 Oct 2026 · Board:
 [Scootch - Starting Helpers](../../design/Scootch%20-%20Starting%20Helpers.dc.html),
 eight sections, 22 screens and three rule cards. Board-to-plan map: [board-map.md](board-map.md)
 
@@ -72,6 +72,39 @@ waits for the next native batch.
 - Every AI route change has its eval set green in CI, the care set with no miss.
 - Design-beside-device sheets for every touched screen, both languages,
   largest text, keyboard open, offline; each undesigned state logged.
+
+## Where it stands, 13 Oct 2026
+
+Every phase is merged on main. Production runs v1.0.0-rc.6 (a961d4a, API, site and the
+App Store app's update); the widgets at rest, "Show my guess" on the card share and the
+largest-text fixes are on main (2ae2c3d), in the dev TestFlight build, and in the App
+Store build submitted on 12 Oct.
+
+| Phase | Merged in |
+|---|---|
+| 01 Rules and stored fields | #155 (board), #157, #178 (brief) |
+| 02 Routes, lines and evals | #165; live task eval on dev 234/240, both helper sets 16/16 |
+| 03 The set task | #159, #174 |
+| 04 Finish and return | #160, #164, #182, #184 |
+| 05 Waiting mode | #179, #181 (fits the gap 12/12 on the live eval) |
+| 06 Others hunting and odd weeks | #156, #166, #163 |
+| 07 Widgets at rest | #162, native batch, installed from TestFlight on 12 Oct |
+| Follow-ups | #173 (crisis screen recall), #180 (first pass's loose ends), #183 (capture a chosen set of sheets), #185 (largest text) |
+
+Device sheets: English light, English largest and Vietnamese light for every helper state,
+from capture runs 38257932860, 38260860256, 38260874639, 38261437092, and after #185 runs
+38271129835 and 38275208571.
+
+### Left
+
+1. The fresh-user walk that leaves a "next time" line and sees it open the next sitting
+   (phase 04, task 4). Not written: the next sitting is the next day, and a same-day route
+   through the drawer is untried.
+2. Device sheets of the offline variants of the helper states.
+
+Known gap, logged in `docs/undesigned-states.md`: at the largest text the hero headline
+pushes the set task, energy step and serious screens below the fold; it predates the
+helpers. A native speaker has not yet read the Vietnamese lines.
 
 ## Risks
 

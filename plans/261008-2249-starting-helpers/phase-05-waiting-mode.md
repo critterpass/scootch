@@ -1,6 +1,6 @@
 # Phase 05: Waiting mode
 
-Status: done · Tasks: 3 · Needs: 02, 03
+Status: done — 30a7182 (#179), 376602f (#181) · Tasks: 3 · Needs: 02, 03
 Owns: `apps/mobile/src/features/dump/` (a heard-time panel),
 `apps/mobile/src/features/one-screen/minutes-control.tsx`,
 `apps/mobile/src/screens/registry/dump-time-heard.tsx`,
@@ -19,7 +19,7 @@ no Calendar.
   "Don't watch it" keeps the time unwatched: no capped length, no nudge. The one thing offered is one whose ten-minute fit or
   bites fit the gap; when nothing fits, Scootch keeps plain company and
   offers nothing.
-- Status: done — 1e26523; the pick fits the gap on branch feat/waiting-picks-what-fits-and-serious-card
+- Status: done — 1e26523; the pick fits the gap in 376602f (#181)
 
 ### 2. A length that ends in time
 - Do: with a heard time today, the wheel opens at the longest length that

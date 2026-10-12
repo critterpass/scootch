@@ -1,6 +1,6 @@
 # Phase 03: The set task
 
-Status: not started · Tasks: 5 · Needs: 01, 02
+Status: done — 884bb09 (#159), 7c83d3f (#174) · Tasks: 5 · Needs: 01, 02
 Owns: `apps/mobile/src/features/one-screen/task-set-dock.tsx`,
 `apps/mobile/src/features/one-screen/task-set-shown.tsx`,
 `apps/mobile/src/features/one-screen/minutes-control.tsx`,

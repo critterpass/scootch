@@ -1,6 +1,6 @@
 # Phase 06: Others hunting and odd weeks
 
-Status: not started · Tasks: 4 · Needs: 01
+Status: done — #156, fb7b743 (#166), 57c6c10 (#163) · Tasks: 4 · Needs: 01
 Owns: `apps/api/src/routes/hunting-count.ts`, `apps/api/src/routes/hunting-beat.ts`
 (new), `apps/api/migrations/` or a counter object, `apps/mobile/src/api/`,
 `apps/mobile/src/features/session/screens/working-footer.tsx`,

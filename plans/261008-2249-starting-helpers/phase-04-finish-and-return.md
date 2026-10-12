@@ -1,6 +1,6 @@
 # Phase 04: Finish and return
 
-Status: in progress · Tasks: 4 · Needs: 01, 02
+Status: done but the fresh-user walk (task 4) · Tasks: 4 · Needs: 01, 02
 Owns: `apps/mobile/src/features/session/screens/not-finished-screen.tsx`,
 `apps/mobile/src/features/session/screens/working-screen.tsx`,
 `apps/mobile/src/features/zoo/` (the card), `apps/mobile/src/features/share/`
@@ -48,5 +48,5 @@ back in.
   unchanged.
 - Done when: sheets both languages, largest text, keyboard open, offline;
   the fresh-user walk leaves a line and sees it on the next sitting.
-- Status: partly done — 7d6549b. Done: the opening, its label rule, the first bite, the registry
+- Status: done — 0d80006 (#160), except the walk. Done: the opening, its label rule, the first bite, the registry
   states. Left: the fresh-user walk that leaves a line and sees it.
