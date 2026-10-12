@@ -47,7 +47,7 @@ export interface ShareModel {
   readonly hideTask: boolean;
   /** Whether the picture or its page can carry the task's words, so the switch means something. */
   readonly canHideTask: boolean;
-  /** Set only for a story whose catch had a guess: whether its line is on the picture. */
+  /** Set only for a story or card whose catch had a guess: whether its line is on the picture. */
   readonly guess?: boolean;
   readonly language: Language;
   /** What the last press came to, said in the interface's own words. */
@@ -78,7 +78,7 @@ export interface ShareActions {
   readonly setFormat: (format: ShareFormat) => void;
   readonly setFrame: (frame: ShareFrame) => void;
   readonly setHideTask: (hide: boolean) => void;
-  /** Puts the guess line on the story or takes it off. Unset where no picture prints one. */
+  /** Puts the guess line on the picture or takes it off. Unset where no picture prints one. */
   readonly setGuess?: (show: boolean) => void;
   readonly share: () => void;
   /** Takes the catch's page off the website. */

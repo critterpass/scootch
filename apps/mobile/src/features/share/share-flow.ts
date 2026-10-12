@@ -70,8 +70,9 @@ export interface CatchShare {
   readonly hideTask: boolean;
   readonly language: CardLanguage;
   /**
-   * The guess frozen onto the monster at the catch, for the story's line; unset or `null` when
-   * there is none or the composer's switch took it out. The page prints it as the picture does.
+   * The guess frozen onto the monster at the catch, for the line the story and the card print;
+   * unset or `null` when there is none or the composer's switch took it out. The page prints it as
+   * the picture does.
    */
   readonly guessMinutes?: GuessMinutes | null;
   /**

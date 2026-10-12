@@ -188,6 +188,8 @@ export * from './settings-get-ready';
 export * from './settings-page';
 export * from './settings-tables-row';
 export * from './share-card';
+export * from './share-card-guess-off';
+export * from './share-card-guessed';
 export * from './share-page';
 export * from './share-postcard';
 export * from './share-poster';

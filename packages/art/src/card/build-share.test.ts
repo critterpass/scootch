@@ -103,6 +103,41 @@ describe('the trading card', () => {
     expect(printed(leant)).toBe(printed(level));
     expect(leant).not.toEqual(level);
   });
+
+  it('is drawn exactly as it always was with no guess', () => {
+    expect(buildTradingCard(molar, { guessMinutes: null })).toEqual(buildTradingCard(molar));
+    expect(buildTradingCard(molar, { time: '09:41', guessMinutes: null })).toEqual(
+      buildTradingCard(molar, { time: '09:41' }),
+    );
+  });
+
+  it('prints the guess under its facts and above its number, whole, in either language', () => {
+    const took11 = { ...molar, catchMinutes: 11 };
+    for (const language of ['en', 'vi'] as const) {
+      const plain = buildTradingCard(took11, { language });
+      const card = buildTradingCard(took11, { language, guessMinutes: 120 });
+      const said =
+        language === 'en' ? 'Thought 2 hours. Took 11 minutes.' : 'Tưởng 2 tiếng. Mất 11 phút.';
+      const line = texts(card.commands).find((command) => command.text === said);
+      expect(line).toBeDefined();
+      const at = (text: string) => texts(card.commands).find((one) => one.text === text)!.y;
+      const labels = CARD_LABELS[language];
+      expect(line!.y).toBeGreaterThan(at(labels.fight));
+      expect(line!.y).toBeLessThan(at(labels.number('0041').toUpperCase()));
+      // Everything else stays where it was.
+      expect(texts(card.commands).filter((one) => one !== line)).toEqual(texts(plain.commands));
+      fits(card.commands);
+    }
+    // The longest line there can be is printed whole.
+    for (const language of ['en', 'vi'] as const) {
+      const card = buildTradingCard(
+        { ...molar, catchMinutes: 1439 },
+        { language, guessMinutes: 360 },
+      );
+      fits(card.commands);
+      expect(printed(card.commands)).not.toContain('…');
+    }
+  });
 });
 
 describe('the sticker sheet', () => {

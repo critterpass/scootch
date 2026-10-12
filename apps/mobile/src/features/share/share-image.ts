@@ -22,9 +22,10 @@ import {
   type SleeveData,
   type WantedData,
 } from '@scootch/art';
-import type { CardData, CardFinish, GuessMinutes } from '@scootch/domain';
+import type { CardData, CardFinish, GuessMinutes, TaskRow } from '@scootch/domain';
 
 import type { DayLog, MonthWrap } from './share-logs';
+import { shareOffered } from './share-rules';
 
 /** A picture to share, as drawing commands in its own space. */
 export interface ShareImage {
@@ -150,12 +151,16 @@ export interface ShareImageOptions {
   readonly guessMinutes?: GuessMinutes | null;
 }
 
-/** Whether a picture can print the guess line: only the story of a catch that had a guess. */
+/**
+ * Whether a picture can print the guess line: the story or the trading card of a catch that had a
+ * guess, and never for a task that may not be shared (serious or private), as the store flags it.
+ */
 export function guessOffered(
   format: ShareFormat,
   guessMinutes: GuessMinutes | null | undefined,
+  task: Pick<TaskRow, 'screen' | 'sharePrivate'> | null,
 ): boolean {
-  return format === 'story' && guessMinutes != null;
+  return (format === 'story' || format === 'card') && guessMinutes != null && shareOffered(task);
 }
 
 /** The trading card as a video: one slow turn of the card, which ends where it began. */
@@ -169,7 +174,7 @@ const TURN_GROUND = '#E9E5DE';
  */
 export function composeCardTurn(
   card: CardData,
-  options: Pick<ShareImageOptions, 'language'>,
+  options: Pick<ShareImageOptions, 'language' | 'guessMinutes'>,
   dress: Pick<ShareDress, 'finish'>,
 ): ShareImage[] {
   const worn: CardData = { ...card, taskLine: null, finish: dress.finish };
@@ -177,6 +182,7 @@ export function composeCardTurn(
     const turn = (index / CARD_TURN.frames) * Math.PI * 2;
     const frame = buildTradingCard(worn, {
       language: options.language,
+      guessMinutes: options.guessMinutes ?? null,
       lean: { rx: Math.sin(turn) * CARD_TURN.rx, ry: Math.cos(turn) * CARD_TURN.ry },
     });
     const { width, height } = frame;
@@ -233,7 +239,7 @@ export function composeCardImage(card: CardData, options: ShareImageOptions): Sh
  * person wears. The task's words can only ever be on the receipt, and are taken off it with the
  * rest when the task is hidden (the day's log is then built with monster names in their place).
  * A format with nothing to print (no day, no month) falls back to the story of the catch, which
- * is the one picture that prints the guess line.
+ * prints the guess line, as the trading card does.
  */
 export function composeShareImage(
   format: ShareFormat,
@@ -243,7 +249,9 @@ export function composeShareImage(
 ): ShareImage {
   const { language } = options;
   const worn: CardData = { ...card, taskLine: null, finish: dress.finish };
-  if (format === 'card') return buildTradingCard(worn, { language });
+  if (format === 'card') {
+    return buildTradingCard(worn, { language, guessMinutes: options.guessMinutes ?? null });
+  }
   if (format === 'stickers') {
     return buildStickerSheet({
       language,
