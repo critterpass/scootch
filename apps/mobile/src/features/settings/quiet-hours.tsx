@@ -64,9 +64,12 @@ export interface StepperProps {
   readonly onStep: (steps: number) => void;
 }
 
-/** One value of a group, moved a step earlier or later by the two round buttons beside it. */
+/**
+ * One value of a group, moved a step earlier or later by the two round buttons beside it. At the
+ * large text sizes the label stands on its own line above them, so no word is split to fit.
+ */
 export function Stepper({ first = false, id, label, value, earlier, later, onStep }: StepperProps) {
-  const { palette, allowFontScaling, size } = useScreenStyle();
+  const { palette, allowFontScaling, size, largeText } = useScreenStyle();
   const button = (mark: string, hint: string, steps: number, name: string) => (
     <PressSpring
       accessibilityRole="button"
@@ -101,7 +104,11 @@ export function Stepper({ first = false, id, label, value, earlier, later, onSte
     >
       <Text
         allowFontScaling={allowFontScaling}
-        style={[styles.label, { color: palette.muted, fontSize: size(15) }]}
+        style={[
+          styles.label,
+          largeText && styles.labelAbove,
+          { color: palette.muted, fontSize: size(15) },
+        ]}
       >
         {label}
       </Text>
@@ -129,6 +136,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
   },
   label: { flex: 1, fontFamily: fonts.body },
+  labelAbove: { flexBasis: '100%' },
   time: { fontFamily: fonts.body, minWidth: 56, textAlign: 'center' },
   step: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
   mark: { fontFamily: fonts.heading, fontSize: 22, fontWeight: '600' },

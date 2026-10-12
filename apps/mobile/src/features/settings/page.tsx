@@ -21,6 +21,8 @@ import { useScreenStyle } from '../../ui/use-screen-style';
 const DOCK_BOTTOM = 30;
 const DOCK_GUTTER = 14;
 const BAR_TITLE_SIZE = 17;
+/** The large title grows with the text size up to half again its own, so one word fits a line. */
+const TITLE_CAP = 1.5;
 /** How far a page scrolls before its large title has gone up under the bar. */
 const COLLAPSES_BY = 48;
 /** How far the title grows when the page is pulled down past its top, and over what pull. */
@@ -104,6 +106,7 @@ export function Page({ title, barTitle, onClose, testID, menu, footer, children 
   };
   const menuItem = menu === undefined ? undefined : { ...menu, testID: `${testID}-menu` };
   const small = barTitle ?? title;
+  const titleSize = Math.min(size(fontSizes.sentence), fontSizes.sentence * TITLE_CAP);
   return (
     <SafeFrame style={[styles.page, { backgroundColor: palette.page }]} testID={testID}>
       <View style={styles.page}>
@@ -118,13 +121,14 @@ export function Page({ title, barTitle, onClose, testID, menu, footer, children 
             <Animated.Text
               accessibilityRole="header"
               allowFontScaling={allowFontScaling}
-              maxFontSizeMultiplier={1.5}
+              maxFontSizeMultiplier={TITLE_CAP}
               style={[
                 styles.title,
                 {
                   color: palette.ink,
-                  fontSize: size(fontSizes.sentence),
-                  lineHeight: size(fontSizes.sentence) * 1.14,
+                  // The cap the phone's own text size meets, kept under a forced size too.
+                  fontSize: titleSize,
+                  lineHeight: titleSize * 1.14,
                 },
                 riding,
               ]}
