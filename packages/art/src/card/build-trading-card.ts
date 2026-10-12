@@ -6,11 +6,14 @@ import { estimateTextWidth, type TextStyle } from '../core/text';
 import type { CardOptions } from './build-card';
 import { buildCardShadow, buildMaterial, CARD_MATERIALS, type CardLean } from './build-material';
 import type { ShareComposition } from './build-story';
-import { CARD_LABELS, formatCardDate, splitMinutes } from './labels';
+import { CARD_LABELS, formatCardDate, splitMinutes, thoughtTookLine } from './labels';
 import { dotScreen, fill, placed, roundRect, type Box } from './shapes';
 import { leader, line, STAMP } from './share-kit';
 
-export interface TradingCardOptions extends Pick<CardOptions, 'language' | 'measure'> {
+export interface TradingCardOptions extends Pick<
+  CardOptions,
+  'language' | 'measure' | 'guessMinutes'
+> {
   /** The time of the catch as the user's clock showed it, "09:41". Left out, only the day prints. */
   readonly time?: string;
   /** How the card is held, for a frame of it turning. Level when left out. */
@@ -29,12 +32,15 @@ const PAD = 16;
 const NAME: TextStyle = { font: 'rounded', size: 28, weight: 900, tracking: -0.03 };
 const FACT: TextStyle = { font: 'sans', size: 11.5, weight: 500, tracking: 0.02 };
 const HEAD: TextStyle = { ...STAMP, size: 10 };
+const GUESS: TextStyle = { ...FACT, weight: 700 };
 
 /**
  * A catch as a trading card on the finish the person wears: its kind and how it was earned
  * across the top, the monster in a dotted panel, its name, three true facts with dotted leaders
  * (how long it lurked, when it was caught, how long the fight took), then its number and the
- * finish. No task text is ever on it. The lean moves the light and nothing else.
+ * finish. With a guess, "Thought 2 hours. Took 11 minutes." sits under the facts; absent or `null`,
+ * the card is drawn as it always was. No task text is ever on it. The lean moves the light and
+ * nothing else.
  */
 export function buildTradingCard(
   data: CardData,
@@ -103,6 +109,17 @@ export function buildTradingCard(
       ),
     );
   });
+  // The guess and the real time, when a guess was made: one line under the facts.
+  const guessed = thoughtTookLine(
+    { guessMinutes: options.guessMinutes, catchMinutes: data.catchMinutes },
+    language,
+  );
+  if (guessed !== null) {
+    const top = panel.y + panel.h + 54 + facts.length * 18 + 4;
+    out.push(
+      line(guessed, GUESS, { x: left, top, maxWidth: inner, color: material.text }, measure),
+    );
+  }
   const foot = FACE.y + FACE.h - PAD - 10;
   out.push(
     line(

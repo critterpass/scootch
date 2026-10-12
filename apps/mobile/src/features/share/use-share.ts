@@ -109,7 +109,7 @@ export function useComposer(
   const [frame, setFrame] = useState<ShareFrame>(() => frameOfFinish(look.finish));
   const [kept, setKept] = useState<Keepsakes | null>(null);
   const [hideTask, setHideTask] = useState(false);
-  // The guess line is on the story until the person takes it off.
+  // The guess line is on the story and the card until the person takes it off.
   const [showGuess, setShowGuess] = useState(true);
   const [notice, setNotice] = useState<ShareModel['notice']>(null);
   const [pageUp, setPageUp] = useState(false);
@@ -248,7 +248,7 @@ export function useComposer(
     // The guess and an odd hatch's word were frozen onto the monster; the card does not carry them.
     const frozen = frozenWith(kept?.monsters ?? [], caught.card);
     const guess = frozen?.guessMinutes ?? null;
-    const guessed = guessOffered(shown, guess);
+    const guessed = guessOffered(shown, guess, caught.task);
     // The picture that is sent is composed from this share, so the guess goes out with it.
     const share: CatchShare = {
       ...caught,
