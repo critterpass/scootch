@@ -1,6 +1,6 @@
 # Phase 02: Routes, lines and evals
 
-Status: done, evals not yet run against a live model · Tasks: 5 · Needs: 01
+Status: done — 488804c (#165); live task eval on dev 234/240, in the way and time heard 16/16 · Tasks: 5 · Needs: 01
 Owns: `apps/api/src/ai/task-create/`, `apps/api/src/routes/task-create*.ts`,
 `apps/api/src/push/push-lines.ts`, `packages/voice/src/offline/`,
 `packages/voice/src/guide/`, `packages/voice/evals/`, `packages/voice/fixtures/`

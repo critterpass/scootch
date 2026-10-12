@@ -1,6 +1,6 @@
 # Phase 07: Scootch every day on the widgets
 
-Status: built, not yet seen on a device · Tasks: 2 · Needs: — · Branch kind: native batch
+Status: done — 0455365 (#162); in the dev TestFlight build installed on 12 Oct · Tasks: 2 · Needs: — · Branch kind: native batch
 Owns: `apps/mobile/targets/` (the widget extension's views),
 `apps/mobile/src/features/surfaces/surface-snapshot.ts`,
 `apps/mobile/src/features/surfaces/world-image.ts`
@@ -23,6 +23,6 @@ in the next native batch branch.
 - Do: small and medium widgets draw that state; a tap opens the world, not
   the composer. Checked on the Mac by the Swift type-check and the binary that
   draws widget views to PNG, then on a device after the batch's build.
-- Status: done — cf7ff5a; type-checked and drawn on the Mac, not yet on a device. The
+- Status: done — cf7ff5a; type-checked and drawn on the Mac, then installed from TestFlight on 12 Oct. The
   commit after 060dbf6 draws the sleep marks in the widget's own ink, so they read on a dark
   page: the rest picture is painted without them

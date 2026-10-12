@@ -1,6 +1,6 @@
 # Phase 01: Rules and stored fields
 
-Status: not started · Tasks: 7 · Needs: — · Effort: high (cross-package contracts)
+Status: done · Tasks: 7 · Needs: — · Effort: high (cross-package contracts)
 Owns: `packages/domain/src/contracts/local-db.ts`,
 `packages/domain/src/contracts/ai-task-call.ts`,
 `packages/domain/src/rarity/card-stats.ts`, `packages/domain/src/session/`,
@@ -16,7 +16,7 @@ any screen. Read `docs/tech-decisions.md`: the local database and contracts sect
   it with `tools/scripts/render-design-screens.ts`, add its rows to
   `design/screens.json` and its line to `design/README.md`, noting the treat
   row and length pills it draws are not the app's.
-- Status: not started
+- Status: done — 9490a9c (#155)
 
 ### 1. Stored fields
 - Do: optional, nullable fields, so older rows and backups read unchanged.
