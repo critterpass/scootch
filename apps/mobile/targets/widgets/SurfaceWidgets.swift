@@ -32,6 +32,15 @@ struct SurfaceEntry: TimelineEntry {
     var showsLurker: Bool {
         snapshot.state != .crisis && snapshot.state != .serious && lurker != nil
     }
+
+    /// Scootch at rest, which the small and medium widgets draw on a day with nothing waiting.
+    /// The app decides when that is; a day with a thing set or a monster lurking never has it.
+    var rest: SurfaceSnapshot.AtRest? {
+        guard snapshot.state == .nothingYet || snapshot.state == .done, lurker == nil else {
+            return nil
+        }
+        return snapshot.atRest
+    }
 }
 
 /// Reads the shared snapshot. The app reloads the timelines whenever today changes; in between,
