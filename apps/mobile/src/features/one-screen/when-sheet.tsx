@@ -66,7 +66,7 @@ export interface WhenSheetProps {
  * "Now" takes any cue away at once; a moment or a time is kept by the button, which says it back.
  */
 export function WhenSheet({ open, cue, moments, onCue, onClose }: WhenSheetProps) {
-  const { palette, allowFontScaling, size } = useScreenStyle();
+  const { palette, allowFontScaling, size, largeText } = useScreenStyle();
   const t = useT();
   const usual: StartCue = { kind: 'moment', moment: 'lunch' };
   const [picked, setPicked] = useState<StartCue>(cue ?? usual);
@@ -95,18 +95,21 @@ export function WhenSheet({ open, cue, moments, onCue, onClose }: WhenSheetProps
       </Text>
     </PressSpring>
   );
+  const heading = (
+    <View style={styles.head}>
+      <Words kind="title">{t('when.title')}</Words>
+    </View>
+  );
   return (
     <Sheet
       open={open}
       onClose={onClose}
       testID="when-sheet"
-      header={
-        <View style={styles.head}>
-          <Words kind="title">{t('when.title')}</Words>
-        </View>
-      }
+      // At the large text sizes the heading scrolls with the rows, so they have the sheet's height.
+      header={largeText ? null : heading}
     >
-      <SheetScroll contentContainerStyle={styles.content}>
+      <SheetScroll contentContainerStyle={styles.content} showsVerticalScrollIndicator={largeText}>
+        {largeText ? heading : null}
         <View style={[styles.card, { backgroundColor: palette.surface }]}>
           <PressSpring
             accessibilityRole="button"

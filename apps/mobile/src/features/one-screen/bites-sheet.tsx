@@ -30,24 +30,27 @@ export interface BitesSheetProps {
  * monster's notification, kept in the same place. One line under them says where things stand.
  */
 export function BitesSheet({ open, name, rows, onTick, onClose }: BitesSheetProps) {
-  const { palette, allowFontScaling, size } = useScreenStyle();
+  const { palette, allowFontScaling, size, largeText } = useScreenStyle();
   const t = useT();
   const note = bitesNote(rows);
+  const heading = (
+    <View style={styles.head}>
+      <Words kind="title">
+        {name === null ? t('bites.title.plain') : t('bites.title', { name })}
+      </Words>
+      <Words kind="quiet">{t('bites.sub')}</Words>
+    </View>
+  );
   return (
     <Sheet
       open={open}
       onClose={onClose}
       testID="bites-sheet"
-      header={
-        <View style={styles.head}>
-          <Words kind="title">
-            {name === null ? t('bites.title.plain') : t('bites.title', { name })}
-          </Words>
-          <Words kind="quiet">{t('bites.sub')}</Words>
-        </View>
-      }
+      // At the large text sizes the heading scrolls with the rows, so they have the sheet's height.
+      header={largeText ? null : heading}
     >
-      <SheetScroll contentContainerStyle={styles.content}>
+      <SheetScroll contentContainerStyle={styles.content} showsVerticalScrollIndicator={largeText}>
+        {largeText ? heading : null}
         {rows.map((row) => {
           const small = [
             ...(row.minutes === null ? [] : [t('bites.minutes', { minutes: row.minutes })]),

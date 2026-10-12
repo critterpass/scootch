@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { spacing } from '@scootch/tokens';
@@ -52,7 +52,15 @@ export function FittedSheet({ testID, close, footer, children }: FittedSheetProp
           : [styles.drawn, { paddingBottom: Math.max(insets.bottom, FOOT) }],
       ]}
     >
-      <View style={styles.content}>{children}</View>
+      {/* As tall as what is on it until that is taller than the screen, as at the largest text
+          sizes: then the rows scroll and the dock stays at the foot. */}
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+      >
+        {children}
+      </ScrollView>
       {footer === undefined ? null : <View style={styles.footer}>{footer}</View>}
       <View style={styles.close}>
         <CloseButton {...close} />
@@ -60,21 +68,37 @@ export function FittedSheet({ testID, close, footer, children }: FittedSheetProp
     </View>
   );
   if (inSheet) return sheet;
-  return <View style={[styles.page, { backgroundColor: `${palette.ink}33` }]}>{sheet}</View>;
+  // The sheet stops under the status bar: a sheet taller than the screen scrolls, never runs up
+  // behind the clock.
+  return (
+    <View
+      style={[
+        styles.page,
+        { backgroundColor: `${palette.ink}33`, paddingTop: insets.top + GUTTER },
+      ]}
+    >
+      {sheet}
+    </View>
+  );
 }
 
 /**
  * A sheet's own words: its heading and the line under it. They stand a little in from the cards'
- * edge, keep clear of the close control, and at the top of a sheet sit level with it.
+ * edge, keep clear of the close control, and at the top of a sheet sit level with it. At the large
+ * text sizes they start under the close control and take the sheet's whole width, so a long word
+ * of the heading is never split.
  */
 export function SheetHeading({ children }: { readonly children: ReactNode }) {
-  return <View style={styles.heading}>{children}</View>;
+  const { largeText } = useScreenStyle();
+  return <View style={[styles.heading, largeText && styles.headingUnder]}>{children}</View>;
 }
 
 const styles = StyleSheet.create({
   page: { flex: 1, justifyContent: 'flex-end' },
-  // No height and nothing that grows: the sheet is the sum of what is on it.
-  sheet: { paddingTop: SHEET_TOP + spacing.sm },
+  // No height and nothing that grows: the sheet is the sum of what is on it, and gives way only
+  // where the screen is shorter than that.
+  sheet: { flexShrink: 1, paddingTop: SHEET_TOP + spacing.sm },
+  scroll: { flexGrow: 0, flexShrink: 1 },
   drawn: { borderTopLeftRadius: DRAWN_RADIUS, borderTopRightRadius: DRAWN_RADIUS },
   content: { paddingHorizontal: GUTTER, gap: spacing.md },
   footer: { paddingHorizontal: GUTTER, paddingTop: spacing.lg },
@@ -86,6 +110,7 @@ const styles = StyleSheet.create({
     // The close control floats in the trailing corner: the words keep clear of it.
     paddingRight: CORNER.size + WORDS_IN,
   },
+  headingUnder: { paddingTop: CORNER.size, paddingRight: WORDS_IN },
   // Drawn last, so nothing on the sheet can lie over it and take its touch.
   close: { position: 'absolute', top: SHEET_TOP, right: CORNER.side },
 });

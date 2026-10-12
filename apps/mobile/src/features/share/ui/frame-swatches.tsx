@@ -13,6 +13,9 @@ import { CommandCanvas } from '../../reveal/ui/command-canvas';
 /** The board's frame swatch: a 40 point disc of the frame's own stock. */
 const DISC = 40;
 const SPACE = { width: DISC, height: DISC };
+/** A frame's name grows with the text size up to half again its own, under a forced size too. */
+const NAME_CAP = 1.5;
+const NAME_SIZE = (size: (designSize: number) => number) => Math.min(size(11.5), 11.5 * NAME_CAP);
 
 function Stock({ frame }: { readonly frame: ShareFrame }) {
   const commands = useMemo(
@@ -82,11 +85,11 @@ export function FrameSwatches({ frames, chosen, resting, open, onChoose }: Frame
             </View>
             <Text
               allowFontScaling={allowFontScaling}
-              maxFontSizeMultiplier={1.5}
+              maxFontSizeMultiplier={NAME_CAP}
               numberOfLines={1}
               style={[
                 styles.name,
-                { color: palette.ink, fontSize: size(11.5), fontWeight: on ? '700' : '500' },
+                { color: palette.ink, fontSize: NAME_SIZE(size), fontWeight: on ? '700' : '500' },
               ]}
             >
               {t(`share.frame.${id}`)}

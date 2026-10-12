@@ -30,26 +30,29 @@ export interface GuessSheetProps {
  * back. Nothing here judges the number, and Skip is the same as never having been asked.
  */
 export function GuessSheet({ open, minutes, onGuess, onClose }: GuessSheetProps) {
-  const { palette, allowFontScaling, size } = useScreenStyle();
+  const { palette, allowFontScaling, size, largeText } = useScreenStyle();
   const t = useT();
   const [picked, setPicked] = useState<GuessMinutes>(minutes ?? USUAL_GUESS);
   // Opened again, the sheet starts from what is kept, not from a pick that was skipped.
   useEffect(() => {
     if (open) setPicked(minutes ?? USUAL_GUESS);
   }, [open, minutes]);
+  const heading = (
+    <View style={styles.head}>
+      <Words kind="title">{t('guess.title')}</Words>
+      <Words kind="quiet">{t('guess.sub')}</Words>
+    </View>
+  );
   return (
     <Sheet
       open={open}
       onClose={onClose}
       testID="guess-sheet"
-      header={
-        <View style={styles.head}>
-          <Words kind="title">{t('guess.title')}</Words>
-          <Words kind="quiet">{t('guess.sub')}</Words>
-        </View>
-      }
+      // At the large text sizes the heading scrolls with the rows, so they have the sheet's height.
+      header={largeText ? null : heading}
     >
-      <SheetScroll contentContainerStyle={styles.content}>
+      <SheetScroll contentContainerStyle={styles.content} showsVerticalScrollIndicator={largeText}>
+        {largeText ? heading : null}
         <View accessibilityRole="radiogroup" style={styles.steps}>
           {GUESS_MINUTES.map((step) => {
             const chosen = step === picked;

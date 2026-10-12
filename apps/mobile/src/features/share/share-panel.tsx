@@ -106,6 +106,8 @@ const DOCK_BOTTOM = 30;
 const WENT: readonly ShareModel['notice'][] = ['saved', 'shared', 'pictureOnly', 'linkCopied'];
 /** The picture's room: the least it is drawn at, the most, and the air kept round it. */
 const PREVIEW = { least: 132, most: 300, side: 56, air: 14, scrolled: 190 } as const;
+/** Above and between the picture and the choices in the scrolled layout, and under the frames. */
+const FOLD_AIR = spacing.sm + spacing.md + spacing.sm;
 
 /**
  * The composer: one sheet for everything shared, laid out one way whatever it holds. The picture
@@ -127,6 +129,19 @@ export function SharePanel({ model, actions }: { model: ShareModel; actions: Sha
     ? Math.min(PREVIEW.most, room.width - PREVIEW.side, (room.height - PREVIEW.air * 2) / tall)
     : 0;
   const width = Math.round(Math.max(PREVIEW.least, fitted));
+  // At the large text sizes the picture is as large as the room the format and the frames leave.
+  const [view, setView] = useState<number | null>(null);
+  const [top, setTop] = useState<number | null>(null);
+  const scrolledWidth = Math.round(
+    Math.max(
+      PREVIEW.least,
+      Math.min(
+        PREVIEW.scrolled,
+        window.width - PREVIEW.side,
+        view !== null && top !== null ? (view - top - FOLD_AIR) / tall : PREVIEW.scrolled,
+      ),
+    ),
+  );
 
   // The stamp: the picture dips, jumps a little turned, and settles, once for each thing sent.
   const stamp = useSharedValue(0);
@@ -165,27 +180,29 @@ export function SharePanel({ model, actions }: { model: ShareModel; actions: Sha
   );
   const choices = (
     <View style={styles.choices}>
-      {model.formats.length > 1 ? (
-        <Segmented
-          label={t('share.format.hint')}
-          chosen={model.format}
-          onChoose={actions.setFormat}
-          segments={model.formats.map((format) => ({
-            value: format,
-            label: t(`share.format.${format}`),
-            testID: `share-format-${format}`,
-          }))}
-        />
-      ) : null}
-      {model.frames.length > 0 ? (
-        <FrameSwatches
-          frames={model.frames}
-          chosen={model.frame}
-          resting={!model.framed}
-          open={model.framesOpen}
-          onChoose={actions.setFrame}
-        />
-      ) : null}
+      <View style={styles.top} onLayout={({ nativeEvent }) => setTop(nativeEvent.layout.height)}>
+        {model.formats.length > 1 ? (
+          <Segmented
+            label={t('share.format.hint')}
+            chosen={model.format}
+            onChoose={actions.setFormat}
+            segments={model.formats.map((format) => ({
+              value: format,
+              label: t(`share.format.${format}`),
+              testID: `share-format-${format}`,
+            }))}
+          />
+        ) : null}
+        {model.frames.length > 0 ? (
+          <FrameSwatches
+            frames={model.frames}
+            chosen={model.frame}
+            resting={!model.framed}
+            open={model.framesOpen}
+            onChoose={actions.setFrame}
+          />
+        ) : null}
+      </View>
       {model.canHideTask ? (
         <SwitchCard
           label={t('share.hideTask')}
@@ -253,12 +270,14 @@ export function SharePanel({ model, actions }: { model: ShareModel; actions: Sha
         </Text>
       </CornerBar>
       {largeText ? (
-        // At the large text sizes the choices are taller than the screen: the picture keeps one
-        // size and everything above the dock scrolls.
-        <ScrollView contentContainerStyle={styles.scrolled} showsVerticalScrollIndicator={false}>
-          <View style={styles.middle}>
-            {picture(Math.min(PREVIEW.scrolled, window.width - PREVIEW.side))}
-          </View>
+        // At the large text sizes the choices are taller than the screen: everything above the
+        // dock scrolls, and the picture leaves the format and the frames whole in view.
+        <ScrollView
+          contentContainerStyle={styles.scrolled}
+          showsVerticalScrollIndicator={false}
+          onLayout={({ nativeEvent }) => setView(nativeEvent.layout.height)}
+        >
+          <View style={styles.middle}>{picture(scrolledWidth)}</View>
           {choices}
         </ScrollView>
       ) : (
@@ -308,6 +327,7 @@ const styles = StyleSheet.create({
   scrolled: { paddingTop: spacing.sm, paddingBottom: spacing.md, gap: spacing.md },
   middle: { flexDirection: 'row', justifyContent: 'center' },
   choices: { paddingHorizontal: 18, gap: 14 },
+  top: { gap: 14 },
   foot: { paddingHorizontal: 14, paddingTop: spacing.md },
   preview: {
     borderRadius: 20,
