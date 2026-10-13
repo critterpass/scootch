@@ -33,6 +33,12 @@ out=$(cd "$out" && pwd)
 work=$out/work
 mkdir -p "$work"
 
+# A shell that did not read the profile (an agent's, a script's) still finds Java 17 and Maestro.
+if ! java -version >/dev/null 2>&1 && [ -x /opt/homebrew/opt/openjdk@17/bin/java ]; then
+  export JAVA_HOME=/opt/homebrew/opt/openjdk@17
+  export PATH="$JAVA_HOME/bin:$PATH"
+fi
+export PATH="$HOME/.maestro/bin:$PATH" MAESTRO_CLI_NO_ANALYTICS=1
 command -v "${MAESTRO_BIN:-$HOME/.maestro/bin/maestro}" >/dev/null ||
   { echo "Maestro is not installed: see e2e/README.md, Running on a Mac"; exit 1; }
 java -version >/dev/null 2>&1 || { echo "Maestro needs Java 17 on the PATH"; exit 1; }
