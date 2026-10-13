@@ -1,0 +1,99 @@
+appId: app.scootch.dev
+---
+# The fresh-user walk, step ten: the hunt seen from outside the app. It carries on from the step
+# before it, on home with a thing set; nothing is cleared and nothing is seeded. Run on its own, on
+# a clean install, it first walks steps one and two to get there. A hunt is started in the app,
+# then the app is left: the Island shows the race on the Home Screen, and the Notification Centre
+# shows the Live Activity the way the Lock Screen does. Back in the app the thing is made smaller,
+# so home has a thing set again. A flow cannot add a widget, lock the phone or press a
+# notification's actions; those are proven on a phone.
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: 'one-sentence'
+    timeout: 90000
+- runFlow:
+    when:
+      visible:
+        id: 'launch-hello-next'
+    commands:
+      - runFlow: 01-first-launch.yaml
+      - runFlow: 02-first-thing-typed.yaml
+- extendedWaitUntil:
+    visible:
+      id: 'one-action'
+    timeout: 60000
+- tapOn:
+    id: 'one-action'
+# The session opens on the catch or on Scootch, as Settings says; both have the corner menu.
+- extendedWaitUntil:
+    visible:
+      id: 'session-menu'
+    timeout: 30000
+- takeScreenshot: fresh-10-hunt-in-the-app
+# Out of the app: the race sits in the Island.
+- pressKey: Home
+- waitForAnimationToEnd:
+    timeout: 4000
+- takeScreenshot: fresh-10-hunt-island-compact
+# A long press opens the Island.
+- longPressOn:
+    point: '50%,3%'
+- waitForAnimationToEnd:
+    timeout: 4000
+- takeScreenshot: fresh-10-hunt-island-expanded
+- pressKey: Home
+- waitForAnimationToEnd:
+    timeout: 3000
+# The Notification Centre draws the Live Activity as the Lock Screen does.
+- swipe:
+    start: '25%,0%'
+    end: '25%,70%'
+    duration: 600
+- waitForAnimationToEnd:
+    timeout: 4000
+- takeScreenshot: fresh-10-hunt-live-activity
+# The first Live Activity asks whether it may stay: the answer is yes, as a person would give it.
+- runFlow:
+    when:
+      visible: 'Allow'
+    commands:
+      - tapOn: 'Allow'
+      - waitForAnimationToEnd:
+          timeout: 3000
+      - takeScreenshot: fresh-10-hunt-live-activity-allowed
+- swipe:
+    start: '50%,95%'
+    end: '50%,20%'
+    duration: 400
+- waitForAnimationToEnd:
+    timeout: 3000
+# Back in: the hunt is still running where it was left.
+- launchApp:
+    stopApp: false
+- extendedWaitUntil:
+    visible:
+      id: 'session-menu'
+    timeout: 30000
+- tapOn:
+    id: 'session-menu'
+    waitToSettleTimeoutMs: 0
+- extendedWaitUntil:
+    visible:
+      id: 'session-leave'
+    timeout: 15000
+- tapOn:
+    id: 'session-leave'
+    waitToSettleTimeoutMs: 0
+- extendedWaitUntil:
+    visible:
+      id: 'session-not-finished-choices'
+    timeout: 15000
+- tapOn:
+    id: 'session-make-smaller'
+    waitToSettleTimeoutMs: 0
+- extendedWaitUntil:
+    visible:
+      id: 'one-action'
+    timeout: 60000
+- takeScreenshot: fresh-10-home-after-the-hunt

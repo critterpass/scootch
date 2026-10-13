@@ -88,7 +88,7 @@ function Peek({ shown, attitude }: CameraScreenProps) {
   const mood = shown.kind === 'reading' ? 'thinking' : 'waiting';
   return (
     <View style={styles.peek} pointerEvents="none">
-      <Scootch mood={mood} attitude={attitude} />
+      <Scootch mood={mood} attitude={attitude} size={PEEK} />
     </View>
   );
 }
