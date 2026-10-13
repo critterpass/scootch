@@ -24,7 +24,7 @@ export const newInviteCode = () => randomId(10);
  * table code, and an Apple subject from matching either.
  */
 export function hashFor(
-  purpose: 'apple-subject' | 'apple-nonce' | 'friend-invite' | 'table-invite',
+  purpose: 'apple-subject' | 'apple-nonce' | 'friend-invite' | 'table-invite' | 'plus-customer',
   value: string,
 ): Promise<string> {
   return hashDeviceToken(`${purpose}:${value}`);

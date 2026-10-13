@@ -6,6 +6,7 @@ import {
   befriend,
   connect,
   count,
+  givePlus,
   inviteCode,
   ok,
   openTable,
@@ -22,19 +23,22 @@ afterEach(() => {
 });
 
 describe('opening a table', () => {
-  it('is open to anyone signed in: two seats without Plus, four with it, judged from the purchase state the phone reports', async () => {
+  it('is open to anyone signed in: two seats without Plus, four with it, by the server’s record and never the phone’s word', async () => {
     const host = await person('Mai');
 
-    for (const purchase of ['free', 'expired', 'refunded', 'friend_pass_guest']) {
+    // A phone claiming Plus with no record of it on the server gets the free table.
+    for (const purchase of ['free', 'trial', 'yearly', 'lifetime']) {
       const opened = await ok<{ tableId: string; capacity: number }>(
         as(host, 'POST', '/v1/tables', { purchase }),
       );
       expect(opened.capacity).toBe(2);
       expect(await count('tables WHERE id = ? AND capacity = 2', opened.tableId)).toBe(1);
     }
-    expect(await ok(as(host, 'POST', '/v1/tables', { purchase: 'trial' }))).toMatchObject({
+    await givePlus(host);
+    expect(await ok(as(host, 'POST', '/v1/tables', { purchase: 'free' }))).toMatchObject({
       capacity: 4,
     });
+    expect(await ok(as(host, 'POST', '/v1/tables', {}))).toMatchObject({ capacity: 4 });
   });
 
   it('seats one friend at a table opened without Plus, refuses a third person, and tells every seat the capacity', async () => {
@@ -170,7 +174,12 @@ describe('invite links', () => {
     expect(
       await reasonOf(as(fourthFree, 'POST', '/v1/tables/join', { code, purchase: 'free' })),
     ).toBe('pass_full');
-    await ok(as(withPlus, 'POST', '/v1/tables/join', { code, purchase: 'monthly' }));
+    // Saying so is not holding Plus: with no record, a phone claiming it still needs the pass.
+    expect(
+      await reasonOf(as(withPlus, 'POST', '/v1/tables/join', { code, purchase: 'monthly' })),
+    ).toBe('pass_full');
+    await givePlus(withPlus);
+    await ok(as(withPlus, 'POST', '/v1/tables/join', { code, purchase: 'free' }));
     expect(await count('table_seats WHERE table_id = ?', tableId)).toBe(4);
   });
 });

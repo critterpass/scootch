@@ -17,6 +17,10 @@ export {
   type MemberNumberResponse,
 } from '../../../packages/domain/src/contracts/member';
 export {
+  plusCustomerResponseSchema,
+  type PlusCustomerResponse,
+} from '../../../packages/domain/src/contracts/plus';
+export {
   speechTokenResponseSchema,
   type SpeechTokenResponse,
 } from '../../../packages/domain/src/contracts/speech';

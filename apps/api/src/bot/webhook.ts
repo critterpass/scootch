@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { sameSecret } from '../same-secret';
+
 import { callbackUpdateSchema, handleCallback } from './callbacks';
 import { helpText, type BotCommand } from './command';
 import * as commandModules from './commands/index.generated';
@@ -14,21 +16,6 @@ export const botCommands: readonly BotCommand[] = Object.values(commandModules);
 const updateSchema = z.object({
   message: z.object({ chat: z.object({ id: z.number() }), text: z.string() }),
 });
-
-async function sameSecret(given: string, expected: string): Promise<boolean> {
-  const encoder = new TextEncoder();
-  const [a, b] = await Promise.all(
-    [given, expected].map(
-      async (value) => new Uint8Array(await crypto.subtle.digest('SHA-256', encoder.encode(value))),
-    ),
-  );
-  if (a === undefined || b === undefined) return false;
-  // Digests are the same length and every byte is read, so the time taken says nothing about
-  // how much of the secret was right.
-  let difference = 0;
-  for (const [index, byte] of a.entries()) difference |= byte ^ (b[index] ?? 0);
-  return difference === 0;
-}
 
 /** `/flag@ScootchBot dark on` is the command `flag` with the arguments `dark` and `on`. */
 function parseCommand(text: string): { name: string; args: string[] } | undefined {

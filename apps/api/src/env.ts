@@ -19,7 +19,13 @@ export const secretNames = [
   'TELEGRAM_BOT_TOKEN',
   'TELEGRAM_CHAT_ID',
   'TELEGRAM_WEBHOOK_SECRET',
+  // RevenueCat's v2 secret key and the project it belongs to: with both, a device with no Plus
+  // record yet is looked up once. Absent, only the webhook tells the server about Plus.
   'REVENUECAT_API_V2_KEY',
+  'REVENUECAT_PROJECT_ID',
+  // The exact Authorization header RevenueCat's webhook is set to send. Absent, every delivery is
+  // refused.
+  'REVENUECAT_WEBHOOK_AUTH',
   // Apple's push key: the `.p8` file's text, its key id, and the team id. Absent, no push is sent.
   'APNS_KEY_P8',
   'APNS_KEY_ID',
