@@ -19,7 +19,7 @@ export const secretNames = [
   'TELEGRAM_BOT_TOKEN',
   'TELEGRAM_CHAT_ID',
   'TELEGRAM_WEBHOOK_SECRET',
-  // RevenueCat's v2 secret key and the project it belongs to: with both, a device with no Plus
+  // RevenueCat's secret API key and the project it belongs to: with both, a device with no Plus
   // record yet is looked up once. Absent, only the webhook tells the server about Plus.
   'REVENUECAT_API_V2_KEY',
   'REVENUECAT_PROJECT_ID',
