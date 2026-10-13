@@ -82,6 +82,11 @@ appId: app.scootch.dev
 - assertVisible:
     id: 'privacy-keep-transcripts'
 - takeScreenshot: privacy-and-data--en-light-default
+# "Delete everything" is at the foot of the page, below the fold on a phone this size.
+- scrollUntilVisible:
+    element:
+      id: 'privacy-delete'
+    direction: DOWN
 - tapOn:
     id: 'privacy-delete'
 - extendedWaitUntil:
