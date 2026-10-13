@@ -62,7 +62,7 @@ export const TOAST = {
   fromY: -36,
   fromScale: 0.9,
   holdMs: 2600,
-  outMs: 620,
+  outMs: 450,
   toY: -30,
   toScale: 0.94,
 } as const;
