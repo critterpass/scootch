@@ -6,6 +6,7 @@ import {
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
+import { Pressable as GesturePressable } from 'react-native-gesture-handler';
 import Animated, {
   interpolate,
   ReduceMotion,
@@ -19,6 +20,7 @@ import { EASE_OUT, PRESS, SPRING_CURVE } from './motion-tokens';
 import { useFeel } from './use-feel';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+const AnimatedGesturePressable = Animated.createAnimatedComponent(GesturePressable);
 // Whether anything moves is decided once, by `useFeel`; the animations do not ask the system again.
 const ALWAYS = ReduceMotion.Never;
 
@@ -36,6 +38,12 @@ export interface PressSpringProps extends Omit<PressableProps, 'style'> {
    * the press then stays still here, and only the tap is felt. Left out, the spring answers.
    */
   readonly answeredBy?: 'spring' | 'glass';
+  /**
+   * True for a control beside a text field that has the keyboard. A tap in a focused field can
+   * leave React Native's touch system holding a touch that has ended, and the next tap then never
+   * reaches a control beside it; this one is taken by a native gesture instead.
+   */
+  readonly byGesture?: boolean;
 }
 
 /** The tap a control answers with, when the person has haptics on. */
@@ -58,6 +66,7 @@ export function PressSpring({
   feedback = 'none',
   restOpacity = 1,
   answeredBy = 'spring',
+  byGesture = false,
   onPressIn,
   onPressOut,
   onPress,
@@ -108,8 +117,12 @@ export function PressSpring({
     onPress?.(event);
   };
 
+  // The two take the same props; the gesture one's events carry the same `nativeEvent` fields.
+  const Press = byGesture
+    ? (AnimatedGesturePressable as unknown as typeof AnimatedPressable)
+    : AnimatedPressable;
   return (
-    <AnimatedPressable
+    <Press
       {...rest}
       disabled={disabled}
       onPressIn={pressIn}
