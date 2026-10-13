@@ -141,6 +141,11 @@ export type PlainLines = {
   readonly notFinished: string;
   /** The gentle reminder a person asked for. It never names the task. */
   readonly reminder: string;
+  /**
+   * The resting home at the end of a day that held something heavy: a serious task, or the care
+   * screen closed. It never says what was done or how the day went.
+   */
+  readonly doneForToday: string;
 };
 
 /**
