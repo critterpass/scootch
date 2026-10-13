@@ -1,0 +1,200 @@
+appId: app.scootch.dev
+---
+# The fresh-user walk, step seven: a heavy thing. It carries on from the step before it; nothing
+# is cleared and nothing is seeded. Settings puts the language back to English, a thing still set
+# is put down, and words about biopsy results are typed the way a person types them. The server's
+# screen calls them serious: the one screen shows them in plain words with the quiet choices, and
+# no monster, hatch, reveal, card, share or burst appears at any point. "Sit with me quietly"
+# starts the quiet session, which has no burst and no catch, and its plain finish has no confetti
+# and no card.
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: 'more-button'
+    timeout: 90000
+- tapOn:
+    id: 'more-button'
+    waitToSettleTimeoutMs: 0
+# Settings slides in: wait for it before judging the press. Only a press that was really lost
+# (the button still there, Settings still not) is made again; never a blind second tap.
+- extendedWaitUntil:
+    visible:
+      id: 'settings'
+    timeout: 6000
+    optional: true
+- runFlow:
+    when:
+      notVisible:
+        id: 'settings'
+      visible:
+        id: 'more-button'
+    commands:
+      - tapOn:
+          id: 'more-button'
+          waitToSettleTimeoutMs: 0
+          optional: true
+- extendedWaitUntil:
+    visible:
+      id: 'settings'
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: 'settings-language'
+    direction: DOWN
+- tapOn:
+    id: 'settings-language'
+- extendedWaitUntil:
+    visible:
+      id: 'settings-language-en'
+    timeout: 15000
+- tapOn:
+    id: 'settings-language-en'
+- scrollUntilVisible:
+    element:
+      id: 'settings-close'
+    direction: UP
+- tapOn:
+    id: 'settings-close'
+- extendedWaitUntil:
+    visible:
+      id: 'one-sentence'
+    timeout: 15000
+# A thing still set from earlier goes to the drawer first, so the heavy thing is typed on home.
+- runFlow:
+    when:
+      visible:
+        id: 'task-discard'
+    commands:
+      - tapOn:
+          id: 'task-discard'
+          waitToSettleTimeoutMs: 0
+- extendedWaitUntil:
+    visible:
+      id: 'composer'
+    timeout: 30000
+- runFlow:
+    when:
+      visible:
+        id: 'composer-switch'
+    commands:
+      - tapOn:
+          id: 'composer-switch'
+          waitToSettleTimeoutMs: 0
+- extendedWaitUntil:
+    visible:
+      id: 'composer-input'
+    timeout: 15000
+- tapOn:
+    id: 'composer-input'
+- inputText: 'Call the oncologist back about my biopsy results'
+- tapOn:
+    id: 'composer-send'
+# The battery question comes with the day's first words only; on this walk it was answered before.
+- runFlow:
+    when:
+      visible:
+        id: 'energy-read'
+    commands:
+      - tapOn:
+          id: 'energy-guess'
+# The words wait for the screen: nothing funny while they do, and no one thing offered to haggle.
+- assertNotVisible:
+    id: 'hatch'
+- assertNotVisible:
+    id: 'dump-reveal'
+- extendedWaitUntil:
+    visible:
+      id: 'serious-task'
+    timeout: 60000
+- assertVisible:
+    id: 'one-screen-serious'
+- assertVisible: 'Just this, today'
+# The one thing comes back in the server's words ("your biopsy results"), still the person's thing.
+- assertVisible: '.*oncologist.*biopsy results.*'
+- assertVisible:
+    id: 'serious-sit'
+- assertVisible:
+    id: 'serious-not-today'
+- assertVisible:
+    id: 'serious-be-funny'
+- assertNotVisible:
+    id: 'hatch'
+- assertNotVisible:
+    id: 'hatch-monster'
+- assertNotVisible:
+    id: 'hatch-catch'
+- assertNotVisible:
+    id: 'one-thing-accept'
+- assertNotVisible:
+    id: 'task-set-bites'
+- assertNotVisible:
+    id: 'task-set-treat'
+- assertNotVisible:
+    id: 'haunt-a-friend'
+- assertNotVisible:
+    id: 'share'
+- takeScreenshot: fresh-07-serious
+# Below the fold too: nothing but the plain choices.
+- scrollUntilVisible:
+    element:
+      id: 'serious-be-funny'
+    direction: DOWN
+- assertNotVisible:
+    id: 'haunt-a-friend'
+- assertNotVisible:
+    id: 'task-set-company-table'
+- takeScreenshot: fresh-07-serious-below
+# "Sit with me quietly": the quiet session, with no burst on the way in.
+- tapOn:
+    id: 'serious-sit'
+    waitToSettleTimeoutMs: 0
+- assertNotVisible:
+    id: 'session-start-burst'
+- extendedWaitUntil:
+    visible:
+      id: 'session-quiet'
+    timeout: 30000
+- assertNotVisible:
+    id: 'session-start-burst'
+- assertNotVisible:
+    id: 'session-monster'
+- assertNotVisible:
+    id: 'session-corner-monster'
+- assertNotVisible:
+    id: 'session-pill'
+- assertVisible:
+    id: 'session-quiet-done'
+- takeScreenshot: fresh-07-quiet-session
+# A plain tap finishes. The finish is plain words: no confetti, no catch, no card, no share.
+- tapOn:
+    id: 'session-quiet-done'
+- extendedWaitUntil:
+    visible:
+      id: 'session-quiet-done-moment'
+    timeout: 15000
+- assertNotVisible:
+    id: 'session-caught'
+- assertNotVisible:
+    id: 'session-catch-monster'
+- assertNotVisible:
+    id: 'session-finish-hold'
+- takeScreenshot: fresh-07-quiet-finish
+- tapOn:
+    id: 'session-moment-done'
+- extendedWaitUntil:
+    visible:
+      id: 'one-sentence'
+    timeout: 30000
+- assertNotVisible:
+    id: 'reveal-card'
+- assertNotVisible:
+    id: 'reveal-card-face'
+- assertNotVisible:
+    id: 'reveal-piece'
+- assertNotVisible:
+    id: 'reveal-bar'
+- assertNotVisible:
+    id: 'reveal-skip'
+- assertNotVisible:
+    id: 'share'
+- takeScreenshot: fresh-07-home-after-serious
