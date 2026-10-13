@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { useState, type ReactNode } from 'react';
+import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { spacing } from '@scootch/tokens';
@@ -17,6 +17,10 @@ const GUTTER = 16;
 const WORDS_IN = 8;
 /** The sheet's own corner, where it is drawn on a page instead of by the system. */
 const DRAWN_RADIUS = 34;
+/** The room the system leaves above a sheet as tall as it may be, under the status bar. */
+const SHEET_RISE = 16;
+/** The room over a sheet's first row: the grabber's, and a little more. */
+const SHEET_HEAD = SHEET_TOP + spacing.sm;
 
 export interface FittedSheetProps {
   readonly testID: string;
@@ -39,6 +43,14 @@ export function FittedSheet({ testID, close, footer, children }: FittedSheetProp
   const { palette } = useScreenStyle();
   const insets = useSafeAreaInsets();
   const inSheet = useRouteSheet();
+  const { height } = useWindowDimensions();
+  const [footerHeight, setFooterHeight] = useState(0);
+  const footRoom = inSheet ? (footer === undefined ? GUTTER : spacing.xs) : 0;
+  // A system sheet takes its height from what is on it, so nothing above the rows can tell them
+  // how much room there is: in a sheet the rows are as tall as they are, up to the most a sheet
+  // can show, and scroll past that.
+  const rowsRoom =
+    height - insets.top - insets.bottom - SHEET_RISE - SHEET_HEAD - footRoom - footerHeight;
   const sheet = (
     <View
       testID={testID}
@@ -48,20 +60,33 @@ export function FittedSheet({ testID, close, footer, children }: FittedSheetProp
         // The system keeps a sheet's own foot clear of the home bar: only a sheet drawn on a page
         // keeps that room itself. Adding it twice left a wide empty band under the dock.
         inSheet
-          ? { paddingBottom: footer === undefined ? GUTTER : spacing.xs }
+          ? { paddingBottom: footRoom }
           : [styles.drawn, { paddingBottom: Math.max(insets.bottom, FOOT) }],
       ]}
     >
+      {/* The system sheet takes the first scroll view down the line of first children for the
+          whole sheet and forces it to the sheet's size, which squeezed the rows to the heading's
+          height and left them undrawn and untouchable. This empty view stands first instead. */}
+      {inSheet ? <View collapsable={false} style={styles.lead} /> : null}
       {/* As tall as what is on it until that is taller than the screen, as at the largest text
           sizes: then the rows scroll and the dock stays at the foot. */}
       <ScrollView
-        style={styles.scroll}
+        style={
+          inSheet ? [styles.scrollInSheet, { maxHeight: Math.max(rowsRoom, 0) }] : styles.scroll
+        }
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
       >
         {children}
       </ScrollView>
-      {footer === undefined ? null : <View style={styles.footer}>{footer}</View>}
+      {footer === undefined ? null : (
+        <View
+          style={styles.footer}
+          onLayout={(event) => setFooterHeight(event.nativeEvent.layout.height)}
+        >
+          {footer}
+        </View>
+      )}
       <View style={styles.close}>
         <CloseButton {...close} />
       </View>
@@ -97,8 +122,10 @@ const styles = StyleSheet.create({
   page: { flex: 1, justifyContent: 'flex-end' },
   // No height and nothing that grows: the sheet is the sum of what is on it, and gives way only
   // where the screen is shorter than that.
-  sheet: { flexShrink: 1, paddingTop: SHEET_TOP + spacing.sm },
+  sheet: { flexShrink: 1, paddingTop: SHEET_HEAD },
   scroll: { flexGrow: 0, flexShrink: 1 },
+  scrollInSheet: { flexGrow: 0, flexShrink: 0 },
+  lead: { height: 0 },
   drawn: { borderTopLeftRadius: DRAWN_RADIUS, borderTopRightRadius: DRAWN_RADIUS },
   content: { paddingHorizontal: GUTTER, gap: spacing.md },
   footer: { paddingHorizontal: GUTTER, paddingTop: spacing.lg },
