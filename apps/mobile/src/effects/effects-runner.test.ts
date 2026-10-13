@@ -11,7 +11,8 @@ import {
 import { CUES } from '@scootch/sound';
 
 import type { SessionContext } from './adapters';
-import { ALL_ON, fakeRunner } from './test/fake-adapters';
+import { DEVICE_CALL_LIMIT_MS, createEffectsRunner } from './effects-runner';
+import { ALL_ON, fakeDevice, fakeRunner, fakeTime } from './test/fake-adapters';
 
 const START = Date.parse('2026-10-06T09:00:00.000Z');
 const END = START + 25 * MINUTE_MS;
@@ -190,5 +191,38 @@ describe('the effects runner', () => {
 
     await harness.runner.syncNotifications([]);
     expect(harness.device.scheduled()).toEqual([]);
+  });
+
+  it('goes on without a device call that never answers, and tries the plan again', async () => {
+    const time = fakeTime(START);
+    const device = fakeDevice();
+    let stuck = true;
+    const runner = createEffectsRunner({
+      ...device,
+      clock: time.clock,
+      timers: time.timers,
+      notifications: {
+        ...device.notifications,
+        scheduledIds: () =>
+          stuck ? new Promise(() => undefined) : device.notifications.scheduledIds(),
+      },
+      switches: () => ALL_ON,
+      onClock: () => undefined,
+    });
+    const plan = [{ at: START + 60 * MINUTE_MS, text: 'first' }];
+    const synced = runner.syncNotifications(plan);
+    drive({ time, device, runner, fired: { clockEvents: 0 } }, set(), [{ type: 'started' }]);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(device.calls.live).toEqual([]);
+
+    time.advanceTo(START + DEVICE_CALL_LIMIT_MS);
+    await synced;
+    await runner.settled();
+    expect(device.calls.live[0]).toMatch(/^start Call the plumber/);
+    expect(device.scheduled()).toEqual([]);
+
+    stuck = false;
+    await runner.syncNotifications(plan);
+    expect(device.scheduled().map((one) => one.text)).toEqual(['first']);
   });
 });

@@ -53,6 +53,8 @@ export interface EffectsRunner {
 
 type TimerName = 'end' | 'warning' | 'checkIn';
 const NOTIFICATION_PREFIX = 'day-plan-';
+/** How long a device call may take before what is queued behind it goes ahead without it. */
+export const DEVICE_CALL_LIMIT_MS = 5000;
 
 /**
  * Turns the session reducer's effect values into real timers, sound, haptics, Live Activity calls
@@ -66,11 +68,21 @@ export function createEffectsRunner(options: EffectsRunnerOptions): EffectsRunne
   let queue: Promise<void> = Promise.resolve();
   let lastPlan: string | null = null;
 
-  // Device calls run one after another, and a failing one never stops the session.
-  const enqueue = (call: () => Promise<void>) => {
-    queue = queue.then(call).catch(() => undefined);
+  // Device calls run one after another, and a failing one never stops the session. One that never
+  // answers (the phone's notification service stuck) is given up on, or the day would never open.
+  const enqueue = (call: () => Promise<void>, failed?: () => void) => {
+    queue = queue.then(() => withinLimit(call)).catch(() => failed?.());
     return queue;
   };
+
+  function withinLimit(call: () => Promise<void>): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const cancel = options.timers.set(DEVICE_CALL_LIMIT_MS, () =>
+        reject(new Error('The device call did not answer')),
+      );
+      Promise.resolve().then(call).then(resolve, reject).finally(cancel);
+    });
+  }
 
   function disarm(name: TimerName) {
     cancels.get(name)?.();
@@ -185,6 +197,10 @@ export function createEffectsRunner(options: EffectsRunnerOptions): EffectsRunne
       const plan = JSON.stringify(planned);
       if (plan === lastPlan) return queue;
       lastPlan = plan;
+      // A plan that did not go through is tried again with the next one, even if it is the same.
+      const forget = () => {
+        if (lastPlan === plan) lastPlan = null;
+      };
       return enqueue(async () => {
         const { notifications } = options;
         for (const id of await notifications.scheduledIds()) {
@@ -204,7 +220,7 @@ export function createEffectsRunner(options: EffectsRunnerOptions): EffectsRunne
             ...(picture === null ? {} : { picture }),
           });
         }
-      });
+      }, forget);
     },
     settled: () => queue,
   };
