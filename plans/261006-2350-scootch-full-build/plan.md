@@ -1,7 +1,10 @@
 # Scootch full build
 
-Status: the day loop runs on a real iPhone (TestFlight, 7 Oct); most of the rest is
-written but not reachable or not proven. Audited against the code 7 Oct 2026 · Created 6 Oct 2026 · Scope: everything in
+Status: v1.0.0-rc.6 runs in production (API and site, 12 Oct) and an App Store
+build from `2ae2c3d` is submitted (12 Oct). The day loop, the starting helpers
+and a website monster's way into the app have been seen on a phone; care,
+money, tables, push and the camera have not been proven. Audited against the
+code 13 Oct 2026 · Created 6 Oct 2026 · Scope: everything in
 [product-brief.md](../../docs/product-brief.md) sections 3 to 9. The
 after-launch list (gifts, iPhone Duo, monster wall, Unwrapped, Android
 release, tables with strangers) is section 10 there and is not planned here.
@@ -15,131 +18,147 @@ Phases are ordered by dependency and sized by task count. No time estimates.
 
 ## Phases
 
-| # | Phase | Tasks | Needs | Status |
+| # | Phase | Tasks | Needs | Status (13 Oct 2026) |
 |---|---|---|---|---|
 | 00 | [Spikes and founder gates](phase-00-spikes-and-founder-gates.md) | 9 | — | done |
-| 01 | [Foundation and native shell](phase-01-foundation-and-native-shell.md) | 11 | 00 | done in substance: builds on GitHub runners, TestFlight, device walk, dev deploys from CI, over-the-air updates |
-| 02 | [Characters and sound](phase-02-characters-and-sound.md) | 8 | 01 | works on a phone as stills; motion, transitions and feedback need a full pass (founder, 7 Oct) |
-| 03 | [AI routes, API and ops bot](phase-03-ai-api-and-ops-bot.md) | 9 | 01 | the task call and screening work on dev; the small routes, push and eval reports are not built |
-| 04 | [The day loop](phase-04-day-loop.md) | 10 | 01 (art and routes arrive from 02, 03) | works on a phone end to end; several branches never walked; say "done" and the website hand-off are not built |
-| 05 | [Keeping: cards, world, record, share](phase-05-keeping.md) | 8 | 02, 04 | card, world, zoo and record work; sharing never walked; the week name, wearing a drop and the record video are not built |
-| 06 | [System surfaces](phase-06-system-surfaces.md) | 7 | 02, 04 | written, never proven: widgets, Live Activity and notifications unseen; the App Clip and notification service are shells; no remote push |
-| 07 | [Care, edge states and settings](phase-07-care-edge-and-settings.md) | 8 | 03, 04 | settings, privacy and helplines work; serious, crisis, offline and restore never walked on a device |
-| 08 | [Plus](phase-08-plus.md) | 8 | 05 | screens written; no purchase ever made; inks are not applied; the weekly sentence is not wired; the server does not enforce Plus |
-| 09 | [Tables and haunting](phase-09-tables-and-haunting.md) | 8 | 03, 04 | written and deployed, not usable: no way to become friends, sign-in never run, opening a table needs Plus |
-| 10 | [Website and growth](phase-10-website-and-growth.md) | 8 | 02, 03 | on the dev site only; no production site, no universal links, the record page has no data |
-| 11 | [Launch](phase-11-launch.md) | 7 | all | not started |
+| 01 | [Foundation and native shell](phase-01-foundation-and-native-shell.md) | 11 | 00 | done: native builds on GitHub runners (dev and prd), TestFlight, dev deploys from main, prd deploys from release tags, over-the-air updates for dev and the App Store app, Sentry |
+| 02 | [Characters and sound](phase-02-characters-and-sound.md) | 8 | 01 | works on a phone; the motion pass is merged (catches, bursts, sheets that carry the finger's speed) and has no founder sign-off on record |
+| 03 | [AI routes, API and ops bot](phase-03-ai-api-and-ops-bot.md) | 9 | 01 | the task call, screening and the helpers' lines work on dev and prd; the small routes and eval reports to the bot are not built; the last three evals runs on main (9 Oct) failed |
+| 04 | [The day loop](phase-04-day-loop.md) | 10 | 01 (art and routes arrive from 02, 03) | works on a phone end to end, with the home revamp and the starting helpers; saying "done" to finish is not wired |
+| 05 | [Keeping: cards, world, record, share](phase-05-keeping.md) | 8 | 02, 04 | redrawn (binder, keeping tabs, one share composer) and merged; sharing never walked; the week's name, wearing a drop and the record video are not built |
+| 06 | [System surfaces](phase-06-system-surfaces.md) | 7 | 02, 04 | replaced by [the redrawn surfaces](../261008-0120-system-surfaces-outside-the-app/plan.md): built; the widgets at rest and the Live Activity seen on a phone, the rest unseen; no remote push reaches a phone |
+| 07 | [Care, edge states and settings](phase-07-care-edge-and-settings.md) | 8 | 03, 04 | settings, privacy and helplines work; the care screen can be closed (8 Oct); serious, crisis, offline and restore never walked on a device |
+| 08 | [Plus](phase-08-plus.md) | 8 | 05 | redrawn twice and merged; inks dress Scootch and the app; no purchase ever made; no webhook; the server does not check Plus |
+| 09 | [Tables and haunting](phase-09-tables-and-haunting.md) | 8 | 03, 04 | the app half is built and has ways in; Sign in with Apple has never completed on a build; push is off; seven server items open |
+| 10 | [Website and growth](phase-10-website-and-growth.md) | 8 | 02, 03 | redrawn and live at scootch.app from release tags; a monster's link opens the app (founder, 9 Oct); the App Clip has never been opened |
+| 11 | [Launch](phase-11-launch.md) | 7 | all | started: production deployed, App Store build submitted 12 Oct; Care and Money gates not passed |
 
-## Where it stands (7 Oct 2026, audited against the code)
+## Follow-on plans
 
-The founder installed the first TestFlight build on 7 Oct and went from hello
-to a caught monster. "Built" below means code and tests exist; only "works on
-a phone" has been seen by a person or a device run.
+| Plan | Status (13 Oct 2026) |
+|---|---|
+| [Home, drawer and hatch revamp](../261007-1936-home-drawer-hatch-revamp/plan.md) | merged 7 Oct (#96) |
+| [Tables: ways in and settings](../261007-2126-tables-ways-in-and-settings/plan.md) | app half merged (#107, #109, #112); seven server items open; not seen on a device |
+| [Camera](../261008-0033-camera/plan.md) | merged (#115, #116, #118); the button left home on 8 Oct (#123), so no way in; never run on a device |
+| [Plus, in real materials](../261008-0049-plus-materials/plan.md) | merged (#117, #119), then redrawn by the binder plan; Wallet pass and stickers not built |
+| [System surfaces, redrawn](../261008-0120-system-surfaces-outside-the-app/plan.md) | merged (#120, #124, #126, #134, #140); the Live Activity and Island seen on a phone, the rest not |
+| [Website, redrawn](../261008-0239-website-redesign/plan.md) | merged (#121, #122, #175, #176) and live; largest text and a real phone not checked |
+| [Plus, binder, share and settings, as redrawn](../261008-1021-plus-binder-share-settings-as-redrawn/plan.md) | merged (#125); not seen on a device |
+| [Keeping tabs, sheets, share polish](../261008-1230-keep-tabs-sheets-share-polish/plan.md) | merged (#127, #129); both from the founder's notes on his phone, 8 Oct; not seen on a device since |
+| [Starting helpers](../261008-2249-starting-helpers/plan.md) | released in rc.6 and the submitted App Store build; two items left (a "next time" walk, offline sheets) |
+| [A website monster arrives in the app](../261008-2310-website-monster-into-the-app/plan.md) | merged (#147 to #153, #158, #161); founder checked on a phone 9 Oct; the App Clip never opened |
+
+## Where it stands (13 Oct 2026, audited against the code)
+
+PRs #96 to #193 merged between 7 and 12 Oct. Production runs v1.0.0-rc.6
+(`a961d4a`, tagged 12 Oct) at scootch.app and api.scootch.app. prd native
+builds ran from `af7ed48` (9 Oct), `2ae2c3d` (12 Oct) and `76e71dc` (13 Oct);
+the App Store build from `2ae2c3d` was submitted on 12 Oct. "Built" below
+means code and tests exist; only "works on a phone" has been seen by a person
+or a device run.
+
+The fresh-user walk (`e2e/fresh`) last passed on GitHub on 7 Oct. Every run of
+it since was cancelled or failed; device runs since 9 Oct are capture runs of
+chosen states and one tour video. The founder waived the full walk for the
+release on 8 Oct.
 
 ### Works on a phone
 
-First launch, typing a task, the energy question, the one thing, the hatch
-with a named monster, the treat field, a session of 10, 25 or 50 minutes,
-parking a thought, finishing by tapping twice, the caught card, the world, the
-zoo, the record, settings (attitude, finish-with, language), privacy, the
-delete dialog, helplines, and Vietnamese. Free people get three things a day
-(founder, 7 Oct); Plus is six until the founder sets it.
-
-### The founder's first notes (7 Oct), all open
-
-- No animation, transitions, micro-interactions, action feedback or character
-  motion to speak of: the whole app needs a careful motion and feel pass.
-- The drawer sheet's layout is broken and unfinished.
-- "Your world" and the record could not be tapped on the done-for-today home.
-- No way to start another thing after the first (now three a day).
+The day loop from hello to a caught card, the world, the zoo, the record,
+settings, privacy, the delete dialog, helplines and Vietnamese (7 Oct). Home
+with the composer, the drawer and the hatch (#96), seen by the founder on the
+8 Oct build, with the Plus sheet, the haunt chip and the share composer from
+the same notes. A monster made on scootch.app arriving in the dev and App
+Store apps as itself (founder, 9 Oct). The starting helpers' states in
+English, Vietnamese and at the largest text (capture runs, 12 Oct). The
+widgets at rest (TestFlight, 12 Oct). The Live Activity and the Island on a
+phone, whose clipping was then fixed (#134, #140); the fixes are unseen. The
+session's paper bursts (tour video, 13 Oct). Free people get ten things a
+day, Plus twenty-five (#79).
 
 ### Reachable but never walked
 
-Hold to talk, "Another", a heard deadline, pick for me, "Not now", too big,
-"I'm stuck", "I'm done" early, hold to finish, not finished, the reveal's
-later steps, sharing a card or story, the surprise drop, the serious and
-crisis screens, offline, the Plus sheet and manage page, the shelf, export my
-data, widgets, Lock Screen accessories, the Live Activity, local
-notifications, quiet hours.
+Hold to talk, pick for me, too big, "I'm stuck", "I'm done" early, not
+finished, the reveal's later steps, sharing a card or story, the surprise
+drop, the serious and crisis screens and closing the care screen, offline, the
+Plus sheet's purchase and the manage page, the studio, the binder, export my
+data, the restore offer, Lock Screen accessories, local notifications and a
+tap on one, quiet hours, controls, Siri and Shortcuts, the Focus filter, the
+share extension, Settings › Tables and the friends page.
 
 ### Written but a person cannot use it
 
-- **Tables:** the lobby is behind a small "Sit with someone" link under a set
-  task. Opening a table needs Plus, then Sign in with Apple (never run on a
-  build), then a name. Joining works only by pasting a code.
-- **Friends and haunting:** there is no way to become friends: the invite link
-  points at a page that does not exist and the app cannot open links. Without
-  a friend nothing can be sent or received.
-- **Plus:** no purchase has ever been made; whether the products load on the
-  dev build is unknown. A bought ink is applied nowhere outside the shelf
-  preview. The server trusts the phone's word for Plus.
+- **Tables and friends:** ways in exist (the set task, a friend's table on
+  home, a friend's link, Settings › Tables › Invite), and friend invites and
+  accepts have routes. Every one needs Sign in with Apple, which has never
+  completed on a build. Seven server items in the tables plan are open.
+- **Remote push:** the server can send (`apps/api/src/push/`, `push-tokens`
+  route) but the `push.remote` flag is off, Apple's key is not set, and the
+  phone registers no token. Nothing can tell a phone about a haunt, a nudge or
+  a table.
+- **Plus:** no purchase has ever been made. The server trusts the phone's word
+  for Plus (table seats, the member number) and has no RevenueCat webhook.
+- **The camera:** written and tested off a phone; its button left home on
+  8 Oct (#123) and nothing else opens it.
+- **The App Clip:** built (#150) and in the App Store build; never opened.
+- **Saying "done" to finish:** a choice in Settings and a rule in the session,
+  but nothing on the phone listens for it.
+- **Wearing a surprise drop:** the choice is stored and drawn nowhere.
+- **The week's name on a record:** the record shows a stored name; nothing
+  writes one.
 - **Backup and restore:** needs iCloud on the build and two phones to prove.
 
 ### Not built
 
-- Remote push of any kind (no APNs code or key on the server, no token route),
-  so nothing can tell a phone about a haunt, a nudge or a Live Activity update.
-- Universal links, the App Clip (a placeholder), arriving with a monster from
-  the website, the app banner and QR on the site.
-- The small AI routes (shrink, bargain, stuck, pick, morning line, weekly
-  sentence, record name): the phone does the first four from the task's pack.
-- The weekly sentence and "learns you", the week's name on a record, wearing a
-  surprise drop, outfits and worlds on the shelf, saying "done" to finish,
-  Siri and Shortcuts, respecting Sleep and Focus, a notification that starts a
-  session when tapped, "Invite a friend" in settings.
-- The shared record as a video, with its read route.
-- The RevenueCat webhook, eval reports to the bot, a launch-day email.
-- Production: scootch.app, the production API and database, and the
-  production App Clip, widgets and notification service ids.
+- The small AI routes (shrink, stuck, pick, morning line, weekly sentence,
+  record name): the phone does the first three from the task's pack. The
+  bargain went with "Not now" (#96).
+- The weekly sentence and "learns you".
+- The shared record as a video, with its read route: a record is shared as a
+  sleeve picture.
+- The RevenueCat webhook and server-side Plus; eval reports to the bot; a
+  launch-day email.
+- Wallet pass and sticker pack; the Focus filter's work and home switches.
+- Tables' server half: history with a friend, a name on a waiting link, a
+  friend's table with its word, saved seats by name, "Tell me when someone
+  sits", table lengths, "Your one thing" on a link's landing.
 
 ### Measured
 
-Crisis notes caught 67 of 67 with none answered "pass"; 4 of 82 harmless notes
-flagged as crisis; name and hatch line 1.9 s, pack 3.7 s; lines regenerated on
-18.8% of calls against a target under 10%.
+Crisis screening on #173 (9 Oct), three runs against dev: 233 of 239 each,
+no crisis missed; the six misses are harmless notes, three judged crisis and
+three judged reject. The helpers' task eval on dev 234 of 240, both helper
+sets 16 of 16, the waiting pick 12 of 12. The last three evals runs on
+main (9 Oct) failed, the latest on a fetch error in the task eval, so nothing
+is measured on main after 8 Oct. Earlier (7 Oct): name and hatch line 1.9 s, pack 3.7 s; lines
+regenerated on 18.8% of calls against a target under 10%.
 
 ### The work queue (design against code, 7 Oct)
 
 Four read-only reviews compared the brief and the design boards (including
-the design's own animation code) with the code, flow by flow. They are the
-queue the fix lanes work from; a lane ticks an item by quoting its number.
+the design's own animation code) with the code, flow by flow. Much of it was
+answered by the redrawn plans above; a lane still ticks an item by quoting its
+number.
 
 - [What a person can reach](reports/261007-reachability-audit.md)
-- [Day loop and care](reports/261007-design-vs-code-day-loop-and-care.md): 153
-  items. First: a carried task that vanishes, "Carry on tomorrow" returning to
-  the ask, the whole app waiting up to 25 s behind the model call, "Swap in"
-  passing the daily limit, "Pick for me" with no way out, the crisis screen
-  with no way to the helplines page, a heard deadline that never returns.
-- [Characters, keeping and Plus](reports/261007-design-vs-code-characters-keeping-plus.md):
-  no line boil, static poses, monsters with no life of their own, nothing
-  reacting to touch, no transitions, five designed moods missing, sound silent
-  with the ringer off, hold haptics that keep firing, inks that recolour
-  nothing, Plus sold on a heavy day.
-- [Tables, system surfaces and website](reports/261007-design-vs-code-tables-surfaces-website.md):
-  the nine pieces two friends need to sit at a table and send one haunt, in
-  order; no remote push; widgets and the Live Activity against the boards; the
-  missing web-to-app hand-off.
+- [Day loop and care](reports/261007-design-vs-code-day-loop-and-care.md)
+- [Characters, keeping and Plus](reports/261007-design-vs-code-characters-keeping-plus.md)
+- [Tables, system surfaces and website](reports/261007-design-vs-code-tables-surfaces-website.md)
 
 Decided 7 Oct after these: a free person can join any table and open a table
 of two; a larger table needs Plus.
 
 ### Next, in order
 
-1. The founder's notes: the drawer, the dead taps, three a day (first
-   over-the-air update), then the motion and feel pass across the app.
-2. Walk everything under "Reachable but never walked" on the simulator and
-   fix it, the serious and crisis screens first.
-3. Make tables usable by one person with a friend: Sign in with Apple on the
-   build, becoming friends inside the app, universal links, and decide
-   whether opening a table really needs Plus.
-4. Remote push: APNs key, token routes, sending for haunts, nudges and the
-   Live Activity.
-5. Plus for real: a sandbox purchase walked end to end, the webhook, inks
-   applied, the weekly sentence.
-6. Widgets, the Live Activity and notifications seen on a phone; the App Clip
-   and the website hand-off.
-7. The shared record video, the remaining not-built list, then production
-   resources and phase 11.
+1. The care gate: walk serious, crisis and offline on the simulator, and fix
+   what the walk finds.
+2. The money gate: the RevenueCat webhook, Plus checked on the server, a
+   sandbox purchase, restore and cancel walked end to end.
+3. System surfaces and the camera walked on the simulator and on the
+   founder's phone, with a way back to the camera.
+4. What remains from the not-built list, with remote push and Sign in with
+   Apple first, so two friends can sit at a table.
+5. Production and launch.
 
 ## Order of work
 
@@ -165,11 +184,11 @@ A and C merge.
 | Gate | When | What must be true |
 |---|---|---|
 | Voice | End of 00 | Passed 7 Oct 2026: the founder read the samples in both languages; DeepSeek writes Scootch |
-| Native batch one | End of 01 | A TestFlight build is installed (7 Oct 2026); an over-the-air update has not yet reached it |
+| Native batch one | End of 01 | Passed: a TestFlight build installed 7 Oct 2026; prd native builds since 9 Oct. No record yet of an over-the-air update seen arriving on a phone |
 | First minute | End of 04 | Passed online 7 Oct 2026 on a device run and on the founder's iPhone; offline for the session is not yet walked |
-| Care | End of 07 | The serious and crisis eval set passes with no miss, and the walk shows no joke on a heavy task |
-| Money | End of 08 | On dev: sandbox purchase, trial, restore and cancel walked end to end; the house rules checked screen by screen |
-| Release | End of 11 | prd is deployed and smoke-checked before submission. The full fresh-user walk on the release candidate is not required: the founder waived it on 8 Oct 2026 |
+| Care | End of 07 | Not passed. The screening eval missed no crisis on 9 Oct (#173); the walk with no joke on a heavy task has not run |
+| Money | End of 08 | Not passed. No sandbox purchase, trial, restore or cancel has been made; the house rules are checked by test only |
+| Release | End of 11 | Not passed. prd deployed from v1.0.0-rc.6 on 12 Oct 2026 and served that commit on its health check (run 38252230612); no fuller smoke check is recorded. The full fresh-user walk on the release candidate is not required: the founder waived it on 8 Oct 2026 |
 
 Each phase also ends with design-beside-device sheets for every screen it
 touched, and its part of the fresh-user walk.
@@ -198,10 +217,10 @@ Things only the founder can do. Phase 00 lists them with the exact steps.
 
 1. Done: scootch.app is registered through Cloudflare.
 2. Done 7 Oct: the EAS project exists (id in tech-decisions section 1).
-3. In progress 7 Oct: the dev ids exist (`app.scootch.dev` and its App Clip,
-   widgets and notification service). EAS cannot sync an App Clip's
-   capabilities, so they are ticked by hand; the main id still needs iCloud
-   and a fresh provisioning profile. The production set is not made yet.
+3. Done: the dev ids (`app.scootch.dev`) and the production ids
+   (`app.scootch`) with their App Clip, widgets and notification service;
+   prd native builds succeed from 9 Oct and the App Store build carries the
+   App Clip.
 4. Done 7 Oct: both apps exist in App Store Connect ("Scootch Dev" and
    "Scootch: Tiny Task Monsters"), with their products and RevenueCat apps;
    the public SDK keys are in the build profiles. Production product ids
@@ -214,10 +233,12 @@ Things only the founder can do. Phase 00 lists them with the exact steps.
 9. Done 7 Oct: a Cloudflare API token and account id are repository secrets.
 10. Approved 7 Oct: EAS builds for Scootch (never for a JavaScript-only
     change).
+11. Open: Apple's push key, so the server can send remote pushes.
 
 ## Decided 7 Oct 2026
 
-- Free Scootch is three things a day; the Plus number is open.
+- Free Scootch is three things a day; the Plus number is open. (Changed the
+  same day: ten free and twenty-five with Plus, #79.)
 - The founder does not proof-read Vietnamese copy; the completeness and
   banned-word checks stand in.
 - "Haunt a friend" is on the hatch screen only, not in the drawer.
@@ -234,15 +255,20 @@ Things only the founder can do. Phase 00 lists them with the exact steps.
   sources; no helpline row holds production any more.
 - The release does not wait for the full fresh-user walk.
 - Crash reports go to Sentry from the dev and the App Store app.
+- The care screen can be closed; the day is quiet until the next thing is
+  typed (#142, product brief section 6).
+- The oldest iOS is 17.0 (system surfaces plan; `app.config.ts`).
 
 ## Unresolved questions
 
-0. How many things a day Plus allows, now that free is three (six for now).
+Decided since 7 Oct and removed: how many things a day Plus allows
+(twenty-five, #79); "Send the link to my phone" (the Get page offers a QR code
+and an email form, no text messages, #121 and #149); the support page's
+promise (the Help page says a person reads every message, with no time,
+#121); the minimum iOS version (17.0, decided 8 Oct in the system surfaces
+plan); whether the crisis screen has a way out (it can be closed, #142).
+
 1. Does a free user see the weekly sentence in the world, or is it Plus only.
-2. "Send the link to my phone": QR code and email only, or text messages too.
-3. Does the founder accept "a person writes back within two working days" on
-   the support page.
-4. The minimum iOS version (16.4 today; 18 is recommended).
-5. Whether the crisis screen offers a way out into a quiet day.
-6. Whether monsters made on the website can be sent as haunts.
-7. Whether `help@`, `privacy@` and `press@scootch.app` exist.
+2. Whether monsters made on the website can be sent as haunts.
+3. Whether `help@`, `privacy@` and `press@scootch.app` exist as mailboxes;
+   the site and app print all three.

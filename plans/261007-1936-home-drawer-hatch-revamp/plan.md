@@ -1,6 +1,6 @@
 # Home, drawer and hatch revamp
 
-Status: in progress · Created 7 Oct 2026 · Source: founder's notes, 7 Oct 2026.
+Status: merged 7 Oct 2026 (#96) · Created 7 Oct 2026 · Source: founder's notes, 7 Oct 2026.
 
 Four phases, one pull request each. Phases 1 to 3 are JavaScript-only (gesture
 handler and Reanimated are already in the build). Lane 4 changes the task-call
@@ -10,10 +10,10 @@ contract across the API, the domain package and the phone.
 
 | # | Phase | Effort | Needs | Status |
 |---|---|---|---|---|
-| 01 | [Home and the task set](phase-01-home-and-task-set.md) | high (cross-feature state) | — | in review, #96 |
-| 02 | [Drawer and the sheet](phase-02-drawer-and-sheet.md) | medium | — | in review, #96 |
-| 03 | [The hatch egg](phase-03-hatch-egg.md) | medium | — | in review, #96 |
-| 04 | [Pick for me, spoken](phase-04-spoken-pick-for-me.md) | high (contract) | 01 | in review, #96 |
+| 01 | [Home and the task set](phase-01-home-and-task-set.md) | high (cross-feature state) | — | merged 7 Oct 2026, #96 |
+| 02 | [Drawer and the sheet](phase-02-drawer-and-sheet.md) | medium | — | merged 7 Oct 2026, #96 |
+| 03 | [The hatch egg](phase-03-hatch-egg.md) | medium | — | merged 7 Oct 2026, #96 |
+| 04 | [Pick for me, spoken](phase-04-spoken-pick-for-me.md) | high (contract) | 01 | merged 7 Oct 2026, #96 |
 
 Built in order on one branch and one pull request (#96), a commit per phase,
 at the founder's word on 7 Oct: no device runs; he checks it on the update.
