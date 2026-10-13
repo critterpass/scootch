@@ -12,71 +12,47 @@ import Animated, {
 import { usePlusState } from '../../../state/plus-context';
 import type { TrailId } from '../../studio/catalogue';
 
-import { BURST_MS, burstSources, type BurstMark, type BurstRing } from './burst-shapes';
+import { Look, lookOf, placed } from './burst-looks';
+import { bloomFrame, markFrame } from './burst-motion';
+import {
+  BURST_MS,
+  burstSources,
+  stillMarks,
+  type BurstBloom,
+  type BurstInks,
+  type BurstMark,
+} from './burst-shapes';
 import type { SessionInks } from './session-inks';
 
-/** What each kind of mark adds to its plain shape. */
-const MADE_OF = {
-  paper: null,
-  gold: { boxShadow: '0 0 12px rgba(255,200,80,0.95)' },
-  bubble: { borderWidth: 1, borderColor: 'rgba(255,255,255,0.75)' },
-  blot: null,
-} as const;
-
 function Mark({ mark, clock }: { readonly mark: BurstMark; readonly clock: SharedValue<number> }) {
-  const style = useAnimatedStyle(() => {
-    const k = (clock.value - mark.delay) / mark.life;
-    if (k <= 0 || k >= 1) return { opacity: 0 };
-    const eased = 1 - Math.pow(1 - k, 3);
-    return {
-      opacity: k > 0.7 ? (1 - k) / 0.3 : 1,
-      transform: [
-        { translateX: mark.vx * eased },
-        { translateY: mark.vy * eased + mark.gravity * k * k },
-        { rotate: `${mark.rotation + k * mark.spin}rad` },
-      ],
-    };
-  });
+  const style = useAnimatedStyle(() => markFrame(mark, clock.value - mark.delay));
   return (
-    <Animated.View
-      style={[
-        styles.mark,
-        {
-          width: mark.width,
-          height: mark.height,
-          borderRadius: (mark.made === 'paper' ? mark.height : mark.width) / 2,
-          backgroundColor: mark.color,
-          ...MADE_OF[mark.made],
-          marginLeft: -mark.width / 2,
-          marginTop: -mark.height / 2,
-        },
-        style,
-      ]}
-    />
+    <Animated.View style={[styles.mark, placed(mark), lookOf(mark), style]}>
+      <Look mark={mark} />
+    </Animated.View>
   );
 }
 
-function Ring({ ring, clock }: { readonly ring: BurstRing; readonly clock: SharedValue<number> }) {
-  const style = useAnimatedStyle(() => {
-    const k = (clock.value - ring.delay) / ring.life;
-    if (k <= 0 || k >= 1) return { opacity: 0 };
-    const eased = 1 - Math.pow(1 - k, 3);
-    const radius = ring.from + (ring.to - ring.from) * eased;
-    return { opacity: 1 - k, transform: [{ scale: radius / ring.to }] };
-  });
-  const size = ring.to * 2;
+function Bloom({
+  bloom,
+  clock,
+}: {
+  readonly bloom: BurstBloom;
+  readonly clock: SharedValue<number>;
+}) {
+  const style = useAnimatedStyle(() => bloomFrame(bloom, clock.value));
+  const half = bloom.size / 2;
   return (
     <Animated.View
       style={[
         styles.mark,
         {
-          width: size,
-          height: size,
-          borderRadius: ring.to,
-          borderWidth: 4,
-          borderColor: ring.color,
-          marginLeft: -ring.to,
-          marginTop: -ring.to,
+          width: bloom.size,
+          height: bloom.size,
+          borderRadius: half,
+          marginLeft: -half,
+          marginTop: -half,
+          backgroundImage: `radial-gradient(circle at 50% 50%, ${bloom.color} 0%, ${bloom.color}66 30%, ${bloom.color}00 70%)`,
         },
         style,
       ]}
@@ -98,35 +74,44 @@ const at = ([across, down]: readonly [number, number]) =>
   ({ left: `${across * 100}%`, top: `${down * 100}%` }) as const;
 
 /**
- * The burst: marks thrown out with rings behind them, once, from each of its points (the start
- * goes from the Start button and then from up the screen, as the board fires it). With Reduce
- * Motion nothing flies: a soft glow comes up and fades. It never takes a touch.
+ * The burst: marks thrown out once from each of its points, with one soft flash where the first
+ * throw goes off (the start goes from the Start button and then from up the screen). Paper
+ * tumbles and sways as it falls; a paid trail is made of gold, soap or ink and moves like it.
+ * With Reduce Motion nothing flies: a soft glow comes up with a few still marks and fades. It
+ * never takes a touch.
  */
 export function BurstMarks(props: BurstMarksProps) {
   const { kind, inks, reducedMotion, controlAt } = props;
   const clock = useSharedValue(0);
   const glow = useSharedValue(0);
   const worn = usePlusState().look.trail;
-  const trail = props.trail ?? worn;
+  const trail = kind === 'start' ? 'confetti' : (props.trail ?? worn);
 
   useEffect(() => {
     if (reducedMotion) {
-      glow.value = withSequence(withTiming(1, { duration: 400 }), withTiming(0, { duration: 900 }));
+      glow.value = withSequence(
+        withTiming(1, { duration: 400, easing: Easing.out(Easing.quad) }),
+        withTiming(1, { duration: 500 }),
+        withTiming(0, { duration: 900, easing: Easing.inOut(Easing.quad) }),
+      );
     } else {
       clock.value = withTiming(BURST_MS, { duration: BURST_MS, easing: Easing.linear });
     }
   }, [reducedMotion, clock, glow]);
 
   const glowStyle = useAnimatedStyle(() => ({ opacity: glow.value * 0.28 }));
+  const stillStyle = useAnimatedStyle(() => ({ opacity: glow.value }));
+  const printed = useMemo(
+    (): BurstInks => ({ ink: inks.ink, tomato: inks.tomato, page: inks.page, dark: inks.dark }),
+    [inks],
+  );
   const sources = useMemo(
-    () =>
-      burstSources(
-        kind,
-        [inks.tomato, inks.ink, inks.tomato, inks.risoBlob],
-        [inks.tomato, inks.ink],
-        trail,
-      ),
-    [kind, inks, trail],
+    () => (reducedMotion ? [] : burstSources(kind, printed, trail)),
+    [kind, printed, trail, reducedMotion],
+  );
+  const stills = useMemo(
+    () => (reducedMotion ? stillMarks(printed, trail) : []),
+    [printed, trail, reducedMotion],
   );
 
   return (
@@ -136,6 +121,26 @@ export function BurstMarks(props: BurstMarksProps) {
           <Animated.View
             style={[styles.mark, styles.glow, { backgroundColor: inks.tomato }, glowStyle]}
           />
+          <Animated.View style={[styles.mark, stillStyle]}>
+            {stills.map(({ mark, x, y }, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.mark,
+                  placed(mark),
+                  lookOf(mark),
+                  {
+                    left: x,
+                    top: y,
+                    opacity: mark.opacity,
+                    transform: [{ rotate: `${mark.rotation}rad` }, { scale: mark.scale }],
+                  },
+                ]}
+              >
+                <Look mark={mark} />
+              </View>
+            ))}
+          </Animated.View>
         </View>
       ) : (
         sources.map((source) => (
@@ -148,9 +153,7 @@ export function BurstMarks(props: BurstMarksProps) {
                 : at(source.at),
             ]}
           >
-            {source.rings.map((ring) => (
-              <Ring key={ring.id} ring={ring} clock={clock} />
-            ))}
+            {source.bloom ? <Bloom bloom={source.bloom} clock={clock} /> : null}
             {source.marks.map((mark) => (
               <Mark key={mark.id} mark={mark} clock={clock} />
             ))}

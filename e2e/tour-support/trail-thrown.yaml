@@ -1,0 +1,20 @@
+appId: app.scootch.dev
+---
+# Picks one trail on the studio's trail stage (env TRAIL, such as `stardust`), which throws a catch
+# in it, and takes a capture with its marks in the air; then catches again and lets it play out.
+- tapOn:
+    id: studio-item-${TRAIL}
+    waitToSettleTimeoutMs: 0
+- assertVisible:
+    id: 'session-burst-catch'
+- takeScreenshot: tour-trails-${TRAIL}
+- tapOn:
+    id: 'studio-trail-catch'
+    waitToSettleTimeoutMs: 0
+- assertVisible:
+    id: 'session-burst-catch'
+- takeScreenshot: tour-trails-${TRAIL}-again
+- extendedWaitUntil:
+    visible:
+      id: 'studio-trail-catch'
+    timeout: 5000
