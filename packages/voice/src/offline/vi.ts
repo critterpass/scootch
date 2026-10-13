@@ -97,6 +97,7 @@ export const viOffline: OfflinePack = {
     notFinished:
       'Hôm nay tới đây cũng được. Việc này vẫn nằm yên đó, khi nào bạn sẵn sàng thì mình làm.',
     reminder: 'Có một việc đang chờ ở đây, không vội đâu. Khi nào bạn sẵn sàng thì có mình.',
+    doneForToday: 'Hôm nay không còn gì nữa. Nghỉ được thì bạn cứ nghỉ, mình ở ngay đây.',
   },
   noTask: {
     soft: {

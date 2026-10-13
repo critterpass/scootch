@@ -338,7 +338,7 @@ function useOneScreenDrawn({
       // With no connection Scootch says so, in place of his usual ask: starting still works.
       line={
         resting
-          ? doneLine(shownLine, voice)
+          ? doneLine(shownLine, voice, day)
           : quiet
             ? null
             : lineWithNoTask(offline && slot === 'waiting' ? 'offline' : slot, voice)

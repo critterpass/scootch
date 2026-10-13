@@ -96,6 +96,7 @@ export const enOffline: OfflinePack = {
     done: "That's done. I'm here if you want to sit a while.",
     notFinished: "We can leave it here for today. It will keep until you're ready.",
     reminder: "One quiet thing is waiting here. I'm around whenever you're ready.",
+    doneForToday: "Nothing else today. Rest if you can. I'm right here.",
   },
   noTask: {
     soft: {
