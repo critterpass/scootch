@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { requireTableAccount } from '../accounts/accounts';
 import { tableIdPattern } from '../accounts/ids';
 import { ApiError } from '../errors';
+import { isPlusNow } from '../plus/plus-now';
 import { readBody, type RouteDefinition } from '../route';
 import { joinFriendsTable, purchaseClaimSchema } from '../tables/tables';
 
@@ -16,8 +17,9 @@ export const tablesJoinFriendRoute: RouteDefinition = {
   handle: async (c) => {
     const tableId = c.req.param('id') ?? '';
     if (!tableIdPattern.test(tableId)) throw new ApiError('not_found', 'No such table');
-    const { purchase } = await readBody(c, joinFriendRequestSchema);
+    await readBody(c, joinFriendRequestSchema);
     const account = await requireTableAccount(c);
-    return c.json(await joinFriendsTable(c.env, account, tableId, purchase));
+    const hasPlus = await isPlusNow(c.env, c.var.device.hash);
+    return c.json(await joinFriendsTable(c.env, account, tableId, hasPlus));
   },
 };

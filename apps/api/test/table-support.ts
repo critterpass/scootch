@@ -10,6 +10,7 @@ import type { Bindings } from '../src/env';
 import * as routes from '../src/routes/index.generated';
 import { tableServerMessageSchema, type TableServerMessage } from '../src/tables/table-contract';
 
+import { plusCustomerId, writePlusRecord } from '../src/plus/records';
 import { signWords } from '../src/sharing/signed-words';
 
 import { freshIp, registerDevice, shareSecret } from './support';
@@ -210,11 +211,34 @@ export async function connect(who: Person, tableId: string, query = ''): Promise
   return seat;
 }
 
+/**
+ * The server's record that the person's device holds Plus, as the store's webhook leaves it for a
+ * yearly plan. Written directly; the webhook itself has its own tests.
+ */
+export async function givePlus(who: Pick<Person, 'deviceHash'>): Promise<void> {
+  const now = new Date();
+  await writePlusRecord(
+    env.DB,
+    {
+      appUserId: await plusCustomerId(who.deviceHash),
+      active: true,
+      expiresAt: new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+      productId: 'plus_yearly',
+      storeEnvironment: 'sandbox',
+      source: 'webhook',
+      lastEventId: `given-${who.deviceHash}`,
+      eventAt: now.toISOString(),
+    },
+    now,
+  ).run();
+}
+
 /** A Plus host opens a table and connects. */
 export async function openTable(
   host: Person,
   query = '',
 ): Promise<{ tableId: string; seat: Seat }> {
+  await givePlus(host);
   const { tableId } = await ok<{ tableId: string }>(
     as(host, 'POST', '/v1/tables', { purchase: 'yearly' }),
   );

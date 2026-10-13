@@ -1,4 +1,4 @@
-import { hasPlus, isUnlocked, PURCHASE_STATES, type PurchaseState } from '@scootch/domain';
+import { PURCHASE_STATES } from '@scootch/domain';
 import { z } from 'zod';
 
 import type { Account } from '../accounts/accounts';
@@ -16,10 +16,10 @@ const tableInviteLifeMs = 24 * 60 * 60 * 1000;
 export const tableInviteRememberedMs = 7 * 24 * 60 * 60 * 1000;
 
 /**
- * The purchase state as the phone reports it. A claim, not yet a verified fact: until purchases
- * are verified on the server, Plus is whatever the phone says it is.
+ * The purchase state the phone reports. Still accepted so phones that send it are not refused,
+ * and never read: whether someone holds Plus is the server's own record (`isPlusNow`).
  */
-export const purchaseClaimSchema = z.enum(PURCHASE_STATES);
+export const purchaseClaimSchema = z.enum(PURCHASE_STATES).optional();
 
 type Seated = Account & { displayName: string };
 
@@ -37,15 +37,16 @@ async function leaveOtherTables(env: Bindings, accountId: string, staying?: stri
 /**
  * Opens a table with the caller seated as host. Anyone with an account can: without Plus the
  * table seats two, the opener and one friend, and with Plus it seats four. The capacity is fixed
- * here and never changes, whatever happens to the opener's purchase later.
+ * here and never changes, whatever happens to the opener's purchase later. `hasPlus` is the
+ * server's own record, never the phone's word.
  */
 export async function openTable(
   env: Bindings,
   account: Seated,
-  purchase: PurchaseState,
+  hasPlus: boolean,
   now: Date,
 ): Promise<OpenTableResponse> {
-  const capacity = isUnlocked(purchase, 'open_table') ? TABLE_MAX_SEATS : TABLE_FREE_SEATS;
+  const capacity = hasPlus ? TABLE_MAX_SEATS : TABLE_FREE_SEATS;
   await leaveOtherTables(env, account.id);
   const tableId = newTableId();
   await env.DB.prepare(
@@ -164,14 +165,14 @@ async function takeSeat(
   env: Bindings,
   account: Seated,
   tableId: string,
-  purchase: PurchaseState,
+  hasPlus: boolean,
   blocked: readonly string[],
 ): Promise<'seated' | 'full' | 'pass_full' | 'gone'> {
   await leaveOtherTables(env, account.id, tableId);
   const result = await tableStub(env, tableId).admit({
     accountId: account.id,
     name: account.displayName,
-    hasPlus: hasPlus(purchase),
+    hasPlus,
     blockedWith: blocked,
   });
   if (result === 'seated' || result === 'already_seated') return 'seated';
@@ -200,7 +201,7 @@ export async function joinTable(
   env: Bindings,
   account: Seated,
   code: string,
-  purchase: PurchaseState,
+  hasPlus: boolean,
   now: Date,
 ): Promise<JoinTableResponse> {
   const codeHash = await hashFor('table-invite', code);
@@ -227,7 +228,7 @@ export async function joinTable(
       .first();
     if (introduced === null) throw refusal('friends_only', 'This table is for friends');
   }
-  const result = await takeSeat(env, account, invite.table_id, purchase, blocked);
+  const result = await takeSeat(env, account, invite.table_id, hasPlus, blocked);
   if (result !== 'seated') {
     if (!known) {
       await env.DB.prepare(
@@ -247,7 +248,7 @@ export async function joinFriendsTable(
   env: Bindings,
   account: Seated,
   tableId: string,
-  purchase: PurchaseState,
+  hasPlus: boolean,
 ): Promise<JoinTableResponse> {
   const table = await env.DB.prepare(
     'SELECT capacity FROM tables WHERE id = ? AND closed_at IS NULL',
@@ -263,7 +264,7 @@ export async function joinFriendsTable(
     env,
     account,
     tableId,
-    purchase,
+    hasPlus,
     await blockedWith(env.DB, account.id),
   );
   if (result !== 'seated') refuse(result === 'gone' ? 'gone' : result);

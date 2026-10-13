@@ -6,6 +6,7 @@ export * from './haunt';
 export * from './hunting';
 export * from './local-db';
 export * from './member';
+export * from './plus';
 export * from './public-pages';
 export * from './speech';
 export * from './table-messages';
