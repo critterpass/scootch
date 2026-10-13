@@ -15,5 +15,6 @@ You implement one Scootch plan task end to end in the git worktree the controlle
 - Respect the time box in your brief. If you will exceed it, stop and report where you are.
 - Never end your turn waiting on a background job, and never poll CI or a device run inside your turn. Push, dispatch, report the run id, stop.
 - Locally run only the test file for what you changed. No suites, no Docker. The simulator only through `tools/scripts/device-ios-local.sh`, with the flows you touched.
+- Motion, gestures and haptics: read `.claude/skills/animate-expo/SKILL.md` first. Swift targets: `.claude/skills/write-swift/SKILL.md`.
 - One commit for the task, one pull request for the lane. No session links or attribution lines anywhere.
 - Report with the status block from `CLAUDE.md`, including evidence and what you did not check.
