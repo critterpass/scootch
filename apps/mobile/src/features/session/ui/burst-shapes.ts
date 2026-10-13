@@ -1,221 +1,280 @@
 import type { TrailId } from '../../studio/catalogue';
 
-/** How long the marks are in the air, at the longest: the last throw's wait and its longest flight. */
-export const BURST_MS = 1850;
+import { bubbles, splat, stardust } from './burst-dressed';
+import { paper } from './burst-paper';
+import { ALL_ROUND, sequence } from './burst-throw';
+
+/** How long the marks are in the air, at the longest: every mark is gone by then. */
+export const BURST_MS = 2500;
 /** How long the start burst holds the screen before it goes quiet. */
 export const BURST_HOLD_MS = 2600;
 
+/** What a mark is cut from. Paper for the free trail; the rest belong to a paid one. */
+export type MarkShape =
+  | 'strip'
+  | 'square'
+  | 'dot'
+  | 'curl'
+  | 'zigzag'
+  | 'star'
+  | 'sparkle'
+  | 'fleck'
+  | 'bubble'
+  | 'droplet'
+  | 'blot';
+
+/**
+ * One mark and how it moves. A mark is thrown at a speed that the air takes off it (`drag`), and
+ * then it falls (or rises) at the speed where gravity and the air agree. Times are milliseconds
+ * from the start of the burst; speeds are points a second.
+ */
 export interface BurstMark {
   readonly id: number;
-  /** Where it flies to, in points from the origin, before gravity. */
-  readonly vx: number;
-  readonly vy: number;
-  readonly gravity: number;
-  readonly delay: number;
-  readonly life: number;
+  readonly shape: MarkShape;
   readonly color: string;
   readonly width: number;
   readonly height: number;
+  readonly delay: number;
+  readonly life: number;
+  readonly vx: number;
+  readonly vy: number;
+  /** How quickly the air slows it, each second. */
+  readonly drag: number;
+  /** Down is positive; a bubble's is negative and it rises. */
+  readonly gravity: number;
   readonly rotation: number;
+  /** Turns a second, in radians, about the screen's axis. */
   readonly spin: number;
-  /** What the mark is made of: cut paper, a fleck of gold, a soap bubble or a blot of ink. */
-  readonly made: 'paper' | 'gold' | 'bubble' | 'blot';
+  /** Paper tumbling over: radians a second about its own length, 0 for none. */
+  readonly flip: number;
+  readonly flipAxis: 'x' | 'y';
+  /** The side-to-side drift once the throw is spent. */
+  readonly sway: number;
+  readonly swayRate: number;
+  readonly phase: number;
+  /** Nearer marks are a little larger. */
+  readonly scale: number;
+  readonly opacity: number;
+  /** A sparkle's pulse, radians a second; 0 for none. */
+  readonly twinkle: number;
+  /** A bubble's wobble, radians a second; 0 for none. */
+  readonly wobble: number;
+  /** When a bubble pops, in milliseconds into its life. */
+  readonly popAt: number | null;
+  /** A droplet rides inside its bubble, unseen, until the bubble pops and flings it out. */
+  readonly fling: { readonly at: number; readonly vx: number; readonly vy: number } | null;
+  /** A blot stretches as it flies and squashes when it lands. */
+  readonly lands: boolean;
+  /** The share of its life after which it fades. */
+  readonly fadeFrom: number;
 }
 
-/** One throw of a burst: where it opens, as shares of the screen, with its marks and rings. */
+/** The one soft flash where a throw goes off: a filled bloom, never an outline. */
+export interface BurstBloom {
+  readonly delay: number;
+  readonly life: number;
+  readonly size: number;
+  readonly color: string;
+  readonly peak: number;
+}
+
+/** One throw of a burst: where it opens, as shares of the screen, with its marks. */
 export interface BurstSource {
   readonly id: number;
   readonly at: readonly [number, number];
   /** Thrown from the control that set it off, when the screen knows where that is. */
   readonly fromControl: boolean;
   readonly marks: readonly BurstMark[];
-  readonly rings: readonly BurstRing[];
+  readonly bloom: BurstBloom | null;
 }
 
-export interface BurstRing {
-  readonly id: number;
-  readonly from: number;
-  readonly to: number;
-  readonly delay: number;
-  readonly life: number;
-  readonly color: string;
+/** The colours a burst is printed in, from the session's inks. */
+export interface BurstInks {
+  readonly ink: string;
+  readonly tomato: string;
+  readonly page: string;
+  readonly dark: boolean;
 }
 
-interface Throw {
+export interface Throw {
+  /** How many paper marks the free trail throws; the paid trails count from it. */
   readonly count: number;
-  readonly speed: number;
-  readonly lift: number;
-  /** When each ring sets off, in milliseconds after the throw. */
-  readonly rings: readonly number[];
-  readonly ringTo: number;
-  /** Where the rings begin: just outside the control they come from. 20 when left out. */
-  readonly ringFrom?: number;
+  /** Which way the throw points, in radians: up is -π/2. */
+  readonly aim: number;
+  /** How far either side of the aim it spreads; π is all the way round. */
+  readonly spread: number;
+  readonly speed: readonly [number, number];
   /** True for the throw that comes from the pressed control; `at` is then only where it is expected. */
   readonly fromControl?: boolean;
   /** How long after the burst begins this throw goes. */
   readonly delay: number;
   readonly at: readonly [number, number];
+  /** Only the first throw flashes. */
+  readonly bloom: boolean;
 }
 
 /** Where the Start button was a moment ago: 72 points above the foot of the board's 852-point phone. */
 const FROM_THE_BUTTON = [0.5, 0.915] as const;
 const UP_THE_SCREEN = [0.5, 0.3] as const;
 const MIDDLE = [0.5, 0.36] as const;
-
 /** Where the finish control sits when the screen has not said. */
 const THE_FINISH_CONTROL = [0.5, 0.8] as const;
 
+const UP = -Math.PI / 2;
+
 const SHAPES: Record<'start' | 'confetti' | 'catch', readonly Throw[]> = {
-  // The catch, as the board fires it when the hold completes: 80 marks and three rings from the
-  // finish button, starting at its ring, then 40 more with one ring from up the screen.
+  // A snappy cannon from the finish control, then a softer puff from up the screen.
   catch: [
     {
-      count: 80,
-      speed: 420,
-      lift: 220,
-      rings: [0, 80, 160],
-      ringTo: 120,
-      ringFrom: 62,
+      count: 66,
+      aim: UP,
+      spread: 0.7,
+      speed: [650, 1650],
       fromControl: true,
       delay: 0,
       at: THE_FINISH_CONTROL,
+      bloom: true,
     },
-    { count: 40, speed: 300, lift: 60, rings: [120], ringTo: 210, delay: 160, at: UP_THE_SCREEN },
+    {
+      count: 32,
+      aim: UP,
+      spread: ALL_ROUND,
+      speed: [220, 640],
+      delay: 150,
+      at: UP_THE_SCREEN,
+      bloom: false,
+    },
   ],
-  // The start, as the board fires it: 56 marks and two rings from the Start button, thrown high,
-  // then 34 more with one ring from up the screen, 90 ms later.
+  // The start: thrown high from the Start button, then a puff from up the screen.
   start: [
     {
-      count: 56,
-      speed: 340,
-      lift: 200,
-      rings: [0, 90],
-      ringTo: 150,
+      count: 54,
+      aim: UP,
+      spread: 0.5,
+      speed: [760, 1750],
       delay: 0,
       at: FROM_THE_BUTTON,
+      bloom: true,
     },
-    { count: 34, speed: 260, lift: 40, rings: [40], ringTo: 190, delay: 90, at: UP_THE_SCREEN },
+    {
+      count: 28,
+      aim: UP,
+      spread: ALL_ROUND,
+      speed: [220, 600],
+      delay: 130,
+      at: UP_THE_SCREEN,
+      bloom: false,
+    },
   ],
-  // The finish: further, with a third ring.
+  // The finish: a pop in the middle, and a second, softer one just above it.
   confetti: [
-    { count: 40, speed: 420, lift: 220, rings: [0, 80, 160], ringTo: 120, delay: 0, at: MIDDLE },
+    {
+      count: 44,
+      aim: UP,
+      spread: ALL_ROUND,
+      speed: [420, 1250],
+      delay: 0,
+      at: MIDDLE,
+      bloom: true,
+    },
+    {
+      count: 22,
+      aim: UP,
+      spread: ALL_ROUND,
+      speed: [200, 560],
+      delay: 140,
+      at: [0.5, 0.3],
+      bloom: false,
+    },
   ],
 };
 
-/** The same marks every time: a burst is a drawing, not a roll of the dice. */
-function sequence(seed: number): () => number {
-  let state = seed;
-  return () => {
-    state = (state + 0x6d2b79f5) | 0;
-    let mixed = Math.imul(state ^ (state >>> 15), 1 | state);
-    mixed = (mixed + Math.imul(mixed ^ (mixed >>> 7), 61 | mixed)) ^ mixed;
-    return ((mixed ^ (mixed >>> 14)) >>> 0) / 2 ** 32;
+function bloomOf(shape: Throw, trail: TrailId, inks: BurstInks): BurstBloom | null {
+  if (!shape.bloom) return null;
+  const color = {
+    confetti: inks.tomato,
+    stardust: '#FFC94A',
+    bubbles: inks.dark ? '#BFE0FF' : '#8FC1F0',
+    splat: inks.tomato,
+  }[trail];
+  return {
+    delay: shape.delay,
+    life: trail === 'stardust' ? 340 : 300,
+    size: 220,
+    color,
+    peak: 0.5,
   };
 }
 
-/** The flying marks: short rounded bars and dots, thrown in every direction and pulled down. */
-function marksOf(shape: Throw, next: () => number, colors: readonly string[]): BurstMark[] {
-  return Array.from({ length: shape.count }, (_, id) => {
-    const angle = next() * Math.PI * 2;
-    const speed = shape.speed * (0.4 + next() * 0.8);
-    const bar = id % 2 === 0;
-    const dot = (2.5 + next() * 2.5) * 2;
-    return {
-      id,
-      vx: Math.cos(angle) * speed,
-      vy: Math.sin(angle) * speed - shape.lift,
-      gravity: 260,
-      delay: shape.delay + next() * 60,
-      life: 900 + next() * 700,
-      color: colors[id % colors.length] ?? '#000000',
-      width: bar ? 9 + next() * 9 : dot,
-      height: bar ? 4.4 : dot,
-      rotation: next() * 6,
-      spin: (next() - 0.5) * 10,
-      made: 'paper',
-    };
-  });
-}
-
 /**
- * The same throw in another trail. Where a mark flies does not change, so a trail is a dressing
- * and never a different burst: only what it is made of, how big it is and how it falls.
- */
-function dressed(mark: BurstMark, trail: TrailId): BurstMark {
-  const step = mark.id % 7;
-  switch (trail) {
-    case 'confetti':
-      return mark;
-    case 'stardust': {
-      // Gold flecks that hang in the air a beat too long.
-      const size = 4 + step;
-      return {
-        ...mark,
-        made: 'gold',
-        color: '#FFC94A',
-        width: size,
-        height: size,
-        gravity: 60,
-        life: mark.life * 1.35,
-      };
-    }
-    case 'bubbles': {
-      // Soap bubbles rise.
-      const size = 12 + step * 3;
-      return {
-        ...mark,
-        made: 'bubble',
-        color: 'rgba(190,225,255,0.3)',
-        width: size,
-        height: size,
-        gravity: -150,
-      };
-    }
-    case 'splat': {
-      // A blot lands where it was thrown and stays there until it fades.
-      const size = 6 + step * 3;
-      return {
-        ...mark,
-        made: 'blot',
-        color: '#1C1A17',
-        width: size,
-        height: size * (mark.id % 2 ? 1 : 0.86),
-        gravity: 0,
-        spin: 0,
-      };
-    }
-  }
-}
-
-function ringsOf(shape: Throw, colors: readonly string[]): BurstRing[] {
-  return shape.rings.map((delay, id) => ({
-    id,
-    from: shape.ringFrom ?? 20,
-    to: shape.ringTo + id * 50,
-    delay: shape.delay + delay,
-    life: 700,
-    color: colors[id % colors.length] ?? '#000000',
-  }));
-}
-
-/**
- * A burst as its throws, each from its own point. `markColors` cycle through the marks and
- * `ringColors` through each throw's rings. The trail dresses a catch and a finish; the start of
- * a session is always paper.
+ * A burst as its throws, each from its own point, in the trail the person wears. The start of a
+ * session is always paper; the trail dresses a catch and a finish.
  */
 export function burstSources(
   kind: keyof typeof SHAPES,
-  markColors: readonly string[],
-  ringColors: readonly string[],
+  inks: BurstInks,
   trail: TrailId = 'confetti',
 ): BurstSource[] {
   const worn = kind === 'start' ? 'confetti' : trail;
   const next = sequence(kind === 'start' ? 11 : kind === 'catch' ? 37 : 23);
-  return SHAPES[kind].map((shape, id) => ({
-    id,
-    at: shape.at,
-    fromControl: shape.fromControl === true,
-    marks: marksOf(shape, next, markColors).map((mark) => dressed(mark, worn)),
-    rings: ringsOf(shape, ringColors),
-  }));
+  return SHAPES[kind].map((shape, id) => {
+    const first = id === 0;
+    const marks = {
+      confetti: () => paper(shape, next, inks),
+      stardust: () => stardust(shape, next, first),
+      bubbles: () => bubbles(shape, next, inks),
+      splat: () => splat(shape, next, inks, first),
+    }[worn]();
+    return {
+      id,
+      at: shape.at,
+      fromControl: shape.fromControl === true,
+      marks: marks.map((mark) => ({
+        ...mark,
+        life: Math.min(mark.life, BURST_MS - mark.delay),
+      })),
+      bloom: bloomOf(shape, worn, inks),
+    };
+  });
+}
+
+/** The throw the still marks are cut from: only their looks are used. */
+const STILL_THROW: Throw = {
+  count: 30,
+  aim: UP,
+  spread: ALL_ROUND,
+  speed: [0, 0],
+  delay: 0,
+  at: MIDDLE,
+  bloom: false,
+};
+
+/** A few marks of the trail laid still, for when nothing may fly. Offsets are from the middle. */
+export function stillMarks(
+  inks: BurstInks,
+  trail: TrailId,
+): readonly { readonly mark: BurstMark; readonly x: number; readonly y: number }[] {
+  const spots = [
+    [-112, -96],
+    [96, -120],
+    [-60, -150],
+    [138, -24],
+    [-146, 6],
+    [44, -64],
+    [-30, 84],
+    [118, 92],
+    [-118, 120],
+    [20, 150],
+  ] as const;
+  const shape: Throw = { ...STILL_THROW, count: 30 };
+  const made = {
+    confetti: () => paper(shape, sequence(5), inks),
+    stardust: () => stardust(shape, sequence(5), false),
+    bubbles: () => bubbles(shape, sequence(5), inks).filter((mark) => mark.shape === 'bubble'),
+    splat: () => splat(shape, sequence(5), inks, false),
+  }[trail]();
+  return spots.flatMap(([x, y], index) => {
+    const mark = made[index % made.length];
+    return mark ? [{ mark, x, y }] : [];
+  });
 }
