@@ -83,7 +83,7 @@ function createAppDayStore(db: SQLiteDatabase, language: () => Language) {
   // The store's public SDK key comes from the app's config; with none, nothing can be bought.
   const plus = createPlusRuntime({
     db,
-    port: revenueCatPurchases(process.env['EXPO_PUBLIC_REVENUECAT_IOS_KEY']),
+    port: revenueCatPurchases(process.env['EXPO_PUBLIC_REVENUECAT_IOS_KEY'], { db, http }),
     clock: systemClock,
     notifications: nativeNotifications,
     timeZone,

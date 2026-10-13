@@ -15,7 +15,9 @@ export type PlusMemoryKey =
   | 'cameraTries'
   | 'cameraConsent'
   /** The photo a session began with, kept on the phone until its second photo or a day passes. */
-  | 'cameraBefore';
+  | 'cameraBefore'
+  /** The id the store was last logged in with: the one the server handed this phone. */
+  | 'storeCustomerId';
 
 export interface PlusMemory {
   /** The stored value, or `null` when nothing was stored or it cannot be read. */

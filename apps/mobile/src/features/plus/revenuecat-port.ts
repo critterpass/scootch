@@ -4,8 +4,13 @@ import Purchases, {
   type PurchasesStoreProduct,
 } from 'react-native-purchases';
 
+import type { HttpClient } from '../../api/http-client';
+import { plusMemory } from '../../data/plus-memory';
+import type { SqlDatabase } from '../../data/table';
+
 import { planOfProduct, PLAN_PRODUCTS, PLANS, type PlanId } from './products';
 import {
+  PurchasesUnavailable,
   unavailablePurchases,
   type CustomerState,
   type Offerings,
@@ -13,6 +18,7 @@ import {
   type PurchasesPort,
 } from './purchases-port';
 import { customerFromStore } from './revenuecat-customer';
+import { askStoreCustomerId, storeIdentity } from './store-identity';
 
 // RevenueCat behind the port. Nothing here is covered by the unit tests, which use the fake port:
 // it runs only in a native build with products in the store.
@@ -50,16 +56,51 @@ function cancelledByUser(error: unknown): boolean {
 }
 
 /**
- * The store on a real phone. With no public SDK key in the app's config the SDK is never
- * configured and the port reports that purchases are unavailable.
+ * The store on a real phone, known by the id the server handed out whenever it can be had. With
+ * no public SDK key in the app's config the SDK is never configured and the port reports that
+ * purchases are unavailable, as it does when the SDK refuses to be configured.
  */
-export function revenueCatPurchases(apiKey: string | undefined): PurchasesPort {
+export function revenueCatPurchases(
+  apiKey: string | undefined,
+  phone: { readonly db: SqlDatabase; readonly http: Pick<HttpClient, 'request'> },
+): PurchasesPort {
   if (!apiKey) return unavailablePurchases;
-  try {
-    Purchases.configure({ apiKey });
-  } catch {
-    return unavailablePurchases;
-  }
+  const identity = storeIdentity({
+    // The id is kept with the rest of Plus's memory and asked of the server by the app's client.
+    memory: plusMemory(phone.db),
+    customerId: () => askStoreCustomerId(phone.http),
+    configure: (appUserID) => {
+      Purchases.configure(appUserID === null ? { apiKey } : { apiKey, appUserID });
+    },
+    logIn: async (appUserId) => {
+      await Purchases.logIn(appUserId);
+    },
+  });
+  let available = true;
+  // The SDK is configured once the stored id has been read; nothing reaches it before that.
+  const configured = identity.start().catch(() => {
+    available = false;
+  });
+  const ready = async () => {
+    await configured;
+    if (!available) throw new PurchasesUnavailable();
+  };
+  return {
+    get available() {
+      return available;
+    },
+    ...storePort(ready, identity.beforeBuying),
+  };
+}
+
+/**
+ * The SDK's calls, each made once `ready` resolves. A purchase or a restore also waits for
+ * `beforeBuying`, so it is made under the server's id whenever that can be had.
+ */
+function storePort(
+  ready: () => Promise<void>,
+  beforeBuying: () => Promise<void>,
+): Omit<PurchasesPort, 'available'> {
   const products = new Map<string, PurchasesStoreProduct>();
   const read = (info: CustomerInfo): CustomerState => customerFromStore(info);
 
@@ -71,8 +112,8 @@ export function revenueCatPurchases(apiKey: string | undefined): PurchasesPort {
   };
 
   return {
-    available: true,
     offerings: async (itemProductIds): Promise<Offerings> => {
+      await ready();
       const subscriptions = [PLAN_PRODUCTS.monthly, PLAN_PRODUCTS.yearly];
       const single = [PLAN_PRODUCTS.lifetime, ...itemProductIds];
       const found = [
@@ -103,6 +144,8 @@ export function revenueCatPurchases(apiKey: string | undefined): PurchasesPort {
     },
     purchase: async (productId) => {
       try {
+        await ready();
+        await beforeBuying();
         const product =
           products.get(productId) ?? (await load([productId], categoryOf(productId)))[0];
         if (!product) return { kind: 'failed' };
@@ -112,9 +155,19 @@ export function revenueCatPurchases(apiKey: string | undefined): PurchasesPort {
         return cancelledByUser(error) ? { kind: 'cancelled' } : { kind: 'failed' };
       }
     },
-    restore: async () => read(await Purchases.restorePurchases()),
-    customer: async () => read(await Purchases.getCustomerInfo()),
-    manageSubscriptions: () => Purchases.showManageSubscriptions(),
+    restore: async () => {
+      await ready();
+      await beforeBuying();
+      return read(await Purchases.restorePurchases());
+    },
+    customer: async () => {
+      await ready();
+      return read(await Purchases.getCustomerInfo());
+    },
+    manageSubscriptions: async () => {
+      await ready();
+      await Purchases.showManageSubscriptions();
+    },
     onCustomerChange: (listener) => {
       const heard = (info: CustomerInfo) => listener(read(info));
       Purchases.addCustomerInfoUpdateListener(heard);

@@ -61,8 +61,14 @@ export function fakeStore(changes: Partial<FakeStore> = {}): FakeStore {
   };
 }
 
-/** A port on a fake store. It never touches a network or an SDK. */
-export function fakePurchases(store: FakeStore): PurchasesPort & {
+/**
+ * A port on a fake store. It never touches a network or an SDK. Like the real port, a purchase
+ * or a restore first waits for `beforeBuying`, when one is given.
+ */
+export function fakePurchases(
+  store: FakeStore,
+  beforeBuying: () => Promise<void> = () => Promise.resolve(),
+): PurchasesPort & {
   /** The store reports a change by itself, as after a renewal or a refund. */
   push(customer: CustomerState): void;
 } {
@@ -76,14 +82,19 @@ export function fakePurchases(store: FakeStore): PurchasesPort & {
   return {
     available: true,
     offerings: () => reach('offerings', () => store.offerings),
-    purchase: (productId) =>
-      reach(`purchase ${productId}`, (): PurchaseOutcome => {
+    purchase: async (productId) => {
+      await beforeBuying();
+      return reach(`purchase ${productId}`, (): PurchaseOutcome => {
         const next = store.nextPurchase;
         if (next === 'cancelled' || next === 'failed') return { kind: next };
         store.customer = next;
         return { kind: 'purchased', customer: next };
-      }).catch((): PurchaseOutcome => ({ kind: 'failed' })),
-    restore: () => reach('restore', () => store.customer),
+      }).catch((): PurchaseOutcome => ({ kind: 'failed' }));
+    },
+    restore: async () => {
+      await beforeBuying();
+      return reach('restore', () => store.customer);
+    },
     customer: () => reach('customer', () => store.customer),
     manageSubscriptions: () =>
       reach('manage', () => {
@@ -96,6 +107,24 @@ export function fakePurchases(store: FakeStore): PurchasesPort & {
     push(customer) {
       store.customer = customer;
       for (const listener of listeners) listener(customer);
+    },
+  };
+}
+
+/**
+ * The store's sign-in on the same fake store: what it is set up under and who it logs in as go
+ * into the store's calls, beside the purchases, so a test can read their order.
+ */
+export function fakeStoreSignIn(store: FakeStore) {
+  return {
+    configure: (appUserId: string | null) => {
+      store.calls.push(appUserId === null ? 'configure anonymous' : `configure ${appUserId}`);
+    },
+    logIn: (appUserId: string) => {
+      store.calls.push(`logIn ${appUserId}`);
+      return store.down
+        ? Promise.reject(new Error('The store cannot be reached'))
+        : Promise.resolve();
     },
   };
 }
