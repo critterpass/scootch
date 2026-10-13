@@ -88,6 +88,7 @@ export function ComposerSend({ text, busy, onEvent, gone = false }: FieldProps &
         disabled={busy || !on}
         onPress={() => onEvent({ type: 'send_tapped' })}
         testID="composer-send"
+        byGesture
         style={[styles.send, { backgroundColor: palette.ink }]}
       >
         <SendIcon color={palette.page} />
