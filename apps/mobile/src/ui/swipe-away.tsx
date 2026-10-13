@@ -19,6 +19,8 @@ import { useFeel } from './motion/use-feel';
 import { useScreenStyle } from './use-screen-style';
 
 const ALWAYS = ReduceMotion.Never;
+/** Let go to remove, it carries the finger's speed off without bouncing. */
+const OFF = { duration: ROW.offMs, dampingRatio: 1, overshootClamping: true } as const;
 
 type PanConfig = NonNullable<Parameters<typeof usePanGesture>[0]>;
 
@@ -50,19 +52,25 @@ export function SwipeAway({ onGone, to = 'left', radius = 0, style, children }: 
   const wide = useSharedValue(0);
   const tall = useSharedValue(0);
   const slid = useSharedValue(0);
+  /** Where it was when the finger took it, so a grab mid-spring carries on from there. */
+  const start = useSharedValue(0);
   const gone = useSharedValue(0);
 
+  const take: NonNullable<PanConfig['onActivate']> = () => {
+    'worklet';
+    start.value = slid.value;
+  };
   // How far it has gone, as a negative number either way: to the left, or down.
   const follow: NonNullable<PanConfig['onUpdate']> = (event) => {
     'worklet';
-    slid.value = Math.min(0, down ? -event.translationY : event.translationX);
+    slid.value = Math.min(0, start.value + (down ? -event.translationY : event.translationX));
   };
   const release: NonNullable<PanConfig['onDeactivate']> = (event) => {
     'worklet';
     const far = down ? tall.value : wide.value;
     const velocity = down ? -event.velocityY : event.velocityX;
     if (!event.canceled && removesOnRelease(slid.value, velocity, far)) {
-      slid.value = withTiming(-far, { duration: ROW.offMs, reduceMotion: ALWAYS });
+      slid.value = withSpring(-far, { ...OFF, velocity, reduceMotion: ALWAYS });
       gone.value = withTiming(
         1,
         { duration: mayMove ? ROW.closeMs : 0, reduceMotion: ALWAYS },
@@ -72,7 +80,7 @@ export function SwipeAway({ onGone, to = 'left', radius = 0, style, children }: 
       );
       return;
     }
-    slid.value = withSpring(0, { ...ROW.settle, reduceMotion: ALWAYS });
+    slid.value = withSpring(0, { ...ROW.settle, velocity, reduceMotion: ALWAYS });
   };
   // Which drag takes it, and which is left alone. Each way is written whole: a spread inside the
   // hook's own braces stops the worklets plugin, and the app does not bundle.
@@ -82,12 +90,14 @@ export function SwipeAway({ onGone, to = 'left', radius = 0, style, children }: 
           activeOffsetY: ROW.takesAfter,
           failOffsetY: -ROW.takesAfter,
           failOffsetX: [-ROW.scrollsAfter, ROW.scrollsAfter],
+          onActivate: take,
           onUpdate: follow,
           onDeactivate: release,
         }
       : {
           activeOffsetX: [-ROW.takesAfter, ROW.takesAfter],
           failOffsetY: [-ROW.scrollsAfter, ROW.scrollsAfter],
+          onActivate: take,
           onUpdate: follow,
           onDeactivate: release,
         },

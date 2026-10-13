@@ -4,12 +4,12 @@ import Animated, {
   Extrapolation,
   interpolate,
   ReduceMotion,
-  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
   type SharedValue,
 } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 
 import { Monster } from '../../../art/Monster';
 import { Scootch, type ScootchProps } from '../../../art/Scootch';
@@ -131,7 +131,7 @@ export function useFaceSwap(input: FaceSwapInput): FaceSwap {
         pending === 'scootch' ? 1 : 0,
         { duration: SWAP_MS, easing: FLIP_CURVE, reduceMotion: ReduceMotion.Never },
         (finished) => {
-          if (finished) runOnJS(settle)(pending);
+          if (finished) scheduleOnRN(settle, pending);
         },
       );
     };

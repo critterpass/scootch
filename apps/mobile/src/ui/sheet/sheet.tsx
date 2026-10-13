@@ -22,7 +22,6 @@ import {
   usePanGesture,
 } from 'react-native-gesture-handler';
 import Animated, {
-  Easing,
   ReduceMotion,
   useAnimatedStyle,
   useSharedValue,
@@ -32,13 +31,15 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { scheduleOnRN } from 'react-native-worklets';
 
-import { CROSSFADE_MS } from '../motion/motion-tokens';
+import { CROSSFADE_MS, SPRING_CURVE } from '../motion/motion-tokens';
 import { useMayMove } from '../motion/use-feel';
 import { useScreenStyle } from '../use-screen-style';
 
 import { closesOnRelease, rubberBand, SHEET } from './sheet-motion';
 
 const ALWAYS = ReduceMotion.Never;
+/** Let go to close, it carries the finger's speed off the screen without bouncing. */
+const FLING = { duration: 300, dampingRatio: 1, overshootClamping: true } as const;
 const SheetCloseContext = createContext<() => void>(() => undefined);
 
 export interface SheetProps {
@@ -71,27 +72,35 @@ export function Sheet({ open, onClose, header, children, testID }: SheetProps) {
   /** How far the finger has moved it from rest. */
   const drag = useSharedValue(0);
   const tall = useSharedValue(height);
+  /** Flung off by the finger: it is already below the screen when it is closed. */
+  const flung = useSharedValue(false);
 
   useEffect(() => {
     if (open) {
+      flung.value = false;
       drag.value = 0;
       up.value = mayMove
         ? withSpring(1, { ...SHEET.open, reduceMotion: ALWAYS })
         : withTiming(1, { duration: CROSSFADE_MS, reduceMotion: ALWAYS });
       return;
     }
+    if (flung.value) {
+      up.value = 0;
+      setMounted(false);
+      return;
+    }
     up.value = withTiming(
       0,
       {
         duration: mayMove ? SHEET.closeMs : CROSSFADE_MS,
-        easing: Easing.in(Easing.cubic),
+        easing: SPRING_CURVE,
         reduceMotion: ALWAYS,
       },
       (finished) => {
         if (finished) scheduleOnRN(setMounted, false);
       },
     );
-  }, [open, mayMove, up, drag]);
+  }, [open, mayMove, up, drag, flung]);
 
   const pan = usePanGesture({
     activeOffsetY: [-SHEET.takesAfter, SHEET.takesAfter],
@@ -103,10 +112,23 @@ export function Sheet({ open, onClose, header, children, testID }: SheetProps) {
     onDeactivate: (event) => {
       'worklet';
       if (!event.canceled && closesOnRelease(drag.value, event.velocityY, tall.value)) {
-        // It carries on down from where the finger left it.
-        scheduleOnRN(onClose);
+        // Where nothing may move it fades from where the finger left it.
+        if (!mayMove) {
+          scheduleOnRN(onClose);
+          return;
+        }
+        // It carries on down at the finger's own speed, and is closed once it is off the screen.
+        flung.value = true;
+        drag.value = withSpring(
+          tall.value + SHEET.margin * 2,
+          { ...FLING, velocity: event.velocityY, reduceMotion: ALWAYS },
+          (finished) => {
+            if (finished) scheduleOnRN(onClose);
+          },
+        );
         return;
       }
+      flung.value = false;
       drag.value = withSpring(0, { ...SHEET.settle, reduceMotion: ALWAYS });
     },
   });

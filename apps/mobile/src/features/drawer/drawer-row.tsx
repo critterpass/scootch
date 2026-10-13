@@ -23,6 +23,8 @@ import { drawerStyles as styles } from './drawer-sheet-styles';
 import { removesOnRelease, ROW } from '../../ui/motion/swipe-motion';
 
 const ALWAYS = ReduceMotion.Never;
+/** Let go to remove, it carries the finger's speed off without bouncing. */
+const OFF = { duration: ROW.offMs, dampingRatio: 1, overshootClamping: true } as const;
 const ROW_SIZE = 16;
 const WHEN_SIZE = 12.5;
 const SWAP_SIZE = 13;
@@ -77,6 +79,8 @@ export function DrawerRow({
   const wide = useSharedValue(0);
   const tall = useSharedValue(0);
   const slid = useSharedValue(0);
+  /** Where it was when the finger took it, so a grab mid-spring carries on from there. */
+  const start = useSharedValue(0);
   /** 0 in the list, 1 closed up and gone. */
   const gone = useSharedValue(0);
 
@@ -95,18 +99,30 @@ export function DrawerRow({
     enabled: !editing && !ticked,
     activeOffsetX: [-ROW.takesAfter, ROW.takesAfter],
     failOffsetY: [-ROW.scrollsAfter, ROW.scrollsAfter],
+    onActivate: () => {
+      'worklet';
+      start.value = slid.value;
+    },
     onUpdate: (event) => {
       'worklet';
-      slid.value = Math.min(0, event.translationX);
+      slid.value = Math.min(0, start.value + event.translationX);
     },
     onDeactivate: (event) => {
       'worklet';
       if (!event.canceled && removesOnRelease(slid.value, event.velocityX, wide.value)) {
-        slid.value = withTiming(-wide.value, { duration: ROW.offMs, reduceMotion: ALWAYS });
+        slid.value = withSpring(-wide.value, {
+          ...OFF,
+          velocity: event.velocityX,
+          reduceMotion: ALWAYS,
+        });
         leave('removed');
         return;
       }
-      slid.value = withSpring(0, { ...ROW.settle, reduceMotion: ALWAYS });
+      slid.value = withSpring(0, {
+        ...ROW.settle,
+        velocity: event.velocityX,
+        reduceMotion: ALWAYS,
+      });
     },
   });
   // The point of no return is felt once, as the row crosses it.
