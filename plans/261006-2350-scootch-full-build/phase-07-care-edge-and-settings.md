@@ -21,7 +21,7 @@ High effort for tasks 1 and 2.
 - Test: every place that renders a monster, a joke, a card or a share checks
   the flag. One test walks a serious task through the whole day loop and
   asserts none appears.
-- Status: partly done — 45cd82d; built and tested with fakes, not yet run on a device
+- Status: done on the simulator — walked as a fresh user on the simulator 13 Oct 2026 (e2e/fresh/07, #199); home after a heavy day ends on the plain line (#197); not yet seen on a real phone
 
 ### 2. Crisis
 - Do: all tasks hidden for the day; one human sentence; helplines for the
@@ -33,7 +33,7 @@ High effort for tasks 1 and 2.
   Zealand and India. Vietnam must be added and verified, because the app
   launches in Vietnamese.
 - Test: crisis wins over every other state, including an active session.
-- Status: partly done — 45cd82d; built and tested with fakes, not yet run on a device; the helpline table is now one table shared with the website (`packages/i18n/src/helplines/`), with opening hours, a text number and an audience for each row; numbers verified at their own sources on 2026-10-07 except India (Tele-MANAS, official site would not load) and the opening hours of Hy Vọng Sống, which stay unverified; Vietnam lists 115, Ngày mai, Hy Vọng Sống and 111, closed lines say so and come last; a production bundle of the app now refuses to be made while anything is unverified, so it is blocked on those two until a person verifies them; the hours and closed states have never been seen on a device
+- Status: done on the simulator — walked as a fresh user on the simulator 13 Oct 2026 (e2e/fresh/08, #199); the helplines come first and the screen can be closed; not yet seen on a real phone; the helpline table is now one table shared with the website (`packages/i18n/src/helplines/`), with opening hours, a text number and an audience for each row; numbers verified at their own sources on 2026-10-07 except India (Tele-MANAS, official site would not load) and the opening hours of Hy Vọng Sống, which stay unverified; Vietnam lists 115, Ngày mai, Hy Vọng Sống and 111, closed lines say so and come last; a production bundle of the app now refuses to be made while anything is unverified, so it is blocked on those two until a person verifies them; the hours and closed states have never been seen on a device
 
 ### 3. Offline
 - Do: starting works with no connection: carry on from yesterday or type
@@ -42,7 +42,7 @@ High effort for tasks 1 and 2.
   world piece and bar arrive later. A task typed offline gets plain company
   until it has been screened.
 - Test: a task created offline syncs once, not twice.
-- Status: partly done — 45cd82d; built and tested with fakes, not yet run on a device
+- Status: done on the simulator — walked as a fresh user on the simulator 13 Oct 2026 with the developer offline switch (e2e/fresh/09, #201); a thing held as heavy offline gets the serious screen with no burst (#203); not yet seen on a real phone
 
 ### 4. Model unavailable
 - Do: Scootch says so in one line and the user picks. Lines are written later.

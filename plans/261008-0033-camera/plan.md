@@ -1,6 +1,6 @@
 # Camera
 
-Status: all five phases are written and tested off a phone; nothing has run on a device, and Paper and Screen have never met the live model · Created 8 Oct 2026 · Board:
+Status: all five phases are written and tested off a phone; the viewfinder and Paper's consent were walked on the simulator 13 Oct (#198); hidden by the founder's choice (13 Oct 2026): no way in from home until a design pass places one, the routes stay in place; Paper and Screen have never met the live model · Created 8 Oct 2026 · Board:
 [Scootch - Camera](../../design/Scootch%20-%20Camera.dc.html), section 01
 (nine screens, listed in `design/screens.json`).
 
