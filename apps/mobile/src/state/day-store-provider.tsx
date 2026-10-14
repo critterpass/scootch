@@ -1,7 +1,6 @@
 import * as Sentry from '@sentry/react-native';
 import { randomUUID } from 'expo-crypto';
 import { getCalendars } from 'expo-localization';
-import { addNetworkStateListener, getNetworkStateAsync } from 'expo-network';
 import { useSQLiteContext, type SQLiteDatabase } from 'expo-sqlite';
 import {
   createContext,
@@ -34,6 +33,7 @@ import {
   systemTimers,
 } from '../effects/native-adapters';
 import { nativeLinkPorts } from '../features/arrive/native-link-ports';
+import { addNetworkStateListener, getNetworkStateAsync } from '../features/offline/connection';
 import { purchaseStateOf } from '../features/plus/entitlement';
 import { revenueCatPurchases } from '../features/plus/revenuecat-port';
 import { nativeShareDevice } from '../features/share/native-share-device';

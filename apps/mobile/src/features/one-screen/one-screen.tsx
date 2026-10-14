@@ -1,4 +1,3 @@
-import { useNetworkState } from 'expo-network';
 import { useIsFocused, useRouter, type Href } from 'expo-router';
 import { useEffect, useRef, useState, type ReactElement } from 'react';
 import { Linking, View } from 'react-native';
@@ -27,6 +26,7 @@ import { DrawerSheet } from '../drawer/drawer-sheet';
 import { usePullNudge } from '../drawer/pull-nudge';
 import { HatchHauntLink } from '../haunt/hatch-haunt-link';
 import { useHomePager, usePagerHold } from '../home-pager/home-pager-context';
+import { useNetworkState } from '../offline/connection';
 import { wordsWhileUnscreened } from '../offline/waiting-words';
 import { PLUS_SHEET_ONE_MORE } from '../plus/routes';
 import type { Company } from '../table/company-control';

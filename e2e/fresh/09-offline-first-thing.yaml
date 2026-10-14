@@ -1,0 +1,263 @@
+appId: app.scootch.dev
+---
+# The fresh-user walk with no connection, from a clean install. A simulator cannot be taken
+# offline, so the developer switch under the "Developer tools" row of Settings pretends there is
+# none: the app's connection reader says offline and every API call fails as a network error. It
+# is not in the store app. The first thing is typed with the switch on: it comes back as the one
+# thing with no monster and no joke about it, and a session runs and finishes on the phone alone.
+# Then a heavy thing is typed, still offline: the phone's own gate holds it, and it gets no monster
+# and nothing funny. With the switch off the app finds the connection by itself, and the held
+# thing is screened at last.
+- runFlow: 01-first-launch.yaml
+
+# Settings, the way a developer reaches it: the pretend-offline switch, and the control that ends a
+# session soon (a flow cannot wait ten minutes).
+- tapOn:
+    id: 'more-button'
+    waitToSettleTimeoutMs: 0
+- extendedWaitUntil:
+    visible:
+      id: 'settings'
+    timeout: 6000
+    optional: true
+- runFlow:
+    when:
+      notVisible:
+        id: 'settings'
+      visible:
+        id: 'more-button'
+    commands:
+      - tapOn:
+          id: 'more-button'
+          waitToSettleTimeoutMs: 0
+          optional: true
+- extendedWaitUntil:
+    visible:
+      id: 'settings'
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: 'dev-pretend-offline'
+    direction: DOWN
+- tapOn:
+    id: 'dev-pretend-offline'
+- takeScreenshot: fresh-09-pretend-offline-on
+- tapOn:
+    id: 'developer-tools'
+- extendedWaitUntil:
+    visible:
+      id: 'dev-short-session'
+    timeout: 15000
+- tapOn:
+    id: 'dev-short-session'
+- scrollUntilVisible:
+    element:
+      id: 'dev-close'
+    direction: DOWN
+- tapOn:
+    id: 'dev-close'
+
+# Home says it is offline and will sync later. Starting still works.
+- extendedWaitUntil:
+    visible:
+      id: 'offline'
+    timeout: 15000
+- assertVisible: "Offline · I'll sync later"
+- assertVisible:
+    id: 'composer-talk'
+- takeScreenshot: fresh-09-home-offline
+
+# The first thing, typed.
+- tapOn:
+    id: 'composer-switch'
+- extendedWaitUntil:
+    visible:
+      id: 'composer-input'
+    timeout: 15000
+- tapOn:
+    id: 'composer-input'
+- inputText: 'email the dentist'
+- runFlow:
+    when:
+      visible: 'Continue'
+    commands:
+      - tapOn: 'Continue'
+- eraseText: 40
+- inputText: 'email the dentist'
+- tapOn:
+    id: 'composer-send'
+- extendedWaitUntil:
+    visible:
+      id: 'energy-read'
+    timeout: 15000
+- takeScreenshot: fresh-09-energy-offline
+- tapOn:
+    id: 'energy-guess'
+# With no connection the typed text comes back as it is, and Scootch says only that there is no
+# signal: never a word about the thing itself.
+- extendedWaitUntil:
+    visible:
+      id: 'one-thing-accept'
+    timeout: 30000
+- assertVisible: 'No signal\. My jokes need wifi, but I can still sit with you\.'
+- assertVisible:
+    id: 'offline'
+- takeScreenshot: fresh-09-one-thing-offline
+- tapOn:
+    id: 'one-thing-accept'
+# No monster hatches: the thing is set with Start, and the monster will come once it is screened.
+- extendedWaitUntil:
+    visible:
+      id: 'one-action'
+    timeout: 30000
+- assertNotVisible:
+    id: 'hatch-catch'
+- assertNotVisible:
+    id: 'hatch-monster'
+- assertVisible:
+    id: 'task-set-minutes-10'
+- assertVisible: "Your monster will hatch when we're back online\\."
+- takeScreenshot: fresh-09-task-set-offline
+
+# The session runs on the phone alone.
+- tapOn:
+    id: 'one-action'
+- extendedWaitUntil:
+    visible:
+      id: 'session-running'
+    timeout: 30000
+- assertNotVisible:
+    id: 'session-corner-monster'
+- takeScreenshot: fresh-09-session-offline
+# A moment in, the line under the timer turns to the working one.
+- extendedWaitUntil:
+    visible: "Your monster will hatch when we're back online\\."
+    timeout: 20000
+    optional: true
+- takeScreenshot: fresh-09-session-offline-working
+- tapOn:
+    id: 'session-menu'
+- extendedWaitUntil:
+    visible:
+      id: 'session-developer-end'
+    timeout: 15000
+- tapOn:
+    id: 'session-developer-end'
+- extendedWaitUntil:
+    visible:
+      id: 'session-finish-hold'
+    timeout: 30000
+- takeScreenshot: fresh-09-time-up-offline
+- longPressOn:
+    id: 'session-hold'
+# Whatever the finish gives with no connection is skipped through, back to home.
+- extendedWaitUntil:
+    visible:
+      id: 'reveal-skip'
+    timeout: 15000
+    optional: true
+- takeScreenshot: fresh-09-finished-offline
+- repeat:
+    while:
+      visible:
+        id: 'reveal-skip'
+    commands:
+      - tapOn:
+          id: 'reveal-skip'
+      - waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: 'one-sentence'
+    timeout: 30000
+- assertVisible:
+    id: 'offline'
+- takeScreenshot: fresh-09-home-after-finish-offline
+
+# Still offline, a heavy thing typed from home: the phone's own gate holds it before anything is
+# sent.
+- tapOn:
+    id: 'composer-switch'
+    waitToSettleTimeoutMs: 0
+- extendedWaitUntil:
+    visible:
+      id: 'composer-input'
+    timeout: 15000
+- tapOn:
+    id: 'composer-input'
+- inputText: 'book flowers for the funeral'
+- takeScreenshot: fresh-09-heavy-typing-offline
+- tapOn:
+    id: 'composer-send'
+- extendedWaitUntil:
+    visible:
+      id: 'one-thing-accept'
+    timeout: 30000
+    optional: true
+- takeScreenshot: fresh-09-heavy-offered-offline
+- assertNotVisible:
+    id: 'hatch-monster'
+- assertNotVisible: 'No signal\. My jokes need wifi.*'
+- runFlow:
+    when:
+      visible:
+        id: 'one-thing-accept'
+    commands:
+      - tapOn:
+          id: 'one-thing-accept'
+- extendedWaitUntil:
+    visible:
+      id: 'one-action'
+    timeout: 30000
+- assertNotVisible:
+    id: 'hatch-monster'
+- assertNotVisible:
+    id: 'hatch-catch'
+- assertNotVisible: "Your monster will hatch when we're back online\\."
+- takeScreenshot: fresh-09-heavy-set-offline
+
+# The switch off: the connection is back, and the app finds it by itself.
+- tapOn:
+    id: 'more-button'
+    waitToSettleTimeoutMs: 0
+- extendedWaitUntil:
+    visible:
+      id: 'settings'
+    timeout: 6000
+    optional: true
+- runFlow:
+    when:
+      notVisible:
+        id: 'settings'
+      visible:
+        id: 'more-button'
+    commands:
+      - tapOn:
+          id: 'more-button'
+          waitToSettleTimeoutMs: 0
+          optional: true
+- extendedWaitUntil:
+    visible:
+      id: 'settings'
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: 'dev-pretend-offline'
+    direction: DOWN
+- tapOn:
+    id: 'dev-pretend-offline'
+- tapOn:
+    id: 'settings-close'
+- extendedWaitUntil:
+    notVisible:
+      id: 'offline'
+    timeout: 15000
+- takeScreenshot: fresh-09-back-online
+# The held thing is screened now the connection is back, and its own plain words arrive.
+- extendedWaitUntil:
+    visible:
+      id: 'serious-task'
+    timeout: 30000
+    optional: true
+- assertNotVisible:
+    id: 'hatch-monster'
+- takeScreenshot: fresh-09-back-online-screened
