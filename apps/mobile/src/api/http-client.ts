@@ -1,5 +1,7 @@
 import type { Language } from '@scootch/domain';
 
+import { pretendOffline } from '../features/offline/pretend-offline';
+
 import { ApiClientError, asApiError, errorFromResponse } from './api-error';
 
 /** Where the anonymous device token lives. The app keeps it in the keychain; tests use a fake. */
@@ -72,6 +74,8 @@ export function createHttpClient(options: HttpClientOptions): HttpClient {
     const abort = new AbortController();
     const timer = setTimeout(() => abort.abort(), timeoutMs);
     try {
+      // The developer switch that pretends there is no connection: nothing reaches the server.
+      if (pretendOffline.isOn()) throw new TypeError('Network request failed');
       const response = await options.fetch(`${options.baseUrl}${path}`, {
         method,
         headers: { 'Content-Type': 'application/json', ...headers },

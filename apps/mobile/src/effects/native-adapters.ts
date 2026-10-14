@@ -1,7 +1,6 @@
 import { createAudioPlayer, type AudioPlayer } from 'expo-audio';
 import { File, Paths } from 'expo-file-system';
 import * as Haptics from 'expo-haptics';
-import { getNetworkStateAsync } from 'expo-network';
 import * as Notifications from 'expo-notifications';
 
 import {
@@ -17,6 +16,7 @@ import { CUES, encodeWav, type HapticTap } from '@scootch/sound';
 
 import * as LiveActivity from '../../modules/scootch-live-activity';
 import * as MonsterNotifications from '../../modules/scootch-notifications';
+import { getNetworkStateAsync } from '../features/offline/connection';
 import { nativeSharedStore } from '../features/surfaces/native-surface-ports';
 import { SHARED_KEYS } from '../features/surfaces/surface-ports';
 import type { SurfaceSnapshot } from '../features/surfaces/surface-snapshot';

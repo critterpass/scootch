@@ -9,6 +9,7 @@ import type { Language } from '@scootch/i18n';
 import { useT } from '../../i18n/i18n-provider';
 import { useAppearance } from '../../screens/registry/support/forced-variant';
 import { LookSection, type LookFacts } from '../look/look-section';
+import { PretendOfflineRow } from '../offline/pretend-offline-row';
 import type { PlanId } from '../plus/products';
 
 import { AttitudeDial } from './attitude-dial';
@@ -239,12 +240,15 @@ export function SettingsPage(props: SettingsPageProps) {
           testID="settings-helplines"
         />
         {props.developerTools ? (
-          <Row
-            label={t('settings.developerTools')}
-            hint={t('settings.developerTools.hint')}
-            onPress={() => onOpen('developer-tools')}
-            testID="developer-tools"
-          />
+          <>
+            <Row
+              label={t('settings.developerTools')}
+              hint={t('settings.developerTools.hint')}
+              onPress={() => onOpen('developer-tools')}
+              testID="developer-tools"
+            />
+            <PretendOfflineRow />
+          </>
         ) : null}
       </Section>
 
