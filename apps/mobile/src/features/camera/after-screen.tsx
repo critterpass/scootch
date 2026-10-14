@@ -86,7 +86,7 @@ export function AfterScreen(props: AfterScreenProps) {
           </View>
           <View style={styles.bottom}>
             <View style={styles.peek} pointerEvents="none">
-              <Scootch mood={reading ? 'thinking' : 'waiting'} attitude={attitude} />
+              <Scootch mood={reading ? 'thinking' : 'waiting'} attitude={attitude} size={PEEK} />
             </View>
             <View style={[styles.panel, { backgroundColor: palette.surface }]}>
               <SessionText face="step" color={palette.ink} testID="camera-after-line">
@@ -194,6 +194,8 @@ export function AfterScreen(props: AfterScreenProps) {
 }
 
 const SHUTTER = 72;
+/** Scootch in the corner, drawn at the size of his corner. */
+const PEEK = 96;
 
 const styles = StyleSheet.create({
   dark: { flex: 1, backgroundColor: '#000000' },
@@ -207,7 +209,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   bottom: { paddingBottom: spacing.sm },
-  peek: { width: 96, height: 96, marginBottom: -spacing.md, marginLeft: spacing.sm },
+  peek: { width: PEEK, height: PEEK, marginBottom: -spacing.md, marginLeft: spacing.sm },
   panel: { borderRadius: radius.lg + 4, padding: spacing.lg, gap: spacing.md },
   askRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   shutter: {

@@ -1,0 +1,61 @@
+appId: app.scootch.dev
+---
+# The fresh-user walk, step ten (c): the widgets, added the way a person adds them. It carries on
+# from the step before it, with a thing set; nothing is cleared and nothing is seeded. The app is
+# opened once so the surfaces are told what is lurking, then left; on the Home Screen a long press
+# starts editing, and the widget gallery is searched for Scootch.
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: 'one-sentence'
+    timeout: 90000
+- pressKey: Home
+- waitForAnimationToEnd:
+    timeout: 3000
+- longPressOn:
+    point: '50%,60%'
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: fresh-10-widgets-editing
+- tapOn: 'Edit'
+- waitForAnimationToEnd:
+    timeout: 3000
+- tapOn: 'Add Widget'
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: fresh-10-widgets-gallery
+- tapOn: 'Search Widgets'
+- inputText: 'Scootch'
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: fresh-10-widgets-search
+# The gallery's results are drawn by the system and are not in the tree a flow reads: the first
+# result is pressed where it stands.
+- tapOn:
+    point: '35%,29%'
+- waitForAnimationToEnd:
+    timeout: 4000
+- takeScreenshot: fresh-10-widgets-scootch-first
+- swipe:
+    direction: LEFT
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: fresh-10-widgets-scootch-second
+- swipe:
+    direction: LEFT
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: fresh-10-widgets-scootch-third
+# Back to Lurkers, which is added; the Home key ends editing.
+- swipe:
+    direction: RIGHT
+- waitForAnimationToEnd:
+    timeout: 3000
+- tapOn:
+    point: '50%,90%'
+- waitForAnimationToEnd:
+    timeout: 4000
+- pressKey: Home
+- waitForAnimationToEnd:
+    timeout: 4000
+- takeScreenshot: fresh-10-widgets-on-home-screen
