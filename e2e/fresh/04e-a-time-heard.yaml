@@ -53,8 +53,9 @@ appId: app.scootch.dev
     visible:
       id: 'one-action'
     timeout: 60000
-# The wheel opens at the longest length that ends before getting ready; the line says so.
+# The wheel opens at the longest length that ends before getting ready; the line says so. On iOS
+# the text matched is the line's spoken label, a whole sentence that ends in a full stop.
 - assertVisible:
     id: 'task-set-ends-at'
-    text: '.*then you get ready'
+    text: '.*then you get ready\.?'
 - takeScreenshot: one-screen-task-set-before-a-time--en-light-default
