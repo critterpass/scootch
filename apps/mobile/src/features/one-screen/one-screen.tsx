@@ -41,6 +41,7 @@ import { OneScreenView, type OneScreenShown } from './one-screen-view';
 import { stageShown } from './stage-shown';
 import { taskSetShown, useTaskSetChoice } from './task-set-shown';
 import { useHeldWords } from './use-held-words';
+import { useHomeRests } from './use-home-rests';
 import { useReturnedText } from './use-returned-text';
 import { sentWordsAreStale, useForgetSentWords } from './use-sent-words';
 
@@ -137,6 +138,7 @@ function useOneScreenDrawn({
       request.listening ? { type: 'toggled', at: Date.now() } : { type: 'keyboard_tapped' },
     );
   });
+  useHomeRests(stage.kind === 'home', sendComposer);
   useReturnedText(day.returnedText, sendComposer, dispatch);
   useForgetSentWords(
     sentWordsAreStale(
