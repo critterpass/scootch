@@ -16,6 +16,7 @@ import { Stack } from '../dump/dump-panels';
 import { TimeHeardCard } from '../dump/time-heard-card';
 import type { OneScreenShown } from '../one-screen/one-screen-view';
 
+import { offersBeFunny } from './serious-choices';
 import { SeriousPanel } from './serious-panel';
 import { SeriousFooter } from './serious-when';
 
@@ -40,7 +41,9 @@ const clock = (at: Instant, language: Language) =>
 
 /**
  * What the one screen shows for a serious task: its own plain words and the quiet choices. Every
- * sentence comes from the task's stored lines or the offline pack's plain ones.
+ * sentence comes from the task's stored lines or the offline pack's plain ones. A thing the phone's
+ * own gate held, with no screen yet, is shown the same way from the offline pack, without "It's
+ * fine, be funny": nothing may be unlocked before a screen has answered, and it might be a crisis.
  */
 export function seriousShown(input: SeriousShownInput): OneScreenShown {
   const { task, settings, language } = input;
@@ -64,7 +67,7 @@ export function seriousShown(input: SeriousShownInput): OneScreenShown {
       remindedAt={input.reminderAt === null ? null : clock(input.reminderAt, language)}
       onTinyStep={sit}
       onRemind={() => send({ type: 'reminder_asked' })}
-      onBeFunny={() => send({ type: 'be_funny_asked' })}
+      {...(offersBeFunny(task) ? { onBeFunny: () => send({ type: 'be_funny_asked' }) } : {})}
     />
   );
   const heard = input.heardTime ?? null;

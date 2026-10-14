@@ -10,6 +10,7 @@ import {
 import type { StringKey } from '@scootch/i18n';
 
 import type { DayState, Reveal } from '../../state/day-types';
+import { toneFor } from '../../state/lines';
 import { showsComedy } from '../../state/shows-comedy';
 import { MAX_SHRINKS, sizeStep } from '../../state/smaller';
 
@@ -138,7 +139,9 @@ export function stageOf(input: StageInput): Stage {
 
   const { task } = today;
   // The flag is the task's own: a serious task never reaches the reveal, the hatch or a monster.
-  const quiet = today.kind === 'serious';
+  // Nor does one the phone's own gate held before any screen: with no connection it gets the
+  // same plain words and quiet choices, until a screen says otherwise.
+  const quiet = today.kind === 'serious' || toneFor(task) === 'quiet';
   // A serious task is not offered and haggled over: its own quiet screen is shown at once.
   if (pick.kind === 'offered' && !quiet) {
     return {

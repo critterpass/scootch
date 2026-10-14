@@ -14,6 +14,7 @@ import { revealSteps } from '../reveal/reveal-steps';
 import { NOTHING_PASSED, sessionView } from '../session/session-view';
 import { shareOffered } from '../share/share-rules';
 
+import { offersBeFunny } from './serious-choices';
 import { carePhone, careServer } from './test/care-phone';
 
 const serious = seriousFixture.response as TaskCreateResponse;
@@ -166,6 +167,71 @@ describe('a serious task', () => {
     expect((await phone.repositories.drawerItems.all()).map((item) => item.screen)).toEqual([
       'serious',
     ]);
+  });
+});
+
+describe("a heavy thing the phone's own gate held, with no connection", () => {
+  const heldWords = 'book flowers for the funeral';
+  const offline = async () => {
+    const phone = await carePhone(careServer(null, false));
+    await phone.type(heldWords);
+    await phone.runner.settled();
+    return phone;
+  };
+
+  it('is not offered with a burst: it gets the serious screen and its plain words at once', async () => {
+    const phone = await offline();
+    const state = phone.store.getState();
+    const task = taskOf(state.today);
+    expect(task.screen).toBe('unscreened');
+    // Not offered and celebrated: its own quiet screen, as a serious task's is.
+    expect(stageOf({ ...state, energyAsked: false })).toMatchObject({
+      kind: 'task_set',
+      quiet: true,
+      monster: null,
+    });
+    expect(await comedyOnThePhone(phone)).toEqual(NOTHING);
+    expect(state.heavyToday).toBe(true);
+
+    // The plain words the online serious screen says, from the offline pack.
+    const voice = { language: 'en', attitude: 'unhinged' } as const;
+    expect(lineFor('acknowledge', task, voice)).toBe(offlinePacks.en.plain.acknowledge);
+    expect(lineFor('tinyNextStep', task, voice)).toBe(offlinePacks.en.plain.tinyNextStep);
+
+    // "It's fine, be funny" is not offered before a screen has answered: it could be a crisis.
+    expect(offersBeFunny(task)).toBe(false);
+    await phone.store.dispatch({ type: 'be_funny_asked' });
+    expect(taskOf(phone.store.getState().today).seriousOverridden).toBe(false);
+  });
+
+  it('sets the one plain reminder when asked, and nothing playful is planned', async () => {
+    const phone = await offline();
+    await phone.store.dispatch({ type: 'reminder_asked' });
+    await phone.runner.settled();
+
+    expect(phone.store.getState().reminderAt).toBe(Date.parse('2026-10-06T10:00:00.000Z'));
+    expect(phone.device.scheduled()).toEqual([
+      expect.objectContaining({
+        at: Date.parse('2026-10-06T10:00:00.000Z'),
+        text: offlinePacks.en.plain.reminder,
+      }),
+    ]);
+  });
+
+  it('is set aside with "Not today": the day ends on its plain line, never a joke', async () => {
+    const phone = await offline();
+    await phone.store.dispatch({ type: 'serious_set_aside' });
+    await phone.runner.settled();
+
+    const state = phone.store.getState();
+    expect(state.today.kind).toBe('done_for_today');
+    expect(state.line?.text).toBe(offlinePacks.en.plain.notFinished);
+    // The day still holds something heavy, so home rests on the plain words.
+    expect(state.heavyToday).toBe(true);
+    expect((await phone.repositories.drawerItems.all()).map((item) => item.text)).toEqual([
+      heldWords,
+    ]);
+    for (const one of phone.device.scheduled()) expect(SOFT_GENERIC).toContain(one.text);
   });
 });
 

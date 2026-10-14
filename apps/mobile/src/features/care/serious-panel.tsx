@@ -17,7 +17,8 @@ export interface SeriousPanelProps {
   readonly remindedAt: string | null;
   readonly onTinyStep: () => void;
   readonly onRemind: () => void;
-  readonly onBeFunny: () => void;
+  /** "It's fine, be funny". Unset leaves the link out: a thing no screen has answered for yet. */
+  readonly onBeFunny?: () => void;
 }
 
 /**
@@ -67,12 +68,14 @@ export function SeriousPanel({
           />
         ) : null}
       </View>
-      <QuietLink
-        label={t('care.serious.beFunny')}
-        hint={t('care.serious.beFunny.hint')}
-        onPress={onBeFunny}
-        testID="serious-be-funny"
-      />
+      {onBeFunny ? (
+        <QuietLink
+          label={t('care.serious.beFunny')}
+          hint={t('care.serious.beFunny.hint')}
+          onPress={onBeFunny}
+          testID="serious-be-funny"
+        />
+      ) : null}
     </Stack>
   );
 }

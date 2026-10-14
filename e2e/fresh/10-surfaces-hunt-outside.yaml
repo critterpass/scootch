@@ -1,8 +1,9 @@
 appId: app.scootch.dev
 ---
 # The fresh-user walk, step ten: the hunt seen from outside the app. It carries on from the step
-# before it, on home with a thing set; nothing is cleared and nothing is seeded. Run on its own, on
-# a clean install, it first walks steps one and two to get there. A hunt is started in the app,
+# before it; nothing is cleared and nothing is seeded. Run on its own, on a clean install, it first
+# walks steps one and two. A heavy thing left set is set aside, and with no ordinary thing set one
+# is typed from home. A hunt is started in the app,
 # then the app is left: the Island shows the race on the Home Screen, and the Notification Centre
 # shows the Live Activity the way the Lock Screen does. Back in the app the thing is made smaller,
 # so home has a thing set again. A flow cannot add a widget, lock the phone or press a
@@ -19,6 +20,55 @@ appId: app.scootch.dev
     commands:
       - runFlow: 01-first-launch.yaml
       - runFlow: 02-first-thing-typed.yaml
+# After the walks with a heavy thing, that thing may still be set: it is set aside with its own
+# "Not today", as a person would.
+- extendedWaitUntil:
+    visible:
+      id: 'serious-not-today'
+    timeout: 5000
+    optional: true
+- runFlow:
+    when:
+      visible:
+        id: 'serious-not-today'
+    commands:
+      - tapOn:
+          id: 'serious-not-today'
+      - extendedWaitUntil:
+          notVisible:
+            id: 'serious-not-today'
+          timeout: 15000
+# With no ordinary thing set, one is typed from home, the way the next thing always is.
+- runFlow:
+    when:
+      notVisible:
+        id: 'one-action'
+    commands:
+      - tapOn:
+          id: 'composer-switch'
+          waitToSettleTimeoutMs: 0
+      - extendedWaitUntil:
+          visible:
+            id: 'composer-input'
+          timeout: 15000
+      - tapOn:
+          id: 'composer-input'
+      - inputText: 'tidy the desk'
+      - tapOn:
+          id: 'composer-send'
+      - extendedWaitUntil:
+          visible:
+            id: 'one-thing-accept'
+          timeout: 60000
+      - tapOn:
+          id: 'one-thing-accept'
+      - runFlow:
+          when:
+            visible:
+              id: 'hatch-catch'
+          commands:
+            - tapOn:
+                id: 'hatch-catch'
 - extendedWaitUntil:
     visible:
       id: 'one-action'

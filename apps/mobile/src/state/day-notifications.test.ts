@@ -120,6 +120,28 @@ describe('the notifications planned from today on', () => {
     }
   });
 
+  it("plans only the asked reminder for a thing the phone's own gate held, with no connection", () => {
+    // Nobody has screened it, and the phone's gate saw a heavy word in it.
+    const held = taskRow({
+      screen: 'unscreened',
+      lines: null,
+      text: 'book flowers for the funeral',
+    });
+    const today: TodayState = { kind: 'task_set', task: held, startsLeft: 1 };
+    expect(plan(today, { attitude: 'unhinged' })).toEqual([]);
+
+    const at = Date.parse('2026-10-06T10:00:00.000Z');
+    const planned = dayNotifications({
+      today,
+      settings: { ...defaultSettings('en'), firstLaunchDoneAt: LAUNCHED, attitude: 'unhinged' },
+      localDate: TODAY,
+      timeZone: ZONE,
+      usualStart: '10:00',
+      reminderAt: at,
+    });
+    expect(planned).toEqual([{ at, text: offlinePacks.en.plain.reminder }]);
+  });
+
   it('keeps the days ahead soft once a serious task has been part of today', () => {
     const planned = dayNotifications({
       today: { kind: 'done_for_today' } as TodayState,

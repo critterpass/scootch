@@ -261,6 +261,27 @@ export function scootchShare(fraction: number): number {
   return (172 + 40 * clamp01(fraction)) / 330;
 }
 
+/** The lines an unscreened thing's hatch note stands in for: its plain start, its working and time-up. */
+const NOTE_TAKES_THE_PLACE_OF: readonly ShownLine['slot'][] = [
+  'start',
+  'acknowledge',
+  'working',
+  'timeUp',
+];
+
+/**
+ * The line of a session whose ordinary thing nobody has screened yet (typed with no connection),
+ * as the offline board draws it: from the start to the time up, his note that its monster will
+ * hatch when the connection is back. A monster hatching, the stuck card and the finish keep their
+ * own lines. `note` is `null` for every other thing, a held heavy one included, whose plain line
+ * stays.
+ */
+export function lineWhileUnscreened(line: ShownLine | null, note: string | null): ShownLine | null {
+  if (note === null) return line;
+  if (line !== null && !NOTE_TAKES_THE_PLACE_OF.includes(line.slot)) return line;
+  return { slot: 'working', text: note };
+}
+
 /** The line shown under the timer: any line but the ones the stuck card and the finish carry. */
 export function companyLine(line: ShownLine | null): string | null {
   if (line === null) return null;
