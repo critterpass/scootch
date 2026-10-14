@@ -197,4 +197,7 @@ appId: app.scootch.dev
     id: 'reveal-skip'
 - assertNotVisible:
     id: 'share'
+# A heavy day rests on plain words: never the attitude's joke for the end of the day.
+- assertNotVisible: '.*Go do absolutely nothing.*'
+- assertNotVisible: '.*Go and rest\. I.ll keep things cosy here.*'
 - takeScreenshot: fresh-07-home-after-serious

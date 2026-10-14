@@ -13,6 +13,7 @@ import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { useCharacterMotion } from '../../ui/motion/use-feel';
 import { useDispatch, useSession, useToday } from '../../state/day-store-provider';
 import { useKeepsakes } from '../../state/keepsakes';
+import { lineWithNoTask } from '../../state/lines';
 import { useSurfaceRequest } from '../../state/surface-requests';
 import { revealSeen } from '../reveal/reveal-seen';
 
@@ -26,6 +27,7 @@ import {
   catchable,
   closeMeans,
   finishedByHand,
+  lineWhileUnscreened,
   minutesLeft,
   sessionView,
   timeLeftFraction,
@@ -216,6 +218,16 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
   // The user's own line comes before any line of Scootch's: while the sitting is opened on it,
   // nothing he says is shown.
   const opening = session ? sessionOpening(session, now, localDate) : null;
+  // An ordinary thing nobody has screened yet: from the start to the time up, Scootch's note that
+  // its monster will hatch when the connection is back. The session's tone carries the flag: a
+  // thing the phone's gate held is quiet, and keeps its plain line.
+  const unscreened =
+    task?.screen === 'unscreened' &&
+    live?.tone === 'full' &&
+    (phase === 'time_up' || TICKING.includes(phase ?? ''));
+  const hatchNote = unscreened
+    ? lineWithNoTask('hatchesWhenBack', { language, attitude: settings.attitude })
+    : null;
   const model: SessionModel = {
     view,
     quiet: live?.tone === 'quiet',
@@ -226,7 +238,7 @@ export function useSessionScreen(): { model: SessionModel; actions: SessionActio
     plannedMinutes: live?.ask.minutes ?? 0,
     minutesLeft: left,
     fraction: live ? timeLeftFraction(live, now) : 0,
-    line: opening ? null : line,
+    line: opening ? null : lineWhileUnscreened(line, hatchNote),
     opening,
     tinyNextStep,
     treatLine: afterLines.treat,

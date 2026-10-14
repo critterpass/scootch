@@ -103,4 +103,41 @@ describe('what a finish gave, read back from storage', () => {
     expect(earnedBy(later)).toMatchObject({ card: true, piece: true, bar: false, drop: true });
     expect(earnedBy({ ...later, drops: [{ ...drop, choice: 'later' }] }).drop).toBe(false);
   });
+
+  it('shows a finish with no monster yet no piece and no bar, and still hands over its drop', () => {
+    // Typed with no connection: the finish put down a plain piece and the day's bar, and they
+    // arrive once a screen answers, with the monster.
+    const task = fixtureTask(0);
+    const plain = {
+      ...fixturePieces(1)[0]!,
+      kind: 'plain' as const,
+      monsterId: null,
+      seed: task.id,
+      addedOn: monster.caughtOn,
+    };
+    const offline: FinishRows = {
+      ...rows,
+      task,
+      monster: null,
+      pieces: [plain],
+      bars: [{ ...fixtureBars(1)[0]!, localDate: monster.caughtOn, monsterId: null }],
+      drops: [],
+    };
+    expect(earnedBy(offline)).toEqual({
+      tone: 'full',
+      card: false,
+      piece: false,
+      bar: false,
+      drop: false,
+    });
+    const drop = {
+      id: 'drop-1',
+      taskId: task.id,
+      catchNumber: 1,
+      pick: 0.4,
+      droppedOn: monster.caughtOn,
+      choice: null,
+    } as const;
+    expect(revealSteps(earnedBy({ ...offline, drops: [drop] }))).toEqual(['drop']);
+  });
 });

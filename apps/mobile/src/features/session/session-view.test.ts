@@ -15,6 +15,7 @@ import {
   catchPlays,
   catchable,
   finishedByHand,
+  lineWhileUnscreened,
 } from './session-view';
 
 const START = Date.parse('2026-10-06T09:00:00.000Z');
@@ -274,5 +275,27 @@ describe('a session that ends in a catch', () => {
     expect(sessionView(input({ session: quiet, coach: true, catchable: true }))).toEqual({
       kind: 'starting',
     });
+  });
+});
+
+describe('the line of a session whose thing nobody has screened yet', () => {
+  const NOTE = "Your monster will hatch when we're back online.";
+  const plain = { slot: 'start', text: "I'll keep this one simple. Ready when you are." } as const;
+
+  it('is the hatch note from the start to the time up, as the offline board draws it', () => {
+    for (const line of [null, plain, { slot: 'timeUp', text: 'Time.' } as const]) {
+      expect(lineWhileUnscreened(line, NOTE)).toEqual({ slot: 'working', text: NOTE });
+    }
+  });
+
+  it('leaves a hatch, the stuck card and the finish their own lines', () => {
+    for (const slot of ['hatch', 'tinyNextStep', 'caught', 'notFinished'] as const) {
+      const line = { slot, text: 'own' };
+      expect(lineWhileUnscreened(line, NOTE)).toBe(line);
+    }
+  });
+
+  it('changes nothing for any other thing, a held heavy one included', () => {
+    expect(lineWhileUnscreened(plain, null)).toBe(plain);
   });
 });

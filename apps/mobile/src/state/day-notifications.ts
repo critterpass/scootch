@@ -21,6 +21,7 @@ import { noTaskLine, offlineLine, offlinePacks } from '@scootch/voice';
 import type { NotificationSender } from '../effects/adapters';
 import type { PlannedText } from '../effects/effects-runner';
 
+import { quietTaskOf } from './care-flow';
 import { getReadyAlone, getReadyText, getReadyTimed } from './heard-time';
 import { lineFor } from './lines';
 import { showsComedy } from './shows-comedy';
@@ -116,6 +117,14 @@ function sessionEnd(input: DayNotificationsInput): PlannedText[] {
 }
 
 /**
+ * A serious task, or one the phone's own gate held before any screen: either way only the quiet
+ * plan, until a screen says otherwise.
+ */
+function onQuietPath(today: TodayState): boolean {
+  return today.kind === 'serious' || quietTaskOf(today) !== null;
+}
+
+/**
  * The cue of a serious thing that is still only set: one message in plain words at the soft
  * limit, signed by no monster, and a tap on it starts the thing as any cue's does.
  */
@@ -123,7 +132,7 @@ function plainCue(input: DayNotificationsInput): PlannedText[] {
   const { today, settings } = input;
   const timed = cueTimed({ ...input, now: input.now });
   const cue = 'task' in today ? (today.task.startCue ?? null) : null;
-  if (today.kind !== 'serious' || timed.length === 0 || cue === null) return [];
+  if (!('task' in today) || !onQuietPath(today) || timed.length === 0 || cue === null) return [];
   const plan = notificationPlan({
     attitude: 'soft',
     ignoredDays: 0,
@@ -163,7 +172,7 @@ export function dayNotifications(input: DayNotificationsInput): PlannedText[] {
   // A phone that has not been through first launch, or has just had everything deleted, has
   // nobody to nudge yet.
   if (settings.firstLaunchDoneAt === null) return [];
-  if (today.kind === 'serious') {
+  if (onQuietPath(today)) {
     // While a serious task is open nothing playful is planned at all, today or ahead: the only
     // thing sent is the reminder that was asked for, in plain words that do not name the task.
     const at = input.reminderAt ?? null;

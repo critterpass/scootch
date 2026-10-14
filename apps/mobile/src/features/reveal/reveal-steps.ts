@@ -93,14 +93,19 @@ export function dropOfFinish(rows: FinishRows): SurpriseDropRow | null {
   return rows.drops.find((drop) => drop.taskId === rows.task?.id && drop.choice === null) ?? null;
 }
 
-/** What the finish of today's task gave, read back from what it wrote. */
+/**
+ * What the finish of today's task gave, read back from what it wrote, and shown now. A task with no
+ * monster yet (typed with no connection, and not screened) shows no piece and no bar: the plain
+ * piece is already in the world and becomes its monster's once a screen answers, so the card, the
+ * piece and the bar arrive with the connection. A drop is always handed over.
+ */
 export function earnedBy(rows: FinishRows): Earned {
   const { monster } = rows;
   return {
     tone: rows.tone,
     card: monster !== null && monster.number !== null && monster.caughtOn === rows.localDate,
-    piece: pieceOfFinish(rows) !== null,
-    bar: barOfFinish(rows) !== null,
+    piece: monster !== null && pieceOfFinish(rows) !== null,
+    bar: monster !== null && barOfFinish(rows) !== null,
     drop: dropOfFinish(rows) !== null,
   };
 }

@@ -6,6 +6,8 @@ import {
   localDateTime,
   type Instant,
   type QuietHours,
+  type TaskRow,
+  type TodayState,
 } from '@scootch/domain';
 
 import { careGate } from '../api/care-gate';
@@ -13,7 +15,7 @@ import type { SessionContext } from '../effects/adapters';
 
 import { moveArrivedPage } from './arrived-pages';
 import type { DayContext, DayEvent } from './day-types';
-import { NO_AFTER_LINES, lineFor } from './lines';
+import { NO_AFTER_LINES, lineFor, toneFor } from './lines';
 import { park } from './task-rows';
 
 /** A reminder is never set for sooner than this. */
@@ -153,16 +155,27 @@ export function reminderTime(now: Instant, timeZone: string, quiet: QuietHours):
   return isQuietMinute(hour * 60, quiet) ? null : at;
 }
 
+/**
+ * Today's task when it is on the quiet screen and not begun: a serious one, or one the phone's own
+ * gate held before any screen answered for it. Its quiet choices (the reminder, "Not today") work
+ * the same for both. `null` for any other day.
+ */
+export function quietTaskOf(today: TodayState): TaskRow | null {
+  if (today.kind === 'serious') return today.session === null ? today.task : null;
+  return today.kind === 'task_set' && toneFor(today.task) === 'quiet' ? today.task : null;
+}
+
 /** "Remind me at …" on a serious task: one plain notification, asked for and never repeated. */
 export async function askReminder(ctx: DayContext): Promise<void> {
   const { today, settings } = ctx.memory.state;
-  if (today.kind !== 'serious' || today.task.status !== 'set') return;
+  const task = quietTaskOf(today);
+  if (task === null || task.status !== 'set') return;
   const at = reminderTime(ctx.now(), ctx.deps.timeZone(), {
     start: settings.quietHoursStart,
     end: settings.quietHoursEnd,
   });
   if (at === null) return;
-  await ctx.deps.repositories.careReminder.write({ taskId: today.task.id, at });
+  await ctx.deps.repositories.careReminder.write({ taskId: task.id, at });
   await ctx.refresh();
 }
 
@@ -172,8 +185,8 @@ export async function askReminder(ctx: DayContext): Promise<void> {
  */
 export async function setSeriousAside(ctx: DayContext): Promise<void> {
   const { today, settings, localDate } = ctx.memory.state;
-  if (today.kind !== 'serious' || today.task.status !== 'set') return;
-  const { task } = today;
+  const task = quietTaskOf(today);
+  if (task === null || task.status !== 'set') return;
   const { repositories } = ctx.deps;
   const [aside] = await park(
     ctx,

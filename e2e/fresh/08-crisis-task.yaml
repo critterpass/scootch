@@ -112,6 +112,9 @@ appId: app.scootch.dev
     id: 'share'
 - assertNotVisible:
     id: 'composer-locked'
+# The day rests on plain words: never the attitude's joke for the end of the day.
+- assertNotVisible: '.*Go do absolutely nothing.*'
+- assertNotVisible: '.*Go and rest\. I.ll keep things cosy here.*'
 - takeScreenshot: fresh-08-after-closing
 # The helplines stay one tap from Settings.
 - tapOn:
@@ -165,3 +168,4 @@ appId: app.scootch.dev
     visible:
       id: 'one-sentence'
     timeout: 15000
+- assertNotVisible: '.*Go do absolutely nothing.*'

@@ -8,8 +8,9 @@ import {
   type SessionRow,
 } from '@scootch/domain';
 
+import { quietTaskOf } from './care-flow';
 import { dayNotifications } from './day-notifications';
-import { showsComedy } from './shows-comedy';
+import { showsComedy, type CareFlags } from './shows-comedy';
 import { withoutSpentCues } from './start-cue';
 import type { DayContext } from './day-types';
 
@@ -52,20 +53,13 @@ export async function readToday(
   const items = await repositories.drawerItems.all();
   // The reminder belongs to today's serious task while it is still only set, and to nothing else.
   const asked = await repositories.careReminder.read();
-  const reminderAt =
-    asked !== null &&
-    today.kind === 'serious' &&
-    today.session === null &&
-    asked.taskId === task?.id
-      ? asked.at
-      : null;
+  const reminderAt = asked !== null && asked.taskId === quietTaskOf(today)?.id ? asked.at : null;
   if (asked !== null && reminderAt === null) await repositories.careReminder.clear();
-  // Something heavy is around: a serious task today, one waiting in the drawer, or the quiet
-  // after the care screen was closed.
-  const heavyToday =
-    day?.status === 'quiet' ||
-    tasks.some((one) => one.screen === 'serious') ||
-    items.some((one) => one.screen === 'serious');
+  // Something heavy is around: a serious task today, one waiting in the drawer, one the phone's
+  // own gate held and no screen has answered for yet, or the quiet after the care screen was
+  // closed.
+  const heavy = (one: CareFlags) => one.screen === 'serious' || !showsComedy(one, 'burst');
+  const heavyToday = day?.status === 'quiet' || tasks.some(heavy) || items.some(heavy);
   // A task carried on to tomorrow waits there, and the day that is resting says so.
   const tomorrow = await repositories.tasks.where('localDate', addDays(localDate, 1));
   set({
