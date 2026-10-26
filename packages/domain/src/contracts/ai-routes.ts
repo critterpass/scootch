@@ -7,14 +7,8 @@ import {
   screenInputResponseSchema,
   sharePrivateRequestSchema,
   sharePrivateResponseSchema,
-  tableNameRequestSchema,
-  tableNameResponseSchema,
-  taskBodyTypeRequestSchema,
-  taskBodyTypeResponseSchema,
   taskSizeRequestSchema,
   taskSizeResponseSchema,
-  taskWorkModeRequestSchema,
-  taskWorkModeResponseSchema,
 } from './ai-labels';
 import {
   dayMorningLineRequestSchema,
@@ -27,8 +21,6 @@ import {
   taskPickResponseSchema,
   taskShrinkRequestSchema,
   taskShrinkResponseSchema,
-  weekRecordNameRequestSchema,
-  weekRecordNameResponseSchema,
   weekSentenceRequestSchema,
   weekSentenceResponseSchema,
 } from './ai-small-routes';
@@ -84,16 +76,9 @@ export const aiRoutes = {
     response: dayMorningLineResponseSchema,
   },
   'week.sentence': { request: weekSentenceRequestSchema, response: weekSentenceResponseSchema },
-  'week.record_name': {
-    request: weekRecordNameRequestSchema,
-    response: weekRecordNameResponseSchema,
-  },
-  'task.work_mode': { request: taskWorkModeRequestSchema, response: taskWorkModeResponseSchema },
-  'task.body_type': { request: taskBodyTypeRequestSchema, response: taskBodyTypeResponseSchema },
   'task.size': { request: taskSizeRequestSchema, response: taskSizeResponseSchema },
   'ramble.energy': { request: rambleEnergyRequestSchema, response: rambleEnergyResponseSchema },
   'share.private': { request: sharePrivateRequestSchema, response: sharePrivateResponseSchema },
-  'table.name': { request: tableNameRequestSchema, response: tableNameResponseSchema },
 } as const;
 
 export type AiRouteId = keyof typeof aiRoutes;

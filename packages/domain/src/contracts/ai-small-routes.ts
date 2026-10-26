@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-import { workModeSchema } from './art';
 import {
   attitudeSchema,
   energySchema,
@@ -141,8 +140,6 @@ export const weekStatsSchema = z.object({
       finished: z.number().int().min(0),
     }),
   ),
-  /** Most used first. */
-  workModes: z.array(workModeSchema).max(5),
 });
 export type WeekStats = z.infer<typeof weekStatsSchema>;
 
@@ -154,31 +151,3 @@ export type WeekSentenceRequest = z.infer<typeof weekSentenceRequestSchema>;
 
 export const weekSentenceResponseSchema = z.object({ sentence: lineSchema });
 export type WeekSentenceResponse = z.infer<typeof weekSentenceResponseSchema>;
-
-// week.record_name: the name of the week's record.
-
-export const weekRecordNameRequestSchema = spokenRequestSchema.extend({
-  week: isoWeekSchema,
-  /**
-   * One entry per bar on the record, in playing order. Bars from serious
-   * tasks are left out, and a task marked private sends its monster name only.
-   */
-  bars: z
-    .array(
-      z.object({
-        monsterName: z.string().min(1).max(60),
-        task: taskTextSchema.nullable(),
-      }),
-    )
-    .min(1)
-    .max(7),
-});
-export type WeekRecordNameRequest = z.infer<typeof weekRecordNameRequestSchema>;
-
-export const weekRecordNameResponseSchema = z.object({
-  /** "Molar and the Bin Bags". */
-  name: z.string().min(1).max(60),
-  /** Scootch's one-line review, printed on the sleeve. */
-  linerNote: lineSchema,
-});
-export type WeekRecordNameResponse = z.infer<typeof weekRecordNameResponseSchema>;

@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
 import { decisionMetaSchema, screenInputResponseSchema } from './ai-labels';
-import { monsterBodyTypeSchema, workModeSchema } from './art';
 import {
   attitudeSchema,
   clockTimeSchema,
@@ -132,8 +131,6 @@ export type MonsterCopy = z.infer<typeof monsterCopySchema>;
 
 /** Labels the server gathers alongside the writing, so the phone makes one call. */
 export const taskLabelsSchema = z.object({
-  workMode: workModeSchema.nullable(),
-  bodyType: monsterBodyTypeSchema.nullable(),
   /** False means Scootch offers to shrink the task before the start. */
   fitsTenMinutes: z.boolean(),
   /** True means Scootch never offers to share this task. */

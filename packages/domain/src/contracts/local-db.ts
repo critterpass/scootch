@@ -8,7 +8,6 @@ import {
   sessionLinePackSchema,
   signedWordsSchema,
 } from './ai-task-call';
-import { cardFinishSchema, cardRaritySchema, monsterSpecSchema, workModeSchema } from './art';
 import {
   attitudeSchema,
   clockTimeSchema,
@@ -39,12 +38,8 @@ export const LOCAL_TABLES = [
   'days',
   'tasks',
   'drawer_items',
-  'monsters',
   'sessions',
   'parked_thoughts',
-  'world_pieces',
-  'record_bars',
-  'week_records',
   'settings',
 ] as const;
 export type LocalTable = (typeof LOCAL_TABLES)[number];
@@ -138,7 +133,6 @@ export const taskRowSchema = z.object({
   /** The first day the user mentioned it, kept from the drawer when swapped in. */
   firstMentionedOn: isoDateSchema,
   dueDate: isoDateSchema.nullable(),
-  workMode: workModeSchema.nullable(),
   fitsTenMinutes: z.boolean().nullable(),
   sharePrivate: z.boolean().nullable(),
   shrinkCount: z.number().int().min(0),
@@ -197,47 +191,6 @@ export const drawerItemRowSchema = z.object({
 });
 export type DrawerItemRow = z.infer<typeof drawerItemRowSchema>;
 
-/**
- * A task's monster. The card fields are `null` until it is caught, then
- * frozen: a card never changes after the catch, apart from its finish.
- */
-export const monsterRowSchema = z.object({
-  id: idSchema,
-  taskId: idSchema,
-  origin: z.enum(['task', 'web', 'haunt']),
-  /** `spec.size` drops with each shrink. */
-  spec: monsterSpecSchema,
-  name: z.string().min(1).max(60),
-  title: z.string().min(1).max(40),
-  flavourText: z.string().min(1).max(160),
-  /**
-   * The server's signature over the three words above, kept as it came. Null or absent on a
-   * monster the phone named itself and on one hatched before words were signed: its picture can
-   * still be shared, but no public page is made for it.
-   */
-  signed: signedWordsSchema.nullable().optional(),
-  hatchedAt: isoDateTimeSchema,
-  caughtAt: isoDateTimeSchema.nullable(),
-  /** Derived at the catch: the user's local day of `caughtAt`. */
-  caughtOn: isoDateSchema.nullable(),
-  /** Derived at the catch: the catch order in the collection. */
-  number: z.number().int().min(1).nullable(),
-  /** Derived at the catch from the task (how long it lurked, how it was caught). */
-  rarity: cardRaritySchema.nullable(),
-  /** Derived at the catch: days from the task's `firstMentionedOn` to `caughtOn`. */
-  daysLurked: z.number().int().min(0).nullable(),
-  /** Derived at the catch: the task's session minutes, rounded up. */
-  catchMinutes: z.number().int().min(1).nullable(),
-  /** Derived at the catch from days lurked and shrink count, 1 to 5. */
-  dread: z.number().int().min(1).max(5).nullable(),
-  /** Frozen at the catch: the task's guess. Null or absent when none was made. */
-  guessMinutes: guessMinutesSchema.nullable().optional(),
-  /** Frozen at the catch: the word an odd hatch added to the name. Null or absent on the rest. */
-  oddWord: oddWordSchema.nullable().optional(),
-  finish: cardFinishSchema,
-});
-export type MonsterRow = z.infer<typeof monsterRowSchema>;
-
 export const finishMethodSchema = z.enum(['hold', 'double_tap', 'voice', 'tap']);
 export type FinishMethod = z.infer<typeof finishMethodSchema>;
 
@@ -274,56 +227,6 @@ export const parkedThoughtRowSchema = z.object({
   resolution: z.enum(['keep', 'discard']).nullable(),
 });
 export type ParkedThoughtRow = z.infer<typeof parkedThoughtRowSchema>;
-
-/** One permanent piece per finished thing. Rows are only ever added. */
-export const worldPieceRowSchema = z.object({
-  id: idSchema,
-  /** `monster` is a caught monster's home; `plain` is the quiet piece a serious task leaves. */
-  kind: z.enum(['monster', 'plain']),
-  monsterId: idSchema.nullable(),
-  /** Where it landed, 0 to 1 across and down the world. It never moves. */
-  x: z.number().min(0).max(1),
-  y: z.number().min(0).max(1),
-  seed: z.string().min(1).max(64),
-  addedOn: isoDateSchema,
-});
-export type WorldPieceRow = z.infer<typeof worldPieceRowSchema>;
-
-export const recordInstrumentSchema = z.enum([
-  'keys',
-  'bassline',
-  'marimba',
-  'drums',
-  'whistle',
-  'bells',
-  'choir',
-]);
-
-/** One bar per finished day. A week with fewer bars is a smaller band. */
-export const recordBarRowSchema = z.object({
-  /** Primary key: one bar a day. */
-  localDate: isoDateSchema,
-  /** Derived from `localDate`. */
-  week: isoWeekSchema,
-  /** Derived: this bar's place in its week, 1 to 7, which fixes the instrument. */
-  position: z.number().int().min(1).max(7),
-  /** Derived from `position`. */
-  instrument: recordInstrumentSchema,
-  /** Seeds the bar's music: the day's monster seed, or the date for a serious day. */
-  seed: z.string().min(1).max(64),
-  monsterId: idSchema.nullable(),
-});
-export type RecordBarRow = z.infer<typeof recordBarRowSchema>;
-
-/** The week's written parts: the record's name and the weekly sentence. */
-export const weekRecordRowSchema = z.object({
-  /** Primary key. */
-  week: isoWeekSchema,
-  name: z.string().max(60).nullable(),
-  linerNote: z.string().nullable(),
-  sentence: z.string().nullable(),
-});
-export type WeekRecordRow = z.infer<typeof weekRecordRowSchema>;
 
 /** A single row. Plus, system permissions and the notification back-off are not stored here. */
 export const settingsRowSchema = z.object({

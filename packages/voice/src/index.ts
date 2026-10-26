@@ -6,6 +6,5 @@ export * from './guide';
 export * from './line-rules';
 export * from './offline';
 export * from './offline/choose';
-export * from './offline/namer';
 export * from './task-lines';
 export { normalise, stripMarks, vietnameseShare, wordsOf } from './text';

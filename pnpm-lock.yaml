@@ -427,18 +427,18 @@ importers:
 
   apps/api:
     dependencies:
+      '@phusclass/art':
+        specifier: workspace:*
+        version: link:../../packages/art
+      '@phusclass/domain':
+        specifier: workspace:*
+        version: link:../../packages/domain
+      '@phusclass/voice':
+        specifier: workspace:*
+        version: link:../../packages/voice
       '@resvg/resvg-wasm':
         specifier: 2.6.2
         version: 2.6.2
-      '@scootch/art':
-        specifier: workspace:*
-        version: link:../../packages/art
-      '@scootch/domain':
-        specifier: workspace:*
-        version: link:../../packages/domain
-      '@scootch/voice':
-        specifier: workspace:*
-        version: link:../../packages/voice
       hono:
         specifier: 'catalog:'
         version: 4.13.13
@@ -479,27 +479,27 @@ importers:
       '@nauverse/expo-cloud-settings':
         specifier: 'catalog:'
         version: 1.3.4(expo@58.0.5)(react-native@0.88.0-rc.3(@babel/core@7.29.7(supports-color@10.2.2))(@react-native/metro-config@0.88.0-rc.3(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2))(@types/react@19.3.0)(react@19.3.0)(supports-color@10.2.2))(react@19.3.0)
+      '@phusclass/art':
+        specifier: workspace:*
+        version: link:../../packages/art
+      '@phusclass/domain':
+        specifier: workspace:*
+        version: link:../../packages/domain
+      '@phusclass/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
+      '@phusclass/sound':
+        specifier: workspace:*
+        version: link:../../packages/sound
+      '@phusclass/tokens':
+        specifier: workspace:*
+        version: link:../../packages/tokens
+      '@phusclass/voice':
+        specifier: workspace:*
+        version: link:../../packages/voice
       '@react-native/metro-config':
         specifier: 'catalog:'
         version: 0.88.0-rc.3(@babel/core@7.29.7(supports-color@10.2.2))(supports-color@10.2.2)
-      '@scootch/art':
-        specifier: workspace:*
-        version: link:../../packages/art
-      '@scootch/domain':
-        specifier: workspace:*
-        version: link:../../packages/domain
-      '@scootch/i18n':
-        specifier: workspace:*
-        version: link:../../packages/i18n
-      '@scootch/sound':
-        specifier: workspace:*
-        version: link:../../packages/sound
-      '@scootch/tokens':
-        specifier: workspace:*
-        version: link:../../packages/tokens
-      '@scootch/voice':
-        specifier: workspace:*
-        version: link:../../packages/voice
       '@sentry/react-native':
         specifier: 'catalog:'
         version: 8.28.0(d158b932b663545cacaa1158afab88e1)
@@ -663,13 +663,13 @@ importers:
       '@astrojs/cloudflare':
         specifier: 'catalog:'
         version: 14.3.3(@types/node@26.6.3)(astro@7.3.5(@types/node@26.6.3)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(esbuild@0.28.2)(terser@5.51.2)(tsx@4.23.15)(wrangler@4.141.0(@cloudflare/workers-types@5.20260926.1)(@types/node@26.6.3))(yaml@2.9.1)
-      '@scootch/art':
+      '@phusclass/art':
         specifier: workspace:*
         version: link:../../packages/art
-      '@scootch/i18n':
+      '@phusclass/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
-      '@scootch/tokens':
+      '@phusclass/tokens':
         specifier: workspace:*
         version: link:../../packages/tokens
       astro:
@@ -694,7 +694,7 @@ importers:
       '@napi-rs/canvas':
         specifier: 'catalog:'
         version: 1.0.10
-      '@scootch/domain':
+      '@phusclass/domain':
         specifier: workspace:*
         version: link:../domain
     devDependencies:
@@ -724,7 +724,7 @@ importers:
 
   packages/voice:
     dependencies:
-      '@scootch/domain':
+      '@phusclass/domain':
         specifier: workspace:*
         version: link:../domain
       zod:

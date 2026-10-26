@@ -18,7 +18,6 @@ export function taskRow(over: Partial<TaskRow> = {}): TaskRow {
     carriedOver: false,
     firstMentionedOn: TODAY,
     dueDate: null,
-    workMode: null,
     fitsTenMinutes: true,
     sharePrivate: false,
     shrinkCount: 0,
