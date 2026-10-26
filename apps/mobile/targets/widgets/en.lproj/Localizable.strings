@@ -1,8 +1,0 @@
-/* Fixed labels of the widgets and the Live Activity. Spoken lines are never here: they come
-   from the app, in the shared snapshot. The key is the English text. */
-"Phu's Class" = "Phu's Class";
-"Nothing on the desk" = "Nothing on the desk";
-"Done for today" = "Done for today";
-"OFFLINE" = "OFFLINE";
-"Today" = "Today";
-"The task on your desk, and the time left on it." = "The task on your desk, and the time left on it.";

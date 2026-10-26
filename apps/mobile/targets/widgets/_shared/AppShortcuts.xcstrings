@@ -1,0 +1,78 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "Add to the board in ${applicationName}": {
+      "comment": "A phrase Siri, Spotlight and Shortcuts know.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ghi lên bảng trong ${applicationName}"
+          }
+        }
+      }
+    },
+    "Put something on the board in ${applicationName}": {
+      "comment": "A phrase Siri, Spotlight and Shortcuts know.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ghi một việc lên bảng trong ${applicationName}"
+          }
+        }
+      }
+    },
+    "Sit down in ${applicationName}": {
+      "comment": "A phrase Siri, Spotlight and Shortcuts know.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ngồi vào bàn trong ${applicationName}"
+          }
+        }
+      }
+    },
+    "Start my task in ${applicationName}": {
+      "comment": "A phrase Siri, Spotlight and Shortcuts know.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bắt đầu bài của tôi trong ${applicationName}"
+          }
+        }
+      }
+    },
+    "Start the desk's task in ${applicationName}": {
+      "comment": "A phrase Siri, Spotlight and Shortcuts know.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bắt đầu bài trên bàn trong ${applicationName}"
+          }
+        }
+      }
+    },
+    "Tell ${applicationName} a task": {
+      "comment": "A phrase Siri, Spotlight and Shortcuts know.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Báo ${applicationName} một việc"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

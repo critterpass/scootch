@@ -172,6 +172,7 @@ Status lines below follow `CLAUDE.md`: `- Status: done — <sha>` or
 ## Phase 5: outside the app (native batch two)
 
 ### 5.1 Surfaces
+- Status: built — native builds dispatched from `native/batch-two-surfaces`; merged after they pass
 - Do:
   - The on-device model module (`modules/phusclass-intelligence`): splitting a ramble and a light care check on iOS 26 and later, with a stub elsewhere. The rules from 2.3 stay the fallback.
   - The Live Activity and Dynamic Island: his face at the current pressure, the fuse, the session timer.

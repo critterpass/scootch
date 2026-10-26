@@ -15,6 +15,7 @@ import { readKv, writeKv } from '../../data/kv-repository';
 import { nativeNotifications } from '../../effects/native-adapters';
 import { useLanguage } from '../../i18n/i18n-provider';
 import { useBoardStore } from '../../state/board-provider';
+import { setSurfaceTuition } from '../surfaces/surface-inputs';
 
 import { plannedChargeNote, syncChargeNote } from './charge-notes';
 import type { PlanId } from './products';
@@ -128,6 +129,8 @@ export function TuitionProvider({ children }: { readonly children: ReactNode }) 
   const enrolled = isEnrolled(customer);
   useEffect(() => {
     void board.setEnrolled(enrolled);
+    // The tuition widgets open, or keep their quiet lock.
+    setSurfaceTuition(enrolled);
   }, [board, enrolled]);
 
   useEffect(() => {

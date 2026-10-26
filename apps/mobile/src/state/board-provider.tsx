@@ -12,6 +12,9 @@ import {
 
 import { DAY_ROLLOVER_HOUR } from '@phusclass/domain';
 import { wallClock } from '@phusclass/domain/board';
+import { hasMarks } from '@phusclass/domain/hearing';
+
+import { splitTasks } from '../../modules/phusclass-intelligence';
 
 import { createBoardStore, type BoardStore } from './board-store';
 import type { BoardSnapshot } from './board-view';
@@ -40,6 +43,9 @@ export function BoardProvider({ children }: { readonly children: ReactNode }) {
       clock: wallClock(timeZone, DAY_ROLLOVER_HOUR),
       newId: randomUUID,
       dayFirst: region === null || !MONTH_FIRST_REGIONS.has(region),
+      // Apple's on-device model splits a ramble first where the phone has it; the rules hear it
+      // whenever it is not there, slow or unsure.
+      split: (text) => splitTasks(text, hasMarks(text) ? 'vi' : 'en'),
     });
   }, [db]);
 
