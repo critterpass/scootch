@@ -16,6 +16,7 @@ export type {
   PushToStartTokenEvent,
   PushTokenEvent,
   SessionActivityAttributes,
+  SessionActivityMode,
   SessionActivityStartOptions,
   SessionActivityState,
   SessionActivityStatus,

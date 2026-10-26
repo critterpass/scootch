@@ -22,3 +22,8 @@ state is designed or removed. Scootch's list is in the history of this file.
 | Session | Back on the board: the field for one line for next time | The board shows the choice and, later, the note on the desk, not the writing of it. His prompt in the bubble, the field in the slip's handwriting |
 | Finish | The circled 10, drawn with no words | The brief names it; the Finish board draws only "Good." |
 | Timetable | The sheet swiped up from the desk, locked, with "Tuition" | The timetable is the tuition lane's; until it lands this stub holds the route |
+| Widgets | A tuition widget (chalkboard, timetable, StandBy) when tuition is not paid | The brief asks for a quiet lock; no board draws it. The lock glyph and "With tuition" in the widget's muted ink, opening tuition |
+| Widgets | The timetable widget before the timetable has been made | No board draws it. "Open the timetable in the app" on the timetable's paper |
+| Widgets | The timetable widget with no free period left today | The Dial board draws "NO FREE PERIODS" only on the dial. The card's place holds "No free periods left today" |
+| Live Activity, desk | The Lock Screen activity's buttons | The Outside board has Late slip and Start 10 min; the slip needs the desk, so only Start is drawn, full width |
+| Live Activity, desk | The fuse along the chalkboard's ledge | The brief burns it around the edge; the system animates only a bar or a ring, so it burns along the ledge and as a ring with its time left |

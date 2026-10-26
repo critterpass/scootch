@@ -7,6 +7,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { DATABASE_NAME, prepareDatabase } from '../db/database';
 import { SoundMode } from '../effects/sound-mode';
+import { SurfacesHost } from '../features/surfaces/surfaces-host';
 import { I18nProvider } from '../i18n/i18n-provider';
 import { JsCommitMarker } from '../js-commit-marker';
 import { BoardProvider } from '../state/board-provider';
@@ -62,6 +63,7 @@ export default function RootLayout() {
           <I18nProvider>
             <BoardProvider>
               <SoundMode />
+              <SurfacesHost />
               <Screens />
             </BoardProvider>
           </I18nProvider>
