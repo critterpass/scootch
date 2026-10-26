@@ -7,6 +7,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { DATABASE_NAME, prepareDatabase } from '../db/database';
 import { SoundMode } from '../effects/sound-mode';
+import { ClassLaunch } from '../features/first-day/class-launch';
 import { TuitionProvider } from '../features/tuition/tuition-provider';
 import { I18nProvider } from '../i18n/i18n-provider';
 import { JsCommitMarker } from '../js-commit-marker';
@@ -65,6 +66,8 @@ export default function RootLayout() {
               <TuitionProvider>
                 <SoundMode />
                 <Screens />
+                {/* The first-day redirect, with the splash over the first scene. */}
+                <ClassLaunch />
               </TuitionProvider>
             </BoardProvider>
           </I18nProvider>

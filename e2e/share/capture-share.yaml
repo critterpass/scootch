@@ -6,9 +6,10 @@ appId: com.phusclass.dev
 # a finish that is not in the logbook: it must say there is nothing to share, and close.
 - launchApp:
     clearState: true
+# A clean install opens on the first day.
 - extendedWaitUntil:
     visible:
-      id: 'desk'
+      id: 'first-day'
     timeout: 90000
 - openLink: phusclass-dev:///registry
 - tapOn:

@@ -1,0 +1,28 @@
+/** Care: the crisis screen, the helplines page and serious mode. */
+export const enCare = {
+  'care.crisis.title': 'You don’t have to do anything right now.',
+  'care.crisis.body':
+    'If you’re thinking about hurting yourself, please talk to someone tonight. It’s free and private.',
+  'care.crisis.putAway': 'Your tasks are put away for today.',
+  'care.crisis.close': 'Close',
+  'care.crisis.close.hint': 'Goes back to the classroom. Nothing is asked.',
+  'care.helplines.near': 'Near you',
+  'care.helplines.elsewhere': 'Somewhere else',
+  'care.helplines.directory': 'Find a free helpline in your country at findahelpline.com.',
+  'care.helplines.directory.open': 'Open findahelpline.com',
+  'care.helplines.call': 'Call',
+  'care.helplines.call.label': 'Call {name}, {number}',
+  'care.helplines.message': 'Message',
+  'care.helplines.message.label': 'Message {name}, {number}',
+  'care.helplines.emergency': 'Emergency',
+  'care.helplines.intro': 'Free and private. Call any of them while they are open.',
+  'care.serious.chalkMore': 'Everything else can wait',
+  'care.serious.sit': 'Sit with me',
+  'care.serious.sit.hint': 'Starts a quiet period with no clock',
+  'care.serious.notNow': 'Not now',
+  'care.serious.notNow.hint': 'Goes back to the desk',
+  'care.serious.beFunny.hint': 'He goes back to his usual self for this task',
+  'care.serious.room': 'The classroom, quiet and grey. Thầy Phú has taken off his glasses.',
+  'care.phu.serious': 'Thầy Phú with his glasses off',
+  'care.phu.tea': 'Thầy Phú sipping his tea',
+} as const;

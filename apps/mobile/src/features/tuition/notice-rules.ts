@@ -13,5 +13,12 @@ export function noticeUp(
   return snapshot.recess !== null && pinnedFor === snapshot.recess.endsAt;
 }
 
-/** The routes a paid thing may be offered from: the pinned notice and the quiet locks. */
-export const OFFERED_FROM = ['tuition-notice.tsx', 'locked-panel.tsx'] as const;
+/**
+ * The files a paid thing may be offered from: the pinned notice, the quiet locks, and the tuition
+ * row in Settings, which the person opens for themselves.
+ */
+export const OFFERED_FROM = [
+  'tuition-notice.tsx',
+  'locked-panel.tsx',
+  'settings-screen.tsx',
+] as const;

@@ -1,0 +1,98 @@
+appId: com.phusclass.dev
+---
+# The fresh-user walk, step one: the first day. A clean install opens on the wide, empty
+# classroom; the student takes a seat, answers roll call with a full name, lets his notes home in
+# through the system's own prompt, and arrives at the empty desk. No seed, no deep link, nothing
+# granted beforehand. It ends on the empty desk; opened again, the app goes straight to the desk.
+# Maestro grants every permission at launch unless told otherwise: notifications are left unset,
+# so the system's own prompt appears when the student says yes.
+- launchApp:
+    clearState: true
+    permissions:
+      notifications: unset
+- extendedWaitUntil:
+    visible:
+      id: 'first-day-beat-class'
+    timeout: 90000
+- assertVisible: 'Sit down. Class has started.'
+# The splash has flown off and the class is on the board.
+- waitForAnimationToEnd:
+    timeout: 6000
+- takeScreenshot: first-day-class--en-light-default
+
+# Take your seat: the camera pushes in and roll call begins.
+- tapOn:
+    id: 'first-day-take-seat'
+- extendedWaitUntil:
+    visible:
+      id: 'first-day-beat-roll-call'
+    timeout: 10000
+- tapOn:
+    id: 'first-day-name'
+- inputText: 'Tran Minh Anh'
+# The first time the keyboard is used, iOS may stop to explain sliding across the letters, and
+# what was typed before it came up is lost: dismiss it and type the name again whole.
+- runFlow:
+    when:
+      visible: 'Continue'
+    commands:
+      - tapOn: 'Continue'
+      - tapOn:
+          id: 'first-day-name'
+      - eraseText: 40
+      - inputText: 'Tran Minh Anh'
+- takeScreenshot: first-day-roll-call--en-light-default-keyboard-open
+# He repeats the given name for two seconds. The room never stops breathing, so each Maestro step
+# waits out its settle time first and the line has gone by the next step: the given name and the
+# name kept are proven in first-day.test.ts.
+- tapOn:
+    id: 'first-day-present'
+
+# Notes home: one real example, and yes asks the system.
+- extendedWaitUntil:
+    visible:
+      id: 'first-day-beat-notes-home'
+    timeout: 10000
+- assertVisible:
+    id: 'first-day-example-note'
+- assertVisible:
+    id: 'first-day-not-now'
+- takeScreenshot: first-day-notes-home--en-light-default
+- tapOn:
+    id: 'first-day-allow-notes'
+- extendedWaitUntil:
+    visible: '.*Would Like to Send You Notifications.*'
+    timeout: 10000
+- tapOn: 'Allow'
+
+# The empty desk, then the desk itself.
+- extendedWaitUntil:
+    visible:
+      id: 'first-day-beat-empty-desk'
+    timeout: 10000
+- assertVisible: 'Your desk is clear. What have you been avoiding?'
+- takeScreenshot: first-day-empty-desk--en-light-default
+- tapOn:
+    id: 'first-day-to-desk'
+# The desk in the classroom, with nothing on it yet.
+- extendedWaitUntil:
+    visible:
+      id: 'desk'
+    timeout: 15000
+- assertNotVisible:
+    id: 'first-day'
+- assertVisible:
+    id: 'composer-hold'
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: desk-empty--en-light-default
+
+# Opened again: the first day is done and the desk comes straight up.
+- stopApp
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: 'desk'
+    timeout: 30000
+- assertNotVisible:
+    id: 'first-day'

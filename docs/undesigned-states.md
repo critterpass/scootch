@@ -35,3 +35,11 @@ state is designed or removed. Scootch's list is in the history of this file.
 | Scholarship | The ask that did not reach the office | No board draws a failed ask. One red line above the button; nothing changes |
 | Report card | Without tuition | The brief puts a quiet lock where the report card lives. The timetable's lock panel under the page's title |
 | Report card | Print | The board has Print beside Share; printing needs a native module this app does not have. Share sends the report as text, names left out under white-out |
+| First day, the empty desk | The sheet's one button, "To my desk" | The `EmptyDesk` board is the desk itself; the first day needs one step that ends it and is marked done. Built from the capsule button |
+| Settings | Quiet hours page (from and to, in half hours) | The board draws the row only. Built from the settings groups, rows and capsule button |
+| Settings | Change the name he calls | The board links the student card to roll call; outside the first day it is a page with the roll-call field and a Save button |
+| Settings | "Let the last note through Focus", "It's fine, be funny", Restore purchases, Privacy and Terms rows | The brief names them; the board does not draw them. Plain rows and the system switch |
+| Settings | No notes allowed by iOS: "Open iOS Settings" row | Turning notes on after the system prompt was refused. A link row under the switch |
+| Helplines, from Settings | The crisis page with the title "Helplines" and a Back button | The `Crisis` board is the crisis day only |
+| Crisis | A region with no verified helpline: the directory card alone, its button filled | The board draws Vietnam only |
+| Serious | "It's fine, be funny" under Not now | The brief names it; the `Serious` board does not draw it. A quiet text button, offered only for a task the screen judged serious |
