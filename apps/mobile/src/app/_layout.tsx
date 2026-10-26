@@ -9,6 +9,7 @@ import { DATABASE_NAME, prepareDatabase } from '../db/database';
 import { SoundMode } from '../effects/sound-mode';
 import { I18nProvider } from '../i18n/i18n-provider';
 import { JsCommitMarker } from '../js-commit-marker';
+import { BoardProvider } from '../state/board-provider';
 import { stackMotion } from '../ui/motion/stack-transitions';
 import { useMayMove } from '../ui/motion/use-feel';
 import { usePalette } from '../ui/use-palette';
@@ -50,8 +51,8 @@ function Screens() {
   );
 }
 
-// The phone's database is open and migrated before any screen renders. Gestures need their root
-// view above everything.
+// The phone's database is open and migrated before any screen renders, and the board is read from
+// it. Gestures need their root view above everything.
 export default function RootLayout() {
   const palette = usePalette();
   return (
@@ -59,8 +60,10 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <SQLiteProvider databaseName={DATABASE_NAME} onInit={prepareDatabase}>
           <I18nProvider>
-            <SoundMode />
-            <Screens />
+            <BoardProvider>
+              <SoundMode />
+              <Screens />
+            </BoardProvider>
           </I18nProvider>
           <JsCommitMarker />
         </SQLiteProvider>

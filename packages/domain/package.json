@@ -3,10 +3,12 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Pure logic: session, drawer, back-off, rarity, entitlements",
+  "description": "Pure logic: the day, the session, the board and its rules, hearing, back-off and entitlements",
   "sideEffects": false,
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./board": "./src/board/index.ts",
+    "./hearing": "./src/hearing/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

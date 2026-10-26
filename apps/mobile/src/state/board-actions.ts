@@ -1,0 +1,192 @@
+import {
+  answerStillYours as answerFade,
+  askedStillYours,
+  choose,
+  erase as eraseTask,
+  isOpen,
+  newTask,
+  redate as redateTask,
+  reword as rewordTask,
+  tickOff as tickTask,
+  type CareFlag,
+  type IsoDate,
+  type Task,
+} from '@phusclass/domain/board';
+import { hear, type HeardTask } from '@phusclass/domain/hearing';
+
+import type { CareGateResult } from '../api/care-gate';
+import { readCarvings } from '../data/carvings-repository';
+import { readKv, readKvNumber } from '../data/kv-repository';
+import { readOpenSession } from '../data/sessions-repository';
+import { readSetting, writeSetting } from '../data/settings-repository';
+import { readTasks } from '../data/tasks-repository';
+
+import { KEYS, type BoardCore } from './board-core';
+import type { BoardState } from './board-view';
+
+/** A care gate result as a flag: a held task counts as serious until the server screens it. */
+function careOf(result: CareGateResult): CareFlag {
+  return result === 'crisis' ? 'crisis' : result === 'hold' ? 'serious' : 'none';
+}
+
+const MONTH_DAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+/** What happens on the board and around the desk: loading, saying, care, the board's tools. */
+export function boardActions(core: BoardCore) {
+  const { deps } = core;
+
+  /** His birthday, fixed once per install and never shown. */
+  async function birthday(): Promise<string> {
+    const stored = await readSetting<string>(deps.db, KEYS.birthday);
+    if (stored !== null) return stored;
+    const month = choose([...Array(12).keys()], deps.newId(), 'birthday month') + 1;
+    const day = choose([...Array(MONTH_DAYS[month - 1]).keys()], deps.newId(), 'birthday day') + 1;
+    const made = `${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    await writeSetting(deps.db, KEYS.birthday, made);
+    return made;
+  }
+
+  /** Erase or tick: off the board, and the desk takes his next pick if it was the desk's. */
+  async function offTheBoard(id: string, change: (task: Task) => Task): Promise<void> {
+    const one = core.task(id);
+    if (one === undefined || !isOpen(one)) return;
+    const wasDesk = one.status === 'desk';
+    if (wasDesk && core.state.session?.taskId === id) await core.endOpenSession('erase');
+    await core.save([change(one)]);
+    if (wasDesk) await core.refill(id);
+  }
+
+  /** Changes state that is not written anywhere. */
+  function set(patch: () => Partial<BoardState>): Promise<void> {
+    return core.act(() => {
+      core.state = { ...core.state, ...patch() };
+      return Promise.resolve();
+    });
+  }
+
+  async function change(id: string, update: (task: Task) => Task): Promise<void> {
+    const one = core.task(id);
+    if (one !== undefined) await core.save([update(one)]);
+  }
+
+  return {
+    /** Reads everything from SQLite, then fills an empty desk. Runs once, after migrations. */
+    load: () =>
+      core.act(async () => {
+        const now = deps.clock();
+        const open = await readOpenSession(deps.db);
+        const pinned = await readKv(deps.db, KEYS.tuitionPinned);
+        core.state = {
+          ...core.state,
+          ready: true,
+          tasks: await readTasks(deps.db, now.at),
+          carvings: await readCarvings(deps.db),
+          session:
+            open === null
+              ? null
+              : {
+                  id: open.id,
+                  taskId: open.task_id,
+                  startedAt: open.started_at,
+                  minutes: open.minutes,
+                  happening: open.happening,
+                },
+          finishes: await readKvNumber(deps.db, KEYS.finishes, 0),
+          longBoardRemarkedOn: await readKv(deps.db, KEYS.longBoard),
+          tuitionPinnedAt: pinned === null || pinned === '' ? null : Number(pinned),
+          crisisShownOn: await readKv(deps.db, KEYS.crisisShown),
+          crisisOpenOn: await readKv(deps.db, KEYS.crisisOpen),
+          birthday: await birthday(),
+        };
+        await core.refill();
+      }),
+
+    /**
+     * Something said or typed: heard on the phone, every task onto the board, and an empty desk
+     * takes his pick. Each task is gated for care; a crisis phrase anywhere flags every task said
+     * with it and opens the crisis screen for the rest of the day.
+     */
+    say: (text: string) =>
+      core.act(async (): Promise<readonly HeardTask[]> => {
+        const now = deps.clock();
+        const heard = hear(text, {
+          today: now.day,
+          nowMinutes: now.minuteOfDay,
+          dayFirst: deps.dayFirst ?? true,
+        });
+        const whole = core.gate(text);
+        const added = heard.tasks.map((one) =>
+          newTask({
+            id: deps.newId(),
+            text: one.text,
+            at: now.at,
+            dueDate: one.dueDate,
+            heardTime: one.heardTime === null ? null : { day: now.day, at: one.heardTime.at },
+            care: whole === 'crisis' ? 'crisis' : careOf(core.gate(one.said)),
+          }),
+        );
+        if (whole === 'crisis') {
+          core.state = { ...core.state, crisisOpenOn: now.day, crisisShownOn: now.day };
+          await core.writeKv(KEYS.crisisOpen, now.day);
+          await core.writeKv(KEYS.crisisShown, now.day);
+        }
+        await core.save(added);
+        await core.refill();
+        return heard.tasks;
+      }),
+
+    /** The server's screen answered for a task. */
+    screened: (id: string, care: CareFlag) =>
+      core.act(() => change(id, (one) => ({ ...one, care, screened: true }))),
+
+    /** The person closed the crisis screen: the board comes back, and nothing is asked. */
+    closeCrisis: () =>
+      core.act(async () => {
+        core.state = { ...core.state, crisisOpenOn: null };
+        await core.writeKv(KEYS.crisisOpen, '');
+      }),
+
+    erase: (id: string) =>
+      core.act(() => offTheBoard(id, (one) => eraseTask(one, deps.clock().at))),
+    tickOff: (id: string) => core.act(() => offTheBoard(id, (one) => tickTask(one, deps.clock()))),
+    reword: (id: string, text: string) =>
+      core.act(() => change(id, (one) => rewordTask(one, text, deps.clock().at))),
+    redate: (id: string, dueDate: IsoDate | null) =>
+      core.act(() => change(id, (one) => redateTask(one, dueDate, deps.clock().at))),
+
+    /** "Still yours?" was put to the user; it is not put again. */
+    stillYoursAsked: (id: string) =>
+      core.act(() => change(id, (one) => askedStillYours(one, deps.clock()))),
+    answerStillYours: (id: string, answer: 'yes' | 'no') =>
+      core.act(() => change(id, (one) => answerFade(one, answer, deps.clock()))),
+
+    /** The long-board remark was made; not again today. */
+    longBoardRemarked: () =>
+      core.act(async () => {
+        const day = deps.clock().day;
+        core.state = { ...core.state, longBoardRemarkedOn: day };
+        await core.writeKv(KEYS.longBoard, day);
+      }),
+
+    /** Ra chơi: offered after a finish, never forced. */
+    takeRecess: () => set(() => ({ recess: { startedAt: deps.clock().at }, recessOffered: false })),
+
+    /** "Next.", or the end of recess: his next pick comes to the desk. */
+    next: () =>
+      core.act(async () => {
+        core.state = { ...core.state, recess: null, recessOffered: false, lastFinish: null };
+        return core.refill();
+      }),
+
+    /** The tuition notice was pinned on the chalkboard; it rests two weeks if left. */
+    tuitionPinned: () =>
+      core.act(async () => {
+        const at = deps.clock().at;
+        core.state = { ...core.state, tuitionPinnedAt: at };
+        await core.writeKv(KEYS.tuitionPinned, String(at));
+      }),
+
+    setEnrolled: (enrolled: boolean) => set(() => ({ enrolled })),
+    setCelsius: (celsius: number | null) => set(() => ({ celsius })),
+  };
+}
