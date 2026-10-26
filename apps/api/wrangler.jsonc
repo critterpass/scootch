@@ -1,9 +1,9 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  // Two environments only: `--env dev` (Worker `scootch-dev`) and `--env prd` (Worker `scootch`).
-  // Bindings are not inherited, so each environment declares its own. Local runs and the tests use
-  // `dev` with simulated bindings, which need no Cloudflare account.
-  "name": "phusclass",
+  // Two environments only: `--env dev` (Worker `phusclass-api-dev`) and `--env prd` (Worker
+  // `phusclass-api`). Bindings are not inherited, so each environment declares its own. Local runs
+  // and the tests use `dev` with simulated bindings, which need no Cloudflare account.
+  "name": "phusclass-api",
   "main": "src/index.ts",
   "compatibility_date": "2026-08-01",
   // The operations bot's morning digest and spend check: 08:00 in Asia/Ho_Chi_Minh, which is
@@ -14,64 +14,61 @@
   // TELEGRAM_WEBHOOK_SECRET.
   "env": {
     "dev": {
-      "name": "scootch-dev",
+      "name": "phusclass-api-dev",
+      "routes": [
+        { "pattern": "api-dev.phusclass.com", "zone_name": "phusclass.com", "custom_domain": true },
+      ],
       // COMMIT_SHA is overridden at deploy time (`--var COMMIT_SHA:<sha>`).
       "vars": { "ENVIRONMENT": "dev", "COMMIT_SHA": "local" },
       "d1_databases": [
         {
           "binding": "DB",
-          "database_name": "scootch-dev",
-          "database_id": "05727e3e-154e-4128-b94f-e6100444b936",
+          "database_name": "phusclass-dev",
+          "database_id": "a7b0e3af-6d4c-43ae-ae37-e5d2b4504325",
           "migrations_dir": "migrations",
         },
       ],
-      "r2_buckets": [{ "binding": "FILES", "bucket_name": "scootch-dev" }],
       // Rate limit namespaces need no resource: the id is any integer unique within the account.
       "ratelimits": [
         {
           "name": "IP_RATE_LIMIT",
-          "namespace_id": "7301",
+          "namespace_id": "7401",
           "simple": { "limit": 120, "period": 60 },
         },
         {
           "name": "DEVICE_RATE_LIMIT",
-          "namespace_id": "7302",
+          "namespace_id": "7402",
           "simple": { "limit": 60, "period": 60 },
         },
       ],
-      // One Durable Object per table (`TableObject` in `src/tables/table-object.ts`).
-      "durable_objects": { "bindings": [{ "name": "TABLE", "class_name": "TableObject" }] },
-      "migrations": [{ "tag": "table-object", "new_sqlite_classes": ["TableObject"] }],
     },
     "prd": {
-      "name": "phusclass",
+      "name": "phusclass-api",
       // The one address the App Store app calls. A Worker with a route has no workers.dev address.
-      "routes": [{ "pattern": "api.scootch.app", "custom_domain": true }],
+      "routes": [
+        { "pattern": "api.phusclass.com", "zone_name": "phusclass.com", "custom_domain": true },
+      ],
       "vars": { "ENVIRONMENT": "prd", "COMMIT_SHA": "local" },
       "d1_databases": [
         {
           "binding": "DB",
-          "database_name": "scootch",
-          "database_id": "510cc553-279d-4af3-9dee-015d0c13982a",
+          "database_name": "phusclass",
+          "database_id": "88e329f6-bf63-4904-abcb-df70d44a2f13",
           "migrations_dir": "migrations",
         },
       ],
-      "r2_buckets": [{ "binding": "FILES", "bucket_name": "scootch" }],
       "ratelimits": [
         {
           "name": "IP_RATE_LIMIT",
-          "namespace_id": "7311",
+          "namespace_id": "7411",
           "simple": { "limit": 120, "period": 60 },
         },
         {
           "name": "DEVICE_RATE_LIMIT",
-          "namespace_id": "7312",
+          "namespace_id": "7412",
           "simple": { "limit": 60, "period": 60 },
         },
       ],
-      // One Durable Object per table (`TableObject` in `src/tables/table-object.ts`).
-      "durable_objects": { "bindings": [{ "name": "TABLE", "class_name": "TableObject" }] },
-      "migrations": [{ "tag": "table-object", "new_sqlite_classes": ["TableObject"] }],
     },
   },
 }

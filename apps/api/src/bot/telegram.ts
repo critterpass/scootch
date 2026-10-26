@@ -7,14 +7,6 @@ export type BotContext = {
   readonly fetch?: typeof fetch;
 };
 
-/** A button under a message. `data` comes back to the webhook when the founder taps it. */
-export type InlineButton = { readonly text: string; readonly data: string };
-
-export type SendOptions = {
-  /** Rows of buttons, top to bottom. */
-  readonly buttons?: readonly (readonly InlineButton[])[];
-};
-
 const telegramApi = 'https://api.telegram.org';
 const sendTimeoutMs = 5_000;
 /** Telegram refuses a message longer than 4096 characters. */
@@ -33,7 +25,6 @@ export async function sendMessage(
     readonly env: Pick<Bindings, 'ENVIRONMENT' | 'TELEGRAM_BOT_TOKEN' | 'TELEGRAM_CHAT_ID'>;
   },
   text: string,
-  options: SendOptions = {},
 ): Promise<boolean> {
   const { ENVIRONMENT, TELEGRAM_BOT_TOKEN: token, TELEGRAM_CHAT_ID: chatId } = context.env;
   if (!token || !chatId) {
@@ -46,19 +37,7 @@ export async function sendMessage(
     const response = await send(`${telegramApi}/bot${token}/sendMessage`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: prefixed.slice(0, longestMessage),
-        ...(options.buttons === undefined
-          ? {}
-          : {
-              reply_markup: {
-                inline_keyboard: options.buttons.map((row) =>
-                  row.map((button) => ({ text: button.text, callback_data: button.data })),
-                ),
-              },
-            }),
-      }),
+      body: JSON.stringify({ chat_id: chatId, text: prefixed.slice(0, longestMessage) }),
       signal: AbortSignal.timeout(sendTimeoutMs),
     });
     await response.body?.cancel();

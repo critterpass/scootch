@@ -1,5 +1,5 @@
 import { ApiError } from '../errors';
-import { deliverySchema, takeInEvent } from '../plus/webhook-events';
+import { deliverySchema, takeInEvent } from '../tuition/webhook-events';
 import type { RouteDefinition } from '../route';
 import { sameSecret } from '../same-secret';
 
@@ -7,7 +7,7 @@ import { sameSecret } from '../same-secret';
  * Where RevenueCat delivers the store's events: purchases, renewals, cancellations, expiries,
  * billing trouble and transfers. It has no device behind it, so it is public, and it acts only on
  * a delivery whose Authorization header is the one RevenueCat is set to send. Each event is taken
- * in once, however often it is delivered; this is the server's only source for who holds Plus,
+ * in once, however often it is delivered; this is the server's only source for who pays tuition,
  * besides one question to RevenueCat's API for a device it has heard nothing about.
  *
  * Any answer but a 200 makes RevenueCat deliver the event again later.

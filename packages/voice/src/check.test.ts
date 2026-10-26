@@ -1,13 +1,9 @@
-import type { Attitude, Language, TaskCreatePass } from '@phusclass/domain';
+import type { Attitude, Language } from '@phusclass/domain';
 import { describe, expect, it } from 'vitest';
-
-import passEn from '../fixtures/task.create.en.json' with { type: 'json' };
-import passVi from '../fixtures/task.create.vi.json' with { type: 'json' };
 
 import { checkLine, lineKinds, type CheckReason, type LineKind } from './check';
 import { renderVoiceGuide, sampleGuide, voiceGuides } from './guide';
 import { noTaskSlots, offlineLine, offlinePacks, offlineSlots } from './offline';
-import { checkTaskCopy } from './task-lines';
 
 const languages: Language[] = ['en', 'vi'];
 const attitudes: Attitude[] = ['soft', 'cheeky', 'unhinged'];
@@ -156,17 +152,6 @@ describe('checkLine', () => {
         expect(result.ok, text).toBe(false);
       }
     }
-  });
-});
-
-describe('the recorded task call fixtures', () => {
-  it.each([
-    ['en', passEn],
-    ['vi', passVi],
-  ] as const)('pass the check in %s', (language, fixture) => {
-    const response = fixture.response as TaskCreatePass;
-
-    expect(checkTaskCopy(response, language, fixture.request.attitude as Attitude)).toEqual([]);
   });
 });
 

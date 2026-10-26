@@ -6,7 +6,6 @@ import {
   inTheWaySchema,
   seriousLinePackSchema,
   sessionLinePackSchema,
-  signedWordsSchema,
 } from './ai-task-call';
 import {
   attitudeSchema,
@@ -16,7 +15,6 @@ import {
   idSchema,
   isoDateSchema,
   isoDateTimeSchema,
-  isoWeekSchema,
   languageSchema,
   taskTextSchema,
   type ClockTime,

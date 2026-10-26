@@ -1,8 +1,37 @@
-import type { Language, PushTokenKind, RegisterPushTokenRequest } from '../contracts';
-import type { Bindings } from '../env';
+import { z } from 'zod';
+
+import type { Language } from '../contracts';
+import type { Bindings, EnvironmentName } from '../env';
 import { createFlagReader } from '../flags';
 
 import { apnsKey, apnsRequest, readApnsAnswer, type ApnsMessage } from './apns';
+
+/**
+ * The app each environment's pushes are for: the bundle id a token is issued to is the push's
+ * topic. The dev API also takes the App Store app's tokens, so a release build can be tried
+ * against it.
+ */
+export const pushBundleIds = {
+  prd: 'com.phusclass',
+  dev: 'com.phusclass.dev',
+} as const satisfies Record<EnvironmentName, string>;
+
+/**
+ * Which token Apple gave the phone: `alert` is the device's own token, `live_activity_start` the
+ * push-to-start token, and `live_activity` the token of one running activity. `environment` is the
+ * APNs host the token belongs to.
+ */
+export const pushTokenKindSchema = z.enum(['alert', 'live_activity_start', 'live_activity']);
+export type PushTokenKind = z.infer<typeof pushTokenKindSchema>;
+
+export const registerPushTokenRequestSchema = z.strictObject({
+  token: z.string().regex(/^[0-9a-f]{64,200}$/),
+  kind: pushTokenKindSchema,
+  environment: z.enum(['sandbox', 'production']),
+  /** The bundle id the token was issued to: it is the push's topic. */
+  bundleId: z.enum([pushBundleIds.prd, pushBundleIds.dev]),
+});
+export type RegisterPushTokenRequest = z.infer<typeof registerPushTokenRequestSchema>;
 
 /**
  * `push.remote`: on, the server sends remote pushes. Off by default: the pieces are in place
@@ -71,13 +100,13 @@ type PushEnv = Pick<Bindings, 'DB' | 'APNS_KEY_P8' | 'APNS_KEY_ID' | 'APNS_TEAM_
 let saidNoKey = false;
 
 /**
- * Sends one alert to every phone signed in to an account, each in its own language. True when
- * Apple took at least one. With the flag off, the key's secrets absent or no token to send to,
- * nothing is sent and the answer is false; the missing key is logged once, not per push.
+ * Sends one alert to a device, in its language. True when Apple took it. With the flag off, the
+ * key's secrets absent or no token to send to, nothing is sent and the answer is false; the
+ * missing key is logged once, not per push.
  */
-export async function pushToAccount(
+export async function pushToDevice(
   env: PushEnv,
-  accountId: string,
+  deviceHash: string,
   push: PushToSend,
   now: Date,
   send: typeof fetch = fetch,
@@ -92,11 +121,10 @@ export async function pushToAccount(
   }
   const { results } = await env.DB.prepare(
     `SELECT p.token, p.environment, p.bundle_id, d.language FROM push_tokens p
-     JOIN account_devices a ON a.device_hash = p.device_hash
      JOIN devices d ON d.token_hash = p.device_hash
-     WHERE a.account_id = ? AND p.kind = 'alert'`,
+     WHERE p.device_hash = ? AND p.kind = 'alert'`,
   )
-    .bind(accountId)
+    .bind(deviceHash)
     .all<{
       token: string;
       environment: 'sandbox' | 'production';

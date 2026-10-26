@@ -11,10 +11,8 @@ export const webhookSecret = 'test-webhook-secret';
 export function botEnv(overrides: Partial<Bindings> = {}): Bindings {
   return {
     DB: env.DB,
-    FILES: env.FILES,
     IP_RATE_LIMIT: env.IP_RATE_LIMIT,
     DEVICE_RATE_LIMIT: env.DEVICE_RATE_LIMIT,
-    TABLE: env.TABLE,
     ENVIRONMENT: 'dev',
     COMMIT_SHA: 'abc1234',
     TELEGRAM_BOT_TOKEN: 'test-bot-token',
@@ -28,7 +26,7 @@ export function botEnv(overrides: Partial<Bindings> = {}): Bindings {
 
 export type SentMessage = {
   readonly url: string;
-  readonly body: { chat_id: string; text: string; reply_markup?: unknown };
+  readonly body: { chat_id: string; text: string };
 };
 
 /**

@@ -70,7 +70,7 @@ export type ApnsTarget = {
 };
 
 export type ApnsMessage = {
-  /** What the phone shows. Fixed lines and a display name: never a task. */
+  /** What the phone shows. Fixed lines: never a task. */
   readonly alert: { readonly title: string; readonly body: string };
   /** What the app is told beside it: ids only. */
   readonly data: Readonly<Record<string, string>>;
@@ -105,7 +105,7 @@ export async function apnsRequest(
     },
     body: JSON.stringify({
       aps: { alert: message.alert, sound: 'default' },
-      scootch: message.data,
+      phusclass: message.data,
     }),
   });
 }

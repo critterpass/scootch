@@ -32,7 +32,7 @@ beforeAll(async () => {
     device: today,
   });
   await addUsage({
-    route: 'task.create',
+    route: 'task.line',
     model: 'deepseek-flash',
     input: million,
     output: million,
@@ -40,7 +40,7 @@ beforeAll(async () => {
     device: today,
   });
   await addUsage({
-    route: 'task.create',
+    route: 'task.line',
     model: 'deepseek-v4-pro',
     input: million,
     output: million,
@@ -56,7 +56,7 @@ beforeAll(async () => {
     at: '2026-10-06T10:00:00.000Z',
   });
   await addUsage({
-    route: 'task.create',
+    route: 'task.line',
     model: 'deepseek-flash',
     input: million,
     output: million,
@@ -71,14 +71,14 @@ describe('/costs', () => {
         '[dev] Model spend (placeholder prices, to be confirmed)',
         'Today: $0.7000 (2 calls)',
         ' By route',
-        '  task.create: $0.5000 (1)',
+        '  task.line: $0.5000 (1)',
         '  screen.input: $0.2000 (1)',
         ' By model',
         '  deepseek-flash: $0.5000 (1)',
         '  jev-1.13.0: $0.2000 (1)',
         'This month: $3.7000 (4 calls)',
         ' By route',
-        '  task.create: $3.5000 (2)',
+        '  task.line: $3.5000 (2)',
         '  screen.input: $0.2000 (2)',
         ' By model',
         '  deepseek-v4-pro: $3.0000 (1)',
@@ -146,25 +146,25 @@ describe('/user', () => {
 
 describe('/flag', () => {
   it('flips a flag through the flags table and lists it', async () => {
-    expect(await ask('/flag@ScootchOpsBot tables.open on')).toBe(
-      '[dev] Flag tables.open is now on. No code reads a flag with this name yet.',
+    expect(await ask('/flag@PhusClassOpsBot timetable.open on')).toBe(
+      '[dev] Flag timetable.open is now on. No code reads a flag with this name yet.',
     );
-    expect(await ask('/flag')).toBe('[dev] Flags:\ntables.open: on (set)');
+    expect(await ask('/flag')).toBe('[dev] Flags:\ntimetable.open: on (set)');
 
-    await ask('/flag tables.open off');
+    await ask('/flag timetable.open off');
 
     const row = await env.DB.prepare('SELECT "on" FROM flags WHERE name = ?')
-      .bind('tables.open')
+      .bind('timetable.open')
       .first<{ on: number }>();
     expect(row?.on).toBe(0);
-    expect(await ask('/flag')).toBe('[dev] Flags:\ntables.open: off (set)');
+    expect(await ask('/flag')).toBe('[dev] Flags:\ntimetable.open: off (set)');
   });
 
   it('refuses anything but on or off, and writes nothing', async () => {
-    expect(await ask('/flag tables.shut maybe')).toContain('Usage: /flag <name> on|off');
+    expect(await ask('/flag timetable.shut maybe')).toContain('Usage: /flag <name> on|off');
     expect(await ask('/flag Not_A_Name! on')).toContain('Usage: /flag <name> on|off');
 
     const rows = await env.DB.prepare('SELECT name FROM flags').all<{ name: string }>();
-    expect(rows.results.map((row) => row.name)).not.toContain('tables.shut');
+    expect(rows.results.map((row) => row.name)).not.toContain('timetable.shut');
   });
 });

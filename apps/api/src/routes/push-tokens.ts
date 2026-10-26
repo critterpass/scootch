@@ -1,14 +1,17 @@
 import { z } from 'zod';
 
-import { registerPushTokenRequestSchema } from '../contracts';
 import { ApiError } from '../errors';
-import { forgetPushToken, registerPushToken } from '../push/push';
+import {
+  forgetPushToken,
+  pushBundleIds,
+  registerPushToken,
+  registerPushTokenRequestSchema,
+} from '../push/push';
 import { readBody, type RouteDefinition } from '../route';
 
 /**
  * Keeps a token Apple gave this phone: its own token for alerts, or a Live Activity's. It is
- * tied to the device that sends it, so it needs no account: pushes that are about an account go
- * to the devices signed in to it. Sending the same token again changes nothing but its time.
+ * tied to the device that sends it. Sending the same token again changes nothing but its time.
  */
 export const pushTokensRoute: RouteDefinition = {
   method: 'POST',
@@ -16,8 +19,8 @@ export const pushTokensRoute: RouteDefinition = {
   access: 'device',
   handle: async (c) => {
     const request = await readBody(c, registerPushTokenRequestSchema);
-    // A sandbox token is a development build's: the App Store's app never has one.
-    if (c.env.ENVIRONMENT === 'prd' && request.bundleId !== 'app.scootch') {
+    // A development build's token never reaches the App Store app's server.
+    if (c.env.ENVIRONMENT === 'prd' && request.bundleId !== pushBundleIds.prd) {
       throw new ApiError('bad_request', 'This token belongs to another app');
     }
     await registerPushToken(c.env.DB, c.var.device.hash, request, new Date());

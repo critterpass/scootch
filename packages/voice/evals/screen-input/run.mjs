@@ -1,7 +1,7 @@
 // The care screen's eval: sends every case to a running API and checks the verdict it answers.
 //
 //   pnpm --filter @phusclass/voice eval:screen
-//   SCOOTCH_API_URL=http://localhost:8787 pnpm --filter @phusclass/voice eval:screen
+//   PHUSCLASS_API_URL=http://localhost:8787 pnpm --filter @phusclass/voice eval:screen
 //
 // It fails on any missed crisis, in either language, and when fewer than 90% of all cases are
 // right. `reject` cases (abuse, attempts to instruct the app) count towards the 90%. The cases

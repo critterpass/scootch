@@ -13,50 +13,6 @@ export {
   type ScreenInputResponse,
 } from '../../../packages/domain/src/contracts/ai-labels';
 export {
-  memberNumberResponseSchema,
-  type MemberNumberResponse,
-} from '../../../packages/domain/src/contracts/member';
-export {
-  plusCustomerResponseSchema,
-  type PlusCustomerResponse,
+  plusCustomerResponseSchema as tuitionCustomerResponseSchema,
+  type PlusCustomerResponse as TuitionCustomerResponse,
 } from '../../../packages/domain/src/contracts/plus';
-export {
-  speechTokenResponseSchema,
-  type SpeechTokenResponse,
-} from '../../../packages/domain/src/contracts/speech';
-export {
-  hauntPageIdPattern,
-  hauntPageSchema,
-  hauntPageShooResponseSchema,
-  sendHauntResponseSchema,
-  tableInvitePageSchema,
-  tableInviteResponseSchema,
-  type HauntPage,
-  type SendHauntResponse,
-  type TableInvitePage,
-  type TableInviteResponse,
-} from '../../../packages/domain/src/contracts/public-pages';
-export {
-  classifyCodeResponseSchema,
-  friendInvitePageSchema,
-  friendsTablesResponseSchema,
-  hauntMonsterWordsSchema,
-  hauntsWaitingResponseSchema,
-  joinTableResponseSchema,
-  myTableResponseSchema,
-  openTableResponseSchema,
-  receivedHauntSchema,
-  registerPushTokenRequestSchema,
-  TABLE_FREE_SEATS,
-  type ClassifyCodeResponse,
-  type FriendInvitePage,
-  type FriendsTablesResponse,
-  type HauntMonsterWords,
-  type JoinTableResponse,
-  type MyTableResponse,
-  type OpenTableResponse,
-  type PastedCodeKind,
-  type PushTokenKind,
-  type ReceivedHaunt,
-  type RegisterPushTokenRequest,
-} from '../../../packages/domain/src/contracts/together';

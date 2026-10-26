@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "The Scootch API: Hono on Cloudflare Workers with D1 and R2",
+  "description": "The Phu's Class API: Hono on Cloudflare Workers with D1",
   "scripts": {
     "dev": "wrangler dev --env dev",
     "generate": "tsx ../../tools/scripts/generate-index.ts src/routes",
@@ -11,8 +11,6 @@
     "test": "tsx ../../tools/scripts/generate-index.ts --check src/routes && vitest run"
   },
   "dependencies": {
-    "@resvg/resvg-wasm": "2.6.2",
-    "@phusclass/art": "workspace:*",
     "@phusclass/domain": "workspace:*",
     "@phusclass/voice": "workspace:*",
     "hono": "catalog:",
@@ -21,7 +19,6 @@
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "catalog:",
     "@cloudflare/workers-types": "catalog:",
-    "fast-check": "catalog:",
     "vitest": "4.1.11",
     "wrangler": "catalog:"
   }

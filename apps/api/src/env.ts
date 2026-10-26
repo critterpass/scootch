@@ -1,8 +1,6 @@
 import type { Language } from './contracts';
 import type { RequestIdVariables } from 'hono/request-id';
 
-import type { TableObject } from './tables/table-object';
-
 /**
  * Secrets the Worker expects, by name. Values live in Wrangler secrets (deployed) or `.dev.vars`
  * (local, ignored by git); `.dev.vars.example` lists the same names.
@@ -10,17 +8,11 @@ import type { TableObject } from './tables/table-object';
 export const secretNames = [
   'DEEPSEEK_API_KEY',
   'TYPESAFE_API_KEY',
-  // Turns speech into text while the phone is online. Absent, the phone transcribes by itself.
-  'ELEVENLABS_API_KEY',
-  // Signs task continuations. Absent, the key is derived from DEEPSEEK_API_KEY.
-  'TASK_CONTINUATION_SECRET',
-  // Signs the monster words the server writes, for sharing. Absent, derived from DEEPSEEK_API_KEY.
-  'SHARE_SIGNING_SECRET',
   'TELEGRAM_BOT_TOKEN',
   'TELEGRAM_CHAT_ID',
   'TELEGRAM_WEBHOOK_SECRET',
-  // RevenueCat's secret API key and the project it belongs to: with both, a device with no Plus
-  // record yet is looked up once. Absent, only the webhook tells the server about Plus.
+  // RevenueCat's secret API key and the project it belongs to: with both, a device with no
+  // tuition record yet is looked up once. Absent, only the webhook tells the server about tuition.
   'REVENUECAT_API_V2_KEY',
   'REVENUECAT_PROJECT_ID',
   // The exact Authorization header RevenueCat's webhook is set to send. Absent, every delivery is
@@ -41,11 +33,8 @@ export type EnvironmentName = 'dev' | 'prd';
 /** Everything `wrangler.jsonc` binds for an environment, plus the secrets. */
 export type Bindings = Secrets & {
   readonly DB: D1Database;
-  readonly FILES: R2Bucket;
   readonly IP_RATE_LIMIT: RateLimit;
   readonly DEVICE_RATE_LIMIT: RateLimit;
-  /** One Durable Object per table, addressed by the table's id. */
-  readonly TABLE: DurableObjectNamespace<TableObject>;
   readonly ENVIRONMENT: EnvironmentName;
   readonly COMMIT_SHA: string;
 };

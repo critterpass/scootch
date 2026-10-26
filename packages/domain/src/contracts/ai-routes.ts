@@ -1,40 +1,6 @@
 import type { z } from 'zod';
 
-import {
-  rambleEnergyRequestSchema,
-  rambleEnergyResponseSchema,
-  screenInputRequestSchema,
-  screenInputResponseSchema,
-  sharePrivateRequestSchema,
-  sharePrivateResponseSchema,
-  taskSizeRequestSchema,
-  taskSizeResponseSchema,
-} from './ai-labels';
-import {
-  dayMorningLineRequestSchema,
-  dayMorningLineResponseSchema,
-  sessionStuckRequestSchema,
-  sessionStuckResponseSchema,
-  taskBargainRequestSchema,
-  taskBargainResponseSchema,
-  taskPickRequestSchema,
-  taskPickResponseSchema,
-  taskShrinkRequestSchema,
-  taskShrinkResponseSchema,
-  weekSentenceRequestSchema,
-  weekSentenceResponseSchema,
-} from './ai-small-routes';
-import { taskCreateRequestSchema, taskCreateResponseSchema } from './ai-task-call';
-import {
-  taskCreateLinesRequestSchema,
-  taskCreateLinesResponseSchema,
-  taskCreateNameRequestSchema,
-  taskCreateNameResponseSchema,
-  taskCreatePackRequestSchema,
-  taskCreatePackResponseSchema,
-  taskCreateStartRequestSchema,
-  taskCreateStartResponseSchema,
-} from './ai-task-stages';
+import { screenInputRequestSchema, screenInputResponseSchema } from './ai-labels';
 
 export * from './ai-labels';
 export * from './ai-small-routes';
@@ -48,37 +14,6 @@ export * from './ai-task-stages';
  */
 export const aiRoutes = {
   'screen.input': { request: screenInputRequestSchema, response: screenInputResponseSchema },
-  'task.create': { request: taskCreateRequestSchema, response: taskCreateResponseSchema },
-  // The same route as `task.create`, asked with `staged: true`.
-  'task.create_start': {
-    request: taskCreateStartRequestSchema,
-    response: taskCreateStartResponseSchema,
-  },
-  'task.create_lines': {
-    request: taskCreateLinesRequestSchema,
-    response: taskCreateLinesResponseSchema,
-  },
-  // Stage two in two parts: the name and the hatch line first, then the rest of the pack.
-  'task.create_name': {
-    request: taskCreateNameRequestSchema,
-    response: taskCreateNameResponseSchema,
-  },
-  'task.create_pack': {
-    request: taskCreatePackRequestSchema,
-    response: taskCreatePackResponseSchema,
-  },
-  'task.shrink': { request: taskShrinkRequestSchema, response: taskShrinkResponseSchema },
-  'task.bargain': { request: taskBargainRequestSchema, response: taskBargainResponseSchema },
-  'session.stuck': { request: sessionStuckRequestSchema, response: sessionStuckResponseSchema },
-  'task.pick': { request: taskPickRequestSchema, response: taskPickResponseSchema },
-  'day.morning_line': {
-    request: dayMorningLineRequestSchema,
-    response: dayMorningLineResponseSchema,
-  },
-  'week.sentence': { request: weekSentenceRequestSchema, response: weekSentenceResponseSchema },
-  'task.size': { request: taskSizeRequestSchema, response: taskSizeResponseSchema },
-  'ramble.energy': { request: rambleEnergyRequestSchema, response: rambleEnergyResponseSchema },
-  'share.private': { request: sharePrivateRequestSchema, response: sharePrivateResponseSchema },
 } as const;
 
 export type AiRouteId = keyof typeof aiRoutes;
