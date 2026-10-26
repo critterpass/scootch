@@ -1,91 +1,66 @@
-/** The Help page, in Vietnamese. */
+import type { Loosen } from './en';
+import type { helpEn } from './help-en';
+
+/** Hỗ trợ và đường dây hỗ trợ bằng tiếng Việt. Trang đường dây hỗ trợ không bao giờ đùa. */
 export const helpVi = {
-  help: {
-    title: 'Trợ giúp · Lớp Thầy Phú',
+  support: {
+    title: 'Hỗ trợ · Lớp Thầy Phú',
     description:
-      'Câu hỏi được trả lời thẳng, đường dây hỗ trợ, Lớp Thầy Phú là gì và không là gì, và quyền riêng tư nói gọn.',
-    address: 'phusclass.com/vi/help',
-    words: ['Tui', 'giúp', 'được', 'gì?'],
-    searchLabel: 'Tìm trong các câu hỏi',
-    searchPlaceholder: 'Tìm: huỷ, mất mạng, ngồi bàn…',
-    search: 'Tìm',
-    oneAnswer: '1 câu trả lời',
-    answers: '{count} câu trả lời',
-    nav: [
-      'Câu hỏi',
-      'Đường dây hỗ trợ',
-      'Lớp Thầy Phú là gì và không là gì',
-      'Quyền riêng tư, nói thẳng',
-      'Viết cho tụi tui',
-    ],
-    questionsTitle: 'Những câu người ta thật sự hỏi',
-    tags: [
-      'Plus',
-      'App',
-      'Về Lớp Thầy Phú',
-      'Về Lớp Thầy Phú',
-      'Dữ liệu',
-      'App',
-      'App',
-      'Ngồi bàn',
-      'App',
-      'Plus',
-      'Plus',
-      'App',
-      'App',
-      'Dữ liệu',
-      'Chăm sóc',
-    ],
-    none: 'Tui tìm không ra. Viết cho tụi tui ở bên dưới nha.',
-    helplinesTitle: 'Nếu mọi thứ đang rất khó khăn',
-    helplinesBody:
-      'Bạn xứng đáng có một con người thật, không phải một nhân vật hoạt hình. Các đường dây này miễn phí và kín đáo. Nếu bạn đang gặp nguy hiểm ngay lúc này, hãy gọi số khẩn cấp ở nơi bạn ở.',
-    country: 'Quốc gia',
-    allHelplines: 'Mọi quốc gia, kèm giờ hoạt động',
-    isntTitle: 'Lớp Thầy Phú là gì, và không là gì',
-    is: 'Lớp Thầy Phú là',
-    isList: [
-      'Một người bạn nhỏ, ngớ ngẩn, giúp bạn bắt đầu việc',
-      'Một cách làm cho việc đáng sợ thấy nhỏ lại',
-      'Sự hiện diện yên lặng trong lúc bạn làm',
-      'Miễn phí, không có gì đếm ngày của bạn',
-    ],
-    isnt: 'Lớp Thầy Phú không là',
-    isntList: [
-      'Chẩn đoán, điều trị hay cách chữa ADHD hoặc bất cứ điều gì khác',
-      'Nhà trị liệu, người huấn luyện hay dịch vụ khủng hoảng',
-      'Bảng điểm năng suất',
-      'Thứ thay thế cho những người quan tâm tới bạn',
-    ],
-    privacyTitle: 'Quyền riêng tư, nói thẳng',
-    privacy: [
+      'Giải đáp về Lớp Thầy Phú: khôi phục giao dịch, huỷ, hoàn tiền, học bổng, dữ liệu và ngôn ngữ.',
+    eyebrow: 'Hỗ trợ',
+    headline: 'Hỏi gì, đáp nấy.',
+    lede: 'Vẫn chưa ổn? Viết tới support@phusclass.com. Mỗi thư đều có người thật đọc.',
+    email: 'support@phusclass.com',
+    writeTo: 'Viết cho chúng tôi',
+    notOutYet: 'Lớp Thầy Phú chưa ra mắt. Các câu trả lời dưới đây nói về app như ngày đầu ra mắt.',
+    questions: [
       {
-        tag: 'Giọng nói',
-        title: 'Kể lể vẫn chỉ là kể lể',
-        body: 'Giọng bạn được chuyển thành chữ và Lớp Thầy Phú không bao giờ giữ âm thanh.',
+        q: 'Khôi phục giao dịch thế nào?',
+        a: 'Trong cài đặt của app, chạm Khôi phục giao dịch khi đang đăng nhập đúng Tài khoản Apple đã trả tiền. Đổi điện thoại mới cũng làm y như vậy.',
       },
       {
-        tag: 'Việc',
-        title: 'Danh sách là của bạn',
-        body: 'Không ai ở bàn thấy câu chữ của bạn, và không có gì công khai trừ khi bạn chia sẻ.',
+        q: 'Huỷ học phí thế nào?',
+        a: 'Trên iPhone: Cài đặt, tên của bạn, Đăng ký, Lớp Thầy Phú, Huỷ đăng ký. Hãy huỷ ít nhất một ngày trước khi gia hạn. Bạn vẫn dùng được tới hết kỳ đã trả.',
       },
       {
-        tag: 'Huấn luyện',
-        title: 'Không bao giờ dùng để huấn luyện',
-        body: 'Không có gì bạn nói hay gõ được dùng để huấn luyện mô hình.',
+        q: 'Có được hoàn tiền không?',
+        a: 'Apple nhận mọi khoản thanh toán nên Apple lo hoàn tiền: tại reportaproblem.apple.com, hoặc trong cài đặt của app, chỉ một chạm. Chúng tôi không tự hoàn tiền được.',
       },
       {
-        tag: 'Rời đi',
-        title: 'Mang theo hoặc xoá hết',
-        body: 'Xuất mọi thứ, hoặc xoá mọi thứ, ngay trong app, bất cứ lúc nào.',
+        q: 'Học bổng là gì?',
+        a: 'Dưới mỗi biên lai trong app có dòng “Chưa đóng được?”. Chạm một lần, ghi vài chữ nếu muốn, là bạn được miễn học phí một năm học. Không cần giấy tờ, không hỏi han, cần thì xin thêm lần nữa.',
+      },
+      {
+        q: 'Xoá dữ liệu thế nào?',
+        a: 'Trong cài đặt của app: Xoá mọi thứ. Dữ liệu biến mất khỏi điện thoại, còn trên máy chủ thì hồ sơ thiết bị, các mã thông báo và bản sao lưu bị xoá ngay. Xoá dữ liệu không huỷ học phí; việc đó nằm trong cài đặt Apple.',
+      },
+      {
+        q: 'Xuất dữ liệu được không?',
+        a: 'Được. Trong cài đặt của app, mục Xuất dữ liệu cho bạn một tệp gồm các việc và sổ đầu bài.',
+      },
+      {
+        q: 'Đổi ngôn ngữ thế nào?',
+        a: 'Lớp Thầy Phú nói tiếng Việt hoặc tiếng Anh, mỗi lúc một thứ tiếng, theo ngôn ngữ của điện thoại. Muốn đổi riêng app này: Cài đặt iPhone, Ứng dụng, Lớp Thầy Phú, Ngôn ngữ.',
+      },
+      {
+        q: 'Tắt lời nhắn của thầy thế nào?',
+        a: 'Tắt trong cài đặt của app, hoặc trong Cài đặt iPhone, Thông báo. Ngày nào lời nhắn bị bỏ qua thì thầy tự im, và thầy tôn trọng chế độ Ngủ và Tập trung.',
+      },
+      {
+        q: 'Mình đang có chuyện nặng lòng.',
+        a: 'Khi đó thầy thôi diễn: không đùa, không chấm điểm, không thúc ép. Và nếu bạn đang thật sự khó khăn, có những người thật có thể giúp. Trang đường dây hỗ trợ có các số miễn phí, bảo mật theo từng nước.',
       },
     ],
-    privacyLinks:
-      'Bảng đầy đủ nằm ở trang {privacy}, và {terms} cũng được viết bằng lời lẽ rõ ràng như vậy.',
-    privacyLink: 'quyền riêng tư',
-    termsLink: 'điều khoản',
-    contactTitle: 'Viết cho một con người',
-    contactBody: 'Thư nào cũng có người đọc, và không ai bắt bạn giải thích.',
-    contactEmail: 'help@phusclass.com',
+    helplinesLink: 'Tìm đường dây hỗ trợ',
   },
-} as const;
+  helplines: {
+    title: 'Đường dây hỗ trợ · Lớp Thầy Phú',
+    description: 'Các đường dây hỗ trợ miễn phí, bảo mật, theo từng nước.',
+    headline: 'Nói chuyện với ai đó, ngay bây giờ.',
+    intro:
+      'Các đường dây này miễn phí, bảo mật và có người thật trả lời. Nếu bạn đang gặp nguy hiểm, hãy gọi ngay số cấp cứu nơi bạn sống.',
+    emergency: 'Cấp cứu',
+    anywhere: 'Nơi khác',
+    footnote: 'Trang này không theo dõi bạn.',
+  },
+} as const satisfies Loosen<typeof helpEn>;

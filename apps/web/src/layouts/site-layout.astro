@@ -1,90 +1,82 @@
 ---
 import type { Language } from '@phusclass/i18n';
-import { colors, type Palette } from '@phusclass/tokens';
 
 import SiteFooter from '../components/site-footer.astro';
 import SiteNav from '../components/site-nav.astro';
-import { copyFor } from '../copy';
+import { copyFor, localPath, type SitePage } from '../copy';
 import '../styles/site.css';
-import '../styles/pages.css';
 
 interface Props {
   language: Language;
   /** The page's path in English, such as `/`. */
-  path: `/${string}`;
+  path: SitePage;
   title: string;
   description: string;
   /** False on the not-found page, which has no address of its own to preview or translate. */
   social?: boolean;
+  /** False on the not-found page, which answers in the language of the address it was asked for. */
+  chrome?: boolean;
+  /** A quiet page (helplines): no motion, no art. */
+  quiet?: boolean;
 }
 
-const { language, path, title, description, social = true } = Astro.props;
-const pageUrl = new URL(path === '/' && language === 'vi' ? '/vi/' : language === 'vi' ? `/vi${path}` : path, Astro.site);
+const { language, path, title, description, social = true, quiet = false, chrome = true } = Astro.props;
 const copy = copyFor(language);
-
-/** The app's palette as custom properties, so the site and the app share one set of inks. */
-function variables(palette: Palette): string {
-  return [
-    `--page:${palette.page}`,
-    `--surface:${palette.surface}`,
-    `--ink:${palette.ink}`,
-    `--muted:${palette.muted}`,
-    `--tomato:${palette.tomato}`,
-    `--on-tomato:${palette.onTomato}`,
-    `--riso-blob:${palette.risoBlob}`,
-  ].join(';');
-}
-const palette = `:root{color-scheme:light dark;${variables(colors.light)}}@media (prefers-color-scheme:dark){:root{${variables(colors.dark)}}}`;
+const pageUrl = new URL(localPath(language, path), Astro.site);
+const slug = path === '/' ? 'home' : path.slice(1);
+const image = new URL(`/og/${language}-${slug}.png`, Astro.site);
 ---
 
 <!doctype html>
-<html lang={language}>
+<html lang={language} class:list={{ quiet }}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <link rel="icon" type="image/png" href="/favicon.png" />
+    <meta name="theme-color" content="#2F6B56" />
+    <meta name="color-scheme" content="light" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.png" type="image/png" sizes="64x64" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="preload" href="/fonts/kithfield-hand-bold.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/nunito-latin.woff2" as="font" type="font/woff2" crossorigin />
     {
       social && (
         <>
-          <link rel="alternate" hreflang="en" href={new URL(path, Astro.site)} />
-          <link
-            rel="alternate"
-            hreflang="vi"
-            href={new URL(path === '/' ? '/vi/' : `/vi${path}`, Astro.site)}
-          />
-        </>
-      )
-    }
-    {
-      social && (
-        <>
+          <link rel="canonical" href={pageUrl} />
+          <link rel="alternate" hreflang="en" href={new URL(localPath('en', path), Astro.site)} />
+          <link rel="alternate" hreflang="vi" href={new URL(localPath('vi', path), Astro.site)} />
+          <link rel="alternate" hreflang="x-default" href={new URL(localPath('en', path), Astro.site)} />
           <meta property="og:type" content="website" />
           <meta property="og:site_name" content={copy.brand.name} />
+          <meta property="og:locale" content={language === 'vi' ? 'vi_VN' : 'en_US'} />
           <meta property="og:title" content={title} />
           <meta property="og:description" content={description} />
           <meta property="og:url" content={pageUrl} />
-          <meta name="twitter:card" content="summary" />
+          <meta property="og:image" content={image} />
+          <meta property="og:image:width" content="1200" />
+          <meta property="og:image:height" content="630" />
+          <meta name="twitter:card" content="summary_large_image" />
           <meta name="twitter:title" content={title} />
           <meta name="twitter:description" content={description} />
+          <meta name="twitter:image" content={image} />
         </>
       )
     }
-    <slot name="head" />
-    <style is:inline set:html={palette} />
+    <script is:inline>
+      document.documentElement.classList.add('js');
+    </script>
   </head>
   <body>
-    <a class="skip" href="#main">{copy.nav.skip}</a>
-    <SiteNav language={language} path={path} />
+    {chrome && <a class="skip" href="#main">{copy.nav.skip}</a>}
+    {chrome && <SiteNav language={language} path={path} />}
     <main id="main"><slot /></main>
-    <SiteFooter language={language} path={path} />
+    {chrome && <SiteFooter language={language} path={path} />}
     <script>
-      import { startSiteFx } from '../scripts/site-fx';
+      import { startSiteMotion } from '../scripts/site-motion';
 
-      startSiteFx();
+      startSiteMotion();
     </script>
   </body>
 </html>

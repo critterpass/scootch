@@ -182,6 +182,7 @@ Status lines below follow `CLAUDE.md`: `- Status: done — <sha>` or
 ## Phase 6: website, store, TestFlight (two lanes)
 
 ### 6.1 Website
+- Status: done — pending merge (email routing for hello@ and support@, and the prd deploy, are left to the founder)
 - Do: phusclass.com in English and Vietnamese:
   - home with Thầy Phú, tuition, privacy, terms, support, helplines
   - `apple-app-site-association`, an `.well-known` contact, link previews

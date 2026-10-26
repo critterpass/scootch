@@ -1,27 +1,29 @@
 ---
 import type { Language } from '@phusclass/i18n';
 
-import { localPath, pagesFor } from '../copy';
+import { copyFor, localPath } from '../copy';
+
+import Phu from './phu.astro';
 
 interface Props {
   language: Language;
 }
 
 const { language } = Astro.props;
-const copy = pagesFor(language).notFound;
+const copy = copyFor(language).notFound;
 ---
 
-<div class="not-found">
-  <div class="not-found-art" aria-hidden="true">
-    <span class="not-found-number">404</span>
-  </div>
-  <div class="not-found-words">
-    <p class="eyebrow">{copy.eyebrow}</p>
-    <h1>{copy.headline}</h1>
-    <p class="lede">{copy.body}</p>
-    <div class="actions">
-      <a class="button button-ink" href={localPath(language, '/')} data-magnet>{copy.home}</a>
-      <a class="button button-quiet" href={localPath(language, '/help')}>{copy.help}</a>
+<section class="not-found" lang={language}>
+  <div class="wrap not-found-row">
+    <Phu mood="surprised" label={copy.art} class="not-found-phu" />
+    <div>
+      <p class="eyebrow">{copy.eyebrow}</p>
+      <h1 class="hand not-found-line">“{copy.line}”</h1>
+      <p class="lede">{copy.body}</p>
+      <p class="actions">
+        <a class="button button-red" href={localPath(language, '/')}>{copy.home}</a>
+        <a class="button button-quiet" href={localPath(language, '/support')}>{copy.support}</a>
+      </p>
     </div>
   </div>
-</div>
+</section>

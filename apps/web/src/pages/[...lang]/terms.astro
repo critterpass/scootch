@@ -1,9 +1,32 @@
 ---
-import PlainSections from '../../components/plain-sections.astro';
-import { languagePaths, plainFor } from '../../copy';
+import PageHead from '../../components/page-head.astro';
+import { languagePaths, legalFor, localPath, pageLanguage } from '../../copy';
+import SiteLayout from '../../layouts/site-layout.astro';
 
 export const getStaticPaths = languagePaths;
-const language = Astro.params.lang === 'vi' ? 'vi' : 'en';
+const language = pageLanguage(Astro.params.lang);
+const copy = legalFor(language).terms;
 ---
 
-<PlainSections language={language} path="/terms" page={plainFor(language).terms} />
+<SiteLayout language={language} path="/terms" title={copy.title} description={copy.description}>
+  <PageHead headline={copy.headline} lede={copy.lede} />
+  <article class="wrap doc">
+    <p class="small">{copy.updated}</p>
+    <aside class="care-note">
+      <h2>{copy.crisisTitle}</h2>
+      <p>{copy.crisis}</p>
+      <a href={localPath(language, '/helplines')}>{copy.crisisLink}</a>
+    </aside>
+    {
+      copy.sections.map((section) => (
+        <section>
+          <h2>{section.title}</h2>
+          {section.body.map((paragraph) => (
+            <p>{paragraph}</p>
+          ))}
+        </section>
+      ))
+    }
+    <p class="doc-contact"><a href="mailto:hello@phusclass.com">{copy.contact}</a></p>
+  </article>
+</SiteLayout>

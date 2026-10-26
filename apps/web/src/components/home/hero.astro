@@ -1,0 +1,50 @@
+---
+import type { Language } from '@phusclass/i18n';
+
+import { copyFor } from '../../copy';
+import AppStoreBadge from '../app-store-badge.astro';
+import Phu from '../phu.astro';
+import Prop from '../prop.astro';
+
+interface Props {
+  language: Language;
+}
+
+// The front of the classroom: his board with today's list, Thầy Phú over his tea, his desk.
+const { language } = Astro.props;
+const copy = copyFor(language);
+const hero = copy.home.hero;
+---
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-words">
+      <p class="eyebrow">{hero.eyebrow}</p>
+      <h1 class="hand hero-title">{hero.title}</h1>
+      <p class="lede">{hero.lede}</p>
+      <AppStoreBadge language={language} />
+    </div>
+    <div class="scene" role="img" aria-label={`${hero.art}: “${hero.line}”`}>
+      <div class="scene-board" aria-hidden="true">
+        <div class="chalk-list">
+          <p class="chalk-date">{hero.boardDate}</p>
+          {
+            hero.board.map((item, index) => (
+              <p class:list={['chalk-item', { 'chalk-today': index === 0 }]} style={`--i:${index}`}>
+                {item}
+              </p>
+            ))
+          }
+          <p class="chalk-item chalk-more" style={`--i:${hero.board.length}`}>{hero.boardMore}</p>
+        </div>
+        <span class="chalk-tray"></span>
+      </div>
+      <Phu mood="over" class="scene-phu" />
+      <div class="scene-desk" aria-hidden="true">
+        <Prop name="thermos" class="scene-thermos" />
+        <Prop name="papers" class="scene-papers" />
+      </div>
+      <p class="bubble hand scene-bubble" aria-hidden="true">{hero.line}</p>
+    </div>
+  </div>
+</section>

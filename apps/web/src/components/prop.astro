@@ -1,0 +1,21 @@
+---
+import { drawingIds } from '../lib/drawing-ids';
+
+// A classroom prop, drawn from `design/phus-class/Prop.dc.html` (the files in `src/art/props`).
+// Its moving parts (tail, flame, wings, steam) move only while the page allows motion.
+const drawings = import.meta.glob<string>('../art/props/*.svg', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+});
+
+interface Props {
+  name: string;
+  class?: string;
+}
+
+const { name, class: className } = Astro.props;
+const svg = drawingIds(drawings[`../art/props/${name}.svg`] ?? '', '');
+---
+
+<span class:list={['prop', `prop-${name}`, className]} set:html={svg} />

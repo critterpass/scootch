@@ -1,0 +1,49 @@
+---
+import type { Language } from '@phusclass/i18n';
+
+import { copyFor, localPath } from '../../copy';
+
+interface Props {
+  language: Language;
+}
+
+// What is free, what tuition adds, and the short questions.
+const { language } = Astro.props;
+const { tuition, faq } = copyFor(language).home;
+---
+
+<section class="band tuition-summary" aria-labelledby="tuition-title">
+  <div class="wrap">
+    <p class="eyebrow">{tuition.eyebrow}</p>
+    <h2 id="tuition-title" class="section-title">{tuition.title}</h2>
+    <div class="two-lists">
+      <div class="paper-card" data-reveal>
+        <h3>{tuition.freeTitle}</h3>
+        <ul class="ticks">{tuition.free.map((item) => <li>{item}</li>)}</ul>
+      </div>
+      <div class="paper-card paper-card-red" data-reveal>
+        <h3>{tuition.paidTitle}</h3>
+        <ul class="ticks">{tuition.paid.map((item) => <li>{item}</li>)}</ul>
+        <p class="price">{tuition.price}</p>
+        <p class="small">{tuition.scholarship}</p>
+        <a class="button button-red" href={localPath(language, '/tuition')}>{tuition.more}</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band faq" aria-labelledby="faq-title">
+  <div class="wrap narrow">
+    <h2 id="faq-title" class="section-title">{faq.title}</h2>
+    <div class="answers">
+      {
+        faq.items.map((item) => (
+          <details>
+            <summary>{item.q}</summary>
+            <p>{item.a}</p>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+</section>

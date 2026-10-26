@@ -1,0 +1,103 @@
+---
+import AppStoreBadge from '../../components/app-store-badge.astro';
+import PageHead from '../../components/page-head.astro';
+import { copyFor, languagePaths, pageLanguage } from '../../copy';
+import SiteLayout from '../../layouts/site-layout.astro';
+
+export const getStaticPaths = languagePaths;
+const language = pageLanguage(Astro.params.lang);
+const copy = copyFor(language).tuitionPage;
+const receipt = copy.receipt;
+---
+
+<SiteLayout language={language} path="/tuition" title={copy.title} description={copy.description}>
+  <PageHead eyebrow={copy.eyebrow} headline={copy.headline} lede={copy.lede} mood="over" />
+  <div class="wrap tuition-page">
+    <section class="two-lists" aria-label={`${copy.freeTitle} · ${copy.paidTitle}`}>
+      <div class="paper-card" data-reveal>
+        <h2>{copy.freeTitle}</h2>
+        <ul class="ticks">{copy.free.map((item) => <li>{item}</li>)}</ul>
+      </div>
+      <div class="paper-card paper-card-red" data-reveal>
+        <h2>{copy.paidTitle}</h2>
+        <ul class="ticks">{copy.paid.map((item) => <li>{item}</li>)}</ul>
+      </div>
+    </section>
+
+    <section class="plans-section">
+      <h2 class="section-title">{copy.plansTitle}</h2>
+      <ul class="plans">
+        {
+          copy.plans.map((plan, index) => (
+            <li class:list={['plan', { 'plan-first': index === 0 }]}>
+              <p class="plan-name">{plan.name}</p>
+              <p class="plan-price">
+                <strong>{plan.price}</strong> {plan.per}
+              </p>
+              {plan.note !== '' && <p class="plan-note hand">{plan.note}</p>}
+            </li>
+          ))
+        }
+      </ul>
+      <p class="small">{copy.plansNote}</p>
+    </section>
+
+    <section class="trial-section">
+      <div>
+        <h2 class="section-title">{copy.trialTitle}</h2>
+        <ul class="ticks">{copy.trial.map((item) => <li>{item}</li>)}</ul>
+      </div>
+      <div class="receipt" aria-label={receipt.title}>
+        <p class="receipt-title hand">{receipt.title}</p>
+        <dl>
+          <div>
+            <dt>{receipt.today}</dt>
+            <dd>{receipt.todayNote}</dd>
+          </div>
+          <div>
+            <dt>{receipt.reminder}</dt>
+            <dd>{receipt.reminderNote}</dd>
+          </div>
+          <div>
+            <dt>{receipt.charge}</dt>
+            <dd>{receipt.chargeNote}</dd>
+          </div>
+        </dl>
+        <p class="receipt-ask hand">{receipt.ask}</p>
+      </div>
+    </section>
+
+    <section class="facts">
+      <div class="paper-card">
+        <h2>{copy.scholarshipTitle}</h2>
+        <p>{copy.scholarship}</p>
+      </div>
+      <div class="paper-card">
+        <h2>{copy.backTitle}</h2>
+        <p>{copy.back}</p>
+      </div>
+      <div class="paper-card">
+        <h2>{copy.rulesTitle}</h2>
+        <ul class="ticks">{copy.rules.map((rule) => <li>{rule}</li>)}</ul>
+      </div>
+    </section>
+
+    <section class="doc">
+      <h2 class="section-title">{copy.cancelTitle}</h2>
+      <div class="answers">
+        {
+          copy.cancel.map((item) => (
+            <details open>
+              <summary>{item.q}</summary>
+              <p>{item.a}</p>
+            </details>
+          ))
+        }
+      </div>
+      <p class="doc-contact">
+        <a href="https://reportaproblem.apple.com">{copy.refundLink}</a>
+      </p>
+      <AppStoreBadge language={language} />
+    </section>
+  </div>
+</SiteLayout>
