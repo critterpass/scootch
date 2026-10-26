@@ -1,0 +1,131 @@
+/**
+ * The wide classroom, copied from the Room design board (design/phus-class/Room.dc.html). The
+ * board's CSS opacity on the two chalkboard groups is written as an `opacity` hole; the desks,
+ * which the board builds in a loop, are built in room.ts with the same numbers. Re-copy from the
+ * board when it changes; do not edit shapes here.
+ */
+export const ROOM_SIZE = { width: 1600, height: 1000 } as const;
+
+/** The walls and the floor. */
+export const ROOM_WALLS = `
+<rect x="0" y="0" width="1600" height="632" fill="{{wall}}"></rect>
+<rect x="0" y="520" width="1600" height="98" fill="#F2DDBD"></rect>
+<rect x="0" y="516" width="1600" height="6" fill="#E9CFA6"></rect>
+<rect x="0" y="632" width="1600" height="368" fill="#E8D2AE"></rect>
+<path d="M0 690 H1600 M0 760 H1600 M0 845 H1600 M0 945 H1600" stroke="#DCC196" stroke-width="2"></path>
+<rect x="0" y="618" width="1600" height="14" fill="#E2C79E"></rect>
+`;
+
+/** Door, with the class plate. */
+export const ROOM_DOOR = `
+<rect x="34" y="222" width="168" height="410" rx="6" fill="#8A5A36"></rect>
+<rect x="46" y="234" width="144" height="398" rx="3" fill="#B57744"></rect>
+<rect x="46" y="234" width="20" height="398" fill="#A86C3D"></rect>
+<rect x="84" y="262" width="78" height="96" rx="6" fill="#CFE6F0"></rect>
+<path d="M92 270 L122 270 L96 350 L92 350 Z" fill="#E4F2F8"></path>
+<rect x="84" y="402" width="78" height="150" rx="6" fill="#A86C3D"></rect>
+<circle cx="176" cy="440" r="8" fill="#FFC93C"></circle>
+<rect x="76" y="166" width="86" height="40" rx="8" fill="#2B4C9A"></rect>
+<text x="119" y="194" text-anchor="middle" font-family="'Kithfield Hand', cursive" font-weight="700" font-size="22" fill="#FFFFFF">11A</text>
+`;
+
+/** Notice board on cork. */
+export const ROOM_NOTICE_BOARD = `
+<rect x="236" y="118" width="214" height="214" rx="10" fill="#8A5A36"></rect>
+<rect x="244" y="126" width="198" height="198" rx="5" fill="#D9A066"></rect>
+<g fill="#C98E55"><circle cx="262" cy="150" r="2"></circle><circle cx="300" cy="300" r="2"></circle><circle cx="420" cy="170" r="2"></circle><circle cx="388" cy="292" r="2"></circle><circle cx="340" cy="220" r="2"></circle></g>
+<g transform="rotate(-4 296 186)"><rect x="258" y="146" width="80" height="84" rx="2" fill="#FFFDF6"></rect><rect x="266" y="158" width="64" height="6" rx="3" fill="#D42A24"></rect><rect x="266" y="172" width="18" height="12" rx="2" fill="#BCC6D3"></rect><rect x="288" y="172" width="18" height="12" rx="2" fill="#F2A49B"></rect><rect x="310" y="172" width="18" height="12" rx="2" fill="#BCC6D3"></rect><rect x="266" y="188" width="18" height="12" rx="2" fill="#F2A49B"></rect><rect x="288" y="188" width="18" height="12" rx="2" fill="#BCC6D3"></rect><rect x="310" y="188" width="18" height="12" rx="2" fill="#EFE7DA"></rect><rect x="266" y="204" width="40" height="5" rx="2.5" fill="#E6DED2"></rect></g>
+<g transform="rotate(5 392 182)"><rect x="356" y="144" width="72" height="80" rx="2" fill="#FFF6D6"></rect><path d="M392 162 l6 12 l13 2 l-9 9 l2 13 l-12 -6 l-12 6 l2 -13 l-9 -9 l13 -2 z" fill="#FFC93C"></path><rect x="368" y="208" width="48" height="5" rx="2.5" fill="#E9D7A8"></rect></g>
+<g transform="rotate(3 300 276)"><rect x="262" y="244" width="78" height="64" rx="2" fill="#FFFFFF"></rect><rect x="268" y="250" width="66" height="40" fill="#BFE3FA"></rect><circle cx="286" cy="276" r="7" fill="#F9C49A"></circle><circle cx="304" cy="274" r="7" fill="#F9C49A"></circle><circle cx="320" cy="277" r="7" fill="#F9C49A"></circle><rect x="268" y="281" width="66" height="9" fill="#4FB8F0"></rect></g>
+<g transform="rotate(-6 396 274)"><rect x="362" y="246" width="70" height="58" rx="2" fill="#FFFDF6"></rect><rect x="370" y="258" width="54" height="5" rx="2.5" fill="#E6DED2"></rect><rect x="370" y="270" width="44" height="5" rx="2.5" fill="#E6DED2"></rect><rect x="370" y="282" width="50" height="5" rx="2.5" fill="#E6DED2"></rect></g>
+<g fill="#D42A24"><circle cx="298" cy="148" r="5"></circle><circle cx="392" cy="146" r="5"></circle><circle cx="300" cy="246" r="5"></circle><circle cx="396" cy="248" r="5"></circle></g>
+`;
+
+/** Clock and banner. */
+export const ROOM_CLOCK_AND_BANNER = `
+<circle cx="550" cy="56" r="28" fill="#FFFFFF" stroke="#3E3A44" stroke-width="5"></circle>
+<path d="M550 33 V38 M550 74 V79 M527 56 H532 M568 56 H573" stroke="#3E3A44" stroke-width="3" stroke-linecap="round"></path>
+<path d="M550 56 L542 44" stroke="#3E3A44" stroke-width="4" stroke-linecap="round"></path>
+<g class="rm-tick"><path d="M550 56 L550 36" stroke="#D42A24" stroke-width="3" stroke-linecap="round"></path></g>
+<circle cx="550" cy="56" r="3.5" fill="#3E3A44"></circle>
+<rect x="680" y="28" width="240" height="34" rx="6" fill="#C8312A"></rect>
+<text x="800" y="51" text-anchor="middle" font-family="'Kithfield Hand', cursive" font-weight="700" font-size="15" fill="#FFD86B">MANNERS, THEN LETTERS</text>
+`;
+
+/** Chalkboard, or the mark it leaves when it has been taken down. */
+export const ROOM_CHALKBOARD = `
+<g opacity="{{offOp}}">
+  <rect x="484" y="104" width="632" height="188" rx="18" fill="#F6E6CC"></rect>
+  <rect x="496" y="116" width="608" height="164" rx="12" fill="none" stroke="#EAD3B0" stroke-width="3" stroke-dasharray="10 8"></rect>
+  <g fill="#8A6A4A"><circle cx="560" cy="96" r="6"></circle><circle cx="1040" cy="96" r="6"></circle></g>
+  <rect x="500" y="294" width="600" height="9" rx="5" fill="#6E4528"></rect>
+  <rect x="675" y="289" width="22" height="6" rx="3" fill="#FFFFFF"></rect>
+</g>
+<g opacity="{{onOp}}">
+<rect x="480" y="100" width="640" height="196" rx="20" fill="#8A5A36"></rect>
+<rect x="488" y="108" width="624" height="180" rx="13" fill="#2F6B56"></rect>
+<path d="M501 108 L630 108 L568 288 L501 288 Q488 288 488 275 L488 121 Q488 108 501 108 Z" fill="#357560"></path>
+<rect x="500" y="294" width="600" height="9" rx="5" fill="#6E4528"></rect>
+<rect x="675" y="289" width="22" height="6" rx="3" fill="#FFFFFF"></rect>
+<rect x="703" y="289" width="14" height="6" rx="3" fill="#FFC93C"></rect>
+</g>
+`;
+
+/** Window. */
+export const ROOM_WINDOW = `
+<rect x="1166" y="118" width="112" height="286" rx="8" fill="#FFFFFF"></rect>
+<rect x="1174" y="126" width="96" height="270" rx="4" fill="{{glass}}"></rect>
+<circle cx="1200" cy="164" r="15" fill="#FFD86B" opacity="{{sun}}"></circle>
+<ellipse cx="1246" cy="200" rx="20" ry="9" fill="#FFFFFF"></ellipse>
+<rect x="1229" y="356" width="9" height="40" fill="#8A5A36"></rect>
+<circle cx="1234" cy="350" r="34" fill="#6BBF7A"></circle>
+<circle cx="1204" cy="372" r="24" fill="#5AAE6A"></circle>
+<rect x="1220" y="126" width="4" height="270" fill="#FFFFFF"></rect>
+<rect x="1174" y="258" width="96" height="4" fill="#FFFFFF"></rect>
+`;
+
+/** Wall fan. */
+export const ROOM_FAN = `
+<rect x="1424" y="214" width="12" height="54" rx="6" fill="#B8BCC6"></rect>
+<rect x="1406" y="262" width="48" height="16" rx="8" fill="#9EA3AE"></rect>
+<circle cx="1430" cy="170" r="62" fill="#EEF1F5" stroke="#B8BCC6" stroke-width="4"></circle>
+<g class="rm-fan"><path d="M1430 170 C1404 132 1418 116 1430 118 C1442 116 1456 132 1430 170 Z M1430 170 C1474 160 1484 176 1478 186 C1474 198 1452 204 1430 170 Z M1430 170 C1408 206 1388 200 1384 190 C1380 178 1392 162 1430 170 Z" fill="#7FB6E0"></path></g>
+<circle cx="1430" cy="170" r="12" fill="#5C8FBF"></circle>
+<path d="M1374 170 H1486 M1430 114 V226 M1390 130 L1470 210 M1470 130 L1390 210" stroke="#C9CDD5" stroke-width="2" opacity="0.6"></path>
+`;
+
+/** Bookshelf and plant. */
+export const ROOM_SHELF = `
+<rect x="1318" y="330" width="236" height="290" rx="6" fill="#8A5A36"></rect>
+<rect x="1330" y="342" width="212" height="80" fill="#6E4528"></rect>
+<rect x="1330" y="434" width="212" height="80" fill="#6E4528"></rect>
+<rect x="1330" y="526" width="212" height="82" fill="#6E4528"></rect>
+<g>
+  <rect x="1338" y="356" width="16" height="66" rx="2" fill="#D42A24"></rect><rect x="1356" y="362" width="14" height="60" rx="2" fill="#4FB8F0"></rect><rect x="1372" y="350" width="18" height="72" rx="2" fill="#FFC93C"></rect><rect x="1392" y="364" width="14" height="58" rx="2" fill="#2F6B56"></rect><rect x="1414" y="370" width="60" height="14" rx="2" fill="#9B6BD1" transform="rotate(-18 1414 384)"></rect>
+  <rect x="1338" y="452" width="20" height="62" rx="2" fill="#2B4C9A"></rect><rect x="1360" y="446" width="14" height="68" rx="2" fill="#F2A49B"></rect><rect x="1376" y="456" width="16" height="58" rx="2" fill="#4FAE6E"></rect><rect x="1394" y="450" width="18" height="64" rx="2" fill="#E0A030"></rect><circle cx="1490" cy="488" r="22" fill="#4FB8F0"></circle><path d="M1470 480 Q1490 470 1510 486 M1474 498 Q1492 504 1508 494" stroke="#6BBF7A" stroke-width="5" fill="none"></path><rect x="1484" y="508" width="12" height="8" fill="#8A5A36"></rect>
+  <rect x="1340" y="550" width="70" height="56" rx="3" fill="#FFFDF6"></rect><rect x="1346" y="558" width="58" height="6" rx="3" fill="#E6DED2"></rect><rect x="1418" y="540" width="16" height="66" rx="2" fill="#D42A24"></rect><rect x="1436" y="546" width="14" height="60" rx="2" fill="#FFC93C"></rect>
+</g>
+`;
+
+/** Teacher's platform and desk. */
+export const ROOM_PLATFORM = `
+<rect x="450" y="588" width="700" height="14" fill="#D9A56E"></rect>
+<rect x="450" y="602" width="700" height="32" fill="#A97848"></rect>
+`;
+
+/** His desk, in front of him. */
+export const ROOM_TEACHER_DESK = `
+<path d="M600 408 L1000 408 L1016 442 L584 442 Z" fill="#E9B47C"></path>
+<rect x="584" y="440" width="432" height="4" fill="#F3C892"></rect>
+<rect x="584" y="444" width="432" height="144" fill="#C98B55"></rect>
+<rect x="584" y="444" width="432" height="8" fill="#B57744"></rect>
+`;
+
+/** The studio's carving on the desk beside yours. */
+export const ROOM_SIGNATURE = `
+<g opacity="0.9">
+  <ellipse cx="984" cy="876" rx="5" ry="6.5" fill="none" stroke="#A9733F" stroke-width="2"></ellipse>
+  <ellipse cx="997.5" cy="877" rx="5" ry="6.5" fill="none" stroke="#A9733F" stroke-width="2" transform="rotate(14 997.5 877)"></ellipse><path d="M993.5 877 l2.5 -2.5 l2 2.5 l2 -2.5 l2.5 2.5" fill="none" stroke="#A9733F" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
+  <text x="1006" y="882" font-family="'Kithfield Hand', cursive" font-weight="700" font-size="14" fill="#A9733F" transform="rotate(-3 1006 882)">Odd Eggs Studio</text>
+</g>
+`;

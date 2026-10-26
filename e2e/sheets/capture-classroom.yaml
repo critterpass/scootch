@@ -1,0 +1,60 @@
+appId: com.phusclass.dev
+---
+# Captures the classroom's developer screen for the sheets beside the Phu, Prop, Room and App
+# boards: the room at each camera shot, a pressure pose, and the pose and prop galleries. It opens
+# the screen by its link once the desk is up, as the registry capture does.
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: 'desk-sit'
+    timeout: 90000
+- openLink: phusclass-dev:///dev-classroom
+- extendedWaitUntil:
+    visible:
+      id: 'dev-classroom-view'
+    timeout: 30000
+# Long enough for the font and the first pictures.
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: classroom-desk--en-light-default
+- tapOn:
+    id: 'dev-classroom-shot-session'
+- waitForAnimationToEnd:
+    timeout: 2500
+- takeScreenshot: classroom-session--en-light-default
+- tapOn:
+    id: 'dev-classroom-pace'
+- waitForAnimationToEnd:
+    timeout: 1500
+- takeScreenshot: classroom-session-pacing--en-light-default
+- tapOn:
+    id: 'dev-classroom-pace'
+- tapOn:
+    id: 'dev-classroom-shot-recess'
+- waitForAnimationToEnd:
+    timeout: 2500
+- takeScreenshot: classroom-recess--en-light-default
+- tapOn:
+    id: 'dev-classroom-shot-desk'
+- tapOn:
+    id: 'dev-classroom-pressure-4'
+- waitForAnimationToEnd:
+    timeout: 2500
+- takeScreenshot: classroom-desk-pressure-4--en-light-default
+- tapOn:
+    id: 'dev-classroom-lamp'
+- waitForAnimationToEnd:
+    timeout: 1500
+- takeScreenshot: classroom-desk-lamp--en-light-default
+- scrollUntilVisible:
+    element:
+      id: 'dev-classroom-pose-serious'
+    direction: DOWN
+- takeScreenshot: classroom-poses--en-light-default
+- scrollUntilVisible:
+    element:
+      id: 'dev-classroom-props'
+    direction: DOWN
+- scroll
+- takeScreenshot: classroom-props--en-light-default

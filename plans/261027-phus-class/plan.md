@@ -75,6 +75,7 @@ Status lines below follow `CLAUDE.md`: `- Status: done — <sha>` or
 ## Phase 2: core (four lanes, JavaScript only)
 
 ### 2.1 The classroom renderer
+- Status: done — pending merge
 - Do: `packages/art` becomes the classroom.
   - Thầy Phú: 24 poses as data, built from shared parts.
   - The 19 props, and the room as a 1600×1000 world seen through a camera rectangle.
