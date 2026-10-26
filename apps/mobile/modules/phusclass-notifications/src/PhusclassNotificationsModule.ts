@@ -13,6 +13,11 @@ export interface NativeLocalNotification {
   taskId: string | null;
   /** A picture that arrives with it: the address of a file, which the system takes as its own. */
   attachment: string | null;
+  /**
+   * His face at this pressure step (0 to 5) arrives with it when there is no other picture. Left
+   * out for a serious or crisis task, which never carries pressure.
+   */
+  pressure?: number | null;
 }
 
 /** The Swift module (`ios/PhusclassNotificationsModule.swift`). */

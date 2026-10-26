@@ -16,6 +16,8 @@ struct LocalNotification: Record {
   @Field var taskId: String?
   /// A picture that arrives with it, as a file address.
   @Field var attachment: String?
+  /// His face at this pressure step (0 to 5) arrives with it, when there is no other picture.
+  @Field var pressure: Int?
 }
 
 /// The JavaScript side of the local notifications (modules/phusclass-notifications/index.ts).
@@ -51,6 +53,12 @@ enum LocalNotifications {
       {
         content.attachments = [picture]
       }
+    }
+
+    if content.attachments.isEmpty, let step = notification.pressure,
+      let picture = PhuPicture.attachment(pressure: step)
+    {
+      content.attachments = [picture]
     }
 
     let seconds = max(1, notification.at / 1000 - Date().timeIntervalSince1970)
@@ -100,5 +108,30 @@ enum LocalNotifications {
         picture.draw(in: CGRect(x: side * 0.04, y: side * 0.04, width: side * 0.92, height: side * 0.92))
       }
     return drawn.pngData().map { INImage(imageData: $0) }
+  }
+}
+
+/// His figure at a pressure step, from the pictures baked into the widget extension
+/// (targets/widgets/SurfaceArt.xcassets), written to a file a notification can carry.
+enum PhuPicture {
+  static let ladder = ["Calm", "Over", "Crossed", "Ruler", "Name", "Stare"]
+
+  private static var widgets: Bundle? {
+    Bundle.main.builtInPlugInsURL
+      .map { $0.appendingPathComponent("PhusclassWidgets.appex") }
+      .flatMap { Bundle(url: $0) }
+  }
+
+  static func attachment(pressure: Int) -> UNNotificationAttachment? {
+    let name = "PhuFigure" + ladder[min(ladder.count - 1, max(0, pressure))]
+    let light = UITraitCollection(userInterfaceStyle: .light)
+    guard let bundle = widgets,
+      let image = UIImage(named: name, in: bundle, compatibleWith: light),
+      let data = image.pngData()
+    else { return nil }
+    let file = FileManager.default.temporaryDirectory
+      .appendingPathComponent(UUID().uuidString + "-" + name + ".png")
+    guard (try? data.write(to: file)) != nil else { return nil }
+    return try? UNNotificationAttachment(identifier: "phu", url: file)
   }
 }

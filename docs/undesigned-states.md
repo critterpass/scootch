@@ -43,3 +43,8 @@ state is designed or removed. Scootch's list is in the history of this file.
 | Helplines, from Settings | The crisis page with the title "Helplines" and a Back button | The `Crisis` board is the crisis day only |
 | Crisis | A region with no verified helpline: the directory card alone, its button filled | The board draws Vietnam only |
 | Serious | "It's fine, be funny" under Not now | The brief names it; the `Serious` board does not draw it. A quiet text button, offered only for a task the screen judged serious |
+| Widgets | A tuition widget (chalkboard, timetable, StandBy) when tuition is not paid | The brief asks for a quiet lock; no board draws it. The lock glyph and "With tuition" in the widget's muted ink, opening tuition |
+| Widgets | The timetable widget before the timetable has been made | No board draws it. "Open the timetable in the app" on the timetable's paper |
+| Widgets | The timetable widget with no free period left today | The Dial board draws "NO FREE PERIODS" only on the dial. The card's place holds "No free periods left today" |
+| Live Activity, desk | The Lock Screen activity's buttons | The Outside board has Late slip and Start 10 min; the slip needs the desk, so only Start is drawn, full width |
+| Live Activity, desk | The fuse along the chalkboard's ledge | The brief burns it around the edge; the system animates only a bar or a ring, so it burns along the ledge and as a ring with its time left |

@@ -34,5 +34,8 @@ enum AppGroup {
     enum Key {
         /// Today as the surfaces draw it: one JSON string the app writes (`SurfaceSnapshot`).
         static let surfaceSnapshot = "surfaces.snapshot"
+        /// What Siri, Shortcuts, a widget or the Live Activity asked the app to do, as one JSON
+        /// list (`PendingSurfaceActions`); the app acts on it when it next comes to the front.
+        static let pendingActions = "surfaces.pending-actions"
     }
 }

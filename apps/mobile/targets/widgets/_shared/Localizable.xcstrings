@@ -1,0 +1,462 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "%d DAY": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d NGÀY"
+          }
+        }
+      }
+    },
+    "%d DAYS": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d NGÀY"
+          }
+        }
+      }
+    },
+    "%d MIN LEFT": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CÒN %d PHÚT"
+          }
+        }
+      }
+    },
+    "%d minutes": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d phút"
+          }
+        }
+      }
+    },
+    "+%d more": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+%d bài nữa"
+          }
+        }
+      }
+    },
+    "Add ${text} to the board": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ghi ${text} lên bảng"
+          }
+        }
+      }
+    },
+    "Add to the board": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ghi lên bảng"
+          }
+        }
+      }
+    },
+    "Book it": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xếp vào"
+          }
+        }
+      }
+    },
+    "Done": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xong"
+          }
+        }
+      }
+    },
+    "Done for today": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hôm nay xong rồi"
+          }
+        }
+      }
+    },
+    "For StandBy: the desk by day, his lamp at night.": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cho StandBy: bàn học ban ngày, ngọn đèn của thầy ban đêm."
+          }
+        }
+      }
+    },
+    "Free period · %@": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiết trống · %@"
+          }
+        }
+      }
+    },
+    "NEXT FREE": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TIẾT TRỐNG KẾ"
+          }
+        }
+      }
+    },
+    "No free periods left today": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hôm nay hết tiết trống"
+          }
+        }
+      }
+    },
+    "Nothing on the desk": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bàn trống"
+          }
+        }
+      }
+    },
+    "OFFLINE": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MẤT MẠNG"
+          }
+        }
+      }
+    },
+    "On the board.": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã ghi lên bảng."
+          }
+        }
+      }
+    },
+    "Open the timetable in the app": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mở thời khóa biểu trong app"
+          }
+        }
+      }
+    },
+    "Phu's Class": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lớp Thầy Phú"
+          }
+        }
+      }
+    },
+    "Quiet hours": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giờ yên lặng"
+          }
+        }
+      }
+    },
+    "Quiet until %@": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yên lặng đến %@"
+          }
+        }
+      }
+    },
+    "Start": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bắt đầu"
+          }
+        }
+      }
+    },
+    "Start the desk's task": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bắt đầu bài trên bàn"
+          }
+        }
+      }
+    },
+    "Starts a period on the task on your desk.": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bắt đầu một tiết cho bài trên bàn."
+          }
+        }
+      }
+    },
+    "Task": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Việc"
+          }
+        }
+      }
+    },
+    "The chalkboard": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bảng đen"
+          }
+        }
+      }
+    },
+    "The desk": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bàn học"
+          }
+        }
+      }
+    },
+    "The desk at night": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bàn học ban đêm"
+          }
+        }
+      }
+    },
+    "The task on your desk, and his face as it waits.": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bài trên bàn, và nét mặt thầy khi chờ."
+          }
+        }
+      }
+    },
+    "The timetable": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thời khóa biểu"
+          }
+        }
+      }
+    },
+    "Timetable": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thời khóa biểu"
+          }
+        }
+      }
+    },
+    "Today": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hôm nay"
+          }
+        }
+      }
+    },
+    "Today as a dial, and the next free period.": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hôm nay trên mặt đồng hồ, và tiết trống kế tiếp."
+          }
+        }
+      }
+    },
+    "Today's task on the chalkboard, and Start.": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bài hôm nay trên bảng, và nút Bắt đầu."
+          }
+        }
+      }
+    },
+    "What goes on the board?": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ghi gì lên bảng?"
+          }
+        }
+      }
+    },
+    "With tuition": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nằm trong học phí"
+          }
+        }
+      }
+    },
+    "Writes a task on the board.": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ghi một việc lên bảng."
+          }
+        }
+      }
+    },
+    "then: %@": {
+      "comment": "A fixed label of the widgets, the Live Activity or an intent. His spoken lines are never here: the app sends them in the shared snapshot.",
+      "extractionState": "manual",
+      "localizations": {
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "tiếp: %@"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}
