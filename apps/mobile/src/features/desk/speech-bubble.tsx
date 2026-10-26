@@ -50,7 +50,12 @@ export function SpeechBubble({
       <Text
         allowFontScaling={sizing.allowFontScaling}
         maxFontSizeMultiplier={1.8}
-        style={[type.rounded, styles.words, { fontSize: sizing.size(16) }]}
+        style={[
+          type.rounded,
+          styles.words,
+          // The line height grows with the text, so large text never overlaps itself.
+          { fontSize: sizing.size(16), lineHeight: sizing.size(20) },
+        ]}
       >
         {text}
       </Text>
@@ -62,7 +67,7 @@ export function SpeechBubble({
 const styles = StyleSheet.create({
   bubble: {
     position: 'absolute',
-    maxWidth: 200,
+    maxWidth: '62%',
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 22,
@@ -70,7 +75,7 @@ const styles = StyleSheet.create({
     boxShadow: '0 6px 16px rgba(30,40,30,0.16)',
     zIndex: 3,
   },
-  words: { color: ink.text, lineHeight: 20 },
+  words: { color: ink.text },
   tail: {
     position: 'absolute',
     bottom: -6,
