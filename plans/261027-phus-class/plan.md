@@ -128,6 +128,7 @@ Status lines below follow `CLAUDE.md`: `- Status: done — <sha>` or
 - Boards: `App`, `Desk`, `DeskHot`, `FrontRow`, `Listening`, `Typing`, `LateSlip`, `OfflineDesk`, `Session`, `Partial`, `Finish`, `Recess`, `RecessNotice`.
 
 ### 3.2 The board and the logbook
+- Status: done — pending merge
 - Do:
   - Pull down on the desk: the chalkboard grows into the board.
   - The board: his order, today underlined, dates, tallies; swap, reword, tick, erase.

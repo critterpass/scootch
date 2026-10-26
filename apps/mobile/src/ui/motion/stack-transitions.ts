@@ -11,12 +11,16 @@
  * - `fitted`: a small sheet with a grabber, as tall as what is on it. Its content has its own
  *   height and never scrolls; the sheet takes that height.
  * - `fade`: a moment, not a place. No swipe.
- * - `none`: care. A crisis day is simply there, with nothing playing around it.
+ * - `none`: care, where a crisis day is simply there with nothing playing around it; and a
+ *   screen that draws its own arrival (the board grows out of the chalkboard, the logbook page
+ *   lowers over the board), so the system plays nothing of its own.
  */
 export type RouteMotion = 'home' | 'push' | 'sheet' | 'fitted' | 'fade' | 'none';
 
 export const ROUTE_MOTION: Readonly<Record<string, RouteMotion>> = {
   index: 'home',
+  board: 'none',
+  logbook: 'none',
   '(dev)': 'push',
 };
 
