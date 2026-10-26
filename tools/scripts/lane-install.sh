@@ -5,7 +5,7 @@
 #   tools/scripts/lane-install.sh [pnpm install arguments]
 set -euo pipefail
 
-lock_root=/private/tmp/scootch-install-locks
+lock_root=/private/tmp/phusclass-install-locks
 slots=2
 wait_seconds=5
 max_attempts=240 # 20 minutes

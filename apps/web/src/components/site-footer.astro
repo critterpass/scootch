@@ -1,10 +1,7 @@
 ---
-import type { Language } from '@scootch/i18n';
+import type { Language } from '@phusclass/i18n';
 
-import { brand, copyFor, localPath } from '../copy';
-import { monsterArt, scootchArt } from '../lib/drawings';
-
-import Critter from './critter.astro';
+import { copyFor, localPath } from '../copy';
 
 interface Props {
   language: Language;
@@ -13,23 +10,21 @@ interface Props {
 
 const { language, path } = Astro.props;
 const copy = copyFor(language);
-const words = brand(language);
 const other: Language = language === 'en' ? 'vi' : 'en';
 const to = (page: `/${string}`) => localPath(language, page);
 
 const groups = [
   {
-    title: copy.footer.scootch,
+    title: copy.footer.brand,
     links: [
       { href: `${to('/help')}#isnt`, label: copy.footer.whatItIs },
-      { href: to('/plus'), label: words.plus },
-      { href: to('/get'), label: copy.footer.getTheApp },
+      { href: to('/support'), label: copy.footer.support },
     ],
   },
   {
     title: copy.footer.help,
     links: [
-      { href: to('/help'), label: copy.footer.support },
+      { href: to('/help'), label: copy.footer.help },
       { href: to('/helplines'), label: copy.footer.helplines },
       { href: to('/privacy'), label: copy.footer.privacy },
       { href: to('/terms'), label: copy.footer.terms },
@@ -42,7 +37,7 @@ const groups = [
   <div class="wrap">
     <div class="footer-top">
       <div class="footer-brand">
-        <a class="logo" href={to('/')} aria-label={words.name}>scootch<span>.</span></a>
+        <a class="logo" href={to('/')} aria-label={copy.brand.name}>{copy.brand.name}<span>.</span></a>
         <p>{copy.footer.tagline}</p>
       </div>
       {
@@ -66,12 +61,7 @@ const groups = [
       </div>
     </div>
     <div class="footer-mark" aria-hidden="true">
-      <div class="footer-peek">
-        <Critter class="peek" art={monsterArt('tooth', 'dentist')} />
-        <Critter class="peek" art={scootchArt('pleased', { night: true })} />
-        <Critter class="peek" art={monsterArt('sock', 'sock')} />
-      </div>
-      <span class="wordmark">scootch<span>.</span></span>
+      <span class="wordmark">{copy.brand.name}<span>.</span></span>
     </div>
     <div class="footer-end">
       <p>{copy.footer.supportTool}</p>

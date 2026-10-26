@@ -5,11 +5,9 @@ import { wireErrorSchema, type WireError } from '../src/contracts';
 import { expect } from 'vitest';
 
 import { createApp } from '../src/app';
+import type { Bindings } from '../src/env';
 import type { RouteDefinition } from '../src/route';
 import * as routes from '../src/routes/index.generated';
-
-/** The secret the tests sign the server's own words with, set on every environment they build. */
-export const shareSecret = 'share-test-secret';
 
 let nextAddress = 1;
 
@@ -62,4 +60,45 @@ export async function registerDevice(token?: string): Promise<string> {
   });
   expect(response.status).toBe(200);
   return (await response.json<{ token: string }>()).token;
+}
+
+/** One request through the shipped routes, as a device, with the bindings a test chooses. */
+export async function as(
+  device: { token: string } | undefined,
+  method: string,
+  path: string,
+  body?: unknown,
+  bindings: Bindings = env,
+): Promise<Response> {
+  const headers = new Headers({ 'CF-Connecting-IP': freshIp() });
+  if (device) headers.set('Authorization', `Bearer ${device.token}`);
+  if (body !== undefined) headers.set('Content-Type', 'application/json');
+  const ctx = createExecutionContext();
+  const response = await createApp(Object.values(routes)).fetch(
+    new Request(`https://api.test${path}`, {
+      method,
+      headers,
+      body: body === undefined ? null : JSON.stringify(body),
+    }),
+    bindings,
+    ctx,
+  );
+  await waitOnExecutionContext(ctx);
+  return response;
+}
+
+/** The JSON of a call that must succeed. */
+export async function ok<T>(response: Response | Promise<Response>): Promise<T> {
+  const settled = await response;
+  if (settled.status !== 200)
+    throw new Error(`expected 200, got ${settled.status}: ${await settled.text()}`);
+  return settled.json<T>();
+}
+
+/** How many rows a `<table> WHERE ...` clause matches. */
+export async function count(sql: string, ...values: unknown[]): Promise<number> {
+  const row = await env.DB.prepare(`SELECT COUNT(*) AS n FROM ${sql}`)
+    .bind(...values)
+    .first<{ n: number }>();
+  return row?.n ?? 0;
 }

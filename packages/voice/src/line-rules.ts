@@ -1,4 +1,4 @@
-import type { Language } from '@scootch/domain';
+import type { Language } from '@phusclass/domain';
 
 import { normalise } from './text';
 

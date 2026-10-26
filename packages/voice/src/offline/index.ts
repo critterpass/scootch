@@ -1,4 +1,4 @@
-import type { Attitude, InTheWay, Language } from '@scootch/domain';
+import type { Attitude, InTheWay, Language } from '@phusclass/domain';
 
 import { enOffline } from './en';
 import type { HelperSlot, NoTaskSlot, OfflinePack, OfflineSlot, PlainHelperSlot } from './types';
@@ -62,7 +62,7 @@ const inTheWaySlots = {
   too_big: 'inTheWayTooBig',
 } as const satisfies Readonly<Record<InTheWay, HelperSlot>>;
 
-/** What Scootch says back to an answer to "Anything in the way?". Never said on a heavy task. */
+/** What Thầy Phú says back to an answer to "Anything in the way?". Never said on a heavy task. */
 export function inTheWayLine(language: Language, attitude: Attitude, answer: InTheWay): string {
   return offlinePacks[language].helpers[attitude][inTheWaySlots[answer]];
 }

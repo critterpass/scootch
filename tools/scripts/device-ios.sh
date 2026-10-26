@@ -61,7 +61,7 @@ if [ -n "${SIM_UDID:-}" ]; then
   udid=$SIM_UDID
   echo "Simulator $udid (given)"
 else
-  udid=$(xcrun simctl create "Scootch device run" "${DEVICE:-iPhone 17}" "$runtime")
+  udid=$(xcrun simctl create "Phu's Class device run" "${DEVICE:-iPhone 17}" "$runtime")
   echo "Simulator ${DEVICE:-iPhone 17} on $runtime ($udid)"
 fi
 xcrun simctl boot "$udid"

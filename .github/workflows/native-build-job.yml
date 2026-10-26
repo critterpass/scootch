@@ -7,7 +7,7 @@ name: native-build-job
 #   native-e2e-test-ios-<fingerprint, 12 characters>-<run id> whose body is its manifest
 #   (tools/scripts/native-build-manifest.ts). Device runs find it there by native fingerprint.
 # - `dev` and `prd` (signed for the App Store) go straight from the runner to App Store Connect:
-#   `dev` to the "Scootch Dev" app's TestFlight, `prd` to the store app's. This repository is
+#   `dev` to the "Phu's Class Dev" app's TestFlight, `prd` to the store app's. This repository is
 #   public, so the signed .ipa is never a run artifact or a release asset.
 on:
   workflow_call:

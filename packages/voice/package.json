@@ -1,5 +1,5 @@
 {
-  "name": "@scootch/voice",
+  "name": "@phusclass/voice",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -11,14 +11,10 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests",
-    "eval:screen": "node evals/screen-input/run.mjs",
-    "eval:labels": "tsx evals/labels/run.mjs",
-    "eval:choose": "tsx evals/choose/run.mjs",
-    "eval:task": "tsx evals/task-create/run.mjs",
-    "eval:adopted": "tsx evals/task-create/adopted.mjs"
+    "eval:screen": "node evals/screen-input/run.mjs"
   },
   "dependencies": {
-    "@scootch/domain": "workspace:*",
+    "@phusclass/domain": "workspace:*",
     "zod": "catalog:"
   }
 }

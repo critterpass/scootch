@@ -1,4 +1,4 @@
-appId: app.scootch.dev
+appId: com.phusclass.dev
 ---
 # The first flow of every device run: proves the app runs the JavaScript exported for this run (the
 # commit inlined as EXPO_PUBLIC_JS_COMMIT and shown by the `js-commit` label), not the bundle the

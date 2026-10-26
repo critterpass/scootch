@@ -47,7 +47,7 @@ function findingsIn(line: string): string[] {
 
 describe('banned patterns', () => {
   it('flags plan, phase and task references', () => {
-    expect(findingsIn('see plans/261006-2350-scootch-full-build')).toEqual(['plan id']);
+    expect(findingsIn('see plans/261027-1200-phus-class-build')).toEqual(['plan id']);
     expect(findingsIn('// wired up in phase 03')).toEqual(['phase number']);
     expect(findingsIn('// Phase-4 adds the drawer')).toEqual(['phase number']);
     expect(findingsIn('// the contracts from task 6')).toEqual(['task number']);

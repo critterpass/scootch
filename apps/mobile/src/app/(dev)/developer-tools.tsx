@@ -1,18 +1,17 @@
 import { Link, type Href } from 'expo-router';
-import { useState } from 'react';
+import { useSyncExternalStore } from 'react';
 import { ScrollView, StyleSheet, Text, useColorScheme, View } from 'react-native';
 
-import type { Language } from '@scootch/i18n';
-import { colors, fonts, fontSizes, radius, spacing, type Palette } from '@scootch/tokens';
+import type { Language } from '@phusclass/i18n';
+import { colors, fonts, fontSizes, radius, spacing, type Palette } from '@phusclass/tokens';
 
-import { shortSession } from '../../features/session/dev/short-session';
+import { PRETEND_OFFLINE, pretendOffline } from '../../features/offline/pretend-offline';
 import { useLanguage } from '../../i18n/i18n-provider';
 import { SafeFrame } from '../../ui/safe-frame';
 import { PressSpring } from '../../ui/motion/press-spring';
 
 const SCREENS: readonly { id: string; label: string; href: Href }[] = [
   { id: 'dev-open-registry', label: 'Screen registry', href: '/registry' },
-  { id: 'dev-open-characters', label: 'Character gallery', href: '/characters' },
 ];
 
 const LANGUAGE_CHOICES: readonly { id: string; label: string; language: Language | null }[] = [
@@ -20,6 +19,8 @@ const LANGUAGE_CHOICES: readonly { id: string; label: string; language: Language
   { id: 'dev-language-en', label: 'English', language: 'en' },
   { id: 'dev-language-vi', label: 'Tiếng Việt', language: 'vi' },
 ];
+
+const subscribeOffline = (changed: () => void) => pretendOffline.subscribe(changed);
 
 function Row({ id, label, selected, palette, onPress }: RowProps) {
   return (
@@ -45,13 +46,13 @@ interface RowProps {
 }
 
 /**
- * The list of developer screens, reached from the last row of Settings in the developer app. The
- * control that ends a session soon exists only for device flows.
+ * The list of developer screens, opened by its link in the developer app. The switch that
+ * pretends there is no connection exists only here.
  */
 export default function DeveloperTools() {
   const palette = colors[useColorScheme() === 'dark' ? 'dark' : 'light'];
   const { language, chosen, choose } = useLanguage();
-  const [shortSessions, setShortSessions] = useState(shortSession.isArmed);
+  const offline = useSyncExternalStore(subscribeOffline, pretendOffline.isOn, pretendOffline.isOn);
 
   return (
     <SafeFrame style={[styles.screen, { backgroundColor: palette.page }]}>
@@ -82,20 +83,17 @@ export default function DeveloperTools() {
           {`Showing: ${language}`}
         </Text>
 
-        <Text style={[styles.heading, { color: palette.muted }]}>Session</Text>
+        <Text style={[styles.heading, { color: palette.muted }]}>Connection</Text>
         <Row
-          id="dev-short-session"
-          label="Show the control that ends a session soon"
-          selected={shortSessions}
+          id="dev-pretend-offline"
+          label={PRETEND_OFFLINE.label}
+          selected={offline}
           palette={palette}
-          onPress={() => {
-            shortSession.arm(!shortSessions);
-            setShortSessions(!shortSessions);
-          }}
+          onPress={() => pretendOffline.set(!offline)}
         />
 
         <Link href="/" replace asChild>
-          <Row id="dev-close" label="Back to the one screen" palette={palette} />
+          <Row id="dev-close" label="Back to the desk" palette={palette} />
         </Link>
       </ScrollView>
     </SafeFrame>

@@ -10,13 +10,11 @@ import { freshIp } from './support';
 
 const helpReply = [
   '[dev] Commands:',
-  '/ban <account id>: stop an account opening or joining tables, and free its seats',
   '/costs: model spend today and this month, by route and by model',
   '/flag, or /flag <name> on|off: list the feature flags, or flip one',
   '/funnel: devices registered today, in the last 7 days and in total, by language',
   '/help: this list',
   '/status: environment, commit, database, model secrets and one check call to each model',
-  '/unban <account id>: let a banned account open and join tables again',
   '/user <hash prefix or token>: when one device was created and last seen, its language and its model-call count',
 ].join('\n');
 
@@ -62,7 +60,7 @@ describe('the Telegram webhook', () => {
     ['a wrong secret token', 'not-the-secret'],
     ['no secret token', undefined],
   ])('does nothing and sends nothing for %s', async (_case, secret) => {
-    const { response, chat } = await deliver(messageUpdate('/flag tables.open on'), secret);
+    const { response, chat } = await deliver(messageUpdate('/flag timetable.open on'), secret);
 
     expect(response.status).toBe(200);
     expect(await response.text()).toBe('');
@@ -72,7 +70,7 @@ describe('the Telegram webhook', () => {
 
   it('does nothing and sends nothing for another chat, even with the right secret token', async () => {
     const { response, chat } = await deliver(
-      messageUpdate('/flag tables.open on', 9999),
+      messageUpdate('/flag timetable.open on', 9999),
       webhookSecret,
     );
 
@@ -105,29 +103,6 @@ describe('the sender', () => {
     await sendMessage({ env: botEnv({ ENVIRONMENT: 'prd' }), fetch: chat.fetch }, 'All quiet.');
 
     expect(chat.texts()).toEqual(['[dev] All quiet.', 'All quiet.']);
-  });
-
-  it('sends rows of inline buttons in Telegram’s shape', async () => {
-    const chat = telegram();
-
-    const sent = await sendMessage({ env: botEnv(), fetch: chat.fetch }, 'One report.', {
-      buttons: [
-        [
-          { text: 'Dismiss', data: 'report:1:dismiss' },
-          { text: 'Warn', data: 'report:1:warn' },
-        ],
-      ],
-    });
-
-    expect(sent).toBe(true);
-    expect(chat.sent[0]?.body.reply_markup).toEqual({
-      inline_keyboard: [
-        [
-          { text: 'Dismiss', callback_data: 'report:1:dismiss' },
-          { text: 'Warn', callback_data: 'report:1:warn' },
-        ],
-      ],
-    });
   });
 
   it('sends nothing, and says so, when the bot’s secrets are not set', async () => {

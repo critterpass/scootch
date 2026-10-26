@@ -1,12 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 import screenFixture from '../../../../packages/voice/fixtures/screen.input.en.json';
-import taskFixture from '../../../../packages/voice/fixtures/task.create.en.json';
 
 import { ApiClientError } from './api-error';
 import { createHttpClient, type TokenStore } from './http-client';
-import { createScootchApi } from './scootch-api';
-import { createTaskClient } from './task-client';
+import { createScreenClient } from './screen-client';
 
 const BASE_URL = 'https://api.test';
 const TOKEN = 'a'.repeat(43);
@@ -67,7 +65,7 @@ function apiFor(answers: Record<string, Answer[]>, tokens = memoryTokens(TOKEN),
     language: () => 'en',
     timeoutMs,
   });
-  return { ...server, http, api: createScootchApi(http), tokens };
+  return { ...server, http, api: createScreenClient(http), tokens };
 }
 
 const wireError = (code: string, retryable: boolean) => ({
@@ -129,20 +127,15 @@ describe('the API client', () => {
 
   it('sends a request once more when the server marks the error retryable', async () => {
     const recovered = apiFor({
-      '/v1/task-create': [
+      '/v1/screen-input': [
         { status: 503, body: wireError('model_unavailable', true) },
-        { status: 200, body: taskFixture.response },
+        { status: 200, body: screenFixture.response },
       ],
     });
-    const call = await createTaskClient(recovered.api).createTask(
-      taskFixture.request as Parameters<typeof recovered.api.taskCreate>[0],
+    expect(await recovered.api.screenInput({ language: 'en', text: 'x', source: 'typed' })).toEqual(
+      screenFixture.response,
     );
     expect(recovered.sent).toHaveLength(2);
-    expect(call.first).toMatchObject({ verdict: 'pass', oneThing: taskFixture.response.oneThing });
-    expect(await call.rest).toMatchObject({
-      verdict: 'pass',
-      monster: taskFixture.response.monster,
-    });
 
     const stillDown = apiFor({
       '/v1/screen-input': [

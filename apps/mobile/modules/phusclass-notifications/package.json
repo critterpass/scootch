@@ -1,0 +1,9 @@
+{
+  "name": "phusclass-notifications",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local notifications, sent as a message from their sender with a picture.",
+  "main": "index.ts",
+  "types": "index.ts",
+  "license": "UNLICENSED"
+}

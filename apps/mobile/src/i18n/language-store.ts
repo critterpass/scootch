@@ -1,4 +1,4 @@
-import { isLanguage, type Language } from '@scootch/i18n';
+import { isLanguage, type Language } from '@phusclass/i18n';
 
 /** The part of an expo-sqlite database the language choice uses. */
 export interface SettingsDatabase {

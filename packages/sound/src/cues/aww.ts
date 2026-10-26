@@ -6,7 +6,7 @@ import { marimba, voice } from '../instruments/tuned';
 const LOUDNESS = -22;
 
 /**
- * Let go too early: Scootch sighs, a voice sliding down over a low marimba note.
+ * Let go too early: Thầy Phú sighs, a voice sliding down over a low marimba note.
  * The design gives it no buzz, so nothing is felt in the hand.
  */
 export const aww: Cue = {

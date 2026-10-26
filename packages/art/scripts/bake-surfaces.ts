@@ -1,8 +1,8 @@
 /**
- * Bakes Scootch's poses and the small glyphs into the widget target's asset catalogue, for the
+ * Bakes the small glyphs into the widget target's asset catalogue, for the
  * Swift surfaces (widgets, the Live Activity, the control). Art that has not changed is skipped.
  *
- *   pnpm --filter @scootch/art exec tsx scripts/bake-surfaces.ts [catalogue folder]
+ *   pnpm --filter @phusclass/art exec tsx scripts/bake-surfaces.ts [catalogue folder]
  */
 import path from 'node:path';
 
@@ -12,7 +12,7 @@ import { renderPngWithCanvas } from '../src/bake/render-png';
 
 const DEFAULT_CATALOGUE = path.resolve(
   import.meta.dirname,
-  '../../../apps/mobile/targets/widgets/ScootchArt.xcassets',
+  '../../../apps/mobile/targets/widgets/SurfaceArt.xcassets',
 );
 
 const catalogue = path.resolve(process.argv[2] ?? DEFAULT_CATALOGUE);

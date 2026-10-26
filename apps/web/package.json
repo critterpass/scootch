@@ -1,9 +1,9 @@
 {
-  "name": "@scootch/web",
+  "name": "@phusclass/web",
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "scootch.app: Astro on Cloudflare Workers",
+  "description": "phusclass.com: Astro on Cloudflare Workers",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
@@ -13,9 +13,8 @@
   },
   "dependencies": {
     "@astrojs/cloudflare": "catalog:",
-    "@scootch/art": "workspace:*",
-    "@scootch/i18n": "workspace:*",
-    "@scootch/tokens": "workspace:*",
+    "@phusclass/i18n": "workspace:*",
+    "@phusclass/tokens": "workspace:*",
     "astro": "catalog:"
   },
   "devDependencies": {

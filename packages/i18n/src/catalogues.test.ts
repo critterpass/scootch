@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { findCatalogueProblems } from './completeness';
 import { en } from './en';
 import { pickLanguage } from './pick-language';
-import { t } from './translate';
+import { t, textOf } from './translate';
 import { vi } from './vi';
 
 describe('catalogue completeness', () => {
@@ -28,8 +28,8 @@ describe('catalogue completeness', () => {
   });
 
   it('names an empty or untranslated value, except for the allowed shared words', () => {
-    const source = { a: 'Start', b: 'Settings', brand: 'Scootch', n: { other: '{count} left' } };
-    const translation = { a: ' ', b: 'Settings', brand: 'Scootch', n: { other: '{count} left' } };
+    const source = { a: 'Start', b: 'Settings', drum: 'Tùng!', n: { other: '{count} left' } };
+    const translation = { a: ' ', b: 'Settings', drum: 'Tùng!', n: { other: '{count} left' } };
     expect(findCatalogueProblems(source, translation)).toEqual([
       'a: empty translation',
       'b: identical to the source ("Settings")',
@@ -40,32 +40,39 @@ describe('catalogue completeness', () => {
 
 describe('t', () => {
   it('returns the string in the asked language', () => {
-    expect(t('en', 'talk.hold')).toBe('Hold to talk');
-    expect(t('vi', 'talk.hold')).toBe('Giữ để nói');
+    expect(t('en', 'desk.sit')).toBe('Sit.');
+    expect(t('vi', 'desk.sit')).toBe('Ngồi.');
   });
 
+  it('fills in its placeholders', () => {
+    expect(t('en', 'care.helpline.hours.dayRange', { first: 'Mon', last: 'Fri' })).toBe(
+      'Mon to Fri',
+    );
+  });
+
+  const things = { one: '{count} thing on the board', other: '{count} things on the board' };
+
   it('picks the English plural form from the count and fills it in', () => {
-    expect(t('en', 'world.thingsLiveHere', { count: 1 })).toBe('1 thing lives here');
-    expect(t('en', 'world.thingsLiveHere', { count: 7 })).toBe('7 things live here');
-    expect(t('en', 'world.thingsLiveHere', { count: 0 })).toBe('0 things live here');
+    expect(textOf(things, 'en', { count: 1 })).toBe('1 thing on the board');
+    expect(textOf(things, 'en', { count: 7 })).toBe('7 things on the board');
+    expect(textOf(things, 'en', { count: 0 })).toBe('0 things on the board');
   });
 
   it('uses the single Vietnamese form for every count', () => {
-    expect(t('vi', 'world.thingsLiveHere', { count: 1 })).toBe('1 thứ đang sống ở đây');
-    expect(t('vi', 'world.thingsLiveHere', { count: 7 })).toBe('7 thứ đang sống ở đây');
+    const viThings = { other: '{count} việc trên bảng' };
+    expect(textOf(viThings, 'vi', { count: 1 })).toBe('1 việc trên bảng');
+    expect(textOf(viThings, 'vi', { count: 7 })).toBe('7 việc trên bảng');
   });
 });
 
 /** Never called: the typecheck fails if any of these calls stops being an error. */
 export function callsTheCompilerRejects(): void {
   // @ts-expect-error not a key of the English catalogue
-  t('en', 'talk.missing');
-  // @ts-expect-error a plural needs its count
-  t('en', 'world.thingsLiveHere');
-  // @ts-expect-error the count is a number
-  t('en', 'world.thingsLiveHere', { count: '7' });
+  t('en', 'desk.missing');
+  // @ts-expect-error a string with placeholders needs its parameters
+  t('en', 'care.helpline.hours.dayRange');
   // @ts-expect-error a string without placeholders takes no parameters
-  t('en', 'talk.hold', { count: 1 });
+  t('en', 'desk.sit', { count: 1 });
 }
 
 describe('pickLanguage', () => {

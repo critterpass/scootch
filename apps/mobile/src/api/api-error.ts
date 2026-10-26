@@ -1,4 +1,4 @@
-import { wireErrorSchema, type WireErrorCode } from '@scootch/domain';
+import { wireErrorSchema, type WireErrorCode } from '@phusclass/domain';
 
 /** The server's codes, plus the three ways a call can fail before a readable answer arrives. */
 export type ApiErrorCode = WireErrorCode | 'network' | 'timeout' | 'bad_response';

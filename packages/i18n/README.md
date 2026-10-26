@@ -1,19 +1,19 @@
-# @scootch/i18n
+# @phusclass/i18n
 
 Interface strings in English and Vietnamese: buttons, labels, settings and system copy. Plain
 TypeScript, so the same package runs in the app, the website and the Worker.
 
-**Lines Scootch speaks never go here.** They are written per language by the AI routes, or come
+**Lines Thầy Phú speaks never go here.** They are written per language by the AI routes, or come
 from `packages/voice/offline/`. This package holds only what the interface itself says.
 
 ## Use
 
 ```ts
-import { pickLanguage, t } from '@scootch/i18n';
+import { pickLanguage, t } from '@phusclass/i18n';
 
 const language = pickLanguage(deviceLocales, storedChoice); // 'vi' or 'en'
-t(language, 'talk.hold'); // 'Giữ để nói'
-t(language, 'world.thingsLiveHere', { count: 7 });
+t(language, 'desk.sit'); // 'Ngồi.'
+t(language, 'care.helpline.hours.dayRange', { first: 'Thứ 2', last: 'Thứ 6' });
 ```
 
 TypeScript checks the key and its parameters where `t` is called. A stored choice (the switch in
@@ -25,7 +25,7 @@ Settings) wins over the device; without one, the first device locale we ship dec
 3. Placeholders are `{name}` and must have the same names in both languages.
 4. A string that changes with a number is an object of plural forms chosen by `count`:
    English `{ one, other }`, Vietnamese `{ other }` only.
-5. Run `pnpm --filter @scootch/i18n test`. It names every key that is in one language only, has
+5. Run `pnpm --filter @phusclass/i18n test`. It names every key that is in one language only, has
    different parameters, or is empty or unchanged in Vietnamese. A word that really is the same
    in both goes in `sameInBothLanguages` (`src/completeness.ts`).
 

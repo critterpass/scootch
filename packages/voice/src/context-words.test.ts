@@ -1,9 +1,8 @@
-import type { Language, MonsterBodyType } from '@scootch/domain';
+import type { Language } from '@phusclass/domain';
 import { describe, expect, it } from 'vitest';
 
 import { checkLine, type CheckReason } from './check';
 import { sampleGuide } from './guide';
-import { offlineMonsterName } from './offline/namer';
 
 /** Plain description of a task: the word is there and nobody is being judged. */
 const mustPass: Readonly<Record<Language, readonly string[]>> = {
@@ -207,22 +206,5 @@ describe('monster names', () => {
 
     expect(sampleGuide('en', 'cheeky', 7).nameIdea).toBe(sampleGuide('en', 'cheeky', 7).nameIdea);
     expect(ideas.size).toBeGreaterThan(15);
-  });
-
-  it.each(languages)('makes a %s name in code that passes the check for every body', (language) => {
-    const bodies: (MonsterBodyType | null)[] = [
-      ...(['tooth', 'envelope', 'bubble', 'receipt', 'scroll', 'slime', 'sock'] as const),
-      ...(['dust', 'phone', 'weed', 'beetle', 'pot', 'bolt', 'clock', 'kettle'] as const),
-      ...(['splat', 'note', 'hairball', 'box', 'pillow'] as const),
-      null,
-    ];
-    for (const body of bodies) {
-      for (const seed of [0, 1, 2]) {
-        const text = offlineMonsterName(language, body, seed);
-        const result = checkLine({ text, kind: 'monsterName', language, attitude: 'soft' });
-        expect(result, text).toEqual({ ok: true, reasons: [] });
-      }
-    }
-    expect(offlineMonsterName(language, 'sock', 5)).toBe(offlineMonsterName(language, 'sock', 5));
   });
 });

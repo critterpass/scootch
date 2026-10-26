@@ -6,7 +6,7 @@ import { voice } from '../instruments/tuned';
 
 const LOUDNESS = -21;
 
-/** The line goes tight and he is pulled clear: a rising whoosh with Scootch's hup over it. */
+/** The line goes tight and he is pulled clear: a rising whoosh with Thầy Phú's hup over it. */
 export const catchYank: Cue = {
   name: 'catch-yank',
   loudness: LOUDNESS,

@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-import { monsterBodyTypeSchema, workModeSchema } from './art';
 import { energySchema, languageSchema, screenVerdictSchema } from './common';
 
 /**
@@ -50,29 +49,7 @@ export const screenInputResponseSchema = decisionMetaSchema.extend({
 });
 export type ScreenInputResponse = z.infer<typeof screenInputResponseSchema>;
 
-// task.work_mode: which of the 30 work modes fits the task.
-
-export const taskWorkModeRequestSchema = labelRequestSchema;
-export type TaskWorkModeRequest = z.infer<typeof taskWorkModeRequestSchema>;
-
-export const taskWorkModeResponseSchema = decisionMetaSchema.extend({
-  /** `null` when nothing fits well enough; the plain working loop is drawn. */
-  workMode: workModeSchema.nullable(),
-});
-export type TaskWorkModeResponse = z.infer<typeof taskWorkModeResponseSchema>;
-
-// task.body_type: which of the 20 monster bodies fits the task.
-
-export const taskBodyTypeRequestSchema = labelRequestSchema;
-export type TaskBodyTypeRequest = z.infer<typeof taskBodyTypeRequestSchema>;
-
-export const taskBodyTypeResponseSchema = decisionMetaSchema.extend({
-  /** `null` when nothing fits well enough; the phone picks a body from the seed. */
-  bodyType: monsterBodyTypeSchema.nullable(),
-});
-export type TaskBodyTypeResponse = z.infer<typeof taskBodyTypeResponseSchema>;
-
-// task.size: does the task fit ten minutes, or should Scootch offer to shrink it.
+// task.size: does the task fit ten minutes, or should Thầy Phú offer to shrink it.
 
 export const taskSizeRequestSchema = labelRequestSchema;
 export type TaskSizeRequest = z.infer<typeof taskSizeRequestSchema>;
@@ -93,7 +70,7 @@ export const rambleEnergyResponseSchema = decisionMetaSchema.extend({
 });
 export type RambleEnergyResponse = z.infer<typeof rambleEnergyResponseSchema>;
 
-// share.private: should Scootch avoid offering to share this task.
+// share.private: should Thầy Phú avoid offering to share this task.
 
 export const sharePrivateRequestSchema = labelRequestSchema;
 export type SharePrivateRequest = z.infer<typeof sharePrivateRequestSchema>;
@@ -103,17 +80,3 @@ export const sharePrivateResponseSchema = decisionMetaSchema.extend({
   private: z.boolean(),
 });
 export type SharePrivateResponse = z.infer<typeof sharePrivateResponseSchema>;
-
-// table.name: is a display name acceptable at a table.
-
-export const tableNameRequestSchema = z.object({
-  language: languageSchema,
-  name: z.string().min(1).max(40),
-});
-export type TableNameRequest = z.infer<typeof tableNameRequestSchema>;
-
-/** Low confidence resolves to `false`: the user is asked for another name. */
-export const tableNameResponseSchema = decisionMetaSchema.extend({
-  acceptable: z.boolean(),
-});
-export type TableNameResponse = z.infer<typeof tableNameResponseSchema>;

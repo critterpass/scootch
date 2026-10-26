@@ -10,7 +10,7 @@ const listeners = new Set<(on: boolean) => void>();
 /**
  * Developer tools only. While on, the app behaves as it does with no network: the connection
  * reader says offline and every API call fails as a network error. It can only be turned on from
- * the developer row of Settings, which the store app does not show, and is forgotten when the app
+ * the developer tools, which the store app does not offer, and is forgotten when the app
  * closes. Device flows use it because a simulator cannot be taken offline.
  */
 export const pretendOffline = {

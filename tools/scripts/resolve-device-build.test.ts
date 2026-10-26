@@ -5,7 +5,7 @@ import { resolveBuild } from './resolve-device-build';
 
 const FINGERPRINT = 'a1b2c3d4e5f60718293a4b5c6d7e8f9012345678';
 const PREFIX = 'native-e2e-test-ios-a1b2c3d4e5f6-';
-const ARCHIVE = 'scootch-e2e-test-ios.tar.gz';
+const ARCHIVE = 'phusclass-e2e-test-ios.tar.gz';
 
 function manifest(overrides: Record<string, unknown> = {}): string {
   return JSON.stringify({

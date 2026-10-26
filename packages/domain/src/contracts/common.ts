@@ -4,7 +4,7 @@ import { z } from 'zod';
 export const languageSchema = z.enum(['en', 'vi']);
 export type Language = z.infer<typeof languageSchema>;
 
-/** Scootch's three attitudes. Cheeky is the default at first launch. */
+/** Thầy Phú's three attitudes. Cheeky is the default at first launch. */
 export const attitudeSchema = z.enum(['soft', 'cheeky', 'unhinged']);
 export type Attitude = z.infer<typeof attitudeSchema>;
 
@@ -59,10 +59,10 @@ export type ClockTime = z.infer<typeof clockTimeSchema>;
 export const idSchema = z.string().min(1).max(64);
 export type Id = z.infer<typeof idSchema>;
 
-/** One line Scootch says. The voice check enforces the tighter per-slot limits. */
+/** One line Thầy Phú says. The voice check enforces the tighter per-slot limits. */
 export const lineSchema = z.string().min(1).max(240);
 
-/** Task text as the user said or typed it, or as Scootch reworded it. */
+/** Task text as the user said or typed it, or as Thầy Phú reworded it. */
 export const taskTextSchema = z.string().min(1).max(280);
 
 export const wireErrorCodeSchema = z.enum([

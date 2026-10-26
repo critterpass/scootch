@@ -101,7 +101,7 @@ export const viOffline: OfflinePack = {
   },
   noTask: {
     soft: {
-      hello: 'Ơ, chào bạn. Mình là Scootch. Bạn tới rồi, mình vui lắm.',
+      hello: 'Ơ, chào bạn. Mình là Thầy Phú. Bạn tới rồi, mình vui lắm.',
       about: 'Mỗi ngày mình giúp bạn bắt đầu một việc nhỏ, rồi ngồi cạnh trong lúc bạn làm.',
       attitudeAsk: 'Bạn muốn mình kịch tính cỡ nào?',
       favours: 'Mình xin hai điều nho nhỏ nha.',
@@ -144,7 +144,7 @@ export const viOffline: OfflinePack = {
       eveningReceipt: 'Hôm nay xong {count} việc. Hoá đơn của bạn đây.',
     },
     cheeky: {
-      hello: 'Ơ! Bạn tới rồi. Tui là Scootch. Tui ngồi đợi đúng mình bạn đó.',
+      hello: 'Ơ! Bạn tới rồi. Tui là Thầy Phú. Tui ngồi đợi đúng mình bạn đó.',
       about: 'Mỗi ngày tui giúp bạn bắt đầu một việc nhỏ, rồi ngồi cạnh trong lúc bạn làm.',
       attitudeAsk: 'Bạn chịu được tui làm lố cỡ nào?',
       favours: 'Tui xin hai chuyện nhỏ xíu.',
@@ -185,7 +185,7 @@ export const viOffline: OfflinePack = {
       eveningReceipt: 'Xong {count} việc. Có hoá đơn kèm theo, đúng truyền thống.',
     },
     unhinged: {
-      hello: 'BẠN TỚI RỒI. Tui là Scootch. Tui tập cảnh này trước gương cả buổi.',
+      hello: 'BẠN TỚI RỒI. Tui là Thầy Phú. Tui tập cảnh này trước gương cả buổi.',
       about:
         'Mỗi ngày tui giúp bạn bắt đầu một việc nhỏ, rồi ngồi cạnh trong lúc bạn làm. Ngồi rất ồn.',
       attitudeAsk: 'BẠN CHỊU ĐƯỢC TUI LÀM LỐ CỠ NÀO?',

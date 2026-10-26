@@ -5,9 +5,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createApp } from '../src/app';
 import { hashDeviceToken } from '../src/device-auth';
 import type { Bindings } from '../src/env';
-import { apiNoPlusBelievedMs, isPlusNow } from '../src/plus/plus-now';
-import { plusCustomerId } from '../src/plus/records';
-import { revenueCatApiBase } from '../src/plus/revenuecat-api';
+import { apiNoTuitionBelievedMs, isTuitionNow } from '../src/tuition/tuition-now';
+import { revenueCatApiBase } from '../src/tuition/revenuecat-api';
 import * as routes from '../src/routes/index.generated';
 
 import {
@@ -15,12 +14,11 @@ import {
   customerNotFound,
   delivery,
   entitlementsAnswer,
-  plusEntitlementId,
+  tuitionEntitlementId,
   projectId,
   transferDelivery,
 } from './revenuecat-fixtures';
-import { freshIp, registerDevice } from './support';
-import { as, ok, person } from './table-support';
+import { as, freshIp, ok, registerDevice } from './support';
 
 const day = 24 * 60 * 60 * 1000;
 const webhookAuth = 'Bearer test-revenuecat-webhook-auth';
@@ -79,16 +77,18 @@ async function outcomeOf(response: Promise<Response>): Promise<string> {
 /** A registered device and the id the server tells it to use at RevenueCat. */
 async function device(): Promise<{ deviceHash: string; appUserId: string }> {
   const token = await registerDevice();
-  const { appUserId } = await ok<{ appUserId: string }>(as({ token }, 'GET', '/v1/plus/customer'));
+  const { appUserId } = await ok<{ appUserId: string }>(
+    as({ token }, 'GET', '/v1/tuition/customer'),
+  );
   return { deviceHash: await hashDeviceToken(token), appUserId };
 }
 
-const plusAt = (deviceHash: string, at: number, bindings: Bindings = webhookEnv) =>
-  isPlusNow(bindings, deviceHash, new Date(at));
+const tuitionAt = (deviceHash: string, at: number, bindings: Bindings = webhookEnv) =>
+  isTuitionNow(bindings, deviceHash, new Date(at));
 
 async function storedRows(appUserId: string): Promise<number> {
   const row = await env.DB.prepare(
-    'SELECT COUNT(*) AS n FROM plus_entitlements WHERE app_user_id = ?',
+    'SELECT COUNT(*) AS n FROM tuition_entitlements WHERE app_user_id = ?',
   )
     .bind(appUserId)
     .first<{ n: number }>();
@@ -107,7 +107,7 @@ describe('the RevenueCat webhook', () => {
     expect((await deliver(purchase, webhookAuth, withoutRevenueCat())).status).toBe(401);
 
     expect(await storedRows(appUserId)).toBe(0);
-    expect(await plusAt(deviceHash, Date.now())).toBe(false);
+    expect(await tuitionAt(deviceHash, Date.now())).toBe(false);
     // The same delivery, rightly signed, is then taken in: the refusals left no trace of its id.
     expect(await outcomeOf(deliver(purchase))).toBe('taken');
   });
@@ -119,8 +119,8 @@ describe('the RevenueCat webhook', () => {
 
   it('gives an id the server handed out the same id every time, never the device hash', async () => {
     const token = await registerDevice();
-    const first = await ok<{ appUserId: string }>(as({ token }, 'GET', '/v1/plus/customer'));
-    const again = await ok<{ appUserId: string }>(as({ token }, 'GET', '/v1/plus/customer'));
+    const first = await ok<{ appUserId: string }>(as({ token }, 'GET', '/v1/tuition/customer'));
+    const again = await ok<{ appUserId: string }>(as({ token }, 'GET', '/v1/tuition/customer'));
 
     expect(first.appUserId).toMatch(/^[0-9a-f]{64}$/);
     expect(again).toEqual(first);
@@ -133,73 +133,73 @@ describe('the RevenueCat webhook', () => {
     const send = (id: string, type: string, at: number, fields: Record<string, unknown> = {}) =>
       outcomeOf(deliver(delivery(appUserId, { id, type, ...fields }, at)));
 
-    // A trial: Plus for its seven days, and not after.
+    // A trial: tuition for its seven days, and not after.
     expect(await send('evt-1', 'INITIAL_PURCHASE', t0)).toBe('taken');
-    expect(await plusAt(deviceHash, t0 + day)).toBe(true);
-    expect(await plusAt(deviceHash, t0 + 8 * day)).toBe(false);
+    expect(await tuitionAt(deviceHash, t0 + day)).toBe(true);
+    expect(await tuitionAt(deviceHash, t0 + 8 * day)).toBe(false);
 
-    // The trial converts: Plus to the end of the year.
+    // The trial converts: tuition to the end of the year.
     await send('evt-2', 'RENEWAL', t0 + 7 * day, {
       period_type: 'NORMAL',
       is_trial_conversion: true,
       expiration_at_ms: t0 + 372 * day,
     });
-    expect(await plusAt(deviceHash, t0 + 200 * day)).toBe(true);
+    expect(await tuitionAt(deviceHash, t0 + 200 * day)).toBe(true);
 
-    // A change of plan keeps Plus.
+    // A change of plan keeps tuition.
     await send('evt-3', 'PRODUCT_CHANGE', t0 + 8 * day, {
       period_type: 'NORMAL',
-      new_product_id: 'plus_monthly',
+      new_product_id: 'phusclass.dev.tuition.monthly',
       expiration_at_ms: t0 + 372 * day,
     });
-    expect(await plusAt(deviceHash, t0 + 200 * day)).toBe(true);
+    expect(await tuitionAt(deviceHash, t0 + 200 * day)).toBe(true);
 
-    // Turning renewal off leaves Plus until the paid time runs out.
+    // Turning renewal off leaves tuition until the paid time runs out.
     await send('evt-4', 'CANCELLATION', t0 + 9 * day, {
       period_type: 'NORMAL',
       cancel_reason: 'UNSUBSCRIBE',
       expiration_at_ms: t0 + 372 * day,
     });
-    expect(await plusAt(deviceHash, t0 + 371 * day)).toBe(true);
-    expect(await plusAt(deviceHash, t0 + 373 * day)).toBe(false);
+    expect(await tuitionAt(deviceHash, t0 + 371 * day)).toBe(true);
+    expect(await tuitionAt(deviceHash, t0 + 373 * day)).toBe(false);
 
     // Turning it back on.
     await send('evt-5', 'UNCANCELLATION', t0 + 10 * day, {
       period_type: 'NORMAL',
       expiration_at_ms: t0 + 372 * day,
     });
-    expect(await plusAt(deviceHash, t0 + 371 * day)).toBe(true);
+    expect(await tuitionAt(deviceHash, t0 + 371 * day)).toBe(true);
 
     // The store extends it.
     await send('evt-6', 'SUBSCRIPTION_EXTENDED', t0 + 11 * day, {
       period_type: 'NORMAL',
       expiration_at_ms: t0 + 400 * day,
     });
-    expect(await plusAt(deviceHash, t0 + 390 * day)).toBe(true);
+    expect(await tuitionAt(deviceHash, t0 + 390 * day)).toBe(true);
 
-    // The renewal charge fails: Plus holds through the grace period.
+    // The renewal charge fails: tuition holds through the grace period.
     await send('evt-7', 'BILLING_ISSUE', t0 + 400 * day, {
       period_type: 'NORMAL',
       expiration_at_ms: t0 + 400 * day,
       grace_period_expiration_at_ms: t0 + 416 * day,
     });
-    expect(await plusAt(deviceHash, t0 + 410 * day)).toBe(true);
+    expect(await tuitionAt(deviceHash, t0 + 410 * day)).toBe(true);
     // The cancellation the failed charge brings does not cut the grace period short.
     await send('evt-8', 'CANCELLATION', t0 + 400 * day + 1000, {
       period_type: 'NORMAL',
       cancel_reason: 'BILLING_ERROR',
       expiration_at_ms: t0 + 400 * day,
     });
-    expect(await plusAt(deviceHash, t0 + 410 * day)).toBe(true);
+    expect(await tuitionAt(deviceHash, t0 + 410 * day)).toBe(true);
 
-    // The charge never succeeds: Plus ends.
+    // The charge never succeeds: tuition ends.
     await send('evt-9', 'EXPIRATION', t0 + 416 * day, {
       period_type: 'NORMAL',
       expiration_reason: 'BILLING_ERROR',
       expiration_at_ms: t0 + 416 * day,
     });
-    expect(await plusAt(deviceHash, t0 + 416 * day)).toBe(false);
-    expect(await plusAt(deviceHash, t0)).toBe(false);
+    expect(await tuitionAt(deviceHash, t0 + 416 * day)).toBe(false);
+    expect(await tuitionAt(deviceHash, t0)).toBe(false);
   });
 
   it('keeps the store environment, the product and the last event on the record', async () => {
@@ -208,20 +208,20 @@ describe('the RevenueCat webhook', () => {
 
     const row = await env.DB.prepare(
       `SELECT active, product_id, store_environment, source, last_event_id
-       FROM plus_entitlements WHERE app_user_id = ?`,
+       FROM tuition_entitlements WHERE app_user_id = ?`,
     )
       .bind(appUserId)
       .first();
     expect(row).toEqual({
       active: 1,
-      product_id: 'plus_yearly',
+      product_id: 'phusclass.dev.tuition.yearly',
       store_environment: 'sandbox',
       source: 'webhook',
       last_event_id: 'evt-kept',
     });
   });
 
-  it('takes Plus away at once on a refund', async () => {
+  it('takes tuition away at once on a refund', async () => {
     const { deviceHash, appUserId } = await device();
     const t0 = Date.now();
     await deliver(
@@ -249,34 +249,10 @@ describe('the RevenueCat webhook', () => {
         t0 + day,
       ),
     );
-    expect(await plusAt(deviceHash, t0 + 2 * day)).toBe(false);
+    expect(await tuitionAt(deviceHash, t0 + 2 * day)).toBe(false);
   });
 
-  it('holds lifetime Plus for good, and takes it away when it is refunded', async () => {
-    const { deviceHash, appUserId } = await device();
-    const t0 = Date.now();
-    const lifetime = {
-      product_id: 'plus_lifetime',
-      period_type: 'NORMAL',
-      expiration_at_ms: null,
-      price: 89.99,
-    };
-    await deliver(
-      delivery(appUserId, { id: 'evt-l1', type: 'NON_RENEWING_PURCHASE', ...lifetime }, t0),
-    );
-    expect(await plusAt(deviceHash, t0 + 5000 * day)).toBe(true);
-
-    await deliver(
-      delivery(
-        appUserId,
-        { id: 'evt-l2', type: 'CANCELLATION', cancel_reason: 'CUSTOMER_SUPPORT', ...lifetime },
-        t0 + day,
-      ),
-    );
-    expect(await plusAt(deviceHash, t0 + 2 * day)).toBe(false);
-  });
-
-  it('changes nothing for a purchase that does not grant Plus', async () => {
+  it('changes nothing for a purchase that does not grant tuition', async () => {
     const { deviceHash, appUserId } = await device();
     const ink = {
       id: 'evt-ink',
@@ -289,7 +265,7 @@ describe('the RevenueCat webhook', () => {
     };
     expect(await outcomeOf(deliver(delivery(appUserId, ink)))).toBe('taken');
     expect(await storedRows(appUserId)).toBe(0);
-    expect(await plusAt(deviceHash, Date.now())).toBe(false);
+    expect(await tuitionAt(deviceHash, Date.now())).toBe(false);
   });
 
   it('takes in the dashboard’s test event and keeps nothing for it', async () => {
@@ -310,10 +286,10 @@ describe('the RevenueCat webhook', () => {
         original_app_user_id: anonymous,
       }),
     );
-    expect(await plusAt(deviceHash, Date.now() + day)).toBe(true);
+    expect(await tuitionAt(deviceHash, Date.now() + day)).toBe(true);
   });
 
-  it('moves Plus to the device a purchase is restored on', async () => {
+  it('moves tuition to the device a purchase is restored on', async () => {
     const before = await device();
     const after = await device();
     const t0 = Date.now();
@@ -321,8 +297,8 @@ describe('the RevenueCat webhook', () => {
 
     await deliver(transferDelivery('evt-t2', [before.appUserId], [after.appUserId], t0 + 1000));
 
-    expect(await plusAt(after.deviceHash, t0 + day)).toBe(true);
-    expect(await plusAt(before.deviceHash, t0 + day)).toBe(false);
+    expect(await tuitionAt(after.deviceHash, t0 + day)).toBe(true);
+    expect(await tuitionAt(before.deviceHash, t0 + day)).toBe(false);
   });
 
   it('ignores a delivery it has already taken in, even after newer events', async () => {
@@ -340,7 +316,7 @@ describe('the RevenueCat webhook', () => {
       ),
     );
     expect(await outcomeOf(deliver(purchase))).toBe('seen');
-    expect(await plusAt(deviceHash, t0 + 2000)).toBe(false);
+    expect(await tuitionAt(deviceHash, t0 + 2000)).toBe(false);
     const events = await env.DB.prepare(
       "SELECT COUNT(*) AS n FROM revenuecat_events WHERE id IN ('evt-p1', 'evt-p2')",
     ).first<{ n: number }>();
@@ -358,25 +334,7 @@ describe('the RevenueCat webhook', () => {
       ),
     );
     await deliver(delivery(appUserId, { id: 'evt-o1', type: 'INITIAL_PURCHASE' }, t0));
-    expect(await plusAt(deviceHash, t0 + 2000)).toBe(false);
-  });
-});
-
-describe('a Plus-gated route', () => {
-  it('refuses a phone that claims Plus with no record, and gives it Plus once the store says so', async () => {
-    const host = await person('Mai');
-    const appUserId = await plusCustomerId(host.deviceHash);
-
-    const claimed = await ok<{ capacity: number }>(
-      as(host, 'POST', '/v1/tables', { purchase: 'lifetime' }, webhookEnv),
-    );
-    expect(claimed.capacity).toBe(2);
-
-    await deliver(delivery(appUserId, { id: 'evt-gate', type: 'INITIAL_PURCHASE' }));
-    const bought = await ok<{ capacity: number }>(
-      as(host, 'POST', '/v1/tables', { purchase: 'free' }, webhookEnv),
-    );
-    expect(bought.capacity).toBe(4);
+    expect(await tuitionAt(deviceHash, t0 + 2000)).toBe(false);
   });
 });
 
@@ -408,24 +366,24 @@ describe('asking RevenueCat for a device with no record', () => {
       answers(
         Response.json(
           customerAnswer(appUserId, [
-            { entitlement_id: plusEntitlementId, expires_at: t0 + 30 * day },
+            { entitlement_id: tuitionEntitlementId, expires_at: t0 + 30 * day },
           ]),
         ),
       ),
     );
 
-    expect(await plusAt(deviceHash, t0, apiEnv)).toBe(true);
+    expect(await tuitionAt(deviceHash, t0, apiEnv)).toBe(true);
     expect(sent[0]).toEqual({
       url: `${revenueCatApiBase}/projects/${projectId}/customers/${appUserId}`,
       authorization: 'Bearer sk_test_v2_key',
     });
     const asked = sent.length;
-    expect(await plusAt(deviceHash, t0 + day, apiEnv)).toBe(true);
+    expect(await tuitionAt(deviceHash, t0 + day, apiEnv)).toBe(true);
     expect(sent).toHaveLength(asked);
-    expect(await plusAt(deviceHash, t0 + 31 * day, apiEnv)).toBe(false);
+    expect(await tuitionAt(deviceHash, t0 + 31 * day, apiEnv)).toBe(false);
   });
 
-  it('does not take another entitlement for Plus', async () => {
+  it('does not take another entitlement for tuition', async () => {
     const { deviceHash, appUserId } = await device();
     revenueCat(
       answers(
@@ -434,16 +392,16 @@ describe('asking RevenueCat for a device with no record', () => {
         ),
       ),
     );
-    expect(await plusAt(deviceHash, Date.now(), apiEnv)).toBe(false);
+    expect(await tuitionAt(deviceHash, Date.now(), apiEnv)).toBe(false);
   });
 
-  it('keeps a customer RevenueCat has never seen as no Plus, and asks again only after a while', async () => {
+  it('keeps a customer RevenueCat has never seen as no tuition, and asks again only after a while', async () => {
     const { deviceHash, appUserId } = await device();
     const t0 = Date.now();
     const sent = revenueCat(() => Response.json(customerNotFound, { status: 404 }));
 
-    expect(await plusAt(deviceHash, t0, apiEnv)).toBe(false);
-    expect(await plusAt(deviceHash, t0 + 1000, apiEnv)).toBe(false);
+    expect(await tuitionAt(deviceHash, t0, apiEnv)).toBe(false);
+    expect(await tuitionAt(deviceHash, t0 + 1000, apiEnv)).toBe(false);
     expect(sent).toHaveLength(1);
     expect(await storedRows(appUserId)).toBe(1);
 
@@ -451,18 +409,18 @@ describe('asking RevenueCat for a device with no record', () => {
     revenueCat(
       answers(
         Response.json(
-          customerAnswer(appUserId, [{ entitlement_id: plusEntitlementId, expires_at: null }]),
+          customerAnswer(appUserId, [{ entitlement_id: tuitionEntitlementId, expires_at: null }]),
         ),
       ),
     );
-    expect(await plusAt(deviceHash, t0 + apiNoPlusBelievedMs + 1000, apiEnv)).toBe(true);
+    expect(await tuitionAt(deviceHash, t0 + apiNoTuitionBelievedMs + 1000, apiEnv)).toBe(true);
   });
 
-  it('keeps nothing when RevenueCat fails, and holds no Plus meanwhile', async () => {
+  it('keeps nothing when RevenueCat fails, and holds no tuition meanwhile', async () => {
     const { deviceHash, appUserId } = await device();
     const sent = revenueCat(() => new Response('upstream error', { status: 503 }));
 
-    expect(await plusAt(deviceHash, Date.now(), apiEnv)).toBe(false);
+    expect(await tuitionAt(deviceHash, Date.now(), apiEnv)).toBe(false);
     expect(sent).toHaveLength(1);
     expect(await storedRows(appUserId)).toBe(0);
   });
@@ -470,7 +428,7 @@ describe('asking RevenueCat for a device with no record', () => {
   it('never asks when the API is not set up', async () => {
     const { deviceHash } = await device();
     const sent = revenueCat(() => new Response(null, { status: 500 }));
-    expect(await plusAt(deviceHash, Date.now(), webhookEnv)).toBe(false);
+    expect(await tuitionAt(deviceHash, Date.now(), webhookEnv)).toBe(false);
     expect(sent).toHaveLength(0);
   });
 
@@ -478,11 +436,11 @@ describe('asking RevenueCat for a device with no record', () => {
     const { deviceHash, appUserId } = await device();
     const t0 = Date.now();
     revenueCat(() => Response.json(customerNotFound, { status: 404 }));
-    expect(await plusAt(deviceHash, t0, apiEnv)).toBe(false);
+    expect(await tuitionAt(deviceHash, t0, apiEnv)).toBe(false);
 
     await deliver(
       delivery(appUserId, { id: 'evt-after-api', type: 'INITIAL_PURCHASE' }, t0 - 1000),
     );
-    expect(await plusAt(deviceHash, t0 + 1000, apiEnv)).toBe(true);
+    expect(await tuitionAt(deviceHash, t0 + 1000, apiEnv)).toBe(true);
   });
 });

@@ -8,7 +8,7 @@ const degree = 'thật|thiệt|quá|hơi|rất|cũng|nào|làm';
  * points at something that slipped, and passes when it describes a thing: "bạn hư quá" against
  * "máy giặt bị hư", "giữ chuỗi" against "chuỗi nhà hàng", "cuối cùng bạn cũng" against "miếng
  * cuối cùng". Every word of the banned list was read for this; the ones left in the plain list
- * have no harmless sense in Scootch's voice.
+ * have no harmless sense in Thầy Phú's voice.
  */
 export const viContextWords: readonly ContextWord[] = [
   {

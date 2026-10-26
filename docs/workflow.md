@@ -1,4 +1,4 @@
-# Scootch: how we work
+# Phu's Class: how we work
 
 Each rule here exists because the opposite cost real time on CritterPass. The
 "learned from" column says what happened.
@@ -21,7 +21,7 @@ Each rule here exists because the opposite cost real time on CritterPass. The
 | One pull request per lane per cycle, with one CI run and one device run | Thirty open pull requests, each needing its own run and review |
 | Merge with `gh pr merge --auto --squash`; never `--watch`, never a tight polling loop | The 5,000-call hourly budget ran out |
 | No session links or attribution lines in commits or pull request bodies | Squash merges copied them into public history |
-| Registries are folders, not lists: one file per screen, work mode, monster body, AI route and bot command, collected by a generated index | Every merge conflicted in the same registration lists |
+| Registries are folders, not lists: one file per screen, pose, prop, AI route and bot command, collected by a generated index | Every merge conflicted in the same registration lists |
 
 ## 3. This Mac
 
@@ -69,7 +69,7 @@ Each rule here exists because the opposite cost real time on CritterPass. The
 | List variable names only, with a names-only command. Never print values | A private key printed into a transcript, twice |
 | A key pasted in chat goes into a file outside every repository, mode 600, and gets rotated after | A spike key in the transcript |
 
-## 7. Scootch-specific
+## 7. Phu's Class-specific
 
 | Rule | Why |
 |---|---|

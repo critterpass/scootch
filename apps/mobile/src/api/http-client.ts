@@ -1,4 +1,4 @@
-import type { Language } from '@scootch/domain';
+import type { Language } from '@phusclass/domain';
 
 import { pretendOffline } from '../features/offline/pretend-offline';
 

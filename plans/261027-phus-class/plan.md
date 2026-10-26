@@ -46,7 +46,7 @@ Status lines below follow `CLAUDE.md`: `- Status: done — <sha>` or
 ## Phase 1: foundation
 
 ### 1.1 Rename and strip
-- Status: todo
+- Status: done — pending merge
 - Do:
   - Rename the package scope to `@phusclass/*` everywhere, and the root package to `phusclass`.
   - Delete every DROP item in `plans/261027-phus-class/inventory.md`. Leave the app booting to one placeholder desk screen that says "Sit." in the app language.
@@ -59,7 +59,7 @@ Status lines below follow `CLAUDE.md`: `- Status: done — <sha>` or
 - Done when: CI is green on the pull request, and a grep finds no `scootch` in code outside history, `design/` (old boards) and `plans/261006*`–`plans/261008*`.
 
 ### 1.2 Native batch one
-- Status: todo
+- Status: in progress: declared with the foundation, build after merge
 - Do:
   - Declare every capability and target the screens need:
     - app group and keychain group

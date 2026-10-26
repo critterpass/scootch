@@ -8,7 +8,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 
-import { fonts, shadows, spacing, tracking } from '@scootch/tokens';
+import { fonts, shadows, spacing, tracking } from '@phusclass/tokens';
 
 import { GlassSurface, glassPressOwner } from './glass-surface';
 import { useScreenStyle } from './use-screen-style';

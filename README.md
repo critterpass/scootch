@@ -1,12 +1,12 @@
-# Scootch
+# Phu's Class
 
-Scootch (scootch.app) is an iPhone app for people with ADHD and for chronic
-procrastinators. It gets you to start one small thing a day, and lets you do it
-sitting quietly next to someone. "Scootch" means to move just a little, and to
-make room beside you.
+Phu's Class (Lớp Thầy Phú, phusclass.com) is an iPhone app for people with
+ADHD and for chronic procrastinators. A strict, round, tea-drinking teacher,
+Thầy Phú, puts one task on your desk, waits for you to start it, and paces the
+classroom while you do it. Everything else you have to do is on the chalkboard
+behind him, so you always see the whole picture and only ever face one thing.
 
-The whole app is one critter and one sentence. Your task hatches into a named
-monster, you catch it by doing the task, and it lives in your world as a card.
+English and Vietnamese, from the first screen.
 
 ## Where things are
 
@@ -16,10 +16,13 @@ monster, you catch it by doing the task, and it lives in your world as a card.
 | What the product is and its rules | [docs/product-brief.md](docs/product-brief.md) |
 | Stack, AI split and open risks | [docs/tech-decisions.md](docs/tech-decisions.md) |
 | How we work, and why | [docs/workflow.md](docs/workflow.md) |
-| The build plan | [plans/261006-2350-scootch-full-build/plan.md](plans/261006-2350-scootch-full-build/plan.md) |
-| Designs | [design/README.md](design/README.md) |
+| The build plan | [plans/261027-phus-class/plan.md](plans/261027-phus-class/plan.md) |
+| Designs | [design/phus-class/](design/phus-class/) |
+| Device flows | [e2e/README.md](e2e/README.md) |
 
 ## Status
 
-Planning. No code yet. The plan's first phase sets up the repository, the
-pipeline and the native shell.
+The foundation: the app opens on a plain desk that says "Sit.", the server
+keeps devices, backup, push, tuition, the bot and the care screen, and the
+website keeps its help, privacy, terms, support and helplines pages. The
+classroom is built next.

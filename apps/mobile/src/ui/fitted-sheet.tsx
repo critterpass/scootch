@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { spacing } from '@scootch/tokens';
+import { spacing } from '@phusclass/tokens';
 
 import { CloseButton, CORNER, type CloseButtonProps } from './corner-bar';
 import { useRouteSheet } from './use-route-sheet';

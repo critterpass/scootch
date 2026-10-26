@@ -1,8 +1,8 @@
 /** The tag on every ledger row, so spend on provider keys shared with other apps can be split. */
-export const ledgerProject = 'scootch';
+export const ledgerProject = 'phusclass';
 
 export type AiUsage = {
-  /** The AI route's id, such as `task.create`. */
+  /** The AI route's id, such as `screen.input`. */
   readonly route: string;
   /** The model that actually answered, which is the fallback's name when the fallback ran. */
   readonly model: string;

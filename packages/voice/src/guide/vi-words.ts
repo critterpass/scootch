@@ -103,7 +103,7 @@ export const viWords: Pick<
     hardship: ['vô gia cư', 'ăn xin', 'ăn mày', 'phá sản', 'vỡ nợ'],
   },
   offLimitsNote:
-    'chính trị và chính quyền (kể cả họp chi bộ, cán bộ, bầu cử), tôn giáo, cơ thể hay ngoại hình của bất kỳ ai, cái chết hay chuyện tự hại, cảnh nghèo khó hay vô gia cư, giá trị của người dùng, và những ngày đã trôi qua. Nếu chính cái việc dính tới một trong các chuyện này thì viết về Scootch và đồ đạc trong nhà.',
+    'chính trị và chính quyền (kể cả họp chi bộ, cán bộ, bầu cử), tôn giáo, cơ thể hay ngoại hình của bất kỳ ai, cái chết hay chuyện tự hại, cảnh nghèo khó hay vô gia cư, giá trị của người dùng, và những ngày đã trôi qua. Nếu chính cái việc dính tới một trong các chuyện này thì viết về Thầy Phú và đồ đạc trong nhà.',
   userWorth: [
     'tại bạn',
     'lỗi của bạn',

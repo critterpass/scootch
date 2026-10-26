@@ -3,11 +3,11 @@ import Foundation
 /// Fixed labels, in the language the person chose in the app (the snapshot's), not the phone's.
 /// The key is the English text, so a missing table still reads as English.
 enum SurfaceText {
-    /// Where the labels are. An extension carries its own; the app, which runs the intents,
-    /// reads the widget extension's, so a label is written once.
+    /// Where the labels are. An extension carries its own; code that runs in the app reads the
+    /// widget extension's, so a label is written once.
     private static let labels: Bundle = {
         guard !Bundle.main.bundlePath.hasSuffix(".appex"),
-            let widgets = Bundle.main.builtInPlugInsURL?.appendingPathComponent("ScootchWidgets.appex"),
+            let widgets = Bundle.main.builtInPlugInsURL?.appendingPathComponent("PhusclassWidgets.appex"),
             let bundle = Bundle(url: widgets)
         else { return .main }
         return bundle

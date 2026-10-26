@@ -1,27 +1,10 @@
-/** The Get and Help pages, in Vietnamese. */
+/** The Help page, in Vietnamese. */
 export const helpVi = {
-  get: {
-    title: 'Tải Scootch',
-    description: 'Scootch có trên iPhone. Đưa camera vô mã, hoặc bấm nút trên điện thoại của bạn.',
-    eyebrow: 'Tải Scootch',
-    words: ['Con', 'quái', 'của', 'bạn', 'đang', 'chờ.'],
-    phoneBody: 'Miễn phí trên iPhone. Con nào bạn ấp ở đây cũng đi theo được.',
-    deskBody:
-      'Đang dùng laptop? Đưa camera iPhone vô mã này. Nó mở trang này trên điện thoại, và App Store chỉ cách một chạm.',
-    soonBody: 'Scootch chưa ra mắt. Để lại email, tới ngày ra mắt tui báo bạn.',
-    store: 'Tải trên App Store',
-    qrLabel: 'Mã QR mở trang này trên điện thoại của bạn',
-    qrCaption: 'Đưa camera iPhone vô đây',
-    androidEyebrow: 'Android',
-    androidTitle: 'Chưa có trên Android.',
-    pressEyebrow: 'Tài liệu báo chí',
-    pressTitle: 'Bạn đang viết về Scootch?',
-  },
   help: {
-    title: 'Trợ giúp · Scootch',
+    title: 'Trợ giúp · Lớp Thầy Phú',
     description:
-      'Câu hỏi được trả lời thẳng, đường dây hỗ trợ, Scootch là gì và không là gì, và quyền riêng tư nói gọn.',
-    address: 'scootch.app/vi/help',
+      'Câu hỏi được trả lời thẳng, đường dây hỗ trợ, Lớp Thầy Phú là gì và không là gì, và quyền riêng tư nói gọn.',
+    address: 'phusclass.com/vi/help',
     words: ['Tui', 'giúp', 'được', 'gì?'],
     searchLabel: 'Tìm trong các câu hỏi',
     searchPlaceholder: 'Tìm: huỷ, mất mạng, ngồi bàn…',
@@ -31,7 +14,7 @@ export const helpVi = {
     nav: [
       'Câu hỏi',
       'Đường dây hỗ trợ',
-      'Scootch là gì và không là gì',
+      'Lớp Thầy Phú là gì và không là gì',
       'Quyền riêng tư, nói thẳng',
       'Viết cho tụi tui',
     ],
@@ -39,8 +22,8 @@ export const helpVi = {
     tags: [
       'Plus',
       'App',
-      'Về Scootch',
-      'Về Scootch',
+      'Về Lớp Thầy Phú',
+      'Về Lớp Thầy Phú',
       'Dữ liệu',
       'App',
       'App',
@@ -59,15 +42,15 @@ export const helpVi = {
       'Bạn xứng đáng có một con người thật, không phải một nhân vật hoạt hình. Các đường dây này miễn phí và kín đáo. Nếu bạn đang gặp nguy hiểm ngay lúc này, hãy gọi số khẩn cấp ở nơi bạn ở.',
     country: 'Quốc gia',
     allHelplines: 'Mọi quốc gia, kèm giờ hoạt động',
-    isntTitle: 'Scootch là gì, và không là gì',
-    is: 'Scootch là',
+    isntTitle: 'Lớp Thầy Phú là gì, và không là gì',
+    is: 'Lớp Thầy Phú là',
     isList: [
       'Một người bạn nhỏ, ngớ ngẩn, giúp bạn bắt đầu việc',
       'Một cách làm cho việc đáng sợ thấy nhỏ lại',
       'Sự hiện diện yên lặng trong lúc bạn làm',
       'Miễn phí, không có gì đếm ngày của bạn',
     ],
-    isnt: 'Scootch không là',
+    isnt: 'Lớp Thầy Phú không là',
     isntList: [
       'Chẩn đoán, điều trị hay cách chữa ADHD hoặc bất cứ điều gì khác',
       'Nhà trị liệu, người huấn luyện hay dịch vụ khủng hoảng',
@@ -79,7 +62,7 @@ export const helpVi = {
       {
         tag: 'Giọng nói',
         title: 'Kể lể vẫn chỉ là kể lể',
-        body: 'Giọng bạn được chuyển thành chữ và Scootch không bao giờ giữ âm thanh.',
+        body: 'Giọng bạn được chuyển thành chữ và Lớp Thầy Phú không bao giờ giữ âm thanh.',
       },
       {
         tag: 'Việc',
@@ -103,6 +86,6 @@ export const helpVi = {
     termsLink: 'điều khoản',
     contactTitle: 'Viết cho một con người',
     contactBody: 'Thư nào cũng có người đọc, và không ai bắt bạn giải thích.',
-    contactEmail: 'help@scootch.app',
+    contactEmail: 'help@phusclass.com',
   },
 } as const;

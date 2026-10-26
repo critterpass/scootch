@@ -1,8 +1,0 @@
----
-import RecordPage from '../../../components/record-page.astro';
-import { languagePaths } from '../../../copy';
-
-export const getStaticPaths = languagePaths;
----
-
-<RecordPage language={Astro.params.lang === 'vi' ? 'vi' : 'en'} />

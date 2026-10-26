@@ -7,9 +7,8 @@ Mac's simulator the same way (see Running on a Mac).
 - `e2e/fresh/` is the fresh-user walk: one new install, walked the way a new person meets the app.
   **Every feature extends this folder** with its next numbered step (`02-…`, `03-…`); a feature
   without a step here has not been proven for a real user.
-- `e2e/tour/` is the look at every other screen: each flow opens registry states from the developer
-  tools (the registry list has a filter field, `registry-filter`) and takes one capture per state,
-  for the sheets. Its shared steps are in `e2e/tour-support/`, outside the folder a run walks.
+- `e2e/sheets/` captures registry states for the design-beside-device sheets. It opens the
+  registry by its link, the one place a flow may use `openLink`.
 - `e2e/_run/` belongs to the pipeline. `js-commit.yaml` runs first in every run and is not a place
   for product flows.
 
@@ -36,7 +35,7 @@ gh workflow run device.yml --ref <branch> \
 | `build_url` | The `e2e-test` build to install. iOS: leave it empty to take the newest build whose native fingerprint is this commit's, or give a simulator `.tar.gz` to install that one instead. Android: the `.apk`, required. The workflow never starts a build. |
 | `flows` | A folder (every `.yaml` in it, in name order) or one file, under `e2e/`. Default `e2e/fresh`. |
 | `mode` | `run` reports pass or fail. `capture` also keeps every `takeScreenshot` image under `screens/` in the artifact. `video` is `capture` plus a screen recording of each flow under `video/` (iOS), for looking at motion. |
-| `states` | Optional, for `flows=e2e/sheets`. A comma-separated list of state id prefixes (`odd-,session-opening`): only the registry rows whose name starts with one of them are captured. Empty captures every state, which is too long for one job (about 215 states at about 65 s each), so a change captures the states it touched. The workflow passes it to Maestro as `MAESTRO_STATES`, and the flow types it into the registry's `registry-states` field. |
+| `states` | Optional, for `flows=e2e/sheets`. A comma-separated list of state id prefixes (`odd-,session-opening`): only the registry rows whose name starts with one of them are captured. Empty captures every state, which grows too long for one job as the registry fills, so a change captures the states it touched. The workflow passes it to Maestro as `MAESTRO_STATES`, and the flow types it into the registry's `registry-states` field. |
 | `variants` | Optional, for `flows=e2e/sheets`. A comma-separated list of variant names (`en-light-default,vi-light-default`): only those variants are captured, of the states chosen. Empty captures all eight. Passed as `MAESTRO_VARIANTS` and typed into the registry's `registry-variants` field. The flow fails at once if the first row does not match the lists, rather than capturing everything. |
 | `pr` | Optional. The pull request that gets one comment with the pass or fail table and a link to the artifact. |
 
@@ -51,15 +50,15 @@ swapped in, a clean install) and writes the same output.
 
 ```sh
 tools/scripts/device-ios-local.sh e2e/fresh                       # a folder
-tools/scripts/device-ios-local.sh e2e/fresh/02-first-thing-typed.yaml
+tools/scripts/device-ios-local.sh e2e/fresh/01-sit.yaml
 MODE=video tools/scripts/device-ios-local.sh e2e/fresh             # capture or video, as above
 ```
 
 - Uncommitted changes under `apps/` and `packages/` are included; the `js-commit` label then reads
   `<commit>-local`.
-- One simulator, `Scootch local`, is erased before every run. Runs queue for it, one at a time.
-- The newest three builds are kept in `~/Library/Caches/scootch/e2e-builds`, and the newest five
-  run outputs in `~/Library/Caches/scootch/device-runs` (or `OUT=<dir>`), never in the repository.
+- One simulator, `Phu's Class local`, is erased before every run. Runs queue for it, one at a time.
+- The newest three builds are kept in `~/Library/Caches/phusclass/e2e-builds`, and the newest five
+  run outputs in `~/Library/Caches/phusclass/device-runs` (or `OUT=<dir>`), never in the repository.
 - A flow in `e2e/fresh/` carries on from the one before it: run the folder, not a later file alone.
 - Needs, once: `brew install openjdk@17`, then Maestro at the version in `device.yml`
   (`MAESTRO_VERSION=<version> curl -fsSL https://get.maestro.mobile.dev | bash`), with
@@ -100,9 +99,9 @@ checks that the Expo prebuilt frameworks link with each other (`check-expo-prebu
 - **`dev`** is signed with the distribution certificate and provisioning profiles kept on EAS, and
   goes from the runner straight to TestFlight (`eas submit`). This repository is public, so the
   signed `.ipa` is never a run artifact or a release asset, and a `dev` build with `submit=false`
-  stops before building. Capability syncing is off (`EXPO_NO_CAPABILITY_SYNC=1`): EAS cannot sync
-  an App Clip's capabilities, so the App IDs are kept by hand.
-- **`prd`** is the App Store app (`app.scootch`), made and sent the same way as `dev`, to the
+  stops before building. Capability syncing is off (`EXPO_NO_CAPABILITY_SYNC=1`): the App IDs are
+  kept by hand.
+- **`prd`** is the App Store app (`com.phusclass`), made and sent the same way as `dev`, to the
   store app's record in App Store Connect. It talks to the production API and takes updates from
   the `prd` channel. Its bundle is refused while a helpline is unverified
   (`check-helplines-verified.ts`), so the job runs that check before it compiles.
@@ -154,12 +153,12 @@ never fetched into the repository: a sister repository filled a disk that way.
 - Start from a clean install (`launchApp` with `clearState: true`) and get everywhere the way a
   person does: by pressing what is on the screen.
 - No seeded shortcuts: no seed buttons, no prepared accounts, no state written behind the app.
-- No deep links (`openLink`) to skip steps.
+- No deep links (`openLink`) to skip steps. Only the sheets capture opens the registry by its link.
 - Meet the real permission prompts; nothing is granted beforehand.
 - Find elements by test id; match text only when the text is the thing being proven.
 - Assert the outcome of each step (what the screen shows afterwards), not just that it rendered.
 - Name a `takeScreenshot` after the registered screen state it shows, as `<state id>--<variant>`
-  (`launch-hello--en-light-default`): a capture with that name is put beside the state's design in
+  (`desk-sit--en-light-default`): a capture with that name is put beside the state's design in
   the run's `sheets/`, and one whose state is not registered is listed in `sheets/summary.md` as
   matching nothing. Other captures may be named `<folder>-<step>-<state>`.
 

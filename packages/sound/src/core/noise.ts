@@ -6,7 +6,7 @@ let table: Float32Array | undefined;
 /** Two seconds of white noise, the same every run. */
 function noiseTable(): Float32Array {
   if (table) return table;
-  const rng = createRng('scootch-noise');
+  const rng = createRng('phusclass-noise');
   table = new Float32Array(SAMPLE_RATE * 2);
   for (let i = 0; i < table.length; i += 1) table[i] = rng() * 2 - 1;
   return table;

@@ -7,7 +7,7 @@ const thing =
  * English banned words that have a harmless sense. Each fails when it is about the user or
  * something that slipped, and passes as plain description of the task: "you're behind" against
  * "behind the sofa", "your streak" against "streaks on the mirror". Every word of the banned list
- * was read for this; the ones left in the plain list have no harmless sense in Scootch's voice.
+ * was read for this; the ones left in the plain list have no harmless sense in Thầy Phú's voice.
  */
 export const enContextWords: readonly ContextWord[] = [
   {
@@ -63,7 +63,7 @@ export const enContextWords: readonly ContextWord[] = [
     ],
     safe: [
       'missed (?:voicemails?|deliver(?:y|ies)|a spot|a bit|the bin)',
-      "(?:i|i've|scootch) (?:just |nearly |almost |completely )?missed",
+      "(?:i|i've|thầy phú) (?:just |nearly |almost |completely )?missed",
     ],
     otherwise: 'fail',
   },

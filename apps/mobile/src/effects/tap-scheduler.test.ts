@@ -1,7 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { MINUTE_MS, sessionReducer, sessionSet, type LiveSession } from '@scootch/domain';
-import { CUES } from '@scootch/sound';
+import { MINUTE_MS, sessionReducer, sessionSet, type LiveSession } from '@phusclass/domain';
+import { CUES } from '@phusclass/sound';
 
 import { fakeRunner, fakeTime } from './test/fake-adapters';
 import { createTapScheduler } from './tap-scheduler';

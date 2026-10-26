@@ -3,13 +3,13 @@ import * as Keychain from 'react-native-keychain';
 
 import type { TokenStore } from './http-client';
 
-const DEV_URL = 'https://scootch-dev.bkdev98.workers.dev';
+const DEV_URL = 'https://api-dev.phusclass.com';
 
 /** The API each app variant talks to. Device runs use the dev app, so they share its API. */
 const API_URLS: Readonly<Record<string, string>> = {
   dev: DEV_URL,
   'e2e-test': DEV_URL,
-  prd: 'https://api.scootch.app',
+  prd: 'https://api.phusclass.com',
 };
 
 /** The base URL for a variant name from the app config. An unknown variant talks to dev. */
@@ -21,13 +21,13 @@ export function apiBaseUrl(): string {
   return apiBaseUrlFor(Constants.expoConfig?.extra?.['appVariant']);
 }
 
-const DEV_SITE_URL = 'https://scootch-web-dev.bkdev98.workers.dev';
+const DEV_SITE_URL = 'https://phusclass-web-dev.bkdev98.workers.dev';
 
 /** The website each app variant's shared links open on: the site that reads that variant's API. */
 const SITE_URLS: Readonly<Record<string, string>> = {
   dev: DEV_SITE_URL,
   'e2e-test': DEV_SITE_URL,
-  prd: 'https://scootch.app',
+  prd: 'https://phusclass.com',
 };
 
 /** The website for a variant name from the app config. An unknown variant shares to dev. */
@@ -39,7 +39,7 @@ export function siteBaseUrl(): string {
   return siteBaseUrlFor(Constants.expoConfig?.extra?.['appVariant']);
 }
 
-const TOKEN_SERVICE = 'app.scootch.device-token';
+const TOKEN_SERVICE = 'com.phusclass.device-token';
 
 /** The anonymous device token, kept in the keychain. It has never run outside a native build. */
 export const keychainTokenStore: TokenStore = {

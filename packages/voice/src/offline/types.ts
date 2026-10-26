@@ -1,4 +1,4 @@
-import type { Attitude } from '@scootch/domain';
+import type { Attitude } from '@phusclass/domain';
 
 /** The slots an offline line can fill. `working` and `notification` hold several to rotate. */
 export const offlineSlots = [
@@ -25,7 +25,7 @@ export type OfflineSlot = (typeof offlineSlots)[number];
 export type OfflineLines = Readonly<Record<OfflineSlot, readonly [string, ...string[]]>>;
 
 /**
- * What Scootch says while there is no task to talk about: the first launch, the waiting screen,
+ * What Thầy Phú says while there is no task to talk about: the first launch, the waiting screen,
  * the quiet end of the day, and the moments around Plus. One fixed line per slot.
  */
 export const noTaskSlots = [
@@ -53,7 +53,7 @@ export const noTaskSlots = [
   'shrunk',
   /** No connection: said on the one screen in place of the usual ask. */
   'offline',
-  /** The model is down or slow: Scootch admits it, and the pick is the person's. */
+  /** The model is down or slow: Thầy Phú admits it, and the pick is the person's. */
   'modelDown',
   'modelDownMore',
   /** Under the one thing: the single other thing heard, parked out of sight. */
@@ -86,7 +86,7 @@ export type NoTaskSlot = (typeof noTaskSlots)[number];
 export type NoTaskLines = Readonly<Record<NoTaskSlot, string>>;
 
 /**
- * What Scootch says around the helpers for starting and returning, when no route wrote the line:
+ * What Thầy Phú says around the helpers for starting and returning, when no route wrote the line:
  * with no connection, and wherever the words are the same for every task. One fixed line per slot.
  */
 export const helperSlots = [
@@ -101,7 +101,7 @@ export const helperSlots = [
   'inTheWayTooBig',
   /** The cue's notification. It opens with `{cue}`, where the phone puts the cue's own words. */
   'cue',
-  /** Under a time said back: what Scootch will do about it. */
+  /** Under a time said back: what Thầy Phú will do about it. */
   'timeHeardPlan',
   /** Over the field for a line left on "not finished". */
   'nextTimeAsk',
@@ -163,7 +163,7 @@ export type OfflinePack = {
    * at 3."). The same plain words at every attitude and for a heavy day.
    */
   readonly timeSaidBack: (heardAs: string) => string;
-  /** The one nudge before a heard time, from Scootch and no monster. It never says "leave". */
+  /** The one nudge before a heard time, from Thầy Phú and no monster. It never says "leave". */
   readonly getReady: (heardAs: string) => string;
   /** "Name, Title" names for a monster whose own name failed the check. */
   readonly monsterNames: readonly [string, ...string[]];

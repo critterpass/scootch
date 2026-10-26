@@ -39,7 +39,7 @@ export interface SvgOptions {
    * different prefixes; the default is derived from the drawing itself.
    */
   readonly idPrefix?: string;
-  /** Width and height of the drawing space; a monster's 200 by 200 when left out. */
+  /** Width and height of the drawing space; the 200 by 200 view when left out. */
   readonly width?: number;
   readonly height?: number;
 }

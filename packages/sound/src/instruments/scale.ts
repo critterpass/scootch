@@ -1,6 +1,6 @@
 import { midiToHz } from '../core/oscillator';
 
-/** Everything Scootch plays is in one key: D major pentatonic, from the D above middle C. */
+/** Everything Thầy Phú plays is in one key: D major pentatonic, from the D above middle C. */
 export const KEY_ROOT = 62;
 export const PENTATONIC = [0, 2, 4, 7, 9] as const;
 

@@ -2,11 +2,11 @@ import { describe, expect, it } from 'vitest';
 
 import { asksToChoose } from './choose';
 
-describe('asking Scootch to choose, as the phone hears it by itself', () => {
+describe('asking Thầy Phú to choose, as the phone hears it by itself', () => {
   it.each([
     'pick for me',
     'Pick for me.',
-    'Scootch, pick for me please',
+    'Thầy Phú, pick for me please',
     'you choose',
     'just pick one',
     'anything',

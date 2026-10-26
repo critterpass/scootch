@@ -2,7 +2,7 @@ import { Link, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, useColorScheme, View } from 'react-native';
 
-import { colors, fonts, fontSizes, radius, spacing } from '@scootch/tokens';
+import { colors, fonts, fontSizes, radius, spacing } from '@phusclass/tokens';
 
 import { captures } from '../../../screens/registry/support/all-states';
 import { SafeFrame } from '../../../ui/safe-frame';

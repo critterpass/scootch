@@ -1,5 +1,5 @@
-import type { Instant, SessionEffect } from '@scootch/domain';
-import { CUES } from '@scootch/sound';
+import type { Instant, SessionEffect } from '@phusclass/domain';
+import { CUES } from '@phusclass/sound';
 
 import type {
   Clock,
@@ -32,7 +32,7 @@ export interface EffectsRunnerOptions {
 export interface PlannedText {
   readonly at: Instant;
   readonly text: string;
-  /** The monster that sends it; left out, it is Scootch's own. */
+  /** Who sends it; left out, it is the app's own. */
   readonly from?: NotificationSender | undefined;
   readonly taskId?: string | undefined;
   readonly actions?: boolean | undefined;

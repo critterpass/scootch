@@ -66,7 +66,7 @@ export interface NotificationPlanInput {
   readonly attitude: Attitude;
   /** Days in a row the app was not opened before this one. Opening the app makes it zero. */
   readonly ignoredDays: number;
-  /** The Scootch day being planned, and the zone its clock times are in. */
+  /** The school day being planned, and the zone its clock times are in. */
   readonly localDate: IsoDate;
   readonly timeZone: string;
   readonly quietHours: QuietHours;
@@ -94,7 +94,7 @@ export interface PlannedNotification {
   /**
    * Set on a cue or a get-ready nudge, and absent on the day's own lines. Its words are its own:
    * `ordinal` is then the line whose place it took, which is not sent. A get-ready nudge is from
-   * Scootch, never from a monster.
+   * Thầy Phú, never from a monster.
    */
   readonly kind?: TimedNotification['kind'];
   /** Set on the cue of a serious task: plain words, and no monster signs it. */
@@ -152,7 +152,7 @@ interface Placed {
  * Where the day's cue and get-ready nudge go, in minutes from local midnight of the day, and no
  * more of them than `room`. The get-ready nudge is placed first: it is the one that cannot wait.
  * A cue inside quiet hours waits for them to end; a nudge to get ready is never sent late, so
- * inside quiet hours it is not sent. Neither is sent outside its own Scootch day, and a cue
+ * inside quiet hours it is not sent. Neither is sent outside its own school day, and a cue
  * closer to the nudge than the day's spacing gives way to it.
  */
 function placeTimed(input: NotificationPlanInput, room: number): Placed[] {

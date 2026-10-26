@@ -1,6 +1,6 @@
-import type { Attitude, Language } from '@scootch/domain';
+import type { Attitude, Language } from '@phusclass/domain';
 
-/** Things Scootch never jokes about, whatever the task. */
+/** Things Thầy Phú never jokes about, whatever the task. */
 export const offLimitsTopics = ['politics', 'religion', 'bodies', 'harm', 'hardship'] as const;
 export type OffLimitsTopic = (typeof offLimitsTopics)[number];
 
@@ -61,11 +61,11 @@ export type VoiceGuide = {
   readonly intro: string;
   readonly rules: readonly string[];
   readonly attitudes: Readonly<Record<Attitude, AttitudeGuide>>;
-  /** Words Scootch never uses, at any attitude. */
+  /** Words Thầy Phú never uses, at any attitude. */
   readonly bannedWords: WordList;
   /** Words banned by what they are about, not by their letters. The prompt lists them as banned. */
   readonly contextWords: readonly ContextWord[];
-  /** Keywords that mark a topic Scootch never jokes about. */
+  /** Keywords that mark a topic Thầy Phú never jokes about. */
   readonly offLimits: Readonly<Record<OffLimitsTopic, WordList>>;
   /** The off-limits topics in a sentence, for the prompt. */
   readonly offLimitsNote: string;

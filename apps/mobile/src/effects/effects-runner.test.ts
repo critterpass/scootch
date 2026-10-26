@@ -7,8 +7,8 @@ import {
   type LiveSession,
   type SessionEvent,
   type SessionLine,
-} from '@scootch/domain';
-import { CUES } from '@scootch/sound';
+} from '@phusclass/domain';
+import { CUES } from '@phusclass/sound';
 
 import type { SessionContext } from './adapters';
 import { DEVICE_CALL_LIMIT_MS, createEffectsRunner } from './effects-runner';

@@ -95,7 +95,7 @@ export interface VoiceOptions {
   readonly pan?: number;
 }
 
-/** Scootch's voice: a gliding note with vibrato, a nasal peak and a rounded top. */
+/** Thầy Phú's voice: a gliding note with vibrato, a nasal peak and a rounded top. */
 export function voice(
   mix: Mix,
   at: number,

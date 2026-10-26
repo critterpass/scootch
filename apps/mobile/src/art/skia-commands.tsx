@@ -14,7 +14,7 @@ import { memo, useMemo, type ReactElement, type ReactNode } from 'react';
 import { Platform, Pressable, View } from 'react-native';
 import type { SharedValue } from 'react-native-reanimated';
 
-import { VIEW_SIZE, type DrawCommand } from '@scootch/art';
+import { VIEW_SIZE, type DrawCommand } from '@phusclass/art';
 
 import { GRAIN_GREY, toSkiaNodes, type SkiaNode, type SkiaPaint } from './skia-nodes';
 

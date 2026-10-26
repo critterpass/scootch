@@ -12,7 +12,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { spacing } from '@scootch/tokens';
+import { spacing } from '@phusclass/tokens';
 
 import { CROSSFADE_MS, SPRING_CURVE, TOAST } from './motion-tokens';
 import { useMayMove } from './use-feel';

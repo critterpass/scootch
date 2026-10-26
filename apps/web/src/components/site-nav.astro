@@ -1,10 +1,7 @@
 ---
-import type { Language } from '@scootch/i18n';
+import type { Language } from '@phusclass/i18n';
 
-import { brand, copyFor, localPath, pagesFor, preLaunch } from '../copy';
-import { scootchArt } from '../lib/drawings';
-
-import Critter from './critter.astro';
+import { appStoreUrl, copyFor, localPath, preLaunch } from '../copy';
 
 interface Props {
   language: Language;
@@ -13,24 +10,13 @@ interface Props {
 
 const { language, path } = Astro.props;
 const copy = copyFor(language);
-const words = brand(language);
 const home = localPath(language, '/');
-const links = [
-  { href: home, label: copy.nav.maker, current: path === '/' },
-  { href: `${home}#hunt`, label: copy.nav.how, current: false },
-  { href: `${home}#tables`, label: copy.nav.tables, current: false },
-  { href: localPath(language, '/plus'), label: words.plus, current: path === '/plus' },
-  { href: localPath(language, '/help'), label: copy.nav.help, current: path === '/help' },
-];
-// Before launch there is no app to get: the capsule leads to the maker, where the email field is.
-const get = preLaunch
-  ? { href: `${home}#maker`, label: pagesFor(language).preLaunch.tellMe, mark: '→' }
-  : { href: localPath(language, '/get'), label: copy.nav.getTheApp, mark: '↓' };
+const links = [{ href: localPath(language, '/help'), label: copy.nav.help, current: path === '/help' }];
 ---
 
 <header class="site-nav">
   <div class="wrap site-nav-row">
-    <a class="logo" href={home} aria-label={words.name}>scootch<span>.</span></a>
+    <a class="logo" href={home} aria-label={copy.brand.name}>{copy.brand.name}<span>.</span></a>
     <nav class="nav-links" aria-label={copy.nav.label}>
       {
         links.map((link) => (
@@ -40,11 +26,14 @@ const get = preLaunch
         ))
       }
     </nav>
-    <a class="get-capsule" href={get.href} aria-current={path === '/get' ? 'page' : undefined} data-magnet>
-      <img class="app-icon" src="/icons/cheeky.png" alt="" width="192" height="192" />
-      {get.label}
-      <span class="dot" aria-hidden="true">{get.mark}</span>
-    </a>
+    {
+      !preLaunch && (
+        <a class="get-capsule" href={appStoreUrl} data-magnet>
+          {copy.nav.getTheApp}
+          <span class="dot" aria-hidden="true">↓</span>
+        </a>
+      )
+    }
     <details class="nav-menu">
       <summary aria-label={copy.nav.menu}><span aria-hidden="true"></span></summary>
       <nav aria-label={copy.nav.menu}>
@@ -60,8 +49,5 @@ const get = preLaunch
   </div>
   <div class="scroll-line" aria-hidden="true">
     <div class="scroll-line-fill" data-scroll-fill></div>
-    <div class="scroll-line-runner" data-scroll-runner>
-      <Critter art={scootchArt('working')} />
-    </div>
   </div>
 </header>

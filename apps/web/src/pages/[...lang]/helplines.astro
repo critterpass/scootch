@@ -7,7 +7,7 @@ export const getStaticPaths = languagePaths;
 const language = Astro.params.lang === 'vi' ? 'vi' : 'en';
 const copy = plainFor(language).helplines;
 
-// No critter and no joke on this page. Vietnam comes first for a reader in Vietnamese, and its
+// No joke on this page. Vietnam comes first for a reader in Vietnamese, and its
 // block ends with the directory: Vietnam has no line for adults that is open around the clock.
 const find = { href: findAHelpline.href, label: findAHelpline.label };
 const all = helplineRows(language);

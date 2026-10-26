@@ -5,8 +5,8 @@
  */
 
 export const projectId = 'proj1ab2c3d4';
-/** RevenueCat's own id for the entitlement whose lookup key is `plus`. */
-export const plusEntitlementId = 'entla1b2c3d4e5';
+/** RevenueCat's own id for the entitlement whose lookup key is `tuition`. */
+export const tuitionEntitlementId = 'entla1b2c3d4e5';
 
 const day = 24 * 60 * 60 * 1000;
 
@@ -14,7 +14,7 @@ export type EventFields = Record<string, unknown> & { id: string; type: string }
 
 /**
  * One webhook delivery. The defaults are the documented INITIAL_PURCHASE sample, renamed to a
- * yearly Plus trial in the sandbox; `fields` replace or add to them.
+ * yearly tuition trial in the sandbox; `fields` replace or add to them.
  */
 export function delivery(appUserId: string, fields: EventFields, at = Date.now()) {
   return {
@@ -26,8 +26,8 @@ export function delivery(appUserId: string, fields: EventFields, at = Date.now()
       commission_percentage: 0.15,
       country_code: 'VN',
       currency: 'USD',
-      entitlement_id: 'plus',
-      entitlement_ids: ['plus'],
+      entitlement_id: 'tuition',
+      entitlement_ids: ['tuition'],
       environment: 'SANDBOX',
       event_timestamp_ms: at,
       expiration_at_ms: at + 7 * day,
@@ -39,7 +39,7 @@ export function delivery(appUserId: string, fields: EventFields, at = Date.now()
       presented_offering_id: 'default',
       price: 0,
       price_in_purchased_currency: 0,
-      product_id: 'plus_yearly',
+      product_id: 'phusclass.dev.tuition.yearly',
       purchased_at_ms: at,
       store: 'APP_STORE',
       subscriber_attributes: {},
@@ -95,16 +95,16 @@ export function customerAnswer(
   };
 }
 
-/** API v2's "Get a list of entitlements" for the project: Plus, and one other. */
+/** API v2's "Get a list of entitlements" for the project: tuition, and one other. */
 export const entitlementsAnswer = {
   object: 'list',
   items: [
     {
       object: 'entitlement',
       project_id: projectId,
-      id: plusEntitlementId,
-      lookup_key: 'plus',
-      display_name: 'Scootch Plus',
+      id: tuitionEntitlementId,
+      lookup_key: 'tuition',
+      display_name: "Phu's Class tuition",
       created_at: 1_790_000_000_000,
       state: 'active',
       products: null,

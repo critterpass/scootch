@@ -21,7 +21,7 @@ beforeAll(async () => {
 
   const million = 1_000_000;
   await addUsage({
-    route: 'task.create',
+    route: 'task.line',
     model: 'deepseek-v4-pro',
     input: 2 * million,
     output: 2 * million,

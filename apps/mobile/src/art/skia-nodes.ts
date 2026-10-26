@@ -6,7 +6,7 @@ import {
   type Matrix,
   type Path,
   type PathSegment,
-} from '@scootch/art';
+} from '@phusclass/art';
 
 /** What a `paint` node fills its path with, with its colours already written out for Skia. */
 export type SkiaPaint =

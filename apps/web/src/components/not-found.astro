@@ -1,35 +1,26 @@
 ---
-import type { Language } from '@scootch/i18n';
+import type { Language } from '@phusclass/i18n';
 
 import { localPath, pagesFor } from '../copy';
-import { monsterArt, scootchArt } from '../lib/drawings';
-
-import Critter from './critter.astro';
 
 interface Props {
   language: Language;
-  /** True where this stands in for a page that could not be shown, and is moved to. */
-  focusable?: boolean;
 }
 
-const { language, focusable = false } = Astro.props;
+const { language } = Astro.props;
 const copy = pagesFor(language).notFound;
 ---
 
 <div class="not-found">
   <div class="not-found-art" aria-hidden="true">
     <span class="not-found-number">404</span>
-    <Critter class="bob lost-a" art={monsterArt('sock', 'sock')} size="5.625rem" />
-    <Critter class="bob lost-b" art={monsterArt('clock', 'later')} size="5rem" />
-    <Critter art={scootchArt('thinking')} size="min(16.25rem, 60vw)" />
   </div>
   <div class="not-found-words">
     <p class="eyebrow">{copy.eyebrow}</p>
-    <h1 tabindex={focusable ? -1 : undefined}>{copy.headline}</h1>
+    <h1>{copy.headline}</h1>
     <p class="lede">{copy.body}</p>
     <div class="actions">
       <a class="button button-ink" href={localPath(language, '/')} data-magnet>{copy.home}</a>
-      <a class="button button-quiet" href={`${localPath(language, '/')}#maker`}>{copy.make}</a>
       <a class="button button-quiet" href={localPath(language, '/help')}>{copy.help}</a>
     </div>
   </div>

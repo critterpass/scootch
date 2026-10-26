@@ -27,15 +27,14 @@ jobs:
       # One at a time: the runners share the dev API and its model budget.
       max-parallel: 1
       matrix:
-        eval: [screen, labels, choose, task, adopted]
+        eval: [screen]
     env:
-      # The dev API's base URL, set as a repository variable. Empty uses the runners' default.
-      SCOOTCH_API_URL: ${{ vars.SCOOTCH_API_URL }}
-      EVAL_CONCURRENCY: 2
+      # The dev API's base URL, set as a repository variable. Empty uses the eval's default.
+      PHUSCLASS_API_URL: ${{ vars.PHUSCLASS_API_URL }}
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with: { node-version: 24, cache: pnpm }
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @scootch/voice eval:${{ matrix.eval }}
+      - run: pnpm --filter @phusclass/voice eval:${{ matrix.eval }}

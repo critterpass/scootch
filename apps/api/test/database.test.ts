@@ -49,7 +49,7 @@ describe('the cost ledger', () => {
     const deviceHash = await hashDeviceToken(await registerDevice());
 
     await recordAiUsage(env.DB, {
-      route: 'task.create',
+      route: 'task.line',
       model: 'deepseek-flash',
       inputTokens: 812,
       outputTokens: 240,
@@ -58,15 +58,15 @@ describe('the cost ledger', () => {
     await env.DB.prepare('DELETE FROM devices WHERE token_hash = ?').bind(deviceHash).run();
 
     const row = await env.DB.prepare(
-      "SELECT route, model, input_tokens, output_tokens, device_hash, project FROM ai_usage WHERE route = 'task.create'",
+      "SELECT route, model, input_tokens, output_tokens, device_hash, project FROM ai_usage WHERE route = 'task.line'",
     ).first();
     expect(row).toEqual({
-      route: 'task.create',
+      route: 'task.line',
       model: 'deepseek-flash',
       input_tokens: 812,
       output_tokens: 240,
       device_hash: null,
-      project: 'scootch',
+      project: 'phusclass',
     });
   });
 });

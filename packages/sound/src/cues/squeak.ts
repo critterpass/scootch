@@ -5,7 +5,7 @@ import { bell, marimba, voice } from '../instruments/tuned';
 
 const LOUDNESS = -20;
 
-/** Scootch's squeak when tapped: two rising chirps, a marimba note and a tiny bell. */
+/** Thầy Phú's squeak when tapped: two rising chirps, a marimba note and a tiny bell. */
 export const squeak: Cue = {
   name: 'squeak',
   loudness: LOUDNESS,
