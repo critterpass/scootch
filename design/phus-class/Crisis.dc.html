@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Helplines</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#2F6B56}a:hover{color:#1F4D3E}
+.r{font-family:ui-rounded,'SF Pro Rounded',Nunito,system-ui,sans-serif}
+.press{transition:transform 200ms cubic-bezier(.32,.72,0,1);cursor:pointer}
+.press:active{transform:scale(.98)}
+.card{background:#FFFFFF;border-radius:22px;padding:16px;display:flex;flex-direction:column;gap:10px;box-shadow:0 1px 2px rgba(40,36,30,0.05)}
+.call{height:48px;border:none;border-radius:24px;font:inherit;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+@media (prefers-reduced-motion: reduce){.press{transition:none}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #EFEDE8; color: #1C1A18; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', Inter, system-ui, sans-serif; padding: 72px 16px 34px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px">
+
+  <h1 style="margin: 0 4px; font-size: 30px; line-height: 1.1; font-weight: 800; letter-spacing: -0.02em">You don’t have to do anything right now.</h1>
+  <p style="margin: 0 4px; font-size: 16px; line-height: 1.5; color: #4A443E">If you’re thinking about hurting yourself, please talk to someone tonight. It’s free and private.</p>
+
+  <div class="card">
+    <span style="font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #6B655E">In Vietnam</span>
+    <span style="font-size: 17px; font-weight: 700">[VERIFIED HELPLINE NAME]</span>
+    <span style="font-size: 14px; color: #6B655E">[HOURS] · [LANGUAGES]</span>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+      <a href="#" class="call press" style="background: #2F6B56; color: #FFFFFF">Call</a>
+      <a href="#" class="call press" style="background: rgba(47,107,86,0.1); color: #2F6B56">Message</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <span style="font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #6B655E">Somewhere else</span>
+    <span style="font-size: 16px; line-height: 1.4">Find a free helpline in your country at <span style="font-weight: 700">findahelpline.com</span>. In the US, call or text <span style="font-weight: 700">988</span>.</span>
+  </div>
+
+  <div style="margin-top: auto; display: flex; align-items: flex-end; gap: 10px; padding: 0 4px">
+    <div style="width: 64px; height: 64px; border-radius: 20px; background: #F7F6F3; overflow: hidden; display: flex; justify-content: center; flex-shrink: 0"><dc-import name="Phu" mood="serious" size="82" hint-size="82px,90px"></dc-import></div>
+    <p class="r" style="margin: 0 0 6px; font-size: 16px; line-height: 1.35; font-weight: 800; color: #3E3933">Your tasks are put away for today. I’m still here.</p>
+  </div>
+  <a href="App.dc.html" class="call press" style="background: transparent; color: #1C1A18; font-weight: 600">Close</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

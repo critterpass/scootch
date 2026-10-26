@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>App icon</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>body{margin:0}</style>
+</helmet>
+<div style="position: relative; width: {{px}}; height: {{px}}; border-radius: {{rad}}; overflow: hidden; background: #2F6B56; flex-shrink: 0">
+  <div style="position: absolute; left: 0; top: 0; width: 46%; height: 100%; background: #387A62; transform: skewX(-14deg); transform-origin: top left"></div>
+  <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 9%; background: #8A5A36"></div>
+  <div style="position: absolute; left: 50%; top: {{top}}; margin-left: {{ml}}">
+    <dc-import name="Phu" mood="{{mood}}" size="{{s}}" hint-size="100%,100%"></dc-import>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"size":{"editor":"int","default":256,"min":12,"max":1024},"mood":{"editor":"enum","options":["over","calm","approve","crossed"],"default":"over"},"$preview":{"width":256,"height":256}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const d = Number(this.props.size ?? 256) || 256;
+    const s = Math.round(d * 1.02);
+    return {
+      px: d + 'px',
+      rad: (d * 0.2237).toFixed(1) + 'px',
+      s: String(s),
+      top: Math.round(d * 0.15 - s * 0.01) + 'px',
+      ml: Math.round(-s / 2) + 'px',
+      mood: this.props.mood || 'over'
+    };
+  }
+}
+</script>
+</body>
+</html>

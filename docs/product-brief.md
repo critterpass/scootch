@@ -1,212 +1,361 @@
-# Scootch: product brief
+# Phu's Class: product brief
 
-The source of truth for what Scootch is. It wins over a design board when they
-disagree. Decided with the founder on 6 Oct 2026; home, the task set and the
-drawer's gestures on 7 Oct 2026; the starting helpers on 8 Oct 2026.
+The source of truth for what Phu's Class is. It wins over a design board when
+they disagree. Decided with the founder on 26 Oct 2026. It replaces the
+Scootch brief, which is in the repository's history; nothing from it carries
+over unless it is written here.
 
 ## 1. What it is
 
-A minimalist iPhone app for people with ADHD and for chronic procrastinators.
-It gets you to start one small thing a day, and lets you do it sitting quietly
-next to someone. The whole app is one critter (Scootch) and one sentence.
+An iPhone app for people with ADHD and for chronic procrastinators. A strict,
+round, tea-drinking teacher, Thầy Phú, puts one task on your desk, waits for
+you to start it, and paces the classroom while you do it. Everything else you
+have to do is on the chalkboard behind him, so you always see the whole
+picture and only ever face one thing.
 
-Users arrive tired, sceptical and a little ashamed, after abandoning many
-productivity apps. They respond to novelty, humour, urgency and instant reward.
-They do not respond to guilt.
+Users arrive tired and sceptical, after abandoning many productivity apps.
+They respond to novelty, humour, urgency and instant reward. They do not
+respond to guilt. Phu's Class gives them urgency about the task and none about
+themselves, and a classroom that is never quite the same twice.
 
-Languages at launch: English and Vietnamese, for the app, Scootch's voice, the
-website and the store listing.
+Name: **Phu's Class** in English, **Lớp Thầy Phú** in Vietnamese. Home on the
+web: phusclass.app. Languages at launch: English and Vietnamese, for the app,
+his voice, the website and the store listing. The app shows one language at a
+time, never two side by side; names and the drum's "Tùng!" are the only words
+that stay as they are.
 
 ## 2. Rules that never bend
 
-1. **One screen.** One critter, one sentence, one action. No tabs, no lists.
-2. **Loud personality, zero shame.** Scootch is dramatic about the task and
-   about itself, never about the user's worth. It never counts missed days.
+1. **One task on the desk.** The board shows everything; the desk holds one.
+   No tabs, no lists on the main screen.
+2. **Relentless about the task, never about the person.** Thầy Phú is
+   unimpressed by default and sharp about delay, excuses and the task. He
+   never speaks to the user's worth, intelligence, body or past.
 3. **Starting is the win**, rewarded the instant it happens.
-4. **No streaks, points, leaderboards or comparison.**
-5. **Starting never depends on a server.** A session runs with no connection.
-6. **The comedy stops for heavy things.** See section 6.
+4. **No streaks, points, leaderboards or comparison.** He never takes
+   attendance: days the app was not opened are never counted or mentioned.
+5. **Hearing a task and starting it never depend on a server.**
+6. **The act stops for heavy things.** See section 6.
 7. **Paid things never interrupt.** See section 7.
-8. **Scootch is a support tool.** It never claims to diagnose, treat or cure.
+8. **Phu's Class is a support tool.** It never claims to diagnose, treat or
+   cure.
+9. **Focus by subtraction.** Anything that is not the desk, the board, the
+   classroom or Thầy Phú has to argue its way in.
 
-## 3. The day loop
+## 3. The loop
 
 | Step | What happens |
 |---|---|
-| Morning | Scootch opens with a fresh, specific line and waits |
-| Ramble | Hold to talk or type for twenty seconds; one thing comes back, the rest is parked in a drawer. "Pick for me", said or typed, has Scootch offer one of the parked things instead |
-| Deadline heard | A real date in the ramble is said out loud and brought back on its own day |
-| Time heard | A time today in the ramble ("dentist at three") is said back. Sessions end in time to get ready, and one nudge says so. "Don't watch it" turns both off |
-| Energy | Low, medium or fine; the one thing is picked to fit it. One optional row asks what is in the way (boring, scary, confusing, too big) and shapes the first bite and the words |
-| It hatches | The task becomes a named monster; "too big" shrinks the task and the monster. The one other way to a smaller ask is the monster's three bites (section 5). A set task can be put down into the drawer from beside Start |
-| Start | A wheel sets the length, 5 to 180 minutes (10 unless turned), and Start begins it with a burst of sound and haptics. A line under the wheel says when it would end. Two optional chips sit in the dock: Guess (how long it would take) and When (now, after a moment of the day, or a time: Scootch brings it back then, in one message that is the start button) The named treat for afterwards is not asked for at present (founder, 7 Oct) |
-| Work beside | Scootch works next to you in a mode that matches the task; park a thought, ask for a tiny next step |
-| Finish | Catch the task's monster: each task rolls one of eight catches, the work sets its trap, and when time is up Scootch asks whether the thing was really done before the gesture unlocks. A tap on Scootch in the corner swaps the two: he works on the screen, the monster waits in the corner, and the finish is a hold; "not finished" is a normal outcome with three choices. Carrying it on can leave one line for next time, shown first and word for word when the next sitting opens |
-| Keep it | A collectible card, a permanent piece in your world, one bar of the week's song. A card whose thing was guessed says "Thought 2 hours. Took 11 minutes.", the same however it went |
-| Share | A story card that says what you did and how long it waited |
-| Home again | Scootch rests beside your world. The composer stays, so the next thing is simply said or typed, up to the day's limit |
+| Say it | Hold to talk or type. Your words appear while you speak. A ramble can hold many tasks; each one flies up onto the board as a chalk note |
+| He picks | Thầy Phú puts one task on the desk and says why in one line. His order: anything due today, then what has waited longest or been slipped most, then what fits the time there is |
+| Deadline heard | A real date is written in the board's corner and the task comes to the desk on that day |
+| Time heard | A time today ("dentist at three") is said back, and class ends in time to get ready |
+| The fuse | The desk opens with a short wait: "Two minutes. I'll wait." The fuse burns around the edge of the Start button while his pressure rises (section 4) |
+| Start | The school drum: "Tùng! Tùng! Tùng!" One period is ten minutes unless changed. The camera pulls back to the whole classroom |
+| Work beside | He paces the front of the room and grades papers, and now and then turns to look straight at you. Raise a hand for a tiny next step. Say a stray thought and it goes on the board without breaking focus |
+| Time | The drum again: "Tùng tùng tùng. Done?" |
+| Done | The camera comes back in. A red check draws itself, his written comment (section 5), confetti, then "Next." or recess |
+| Not yet | Partial credit. Three choices: another period, back on the board with one line for next time (shown first, in your own words, when it returns), or erase it |
+| Recess | Ra chơi, five minutes. The camera pulls back further and he takes his tea to the window. Offered after a finish, never forced |
+| Late slip | Snoozing is allowed and costs an excuse, said, typed or picked. He grades it in red and the task goes back on the board with a tally mark |
 
-## 4. Scootch's voice
+**Moving around.** Three gestures, each following the finger and springing
+open or back on release, each with a tap alternative:
 
-- Three attitudes, chosen at first launch: Soft, Cheeky (default), Unhinged.
-- Every line is written fresh, about the real task. Nothing canned in the
-  online path; cached lines only when offline.
-- Words Scootch never uses, at any attitude: failed, lazy, behind, missed,
-  again, finally, streak. The task is the joke, Scootch is the drama, the user
-  is fine. The Vietnamese voice has its own list, written by a native speaker,
-  not translated.
-- Notifications: Soft one a day, Cheeky up to three, Unhinged up to three and
-  louder each time. Ignored days turn the volume down to silence. Quiet hours,
-  Sleep and Focus are respected. Coming back is never remarked on.
+- Pull down on the desk: the chalkboard comes off the wall and grows into the
+  board.
+- Pull down on the board: the logbook page lowers from the top.
+- Swipe the desk sheet up: it becomes the timetable, with the desk's task kept
+  at its top.
 
-## 5. What you keep
+**The board.** Every task in his order, today's
+underlined, dates in the corner, tally marks for each late slip. A task can be
+swapped onto the desk (he allows it and says one line about it), reworded,
+ticked off, or erased. Erasing is quiet: a decision to drop something gets no
+comment. The chalkboard behind him on the desk always shows today's task, the
+next two and how many more there are.
 
-- **Monsters and cards.** 20 body types chosen from the task's meaning, varied
-  by ink, size, eyes, mouth and accessories. Cards carry real stats (days
-  lurked, catch time), rarity earned from the task, and flavour text. The
-  three tiers read Common, Rare and Epic, and in the binder rarity is the
-  card's material: paper, foil, and dark stock with dust on it.
-- **Lurkers and bites** (founder, 8 Oct). A hatched thing that is waiting
-  (today's thing, or one carried to tomorrow) is a lurker: widgets show it
-  with how long it has waited, and it is a button that starts ten minutes on
-  it. A parked thing never lurks; the drawer stays closed. A monster's
-  notification opens into three bites, steps under five minutes written with
-  the task. Ticking a bite shrinks the monster and earns nothing; the last
-  one opens the catch in the app. The bites also open from the set task.
-  A serious task has neither.
-- **Odd weeks.** About one week in six, one hatch and one catch come out a
-  little different (three tiny monsters; a teacup catch). Never announced,
-  never earned or bought; the card keeps a word after the name.
-- **Company.** A running session can say how many others are hunting
-  something right now: a number only, absent under twenty, at a table, on a
-  serious task, offline, or when switched off in Settings.
-- **The world.** Every finished thing adds a permanent piece. It never shrinks.
-- **The record.** Each finished day adds one bar and one instrument; on Sunday
-  the week is a full track with a name and cover written by the AI. A week
-  with missing days is a smaller band.
-- **Surprise drops.** Now and then a finish also gives something rare, such as
-  an outfit. Earned only, on no schedule, never bought.
-- **Letting go.** A task the user lets go leaves quietly, with no trace.
-- **The drawer.** Parked tasks, opened only by a deliberate pull. Undated ones
-  fade after two weeks. A parked thing can be swapped in, reworded, ticked off
-  or swiped away there; a tick clears it quietly and earns nothing.
+**No cap.** The board holds as many as are said. When it runs long he remarks
+on it, once a day at most: "This is a semester, not a Tuesday." An undated
+task untouched for two weeks fades like old chalk, and he asks once whether it
+is still yours before it goes.
+
+**A real reason is accepted.** A late slip that gives a genuine reason is not
+graded and adds no tally. He writes "Accepted." and nothing else.
+
+**Front row.** A task's fifth late slip strikes through the tally and earns a
+"front row" tag and one line: "Five slips. Front row tomorrow." Nothing else
+changes; it is a joke, not a penalty.
+
+**Empty desk.** With nothing on the board he says "Nothing on the board?
+Suspicious." The first thing said goes straight onto the desk.
+
+## 4. Thầy Phú
+
+**Who he is.** Late fifties, shaped like a bánh bao, short-sleeved blue shirt
+tucked in with a belt, round glasses on a chain, a grey comb-over with one
+strand that never stays down, a two-puff mustache, a red pen in his pocket and
+a flowered red thermos of tea. He has taught eleventh-grade literature for
+thirty-two years and has heard every excuse there is. He is the one teacher
+who was on your side: hard on the homework because he expects you to do it.
+
+**Strict, always.** There is one Thầy Phú and he is strict: dry, deadpan,
+affectionate underneath. The user does not choose a temper. What changes is
+how far the pressure has risen on the task in front of him.
+
+**The angrier he gets, the rounder he gets.** Pressure on a waiting task
+rises with how long it has waited and how many late slips it carries, and
+shows on him everywhere he appears (desk, Live Activity, Dynamic Island,
+widgets, notifications):
+
+| Step | He | He says |
+|---|---|---|
+| 0 | Looks up | "Two minutes. I'll wait." |
+| 1 | Sips tea over his glasses | "This tea was hot when you sat down." |
+| 2 | Arms crossed | "We both know how this ends." |
+| 3 | Taps the ruler | "Tap. Tap." |
+| 4 | Your full name, puffed and pink, a piece of chalk flies at the screen and misses | "TRẦN. MINH. ANH." |
+| 5 | Silence. His glasses turn to white glare | "..." |
+
+Starting resets it. Anger only ever adds puff, pink and steam: never fangs,
+shadow, or size over the user.
+
+**His classroom props are the features:** the class list (the fuse), the
+chalkboard (the full picture), the ruler (rising pressure), the red pen (late
+slips and his comments), the school drum (start and end of a period), the
+thermos (his calm), the sổ đầu bài (the logbook), the sổ liên lạc (his notes
+home, and stakes after launch).
+
+**Voice rules.**
+- Every line is written fresh about the real task when online. Offline lines
+  come from a written set.
+- He compares the task to things (his tea, 1994, his retirement date). He
+  never compares the user to anyone. No "con nhà người ta".
+- He may joke about himself: his belly, his tea, his pension, his thirty-two
+  years.
+- He grades excuses. He never grades the work or the person.
+- Words he never uses: lazy, failed, stupid, disappointed, behind, missed,
+  again, finally, streak, absent. The Vietnamese voice has its own list,
+  written by a native speaker, not translated.
+- In English he speaks crisp, slightly formal English. No accent is ever
+  written into his lines; the joke is what he says, never how.
+- He never borrows another product's lines. "I've seen glaciers move faster"
+  and its variants are out.
+- Coming back after time away is never remarked on. The desk simply says
+  "Sit."
+
+**Notifications (notes home).** Up to three a day, each more pressing than
+the last (his face changes with them). Ignored days turn him down to silence;
+a teacher does not chase a student home. Quiet hours, Sleep and Focus are
+respected.
+
+## 5. The classroom
+
+The app is one continuous classroom drawn in flat 2.5D, and the camera moves
+through it: close on his desk for deciding, pulled back to the whole room
+while you work, further back at recess, and a slow push-in on the first day.
+
+**Never the same twice.** The classroom is where the surprise lives, the way
+monsters did in Scootch. Four layers, none of them announced, earned or sold:
+
+- **Weather and seasons, from the real calendar.** Sun, the monsoon on the
+  window with a bucket under a leak, a thunderstorm flash at pressure 5, the
+  flame tree (phượng) blooming red in exam season, peach blossom at Tết,
+  lanterns at Trung thu.
+- **Special days.** 20/11, Vietnamese Teachers' Day: flowers piled on his
+  desk and he is quietly moved. Khai giảng on 5 September. Tết: a bánh chưng
+  on the desk. His birthday, once a year, unannounced.
+- **Happenings.** About one session in four, one small thing happens and is
+  never explained: a cat walks across his desk, a paper plane drifts in, the
+  power cuts and he lights a candle, the sao đỏ monitor peers through the
+  door, the principal walks past the window, an ice-cream bell outside, "Bỏ
+  giấy ra!" (a pop-quiz day: periods are fifteen minutes). Each has his own
+  reaction line.
+- **His day.** Iced coffee instead of tea when it is hot, a cardigan when it
+  is cold, glasses taped after "an incident", a new haircut nobody mentions.
+
+**Your desk remembers.** Every finished task carves one small doodle into
+your desk: initials, a star, a heart, a tiny Thầy Phú. Rare finishes leave
+something rarer: a gold star sticker, a carved "10". The desk is visible in
+every wide shot and never loses a mark. This replaces cards and worlds.
+
+**What else you keep.**
+- **His written comment.** Every finish gets one short line in red. How high
+  it reaches depends on the task: started inside the fuse, finished without a
+  late slip, and how long it had waited. The ladder is "Fine." / "Good." /
+  "Good work." / a 10 circled in red. The circled 10 is rare and is never
+  sold, scheduled or announced.
+- **Sổ đầu bài, the logbook.** Finished tasks, newest first, each with the
+  period, the date and his signed comment. No totals and no averages.
+- **Giấy khen.** Very rarely, a finish earns a certificate of merit with his
+  red seal. It is the rarest thing in the app and only ever shared by choice.
 
 ## 6. Care
 
 - **Serious mode.** Medical results, bereavement, legal trouble, debt crisis
-  and similar: no monster, no joke, no card, no share, no burst. Plain words
-  and quiet company. "It's fine, be funny" overrides it.
+  and similar: no act, no joke, no grade, no fuse, no share, no burst, no
+  happening. The classroom goes quiet and grey; he takes off his glasses and
+  keeps plain, quiet company. "It's fine, be funny" overrides it.
 - **Crisis.** Self-harm language hides every task and shows localised
   helplines first. "It's fine, be funny" never lifts it. The person can close
-  it, and is asked nothing: the day's things come back and Scootch keeps plain
-  company, with no monster, no joke and nothing sold, until the next thing is
-  typed, which is screened fresh. Left open, it ends with the day.
-- **No joke before the screen.** Scootch says nothing funny about a task until
-  that task has been screened. With no connection, the phone can only catch
-  explicit phrases, so offline Scootch keeps company in plain words and the
-  monster hatches once the task has been screened online.
-- **Privacy.** Brain dumps are never used to train models. Audio is deleted
-  after transcription. Export and delete-everything are in the app.
-- **Sharing.** Every share has a hide-the-task option. Scootch never offers to
-  share a serious-mode task.
-- **Accessibility.** Largest text sizes, VoiceOver, Reduce Motion, and finish
-  methods that do not need holding.
+  it and is asked nothing: the board comes back and he keeps plain company,
+  with no joke, no pressure and nothing sold, until the next thing is said,
+  which is screened fresh. Left open, it ends with the day.
+- **No joke before the screen.** He says nothing pointed about a task until
+  that task has been screened. Until then his lines are plain ("Written
+  down."). How screening works without a connection is open (section 13).
+- **Pressure stops for care.** A serious or crisis task never carries a fuse,
+  tally marks, rising pressure, a thrown chalk or a late slip.
+- **Privacy.** What is said is never used to train models. Audio never leaves
+  the phone and is never kept. Calendar events are read on the phone only and
+  never leave it. Export and delete-everything are in the app.
+- **Accessibility.** Largest text sizes, VoiceOver, Reduce Motion (the camera
+  cuts instead of moving; nothing flies), Increase Contrast, and every gesture
+  has a tap alternative.
 
 ## 7. Money
 
-Free core, one paid tier (Scootch Plus), small one-off cosmetics.
-Placeholder prices: $5.99 a month, $39.99 a year with a 7-day trial,
-$89.99 once.
+Free core, one paid tier: **tuition** (đóng học phí). Decided with the founder
+on 27 Oct 2026.
 
-**One-off cosmetics** live in the studio and are bought once and kept: an ink
-($1.99) recolours Scootch and the app, a finish ($0.99 to $2.99) is the
-material of your card and of everything you share, a trail ($0.99) is what
-bursts out at a catch. Paper, the Tangerine ink and Confetti are everyone's.
-Plus wears every finish; without Plus a finish can be bought singly. Inks and
-trails are single purchases for everyone. Each is worn live before it is
-bought, and what is shown is what is sold. Plus also holds the member card
-with its number and the foil stamp on the day's receipt.
+**Free, always:** saying tasks, the desk, the board, every period, the fuse and
+the drum, his comments and every pose, the happenings and carvings, the
+logbook, the small widget, the Live Activity, the Dynamic Island, sharing, and
+everything in section 6.
 
-**Free forever:** the whole day loop for one thing a day, all three attitudes,
-all work modes and monsters, every caught card, the world, the Live Activity,
-small and medium widgets, Control Center and Action button, joining a table,
-listening to the Sunday record, and anything shared.
+**Tuition opens:** the timetable (section 8), the big widgets and StandBy, the
+report card (the logbook printed as a school report each term, with no counts
+or totals), and what comes after launch: his spoken voice, snap a list, Apple
+Watch.
 
-**Plus:** up to two more things a day, opening tables (free friends ride on the
-host's pass), the Scootch that learns you, keeping and exporting records, the
-extra-large widget and StandBy, the binder and extra card finishes, and the
-Paper and Screen camera modes (one free try of each).
+**Two plans:** a school year and a month. Proposed at $39.99 a year and $6.99
+a month, 499.000đ and 79.000đ in Vietnam; the year is selected first.
 
-**House rules:** no paywall in first launch, on the one screen, in a session or
-on "Done for today". Paid features are quiet locked controls where they live.
-At the day's limit the talk capsule on home is that locked control: the sheet
-opens only when it is tapped, and never on a day with something heavy in it.
-The first offer comes after the third catch. Rarity, random packs, currency and
-fixing a missed day are never sold. A reminder goes out before every charge.
-iOS has no pause; cancelling goes through Apple's sheet.
+**The free week:** Apple's free trial on the chosen plan, which needs a payment
+method. Before the button, the receipt shows today, the day of his reminder and
+the day of the first charge. He sends one note two days before the charge, and
+Apple's refund request is one tap away in settings.
 
-## 8. Together
+**The scholarship:** "Can't pay right now?" sits under every receipt. One tap,
+an optional note, a free school year, no proof. It can be asked for again.
 
-- **Tables.** Friends only at launch, joined by invite link. Up to four
-  critters at one table, each acting out its task.
-  Labels are written by the AI as one or two words, never raw task text.
-  Silent nudges only, three per person per session. Mute, report, leave.
-- **Haunt a friend.** Send a monster with a preset dare. Friends only, one a
-  week, shoo in one tap, sender never told.
+**Coming back:** someone whose tuition lapsed is offered a free month once,
+through Apple's win-back offer. He never says how long they were away.
 
-## 9. Growth
+**House rules:** no paywall in first launch, on the desk, in a session or at a
+finish. Paid features are quiet locked controls where they live. The first
+offer comes after the third finish: at the next recess a notice is pinned on
+the chalkboard, never on a day with something heavy in it, and ignoring it is
+fine. Nothing that affects his comment, the board, the fuse, the carvings or
+the happenings is ever sold. A note goes out before every charge.
 
-- **Web monster maker** on scootch.app: type the thing you avoid, get a card,
-  no sign-up. "Catch it in the app" carries the monster through install.
-- Every shared card, story and record clip has its own page and carries
-  scootch.app.
-- Seven things to share, from one composer (founder, 8 Oct): the story of a
-  catch, a wanted poster for a monster still wild, a postcard of the world,
-  the week's record in its sleeve, a sticker sheet, the day's receipt and the
-  month's poster. A story is printed on one of four frames: Paper and Riso are
-  everyone's, Holo and Velvet belong to whoever may wear that finish. All
-  seven are free; a serious or private task is on none of them and a crisis
-  day shares nothing.
+**The cost the free lesson can carry:** at heavy use the current server design
+costs about $5.70 a month per active user in AI and speech, against about $2.83
+a month from a school-year student after Apple's 15%. If about 4 in 100 pay, a
+free student can cost about $0.10 a month. Hearing and picking therefore run on
+the phone (section 9), most of his lines come from the offline pack, and the
+server is used only for kinds of task he has not seen. His spoken voice costs
+more than tuition pays, so it stays in tuition.
 
-## 10. Scope
+## 8. The timetable (thời khóa biểu)
 
-Everything above ships at launch. So does the camera (Desk, Room, Paper,
-Screen, before-and-after), moved into scope by the founder on 8 Oct 2026 and
-planned in `plans/261008-0033-camera/`. These come after launch, because each
-is complex and isolated:
+Calendar events, read on the phone, become the day's timetable: morning and
+afternoon halves, numbered periods (Tiết 1, Tiết 2...), recess between. Each
+event is filed under a school subject by its kind (a run is Thể dục, a
+meeting is Sinh hoạt lớp, lunch is Ra chơi), which is a joke, not a category
+system. Gaps are free periods (tiết trống); he proposes a task from the board
+that fits each one, and the user books it with one tap. A timed event ends
+class early so the user can get there. He never books anything without the
+user's tap, and never edits the calendar.
 
-| Later | Why |
+Calendar access is asked for the first time the timetable is opened, never in
+first launch.
+
+The timetable is the desk sheet swiped up. The day is drawn as a dial: classes
+in one calm colour, free periods in red, booked periods solid red, the time now
+as a knob on the ring and Thầy Phú in the middle. Below it, one card per free
+period with his pick and Book it, then the rest of the day. The timetable is
+part of tuition; without it the sheet shows a quiet locked state.
+
+## 9. Hearing the user
+
+Saying a task is the front door and must work every time.
+
+- Words appear on screen while the user is still speaking, and the user
+  always sees their own words before anything is picked from them.
+- Hearing works with no connection. Typing is always there.
+- His reaction arrives after the words and never blocks them. If it is slow,
+  the task is written on the board plainly and the line follows.
+- A long ramble is never lost: if picking fails, every sentence lands on the
+  board as said.
+- A tap that is too short to be speech gets one line ("Hold it, then talk.")
+  and nothing else.
+
+The direction is speech recognition and task parsing on the phone, with the
+server only for richer online lines. The decision and its measurements belong
+in `docs/tech-decisions.md`.
+
+## 10. First day
+
+Four beats, no paywall, no permissions except his notes:
+
+1. **Ngày đầu tiên.** The wide, empty classroom: "Lớp 11A. Sĩ số: 1." He
+   says "Sit." The camera pushes in when the user takes their seat.
+2. **Điểm danh.** Roll call. The user gives their full name and answers "Có!"
+   He repeats the given name and says he will remember it; this is the name
+   he shouts at pressure 4.
+3. **Sổ liên lạc.** He asks to send notes home, with one real example.
+   "Not now" is as easy as yes.
+4. **An empty desk.** "Your desk is clear. What have you been avoiding?"
+
+## 11. Surfaces
+
+- **In the app:** the desk, the board, the session, the finish, recess, the
+  late slip, partial credit, the timetable, the logbook, the report card,
+  tuition, settings, helplines.
+- **Live Activity:** a tiny chalkboard with the task, his face at the current
+  pressure, and the fuse burning around its edge; during a session, the time
+  left and his pacing.
+- **Dynamic Island:** his eyes peek out of the island and look around; compact
+  shows his face and the time left; expanded shows the task, the timer and
+  Done.
+- **Widgets:** small (his face and the task), medium (a chalkboard with the
+  task and Start), the timetable (the day dial and the next free period with
+  Book it), and Lock Screen accessories (a ring fuse around his face; the next
+  period).
+- **StandBy:** at night, his desk lamp and "Ngủ đi." (Go to sleep.)
+- **Siri and Shortcuts:** add to the board, start the desk's task.
+
+## 12. Sharing
+
+Four formats, all free, every one with a hide-the-task option (white-out tape
+over the words, the way it was done in class). A serious task is never
+offered for sharing and a crisis day shares nothing.
+
+- **Bài kiểm tra.** The graded test paper: the task, "Waited 9 days. Took 11
+  minutes.", the red check and his comment.
+- **Giấy khen.** The certificate of merit, when one has been earned.
+- **Sổ liên lạc.** A note home in his hand: "Dear parents of Trần Minh Anh.
+  Today your child emailed the dentist. It had waited nine days. I have no
+  complaints at this time."
+- **Your desk.** The carved desk from above, after a month.
+
+## 13. After launch
+
+- **Stakes in the sổ liên lạc.** A task can be written in the contact book,
+  and if it is not done by its day, a friend is told. Opt-in per task,
+  friends only.
+- **Snap a list.** A photo of a paper list or whiteboard becomes tasks.
+- **His spoken voice.** Thầy Phú says his lines out loud.
+- **Apple Watch** with the drum and a tap when he looks up.
+- **Android release.**
+
+## 14. Open
+
+| Question | Notes |
 |---|---|
-| Gifts | Needs Apple's sign-off on offer codes; a gifted year auto-renews for the receiver |
-| iPhone Duo layouts | Second size class across every screen |
-| Monster wall and Unwrapped | Need moderation at volume and a month of data |
-| Tables with strangers | Seating by similar work and pace; waits until moderation has been exercised with friends |
-| Android release | The Android build exists from day one as a test device only |
-| Distraction shield during a hunt | Needs Apple to grant the Family Controls entitlement |
-| Calendar wrap-up and leave-by warnings, arrive-home reminders | New Calendar and Location permissions, and a new privacy promise for each |
-| Apple Watch app with a tap every five minutes | A new platform; until then the Live Activity shows in the Watch's Smart Stack by itself |
-
-## 11. Known gaps between design and platform
-
-| Design | Reality | Plan |
-|---|---|---|
-| "Phone picked up" Live Activity show | Nothing can tell the app the phone was picked up while it is locked (researched, not device-tested) | The Live Activity always carries an in-character line, so a pick-up shows one. The "you picked me up" show plays when Scootch is opened or its Live Activity is tapped mid-session. An app-blocking shield is possible after launch with Apple's Family Controls entitlement |
-| "When the time runs out" the Live Activity turns into the caught card | Scootch asks whether the thing was really done before the catch unlocks | Time running out shows overtime with "Finish", which opens the catch; the caught card follows the real catch |
-| The caught card's shine moves as the Lock Screen is tilted | A Live Activity cannot read motion | The shine is drawn still |
-| "Say it to Park" on the Lock Screen | A locked phone cannot record for an app that is not in front | Park opens the app on the park field, already listening |
-| "Tables now" shows strangers by category | Strangers are after launch | Friends' tables only |
-| Wallpaper that "refreshes every morning" | An app can neither set the wallpaper nor create an automation | Scootch draws the picture and offers a Shortcuts action; the user adds the automation |
-| Stuck help "when nothing has moved" | The app cannot see the user's work | A timed check-in plus the "I'm stuck" button |
-| Gift redemption | No native gifting | After launch |
-| "Someone always shows up around ten" at an empty table | Untrue with friends-only tables | Say the seats are saved, and offer the invite |
-| The in-app share story says "I finally emailed the dentist" | "Finally" is banned, and the website's version reads "Emailed the dentist. It waited 214 days. Took 9 minutes." | Use the website's three lines in the app too |
-| Settings has a "Sit with strangers" switch | Strangers are after launch | Leave it out |
-| Settings draws no language or helplines row | The app needs both | Keep them in a last group; log in `docs/undesigned-states.md` |
-| "Catch it in the app" carries the monster through install | iOS has no deferred link of its own | The App Clip hands the monster to the app through the shared App Group; spike it in phase 10 |
-| "Send the link to my phone" by email or phone number | Needs a mail or text sender, and text costs money | QR code and email only (**open**) |
-| Helplines page lists six countries | Vietnam is missing, and the app launches in Vietnamese | Add verified Vietnamese helplines before launch |
-| The trading card "shares as a looping tilt video", the sticker sheet is "a Messages sticker pack", "Add card to Wallet", an ink "recolours the widgets" | Each needs native work: a video writer, a sticker target, a signed pass and Swift changes | Built in the next native batch; until that build is installed the card and sheet share as pictures, the Wallet button is absent and widgets keep their colours |
-| The poster is "delivered on the 1st" | The brief keeps Unwrapped for after launch | The month's poster is drawn on the phone from what the phone already keeps, so it ships; the website's Unwrapped still waits |
-| "A person writes back within two working days" | The founder is that person | Keep the promise only if the founder accepts it (**open**) |
-| The weekly sentence shows in the free world | The brief puts the Scootch that learns you in Plus | Free users see it once a month, Plus weekly (**open**) |
-| The Starting Helpers board draws a "Treat after this" row, three length pills and a story headed "I finally…" | The treat is not asked for, the length is the wheel, and "finally" is banned | Build none of the three; the board map in the starting helpers plan says so |
+| Screening without a connection | "No joke before the screen" currently needs the server. Can an on-device model screen well enough, or do offline tasks stay plain until online? |
+| Tuition prices | $39.99 a year and $6.99 a month are proposals. The Vietnamese price points (499.000đ, 79.000đ) must be checked against Apple's list |
+| Rebuild or cut down | A fresh app shell on the existing voice, care, sound and tokens packages, or the Scootch app stripped back |
+| Store name and domains | "Phu's Class" must be checked as unused in App Store Connect and cleared as a trademark. phusclass.app and phusclass.com were unregistered on 26 Oct 2026 |
+| Vietnamese helplines | Verified numbers before launch |

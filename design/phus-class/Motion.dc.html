@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Motion and haptics</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap">
+<style>
+@font-face{font-family:'Kithfield Hand';src:url(/_blob/14e9dde70c051ba67648e65c4cc548b4) format('woff2');font-weight:700;font-display:swap}
+body{margin:0}
+a{color:#D42A24}a:hover{color:#A81B15}
+.hand{font-family:'Kithfield Hand',ui-rounded,cursive;font-weight:700}
+.mono{font-family:'SF Mono',ui-monospace,'JetBrains Mono',monospace}
+.curve{background:#FFFFFF;border-radius:22px;padding:18px 20px;display:flex;flex-direction:column;gap:6px;box-shadow:0 1px 2px rgba(40,30,20,0.05)}
+.row{display:grid;grid-template-columns:200px minmax(0,1.5fr) 150px minmax(0,1fr) minmax(0,1fr);column-gap:20px;padding:14px 22px;align-items:start;font-size:14px;line-height:1.45;border-top:1px solid rgba(28,26,24,0.07)}
+.row b{font-size:14.5px}
+.head{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#8A7F74;border-top:none;padding-top:16px;padding-bottom:10px}
+.tag{display:inline-block;padding:2px 8px;border-radius:8px;font-size:12px;font-weight:700}
+</style>
+</helmet>
+<div style="width: 1440px; height: 1500px; box-sizing: border-box; padding: 64px; background: #FFFAF2; color: #1C1A18; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', Inter, system-ui, sans-serif; display: flex; flex-direction: column; gap: 26px">
+  <header style="display: flex; flex-direction: column; gap: 8px">
+    <span class="hand" style="font-size: 22px; color: #D42A24">how it moves, how it feels</span>
+    <h1 style="margin: 0; font-size: 64px; line-height: 1; font-weight: 800; letter-spacing: -0.03em">Motion and haptics</h1>
+    <p style="margin: 0; font-size: 17px; color: #5E5852; max-width: 900px; line-height: 1.5">Three curves cover everything. The interface moves like iOS. Thầy Phú moves like a cartoon. The camera moves like a camera. Haptics mark decisions, never pressure: he never buzzes you to hurry.</p>
+  </header>
+
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
+    <div class="curve">
+      <span style="display: flex; justify-content: space-between; align-items: baseline"><b style="font-size: 16px">Interface</b><span class="mono" style="font-size: 12px; color: #8A7F74">.32 .72 0 1</span></span>
+      <svg width="100%" height="80" viewBox="0 0 300 80" aria-hidden="true"><path d="M10 70 C106 70 82 6 290 6" fill="none" stroke="#1C1A18" stroke-width="3" stroke-linecap="round"></path></svg>
+      <span style="font-size: 13px; color: #5E5852">Sheets, morphs, presses. 200 to 540 ms.</span>
+    </div>
+    <div class="curve">
+      <span style="display: flex; justify-content: space-between; align-items: baseline"><b style="font-size: 16px">Character</b><span class="mono" style="font-size: 12px; color: #8A7F74">.34 1.56 .64 1</span></span>
+      <svg width="100%" height="80" viewBox="0 0 300 80" aria-hidden="true"><path d="M10 70 C112 70 120 -16 200 2 C240 10 260 8 290 8" fill="none" stroke="#D42A24" stroke-width="3" stroke-linecap="round"></path></svg>
+      <span style="font-size: 13px; color: #5E5852">His pops, bubbles, stamps, chips. Overshoot, then settle. 340 to 480 ms.</span>
+    </div>
+    <div class="curve">
+      <span style="display: flex; justify-content: space-between; align-items: baseline"><b style="font-size: 16px">Camera</b><span class="mono" style="font-size: 12px; color: #8A7F74">.7 0 .2 1</span></span>
+      <svg width="100%" height="80" viewBox="0 0 300 80" aria-hidden="true"><path d="M10 70 C220 70 70 6 290 6" fill="none" stroke="#2F6B56" stroke-width="3" stroke-linecap="round"></path></svg>
+      <span style="font-size: 13px; color: #5E5852">Pull back to the room, push in to the desk. 1150 ms. Cuts under Reduce Motion.</span>
+    </div>
+  </div>
+
+  <section style="background: #FFFFFF; border-radius: 26px; overflow: hidden; box-shadow: 0 1px 2px rgba(40,30,20,0.05), 0 12px 30px rgba(40,30,20,0.05)">
+    <div class="row head"><span>Moment</span><span>What moves</span><span>Timing</span><span>Haptic</span><span>Reduce Motion</span></div>
+    <sc-for list="{{rows}}" as="item" hint-placeholder-count="14">
+      <div class="row">
+        <b>{{item.m}}</b>
+        <span>{{item.w}}</span>
+        <span class="mono" style="font-size: 12.5px; color: #5E5852">{{item.t}}</span>
+        <span><span class="tag" style="background: {{item.hb}}; color: {{item.hc}}">{{item.h}}</span></span>
+        <span style="color: #8A7F74">{{item.r}}</span>
+      </div>
+    </sc-for>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const H = {
+      none: ['None', '#F1ECE4', '#8A7F74'],
+      light: ['Light impact', '#E8F1FB', '#2B5BA8'],
+      soft: ['Soft impact', '#E8F1FB', '#2B5BA8'],
+      rigid: ['Rigid ×3, drum rhythm', '#FDECEA', '#C9241E'],
+      medium: ['Medium impact', '#FDECEA', '#C9241E'],
+      select: ['Selection tick', '#F2EAFA', '#6A45B8'],
+      success: ['Success', '#EAF4EE', '#2F6B56']
+    };
+    const rows = [
+      ['Press Start', 'Button sinks to 96.5%. On release: a ripple, the drum icon rings, “Tùng!” pops three times, then the camera pulls back to the room.', '220 · 560 · 760 · 1150', 'rigid', 'No ripple or pops. The camera cuts with a 200 ms fade.'],
+      ['Hold Start', 'After 430 ms the period lengths rise out of the button. Picking one closes them and he comments.', '430 hold · 340 pop', 'select', 'Chips appear without the pop.'],
+      ['The fuse', 'The pie inside Start empties. At pressure 2 the button breathes; at 3 and 4 it nudges, more often each step. At 5 it goes still.', 'live · 2.6 s · 3.2 s · 1.9 s', 'none', 'The pie still empties. No breathing or nudging.'],
+      ['Pressure rises', 'He squash-pops into the next pose, the bubble pops in, the wall warms a step.', '480 · 400 · 900', 'none', 'Pose and words swap with a fade.'],
+      ['Poke him', 'He reacts with a pose and a line: startled, facepalm, points, thinks.', '480', 'light', 'Pose swaps without the pop.'],
+      ['Pull the board', 'The board follows your finger down from the chalkboard. Past 90 pt it opens; short of that it springs back.', 'live · 540', 'light', 'Tap to open; it slides without following.'],
+      ['Swipe a board row', 'The row slides to reveal Tick and Erase. Tick strikes a chalk line through it, then it slides away. Erase wipes it to dust.', '380 snap · 380 strike · 460 wipe', 'success', 'Buttons stay visible; rows fade out.'],
+      ['Late slip', 'The sheet rises. Picking an excuse pops the chip, the grade stamps down, his comment writes itself. Drag the sheet down to put it away.', '540 · 360 · 400 · 720', 'medium', 'Stamp and writing appear without motion.'],
+      ['Hold to tell him', 'The bar grows into a listening panel. Words arrive one by one, sharpening from blur. On release they fly to the board as chalk notes.', '520 · 260 per word · 1100', 'soft', 'Words appear; notes fade onto the board.'],
+      ['Working', 'He paces the front of the room. Every 4.5 to 8.5 s he stops and looks at you. The timer digits roll as they change.', '10 s loop · 1.6 s look · 300 roll', 'none', 'He stands still; digits change without rolling.'],
+      ['Time', 'The drum, then “Done?” He turns to face you.', '760', 'rigid', 'Text only.'],
+      ['Done', 'The camera pushes back in. The red check draws itself, his comment writes, a little confetti.', '1150 · 560 · 700 · 1400', 'success', 'Check and comment appear; no confetti.'],
+      ['Next task', 'The new title rises into place from a soft blur.', '520', 'none', 'Crossfade.'],
+      ['Happenings', 'The cat crosses his desk. A paper plane drifts in. The power cuts and a candle lights.', '8 s · 3.4 s · 600', 'none', 'They appear in place, still.']
+    ];
+    return { rows: rows.map((r) => ({ m: r[0], w: r[1], t: r[2], h: H[r[3]][0], hb: H[r[3]][1], hc: H[r[3]][2], r: r[4] })) };
+  }
+}
+</script>
+</body>
+</html>

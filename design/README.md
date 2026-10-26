@@ -1,6 +1,10 @@
 # Designs
 
-The designs live in Claude Design, project
+Phu's Class replaced Scootch on 26 Oct 2026. Its boards are in
+[`phus-class/`](phus-class/README.md). Everything else in this folder is the
+Scootch app and no longer describes what is being built.
+
+The Scootch designs live in Claude Design, project
 `e426dba8-d2f9-4598-b525-158a1a4968e5`
 (https://claude.ai/design/p/e426dba8-d2f9-4598-b525-158a1a4968e5).
 

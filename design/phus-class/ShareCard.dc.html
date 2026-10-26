@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Share cards</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Nunito:wght@700;800;900&amp;family=Playfair+Display:wght@700;800;900&amp;display=swap">
+<style>
+@font-face{font-family:'Kithfield Hand';src:url(/_blob/14e9dde70c051ba67648e65c4cc548b4) format('woff2');font-weight:700;font-display:swap}
+body{margin:0}
+a{color:#D42A24}a:hover{color:#A81B15}
+.hand{font-family:'Kithfield Hand',ui-rounded,cursive;font-weight:700}
+.serif{font-family:'Playfair Display',Georgia,serif}
+.card{position:relative;width:360px;height:640px;border-radius:28px;overflow:hidden;flex-shrink:0;box-shadow:0 20px 50px rgba(0,0,0,0.18)}
+.cap{font-size:14px;font-weight:700;color:#1C1A18}
+.sub{font-size:12px;color:#6B655E}
+.brand{position:absolute;left:22px;bottom:20px;display:flex;align-items:center;gap:8px;font-size:14px;font-weight:800}
+.mark{width:24px;height:24px;border-radius:7px;background:#D42A24;display:flex;align-items:center;justify-content:center}
+.desk{background-color:#C98B55;background-image:linear-gradient(180deg,rgba(0,0,0,0.05) 0 2px,transparent 2px 64px),linear-gradient(90deg,rgba(255,255,255,0.05),rgba(0,0,0,0.04));background-size:100% 64px,100% 100%}
+.paper{background:#FBF5E8}
+.ln{height:31px;line-height:30px;border-bottom:1px solid rgba(106,69,184,0.2);white-space:nowrap;overflow:hidden;font-size:13px;color:#4A443E}
+.ln.h{font-family:'Kithfield Hand',cursive;font-weight:700;font-size:22px;color:#2A3E8C;line-height:31px}
+.lined{background-color:#FFFDF6;background-image:linear-gradient(180deg,transparent 27px,rgba(106,69,184,0.16) 27px,rgba(106,69,184,0.16) 28px,transparent 28px);background-size:100% 28px}
+</style>
+</helmet>
+<div style="width: 2000px; height: 760px; box-sizing: border-box; padding: 40px; display: flex; gap: 32px; background: #F2ECE2; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', Inter, system-ui, sans-serif; color: #1C1A18">
+
+  <div style="display: flex; flex-direction: column; gap: 10px">
+    <div><div class="cap">Test paper</div><div class="sub">The graded paper, on your desk</div></div>
+    <div class="card desk">
+      <div class="paper" style="position: absolute; left: 26px; right: 26px; top: 40px; height: 470px; border-radius: 4px; transform: rotate(-1.5deg); box-shadow: 0 14px 30px rgba(60,30,10,0.3); padding: 16px 18px 0 18px; box-sizing: border-box">
+        <div style="position: absolute; left: 12px; top: 10px; width: 22px; height: 6px; border-radius: 2px; background: #A9ADB5; transform: rotate(-35deg); box-shadow: 0 1px 0 rgba(0,0,0,0.2)"></div>
+        <div style="text-align: center; font-size: 11px; font-weight: 800; letter-spacing: .12em; color: #4A443E">TEST · CLASS 11A</div>
+        <div style="margin-top: 10px; display: grid; grid-template-columns: 96px minmax(0, 1fr); border: 1.5px solid #4A443E; height: 96px">
+          <div style="border-right: 1.5px solid #4A443E; position: relative">
+            <span style="position: absolute; top: 4px; left: 6px; font-size: 10px; font-weight: 700; color: #4A443E">Grade</span>
+            <svg width="70" height="58" viewBox="0 0 120 100" aria-hidden="true" style="position: absolute; left: 14px; top: 22px"><path d="M12 56 Q26 62 42 86 Q64 38 112 8" fill="none" stroke="#D42A24" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </div>
+          <div style="position: relative">
+            <span style="position: absolute; top: 4px; left: 8px; font-size: 10px; font-weight: 700; color: #4A443E">Teacher’s note</span>
+            <span class="hand" style="position: absolute; left: 14px; top: 26px; font-size: 40px; color: #D42A24; transform: rotate(-4deg)">Good.</span>
+            <svg width="54" height="26" viewBox="0 0 70 34" aria-hidden="true" style="position: absolute; right: 8px; bottom: 6px"><path d="M4 24 Q12 4 20 20 Q26 30 32 14 Q38 2 44 22 Q50 30 66 12" fill="none" stroke="#D42A24" stroke-width="3" stroke-linecap="round"></path></svg>
+          </div>
+        </div>
+        <div style="margin-top: 12px">
+          <div class="ln">Name: <span class="hand" style="font-size: 20px; color: #2A3E8C">Trần Minh Anh</span></div>
+          <div class="ln">Task: <span style="color: #1C1A18; font-weight: 700">Email the dentist.</span></div>
+          <div class="ln">Work:</div>
+          <div class="ln h">Done. Sent at 10:42.</div>
+          <div class="ln h">It waited 9 days.</div>
+          <div class="ln h">It took 11 minutes.</div>
+          <div class="ln h" style="color: #D42A24; font-size: 20px; text-align: right; padding-right: 4px">Started in time. Noted.</div>
+        </div>
+      </div>
+      <div style="position: absolute; right: -6px; bottom: 26px"><dc-import name="Phu" mood="approve" size="140" hint-size="140px,154px"></dc-import></div>
+      <div class="brand" style="color: #FFFFFF"><dc-import name="AppIcon" size="26" hint-size="26px,26px"></dc-import>Phu’s Class</div>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 10px">
+    <div><div class="cap">Certificate</div><div class="sub">The rarest thing. A certificate of merit</div></div>
+    <div class="card" style="background: #FFF8E8">
+      <div style="position: absolute; inset: 14px; border: 6px solid #C8312A; border-radius: 16px"></div>
+      <div style="position: absolute; inset: 26px; border: 2px solid #D9A63C; border-radius: 10px"></div>
+      <svg width="360" height="640" viewBox="0 0 360 640" aria-hidden="true" style="position: absolute; inset: 0">
+        <g fill="#D9A63C"><path d="M34 34 q20 2 22 22 q-12 -8 -22 -22 z"></path><path d="M326 34 q-20 2 -22 22 q12 -8 22 -22 z"></path><path d="M34 606 q20 -2 22 -22 q-12 8 -22 22 z"></path><path d="M326 606 q-20 -2 -22 -22 q12 8 22 22 z"></path></g>
+      </svg>
+      <div style="position: absolute; left: 40px; right: 40px; top: 52px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 4px">
+        <span style="font-size: 10px; font-weight: 800; letter-spacing: .2em; color: #8A6A4A">PHU’S CLASS · 2026</span>
+        <span class="serif" style="font-size: 50px; line-height: 1; font-weight: 900; color: #C8312A; letter-spacing: .02em; margin-top: 10px">MERIT</span>
+        <svg width="140" height="14" viewBox="0 0 140 14" aria-hidden="true"><path d="M2 7 H56 M84 7 H138" stroke="#D9A63C" stroke-width="2"></path><path d="M70 1 L74 7 L70 13 L66 7 Z" fill="#D9A63C"></path></svg>
+        <span style="margin-top: 10px; font-size: 13px; color: #4A443E">awarded by Thầy Phú to</span>
+        <span class="hand" style="font-size: 34px; line-height: 1.1; color: #2A3E8C">Trần Minh Anh</span>
+        <span style="margin-top: 10px; font-size: 13px; line-height: 1.55; color: #4A443E; max-width: 250px">for starting before the tea went cold, on a task that had waited <b style="color: #1C1A18">23 days</b>:</span>
+        <span class="serif" style="font-size: 20px; line-height: 1.25; font-weight: 800; color: #1C1A18; max-width: 260px">Filing the tax receipts</span>
+      </div>
+      <div style="position: absolute; left: 44px; bottom: 98px; display: flex; flex-direction: column; gap: 2px">
+        <span style="font-size: 11px; color: #8A6A4A">26 October 2026</span>
+        <svg width="90" height="36" viewBox="0 0 70 34" aria-hidden="true"><path d="M4 24 Q12 4 20 20 Q26 30 32 14 Q38 2 44 22 Q50 30 66 12" fill="none" stroke="#2A3E8C" stroke-width="2.4" stroke-linecap="round"></path></svg>
+        <span class="hand" style="font-size: 16px; color: #4A443E">Thầy Phú</span>
+      </div>
+      <svg width="112" height="112" viewBox="0 0 112 112" aria-hidden="true" style="position: absolute; right: 40px; bottom: 82px; transform: rotate(-12deg); opacity: 0.86">
+        <defs><path id="sealArc" d="M56 56 m-38 0 a38 38 0 1 1 76 0 a38 38 0 1 1 -76 0"></path></defs>
+        <circle cx="56" cy="56" r="50" fill="none" stroke="#D42A24" stroke-width="4"></circle>
+        <circle cx="56" cy="56" r="30" fill="none" stroke="#D42A24" stroke-width="2"></circle>
+        <text font-family="Inter, sans-serif" font-size="10.5" font-weight="800" fill="#D42A24" letter-spacing="2.2"><textPath href="#sealArc">PHU’S CLASS · CLASS 11A · PHU’S CLASS ·</textPath></text>
+        <path d="M56 38 L61 51 L75 51 L64 59 L68 73 L56 65 L44 73 L48 59 L37 51 L51 51 Z" fill="#D42A24"></path>
+      </svg>
+      <div class="brand" style="color: #8A6A4A; left: 40px; bottom: 40px; font-size: 12px"><dc-import name="AppIcon" size="22" hint-size="22px,22px"></dc-import>phusclass.app</div>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 10px">
+    <div><div class="cap">Note home</div><div class="sub">A note home, in his hand</div></div>
+    <div class="card" style="background: #2B5BA8">
+      <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 22px; background: #234C8E"></div>
+      <div style="position: absolute; left: 34px; top: 30px; right: 22px; display: flex; justify-content: space-between; align-items: center; color: #FFFFFF">
+        <span style="font-size: 12px; font-weight: 800; letter-spacing: .14em">NOTE HOME</span>
+        <span class="hand" style="font-size: 16px; color: #FFD86B">Class 11A</span>
+      </div>
+      <div class="lined" style="position: absolute; left: 34px; right: 16px; top: 66px; bottom: 70px; border-radius: 6px 14px 14px 6px; padding: 14px 18px 0 22px; box-sizing: border-box; background-image: linear-gradient(90deg, transparent 12px, rgba(226,69,62,0.35) 12px, rgba(226,69,62,0.35) 14px, transparent 14px), linear-gradient(180deg, transparent 27px, rgba(106,69,184,0.16) 27px, rgba(106,69,184,0.16) 28px, transparent 28px); background-size: 100% 100%, 100% 28px; box-shadow: 0 10px 24px rgba(0,0,0,0.25)">
+        <div style="font-size: 10px; font-weight: 800; letter-spacing: .1em; color: #8A6A4A; line-height: 28px">FROM THE TEACHER · WEEK 43</div>
+        <div class="hand" style="font-size: 20px; line-height: 28px; color: #D42A24">Dear parents of Minh Anh,</div>
+        <div class="hand" style="font-size: 20px; line-height: 28px; color: #D42A24">Dear parents of Minh Anh.</div>
+        <div class="hand" style="font-size: 20px; line-height: 28px; color: #D42A24">Today your child emailed</div>
+        <div class="hand" style="font-size: 20px; line-height: 28px; color: #D42A24">the dentist. It had waited</div>
+        <div class="hand" style="font-size: 20px; line-height: 28px; color: #D42A24">nine days. It took eleven</div>
+        <div class="hand" style="font-size: 20px; line-height: 28px; color: #D42A24">minutes. I have no complaints</div>
+        <div class="hand" style="font-size: 20px; line-height: 28px; color: #D42A24">at this time.</div>
+        <div style="margin-top: 14px; display: flex; justify-content: space-between; align-items: flex-end">
+          <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 10px; color: #8A6A4A">Teacher</span><svg width="70" height="28" viewBox="0 0 84 30" aria-hidden="true"><path d="M5 27 C7 19 8 11 10 3 C15 0 23 4 19 10 C16 14 10 13 8 11 M12 14 C15 9 18 4 20 2 C21 8 18 17 19 24 C20 18 24 13 26 17 C27 21 26 24 29 22 C31 19 31 16 32 15 C32 20 33 24 36 22 C38 20 38 17 39 15 C39 20 40 24 44 21 C52 17 64 16 82 9 M35 9 L40 4" fill="none" stroke="#D42A24" stroke-width="2.6" stroke-linecap="round"></path></svg></div>
+          <div style="width: 96px; height: 52px; border: 1.5px dashed rgba(74,68,62,0.4); border-radius: 6px; display: flex; flex-direction: column; justify-content: space-between; padding: 4px 6px; box-sizing: border-box"><span style="font-size: 9px; color: #8A6A4A">Parent’s signature</span><span class="hand" style="font-size: 14px; color: #2A3E8C; transform: rotate(-6deg)">Mum saw it</span></div>
+        </div>
+      </div>
+      <div class="brand" style="color: #FFFFFF"><dc-import name="AppIcon" size="26" hint-size="26px,26px"></dc-import>Phu’s Class</div>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 10px">
+    <div><div class="cap">Your desk</div><div class="sub">A month of finishes, carved in</div></div>
+    <div class="card desk">
+      <div style="position: absolute; left: 22px; top: 26px; color: #FFF1DC; display: flex; flex-direction: column; gap: 2px">
+        <span class="hand" style="font-size: 18px; color: #FFE7B8">Minh Anh<span style="display: inline-block; width: 0.22em; margin-left: -0.04em">’</span>s desk</span>
+        <span style="font-size: 12px; opacity: 0.85">Front row since Friday</span>
+      </div>
+      <svg width="360" height="520" viewBox="0 0 360 520" aria-hidden="true" style="position: absolute; left: 0; top: 70px">
+        <g fill="none" stroke="#8E5B2F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.9">
+          <path d="M40 40 l6 -12 l6 12 l-14 -8 h16 z"></path>
+          <path d="M260 60 q-8 -12 2 -14 q6 0 6 6 q0 -6 6 -6 q10 2 2 14 l-8 8 z"></path>
+          <text x="80" y="110" font-family="'Kithfield Hand', cursive" font-size="34" font-weight="700" fill="#8E5B2F" stroke="none" transform="rotate(-8 80 110)">M.A + 11A</text>
+          <circle cx="250" cy="160" r="26"></circle><text x="236" y="170" font-family="'Kithfield Hand', cursive" font-size="26" font-weight="700" fill="#8E5B2F" stroke="none">10</text>
+          <path d="M60 200 q30 -20 60 0 t60 0 t60 0"></path>
+          <path d="M150 250 l8 -16 l8 16 l-18 -10 h20 z"></path>
+          <path d="M40 300 h70 M40 312 h50 M40 324 h62"></path>
+          <path d="M210 290 q10 -30 40 -20 q20 10 10 30 q-10 20 -30 10" ></path>
+          <circle cx="226" cy="282" r="2"></circle><circle cx="240" cy="284" r="2"></circle>
+          <path d="M228 296 q6 4 12 0"></path>
+          <text x="40" y="400" font-family="'Kithfield Hand', cursive" font-size="22" font-weight="700" fill="#8E5B2F" stroke="none" transform="rotate(4 40 400)">tea + chalk</text>
+          <path d="M260 380 l6 -12 l6 12 l-14 -8 h16 z"></path>
+          <path d="M120 450 l12 -6 l12 6 l-12 6 z"></path>
+        </g>
+        <path d="M282 220 l9 -18 l9 18 l-20 -12 h22 z" fill="#FFC93C"></path>
+        <circle cx="96" cy="360" r="14" fill="#2A3E8C" opacity="0.35"></circle>
+        <rect x="200" y="420" width="120" height="10" rx="5" fill="#2E2A33" transform="rotate(-18 260 425)"></rect>
+        <rect x="300" y="390" width="20" height="10" rx="3" fill="#FFC93C" transform="rotate(-18 310 395)"></rect>
+      </svg>
+      <div class="brand" style="color: #FFFFFF"><dc-import name="AppIcon" size="26" hint-size="26px,26px"></dc-import>Phu’s Class</div>
+      <span class="hand" style="position: absolute; right: 22px; bottom: 22px; font-size: 16px; color: #FFE7B8">31 days in class</span>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 10px">
+    <div><div class="cap">Task hidden</div><div class="sub">White-out over the words</div></div>
+    <div class="card desk">
+      <div class="paper" style="position: absolute; left: 26px; right: 26px; top: 40px; height: 470px; border-radius: 4px; transform: rotate(1.2deg); box-shadow: 0 14px 30px rgba(60,30,10,0.3); padding: 16px 18px 0 18px; box-sizing: border-box">
+        <div style="text-align: center; font-size: 11px; font-weight: 800; letter-spacing: .12em; color: #4A443E">TEST · CLASS 11A</div>
+        <div style="margin-top: 10px; display: grid; grid-template-columns: 96px minmax(0, 1fr); border: 1.5px solid #4A443E; height: 96px">
+          <div style="border-right: 1.5px solid #4A443E; position: relative"><span style="position: absolute; top: 4px; left: 6px; font-size: 10px; font-weight: 700; color: #4A443E">Grade</span><svg width="70" height="58" viewBox="0 0 120 100" aria-hidden="true" style="position: absolute; left: 14px; top: 22px"><path d="M12 56 Q26 62 42 86 Q64 38 112 8" fill="none" stroke="#D42A24" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+          <div style="position: relative"><span style="position: absolute; top: 4px; left: 8px; font-size: 10px; font-weight: 700; color: #4A443E">Teacher’s note</span><span class="hand" style="position: absolute; left: 14px; top: 26px; font-size: 40px; color: #D42A24; transform: rotate(-4deg)">Good.</span></div>
+        </div>
+        <div style="margin-top: 12px">
+          <div class="ln">Name: <span class="hand" style="font-size: 20px; color: #2A3E8C">Trần Minh Anh</span></div>
+          <div class="ln" style="position: relative; overflow: visible">Task:
+            <span style="position: absolute; left: 50px; top: 7px; font-size: 13px; font-weight: 700; color: #1C1A18; filter: blur(2.5px)">Email the dentist.</span>
+            <span style="position: absolute; left: 44px; right: 0; top: 2px; height: 26px; border-radius: 2px; background: #FFFFFF; box-shadow: 0 1px 3px rgba(60,40,20,0.22), inset 0 0 0 1px rgba(60,40,20,0.06); transform: rotate(-1.2deg); background-image: repeating-linear-gradient(90deg, rgba(60,40,20,0.035) 0 1px, transparent 1px 5px)"></span>
+            <span class="hand" style="position: absolute; left: 60px; top: 0; font-size: 20px; line-height: 30px; color: #6A45B8; transform: rotate(-2deg)">secret</span>
+          </div>
+          <div class="ln">Work:</div>
+          <div class="ln h">Something I’d avoided.</div>
+          <div class="ln h">It waited 9 days.</div>
+          <div class="ln h">It took 11 minutes.</div>
+        </div>
+      </div>
+      <div style="position: absolute; right: -6px; bottom: 26px"><dc-import name="Phu" mood="calm" size="140" hint-size="140px,154px"></dc-import></div>
+      <div class="brand" style="color: #FFFFFF"><dc-import name="AppIcon" size="26" hint-size="26px,26px"></dc-import>Phu’s Class</div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":2000,"height":760}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

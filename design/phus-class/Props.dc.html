@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Classroom props</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap">
+<style>
+@font-face{font-family:'Kithfield Hand';src:url(/_blob/14e9dde70c051ba67648e65c4cc548b4) format('woff2');font-weight:700;font-display:swap}
+body{margin:0}
+a{color:#D42A24}a:hover{color:#A81B15}
+.hand{font-family:'Kithfield Hand',ui-rounded,cursive;font-weight:700}
+.card{border-radius:24px;background:#FFFFFF;box-shadow:0 1px 2px rgba(40,30,20,0.05),0 10px 26px rgba(40,30,20,0.06);display:flex;flex-direction:column;overflow:hidden}
+.stage{height:150px;display:flex;align-items:center;justify-content:center;background:#FFF6E8}
+.cap{padding:12px 16px 14px;display:flex;flex-direction:column;gap:2px}
+.cap b{font-size:15px;font-weight:700}
+.cap span{font-size:12.5px;line-height:1.4;color:#8A7F74}
+</style>
+</helmet>
+<div style="width: 1440px; height: 1060px; box-sizing: border-box; padding: 64px; background: #FFFAF2; color: #1C1A18; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', Inter, system-ui, sans-serif; display: flex; flex-direction: column; gap: 28px">
+  <header style="display: flex; flex-direction: column; gap: 8px">
+    <span class="hand" style="font-size: 22px; color: #D42A24">đồ dùng lớp học</span>
+    <h1 style="margin: 0; font-size: 64px; line-height: 1; font-weight: 800; letter-spacing: -0.03em">Props</h1>
+    <p style="margin: 0; font-size: 17px; color: #5E5852; max-width: 820px; line-height: 1.5">Built like him: rounded shapes, one shade on the far side, no outlines. Anything that moves (legs, tail, flame, wings, drips, steam) is its own layer, ready for Rive.</p>
+  </header>
+  <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 16px">
+    <sc-for list="{{props}}" as="item" hint-placeholder-count="19">
+      <article class="card">
+        <div class="stage"><dc-import name="Prop" prop="{{item.p}}" size="{{item.s}}" hint-size="100px,100px"></dc-import></div>
+        <div class="cap"><b>{{item.n}}</b><span>{{item.u}}</span></div>
+      </article>
+    </sc-for>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1060}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      props: [
+        { p: 'cat', s: '128', n: 'Mèo', u: 'Walks across his desk. “Not now, Mèo.”' },
+        { p: 'plane', s: '120', n: 'Paper plane', u: 'Drifts in mid-period.' },
+        { p: 'candle', s: '62', n: 'Candle', u: 'Mất điện. The power cut.' },
+        { p: 'bouquet', s: '104', n: 'Bouquet', u: '20/11, Teachers’ Day.' },
+        { p: 'banhchung', s: '110', n: 'Bánh chưng', u: 'Tết, on his desk.' },
+        { p: 'lantern', s: '84', n: 'Đèn ông sao', u: 'Trung thu.' },
+        { p: 'cake', s: '110', n: 'Cake, one candle', u: 'His birthday. He tells nobody.' },
+        { p: 'thermos', s: '64', n: 'Phích', u: 'His tea. Always on the desk.' },
+        { p: 'coffee', s: '62', n: 'Cà phê sữa đá', u: 'Instead of tea on hot days.' },
+        { p: 'papers', s: '120', n: 'Graded papers', u: 'The pile beside him.' },
+        { p: 'ruler', s: '130', n: 'Ruler', u: 'Pressure 3. Tap. Tap.' },
+        { p: 'drum', s: '112', n: 'Trống trường', u: 'Start and end of a period.' },
+        { p: 'clock', s: '86', n: 'Clock', u: 'Above the board. Ticks in wide shots.' },
+        { p: 'bucket', s: '86', n: 'Bucket', u: 'Under the leak in monsoon season.' },
+        { p: 'icecream', s: '62', n: 'Kem ốc quế', u: 'The ice-cream bell outside.' },
+        { p: 'balloons', s: '84', n: 'Balloons', u: 'Khai giảng, 5/9.' },
+        { p: 'butterfly', s: '86', n: 'Butterfly', u: 'Lands on the board. He writes around it.' },
+        { p: 'armband', s: '120', n: 'Sao đỏ', u: 'The monitor at the door.' },
+        { p: 'peach', s: '124', n: 'Hoa đào', u: 'Tết, through the window.' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

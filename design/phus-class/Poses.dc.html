@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Thầy Phú poses</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+@font-face{font-family:'Kithfield Hand';src:url(/_blob/14e9dde70c051ba67648e65c4cc548b4) format('woff2');font-weight:700;font-display:swap}
+body{margin:0}
+a{color:#D42A24}a:hover{color:#A81B15}
+.hand{font-family:'Kithfield Hand',ui-rounded,cursive;font-weight:700}
+.card{border-radius:24px;overflow:hidden;background:#FFFFFF;box-shadow:0 1px 2px rgba(40,30,20,0.05),0 10px 26px rgba(40,30,20,0.06);display:flex;flex-direction:column}
+.stage{height:188px;display:flex;align-items:flex-end;justify-content:center;padding-top:8px}
+.cap{padding:12px 16px 14px;display:flex;flex-direction:column;gap:3px}
+.cap b{font-size:15px;font-weight:700}
+.cap span{font-size:12.5px;line-height:1.4;color:#8A7F74}
+.grp{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#8A7F74}
+</style>
+</helmet>
+<div style="width: 1440px; height: 1600px; box-sizing: border-box; padding: 64px; background: #FFFAF2; color: #1C1A18; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', Inter, system-ui, sans-serif; display: flex; flex-direction: column; gap: 28px">
+  <header style="display: flex; justify-content: space-between; align-items: flex-end">
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <span class="hand" style="font-size: 22px; color: #D42A24">twenty-four of him</span>
+      <h1 style="margin: 0; font-size: 64px; line-height: 1; font-weight: 800; letter-spacing: -0.03em">Poses, actions, emotions</h1>
+      <p style="margin: 0; font-size: 17px; color: #5E5852; max-width: 760px; line-height: 1.5">Every pose is built from the same parts: nineteen arm poses, ten lens states, five lid states, twelve mouths and six effects. In Rive they are states of one rig, so any pose can blend into any other.</p>
+    </div>
+  </header>
+
+    <section style="display: flex; flex-direction: column; gap: 12px">
+      <span class="grp">{{t0}}</span>
+      <div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px">
+        <sc-for list="{{i0}}" as="item" hint-placeholder-count="6">
+          <article class="card">
+            <div class="stage" style="background: {{item.bg}}"><dc-import name="Phu" mood="{{item.mood}}" size="164" hint-size="164px,180px"></dc-import></div>
+            <div class="cap"><b>{{item.name}}</b><span>{{item.use}}</span></div>
+          </article>
+        </sc-for>
+      </div>
+    </section>
+    <section style="display: flex; flex-direction: column; gap: 12px">
+      <span class="grp">{{t1}}</span>
+      <div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px">
+        <sc-for list="{{i1}}" as="item" hint-placeholder-count="6">
+          <article class="card">
+            <div class="stage" style="background: {{item.bg}}"><dc-import name="Phu" mood="{{item.mood}}" size="164" hint-size="164px,180px"></dc-import></div>
+            <div class="cap"><b>{{item.name}}</b><span>{{item.use}}</span></div>
+          </article>
+        </sc-for>
+      </div>
+    </section>
+    <section style="display: flex; flex-direction: column; gap: 12px">
+      <span class="grp">{{t2}}</span>
+      <div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px">
+        <sc-for list="{{i2}}" as="item" hint-placeholder-count="6">
+          <article class="card">
+            <div class="stage" style="background: {{item.bg}}"><dc-import name="Phu" mood="{{item.mood}}" size="164" hint-size="164px,180px"></dc-import></div>
+            <div class="cap"><b>{{item.name}}</b><span>{{item.use}}</span></div>
+          </article>
+        </sc-for>
+      </div>
+    </section>
+    <section style="display: flex; flex-direction: column; gap: 12px">
+      <span class="grp">{{t3}}</span>
+      <div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px">
+        <sc-for list="{{i3}}" as="item" hint-placeholder-count="6">
+          <article class="card">
+            <div class="stage" style="background: {{item.bg}}"><dc-import name="Phu" mood="{{item.mood}}" size="164" hint-size="164px,180px"></dc-import></div>
+            <div class="cap"><b>{{item.name}}</b><span>{{item.use}}</span></div>
+          </article>
+        </sc-for>
+      </div>
+    </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1600}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const warm = '#FFF1DC';
+    const groups = [
+        { title: 'The pressure ladder', items: [
+          { mood: 'calm', name: 'Looks up', use: 'Pressure 0. “Two minutes. I’ll wait.”', bg: warm },
+          { mood: 'over', name: 'Tea, glasses down', use: 'Pressure 1. Also while you type.', bg: '#FFEBD2' },
+          { mood: 'crossed', name: 'Arms crossed', use: 'Pressure 2. “We both know how this ends.”', bg: '#FFE2C6' },
+          { mood: 'ruler', name: 'The ruler', use: 'Pressure 3. “Tap. Tap.”', bg: '#FFD7BE' },
+          { mood: 'name', name: 'Your full name', use: 'Pressure 4. Pop-quiz days.', bg: '#FFC9B6' },
+          { mood: 'stare', name: 'Silence', use: 'Pressure 5. The glint.', bg: '#E8E6EE' }
+        ] },
+        { title: 'Losing patience · swapped into the ladder so no two days climb the same way', items: [
+          { mood: 'watch', name: 'Taps his watch', use: '“After lunch.” Lunch was at noon.', bg: '#FFEBD2' },
+          { mood: 'hips', name: 'Hands on hips', use: 'Pressure 2, some days. Chống nạnh.', bg: '#FFE2C6' },
+          { mood: 'peer', name: 'Over his glasses', use: 'Reading your late slip.', bg: '#FFE2C6' },
+          { mood: 'count', name: 'Counts to three', use: 'Pressure 3, some days. “Một. Hai…”', bg: '#FFD7BE' },
+          { mood: 'snap', name: 'Snaps the chalk', use: 'Pressure 4, some days.', bg: '#FFC9B6' },
+          { mood: 'huff', name: 'Huffs', use: 'A fifth late slip. Front row.', bg: '#FFC9B6' }
+        ] },
+        { title: 'In class', items: [
+          { mood: 'point', name: 'Points', use: 'The board. First day. A raised hand.', bg: warm },
+          { mood: 'think', name: 'Thinks', use: 'While you talk. “Need something first.”', bg: warm },
+          { mood: 'grading', name: 'Grades', use: 'Pacing during a period.', bg: warm },
+          { mood: 'facepalm', name: 'Hand to forehead', use: '“Too tired.” “After lunch.”', bg: '#FFE2C6' },
+          { mood: 'clap', name: 'Slow clap', use: 'A finish that started in time.', bg: '#FFF0C2' },
+          { mood: 'approve', name: 'Thumbs up', use: 'Any other finish.', bg: '#FFF0C2' }
+        ] },
+        { title: 'Off script', items: [
+          { mood: 'surprised', name: 'Startled', use: 'A paper plane. A poke.', bg: '#EAF2FB' },
+          { mood: 'laugh', name: 'Laughs', use: 'The cat on his desk. Rarely anything else.', bg: '#FFF0C2' },
+          { mood: 'moved', name: 'Moved', use: '20/11, flowers on his desk.', bg: '#FDECEF' },
+          { mood: 'wave', name: 'Waves', use: 'Asking to send notes home.', bg: warm },
+          { mood: 'sleep', name: 'Dozes', use: 'Quiet hours, on the Lock Screen.', bg: '#E6E9F2' },
+          { mood: 'serious', name: 'Glasses off', use: 'A heavy task. No act.', bg: '#EEECE8' }
+        ] }
+    ];
+    const out = {};
+    groups.forEach((g, i) => { out['t' + i] = g.title; out['i' + i] = g.items; });
+    return out;
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tuition, the plan</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Nunito:wght@700;800;900&amp;family=JetBrains+Mono:wght@500;600&amp;display=swap">
+<style>
+@font-face{font-family:'Kithfield Hand';src:url(/_blob/14e9dde70c051ba67648e65c4cc548b4) format('woff2');font-weight:700;font-display:swap}
+body{margin:0}
+a{color:#D42A24}a:hover{color:#A81B15}
+.r{font-family:ui-rounded,'SF Pro Rounded',Nunito,system-ui,sans-serif}
+.hand{font-family:'Kithfield Hand',ui-rounded,cursive;font-weight:700}
+.mono{font-family:'SF Mono',ui-monospace,'JetBrains Mono',monospace}
+.card{background:#FFFFFF;border-radius:26px;padding:26px 28px;box-shadow:0 1px 2px rgba(40,30,20,0.05),0 12px 30px rgba(40,30,20,0.05);display:flex;flex-direction:column;gap:12px}
+.grp{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8A7F74}
+.li{display:grid;grid-template-columns:22px minmax(0,1fr);column-gap:10px;font-size:15px;line-height:1.45}
+.li i{font-style:normal;font-weight:800}
+.plan{border-radius:22px;padding:22px 24px;display:flex;flex-direction:column;gap:6px}
+.step{display:flex;flex-direction:column;gap:8px;position:relative}
+.step b{font-size:15px}
+.step p{margin:0;font-size:14px;line-height:1.45;color:#5E5852}
+.num{width:30px;height:30px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px}
+.row{display:grid;grid-template-columns:minmax(0,1fr) 220px;column-gap:24px;padding:12px 0;border-top:1px solid rgba(28,26,24,0.07);font-size:15px;align-items:baseline}
+.src{font-size:12px;color:#8A7F74;line-height:1.5}
+</style>
+</helmet>
+<div style="width: 1440px; height: 1880px; box-sizing: border-box; padding: 64px; background: #FFFAF2; color: #1C1A18; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', Inter, system-ui, sans-serif; display: flex; flex-direction: column; gap: 28px">
+
+  <header style="display: flex; justify-content: space-between; align-items: flex-end; gap: 40px">
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <span class="hand" style="font-size: 22px; color: #D42A24">đóng học phí · decided 27 Oct, prices to confirm</span>
+      <h1 style="margin: 0; font-size: 64px; line-height: 1; font-weight: 800; letter-spacing: -0.03em">Tuition</h1>
+      <p style="margin: 0; font-size: 18px; color: #5E5852; max-width: 860px; line-height: 1.5">The lessons are free. Tuition pays for the rest of the school: the timetable, the big widgets, the report card, and what he learns later. One paid tier, two ways to pay it, a free week to try it, and nobody is ever charged by surprise.</p>
+    </div>
+    <div style="width: 150px; height: 165px; flex-shrink: 0"><dc-import name="Phu" mood="peer" size="150" hint-size="150px,165px"></dc-import></div>
+  </header>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px">
+    <section class="card">
+      <span class="grp" style="color: #2F6B56">Free, always</span>
+      <div class="li"><i style="color: #2F6B56">✓</i><span>Saying tasks, the desk, the board, every period, the fuse and the drum</span></div>
+      <div class="li"><i style="color: #2F6B56">✓</i><span>His comments, all 24 poses, every happening and carving</span></div>
+      <div class="li"><i style="color: #2F6B56">✓</i><span>Sổ đầu bài, the logbook, kept forever</span></div>
+      <div class="li"><i style="color: #2F6B56">✓</i><span>The small widget, the Live Activity and his eyes in the Dynamic Island</span></div>
+      <div class="li"><i style="color: #2F6B56">✓</i><span>Every share card, and help when things are heavy</span></div>
+    </section>
+    <section class="card">
+      <span class="grp" style="color: #D42A24">Tuition opens</span>
+      <div class="li"><i style="color: #D42A24">+</i><span><b>Thời khóa biểu.</b> The calendar as his timetable, with a task picked for every free period</span></div>
+      <div class="li"><i style="color: #D42A24">+</i><span><b>Big widgets.</b> The chalkboard, the day dial, quiet hours, StandBy</span></div>
+      <div class="li"><i style="color: #D42A24">+</i><span><b>Học bạ.</b> The logbook printed as a school report each term, to keep or share</span></div>
+      <div class="li"><i style="color: #D42A24">+</i><span><b>What comes later.</b> His spoken voice, snap a list, Apple Watch</span></div>
+      <span class="src">Every one of these is extra school, not the lesson. None changes his comment, the board, the fuse or the happenings.</span>
+    </section>
+  </div>
+
+  <section style="display: flex; flex-direction: column; gap: 14px">
+    <span class="grp">Two ways to pay</span>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px">
+      <div class="plan" style="background: #1C1A18; color: #FFFFFF">
+        <span style="display: flex; justify-content: space-between; align-items: baseline"><b style="font-size: 22px">Năm học</b><span style="font-size: 14px; opacity: .7">School year</span></span>
+        <span class="r" style="font-size: 40px; font-weight: 800; letter-spacing: -0.02em">$39.99 <span style="font-size: 20px; opacity: .65">· 499.000đ</span></span>
+        <span style="font-size: 14px; opacity: .8; line-height: 1.45">$3.33 a month, 52% less than paying monthly. Renews each year. Family Sharing on. Selected first on the receipt.</span>
+      </div>
+      <div class="plan" style="background: #FFFFFF">
+        <span style="display: flex; justify-content: space-between; align-items: baseline"><b style="font-size: 22px">Tháng</b><span style="font-size: 14px; color: #8A7F74">Month</span></span>
+        <span class="r" style="font-size: 40px; font-weight: 800; letter-spacing: -0.02em">$6.99 <span style="font-size: 20px; color: #8A7F74">· 79.000đ</span></span>
+        <span style="font-size: 14px; color: #5E5852; line-height: 1.45">Renews monthly, stop any month. Priced so the school year is the obvious choice.</span>
+      </div>
+    </div>
+    <span class="src">Where these sit: comparable apps charge $29.99 to $39.99 a year (Structured, Llama Life, Routinery, Forest) and the North American median is $39.99. Vietnam is about half the US price, matching the region's median in RevenueCat's 2026 report; 79.000đ sits between Spotify (65.000đ) and YouTube Premium (79.000đ). The VND price points still need checking against Apple's list. No lifetime purchase while he runs on servers: Uncle Rudy can sell one for $9.99 because everything runs on the phone.</span>
+  </section>
+
+  <section class="card" style="gap: 20px">
+    <div style="display: flex; justify-content: space-between; align-items: baseline"><span class="grp">Học thử · the free week</span><span class="hand" style="font-size: 18px; color: #D42A24">Apple<span style="display: inline-block; width: 0.22em; margin-left: -0.04em">’</span>s free trial, with his warning</span></div>
+    <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 22px">
+      <div class="step"><span class="num" style="background: #F3EADC">1</span><b>The third finish</b><p>Nothing that day. A finish is never an offer.</p></div>
+      <div class="step"><span class="num" style="background: #FFF0C2">2</span><b>The next recess</b><p>A notice is pinned on the chalkboard: “Tuition.” Tapping it opens the receipt. Ignoring it is fine.</p></div>
+      <div class="step"><span class="num" style="background: #E8F1FB">3</span><b>Start the free week</b><p>Apple’s free trial on the plan picked. The receipt gets a blue “Học thử” stamp and shows the three dates.</p></div>
+      <div class="step"><span class="num" style="background: #FFF0C2">4</span><b>Day five</b><p>One note: “Your free week ends Sunday. On Monday, 499.000đ. Settings, two taps, if you’re done.”</p></div>
+      <div class="step"><span class="num" style="background: #EAF4EE">5</span><b>Day seven</b><p>The first charge. The receipt is stamped “Paid”. Cancelled? The rooms close quietly and he never mentions it.</p></div>
+    </div>
+    <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 28px; align-items: start; border-top: 1px solid rgba(28,26,24,0.07); padding-top: 18px">
+      <p style="margin: 0; font-size: 15px; line-height: 1.55; color: #3E3933"><b>Why a trial with a card, done carefully.</b> Trials that take a card convert about twice as well (a median of 37% for 5–9 day trials). This audience forgets, so the receipt shows the charge date before the button, he sends one note two days ahead, and Apple’s refund request is one tap away in Settings for a charge someone forgot. Blinkist’s reminder got 23% more trial starts and 55% fewer complaints.</p>
+      <div style="background: rgba(28,26,24,0.04); border-radius: 18px; padding: 14px 16px; display: flex; gap: 12px; align-items: flex-start">
+        <span style="width: 38px; height: 38px; border-radius: 10px; background: #2F6B56; flex-shrink: 0; overflow: hidden; display: flex; justify-content: center"><span style="margin-top: -3px"><dc-import name="Phu" mood="over" size="50" hint-size="50px,55px"></dc-import></span></span>
+        <span style="display: flex; flex-direction: column; gap: 2px; font-size: 14px; line-height: 1.4"><span style="display: flex; justify-content: space-between"><b>Thầy Phú</b><span style="color: #8A7F74; font-size: 12px">2 days before a charge</span></span>Your free week ends Sunday. On Monday, 499.000đ for the school year. If you’re done, Settings, two taps.</span>
+      </div>
+    </div>
+  </section>
+
+  <div style="display: grid; grid-template-columns: 1fr 1.35fr; gap: 20px">
+    <section class="card">
+      <span class="grp">Học bổng · the scholarship</span>
+      <p style="margin: 0; font-size: 15px; line-height: 1.55">“Can’t pay right now?” sits under every receipt. One tap, one optional line, a free school year. No proof, no form. Renew it the same way. Structured and Inflow already do this; it costs us only the AI a student uses.</p>
+      <span class="grp" style="margin-top: 8px">Coming back</span>
+      <p style="margin: 0; font-size: 15px; line-height: 1.55">Someone whose tuition lapsed gets Apple’s win-back offer once: a free month back. Never a count of how long they were gone.</p>
+    </section>
+    <section class="card" style="gap: 6px">
+      <span class="grp" style="margin-bottom: 6px">The cost, per active student per month</span>
+      <div class="row"><span>AI today at heavy use (5 tasks, 30 lines a day), peak prices</span><span class="r" style="font-weight: 800; text-align: right">$5.70</span></div>
+      <div class="row"><span>The same with cached prompts, off-peak</span><span class="r" style="font-weight: 800; text-align: right">$2.25</span></div>
+      <div class="row"><span>His spoken voice, when it ships</span><span class="r" style="font-weight: 800; text-align: right">+$3.60 to $7.20</span></div>
+      <div class="row"><span>What a school-year student pays us after Apple’s 15%</span><span class="r" style="font-weight: 800; text-align: right">$2.83 · VN ≈ $1.22</span></div>
+      <div class="row"><span>What a free student can cost if 4 in 100 pay</span><span class="r" style="font-weight: 800; text-align: right; color: #D42A24">≈ $0.10</span></div>
+      <p style="margin: 10px 0 0; font-size: 14.5px; line-height: 1.55; color: #3E3933"><b>So the free lesson has to run on the phone.</b> Apple’s on-device speech instead of paid transcription, on-device task picking, the offline line pack for most of what he says, and the server only for kinds of task he has not seen. Target: under $0.10 a month per free student. His voice stays in tuition because it costs more than the tuition pays.</p>
+      <span class="src">Heavy use is an assumption, not a measurement. The cost ledger in the API uses placeholder prices that count the larger model at about half its list price.</span>
+    </section>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1880}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

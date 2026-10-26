@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tuition</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Nunito:wght@700;800;900&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>
+@font-face{font-family:'Kithfield Hand';src:url(/_blob/14e9dde70c051ba67648e65c4cc548b4) format('woff2');font-weight:700;font-display:swap}
+body{margin:0}
+a{color:#D42A24}a:hover{color:#A81B15}
+.r{font-family:ui-rounded,'SF Pro Rounded',Nunito,system-ui,sans-serif}
+.hand{font-family:'Kithfield Hand',ui-rounded,cursive;font-weight:700}
+.mono{font-family:'SF Mono',ui-monospace,'JetBrains Mono',monospace}
+.glass{background:rgba(255,255,255,0.66);-webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%);border:1px solid rgba(255,255,255,0.9);box-shadow:inset 0 1px 0 rgba(255,255,255,0.95),0 6px 18px rgba(60,40,20,0.08),0 1px 2px rgba(60,40,20,0.06)}
+.press{transition:transform 200ms cubic-bezier(.32,.72,0,1);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.press:active{transform:scale(.97)}
+.paper{position:absolute;left:16px;right:16px;background:#FFFDF7;border-radius:4px 4px 20px 20px;box-shadow:0 1px 2px rgba(60,40,20,0.06),0 20px 44px rgba(60,40,20,0.11);
+  -webkit-mask:radial-gradient(circle 5px at 9px 0,transparent 4.5px,#000 5px) 0 0/18px 100% repeat-x;mask:radial-gradient(circle 5px at 9px 0,transparent 4.5px,#000 5px) 0 0/18px 100% repeat-x}
+.cap{font-size:10px;font-weight:800;letter-spacing:.12em;color:#D42A24}
+.dash{height:0;border-top:1.5px dashed rgba(28,26,24,0.14);margin:0 18px}
+.line{display:grid;grid-template-columns:auto minmax(12px,1fr) 20px;column-gap:8px;align-items:end;height:27px}
+.line b{font-size:14px;font-weight:700;white-space:nowrap}
+.line b span{font-weight:500;color:#8A7F74;font-size:12.5px;margin-left:6px}
+.lead{border-bottom:2px dotted rgba(28,26,24,0.18);margin-bottom:5px}
+.opt{position:relative;flex:1;border:none;border-radius:16px;padding:10px 12px 11px;font:inherit;color:#1C1A18;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:1px;transition:background-color 240ms,box-shadow 260ms cubic-bezier(.32,.72,0,1),transform 200ms cubic-bezier(.32,.72,0,1)}
+.opt:active{transform:scale(.97)}
+.lbl{font-size:9.5px;font-weight:800;letter-spacing:.1em;color:#8A7F74}
+.stamp{position:absolute;width:112px;height:112px;border-radius:56px;border:3.5px solid currentColor;display:flex;flex-direction:column;align-items:center;justify-content:center;mix-blend-mode:multiply;opacity:.9;pointer-events:none}
+.stamp::before{content:'';position:absolute;inset:5px;border-radius:50%;border:1.5px solid currentColor}
+.stampIn{animation:stampIn 520ms cubic-bezier(.34,1.56,.64,1) both}
+@keyframes stampIn{0%{opacity:0;transform:rotate(-14deg) scale(1.9)}55%{opacity:.95;transform:rotate(-14deg) scale(.94)}100%{opacity:.9;transform:rotate(-14deg) scale(1)}}
+.thud{animation:thud 380ms 180ms cubic-bezier(.32,.72,0,1) both}
+@keyframes thud{0%,100%{transform:translateY(0)}35%{transform:translateY(3px)}}
+.write{animation:write 620ms cubic-bezier(.32,.72,0,1) both}
+@keyframes write{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+.sig{stroke-dasharray:240;stroke-dashoffset:0}
+.sigIn{animation:sig 900ms 420ms cubic-bezier(.32,.72,0,1) both}
+@keyframes sig{from{stroke-dashoffset:240}to{stroke-dashoffset:0}}
+.swap{animation:swap 420ms cubic-bezier(.32,.72,0,1) both}
+@keyframes swap{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){.press,.opt{transition:none}.stampIn,.thud,.write,.sigIn,.swap{animation:none}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #F7F1E8; color: #1C1A18; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', Inter, system-ui, sans-serif">
+
+  <button class="glass press" aria-label="Close" style="position: absolute; top: 52px; left: 16px; width: 40px; height: 40px; border-radius: 20px; display: flex; align-items: center; justify-content: center; padding: 0; z-index: 2">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1C1A18" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+  </button>
+  <button class="press" style="position: absolute; top: 52px; right: 12px; height: 40px; padding: 0 8px; border: none; background: transparent; font: inherit; font-size: 15px; font-weight: 500; color: #6B655E; z-index: 2">Restore</button>
+
+  <header style="position: absolute; top: 102px; left: 20px; width: 220px">
+    <h1 style="margin: 0; font-size: 34px; line-height: 1.1; font-weight: 800; letter-spacing: -0.025em">Tuition</h1>
+    <p style="margin: 4px 0 0; font-size: 14px; line-height: 1.4; color: #5E5852">Every lesson stays free. This opens the rest.</p>
+  </header>
+  <div style="position: absolute; top: 92px; right: 14px; width: 112px; height: 124px; overflow: hidden">
+    <dc-import name="Phu" mood="{{mood}}" size="112" hint-size="112px,124px"></dc-import>
+  </div>
+
+  <section class="paper {{thud}}" aria-label="Tuition receipt" style="top: 206px">
+    <div style="padding: 18px 18px 10px; display: flex; flex-direction: column; gap: 5px">
+      <div style="display: flex; justify-content: space-between; align-items: baseline"><span class="cap">TUITION RECEIPT</span><span class="mono" style="font-size: 10.5px; color: #8A7F74">Nº 0011</span></div>
+      <div style="display: flex; align-items: baseline; gap: 8px; font-size: 12px; color: #8A7F74; margin-top: 2px">Name<span class="hand" style="flex: 1; font-size: 19px; color: #1C1A18; border-bottom: 1.5px dotted rgba(28,26,24,0.22); padding: 0 2px 1px">Trần Minh Anh</span></div>
+    </div>
+    <div class="dash"></div>
+    <div style="padding: 4px 18px 10px">
+      <sc-for list="{{lines}}" as="item" hint-placeholder-count="4">
+        <div class="line"><b>{{item.vn}}<span>{{item.en}}</span></b><i class="lead"></i><svg width="20" height="18" viewBox="0 0 20 18" aria-hidden="true" style="margin-bottom: 2px"><path d="M2 10 L7.5 15 L18 2.5" fill="none" stroke="#D42A24" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+      </sc-for>
+    </div>
+    <div class="dash"></div>
+    <div role="radiogroup" aria-label="How to pay" style="display: flex; gap: 8px; padding: 12px 12px 4px">
+      <sc-for list="{{plans}}" as="item" hint-placeholder-count="2">
+        <button class="opt" role="radio" aria-checked="{{item.on}}" onClick="{{item.pick}}" style="background: {{item.bg}}; box-shadow: {{item.ring}}; opacity: {{item.op}}">
+          <span style="display: flex; justify-content: space-between; align-items: center"><b style="font-size: 15px">{{item.vn}}</b><sc-if value="{{item.hasTag}}" hint-placeholder-val="{{ false }}"><span style="font-size: 10px; font-weight: 800; color: #FFFFFF; background: #2F6B56; padding: 2px 6px; border-radius: 6px">{{item.tag}}</span></sc-if></span>
+          <span class="r" style="font-size: 19px; font-weight: 800; letter-spacing: -0.01em; font-variant-numeric: tabular-nums">{{item.price}}<span style="font-size: 12.5px; font-weight: 700; color: #8A7F74"> {{item.per}}</span></span>
+          <span style="font-size: 11.5px; color: #8A7F74">{{item.note}}</span>
+        </button>
+      </sc-for>
+    </div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; column-gap: 16px; padding: 10px 18px 16px; align-items: end">
+      <span style="display: flex; flex-direction: column; gap: 2px; min-width: 0"><span class="lbl">AMOUNT</span><span class="hand write" style="font-size: 22px; line-height: 1.1; color: #D42A24; white-space: nowrap" key="{{amtKey}}">{{amount}}</span></span>
+      <span style="display: flex; flex-direction: column; gap: 2px; align-items: flex-end"><span class="lbl">RECEIVED BY</span><svg width="84" height="30" viewBox="0 0 84 30" role="img" aria-label="Thầy Phú’s signature"><path class="sig {{sigCls}}" d="M5 27 C7 19 8 11 10 3 C15 0 23 4 19 10 C16 14 10 13 8 11 M12 14 C15 9 18 4 20 2 C21 8 18 17 19 24 C20 18 24 13 26 17 C27 21 26 24 29 22 C31 19 31 16 32 15 C32 20 33 24 36 22 C38 20 38 17 39 15 C39 20 40 24 44 21 C52 17 64 16 82 9 M35 9 L40 4" fill="none" stroke="#2B4C9A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+    </div>
+    <sc-if value="{{stamped}}" hint-placeholder-val="{{ false }}">
+      <div class="stamp stampIn" aria-label="{{stampLabel}}" style="right: 74px; bottom: 4px; color: {{stampColor}}"><span style="font-size: 8.5px; font-weight: 800; letter-spacing: .14em">PHU’S CLASS</span><span class="hand" style="font-size: {{stampSize}}; line-height: 1">{{stampWord}}</span><span style="font-size: 8.5px; font-weight: 800; letter-spacing: .14em">{{stampSub}}</span></div>
+    </sc-if>
+  </section>
+
+  <section class="swap" key="{{stage}}" style="position: absolute; left: 16px; right: 16px; top: 598px; height: 70px; border-radius: 20px; background: {{trialBg}}; display: flex; align-items: flex-start; padding: 14px 14px 0; gap: 12px; box-sizing: border-box">
+    <sc-for list="{{steps}}" as="item" hint-placeholder-count="3">
+      <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; position: relative">
+        <span style="display: flex; align-items: center; gap: 6px"><span style="width: 8px; height: 8px; border-radius: 4px; background: {{item.dot}}; flex-shrink: 0"></span><span class="lbl" style="color: {{item.lc}}">{{item.when}}</span></span>
+        <span style="font-size: 12.5px; line-height: 1.3; font-weight: 600; color: #1C1A18">{{item.what}}</span>
+      </span>
+    </sc-for>
+  </section>
+
+  <div style="position: absolute; left: 16px; right: 16px; top: 702px; display: flex; flex-direction: column; align-items: center; gap: 8px">
+    <button class="press" onClick="{{go}}" style="width: 100%; height: 54px; border: none; border-radius: 27px; background: {{ctaBg}}; color: {{ctaFg}}; font: inherit; font-size: 17px; font-weight: 700; transition: background-color 260ms, color 260ms">{{ctaLabel}}</button>
+    <span style="font-size: 12px; line-height: 1.4; color: #8A7F74; text-align: center">{{fine}}</span>
+  </div>
+  <div style="position: absolute; left: 0; right: 0; bottom: 22px; display: flex; justify-content: center; gap: 14px; font-size: 12.5px; color: #8A7F74">
+    <a href="#" style="font-weight: 600; text-decoration: none">Can’t pay right now?</a><span>·</span><a href="#" style="color: #8A7F74; text-decoration: none">Terms</a><span>·</span><a href="#" style="color: #8A7F74; text-decoration: none">Privacy</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"cur":{"editor":"enum","options":["usd","vnd"],"default":"usd"},"stage":{"editor":"enum","options":["offer","trial","paid","pending","failed"],"default":"offer"},"plan":{"editor":"enum","options":["year","month"],"default":"year"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const S = this.state || {};
+    const vnd = this.props.cur === 'vnd';
+    const stage = S.stage ?? (this.props.stage || 'offer');
+    const sel = S.sel ?? (this.props.plan === 'month' ? 1 : 0);
+    const P = vnd
+      ? [{ price: '499.000₫', per: '/ year', note: '41.600₫ a month', amount: '499.000₫', words: '' },
+         { price: '79.000₫', per: '/ month', note: 'Stop any month', amount: '79.000₫', words: '' }]
+      : [{ price: '$39.99', per: '/ year', note: '$3.33 a month', amount: '$39.99', words: 'thirty-nine ninety-nine' },
+         { price: '$6.99', per: '/ month', note: 'Stop any month', amount: '$6.99', words: 'six ninety-nine' }];
+    const plans = [
+      Object.assign({ vn: 'Yearly', tag: 'Save 52%' }, P[0]),
+      Object.assign({ vn: 'Monthly', tag: '' }, P[1])
+    ];
+    const p = plans[sel];
+    if (this._st !== stage) { this._st = stage; this._stN = (this._stN || 0) + 1; }
+    const fresh = this._stN > 1;
+    const yr = sel === 0;
+    const steps = stage === 'pending'
+      ? [{ when: 'WAITING', what: 'Ask to Buy went to your family organiser. Nothing is charged until they say yes.', dot: '#E0A030', lc: '#9A6B00' }]
+      : stage === 'failed'
+      ? [{ when: 'NOT PAID', what: 'The payment didn’t go through. Nothing was charged.', dot: '#D42A24', lc: '#D42A24' }]
+      : stage === 'paid'
+      ? [{ when: 'TODAY', what: 'Paid. Everything open.', dot: '#2F6B56', lc: '#2F6B56' },
+         { when: yr ? '24 OCT 2027' : '24 NOV', what: 'A note from him first', dot: '#C9BFB2', lc: '#8A7F74' },
+         { when: yr ? '27 OCT 2027' : '27 NOV', what: 'Renews at ' + p.price, dot: '#C9BFB2', lc: '#8A7F74' }]
+      : [{ when: 'TODAY', what: 'Everything opens. Free.', dot: '#2F6B56', lc: '#2F6B56' },
+         { when: '1 NOV', what: 'A note from him', dot: '#E0A030', lc: '#9A6B00' },
+         { when: '3 NOV', what: 'First charge, ' + p.price, dot: '#D42A24', lc: '#D42A24' }];
+    return {
+      stage,
+      mood: stage === 'offer' ? 'peer' : stage === 'pending' ? 'watch' : stage === 'failed' ? 'think' : 'approve',
+      thud: fresh && stage !== 'offer' ? 'thud' : '',
+      lines: [
+        { vn: 'Timetable', en: '' },
+        { vn: 'Big widgets', en: '' },
+        { vn: 'Report card', en: '' },
+        { vn: 'Everything he learns later', en: '' }
+      ],
+      plans: plans.map((x, i) => ({
+        ...x, on: String(sel === i), hasTag: !!x.tag,
+        bg: sel === i ? '#FFFFFF' : 'rgba(28,26,24,0.035)',
+        op: stage === 'offer' || sel === i ? 1 : 0.38,
+        ring: sel === i ? 'inset 0 0 0 2px #1C1A18, 0 6px 16px rgba(60,40,20,0.10)' : 'none',
+        pick: () => this.setState({ sel: i })
+      })),
+      amount: p.amount,
+      words: '(' + p.words + ')',
+      amtKey: String(sel),
+      sigCls: fresh && stage !== 'offer' ? 'sigIn' : '',
+      stamped: stage === 'trial' || stage === 'paid',
+      stampLabel: stage === 'paid' ? 'Received' : 'Trial week',
+      stampColor: stage === 'paid' ? '#D42A24' : '#2B4C9A',
+      stampWord: stage === 'paid' ? 'PAID' : 'FREE WEEK',
+      stampSize: stage === 'paid' ? '30px' : '21px',
+      stampSub: stage === 'paid' ? '27 OCT 2026' : 'UNTIL 3 NOV',
+      trialBg: stage === 'paid' ? '#EAF4EE' : stage === 'pending' ? '#FFF6DE' : stage === 'failed' ? '#FDECEA' : '#FFFFFF',
+      steps,
+      go: () => this.setState({ stage: stage === 'offer' ? 'trial' : 'offer' }),
+      ctaBg: stage === 'offer' || stage === 'failed' ? '#1C1A18' : '#EAF4EE',
+      ctaFg: stage === 'offer' || stage === 'failed' ? '#FFFFFF' : '#2F6B56',
+      ctaLabel: stage === 'offer' ? 'Start the free week' : stage === 'failed' ? 'Try again' : 'Back to class',
+      fine: stage === 'offer'
+        ? 'Then ' + p.price + (yr ? ' a year' : ' a month') + '. Cancel before 3 Nov and nothing is charged.'
+        : stage === 'trial' ? 'Cancel in Settings before 3 Nov and nothing is charged.' : stage === 'pending' ? 'He stamps the receipt the moment they approve.' : stage === 'failed' ? 'Check the card on your Apple account, then try again.' : 'Cancel any time in Settings.'
+    };
+  }
+}
+</script>
+</body>
+</html>

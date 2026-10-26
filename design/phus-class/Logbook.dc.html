@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Logbook</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+@font-face{font-family:'Kithfield Hand';src:url(/_blob/14e9dde70c051ba67648e65c4cc548b4) format('woff2');font-weight:700;font-display:swap}
+body{margin:0}
+a{color:#D42A24}a:hover{color:#A81B15}
+.r{font-family:ui-rounded,'SF Pro Rounded',Nunito,system-ui,sans-serif}
+.hand{font-family:'Kithfield Hand',ui-rounded,cursive;font-weight:700}
+.glass{background:rgba(255,255,255,0.66);-webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%);border:1px solid rgba(255,255,255,0.9);box-shadow:inset 0 1px 0 rgba(255,255,255,0.95),0 6px 18px rgba(60,40,20,0.08),0 1px 2px rgba(60,40,20,0.06)}
+.press{transition:transform 200ms cubic-bezier(.32,.72,0,1);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.press:active{transform:scale(.98)}
+.dayhead{display:flex;justify-content:space-between;align-items:baseline;padding:0 6px 6px}
+.dayhead b{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#8A7F74}
+.dayhead span{font-size:12px;color:#B0A69B;font-variant-numeric:tabular-nums}
+.group{background:#FFFFFF;border-radius:20px;box-shadow:0 1px 2px rgba(60,40,20,0.05);overflow:hidden}
+.entry{display:grid;grid-template-columns:44px minmax(0,1fr) 84px;column-gap:12px;align-items:center;min-height:64px;padding:0 14px;text-decoration:none;color:#1C1A18;position:relative}
+.entry + .entry::before{content:'';position:absolute;top:0;left:70px;right:0;height:1px;background:rgba(28,26,24,0.07)}
+.tiet{width:44px;height:44px;border-radius:12px;background:#F7F1E8;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+.tiet small{font-size:9px;font-weight:800;letter-spacing:.06em;color:#8A7F74}
+.tiet b{font-family:'Kithfield Hand',cursive;font-size:20px;color:#1C1A18;margin-top:2px}
+.ttl{font-size:15.5px;font-weight:600;letter-spacing:-0.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mt{font-size:12.5px;color:#8A7F74;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.grade{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:0}
+.grade .w{font-family:'Kithfield Hand',cursive;font-weight:700;font-size:20px;line-height:1.1;color:#D42A24;white-space:nowrap}
+@media (prefers-reduced-motion: reduce){.press{transition:none}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #F7F1E8; color: #1C1A18; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', Inter, system-ui, sans-serif">
+
+  <a href="Board.dc.html" class="glass press" aria-label="Back to the board" style="position: absolute; top: 52px; left: 16px; width: 40px; height: 40px; border-radius: 20px; display: flex; align-items: center; justify-content: center">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1C1A18" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
+  </a>
+  <div class="glass" style="position: absolute; top: 52px; right: 16px; height: 40px; border-radius: 20px; display: flex; align-items: center; padding: 0 4px">
+    <button class="press" aria-label="Previous week" style="width: 32px; height: 32px; border: none; background: transparent; border-radius: 16px; display: flex; align-items: center; justify-content: center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1C1A18" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
+    <span style="font-size: 13px; font-weight: 600; padding: 0 4px; font-variant-numeric: tabular-nums">Week 43</span>
+    <button class="press" aria-label="Next week" style="width: 32px; height: 32px; border: none; background: transparent; border-radius: 16px; display: flex; align-items: center; justify-content: center; opacity: 0.3"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1C1A18" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg></button>
+  </div>
+
+  <header style="position: absolute; top: 104px; left: 20px; right: 20px">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end">
+      <h1 style="margin: 0; font-size: 34px; line-height: 1.1; font-weight: 800; letter-spacing: -0.025em">Logbook</h1>
+      <span style="display: inline-flex; align-items: center; height: 24px; padding: 0 9px; border: 2px solid rgba(212,42,36,0.8); border-radius: 6px; color: #D42A24; font-size: 10.5px; font-weight: 800; letter-spacing: .1em; margin-bottom: 4px">CHECKED</span>
+    </div>
+    <p style="margin: 6px 0 0; font-size: 14px; line-height: 1.4; color: #8A7F74">Everything you finished, signed by him.</p>
+  </header>
+
+  <sc-if value="{{full}}" hint-placeholder-val="{{ true }}">
+  <main style="position: absolute; top: 228px; left: 16px; right: 16px; display: flex; flex-direction: column; gap: 16px">
+      <section>
+        <div class="dayhead"><b>{{n0}}</b><span>{{dt0}}</span></div>
+        <div class="group">
+          <sc-for list="{{r0}}" as="item" hint-placeholder-count="2">
+            <a href="ShareCard.dc.html" class="entry press">
+              <span class="tiet"><small>PERIOD</small><b>{{item.p}}</b></span>
+              <span style="min-width: 0">
+                <span class="ttl" style="display: block">{{item.t}}</span>
+                <span class="mt" style="display: block">{{item.s}}</span>
+              </span>
+              <span class="grade">
+                <sc-if value="{{item.ten}}" hint-placeholder-val="{{ false }}">
+                  <svg width="40" height="34" viewBox="0 0 40 34" role="img" aria-label="A circled ten"><ellipse cx="20" cy="17" rx="17" ry="14" fill="none" stroke="#D42A24" stroke-width="2.4" transform="rotate(-8 20 17)"></ellipse><text x="20" y="23" text-anchor="middle" font-family="'Kithfield Hand', cursive" font-weight="700" font-size="17" fill="#D42A24">10</text></svg>
+                </sc-if>
+                <sc-if value="{{item.word}}" hint-placeholder-val="{{ true }}"><span class="w" style="color: {{item.c}}">{{item.w}}</span></sc-if>
+                <svg width="46" height="16" viewBox="0 0 46 16" aria-hidden="true"><path d="{{item.sig}}" fill="none" stroke="#D42A24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="0.75"></path></svg>
+              </span>
+            </a>
+          </sc-for>
+        </div>
+      </section>
+      <section>
+        <div class="dayhead"><b>{{n1}}</b><span>{{dt1}}</span></div>
+        <div class="group">
+          <sc-for list="{{r1}}" as="item" hint-placeholder-count="2">
+            <a href="ShareCard.dc.html" class="entry press">
+              <span class="tiet"><small>PERIOD</small><b>{{item.p}}</b></span>
+              <span style="min-width: 0">
+                <span class="ttl" style="display: block">{{item.t}}</span>
+                <span class="mt" style="display: block">{{item.s}}</span>
+              </span>
+              <span class="grade">
+                <sc-if value="{{item.ten}}" hint-placeholder-val="{{ false }}">
+                  <svg width="40" height="34" viewBox="0 0 40 34" role="img" aria-label="A circled ten"><ellipse cx="20" cy="17" rx="17" ry="14" fill="none" stroke="#D42A24" stroke-width="2.4" transform="rotate(-8 20 17)"></ellipse><text x="20" y="23" text-anchor="middle" font-family="'Kithfield Hand', cursive" font-weight="700" font-size="17" fill="#D42A24">10</text></svg>
+                </sc-if>
+                <sc-if value="{{item.word}}" hint-placeholder-val="{{ true }}"><span class="w" style="color: {{item.c}}">{{item.w}}</span></sc-if>
+                <svg width="46" height="16" viewBox="0 0 46 16" aria-hidden="true"><path d="{{item.sig}}" fill="none" stroke="#D42A24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="0.75"></path></svg>
+              </span>
+            </a>
+          </sc-for>
+        </div>
+      </section>
+      <section>
+        <div class="dayhead"><b>{{n2}}</b><span>{{dt2}}</span></div>
+        <div class="group">
+          <sc-for list="{{r2}}" as="item" hint-placeholder-count="2">
+            <a href="ShareCard.dc.html" class="entry press">
+              <span class="tiet"><small>PERIOD</small><b>{{item.p}}</b></span>
+              <span style="min-width: 0">
+                <span class="ttl" style="display: block">{{item.t}}</span>
+                <span class="mt" style="display: block">{{item.s}}</span>
+              </span>
+              <span class="grade">
+                <sc-if value="{{item.ten}}" hint-placeholder-val="{{ false }}">
+                  <svg width="40" height="34" viewBox="0 0 40 34" role="img" aria-label="A circled ten"><ellipse cx="20" cy="17" rx="17" ry="14" fill="none" stroke="#D42A24" stroke-width="2.4" transform="rotate(-8 20 17)"></ellipse><text x="20" y="23" text-anchor="middle" font-family="'Kithfield Hand', cursive" font-weight="700" font-size="17" fill="#D42A24">10</text></svg>
+                </sc-if>
+                <sc-if value="{{item.word}}" hint-placeholder-val="{{ true }}"><span class="w" style="color: {{item.c}}">{{item.w}}</span></sc-if>
+                <svg width="46" height="16" viewBox="0 0 46 16" aria-hidden="true"><path d="{{item.sig}}" fill="none" stroke="#D42A24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="0.75"></path></svg>
+              </span>
+            </a>
+          </sc-for>
+        </div>
+      </section>
+      <section>
+        <div class="dayhead"><b>{{n3}}</b><span>{{dt3}}</span></div>
+        <div class="group">
+          <sc-for list="{{r3}}" as="item" hint-placeholder-count="2">
+            <a href="ShareCard.dc.html" class="entry press">
+              <span class="tiet"><small>PERIOD</small><b>{{item.p}}</b></span>
+              <span style="min-width: 0">
+                <span class="ttl" style="display: block">{{item.t}}</span>
+                <span class="mt" style="display: block">{{item.s}}</span>
+              </span>
+              <span class="grade">
+                <sc-if value="{{item.ten}}" hint-placeholder-val="{{ false }}">
+                  <svg width="40" height="34" viewBox="0 0 40 34" role="img" aria-label="A circled ten"><ellipse cx="20" cy="17" rx="17" ry="14" fill="none" stroke="#D42A24" stroke-width="2.4" transform="rotate(-8 20 17)"></ellipse><text x="20" y="23" text-anchor="middle" font-family="'Kithfield Hand', cursive" font-weight="700" font-size="17" fill="#D42A24">10</text></svg>
+                </sc-if>
+                <sc-if value="{{item.word}}" hint-placeholder-val="{{ true }}"><span class="w" style="color: {{item.c}}">{{item.w}}</span></sc-if>
+                <svg width="46" height="16" viewBox="0 0 46 16" aria-hidden="true"><path d="{{item.sig}}" fill="none" stroke="#D42A24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="0.75"></path></svg>
+              </span>
+            </a>
+          </sc-for>
+        </div>
+      </section>
+  </main>
+  </sc-if>
+  <sc-if value="{{empty}}" hint-placeholder-val="{{ false }}">
+    <section style="position: absolute; top: 228px; left: 16px; right: 16px; height: 420px; border-radius: 26px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(60,40,20,0.05); overflow: hidden">
+      <div style="position: absolute; inset: 0; background: repeating-linear-gradient(180deg, transparent 0 39px, rgba(43,76,154,0.10) 39px 40px); background-position: 0 18px"></div>
+      <div style="position: absolute; left: 44px; top: 0; bottom: 0; width: 1.5px; background: rgba(212,42,36,0.25)"></div>
+      <div style="position: relative; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; padding: 0 36px">
+        <div style="width: 124px; height: 136px"><dc-import name="Phu" mood="grading" size="124" hint-size="124px,136px"></dc-import></div>
+        <span style="font-size: 18px; font-weight: 700; letter-spacing: -0.01em">Nothing signed yet.</span>
+        <span style="font-size: 14.5px; line-height: 1.45; color: #6B655E">The first thing you finish goes on this page, with his comment and his signature.</span>
+      </div>
+    </section>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"empty":{"editor":"boolean","default":false},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const red = '#D42A24';
+    const sigs = [
+      'M 2.6 14.0 C 3.6 9.9 4.2 5.7 5.2 1.6 C 7.8 0.0 12.0 2.1 9.9 5.2 C 8.3 7.3 5.2 6.8 4.2 5.7 M 6.2 7.3 C 7.8 4.7 9.4 2.1 10.4 1.0 C 10.9 4.2 9.4 8.8 9.9 12.5 C 10.4 9.4 12.5 6.8 13.5 8.8 C 14.0 10.9 13.5 12.5 15.1 11.4 C 16.1 9.9 16.1 8.3 16.6 7.8 C 16.6 10.4 17.2 12.5 18.7 11.4 C 19.8 10.4 19.8 8.8 20.3 7.8 C 20.3 10.4 20.8 12.5 22.9 10.9 C 27.0 8.8 33.3 8.3 42.6 4.7 M 18.2 4.7 L 20.8 2.1',
+      'M 2.6 14.4 C 3.6 10.2 4.2 5.7 5.2 1.2 C 7.8 -0.4 12.0 2.4 9.9 5.2 C 8.3 7.3 5.2 6.4 4.2 6.1 M 6.2 7.6 C 7.8 5.0 9.4 2.1 10.4 0.7 C 10.9 3.8 9.4 9.2 9.9 12.5 C 10.4 9.4 12.5 6.4 13.5 9.2 C 14.0 11.3 13.5 12.5 15.1 11.1 C 16.1 9.5 16.1 8.7 16.6 7.8 C 16.6 10.4 17.2 12.1 18.7 11.8 C 19.8 10.8 19.8 8.8 20.3 7.4 C 20.3 10.0 20.8 12.8 22.9 10.9 C 27.0 8.8 33.3 8.0 42.6 5.0 M 18.2 5.0 L 20.8 2.4',
+      'M 3.5 13.7 C 4.5 9.7 5.0 6.0 6.0 2.3 C 8.5 0.8 12.5 2.2 10.5 5.5 C 9.0 7.5 6.0 7.3 5.0 5.7 M 7.0 7.2 C 8.5 4.7 10.0 2.5 11.0 1.8 C 11.5 4.8 10.0 8.7 10.5 12.5 C 11.0 9.5 13.0 7.3 14.0 8.7 C 14.5 10.7 14.0 12.5 15.5 11.8 C 16.5 10.3 16.5 8.2 17.0 8.0 C 17.0 10.5 17.5 12.8 19.0 11.2 C 20.0 10.2 20.0 9.0 20.5 8.3 C 20.5 10.8 21.0 12.2 23.0 11.0 C 27.0 9.0 33.0 8.8 42.0 4.7 M 18.5 4.7 L 21.0 2.2'
+    ];
+    const sig = (k) => sigs[k % sigs.length];
+    const days = [
+      { name: 'Monday', date: '26/10', rows: [
+        { p: '2', t: 'Email the landlord', s: 'Started in time · 9 min', w: 'Good.' },
+        { p: '1', t: 'Email the dentist', s: 'Partial credit · on the board', w: 'Partial.', c: '#8A7F74' }
+      ] },
+      { name: 'Sunday', date: '25/10', rows: [
+        { p: '1', t: 'Pay the electricity bill', s: 'Waited 12 days · 6 min', w: 'Good work.' }
+      ] },
+      { name: 'Saturday', date: '24/10', rows: [
+        { p: '1', t: 'Call Mum back', s: 'Started in time · 22 min', ten: true },
+        { p: '2', t: 'Tax receipts, filed', s: 'Waited 23 days · giấy khen', w: 'Good work.' }
+      ] },
+      { name: 'Friday', date: '23/10', rows: [
+        { p: '3', t: 'Return the library books', s: '5 late slips · 14 min', w: 'Fine.' }
+      ] }
+    ];
+    let n = 0;
+    const out = {};
+    days.forEach((d, i) => {
+      out['n' + i] = d.name;
+      out['dt' + i] = d.date;
+      out['r' + i] = d.rows.map((r) => { n += 1; return { p: r.p, t: r.t, s: r.s, w: r.w || '', c: r.c || red, ten: !!r.ten, word: !r.ten, sig: sig(n) }; });
+    });
+    const empty = this.props.empty === true || this.props.empty === 'true';
+    out.empty = empty;
+    out.full = !empty;
+    return out;
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1358 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Phu's Class prototype</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+@font-face{font-family:'Kithfield Hand';src:url(/_blob/14e9dde70c051ba67648e65c4cc548b4) format('woff2');font-weight:700;font-display:swap}
+body{margin:0}
+a{color:#D42A24}a:hover{color:#A81B15}
+.r{font-family:ui-rounded,'SF Pro Rounded',Nunito,system-ui,sans-serif}
+.hand{font-family:'Kithfield Hand',ui-rounded,cursive;font-weight:700}
+.glass{background:rgba(255,255,255,0.62);-webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%);border:1px solid rgba(255,255,255,0.85);box-shadow:inset 0 1px 0 rgba(255,255,255,0.95),0 8px 24px rgba(60,40,20,0.10),0 1px 2px rgba(60,40,20,0.08)}
+.press{transition:transform 200ms cubic-bezier(.32,.72,0,1);cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+.press:active{transform:scale(.965)}
+.btn{height:56px;border:none;border-radius:28px;font:inherit;font-size:17px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;padding:0;text-decoration:none}
+.ink{background:#1C1A18;color:#FFFFFF;box-shadow:inset 0 1px 0 rgba(255,255,255,0.16),0 8px 20px rgba(28,26,24,0.18)}
+.red{background:linear-gradient(180deg,#E2453E 0%,#C9241E 100%);color:#FFFFFF;box-shadow:inset 0 1px 0 rgba(255,255,255,0.35),0 10px 24px rgba(201,36,30,0.28)}
+.soft{background:rgba(28,26,24,0.06);color:#1C1A18}
+.label{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.ease{transition:top 520ms cubic-bezier(.32,.72,0,1),left 520ms cubic-bezier(.32,.72,0,1),width 520ms cubic-bezier(.32,.72,0,1),height 520ms cubic-bezier(.32,.72,0,1),opacity 300ms ease,transform 520ms cubic-bezier(.32,.72,0,1),background-color 300ms ease}
+.slide{transition:transform 540ms cubic-bezier(.32,.72,0,1),opacity 360ms ease}
+.bsec > header,.bsec > ol,.bsec > div:not(.bkeep),.bsec > button{opacity:var(--bdo);transition:opacity 240ms ease}
+.ttday{flex:1;height:54px;border:none;border-radius:16px;font:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;transition:background-color 240ms,color 240ms}
+.camera{transform-origin:0 0;transition:transform 1150ms cubic-bezier(.7,0,.2,1)}
+.walkto{transition:left 1300ms cubic-bezier(.45,0,.25,1),top 1300ms cubic-bezier(.45,0,.25,1)}
+.breathe{transform-origin:50% 100%;animation:breathe 3.2s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1,1)}50%{transform:scale(1.012,1.022)}}
+.bob{transform-origin:50% 100%;animation:bob 520ms ease-in-out infinite}
+@keyframes bob{0%,50%,100%{transform:translateY(0)}25%,75%{transform:translateY(-5px)}}
+.paceWide{animation:paceWide 10s ease-in-out infinite}
+@keyframes paceWide{0%{transform:translateX(0) scaleX(-1)}20%{transform:translateX(160px) scaleX(-1)}24%{transform:translateX(160px) scaleX(1)}70%{transform:translateX(-160px) scaleX(1)}74%{transform:translateX(-160px) scaleX(-1)}100%{transform:translateX(0) scaleX(-1)}}
+.popA,.popB{transform-origin:50% 100%}
+.popA{animation:popA 480ms cubic-bezier(.34,1.56,.64,1)}
+.popB{animation:popB 480ms cubic-bezier(.34,1.56,.64,1)}
+@keyframes popA{0%{transform:scale(.93,1.07)}45%{transform:scale(1.05,.95)}100%{transform:none}}
+@keyframes popB{0%{transform:scale(.93,1.07)}45%{transform:scale(1.05,.95)}100%{transform:none}}
+.bubA,.bubB{transform-origin:20% 100%}
+.bubA{animation:bubA 400ms cubic-bezier(.34,1.56,.64,1) both}
+.bubB{animation:bubB 400ms cubic-bezier(.34,1.56,.64,1) both}
+@keyframes bubA{from{opacity:0;transform:scale(.6) translateY(10px)}to{opacity:1;transform:none}}
+@keyframes bubB{from{opacity:0;transform:scale(.6) translateY(10px)}to{opacity:1;transform:none}}
+.glow,.ember{transform-box:fill-box;transform-origin:center}
+.glow{animation:glow 420ms ease-in-out infinite}
+@keyframes glow{0%,100%{opacity:.35;transform:scale(1)}50%{opacity:.6;transform:scale(1.35)}}
+.ember{animation:ember 700ms ease-out infinite}
+.ember.e2{animation-delay:350ms}
+@keyframes ember{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(6px,-12px) scale(.3)}}
+.ring{transform-origin:50% 50%;animation:ring 520ms ease-in-out}
+@keyframes ring{0%,100%{transform:rotate(0)}15%{transform:rotate(16deg) scale(1.15)}35%{transform:rotate(-14deg)}55%{transform:rotate(10deg) scale(1.1)}75%{transform:rotate(-6deg)}}
+.ripple{position:absolute;left:50%;top:50%;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;background:rgba(255,255,255,0.45);animation:ripple 560ms ease-out forwards;pointer-events:none}
+@keyframes ripple{from{transform:scale(0);opacity:1}to{transform:scale(7);opacity:0}}
+.tung{position:absolute;color:#D42A24;font-size:30px;white-space:nowrap;text-shadow:0 0 0 #fff,2px 2px 0 #FFFFFF,-2px -2px 0 #FFFFFF,2px -2px 0 #FFFFFF,-2px 2px 0 #FFFFFF;opacity:0;animation:tung 700ms cubic-bezier(.34,1.56,.64,1) both;pointer-events:none}
+@keyframes tung{0%{opacity:0;transform:scale(.4) rotate(-12deg)}35%{opacity:1;transform:scale(1.15) rotate(-6deg)}75%{opacity:1;transform:scale(1) rotate(-6deg)}100%{opacity:0;transform:scale(1.05) translateY(-10px) rotate(-6deg)}}
+.chalk{position:absolute;left:274px;top:330px;width:20px;height:7px;border-radius:3px;background:#FFFFFF;box-shadow:0 1px 0 rgba(0,0,0,0.15);animation:chalk 640ms cubic-bezier(.45,0,.9,.6) 500ms both;pointer-events:none}
+@keyframes chalk{0%{opacity:0;transform:translate(0,0) scale(1) rotate(0)}10%{opacity:1}100%{opacity:1;transform:translate(-150px,250px) scale(3.4) rotate(560deg)}}
+.puff{position:absolute;left:96px;top:548px;width:90px;height:90px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,0.95) 0,rgba(255,255,255,0.7) 40%,rgba(255,255,255,0) 70%);opacity:0;animation:puff 700ms ease-out 1120ms both;pointer-events:none}
+@keyframes puff{0%{opacity:0;transform:scale(.2)}25%{opacity:1}100%{opacity:0;transform:scale(2.2)}}
+.draw{stroke-dasharray:1;stroke-dashoffset:1;animation:draw 560ms cubic-bezier(.65,0,.35,1) 300ms forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.write,.wA,.wB{animation:write 720ms cubic-bezier(.65,0,.35,1) both}
+.write{animation-delay:780ms}
+.wA,.wB{animation-delay:620ms}
+.wB{animation-name:write2}
+@keyframes write{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes write2{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+.stamp{animation:stamp 400ms cubic-bezier(.34,1.56,.64,1) 280ms both}
+@keyframes stamp{0%{opacity:0;transform:scale(1.9) rotate(-10deg)}70%{opacity:1;transform:scale(.94) rotate(-10deg)}100%{opacity:1;transform:scale(1) rotate(-10deg)}}
+.fade{animation:fade 360ms ease-out both}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.wordA{display:inline-block;animation:wordA 260ms ease-out both}
+.wordB{display:inline-block;animation:wordB 260ms ease-out both}
+@keyframes wordA{from{opacity:0;transform:translateY(6px);filter:blur(3px)}to{opacity:1;transform:none;filter:none}}
+@keyframes wordB{from{opacity:0;transform:translateY(6px);filter:blur(3px)}to{opacity:1;transform:none;filter:none}}
+.bar{display:block;width:3px;border-radius:2px;background:#D42A24;transform-origin:50% 50%;animation:wave 900ms ease-in-out infinite}
+@keyframes wave{0%,100%{transform:scaleY(.25)}50%{transform:scaleY(1)}}
+.dot{animation:dot 1s ease-in-out infinite}
+@keyframes dot{0%,100%{opacity:1}50%{opacity:.3}}
+.shake{animation:shake 360ms ease-in-out}
+.shake2{animation:shake2 360ms ease-in-out}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(2px)}}
+@keyframes shake2{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(2px)}}
+.bumpA,.bumpB{display:inline-block}
+.bumpA{animation:bumpA 420ms cubic-bezier(.34,1.56,.64,1) 600ms both}
+.bumpB{animation:bumpB 420ms cubic-bezier(.34,1.56,.64,1) 600ms both}
+@keyframes bumpA{0%{transform:scale(1)}40%{transform:scale(1.3)}100%{transform:scale(1)}}
+@keyframes bumpB{0%{transform:scale(1)}40%{transform:scale(1.3)}100%{transform:scale(1)}}
+.fly{position:absolute;left:24px;padding:8px 14px;border-radius:16px;background:#2F6B56;color:#EEF6F0;font-size:20px;white-space:nowrap;opacity:0;animation:fly 1100ms cubic-bezier(.5,0,.2,1) both;pointer-events:none;box-shadow:0 8px 20px rgba(20,50,40,0.25)}
+@keyframes fly{0%{opacity:0;transform:translate(0,12px) scale(.9)}14%{opacity:1;transform:translate(0,0) scale(1)}62%{opacity:1;transform:translate(10px,var(--dy)) scale(.55) rotate(-3deg)}100%{opacity:0;transform:translate(10px,var(--dy)) scale(.5) rotate(-3deg)}}
+.bit{position:absolute;top:150px;width:9px;height:4px;border-radius:2px;opacity:0;animation:fall 1400ms cubic-bezier(.2,.7,.3,1) both}
+@keyframes fall{0%{opacity:0;transform:translateY(-30px) rotate(0)}15%{opacity:1}100%{opacity:0;transform:translateY(170px) rotate(280deg)}}
+.tick{transform-origin:250px 56px;animation:tick 12s linear infinite}
+@keyframes tick{to{transform:rotate(360deg)}}
+.catwalk{animation:catwalk 8s linear both}
+@keyframes catwalk{0%{transform:translateX(230px)}100%{transform:translateX(780px)}}
+.legA,.legB{transform-box:fill-box;transform-origin:50% 0}
+.legA{animation:leg 420ms ease-in-out infinite}
+.legB{animation:leg 420ms ease-in-out 210ms infinite}
+@keyframes leg{0%,100%{transform:rotate(14deg)}50%{transform:rotate(-14deg)}}
+.tail{transform-box:fill-box;transform-origin:100% 100%;animation:tail 1.2s ease-in-out infinite}
+@keyframes tail{0%,100%{transform:rotate(0)}50%{transform:rotate(14deg)}}
+.planefly{animation:planefly 3.4s cubic-bezier(.3,.1,.4,1) both}
+@keyframes planefly{0%{transform:translate(40px,80px) rotate(8deg);opacity:0}8%{opacity:1}55%{transform:translate(420px,230px) rotate(18deg)}80%{transform:translate(540px,370px) rotate(4deg)}100%{transform:translate(560px,388px) rotate(0)}}
+.rain{background-image:repeating-linear-gradient(105deg,rgba(255,255,255,0) 0 9px,rgba(255,255,255,0.55) 9px 10px,rgba(255,255,255,0) 10px 22px);background-size:60px 120px;animation:rain 600ms linear infinite}
+@keyframes rain{to{background-position:-14px 120px}}
+.drip{animation:drip 1.1s ease-in infinite}
+@keyframes drip{0%{transform:translateY(-10px);opacity:0}20%{opacity:1}100%{transform:translateY(20px);opacity:0}}
+.flame{transform-box:fill-box;transform-origin:50% 100%;animation:flame 900ms ease-in-out infinite}
+@keyframes flame{0%,100%{transform:scale(1,1) rotate(-2deg)}50%{transform:scale(.92,1.08) rotate(3deg)}}
+.cta-b1{animation:ctaB 2.6s ease-in-out infinite}
+.cta-b2{animation:ctaB 1.5s ease-in-out infinite}
+@keyframes ctaB{0%,100%{transform:scale(1)}50%{transform:scale(1.02)}}
+.cta-n1{animation:ctaN 3.2s ease-in-out infinite}
+.cta-n2{animation:ctaN 1.9s ease-in-out infinite}
+@keyframes ctaN{0%,76%,100%{transform:rotate(0) scale(1)}80%{transform:rotate(-2.6deg) scale(1.035)}84%{transform:rotate(2.4deg) scale(1.035)}88%{transform:rotate(-1.4deg) scale(1.02)}92%{transform:rotate(.8deg)}}
+.lenpop{transform-origin:72% 110%;animation:lenpop 340ms cubic-bezier(.34,1.56,.64,1) both}
+@keyframes lenpop{from{opacity:0;transform:translateY(10px) scale(.86)}to{opacity:1;transform:none}}
+.lenchip{min-width:46px;height:40px;border:none;border-radius:20px;font:inherit;font-size:14px;font-weight:700;padding:0 11px;cursor:pointer;font-variant-numeric:tabular-nums;transition:background-color 200ms,color 200ms,transform 200ms cubic-bezier(.32,.72,0,1)}
+.lenchip:active{transform:scale(.94)}
+.rollA,.rollB{display:inline-block;animation:rollA 300ms cubic-bezier(.32,.72,0,1) both}
+.rollB{animation-name:rollB}
+@keyframes rollA{from{opacity:0;transform:translateY(-45%)}to{opacity:1;transform:none}}
+@keyframes rollB{from{opacity:0;transform:translateY(-45%)}to{opacity:1;transform:none}}
+.swapA,.swapB{animation:swapA 520ms cubic-bezier(.32,.72,0,1) both}
+.swapB{animation-name:swapB}
+@keyframes swapA{from{opacity:0;transform:translateY(14px);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
+@keyframes swapB{from{opacity:0;transform:translateY(14px);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
+.popc1,.popc2{animation:popc1 360ms cubic-bezier(.34,1.56,.64,1)}
+.popc2{animation-name:popc2}
+@keyframes popc1{0%{transform:scale(.9)}60%{transform:scale(1.06)}100%{transform:none}}
+@keyframes popc2{0%{transform:scale(.9)}60%{transform:scale(1.06)}100%{transform:none}}
+.strike{position:absolute;left:30px;top:50%;height:3px;border-radius:2px;background:#EEF6F0;transform-origin:left center;animation:strike 380ms cubic-bezier(.65,0,.35,1) both}
+@keyframes strike{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.wipe{animation:wipe 460ms ease-in both}
+@keyframes wipe{to{opacity:0;filter:blur(6px);transform:translateX(-30px)}}
+.done{animation:doneRow 480ms ease-in 380ms both}
+@keyframes doneRow{to{opacity:0;transform:translateX(20px)}}
+.key{flex:1;min-width:0;height:44px;border:none;border-radius:9px;background:rgba(255,255,255,0.96);box-shadow:0 1px 0 rgba(0,0,0,0.22);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',Inter,system-ui,sans-serif;font-size:23px;font-weight:400;color:#111114;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background-color 120ms,transform 120ms cubic-bezier(.32,.72,0,1);-webkit-tap-highlight-color:transparent}
+.key:active{background:#D7DAE0;transform:scale(.96)}
+.key.fn{flex:none;width:47px;background:rgba(160,166,178,0.62);font-size:16px}
+.key.fn:active{background:rgba(255,255,255,0.96)}
+.sugg{flex:1;min-width:0;height:36px;border:none;background:transparent;font:inherit;font-size:16px;color:#111114;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-radius:9px;transition:background-color 120ms}
+.sugg:active{background:rgba(255,255,255,0.6)}
+.sugg + .sugg{box-shadow:-1px 0 0 rgba(60,60,67,0.18)}
+.tclamp{font-size:19px!important;line-height:1.3!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.compta{flex:1;min-width:0;height:100%;border:none;background:transparent;padding:12.5px 6px 12.5px 16px;box-sizing:border-box;font:inherit;font-size:16px;line-height:21px;color:#1C1A18;outline:none;resize:none;overflow-y:auto;scrollbar-width:none}
+.compta::-webkit-scrollbar{display:none}
+.heat{display:flex;align-items:center;gap:12px;width:100%;height:64px;padding:0 14px 0 6px;box-sizing:border-box;border-radius:20px;border:2px solid transparent;font:inherit;text-align:left;cursor:pointer;transition:border-color 220ms,background-color 220ms,transform 200ms cubic-bezier(.32,.72,0,1)}
+@media (prefers-reduced-motion: reduce){.cta-b1,.cta-b2,.cta-n1,.cta-n2,.lenpop,.rollA,.rollB,.swapA,.swapB,.popc1,.popc2,.strike,.wipe,.done,.catwalk,.legA,.legB,.tail,.planefly,.rain,.drip,.flame,.breathe,.bob,.paceWide,.popA,.popB,.bubA,.bubB,.glow,.ember,.ring,.ripple,.tung,.chalk,.puff,.draw,.write,.wA,.wB,.stamp,.fade,.wordA,.wordB,.bar,.dot,.shake,.shake2,.bumpA,.bumpB,.fly,.bit,.tick{animation:none!important;stroke-dashoffset:0;clip-path:none}.ease,.slide,.press,.camera,.walkto{transition:none!important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; color: #1C1A18; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', Inter, system-ui, sans-serif; background: #E8D2AE">
+
+  <div class="camera" style="position: absolute; left: 0; top: 0; width: 1000px; height: 1100px; transform: {{cam}}; filter: {{sceneFilter}}">
+    <svg width="1000" height="1100" viewBox="0 0 1000 1100" aria-hidden="true" style="position: absolute; inset: 0">
+      <rect x="0" y="0" width="1000" height="632" style="fill: {{wall}}; transition: fill 900ms ease"></rect>
+      <rect x="0" y="632" width="1000" height="468" fill="#E8D2AE"></rect>
+      <path d="M0 690 H1000 M0 760 H1000 M0 845 H1000 M0 945 H1000 M0 1060 H1000" stroke="#DCC196" stroke-width="2"></path>
+      <rect x="0" y="618" width="1000" height="14" fill="#E2C79E"></rect>
+      <rect x="866" y="118" width="112" height="286" rx="8" fill="#FFFFFF"></rect>
+      <rect x="874" y="126" width="96" height="270" rx="4" fill="{{glassFill}}"></rect>
+      <circle cx="900" cy="164" r="15" fill="#FFD86B" opacity="{{sunOp}}"></circle>
+      <ellipse cx="946" cy="200" rx="20" ry="9" fill="#FFFFFF"></ellipse>
+      <rect x="929" y="356" width="9" height="40" fill="#8A5A36"></rect>
+      <circle cx="934" cy="350" r="34" fill="#6BBF7A"></circle>
+      <circle cx="904" cy="372" r="24" fill="#5AAE6A"></circle>
+      <rect x="920" y="126" width="4" height="270" fill="#FFFFFF"></rect>
+      <rect x="874" y="258" width="96" height="4" fill="#FFFFFF"></rect>
+      <circle cx="250" cy="56" r="28" fill="#FFFFFF" stroke="#3E3A44" stroke-width="5"></circle>
+      <path d="M250 33 V38 M250 74 V79 M227 56 H232 M268 56 H273" stroke="#3E3A44" stroke-width="3" stroke-linecap="round"></path>
+      <path d="M250 56 L242 44" stroke="#3E3A44" stroke-width="4" stroke-linecap="round"></path>
+      <g class="tick"><path d="M250 56 L250 36" stroke="#D42A24" stroke-width="3" stroke-linecap="round"></path></g>
+      <circle cx="250" cy="56" r="3.5" fill="#3E3A44"></circle>
+      <rect x="380" y="28" width="240" height="34" rx="6" fill="#C8312A"></rect>
+      <text x="500" y="51" text-anchor="middle" font-family="'Kithfield Hand', cursive" font-weight="700" font-size="15" fill="#FFD86B">MANNERS, THEN LETTERS</text>
+      <rect x="180" y="100" width="640" height="196" rx="20" fill="#8A5A36"></rect>
+      <rect x="188" y="108" width="624" height="180" rx="13" fill="#2F6B56"></rect>
+      <path d="M201 108 L330 108 L268 288 L201 288 Q188 288 188 275 L188 121 Q188 108 201 108 Z" fill="#357560"></path>
+      <rect x="200" y="294" width="600" height="9" rx="5" fill="#6E4528"></rect>
+      <rect x="375" y="289" width="22" height="6" rx="3" fill="#FFFFFF"></rect>
+      <rect x="403" y="289" width="14" height="6" rx="3" fill="#FFC93C"></rect>
+    </svg>
+
+    <sc-if value="{{hasNotice}}" hint-placeholder-val="{{ false }}">
+      <a href="Tuition.dc.html" class="press fade" aria-label="A notice on the board: tuition" style="position: absolute; left: 648px; top: 124px; width: 112px; height: 140px; transform: rotate(3deg); background: #FFFDF6; border-radius: 4px; box-shadow: 0 3px 0 rgba(20,40,30,0.18), 0 10px 22px rgba(20,40,30,0.28); display: flex; flex-direction: column; align-items: center; padding: 20px 10px 0; box-sizing: border-box; text-decoration: none; color: #1C1A18">
+        <span style="position: absolute; top: -7px; left: 50%; margin-left: -8px; width: 16px; height: 16px; border-radius: 8px; background: #D42A24; box-shadow: inset -2px -3px 0 rgba(0,0,0,0.18)"></span>
+        <span style="font-size: 11px; font-weight: 800; letter-spacing: .14em; color: #8A7F74">NOTICE</span>
+        <span class="hand" style="font-size: 26px; line-height: 1.05; color: #D42A24; margin-top: 6px">Tuition</span>
+        <span style="width: 80px; height: 4px; border-radius: 2px; background: #E6DED2; margin-top: 12px"></span>
+        <span style="width: 66px; height: 4px; border-radius: 2px; background: #E6DED2; margin-top: 7px"></span>
+        <span style="width: 74px; height: 4px; border-radius: 2px; background: #E6DED2; margin-top: 7px"></span>
+      </a>
+    </sc-if>
+    <button class="press" aria-label="Open the board" onPointerDown="{{bdDown}}" onPointerMove="{{bdMove}}" onPointerUp="{{bdUp}}" onPointerCancel="{{bdUp}}" onKeyDown="{{bdKey}}" style="touch-action: none; position: absolute; left: 180px; top: 100px; width: 640px; height: 196px; border: none; padding: 0; background: transparent; border-radius: 20px"></button>
+    <div class="hand" style="position: absolute; left: 323px; top: 112px; color: #EEF6F0; pointer-events: none; transition: opacity 400ms; opacity: {{chalkCloseOp}}">
+      <div style="display: flex; flex-direction: column; gap: 1px">
+        <span style="font-size: 16px; opacity: 0.7">{{dateLine}}</span>
+        <span style="font-size: 26px; text-decoration: underline; text-underline-offset: 5px; text-decoration-thickness: 2px">{{chalkMain}}</span>
+        <sc-for list="{{chalkLines}}" as="item" hint-placeholder-count="2">
+          <span class="{{item.cls}}" style="font-size: 20px; opacity: {{item.op}}">{{item.t}}</span>
+        </sc-for>
+        <span style="margin-top: 6px; font-size: 17px; color: #F7D774; display: flex; align-items: center; gap: 6px"><span class="{{bumpCls}}">{{moreLabel}}</span>
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#F7D774" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 4.5 L6 8 L9.5 4.5"></path></svg>
+        </span>
+      </div>
+    </div>
+    <div class="hand" style="position: absolute; left: 188px; top: 120px; width: 624px; text-align: center; color: #EEF6F0; pointer-events: none; transition: opacity 500ms; opacity: {{chalkIntroWideOp}}">
+      <div style="font-size: 44px; line-height: 1.1">Class 11A</div>
+      <div style="font-size: 26px; opacity: 0.75; margin-top: 6px">Thầy Phú · Literature · 1 student</div>
+    </div>
+    <div class="hand" style="position: absolute; left: 323px; top: 112px; color: #EEF6F0; pointer-events: none; transition: opacity 500ms 300ms; opacity: {{chalkIntroCloseOp}}; display: flex; flex-direction: column; gap: 1px">
+      <span style="font-size: 16px; opacity: 0.7">{{dateLine}}</span>
+      <span style="font-size: 30px; text-decoration: underline; text-underline-offset: 5px; text-decoration-thickness: 2px">Class 11A</span>
+      <span style="font-size: 20px; opacity: 0.6">1 student</span>
+      <span style="font-size: 20px; opacity: 0.42">Roll call</span>
+    </div>
+
+    <div class="walkto" style="position: absolute; left: {{phuX}}; top: {{phuY}}">
+      <div class="{{paceCls}}" style="animation-play-state: {{paceState}}">
+        <div class="{{popCls}}">
+          <div class="{{moveCls}}">
+            <dc-import name="Phu" mood="{{mood}}" walk="{{walk}}" size="230" hint-size="230px,253px"></dc-import>
+          </div>
+        </div>
+      </div>
+      <button aria-label="Poke Thầy Phú" onClick="{{poke}}" style="position: absolute; left: 44px; top: 10px; width: 142px; height: 150px; border: none; padding: 0; border-radius: 50%; background: transparent; cursor: pointer"></button>
+    </div>
+
+    <svg width="1000" height="1100" viewBox="0 0 1000 1100" aria-hidden="true" style="position: absolute; inset: 0; pointer-events: none">
+      <rect x="150" y="588" width="700" height="14" fill="#D9A56E"></rect>
+      <rect x="150" y="602" width="700" height="32" fill="#A97848"></rect>
+      <path d="M300 408 L700 408 L716 442 L284 442 Z" fill="#E9B47C"></path>
+      <rect x="284" y="440" width="432" height="4" fill="#F3C892"></rect>
+      <rect x="284" y="444" width="432" height="144" fill="#C98B55"></rect>
+      <rect x="284" y="444" width="432" height="8" fill="#B57744"></rect>
+            <g>
+        <path d="M195 690 L365 690 L375 716 L185 716 Z" fill="#E9B47C"></path><rect x="185" y="716" width="190" height="40" fill="#C98B55"></rect><rect x="191" y="756" width="8" height="40" fill="#8A5A36"></rect><rect x="361" y="756" width="8" height="40" fill="#8A5A36"></rect><rect x="179" y="782" width="222" height="12" rx="3" fill="#B07A45"></rect><rect x="187" y="794" width="8" height="22" fill="#8A5A36"></rect><rect x="385" y="794" width="8" height="22" fill="#8A5A36"></rect>
+        <path d="M415 690 L585 690 L595 716 L405 716 Z" fill="#E9B47C"></path><rect x="405" y="716" width="190" height="40" fill="#C98B55"></rect><rect x="411" y="756" width="8" height="40" fill="#8A5A36"></rect><rect x="581" y="756" width="8" height="40" fill="#8A5A36"></rect><rect x="399" y="782" width="222" height="12" rx="3" fill="#B07A45"></rect><rect x="407" y="794" width="8" height="22" fill="#8A5A36"></rect><rect x="605" y="794" width="8" height="22" fill="#8A5A36"></rect>
+        <path d="M635 690 L805 690 L815 716 L625 716 Z" fill="#E9B47C"></path><rect x="625" y="716" width="190" height="40" fill="#C98B55"></rect><rect x="631" y="756" width="8" height="40" fill="#8A5A36"></rect><rect x="801" y="756" width="8" height="40" fill="#8A5A36"></rect><rect x="619" y="782" width="222" height="12" rx="3" fill="#B07A45"></rect><rect x="627" y="794" width="8" height="22" fill="#8A5A36"></rect><rect x="825" y="794" width="8" height="22" fill="#8A5A36"></rect>
+        <path d="M125 860 L335 860 L347 890 L113 890 Z" fill="#E9B47C"></path><rect x="113" y="890" width="234" height="46" fill="#C98B55"></rect><rect x="120" y="936" width="9" height="44" fill="#8A5A36"></rect><rect x="331" y="936" width="9" height="44" fill="#8A5A36"></rect><rect x="105" y="966" width="250" height="14" rx="3" fill="#B07A45"></rect><rect x="114" y="980" width="9" height="26" fill="#8A5A36"></rect><rect x="337" y="980" width="9" height="26" fill="#8A5A36"></rect>
+        <path d="M395 860 L605 860 L617 890 L383 890 Z" fill="#E9B47C"></path><rect x="383" y="890" width="234" height="46" fill="#C98B55"></rect><rect x="390" y="936" width="9" height="44" fill="#8A5A36"></rect><rect x="601" y="936" width="9" height="44" fill="#8A5A36"></rect><rect x="375" y="966" width="250" height="14" rx="3" fill="#B07A45"></rect><rect x="384" y="980" width="9" height="26" fill="#8A5A36"></rect><rect x="607" y="980" width="9" height="26" fill="#8A5A36"></rect>
+        <rect x="452" y="862" width="76" height="22" rx="2" fill="#FFFFFF" transform="rotate(-4 490 873)"></rect>
+        <path d="M540 880 L566 866" stroke="#E8322B" stroke-width="5" stroke-linecap="round"></path>
+        <g fill="none" stroke="#A9733F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M404 870 l3 -6 l3 6 l-7 -4 h8 z"></path>
+          <path d="M418 882 q-4 -6 1 -7 q3 0 3 3 q0 -3 3 -3 q5 1 1 7 l-4 4 z"></path>
+          <path d="M576 876 l6 -9 M579 871 h6"></path>
+          <circle cx="598" cy="874" r="6"></circle>
+          <path d="M595 874 h6"></path>
+        </g>
+        <text x="430" y="886" font-family="'Kithfield Hand', cursive" font-weight="700" font-size="11" fill="#A9733F">M.A</text>
+        <g opacity="0.9">
+          <ellipse cx="684" cy="876" rx="5" ry="6.5" fill="none" stroke="#A9733F" stroke-width="2"></ellipse>
+          <ellipse cx="697.5" cy="877" rx="5" ry="6.5" fill="none" stroke="#A9733F" stroke-width="2" transform="rotate(14 697.5 877)"></ellipse><path d="M693.5 877 l2.5 -2.5 l2 2.5 l2 -2.5 l2.5 2.5" fill="none" stroke="#A9733F" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
+          <text x="706" y="882" font-family="'Kithfield Hand', cursive" font-weight="700" font-size="14" fill="#A9733F" transform="rotate(-3 706 882)">Odd Eggs Studio</text>
+        </g>
+        <path d="M665 860 L875 860 L887 890 L653 890 Z" fill="#E9B47C"></path><rect x="653" y="890" width="234" height="46" fill="#C98B55"></rect><rect x="660" y="936" width="9" height="44" fill="#8A5A36"></rect><rect x="871" y="936" width="9" height="44" fill="#8A5A36"></rect><rect x="645" y="966" width="250" height="14" rx="3" fill="#B07A45"></rect><rect x="654" y="980" width="9" height="26" fill="#8A5A36"></rect><rect x="877" y="980" width="9" height="26" fill="#8A5A36"></rect>
+      </g>
+    </svg>
+
+    <div aria-hidden="true" style="position: absolute; left: 331px; top: 328px; pointer-events: none"><dc-import name="Prop" prop="thermos" size="52" anim="false" hint-size="52px,93px"></dc-import></div>
+    <div aria-hidden="true" style="position: absolute; left: 590px; top: 382px; pointer-events: none"><dc-import name="Prop" prop="papers" size="82" anim="false" hint-size="82px,37px"></dc-import></div>
+
+    <sc-if value="{{hasRain}}" hint-placeholder-val="{{ false }}">
+      <div aria-hidden="true">
+        <div class="rain" style="position: absolute; left: 874px; top: 126px; width: 96px; height: 270px; border-radius: 4px; overflow: hidden"></div>
+        <div style="position: absolute; left: 878px; top: 546px"><dc-import name="Prop" prop="bucket" size="70" hint-size="70px,75px"></dc-import></div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{hasFlowers}}" hint-placeholder-val="{{ false }}">
+      <div class="fade" aria-hidden="true" style="position: absolute; left: 524px; top: 318px"><dc-import name="Prop" prop="bouquet" size="96" hint-size="96px,103px"></dc-import></div>
+    </sc-if>
+
+    <sc-if value="{{hasCat}}" hint-placeholder-val="{{ false }}">
+      <div class="catwalk" aria-hidden="true" style="position: absolute; left: 0; top: 356px; {{hapFreeze}}">
+        <dc-import name="Prop" prop="cat" size="96" hint-size="96px,67px"></dc-import>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{hasPlane}}" hint-placeholder-val="{{ false }}">
+      <div class="planefly" aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 70px; {{planeFreeze}}"><dc-import name="Prop" prop="plane" size="70" hint-size="70px,41px"></dc-import></div>
+    </sc-if>
+
+    <sc-if value="{{hasPower}}" hint-placeholder-val="{{ false }}">
+      <div aria-hidden="true">
+        <div class="fade" style="position: absolute; inset: 0; background: radial-gradient(circle at 600px 370px, rgba(14,18,34,0.08) 0, rgba(14,18,34,0.55) 170px, rgba(14,18,34,0.82) 380px)"></div>
+        <div style="position: absolute; left: 580px; top: 334px"><dc-import name="Prop" prop="candle" size="44" hint-size="44px,75px"></dc-import></div>
+      </div>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{isFinish}}" hint-placeholder-val="{{ false }}">
+    <div aria-hidden="true">
+      <span class="bit" style="left: 70px; background: #E8322B; animation-delay: 0ms"></span>
+      <span class="bit" style="left: 110px; background: #FFC93C; animation-delay: 90ms"></span>
+      <span class="bit" style="left: 150px; background: #2F6B56; animation-delay: 40ms"></span>
+      <span class="bit" style="left: 230px; background: #E8322B; animation-delay: 140ms"></span>
+      <span class="bit" style="left: 270px; background: #4FB8F0; animation-delay: 60ms"></span>
+      <span class="bit" style="left: 310px; background: #FFC93C; animation-delay: 180ms"></span>
+      <span class="bit" style="left: 190px; background: #4FB8F0; animation-delay: 220ms"></span>
+    </div>
+  </sc-if>
+  <sc-if value="{{throwing}}" hint-placeholder-val="{{ false }}">
+    <div aria-hidden="true"><span class="chalk"></span><span class="puff"></span></div>
+  </sc-if>
+  <sc-if value="{{ringing}}" hint-placeholder-val="{{ false }}">
+    <div aria-hidden="true">
+      <span class="hand tung" style="left: 22px; top: 318px">Tùng!</span>
+      <span class="hand tung" style="left: 268px; top: 300px; animation-delay: 160ms">Tùng!</span>
+      <span class="hand tung" style="left: 150px; top: 250px; animation-delay: 320ms; font-size: 36px">Tùng!</span>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{hasLine}}" hint-placeholder-val="{{ true }}">
+    <div class="{{bubCls}}" style="position: absolute; {{bubPos}}; width: max-content; max-width: 176px">
+      <div class="r" style="padding: 12px 16px; border-radius: 22px; background: #FFFFFF; font-size: 16px; line-height: 1.25; font-weight: 800; box-shadow: 0 6px 16px rgba(30,40,30,0.16)">{{line}}</div>
+      <div style="position: absolute; bottom: -6px; {{tailPos}}; width: 16px; height: 16px; background: #FFFFFF; transform: rotate(45deg); border-radius: 3px"></div>
+    </div>
+  </sc-if>
+
+  <a href="Settings.dc.html" class="glass press" aria-label="Settings" style="position: absolute; top: 52px; right: 18px; width: 40px; height: 40px; border-radius: 20px; display: flex; align-items: center; justify-content: center; opacity: {{chromeOp}}; transition: opacity 300ms">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1C1A18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"></path><circle cx="16" cy="7" r="2"></circle><circle cx="10" cy="17" r="2"></circle></svg>
+  </a>
+
+  <sc-if value="{{offline}}" hint-placeholder-val="{{ false }}">
+    <span class="glass fade" role="status" style="position: absolute; top: 72px; left: 18px; height: 32px; padding: 0 13px 0 11px; border-radius: 16px; display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; color: #3E3933; white-space: nowrap; z-index: 3">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8A7F74" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M2 8.5a15 15 0 0 1 20 0M5 12a10 10 0 0 1 14 0M8.5 15.5a5 5 0 0 1 7 0M12 19h.01M3 3l18 18"></path></svg>
+      Offline · he still hears you
+    </span>
+  </sc-if>
+  <button aria-label="Close" tabindex="-1" onClick="{{cancelTyping}}" style="position: absolute; inset: 0; width: 100%; height: 100%; border: none; padding: 0; background: transparent; pointer-events: {{typingPe}}"></button>
+
+  <button aria-label="Close the timetable" tabindex="-1" onClick="{{ttClose}}" style="position: absolute; inset: 0; width: 100%; height: 100%; border: none; padding: 0; background: rgba(30,22,14,{{ttScrim}}); pointer-events: {{ttScrimPe}}; transition: {{ttScrimTr}}"></button>
+  <section class="ease" style="transition: {{sheetTr}}; position: absolute; left: 0; right: 0; top: 452px; height: 800px; background: rgba(255,253,249,0.94); -webkit-backdrop-filter: blur(30px) saturate(180%); backdrop-filter: blur(30px) saturate(180%); border-radius: 34px 34px 0 0; box-shadow: 0 -8px 30px rgba(60,40,20,0.10), inset 0 1px 0 rgba(255,255,255,0.9); transform: {{sheetT}}">
+    <span style="position: absolute; top: 10px; left: 50%; margin-left: -18px; width: 36px; height: 5px; border-radius: 3px; background: rgba(28,26,24,0.16)"></span>
+    <div aria-label="Swipe up for the timetable" role="button" onPointerDown="{{ttDown}}" onPointerMove="{{ttMove}}" onPointerUp="{{ttUp}}" onPointerCancel="{{ttUp}}" style="position: absolute; left: 0; right: 0; top: 0; height: 92px; z-index: 4; touch-action: none; cursor: grab; pointer-events: {{ttZonePe}}"></div>
+
+    <div class="ease" style="position: absolute; left: 20px; right: 20px; top: 30px; {{deskHeadStyle}}">
+      <div style="display: flex; justify-content: space-between; align-items: center; height: 22px">
+        <span style="display: flex; align-items: center; gap: 8px">
+          <span class="label" style="color: {{deskLabelColor}}">On your desk</span>
+          <sc-if value="{{frontRow}}" hint-placeholder-val="{{ false }}"><span class="hand fade" style="font-size: 15px; color: #D42A24; border: 1.5px solid #D42A24; border-radius: 10px; padding: 0 7px">front row</span></sc-if>
+        </span>
+        <span style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: #6B655E">
+          <svg class="{{tallyCls}}" width="34" height="16" viewBox="0 0 34 16" role="img" aria-label="{{slipsLabel}}" style="opacity: {{tallyOp}}"><path d="{{tallyPath}}" stroke="#D42A24" stroke-width="2.4" stroke-linecap="round" fill="none"></path></svg>
+          <span>{{daysLabel}}</span>
+        </span>
+      </div>
+      <h1 class="{{titleClass}}" style="margin: 6px 0 0; font-size: 25px; line-height: 1.18; font-weight: 700; letter-spacing: -0.02em; transition: font-size 360ms cubic-bezier(.32,.72,0,1)">{{deskTitle}}</h1>
+      <sc-if value="{{hasDeskSub}}" hint-placeholder-val="{{ false }}"><p style="margin: 6px 0 0; font-size: 15px; line-height: 1.4; color: #6B655E">{{deskSub}}</p></sc-if>
+      <sc-if value="{{hasNote}}" hint-placeholder-val="{{ false }}"><p class="hand fade" style="margin: 6px 0 0; font-size: 19px; color: #6A45B8">Note to self: {{note}}</p></sc-if>
+    </div>
+
+    <div class="ease" style="position: absolute; left: 20px; right: 20px; top: {{actTop}}; display: flex; gap: 10px; {{deskActStyle}}">
+      <button class="btn soft press" onClick="{{openSlip}}" style="width: 112px; font-weight: 600">Late slip</button>
+      <div style="position: relative; width: 228px">
+        <sc-if value="{{lenOpen}}" hint-placeholder-val="{{ false }}">
+          <div class="lenpop glass" role="group" aria-label="How long is a period" style="position: absolute; right: -4px; bottom: 66px; display: flex; gap: 4px; padding: 5px; border-radius: 25px; white-space: nowrap; z-index: 2">
+            <sc-for list="{{lens}}" as="item" hint-placeholder-count="5">
+              <button class="lenchip" onClick="{{item.pick}}" aria-pressed="{{item.on}}" style="background: {{item.bg}}; color: {{item.fg}}">{{item.t}}</button>
+            </sc-for>
+          </div>
+        </sc-if>
+        <button class="btn red {{ctaCls}}" onPointerDown="{{startDown}}" onPointerUp="{{startUp}}" onPointerLeave="{{startCancel}}" onPointerCancel="{{startCancel}}" onKeyDown="{{startKey}}" aria-label="{{startLabel}}" style="width: 228px; position: relative; touch-action: manipulation; user-select: none; -webkit-user-select: none; transform: scale({{startScale}}); transition: transform 220ms cubic-bezier(.32,.72,0,1), box-shadow 400ms ease; box-shadow: {{ctaShadow}}">
+          <span style="position: absolute; inset: 0; border-radius: 28px; overflow: hidden; pointer-events: none"><sc-if value="{{ringing}}" hint-placeholder-val="{{ false }}"><span class="ripple"></span></sc-if></span>
+          <svg class="{{drumCls}}" width="22" height="22" viewBox="0 0 22 22" aria-hidden="true" style="position: relative">
+            <circle cx="11" cy="11" r="9.5" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"></circle>
+            <circle cx="11" cy="11" r="3.5" fill="none" stroke="{{pieColor}}" stroke-width="7" transform="rotate(-90 11 11)" style="stroke-dasharray: {{pieDash}}; transition: stroke-dasharray 220ms linear, stroke 300ms"></circle>
+          </svg>
+          <span style="position: relative">Start</span>
+          <span style="position: relative; font-weight: 500; opacity: 0.85; font-variant-numeric: tabular-nums">{{lenLabel}}</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="glass ease {{shakeCls}}" style="position: absolute; left: 20px; right: 20px; top: {{compTop}}; height: {{compH}}; border-radius: 28px; {{compStyle}}">
+      <button class="ease" onPointerDown="{{micDown}}" onPointerUp="{{micUp}}" onPointerLeave="{{micUp}}" aria-label="Hold to tell him" style="position: absolute; left: 5px; top: {{micTop}}; width: {{micW}}; height: {{micH}}; border: none; padding: 0; border-radius: 23px; background: {{micBg}}; font: inherit; color: #1C1A18; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; overflow: hidden; text-align: left">
+        <span class="ease" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 16px; font-weight: 600; white-space: nowrap; opacity: {{micIdleOp}}">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1C1A18" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0M12 18v3"></path></svg>
+          Hold to tell him
+        </span>
+        <span class="ease" style="position: absolute; left: 0; top: 0; width: 46px; height: 46px; display: flex; align-items: center; justify-content: center; opacity: {{micIconOp}}">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1C1A18" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0M12 18v3"></path></svg>
+        </span>
+        <span class="ease" style="position: absolute; inset: 0; padding: 12px 14px; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px; opacity: {{micListenOp}}">
+          <span style="display: flex; align-items: center; gap: 6px"><span class="dot" style="width: 7px; height: 7px; border-radius: 4px; background: #D42A24"></span><span class="label" style="color: #D42A24">Listening</span></span>
+          <span class="r" style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; font-size: 18px; line-height: 1.3; font-weight: 800; -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 22px); mask-image: linear-gradient(180deg, transparent 0, #000 22px)">
+            <span>{{heard}} <span class="{{wordCls}}">{{lastWord}}</span></span>
+          </span>
+          <span style="display: flex; align-items: center; justify-content: space-between; gap: 10px">
+            <span style="display: flex; align-items: center; gap: 3px; height: 22px">
+              <sc-for list="{{bars}}" as="item" hint-placeholder-count="24">
+                <span class="bar" style="height: {{item.h}}; animation-delay: {{item.d}}"></span>
+              </sc-for>
+            </span>
+            <span style="font-size: 12px; color: #6B655E; white-space: nowrap">Let go to hand it in</span>
+          </span>
+        </span>
+      </button>
+      <div class="ease" style="position: absolute; top: 5px; left: {{kbLeft}}; width: {{kbW}}; height: {{kbBoxH}}; border-radius: 23px; background: {{kbBg}}; opacity: {{kbOp}}; overflow: hidden">
+        <button class="ease" aria-label="Type instead" onClick="{{openTyping}}" style="position: absolute; right: 0; top: 0; width: 46px; height: 46px; border: none; padding: 0; background: transparent; display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: {{kbIconOp}}; pointer-events: {{kbIconPe}}">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1C1A18" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="3"></rect><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"></path></svg>
+        </button>
+        <div class="ease" style="position: absolute; inset: 0; display: flex; align-items: flex-end; opacity: {{inputOp}}; pointer-events: {{inputPe}}">
+          <textarea class="compta" rows="1" value="{{typed}}" onChange="{{onType}}" onKeyDown="{{onKey}}" placeholder="What’s on your plate?" aria-label="Tell him in writing">{{typed}}</textarea>
+          <button class="press" aria-label="Hand it to him" onClick="{{submitTyped}}" style="flex-shrink: 0; width: 36px; height: 36px; margin: 0 5px 5px 0; border: none; padding: 0; border-radius: 18px; background: {{sendBg}}; display: flex; align-items: center; justify-content: center; transition: background-color 200ms">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"></path></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="ease" style="position: absolute; left: 20px; right: 20px; top: 30px; {{sessStyle}}">
+      <div style="display: flex; justify-content: space-between; align-items: center; height: 22px">
+        <span class="label" style="color: #6B655E">{{sessionLabel}}</span>
+        <sc-if value="{{inTime}}" hint-placeholder-val="{{ true }}"><span class="hand" style="font-size: 18px; color: #D42A24">started in time</span></sc-if>
+      </div>
+      <h2 style="margin: 6px 0 0; font-size: 19px; line-height: 1.25; font-weight: 600; letter-spacing: -0.01em">{{task.title}}</h2>
+      <div style="margin-top: 14px; display: flex; align-items: baseline; gap: 10px">
+        <span class="r" aria-label="{{remain}} left" style="font-size: 64px; line-height: 1; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; display: inline-flex; overflow: hidden"><sc-for list="{{remainDigits}}" as="item" hint-placeholder-count="4"><span class="{{item.cls}}">{{item.ch}}</span></sc-for></span>
+        <span style="font-size: 15px; color: #6B655E">of {{lenMin}} min</span>
+      </div>
+      <div style="margin-top: 14px; height: 6px; border-radius: 3px; background: rgba(28,26,24,0.08); overflow: hidden">
+        <div style="height: 100%; width: {{elPct}}; border-radius: 3px; background: #1C1A18; transition: width 220ms linear"></div>
+      </div>
+      <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 10px">
+        <sc-if value="{{notBell}}" hint-placeholder-val="{{ true }}">
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+            <button class="btn soft press" onClick="{{raiseHand}}" style="height: 48px; font-size: 15px; font-weight: 600">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1C1A18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 13V5a1.5 1.5 0 0 1 3 0v6M11 11V3.5a1.5 1.5 0 0 1 3 0V11M14 11V5a1.5 1.5 0 0 1 3 0v8a7 7 0 0 1-7 7h-.5A6.5 6.5 0 0 1 4 15l-1-3a1.5 1.5 0 0 1 2.6-1.4L8 13"></path></svg>
+              Raise a hand
+            </button>
+            <button class="btn soft press" onClick="{{strayThought}}" style="height: 48px; font-size: 15px; font-weight: 600">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1C1A18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"></path></svg>
+              Stray thought
+            </button>
+          </div>
+        </sc-if>
+        <sc-if value="{{isBell}}" hint-placeholder-val="{{ false }}">
+          <button class="btn soft press fade" onClick="{{notYet}}" style="height: 48px; font-weight: 600">Not yet</button>
+        </sc-if>
+        <button class="btn ink press" onClick="{{done}}">Done</button>
+      </div>
+    </div>
+
+    <div class="ease" style="position: absolute; left: 20px; right: 20px; top: 30px; {{partialStyle}}">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; height: 22px">
+        <span class="label" style="color: #6B655E">Partial credit</span>
+        <button class="press" onClick="{{closePartial}}" style="border: none; background: none; padding: 0; font: inherit; font-size: 15px; font-weight: 600; color: #6B655E">Back</button>
+      </div>
+      <h2 style="margin: 6px 0 14px; font-size: 19px; line-height: 1.25; font-weight: 600; letter-spacing: -0.01em">{{task.title}}</h2>
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <button class="btn soft press" onClick="{{anotherPeriod}}" style="height: 58px; justify-content: flex-start; padding: 0 18px; gap: 12px; font-size: 16px"><span style="width: 8px; height: 8px; border-radius: 4px; background: #D42A24"></span><span style="display: flex; flex-direction: column; align-items: flex-start"><span>Another period</span><span style="font-size: 13px; font-weight: 500; color: #6B655E">Ten more minutes, right now</span></span></button>
+        <button class="btn soft press" onClick="{{backToBoard}}" style="height: 58px; justify-content: flex-start; padding: 0 18px; gap: 12px; font-size: 16px"><span style="width: 8px; height: 8px; border-radius: 4px; background: #F2B33D"></span><span style="display: flex; flex-direction: column; align-items: flex-start"><span>Back on the board</span><span style="font-size: 13px; font-weight: 500; color: #6B655E">With a note for next time</span></span></button>
+        <button class="btn soft press" onClick="{{eraseIt}}" style="height: 58px; justify-content: flex-start; padding: 0 18px; gap: 12px; font-size: 16px"><span style="width: 8px; height: 8px; border-radius: 4px; background: #A7A9B4"></span><span style="display: flex; flex-direction: column; align-items: flex-start"><span>Erase it</span><span style="font-size: 13px; font-weight: 500; color: #6B655E">It leaves quietly. No trace.</span></span></button>
+      </div>
+    </div>
+
+    <div class="ease" style="position: absolute; left: 20px; right: 20px; top: 30px; {{finishStyle}}">
+      <sc-if value="{{isFinish}}" hint-placeholder-val="{{ false }}">
+        <article style="position: relative; border-radius: 24px; padding: 18px 20px 16px; background-color: #FFFFFF; background-image: linear-gradient(rgba(106,69,184,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(106,69,184,0.07) 1px, transparent 1px); background-size: 20px 20px; box-shadow: 0 1px 2px rgba(60,40,20,0.06), 0 10px 26px rgba(60,40,20,0.08)">
+          <h2 style="margin: 0; font-size: 20px; line-height: 1.25; font-weight: 700; letter-spacing: -0.015em; padding-right: 92px">{{task.title}}</h2>
+          <svg width="96" height="80" viewBox="0 0 120 100" role="img" aria-label="Red check" style="position: absolute; right: 14px; top: 10px">
+            <path class="draw" pathLength="1" d="M12 56 Q26 62 42 86 Q64 38 112 8" fill="none" stroke="#D42A24" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          <div style="margin-top: 12px; display: flex; align-items: flex-end; justify-content: space-between">
+            <span style="font-size: 13px; line-height: 1.5; color: #6B655E">{{waitedLabel}}<br>Took 11 minutes</span>
+            <span class="hand write" style="font-size: 50px; line-height: 1; color: #D42A24; transform: rotate(-4deg)">{{comment}}</span>
+          </div>
+        </article>
+      </sc-if>
+      <div style="margin-top: 128px; display: flex; gap: 10px">
+        <a href="ShareCard.dc.html" class="btn soft press" aria-label="Share the paper" style="width: 56px; flex-shrink: 0">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1C1A18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5"></path><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"></path></svg>
+        </a>
+        <button class="btn soft press" onClick="{{recess}}" style="padding: 0 18px; font-weight: 600">Recess</button>
+        <button class="btn ink press" onClick="{{next}}" style="flex: 1">Next</button>
+      </div>
+    </div>
+
+    <div class="ease" style="position: absolute; left: 20px; right: 20px; top: 30px; {{recessStyle}}">
+      <div style="display: flex; justify-content: space-between; align-items: center; height: 22px">
+        <span class="label" style="color: #2F6B56">Recess</span>
+        <span class="hand" style="font-size: 18px; color: #2F6B56">{{recessNote}}</span>
+      </div>
+      <h2 style="margin: 6px 0 0; font-size: 22px; line-height: 1.25; font-weight: 700; letter-spacing: -0.015em">Stretch. Water. Window.</h2>
+      <div style="margin-top: 14px; display: flex; align-items: baseline; gap: 10px">
+        <span class="r" style="font-size: 64px; line-height: 1; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; color: #2F6B56">{{recessRemain}}</span>
+        <span style="font-size: 15px; color: #6B655E">of 5 min</span>
+      </div>
+      <div style="margin-top: 14px; height: 6px; border-radius: 3px; background: rgba(47,107,86,0.12); overflow: hidden">
+        <div style="height: 100%; width: {{recessPct}}; border-radius: 3px; background: #2F6B56; transition: width 220ms linear"></div>
+      </div>
+      <button class="btn ink press" onClick="{{next}}" style="width: 100%; margin-top: 82px">Back to class</button>
+    </div>
+
+    <div class="ease" style="position: absolute; left: 20px; right: 20px; top: 30px; {{seriousStyle}}">
+      <h2 style="margin: 0; font-size: 22px; line-height: 1.25; font-weight: 700; letter-spacing: -0.015em">Call the hospital about Dad’s results</h2>
+      <p class="r" style="margin: 10px 0 0; font-size: 18px; line-height: 1.45; font-weight: 700; color: #4A443E">That’s a heavy one. No clock today. I’ll sit here while you call, or we can just sit.</p>
+      <div style="margin-top: 26px; display: flex; flex-direction: column; gap: 6px">
+        <button class="btn press" style="background: #3A3530; color: #FFFFFF">Sit with me</button>
+        <button class="btn press" style="background: transparent; color: #1C1A18; font-weight: 600; height: 48px">Not now</button>
+      </div>
+    </div>
+
+    <div class="ease" style="position: absolute; left: 20px; right: 20px; top: 30px; {{intro0Style}}">
+      <span class="label" style="color: #D42A24">First day</span>
+      <h2 style="margin: 6px 0 0; font-size: 26px; line-height: 1.18; font-weight: 700; letter-spacing: -0.02em">Sit down. Class has started.</h2>
+      <p style="margin: 10px 0 0; font-size: 16px; line-height: 1.45; color: #4A443E">This is Thầy Phú. Thirty-two years of eleventh-grade literature. These days he teaches one thing: starting.</p>
+      <button class="btn ink press" onClick="{{introNext}}" style="width: 100%; position: absolute; top: 254px">Take your seat</button>
+    </div>
+    <div class="ease" style="position: absolute; left: 20px; right: 20px; top: 30px; {{intro1Style}}">
+      <span class="label" style="color: #D42A24">Roll call</span>
+      <h2 style="margin: 6px 0 0; font-size: 26px; line-height: 1.18; font-weight: 700; letter-spacing: -0.02em">Your full name, for the roll.</h2>
+      <label style="display: block; margin-top: 16px">
+        <span style="display: block; font-size: 13px; color: #6B655E; margin-bottom: 6px">He only shouts it when he has to.</span>
+        <input value="{{name}}" onChange="{{onName}}" aria-label="Your full name" style="width: 100%; box-sizing: border-box; height: 52px; border: none; border-radius: 16px; background: rgba(28,26,24,0.06); padding: 0 16px; font: inherit; font-size: 18px; font-weight: 600; color: #1C1A18; outline: none">
+      </label>
+      <button class="btn ink press" onClick="{{introNext}}" style="width: 100%; position: absolute; top: 254px">Present!</button>
+    </div>
+    <div class="ease" style="position: absolute; left: 20px; right: 20px; top: 30px; {{intro2Style}}">
+      <div style="display: flex; justify-content: space-between; align-items: center; height: 22px">
+        <span class="label" style="color: #D42A24">Notes home</span>
+        <button class="press" onClick="{{introNext}}" style="border: none; background: none; padding: 0; font: inherit; font-size: 15px; font-weight: 600; color: #6B655E">Not now</button>
+      </div>
+      <h2 style="margin: 6px 0 0; font-size: 24px; line-height: 1.2; font-weight: 700; letter-spacing: -0.02em">I write notes home. May I?</h2>
+      <div class="glass" style="margin-top: 14px; border-radius: 22px; padding: 12px 14px; display: flex; gap: 10px; align-items: flex-start; background: rgba(255,255,255,0.9)">
+        <dc-import name="AppIcon" size="34" hint-size="34px,34px"></dc-import>
+        <span style="display: flex; flex-direction: column; gap: 2px; font-size: 14px; line-height: 1.35">
+          <span style="display: flex; justify-content: space-between"><span style="font-weight: 700">Thầy Phú</span><span style="color: #6B655E; font-size: 12px">now</span></span>
+          <span>The dentist email has waited nine days. So has my tea.</span>
+        </span>
+      </div>
+      <p style="margin: 10px 0 0; font-size: 13px; line-height: 1.4; color: #6B655E">Never in quiet hours, Sleep or Focus. Ignore me and I go quiet.</p>
+      <button class="btn red press" onClick="{{introNext}}" style="width: 100%; position: absolute; top: 254px">Allow his notes</button>
+    </div>
+    <div aria-label="Timetable" style="position: absolute; left: 0; right: 0; top: 96px; height: 690px; opacity: {{ttOp}}; transform: translateY({{ttShift}}); transition: {{ttInTr}}; pointer-events: {{ttInPe}}">
+      <div style="display: flex; gap: 4px; padding: 0 14px">
+        <sc-for list="{{ttDays}}" as="item" hint-placeholder-count="7">
+          <button class="ttday" onClick="{{item.pick}}" aria-pressed="{{item.on}}" style="background: {{item.bg}}; color: {{item.fg}}"><span style="font-size: 11px; font-weight: 700; opacity: .7">{{item.d}}</span><span style="font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums">{{item.n}}</span><span style="width: 5px; height: 5px; border-radius: 3px; background: {{item.dot}}"></span></button>
+        </sc-for>
+      </div>
+      <sc-if value="{{ttIsDay}}" hint-placeholder-val="{{ true }}">
+      <div style="display: flex; justify-content: center; margin-top: 8px"><dc-import name="Dial" size="236" now="8.2" mood="over" booked="{{ttBookedS}}" hint-size="236px,236px"></dc-import></div>
+      <div style="display: flex; gap: 10px; padding: 0 16px; margin-top: 8px">
+        <sc-for list="{{ttFree}}" as="item" hint-placeholder-count="2">
+          <div style="flex: 1; min-width: 0; border-radius: 22px; background: {{item.bg}}; padding: 12px 14px; display: flex; flex-direction: column; gap: 1px; transition: background-color 300ms">
+            <span class="r" style="font-size: 24px; line-height: 1.05; font-weight: 800; color: {{item.fg}}; font-variant-numeric: tabular-nums">{{item.time}}</span>
+            <span style="font-size: 12px; color: {{item.sub}}">{{item.len}}</span>
+            <span style="margin-top: 8px; font-size: 14px; line-height: 1.25; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{item.task}}</span>
+            <button class="press" onClick="{{item.book}}" style="margin-top: 10px; height: 34px; border: none; border-radius: 17px; background: {{item.btnBg}}; color: {{item.btnFg}}; font: inherit; font-size: 13.5px; font-weight: 700; transition: background-color 260ms, color 260ms">{{item.btn}}</button>
+          </div>
+        </sc-for>
+      </div>
+      <div style="margin: 12px 16px 0; border-radius: 20px; background: #FFFFFF; overflow: hidden; box-shadow: 0 1px 2px rgba(60,40,20,0.05)">
+        <sc-for list="{{ttLater}}" as="item" hint-placeholder-count="3">
+          <div style="display: grid; grid-template-columns: 50px minmax(0,1fr); align-items: center; min-height: 46px; padding: 0 14px; box-shadow: {{item.bt}}">
+            <span style="font-size: 13px; color: #8A7F74; font-variant-numeric: tabular-nums">{{item.time}}</span>
+            <span style="font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{item.t}}<span style="font-weight: 500; font-size: 12.5px; color: {{item.nc}}">{{item.note}}</span></span>
+          </div>
+        </sc-for>
+      </div>
+      </sc-if>
+      <sc-if value="{{ttIsWeekend}}" hint-placeholder-val="{{ false }}">
+        <div style="display: flex; justify-content: center; margin-top: 8px"><dc-import name="Dial" size="236" now="11" mood="sleep" empty="true" hint-size="236px,236px"></dc-import></div>
+        <div style="margin: 8px 16px 0; border-radius: 22px; background: #FFFFFF; padding: 16px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 1px 2px rgba(60,40,20,0.05)">
+          <span class="r" style="font-size: 22px; font-weight: 800">No classes today.</span>
+          <span style="font-size: 14px; color: #6B655E">If you want one thing: fix the bike light.</span>
+          <button class="press" style="margin-top: 10px; height: 40px; border: none; border-radius: 20px; background: rgba(28,26,24,0.06); color: #1C1A18; font: inherit; font-size: 14.5px; font-weight: 700">Put it on the desk</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{ttIsAsk}}" hint-placeholder-val="{{ false }}">
+        <div style="margin: 18px 16px 0; border-radius: 26px; background: #FFFFFF; padding: 22px 20px; display: flex; flex-direction: column; align-items: center; text-align: center; box-shadow: 0 1px 2px rgba(60,40,20,0.05)">
+          <div style="width: 130px; height: 143px"><dc-import name="Phu" mood="point" size="130" hint-size="130px,143px"></dc-import></div>
+          <span class="r" style="margin-top: 10px; font-size: 22px; font-weight: 800; letter-spacing: -0.01em">Let me read your calendar.</span>
+          <span style="margin-top: 6px; font-size: 14.5px; line-height: 1.45; color: #6B655E">I fill your free periods. I never change anything.</span>
+          <button class="press" style="margin-top: 18px; width: 100%; height: 50px; border: none; border-radius: 25px; background: #1C1A18; color: #FFFFFF; font: inherit; font-size: 16px; font-weight: 700">Show him my calendar</button>
+          <button class="press" style="margin-top: 6px; height: 40px; border: none; background: transparent; color: #6B655E; font: inherit; font-size: 15px; font-weight: 600">Not now</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{ttIsLocked}}" hint-placeholder-val="{{ false }}">
+        <div style="position: relative">
+          <div aria-hidden="true" style="filter: blur(8px) saturate(.7); opacity: .45; pointer-events: none">
+      <div style="display: flex; justify-content: center; margin-top: 8px"><dc-import name="Dial" size="236" now="8.2" mood="over" booked="false" hint-size="236px,236px"></dc-import></div>
+      <div style="display: flex; gap: 10px; padding: 0 16px; margin-top: 8px">
+        <sc-for list="{{ttFree}}" as="item" hint-placeholder-count="2">
+          <div style="flex: 1; min-width: 0; border-radius: 22px; background: {{item.bg}}; padding: 12px 14px; display: flex; flex-direction: column; gap: 1px; transition: background-color 300ms">
+            <span class="r" style="font-size: 24px; line-height: 1.05; font-weight: 800; color: {{item.fg}}; font-variant-numeric: tabular-nums">{{item.time}}</span>
+            <span style="font-size: 12px; color: {{item.sub}}">{{item.len}}</span>
+            <span style="margin-top: 8px; font-size: 14px; line-height: 1.25; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{item.task}}</span>
+            <button class="press" onClick="{{item.book}}" style="margin-top: 10px; height: 34px; border: none; border-radius: 17px; background: {{item.btnBg}}; color: {{item.btnFg}}; font: inherit; font-size: 13.5px; font-weight: 700; transition: background-color 260ms, color 260ms">{{item.btn}}</button>
+          </div>
+        </sc-for>
+      </div>
+      <div style="margin: 12px 16px 0; border-radius: 20px; background: #FFFFFF; overflow: hidden; box-shadow: 0 1px 2px rgba(60,40,20,0.05)">
+        <sc-for list="{{ttLater}}" as="item" hint-placeholder-count="3">
+          <div style="display: grid; grid-template-columns: 50px minmax(0,1fr); align-items: center; min-height: 46px; padding: 0 14px; box-shadow: {{item.bt}}">
+            <span style="font-size: 13px; color: #8A7F74; font-variant-numeric: tabular-nums">{{item.time}}</span>
+            <span style="font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{item.t}}<span style="font-weight: 500; font-size: 12.5px; color: {{item.nc}}">{{item.note}}</span></span>
+          </div>
+        </sc-for>
+      </div>
+          </div>
+          <div style="position: absolute; left: 16px; right: 16px; top: 120px; border-radius: 24px; background: rgba(255,253,248,0.92); box-shadow: 0 12px 30px rgba(60,40,20,0.14); padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center">
+            <span style="width: 40px; height: 40px; border-radius: 20px; background: #F3EADC; display: flex; align-items: center; justify-content: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1C1A18" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2.5"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg></span>
+            <span class="r" style="font-size: 18px; font-weight: 800">Part of tuition</span>
+            <span style="font-size: 14px; color: #6B655E">Your desk and board stay free.</span>
+            <a href="Tuition.dc.html" class="press" style="margin-top: 8px; height: 40px; padding: 0 18px; border-radius: 20px; background: #1C1A18; color: #FFFFFF; font-size: 14.5px; font-weight: 700; text-decoration: none; display: flex; align-items: center">See the receipt</a>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+  </section>
+
+  <sc-if value="{{hasFly}}" hint-placeholder-val="{{ false }}">
+    <div aria-hidden="true">
+      <sc-for list="{{flying}}" as="item" hint-placeholder-count="2">
+        <span class="hand fly" style="top: {{item.top}}; --dy: {{item.dy}}; animation-delay: {{item.delay}}">{{item.t}}</span>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <div class="slide" role="group" aria-label="Keyboard" style="position: absolute; left: 0; right: 0; bottom: 0; height: 322px; padding: 4px 3px 0; box-sizing: border-box; background: rgba(208,212,220,0.88); -webkit-backdrop-filter: blur(28px) saturate(170%); backdrop-filter: blur(28px) saturate(170%); border-radius: 28px 28px 0 0; box-shadow: inset 0 1px 0 rgba(255,255,255,0.7), 0 -6px 24px rgba(40,30,20,0.08); display: flex; flex-direction: column; transform: {{kbT}}">
+    <div style="display: flex; align-items: center; height: 44px; padding: 0 6px"><sc-for list="{{suggs}}" as="item" hint-placeholder-count="3"><button class="sugg" onClick="{{item.tap}}">{{item.t}}</button></sc-for></div>
+    <div style="display: flex; flex-direction: column; gap: 11px; padding-top: 2px">
+      <div style="display: flex; gap: 6px; padding: 0 3px"><sc-for list="{{row1}}" as="item" hint-placeholder-count="10"><button class="key" onClick="{{item.tap}}">{{item.k}}</button></sc-for></div>
+      <div style="display: flex; gap: 6px; padding: 0 22px"><sc-for list="{{row2}}" as="item" hint-placeholder-count="9"><button class="key" onClick="{{item.tap}}">{{item.k}}</button></sc-for></div>
+      <div style="display: flex; gap: 6px; padding: 0 3px">
+        <button class="key fn" aria-label="Shift" aria-pressed="{{shiftOn}}" onClick="{{shiftKey}}" style="background: {{shiftBg}}; margin-right: 8px"><svg width="20" height="20" viewBox="0 0 24 24" fill="{{shiftFill}}" stroke="#111114" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5 3.5 12.5H8v7h8v-7h4.5z"></path></svg></button>
+        <sc-for list="{{row3}}" as="item" hint-placeholder-count="7"><button class="key" onClick="{{item.tap}}">{{item.k}}</button></sc-for>
+        <button class="key fn" aria-label="Delete" onClick="{{delKey}}" style="margin-left: 8px"><svg width="24" height="20" viewBox="0 0 26 20" fill="none" stroke="#111114" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M8.5 2.5h14a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-14L1.5 10z"></path><path d="M12 7l6 6M18 7l-6 6"></path></svg></button>
+      </div>
+      <div style="display: flex; gap: 6px; padding: 0 3px">
+        <button class="key fn" aria-label="Numbers" style="width: 47px">123</button>
+        <button class="key fn" aria-label="Emoji" style="width: 47px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111114" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8 14.5c1 1.4 2.4 2 4 2s3-.6 4-2"></path><path d="M9 9.5h.01M15 9.5h.01" stroke-width="2.4"></path></svg></button>
+        <button class="key" onClick="{{spaceKey}}" style="font-size: 16px">space</button>
+        <button class="key" onClick="{{submitTyped}}" style="flex: none; width: 92px; font-size: 16px; font-weight: 600; background: {{retBg}}; color: {{retFg}}">{{retLabel}}</button>
+      </div>
+    </div>
+    <div style="flex: 1; display: flex; justify-content: space-between; align-items: flex-start; padding: 12px 22px 0">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3C3C43" stroke-width="1.6" aria-label="Switch keyboard" role="img"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.6 2.8 3.8 5.8 3.8 9s-1.2 6.2-3.8 9c-2.6-2.8-3.8-5.8-3.8-9S9.4 5.8 12 3z"></path></svg>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3C3C43" stroke-width="1.6" stroke-linecap="round" aria-label="Dictate" role="img"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"></path></svg>
+    </div>
+    <span style="position: absolute; bottom: 8px; left: 50%; margin-left: -67px; width: 134px; height: 5px; border-radius: 3px; background: #111114"></span>
+  </div>
+
+  <button class="slide" aria-label="Close late slip" tabindex="-1" onClick="{{closeSlip}}" style="position: absolute; inset: 0; width: 100%; height: 100%; border: none; padding: 0; background: rgba(30,22,14,0.32); opacity: {{scrimOp}}; pointer-events: {{scrimPe}}"></button>
+  <section class="slide" aria-label="Late slip" style="transition: {{slipTr}}; position: absolute; left: 0; right: 0; bottom: 0; background: #FCFAF6; border-radius: 34px 34px 0 0; padding: 8px 20px 34px; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 -10px 40px rgba(40,28,16,0.18); transform: {{slipT}}">
+    <button class="press" aria-label="Close the late slip" onClick="{{closeSlipTap}}" onPointerDown="{{sdDown}}" onPointerMove="{{sdMove}}" onPointerUp="{{sdUp}}" onPointerCancel="{{sdUp}}" style="touch-action: none; align-self: stretch; border: none; background: none; padding: 6px 24px 8px; margin: -6px -20px -8px; display: flex; justify-content: center"><span style="display: block; width: 36px; height: 5px; border-radius: 3px; background: rgba(28,26,24,0.16)"></span></button>
+    <div style="display: flex; justify-content: space-between; align-items: baseline">
+      <h2 style="margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.015em">Late slip</h2>
+      
+    </div>
+    <div style="position: relative; border-radius: 18px; padding: 10px 16px 10px 52px; background-color: #FFF9E3; background-image: linear-gradient(90deg, transparent 39px, rgba(226,69,62,0.35) 39px, rgba(226,69,62,0.35) 41px, transparent 41px), linear-gradient(180deg, transparent 35px, rgba(106,69,184,0.18) 35px, rgba(106,69,184,0.18) 36px, transparent 36px); background-size: 100% 100%, 100% 36px; background-position: 0 0, 0 10px; box-shadow: inset 0 0 0 1px rgba(150,120,40,0.08)">
+      <p style="margin: 0; height: 36px; display: flex; align-items: flex-end; padding-bottom: 6px; box-sizing: border-box; font-size: 13px; color: #6B655E">For&#160;<span style="color: #1C1A18; font-weight: 600">{{task.short}}</span></p>
+      <p class="hand" style="margin: 0; height: 36px; display: flex; align-items: flex-end; padding-bottom: 3px; box-sizing: border-box; font-size: 26px; color: {{excuseColor}}"><sc-if value="{{hasPick}}" hint-placeholder-val="{{ true }}"><span class="fade">{{pickText}}</span></sc-if><sc-if value="{{noPick}}" hint-placeholder-val="{{ false }}"><span>Your excuse...</span></sc-if></p>
+      <p class="hand" style="margin: 0; height: 36px; display: flex; align-items: flex-end; padding-bottom: 3px; padding-right: 70px; box-sizing: border-box; font-size: 22px; color: #D42A24"><sc-if value="{{hasPick}}" hint-placeholder-val="{{ true }}"><span class="{{commentCls}}">{{pickComment}}</span></sc-if></p>
+      <sc-if value="{{hasGrade}}" hint-placeholder-val="{{ true }}">
+        <span class="hand stamp" role="img" aria-label="{{gradeLabel}}" style="position: absolute; right: 14px; top: 28px; width: 62px; height: 62px; border: 3px solid #D42A24; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; color: #D42A24; transform: rotate(-10deg)">{{pickGrade}}</span>
+      </sc-if>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px">
+      <sc-for list="{{excuses}}" as="item" hint-placeholder-count="4">
+        <button class="press {{item.cls}}" onClick="{{item.pick}}" style="min-height: 44px; padding: 0 16px; border: none; border-radius: 22px; font: inherit; font-size: 15px; font-weight: 600; background: {{item.bg}}; color: {{item.fg}}; transition: background-color 220ms, color 220ms, transform 200ms cubic-bezier(.32,.72,0,1)">{{item.t}}</button>
+      </sc-for>
+    </div>
+    <div style="margin-top: 6px; display: flex; flex-direction: column; gap: 2px">
+      <button class="btn ink press" onClick="{{handIn}}" style="opacity: {{handInOp}}; transition: opacity 240ms, transform 200ms cubic-bezier(.32,.72,0,1)">Hand it in</button>
+      <button class="btn press" onClick="{{startFromSlip}}" style="background: transparent; color: #D42A24; height: 48px">Fine, I’ll start</button>
+    </div>
+  </section>
+
+  <section class="bsec" aria-label="The board" style="transition: {{boardTr}}; position: absolute; inset: 0; background: #2F6B56; color: #EEF6F0; clip-path: {{boardClip}}; -webkit-clip-path: {{boardClip}}; opacity: {{boardOp}}; pointer-events: {{boardPe}}; --bdo: {{bdo}}; display: flex; flex-direction: column; padding: 58px 16px 0; box-sizing: border-box">
+    <div class="bkeep" style="position: absolute; top: 0; left: 0; width: 160px; height: 100%; background: #357560; transform: skewX(-14deg); transform-origin: top left; pointer-events: none"></div>
+    <header onPointerDown="{{lgDown}}" onPointerMove="{{lgMove}}" onPointerUp="{{lgUp}}" onPointerCancel="{{lgUp}}" style="position: relative; display: flex; flex-direction: column; gap: 12px; padding: 0 8px 14px; touch-action: none; transform: translateY({{lgPullY}}); transition: {{lgPullTr}}">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end">
+        <h2 style="margin: 0; font-size: 34px; line-height: 1; font-weight: 800; letter-spacing: -0.02em; color: #FFFFFF">The board</h2>
+        <span class="hand" style="font-size: 18px; color: #F7D774">{{dateLine}}</span>
+      </div>
+      <div style="display: flex; gap: 8px">
+        <button class="press" onClick="{{openTT}}" style="border: none; font: inherit; height: 36px; padding: 0 14px; border-radius: 18px; background: rgba(255,255,255,0.14); color: #FFFFFF; font-size: 14px; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 6px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="3"></rect><path d="M3 10h18M9 4v17M15 4v17"></path></svg>
+          Timetable
+        </button>
+        <button class="press" onClick="{{openLog}}" style="border: none; font: inherit; height: 36px; padding: 0 14px; border-radius: 18px; background: rgba(255,255,255,0.14); color: #FFFFFF; font-size: 14px; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 6px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"></path><path d="M9 9h6M9 13h4"></path></svg>
+          Logbook
+        </button>
+      </div>
+    </header>
+    <ol class="hand" style="position: relative; list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; font-size: 24px">
+      <li style="display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 8px; border-top: 1px dashed rgba(238,246,240,0.18)">
+        <span style="width: 10px; height: 10px; border-radius: 5px; background: #FF8A80; flex-shrink: 0"></span>
+        <span style="flex: 1; text-decoration: underline; text-underline-offset: 5px">{{chalkMain}}</span>
+        <svg width="34" height="16" viewBox="0 0 34 16" aria-hidden="true"><path d="{{tallyPath}}" stroke="#FF9AA0" stroke-width="2.4" stroke-linecap="round" fill="none"></path></svg>
+      </li>
+      <sc-for list="{{rows}}" as="item" hint-placeholder-count="8">
+        <li class="{{item.cls}}" style="position: relative; min-height: 48px; border-top: 1px dashed rgba(238,246,240,0.18); overflow: hidden">
+          <div style="position: absolute; right: 0; top: 0; bottom: 0; width: {{item.aw}}; display: flex; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', Inter, system-ui, sans-serif">
+            <button onClick="{{item.tick}}" style="flex: 1; min-width: 0; border: none; background: #3E8E5A; color: #FFFFFF; font: inherit; font-size: 13px; font-weight: 700; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"></path></svg>Tick</button>
+            <button onClick="{{item.erase}}" style="flex: 1; min-width: 0; border: none; background: #1E4A3C; color: #FFFFFF; font: inherit; font-size: 13px; font-weight: 700; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 21h10M5 15l9-9 5 5-9 9H6z"></path></svg>Erase</button>
+          </div>
+          <div onPointerDown="{{item.down}}" onPointerMove="{{item.move}}" onPointerUp="{{item.up}}" onPointerCancel="{{item.up}}" style="position: relative; display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 8px; touch-action: pan-y; transform: translateX({{item.x}}); transition: {{item.tr}}; opacity: {{item.op}}">
+            <span style="width: 10px; height: 10px; border-radius: 5px; border: 2px solid rgba(238,246,240,0.5); box-sizing: border-box; flex-shrink: 0"></span>
+            <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; padding: 6px 0"><span style="opacity: {{item.op}}; transition: opacity 400ms">{{item.t}}</span><sc-if value="{{item.isOld}}" hint-placeholder-val="{{ false }}"><span style="font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', Inter, system-ui, sans-serif; font-size: 12.5px; color: rgba(238,246,240,0.72)">Old chalk. Still yours?</span></sc-if></span>
+            <sc-if value="{{item.isOld}}" hint-placeholder-val="{{ false }}"><span style="display: flex; align-items: center; gap: 6px; flex-shrink: 0; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', Inter, system-ui, sans-serif"><button class="press" onClick="{{item.keep}}" style="height: 28px; padding: 0 11px; border: none; border-radius: 14px; background: rgba(255,255,255,0.16); color: #FFFFFF; font: inherit; font-size: 13px; font-weight: 700">Keep</button><button class="press" onClick="{{item.erase}}" style="height: 28px; padding: 0 11px; border: none; border-radius: 14px; background: transparent; box-shadow: inset 0 0 0 1.5px rgba(238,246,240,0.3); color: #EEF6F0; font: inherit; font-size: 13px; font-weight: 700">Let go</button></span></sc-if>
+            <sc-if value="{{item.notOld}}" hint-placeholder-val="{{ true }}"><span style="font-size: 18px; color: {{item.c}}">{{item.m}}</span></sc-if>
+            <sc-if value="{{item.ticking}}" hint-placeholder-val="{{ false }}"><span class="strike" style="width: {{item.sw}}"></span></sc-if>
+          </div>
+        </li>
+      </sc-for>
+    </ol>
+    <div style="position: relative; margin-top: auto; display: flex; align-items: flex-end; gap: 6px; padding: 0 4px">
+      <p class="r" style="flex: 1; margin: 0 0 22px; font-size: 18px; line-height: 1.3; font-weight: 800; color: #FFFFFF">{{boardRemark}}</p>
+      <div style="flex-shrink: 0; margin-bottom: -8px"><dc-import name="Phu" mood="over" size="104" hint-size="104px,114px"></dc-import></div>
+    </div>
+    <button class="press" aria-label="Push the board back up" onClick="{{closeBoard}}" onPointerDown="{{buDown}}" onPointerMove="{{buMove}}" onPointerUp="{{buUp}}" onPointerCancel="{{buUp}}" style="touch-action: none; position: relative; height: 40px; margin: 0 -16px; border: none; background: #8A5A36; display: flex; align-items: center; justify-content: center">
+      <span style="width: 40px; height: 5px; border-radius: 3px; background: rgba(255,241,220,0.7)"></span>
+    </button>
+    <div class="bkeep" style="position: absolute; inset: 0; background: rgba(8,20,16,{{lgDim}}); pointer-events: none; transition: {{lgTr}}"></div>
+  </section>
+
+  <section aria-label="Logbook" style="position: absolute; inset: 0; background: #FBF6EC; color: #1C1A18; transform: translateY({{lgY}}); transition: {{lgTr}}; pointer-events: {{lgPe}}; box-shadow: 0 16px 40px rgba(0,0,0,{{lgShadow}}); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', Inter, system-ui, sans-serif">
+    <div style="position: absolute; inset: 0; background: repeating-linear-gradient(180deg, transparent 0 43px, rgba(43,76,154,0.10) 43px 44px); background-position: 0 30px; pointer-events: none"></div>
+    <div style="position: absolute; left: 56px; top: 0; bottom: 0; width: 1.5px; background: rgba(212,42,36,0.3); pointer-events: none"></div>
+    <header style="position: relative; padding: 60px 22px 0 72px; display: flex; justify-content: space-between; align-items: flex-end">
+      <h2 style="margin: 0; font-size: 34px; line-height: 1; font-weight: 800; letter-spacing: -0.02em">Logbook</h2>
+      <span style="font-size: 13px; font-weight: 600; color: #8A7F74">Week 43</span>
+    </header>
+    <sc-if value="{{lgEmpty}}" hint-placeholder-val="{{ false }}">
+      <div style="position: relative; margin-top: 90px; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; padding: 0 50px 0 70px">
+        <div style="width: 120px; height: 132px"><dc-import name="Phu" mood="grading" size="120" hint-size="120px,132px"></dc-import></div>
+        <span class="r" style="font-size: 19px; font-weight: 800">Nothing signed yet.</span>
+        <span style="font-size: 14.5px; line-height: 1.45; color: #6B655E">Finish one thing and he signs it here.</span>
+      </div>
+    </sc-if>
+    <ol style="position: relative; list-style: none; margin: 22px 0 0; padding: 0">
+      <sc-for list="{{lgRows}}" as="item" hint-placeholder-count="5">
+        <li style="display: grid; grid-template-columns: 56px minmax(0,1fr) 54px; align-items: center; min-height: 66px">
+          <span class="hand" style="font-size: 15px; color: #D42A24; text-align: center">{{item.day}}</span>
+          <span style="display: flex; flex-direction: column; gap: 2px; padding-left: 16px; min-width: 0"><span style="font-size: 16px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{item.t}}</span><span style="font-size: 12.5px; color: #8A7F74">{{item.s}}</span></span>
+          <svg width="46" height="16" viewBox="0 0 46 16" aria-label="Signed"><path d="M 2.6 14.0 C 3.6 9.9 4.2 5.7 5.2 1.6 C 7.8 0.0 12.0 2.1 9.9 5.2 C 8.3 7.3 5.2 6.8 4.2 5.7 M 6.2 7.3 C 7.8 4.7 9.4 2.1 10.4 1.0 C 10.9 4.2 9.4 8.8 9.9 12.5 C 10.4 9.4 12.5 6.8 13.5 8.8 C 14.0 10.9 13.5 12.5 15.1 11.4 C 16.1 9.9 16.1 8.3 16.6 7.8 C 16.6 10.4 17.2 12.5 18.7 11.4 C 19.8 10.4 19.8 8.8 20.3 7.8 C 20.3 10.4 20.8 12.5 22.9 10.9 C 27.0 8.8 33.3 8.3 42.6 4.7 M 18.2 4.7 L 20.8 2.1" fill="none" stroke="#D42A24" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"></path></svg>
+        </li>
+      </sc-for>
+    </ol>
+    <div aria-hidden="true" style="position: absolute; bottom: 96px; left: 0; right: 0; display: flex; justify-content: center; align-items: center; gap: 6px; opacity: {{lgHintOp}}; pointer-events: none"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D42A24" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="transform: rotate({{lgArrow}}); transition: transform 240ms cubic-bezier(.34,1.56,.64,1)"><path d="M12 5v14M6 13l6 6 6-6"></path></svg><span class="hand" style="font-size: 17px; color: #D42A24">{{lgHint}}</span></div>
+    <div aria-hidden="true" style="position: absolute; left: 0; right: 0; bottom: 64px; display: flex; justify-content: space-around; padding: 0 18px">
+      <sc-for list="{{lgHoles}}" as="item" hint-placeholder-count="11"><span style="width: 9px; height: 9px; border-radius: 5px; background: rgba(28,26,24,0.12); box-shadow: inset 0 1px 1px rgba(0,0,0,0.12)"></span></sc-for>
+    </div>
+    <button class="press" aria-label="Push the logbook back up" onClick="{{closeLog}}" onPointerDown="{{luDown}}" onPointerMove="{{luMove}}" onPointerUp="{{luUp}}" onPointerCancel="{{luUp}}" style="position: absolute; left: 0; right: 0; bottom: 14px; height: 40px; border: none; background: transparent; display: flex; align-items: center; justify-content: center; touch-action: none; cursor: grab">
+      <span style="width: 40px; height: 5px; border-radius: 3px; background: rgba(28,26,24,0.2)"></span>
+    </button>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"screen":{"editor":"enum","options":["desk","session","finish","recess","serious","intro"],"default":"desk"},"step":{"editor":"int","default":0,"min":0,"max":3},"comp":{"editor":"enum","options":["idle","listening","typing"],"default":"idle"},"pressure":{"editor":"int","default":0,"min":0,"max":5},"slip":{"editor":"boolean","default":false},"board":{"editor":"boolean","default":false},"pick":{"editor":"int","default":-1,"min":-1,"max":3},"elapsed":{"editor":"int","default":168,"min":0,"max":600},"bell":{"editor":"boolean","default":false},"partial":{"editor":"boolean","default":false},"empty":{"editor":"boolean","default":false},"happening":{"editor":"enum","options":["none","cat","plane","powercut","flowers","quiz","rain"],"default":"none"},"slips":{"editor":"int","default":3,"min":0,"max":9},"autoplay":{"editor":"boolean","default":true},"typed":{"editor":"string","default":""},"notice":{"editor":"boolean","default":false},"tt":{"editor":"boolean","default":false},"ttstate":{"editor":"enum","options":["day","weekend","ask","locked"],"default":"day"},"ttpull":{"editor":"float","default":0},"pull":{"editor":"float","default":0},"log":{"editor":"boolean","default":false},"logempty":{"editor":"boolean","default":false},"logpull":{"editor":"float","default":0},"offline":{"editor":"boolean","default":false},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  core() {
+    const P = this.props;
+    const S = this.state || {};
+    const flag = (v) => v === true || v === 'true';
+    const auto = !(P.autoplay === false || P.autoplay === 'false');
+    const pIn = Math.max(0, Math.min(5, Number(P.pressure ?? 0) || 0));
+    const fuseFor = [110, 90, 70, 50, 30, 0];
+    const tasks = [
+      { title: 'Email the dentist to move Thursday', short: 'Email the dentist', chalk: 'Dentist email', days: 9, slips: 3 },
+      { title: 'Email the landlord about the sink', short: 'Email the landlord', chalk: 'Landlord email', days: 4, slips: 2 }
+    ];
+    const taskIdx = S.taskIdx ?? 0;
+    const custom = S.custom || null;
+    const screen = S.screen || P.screen || 'desk';
+    return {
+      auto, tasks, taskIdx,
+      task: custom || tasks[taskIdx],
+      next: tasks[(taskIdx + 1) % tasks.length],
+      screen,
+      step: S.step ?? (Number(P.step ?? 0) || 0),
+      comp: S.comp || P.comp || 'idle',
+      fuse: S.fuse ?? (auto && P.pressure == null ? 120 : fuseFor[pIn]),
+      slip: S.slip ?? flag(P.slip),
+      board: S.board ?? flag(P.board),
+      pick: S.pick ?? (P.pick == null ? -1 : Number(P.pick)),
+      slips: S.slips ?? (P.slips == null ? (custom || tasks[taskIdx]).slips : Number(P.slips)),
+      el: S.el ?? (P.elapsed == null ? (screen === 'recess' ? 0 : 168) : Number(P.elapsed)),
+      bell: S.bell ?? flag(P.bell),
+      partial: S.partial ?? flag(P.partial),
+      empty: S.empty ?? flag(P.empty),
+      inTime: S.inTime ?? true,
+      look: S.look ?? false,
+      words: S.words ?? (P.comp === 'listening' ? 14 : 0),
+      typed: S.typed ?? (P.typed || ''),
+      notice: P.notice === true || P.notice === 'true',
+      offline: P.offline === true || P.offline === 'true',
+      added: S.added || [],
+      count: S.count ?? 9,
+      flying: S.flying || [],
+      transient: S.transient || '',
+      ringing: S.ringing ?? false,
+      note: S.note ?? '',
+      happening: S.happening ?? (P.happening || 'none'),
+      len: S.len ?? 1,
+      lenOpen: S.lenOpen ?? false,
+      startPressed: S.startPressed ?? false,
+      pokeN: S.pokeN ?? 0,
+      pokeMood: S.pokeMood || '',
+      bdrag: S.bdrag ?? Math.round((Number(P.pull) || 0) * 260),
+      ttP: S.ttP ?? (flag(P.tt) ? 1 : Number(P.ttpull) || 0),
+      ttDrag: S.ttDrag ?? false,
+      ttBooked: S.ttBooked ?? false,
+      ttState: S.ttState ?? (P.ttstate || 'day'),
+      log: S.log ?? flag(P.log),
+      lgd: S.lgd ?? Math.round((Number(P.logpull) || 0) * 300),
+      lgu: S.lgu ?? 0,
+      logEmpty: flag(P.logempty),
+      budrag: S.budrag ?? 0,
+      sdrag: S.sdrag ?? 0,
+      swipe: S.swipe || null,
+      openRow: S.openRow ?? null,
+      rows: S.rows || [
+        { id: 'r1', t: tasks[(taskIdx + 1) % tasks.length].chalk, m: '||', c: '#FF9AA0', op: 1 },
+        { id: 'r2', t: 'Renew passport', m: '14 Nov', c: '#F7D774', op: 1 },
+        { id: 'r3', t: 'Tax receipts', m: '||||', c: '#FF9AA0', op: 1 },
+        { id: 'r4', t: 'Reply to Minh', m: 'Fri', c: '#F7D774', op: 1 },
+        { id: 'r5', t: 'Cancel the gym trial', m: 'Wed', c: '#F7D774', op: 1 },
+        { id: 'r6', t: 'Fix the bike light', m: '', c: '#F7D774', op: 1 },
+        { id: 'r7', t: 'Read chapter 4', m: 'fading', c: '#EEF6F0', op: 0.45 }
+      ],
+      name: S.name ?? 'Trần Minh Anh'
+    };
+  }
+  script() {
+    return 'Okay so I need to call the bank about the card thing and get a birthday gift for Linh before Saturday'.split(' ');
+  }
+  say(text, ms) {
+    this._until = Date.now() + ms;
+    return { transient: text, pokeMood: '' };
+  }
+  componentDidMount() {
+    if (!this.core().auto) return;
+    this._sess = 0;
+    this._nextLook = 3600;
+    this.timer = setInterval(() => {
+      const c = this.core();
+      const patch = {};
+      if (c.screen === 'desk' && !c.empty && c.comp === 'idle' && !c.slip && !c.board && c.fuse > 0) patch.fuse = Math.max(0, c.fuse - 1.2);
+      if (c.comp === 'listening' && c.words < this.script().length) patch.words = c.words + 1;
+      if (c.screen === 'recess' && c.el < 300) patch.el = Math.min(300, c.el + 5);
+      if (c.screen === 'session' && !c.bell) {
+        const total = [5, 10, 15, 25, 45][c.len] * 60;
+        const el = Math.min(total, c.el + total / 120);
+        patch.el = el;
+        if (el >= total) { patch.bell = true; patch.look = false; }
+        this._sess += 200;
+        if (!c.look && this._sess >= this._nextLook) {
+          const lines = ['I saw that.', 'Eyes on your own paper.', 'Is that a phone under the desk?', 'Mm.'];
+          Object.assign(patch, { look: true }, this.say(lines[Math.floor(Math.random() * lines.length)], 1600));
+          this._lookEnd = this._sess + 1600;
+        } else if (c.look && this._sess >= this._lookEnd) {
+          patch.look = false;
+          this._nextLook = this._sess + 4500 + Math.random() * 4000;
+        }
+      }
+      if (c.transient && Date.now() > (this._until || 0)) patch.transient = '';
+      const quiet = c.screen === 'desk' && !c.empty && c.comp === 'idle' && !c.slip && !c.board;
+      this._deskT = quiet ? (this._deskT || 0) + 200 : 0;
+      if (quiet && !this._catDone && this._deskT >= 9000 && c.happening === 'none') { this._catDone = true; this._hapEnd = Date.now() + 8500; patch.happening = 'cat'; }
+      if (c.screen === 'session' && !this._planeDone && this._sess >= 5200 && c.happening === 'none') { this._planeDone = true; this._hapEnd = Date.now() + 5200; patch.happening = 'plane'; }
+      if (c.happening !== 'none' && this._hapEnd && Date.now() > this._hapEnd) { this._hapEnd = 0; patch.happening = 'none'; }
+      if (Object.keys(patch).length) this.setState(patch);
+    }, 200);
+  }
+  _doStart() {
+    const c = this.core();
+    if (c.ringing) return;
+    this.setState({ ringing: true, lenOpen: false });
+    clearTimeout(this._t2);
+    this._t2 = setTimeout(() => { this._sess = 0; this._nextLook = 3600; this.setState({ ringing: false, screen: 'session', el: 0, bell: false, look: false, partial: false, inTime: this.core().fuse > 0 }); }, 760);
+  }
+  componentWillUnmount() { clearInterval(this.timer); clearTimeout(this._t1); clearTimeout(this._t2); }
+  file(c, items, from, text) {
+    const n = (this._flyN || 0) + 1;
+    this._flyN = n;
+    const flying = items.map((t, i) => ({ t, top: (from + i * 48) + 'px', dy: (176 - from - i * 48) + 'px', delay: (i * 120) + 'ms' }));
+    const patch = { comp: 'idle', typed: '', words: 0, flying, added: c.added.concat(items), count: c.count + items.length, rows: items.map((t, i) => ({ id: 'n' + n + '-' + i, t, m: 'new', c: '#F7D774', op: 1 })).concat(c.rows) };
+    if (c.empty) Object.assign(patch, { empty: false, custom: { title: items[0], short: items[0], chalk: items[0], days: 0, slips: 0 }, slips: 0, fuse: 120 });
+    this.setState(Object.assign(patch, this.say(c.empty ? 'On your desk. Two minutes.' : text, 2600)));
+    clearTimeout(this._t1);
+    this._t1 = setTimeout(() => this.setState({ flying: [] }), 1500);
+  }
+  renderVals() {
+    const c = this.core();
+    const desk = c.screen === 'desk';
+    const intro = c.screen === 'intro';
+    const p = c.fuse > 100 ? 0 : c.fuse > 80 ? 1 : c.fuse > 60 ? 2 : c.fuse > 40 ? 3 : c.fuse > 20 ? 4 : 5;
+    const moods = c.auto && new Date().getDate() % 2 ? ['calm', 'watch', 'hips', 'count', 'snap', 'stare'] : ['calm', 'over', 'crossed', 'ruler', 'name', 'stare'];
+    const shout = c.name.trim().toUpperCase().split(/\s+/).join('. ') + '.';
+    const lines = ['Two minutes. I’ll wait.', 'This tea was hot when you sat down.', 'We both know how this ends.', 'Tap. Tap.', shout, '...'];
+    const walls = ['#FFF1DC', '#FFEBD2', '#FFE2C6', '#FFD7BE', '#FFC9B6', '#E8E6EE'];
+    const hap = c.screen === 'serious' ? 'none' : c.happening;
+    const hapLines = { cat: 'Not now, Mèo.', plane: 'Whose is this.', powercut: 'Power cut. We continue.', flowers: 'Who did this. ... Thank you.', quiz: 'Paper out. Fifteen minutes.', rain: 'Rain. Nobody is going anywhere.' };
+    let mood = 'calm';
+    let line = '';
+    let wall = '#FFF1DC';
+    if (intro) {
+      mood = ['point', 'calm', 'wave'][c.step] || 'calm';
+      line = ['Sit.', 'Roll call.', 'I keep my notes short.'][c.step] || '';
+    }
+    else if (c.screen === 'serious') { mood = 'serious'; wall = '#ECEAE6'; }
+    else if (c.screen === 'finish') { mood = c.inTime ? 'clap' : 'approve'; line = 'Hm. Good.'; wall = '#FFF3D6'; }
+    else if (c.screen === 'recess') { mood = c.el >= 300 ? 'point' : 'over'; line = c.el >= 300 ? 'Tùng. Back to class.' : 'Five minutes. I’m counting.'; wall = '#FFF3D6'; }
+    else if (c.screen === 'session') { mood = c.bell || c.look || c.partial ? 'calm' : 'grading'; line = c.partial ? 'Partial credit, then.' : c.bell ? 'Tùng tùng tùng. Done?' : ''; }
+    else if (c.comp !== 'idle') { mood = c.comp === 'listening' ? 'think' : 'over'; line = c.comp === 'listening' ? 'Go on.' : 'Write it down.'; }
+    else if (c.empty) { mood = 'over'; line = 'Nothing on the board? Suspicious.'; }
+    else { wall = walls[p]; mood = c.board ? 'point' : c.slip ? (c.pick < 0 ? 'peer' : ['facepalm', 'watch', 'think', 'calm'][c.pick]) : moods[p]; line = c.slip ? 'Let’s hear it.' : lines[p]; }
+    const calmSpot = !intro && c.comp === 'idle' && !c.slip && !c.board && !c.bell && !c.partial && c.screen !== 'finish';
+    if (hap !== 'none' && hapLines[hap] && calmSpot && (c.screen !== 'session' || hap === 'plane' || hap === 'rain')) {
+      line = hapLines[hap];
+      if (hap === 'flowers') { mood = 'moved'; wall = '#FFEFE4'; }
+      if (hap === 'quiz') mood = 'name';
+      if (hap === 'cat') mood = 'laugh';
+      if (hap === 'plane') mood = 'surprised';
+    }
+    if (c.transient && !c.bell) line = c.transient;
+    if (c.transient && c.pokeMood && Date.now() < (this._until || 0)) mood = c.pokeMood;
+    if (this._mood !== mood) { this._mood = mood; this._pop = (this._pop || 0) + 1; }
+    if (this._line !== line) { this._line = line; this._bub = (this._bub || 0) + 1; }
+    if (this._pk !== c.pokeN) { this._pk = c.pokeN; if (c.pokeN) this._pop = (this._pop || 0) + 1; }
+    const titleKey = c.empty ? 'empty' : c.task.title;
+    if (this._tk !== titleKey) { this._tk = titleKey; this._tkN = (this._tkN || 0) + 1; }
+    const mins = [5, 10, 15, 25, 45][c.len];
+    const total = mins * 60;
+    const remainStr = (() => { const r = Math.max(0, total - c.el); return Math.floor(r / 60) + ':' + String(Math.floor(r % 60)).padStart(2, '0'); })();
+    if (!this._dgN) this._dgN = [];
+    remainStr.split('').forEach((ch, i) => { if (!this._dg || this._dg[i] !== ch) this._dgN[i] = (this._dgN[i] || 0) + 1; });
+    this._dg = remainStr;
+
+    const camMode = (intro && c.step === 0) || c.screen === 'session' ? 'wide' : c.screen === 'recess' ? 'recess' : 'close';
+    const cams = { close: [1, 305, 0], wide: [0.5, 110, 40], recess: [0.42, 80, 10] };
+    const cm = cams[camMode];
+    const atWindow = c.screen === 'recess';
+    const phuX = atWindow ? 690 : 385;
+    const phuY = atWindow ? 345 : 196;
+    if (this._phuX !== phuX) { this._phuX = phuX; this._moveUntil = Date.now() + 1300; }
+    const moving = Date.now() < (this._moveUntil || 0);
+    const pacing = c.screen === 'session' && !c.bell && !c.partial;
+
+    const fmt = (s) => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+    const f = Math.max(0, Math.min(1, c.fuse / 120));
+    const x0 = 1.5, y0 = 1.5, w = 225, h = 53, r = 26.5;
+    const a = w - 2 * r;
+    const arc = Math.PI * r;
+    const P = 2 * a + 2 * arc;
+    const d = f * P;
+    let sx, sy;
+    if (d <= a) { sx = x0 + r + d; sy = y0; }
+    else if (d <= a + arc) { const t = (d - a) / r; sx = x0 + w - r + r * Math.sin(t); sy = y0 + r - r * Math.cos(t); }
+    else if (d <= 2 * a + arc) { sx = x0 + w - r - (d - a - arc); sy = y0 + h; }
+    else { const t = (d - 2 * a - arc) / r; sx = x0 + r - r * Math.sin(t); sy = y0 + r + r * Math.cos(t); }
+
+    const show = (on) => on
+      ? 'opacity: 1; transform: none; pointer-events: auto; transition-delay: 140ms'
+      : 'opacity: 0; transform: translateY(10px) scale(.985); pointer-events: none; transition-delay: 0ms';
+    const comp = c.comp;
+    const typeLines = Math.max(1, Math.min(4, Math.ceil(((c.typed || '').length + 1) / 29)));
+    const geo = {
+      idle: { top: 234, h: 56, micW: 289, micH: 46, kbLeft: 299, kbW: 46 },
+      listening: { top: 130, h: 160, micW: 340, micH: 150, kbLeft: 299, kbW: 46 },
+      typing: { top: 98, h: 56 + (typeLines - 1) * 21, micW: 46, micH: 46, kbLeft: 56, kbW: 289 }
+    }[comp];
+    const clamp01 = (v) => Math.max(0, Math.min(1, v));
+    const ttOn = desk && comp === 'idle' && !c.slip && !c.board;
+    const ttP = ttOn ? clamp01(c.ttP) : 0;
+    const bDrag = c.bdrag > 0 || c.budrag < 0;
+    const bp = c.board ? clamp01(1 + c.budrag / 300) : clamp01(c.bdrag / 260);
+    const lp = c.board ? (c.log ? clamp01(1 + c.lgu / 300) : clamp01(c.lgd / 300)) : 0;
+    const lDrag = c.lgd > 0 || c.lgu < 0;
+    const sheetY = intro ? 18 : desk ? (comp === 'typing' ? -128 : 68 - ttP * 464 + bp * 380) : c.screen === 'finish' ? 0 : 18;
+
+    const tallyPath = (n) => {
+      let s = '';
+      for (let i = 0; i < Math.min(n, 4); i++) s += 'M' + (4 + i * 7) + ' 2 L' + (6 + i * 7) + ' 14 ';
+      if (n >= 5) s += 'M1 12 L30 4 ';
+      return s || 'M0 0';
+    };
+    const script = this.script();
+    const shown = script.slice(0, c.words);
+    const excuses = [
+      { t: 'Too tired', g: 'D', c: 'Then this will be a short one.' },
+      { t: 'After lunch', g: 'C-', c: 'Lunch was at noon.' },
+      { t: 'Need something first', g: 'B-', c: 'Name it. Then start.' },
+      { t: 'A real reason', g: '', c: 'Accepted.' }
+    ];
+    const pk = excuses[c.pick];
+    if (this._pick !== c.pick) { this._pick = c.pick; this._pickN = (this._pickN || 0) + 1; }
+    if (this._slips !== c.slips) { this._slips = c.slips; this._slipN = (this._slipN || 0) + 1; }
+    const flyN = this._flyN || 0;
+    const newest = c.added.slice(-2).reverse();
+    const chalkLines = c.empty || c.screen === 'serious' ? [] : (newest.length ? newest : [c.next.chalk, 'Renew passport']).map((t, i) => ({
+      t, op: i === 0 ? 0.62 : 0.42, cls: newest.length && flyN ? (flyN % 2 ? 'wA' : 'wB') : ''
+    }));
+    const shiftOn = !!(this.state && this.state.shift) || !c.typed;
+    const keyRow = (s) => s.split('').map((k) => { const ch = shiftOn ? k.toUpperCase() : k; return { k: ch, tap: () => this.setState({ typed: (this.core().typed || '') + ch, shift: false }) }; });
+    const lastWord = ((c.typed || '').split(/\s+/).pop() || '');
+    const lexicon = ['about', 'appointment', 'call', 'dentist', 'email', 'landlord', 'laundry', 'passport', 'pay', 'rent', 'renew', 'reply', 'sink', 'taxes', 'the', 'Thursday', 'tomorrow', 'tonight'];
+    const fill = (w) => this.setState({ typed: (this.core().typed || '').replace(/\S*$/, '') + w + ' ' });
+    const guesses = lastWord ? lexicon.filter((w) => w.toLowerCase().startsWith(lastWord.toLowerCase()) && w.toLowerCase() !== lastWord.toLowerCase()).slice(0, 2) : [];
+    const suggs = (lastWord ? ['“' + lastWord + '”'].concat(guesses, ['the', 'and']).slice(0, 3) : ['I', 'Email', 'Call']).map((t, i) => ({ t, tap: () => (lastWord && i === 0 ? this.setState({ typed: (this.core().typed || '') + ' ' }) : fill(t)) }));
+    const barH = [40, 70, 55, 90, 65, 100, 45, 80, 60, 95, 50, 75, 85, 40, 70, 100, 55, 65, 90, 45, 80, 60, 70, 50];
+    const typed = c.typed;
+    const toDesk = (extra) => {
+      const n = (c.taskIdx + 1) % c.tasks.length;
+      return Object.assign({ screen: 'desk', taskIdx: n, custom: null, slips: c.tasks[n].slips, fuse: 120, pick: -1, comp: 'idle', partial: false, bell: false, note: '' }, extra || {});
+    };
+    const go = (patch) => this.setState(patch);
+    return {
+      cam: 'scale(' + cm[0] + ') translate(' + (-cm[1]) + 'px, ' + (-cm[2]) + 'px)',
+      wall,
+      sceneFilter: c.screen === 'serious' ? 'saturate(0.3)' : 'none',
+      chalkCloseOp: intro ? 0 : 1,
+      chalkIntroWideOp: intro && c.step === 0 ? 1 : 0,
+      chalkIntroCloseOp: intro && c.step > 0 ? 1 : 0,
+      chromeOp: intro ? 0 : 1,
+      mood,
+      phuX: phuX + 'px',
+      phuY: phuY + 'px',
+      walk: (pacing && !c.look) || moving ? 'true' : 'false',
+      paceCls: pacing ? 'paceWide' : '',
+      paceState: c.look ? 'paused' : 'running',
+      moveCls: (pacing && !c.look) || moving ? 'bob' : 'breathe',
+      popCls: this._pop % 2 ? 'popA' : 'popB',
+      bubCls: this._bub % 2 ? 'bubA' : 'bubB',
+      hasLine: line !== '' && !c.board,
+      line,
+      bubPos: camMode === 'close' ? 'top: 118px; right: 22px' : 'top: 64px; left: 22px',
+      tailPos: camMode === 'close' ? 'left: 30px' : 'right: 30px',
+      task: c.task,
+      dateLine: 'Monday 26',
+      chalkMain: c.screen === 'serious' ? 'Call the hospital' : hap === 'quiz' ? 'Pop quiz!' : hap === 'flowers' ? 'Happy Teachers’ Day' : c.empty ? 'Nothing yet.' : c.task.chalk,
+      chalkLines,
+      moreLabel: c.screen === 'serious' ? 'Everything else can wait' : c.empty ? 'Tell him something' : '+' + Math.max(0, c.count - 3) + ' more',
+      bumpCls: flyN ? (flyN % 2 ? 'bumpA' : 'bumpB') : '',
+      tallyPath: tallyPath(c.slips),
+      tallyOp: c.empty ? 0 : 1,
+      tallyCls: this._slipN > 1 ? (this._slipN % 2 ? 'bumpA' : 'bumpB') : '',
+      slipsLabel: c.slips + ' late slips',
+      daysLabel: c.empty ? '' : c.task.days ? c.task.days + ' days' : 'new',
+      frontRow: !c.empty && c.slips >= 5,
+      deskLabelColor: c.empty ? '#6B655E' : '#D42A24',
+      deskTitle: c.empty ? 'Your desk is clear.' : c.task.title,
+      hasDeskSub: c.empty,
+      deskSub: 'Tell him what you’ve been putting off. He’ll pick one.',
+      hasNote: !!c.note && !c.empty,
+      note: c.note,
+      actTop: c.note ? '164px' : '132px',
+      isFinish: c.screen === 'finish',
+      deskHeadStyle: show(desk),
+      deskActStyle: show(desk && comp === 'idle' && !c.empty) + (ttP > 0 ? '; opacity: ' + clamp01(1 - ttP * 1.8).toFixed(2) + '; pointer-events: none' : ''),
+      sessStyle: show(c.screen === 'session' && !c.partial),
+      partialStyle: show(c.screen === 'session' && c.partial),
+      finishStyle: show(c.screen === 'finish'),
+      recessStyle: show(c.screen === 'recess'),
+      seriousStyle: show(c.screen === 'serious'),
+      intro0Style: show(intro && c.step === 0),
+      intro1Style: show(intro && c.step === 1),
+      intro2Style: show(intro && c.step === 2),
+      hasCat: hap === 'cat',
+      hapFreeze: c.auto ? '' : 'animation-delay: -3.4s; animation-play-state: paused',
+      planeFreeze: c.auto ? '' : 'animation-delay: -2.2s; animation-play-state: paused',
+      hasPlane: hap === 'plane',
+      hasPower: hap === 'powercut',
+      hasFlowers: hap === 'flowers',
+      hasRain: hap === 'rain',
+      hasNotice: !!c.notice && (c.screen === 'recess' || c.screen === 'session'),
+      offline: !!c.offline,
+      glassFill: hap === 'rain' ? '#9DB3C2' : '#CDEBF6',
+      sunOp: hap === 'rain' || hap === 'powercut' ? 0 : 1,
+      sheetT: 'translateY(' + sheetY.toFixed(1) + 'px)',
+      sheetTr: c.ttDrag || bDrag ? 'none' : 'transform 560ms cubic-bezier(.32,.72,0,1)',
+      ttZonePe: ttOn ? 'auto' : 'none',
+      ttScrim: (ttP * 0.28).toFixed(3),
+      ttScrimPe: ttP > 0.5 ? 'auto' : 'none',
+      ttScrimTr: c.ttDrag ? 'none' : 'background-color 560ms cubic-bezier(.32,.72,0,1)',
+      ttOp: clamp01((ttP - 0.3) / 0.7).toFixed(3),
+      ttShift: Math.round((1 - ttP) * 40) + 'px',
+      ttInTr: c.ttDrag ? 'none' : 'opacity 420ms ease, transform 560ms cubic-bezier(.32,.72,0,1)',
+      ttInPe: ttP > 0.9 ? 'auto' : 'none',
+      ttBookedS: String(c.ttBooked),
+      ttIsDay: c.ttState === 'day',
+      ttIsWeekend: c.ttState === 'weekend',
+      ttIsAsk: c.ttState === 'ask',
+      ttIsLocked: c.ttState === 'locked',
+      ttDays: [['M', '26'], ['T', '27'], ['W', '28'], ['T', '29'], ['F', '30'], ['S', '31'], ['S', '1']].map((d, i) => ({ d: d[0], n: d[1], on: String(i === (c.ttState === 'weekend' ? 5 : 0)), bg: i === (c.ttState === 'weekend' ? 5 : 0) ? '#1C1A18' : 'transparent', fg: i === (c.ttState === 'weekend' ? 5 : 0) ? '#FFFFFF' : i > 4 ? '#B0A69B' : '#1C1A18', dot: i === 0 ? '#F2A49B' : [1, 3].includes(i) ? '#C9BFB2' : i < 5 ? '#F2A49B' : 'transparent', pick: () => this.setState({ ttState: i > 4 ? 'weekend' : 'day' }) })),
+      ttFree: [
+        { time: '8:30', len: '90 minutes', task: 'Email the dentist', booked: c.ttBooked },
+        { time: '14:00', len: '1 hour', task: 'Tax receipts', booked: false }
+      ].map((f, i) => ({
+        time: f.time, len: f.len, task: f.task,
+        bg: f.booked ? '#D42A24' : '#FDECEA', fg: f.booked ? '#FFFFFF' : '#C9241E', sub: f.booked ? 'rgba(255,255,255,0.8)' : '#A8564F',
+        btn: f.booked ? 'Booked' : 'Book it', btnBg: f.booked ? 'rgba(255,255,255,0.22)' : '#1C1A18', btnFg: '#FFFFFF',
+        book: () => { if (i === 0) this.setState({ ttBooked: !this.core().ttBooked }); }
+      })),
+      ttLater: [['10:00', 'Design review', ''], ['12:30', 'Lunch with Linh', ''], ['15:00', 'Dentist', ' · class ends 14:30']].map((r, i) => ({ time: r[0], t: r[1], note: r[2], nc: '#D42A24', bt: i ? 'inset 0 1px 0 rgba(28,26,24,0.07)' : 'none' })),
+      boardClip: 'inset(' + (100 * (1 - bp)).toFixed(1) + 'px ' + (15 * (1 - bp)).toFixed(1) + 'px ' + (549 * (1 - bp)).toFixed(1) + 'px 0px round ' + (6 * (1 - bp)).toFixed(1) + 'px)',
+      boardOp: c.board || c.bdrag > 0 ? 1 : 0,
+      boardPe: c.board ? 'auto' : 'none',
+      bdo: clamp01((bp - 0.15) / 0.45).toFixed(3),
+      lgHintOp: lp > 0 && !c.log ? clamp01(lp * 3).toFixed(2) : 0,
+      lgHint: lp > 0.43 ? 'Let go for the logbook' : 'Pull for the logbook',
+      lgArrow: lp > 0.43 ? '180deg' : '0deg',
+      lgPullY: (c.log ? 0 : Math.round(c.lgd * 0.35)) + 'px',
+      lgPullTr: lDrag ? 'none' : 'transform 460ms cubic-bezier(.34,1.56,.64,1)',
+      lgY: (-(1 - lp) * 102).toFixed(2) + '%',
+      lgTr: lDrag ? 'none' : 'transform 560ms cubic-bezier(.32,.72,0,1), background-color 560ms ease',
+      lgPe: c.log ? 'auto' : 'none',
+      lgDim: (lp * 0.4).toFixed(3),
+      lgShadow: (lp > 0 && lp < 1 ? 0.28 : 0.12).toFixed(2),
+      lgEmpty: c.logEmpty,
+      lgRows: c.logEmpty ? [] : [['Mon', 'Email the landlord', 'On time · 9 min'], ['', 'Email the dentist', 'Partial credit'], ['Sun', 'Pay the electricity bill', '6 min'], ['Sat', 'Call Mum back', 'On time · 22 min'], ['', 'Tax receipts, filed', 'Certificate earned']].map((r) => ({ day: r[0], t: r[1], s: r[2] })),
+      lgHoles: Array.from({ length: 11 }, () => ({})),
+      startLabel: 'Start, ' + mins + ' minutes. Hold to change the length. ' + fmt(c.fuse) + ' left on the fuse.',
+      lenLabel: mins + ' min',
+      lenMin: mins,
+      lenOpen: c.lenOpen,
+      lens: [5, 10, 15, 25, 45].map((m, i) => ({ t: i === 4 ? '45' : String(m), on: String(c.len === i), bg: c.len === i ? '#1C1A18' : 'rgba(28,26,24,0.06)', fg: c.len === i ? '#FFFFFF' : '#1C1A18', pick: () => this.setState(Object.assign({ len: i, lenOpen: false }, this.say(['Five. A sprint, then.', 'Ten. The usual.', 'Fifteen. A pop quiz.', 'Twenty-five. Sit up straight.', 'One full period. Brave.'][i], 1900))) })),
+      pieDash: (f * 21.99).toFixed(2) + ' 21.99',
+      pieColor: p >= 4 ? '#FFE29A' : '#FFFFFF',
+      ctaCls: desk && comp === 'idle' && !c.lenOpen && !c.startPressed && !c.slip && !c.board && !c.empty ? ['', 'cta-b1', 'cta-b2', 'cta-n1', 'cta-n2', ''][p] : '',
+      ctaShadow: 'inset 0 1px 0 rgba(255,255,255,0.35), 0 10px 24px rgba(201,36,30,0.28)' + (p === 4 ? ', 0 0 0 7px rgba(226,69,62,0.16)' : ''),
+      startScale: c.startPressed ? 0.965 : 1,
+      titleCls: this._tkN > 1 ? (this._tkN % 2 ? 'swapA' : 'swapB') : '',
+      remainDigits: remainStr.split('').map((ch, i) => ({ ch, cls: (this._dgN[i] || 0) % 2 ? 'rollA' : 'rollB' })),
+      fuseDash: P.toFixed(1) + ' ' + P.toFixed(1),
+      fuseOffset: (P - d).toFixed(1),
+      sparkT: 'translate(' + sx.toFixed(1) + 'px, ' + sy.toFixed(1) + 'px)',
+      sparkOp: f > 0 ? 1 : 0,
+      ringing: c.ringing,
+      drumCls: c.ringing ? 'ring' : '',
+      throwing: desk && !c.empty && comp === 'idle' && !c.slip && !c.board && p === 4,
+      compTop: geo.top + 'px',
+      micTop: (comp === 'typing' ? geo.h - 51 : 5) + 'px',
+      kbBoxH: (comp === 'typing' ? geo.h - 10 : 46) + 'px',
+      titleClass: [this._tkN > 1 ? (this._tkN % 2 ? 'swapA' : 'swapB') : '', comp === 'typing' || ttP > 0.5 ? 'tclamp' : ''].join(' ').trim(),
+      suggs,
+      shiftOn: String(shiftOn),
+      shiftBg: shiftOn ? 'rgba(255,255,255,0.96)' : 'rgba(160,166,178,0.62)',
+      shiftFill: shiftOn ? '#111114' : 'none',
+      shiftKey: () => this.setState({ shift: !(this.state && this.state.shift) }),
+      delKey: () => this.setState({ typed: (this.core().typed || '').slice(0, -1) }),
+      retBg: c.typed.trim() ? '#D42A24' : 'rgba(160,166,178,0.62)',
+      retFg: c.typed.trim() ? '#FFFFFF' : '#111114',
+      retLabel: c.typed.trim() ? 'Hand in' : 'return',
+      compH: geo.h + 'px',
+      compStyle: desk ? (ttP > 0 ? 'opacity: ' + clamp01(1 - ttP * 1.8).toFixed(2) + '; pointer-events: none' : 'opacity: 1; pointer-events: auto') : 'opacity: 0; pointer-events: none; transform: translateY(16px)',
+      shakeCls: this._shake ? (this._shake % 2 ? 'shake' : 'shake2') : '',
+      micW: geo.micW + 'px',
+      micH: geo.micH + 'px',
+      micBg: comp === 'typing' ? 'rgba(28,26,24,0.06)' : 'transparent',
+      micIdleOp: comp === 'idle' ? 1 : 0,
+      micIconOp: comp === 'typing' ? 1 : 0,
+      micListenOp: comp === 'listening' ? 1 : 0,
+      heard: shown.slice(0, -1).join(' '),
+      lastWord: shown[shown.length - 1] || '',
+      wordCls: c.words % 2 ? 'wordA' : 'wordB',
+      bars: barH.map((hh, i) => ({ h: hh + '%', d: (-(i * 137) % 900) + 'ms' })),
+      kbLeft: geo.kbLeft + 'px',
+      kbW: geo.kbW + 'px',
+      kbBg: comp === 'typing' ? 'rgba(255,255,255,0.95)' : 'rgba(28,26,24,0.06)',
+      kbOp: comp === 'listening' ? 0 : 1,
+      kbIconOp: comp === 'idle' ? 1 : 0,
+      kbIconPe: comp === 'idle' ? 'auto' : 'none',
+      inputOp: comp === 'typing' ? 1 : 0,
+      inputPe: comp === 'typing' ? 'auto' : 'none',
+      typed,
+      sendBg: typed.trim() ? '#D42A24' : 'rgba(28,26,24,0.2)',
+      typingPe: comp === 'typing' || c.lenOpen ? 'auto' : 'none',
+      kbT: comp === 'typing' ? 'translateY(0)' : 'translateY(105%)',
+      hasFly: c.flying.length > 0,
+      flying: c.flying,
+      remain: remainStr,
+      elPct: Math.min(100, c.el / total * 100).toFixed(1) + '%',
+      sessionLabel: c.bell ? 'Time' : 'Working beside him',
+      inTime: c.inTime,
+      notBell: !c.bell,
+      isBell: c.bell,
+      comment: c.inTime ? 'Good.' : 'Fine.',
+      waitedLabel: c.task.days ? 'Waited ' + c.task.days + ' days' : 'Same day',
+      recessRemain: fmt(Math.max(0, 300 - c.el)),
+      recessPct: (c.el / 3).toFixed(1) + '%',
+      recessNote: c.el >= 300 ? 'tùng tùng' : 'earned',
+      slipT: c.slip ? 'translateY(' + c.sdrag + 'px)' : 'translateY(105%)',
+      slipTr: c.sdrag > 0 ? 'none' : 'transform 540ms cubic-bezier(.32,.72,0,1), opacity 360ms ease',
+      scrimOp: c.slip ? Math.max(0.15, 1 - c.sdrag / 360) : 0,
+      scrimPe: c.slip ? 'auto' : 'none',
+      boardTr: bDrag ? 'none' : (c.board ? 'clip-path 560ms cubic-bezier(.32,.72,0,1), -webkit-clip-path 560ms cubic-bezier(.32,.72,0,1)' : 'clip-path 520ms cubic-bezier(.32,.72,0,1), -webkit-clip-path 520ms cubic-bezier(.32,.72,0,1), opacity 140ms ease 520ms'),
+      boardRemark: c.count + ' things. This is a semester, not a Tuesday.',
+      noPick: !pk,
+      hasPick: !!pk,
+      hasGrade: !!(pk && pk.g),
+      excuseColor: pk ? '#6A45B8' : 'rgba(106,69,184,0.35)',
+      pickText: pk ? pk.t + '.' : '',
+      pickComment: pk ? pk.c : '',
+      pickGrade: pk ? pk.g : '',
+      commentCls: this._pickN % 2 ? 'wA' : 'wB',
+      gradeLabel: pk ? 'Grade ' + pk.g : '',
+      handInOp: pk ? 1 : 0.35,
+      excuses: excuses.map((e, i) => ({
+        t: e.t,
+        bg: c.pick === i ? '#1C1A18' : 'rgba(28,26,24,0.06)',
+        fg: c.pick === i ? '#FFFFFF' : '#1C1A18',
+        cls: c.pick === i ? (this._pickN % 2 ? 'popc1' : 'popc2') : '',
+        pick: () => this.setState({ pick: i })
+      })),
+      name: c.name,
+      onName: (e) => this.setState({ name: e.target.value }),
+      rows: c.rows.slice(0, 9).map((r) => {
+        const sw = c.swipe && c.swipe.id === r.id;
+        const x = sw ? c.swipe.x : (c.openRow === r.id ? -132 : 0);
+        const remove = (state, ms) => {
+          this.setState({ rows: this.core().rows.map((q) => (q.id === r.id ? Object.assign({}, q, { state }) : q)), openRow: null });
+          setTimeout(() => { const cur = this.core(); this.setState({ rows: cur.rows.filter((q) => q.id !== r.id), count: Math.max(0, cur.count - 1) }); }, ms);
+        };
+        return {
+          t: r.t, m: r.m, c: r.c,
+          op: r.op,
+          isOld: r.m === 'fading' && !r.state,
+          notOld: !(r.m === 'fading' && !r.state),
+          keep: () => this.setState({ rows: this.core().rows.map((q) => (q.id === r.id ? Object.assign({}, q, { m: '', op: 1 }) : q)) }),
+          x: x + 'px',
+          aw: Math.max(0, -x) + 'px',
+          tr: sw ? 'none' : 'transform 380ms cubic-bezier(.32,.72,0,1)',
+          cls: r.state === 'erase' ? 'wipe' : r.state === 'tick' ? 'done' : '',
+          ticking: r.state === 'tick',
+          sw: Math.min(250, r.t.length * 11 + 10) + 'px',
+          down: (e) => { this._sw = { id: r.id, x0: e.clientX, base: c.openRow === r.id ? -132 : 0 }; try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {} },
+          move: (e) => { if (!this._sw || this._sw.id !== r.id) return; const dx = e.clientX - this._sw.x0; if (Math.abs(dx) < 4) return; this.setState({ swipe: { id: r.id, x: Math.max(-156, Math.min(0, this._sw.base + dx)) } }); },
+          up: () => { if (!this._sw || this._sw.id !== r.id) return; const cur = this.core().swipe; const xx = cur && cur.id === r.id ? cur.x : this._sw.base; this._sw = null; this.setState({ swipe: null, openRow: xx < -60 ? r.id : null }); },
+          tick: () => remove('tick', 900),
+          erase: () => remove('erase', 480)
+        };
+      }),
+      row1: keyRow('qwertyuiop'),
+      row2: keyRow('asdfghjkl'),
+      row3: keyRow('zxcvbnm'),
+      spaceKey: () => this.setState({ typed: (this.core().typed || '') + ' ' }),
+      ttDown: (e) => { if (!ttOn) return; this._tt = { y0: e.clientY, base: this.core().ttP > 0.5 ? 1 : 0, moved: false }; try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {} },
+      ttMove: (e) => { if (!this._tt) return; const dy = e.clientY - this._tt.y0; if (Math.abs(dy) > 5) this._tt.moved = true; if (!this._tt.moved) return; this.setState({ ttP: clamp01(this._tt.base - dy / 464), ttDrag: true }); },
+      ttUp: () => { if (!this._tt) return; const t = this._tt; this._tt = null; if (!t.moved) { this.setState({ ttP: t.base ? 0 : 1, ttDrag: false }); return; } const p = this.core().ttP; this.setState({ ttP: (t.base ? p > 0.75 : p > 0.25) ? 1 : 0, ttDrag: false }); },
+      ttClose: () => this.setState({ ttP: 0, ttDrag: false }),
+      openTT: () => this.setState({ board: false, log: false, ttP: 1 }),
+      openLog: () => this.setState({ log: true }),
+      closeLog: () => { if (this._luMoved) { this._luMoved = false; return; } this.setState({ log: false }); },
+      lgDown: (e) => { if (!this.core().board || this.core().log) return; this._lg = { y0: e.clientY, dy: 0 }; try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {} },
+      lgMove: (e) => { if (!this._lg) return; const dy = Math.max(0, e.clientY - this._lg.y0); this._lg.dy = dy; if (dy > 6) this.setState({ lgd: dy }); },
+      lgUp: () => { if (!this._lg) return; const dy = this._lg.dy; this._lg = null; this.setState(dy > 130 ? { log: true, lgd: 0 } : { lgd: 0 }); },
+      luDown: (e) => { this._lu = { y0: e.clientY, dy: 0 }; this._luMoved = false; try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {} },
+      luMove: (e) => { if (!this._lu) return; const dy = Math.min(0, e.clientY - this._lu.y0); this._lu.dy = dy; if (dy < -4) { this._luMoved = true; this.setState({ lgu: dy }); } },
+      luUp: () => { if (!this._lu) return; const dy = this._lu.dy; this._lu = null; this.setState(dy < -100 ? { log: false, lgu: 0 } : { lgu: 0 }); },
+      openBoard: () => { if (desk) this.setState({ board: true, comp: 'idle' }); },
+      bdDown: (e) => { if (!desk) return; this._bd = { y0: e.clientY, dy: 0 }; try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {} },
+      bdMove: (e) => { if (!this._bd) return; const dy = Math.max(0, e.clientY - this._bd.y0); this._bd.dy = dy; if (dy > 4) this.setState({ bdrag: dy }); },
+      bdUp: () => { if (!this._bd) return; const dy = this._bd.dy; this._bd = null; if (dy < 6 || dy > 90) this.setState({ board: true, bdrag: 0, comp: 'idle', lenOpen: false }); else this.setState({ bdrag: 0 }); },
+      bdKey: (e) => { if (e.key === 'Enter' || e.key === ' ') this.setState({ board: true, comp: 'idle' }); },
+      buDown: (e) => { this._bu = { y0: e.clientY, dy: 0 }; this._buMoved = false; try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {} },
+      buMove: (e) => { if (!this._bu) return; const dy = Math.min(0, e.clientY - this._bu.y0); this._bu.dy = dy; if (dy < -4) { this._buMoved = true; this.setState({ budrag: dy }); } },
+      buUp: () => { if (!this._bu) return; const dy = this._bu.dy; this._bu = null; if (dy < -80) this.setState({ board: false, budrag: 0 }); else this.setState({ budrag: 0 }); },
+      closeBoard: () => { if (this._buMoved) { this._buMoved = false; return; } this.setState({ board: false, log: false, openRow: null }); },
+      sdDown: (e) => { this._sd = { y0: e.clientY, dy: 0 }; this._sdMoved = false; try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {} },
+      sdMove: (e) => { if (!this._sd) return; const dy = Math.max(0, e.clientY - this._sd.y0); this._sd.dy = dy; if (dy > 4) { this._sdMoved = true; this.setState({ sdrag: dy }); } },
+      sdUp: () => { if (!this._sd) return; const dy = this._sd.dy; this._sd = null; if (dy > 110) this.setState({ slip: false, sdrag: 0 }); else this.setState({ sdrag: 0 }); },
+      closeSlipTap: () => { if (this._sdMoved) { this._sdMoved = false; return; } this.setState({ slip: false }); },
+      startDown: (e) => {
+        if (c.ringing) return;
+        this._lpFired = false;
+        clearTimeout(this._lp);
+        this._lp = setTimeout(() => { this._lpFired = true; this.setState({ lenOpen: true, startPressed: false }); }, 430);
+        this.setState({ startPressed: true });
+      },
+      startUp: () => {
+        clearTimeout(this._lp);
+        if (this._lpFired) { this._lpFired = false; return; }
+        if (!this.core().startPressed) return;
+        this.setState({ startPressed: false, lenOpen: false });
+        this._doStart();
+      },
+      startCancel: () => { clearTimeout(this._lp); if (this.core().startPressed) this.setState({ startPressed: false }); },
+      startKey: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this._doStart(); } },
+      poke: () => {
+        if (!(desk || c.screen === 'session')) return;
+        const n = c.pokeN + 1;
+        const lines = desk ? ['Yes?', 'Don’t poke the teacher.', 'Still here. So is the task.', 'Hm.'] : ['Eyes on your own paper.', 'I’m grading. You’re working.'];
+        if (c.screen === 'session') this._lookEnd = (this._sess || 0) + 1700;
+        const poses = desk ? ['surprised', 'facepalm', 'point', 'think'] : ['point', 'crossed'];
+        this.setState(Object.assign(this.say(lines[(n - 1) % lines.length], 1700), { pokeN: n, pokeMood: poses[(n - 1) % poses.length] }, c.screen === 'session' ? { look: true } : {}));
+      },
+      openSlip: () => this.setState({ slip: true, pick: -1 }),
+      closeSlip: () => this.setState({ slip: false }),
+      handIn: () => {
+        if (c.pick < 0) return;
+        const slips = c.pick === 3 ? c.slips : c.slips + 1;
+        const patch = { slip: false, slips, pick: -1 };
+        if (slips === 5 && c.slips === 4) Object.assign(patch, this.say('Five slips. Front row tomorrow.', 2800));
+        this.setState(patch);
+      },
+      startFromSlip: () => { this._sess = 0; this._nextLook = 3600; go({ slip: false, pick: -1, screen: 'session', el: 0, bell: false, look: false, partial: false, inTime: false }); },
+      start: () => this._doStart(),
+      _unused: () => {
+        if (c.ringing) return;
+        this.setState({ ringing: true });
+        clearTimeout(this._t2);
+        this._t2 = setTimeout(() => { this._sess = 0; this._nextLook = 3600; this.setState({ ringing: false, screen: 'session', el: 0, bell: false, look: false, partial: false, inTime: this.core().fuse > 0 }); }, 760);
+      },
+      done: () => go({ screen: 'finish', look: false, transient: '', partial: false }),
+      notYet: () => go({ partial: true }),
+      closePartial: () => go({ partial: false }),
+      anotherPeriod: () => { this._sess = 0; this._nextLook = 3600; go({ partial: false, el: 0, bell: false, look: false }); },
+      backToBoard: () => go(Object.assign({ screen: 'desk', partial: false, bell: false, fuse: 120, note: 'start from the second paragraph.' }, this.say('Partial credit. It’s back on the board.', 2600))),
+      eraseIt: () => go(Object.assign(toDesk(), this.say('Erased. Your call.', 2200))),
+      raiseHand: () => { this._lookEnd = (this._sess || 0) + 2600; this.setState(Object.assign(this.say('Just the greeting. One line.', 2600), { look: true, pokeMood: 'point' })); },
+      strayThought: () => this.setState(Object.assign({ count: c.count + 1, added: c.added.concat(['Stray thought']), rows: [{ id: 'st' + (c.count + 1), t: 'Stray thought', m: 'new', c: '#F7D774', op: 1 }].concat(c.rows) }, this.say('On the board. Eyes back here.', 2200))),
+      recess: () => go({ screen: 'recess', el: 0, transient: '' }),
+      next: () => go(toDesk()),
+      introNext: () => {
+        if (c.step < 2) go(Object.assign({ step: c.step + 1 }, c.step === 1 ? this.say(c.name.trim().split(/\s+/).slice(-1)[0] + '. Good. I’ll remember it.', 2200) : {}));
+        else go(Object.assign({ screen: 'desk', empty: true, comp: 'idle', step: 0 }, this.say('Your desk is clear. What have you been avoiding?', 4200)));
+      },
+      micDown: (e) => {
+        if (!desk || c.comp === 'listening') return;
+        if (e && e.currentTarget && e.currentTarget.setPointerCapture && e.pointerId != null) { try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) {} }
+        this._downAt = Date.now();
+        this.setState({ comp: 'listening', words: 0 });
+      },
+      micUp: () => {
+        const cur = this.core();
+        if (cur.comp !== 'listening') return;
+        if (Date.now() - (this._downAt || 0) < 500 || cur.words < 4) {
+          this._shake = (this._shake || 0) + 1;
+          this.setState(Object.assign({ comp: 'idle', words: 0 }, this.say('Hold it, then talk.', 1800)));
+          return;
+        }
+        this.file(cur, ['Call the bank', 'Gift for Linh, Sat'], 650, 'Two more. On the board.');
+      },
+      openTyping: () => this.setState({ comp: 'typing' }),
+      cancelTyping: () => this.setState({ comp: 'idle', typed: '', lenOpen: false }),
+      onType: (e) => this.setState({ typed: e.target.value }),
+      onKey: (e) => { if (e.key === 'Enter' && !e.shiftKey) { if (e.preventDefault) e.preventDefault(); const cur = this.core(); if (cur.typed.trim()) this.file(cur, [cur.typed.trim()], 506, 'On the board.'); else this.setState({ comp: 'idle' }); } },
+      submitTyped: () => { const cur = this.core(); if (cur.typed.trim()) this.file(cur, [cur.typed.trim()], 506, 'On the board.'); else this.setState({ comp: 'idle' }); }
+    };
+  }
+}
+</script>
+</body>
+</html>
