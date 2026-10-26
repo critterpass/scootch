@@ -1,6 +1,16 @@
-import { SitScreen } from '../features/desk/sit-screen';
+import { Stack } from 'expo-router';
 
-/** The app's first screen: the desk. */
+import { DeskScreen } from '../features/desk/desk-screen';
+
+/**
+ * The desk. It hands over to the session and back by replacing itself, and the camera inside the
+ * classroom does the moving, so the stack only crossfades.
+ */
 export default function Desk() {
-  return <SitScreen />;
+  return (
+    <>
+      <Stack.Screen options={{ animation: 'fade' }} />
+      <DeskScreen />
+    </>
+  );
 }

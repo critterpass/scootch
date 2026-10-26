@@ -1,0 +1,283 @@
+import type { ReactNode } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import type { Carving, Framing, PhuMood } from '@phusclass/art/class';
+import type { Happening } from '@phusclass/domain/board';
+
+import { Classroom } from '../../classroom/classroom';
+import { useT } from '../../i18n/i18n-provider';
+import { useTextSizing } from '../../screens/registry/support/forced-variant';
+import { ClassIcon } from '../desk/class-icons';
+import { buttonText, ink, shapes, type } from '../desk/class-style';
+import { SpeechBubble } from '../desk/speech-bubble';
+
+import { DrumBurst } from './drum-burst';
+import { Confetti, FinishPaper, type FinishPaperProps } from './finish-paper';
+import { HappeningScene } from './happening-scene';
+import { PartialPanel } from './partial-panel';
+import type { SessionClock } from './session-model';
+import type { SessionChalk } from './use-session-chalk';
+
+export type SessionPanel = 'working' | 'partial' | 'note' | 'finish';
+
+export interface SessionViewProps {
+  readonly framing: Framing;
+  readonly mood: PhuMood;
+  readonly pace: boolean;
+  readonly line: string | null;
+  readonly title: string;
+  /** The chalkboard behind him, as on the desk. */
+  readonly chalkboard: SessionChalk;
+  readonly heavy: boolean;
+  readonly clock: SessionClock | null;
+  readonly panel: SessionPanel;
+  readonly finish: (FinishPaperProps & { readonly recessOffered: boolean }) | null;
+  readonly carvings: readonly Carving[];
+  readonly happening: Happening | null;
+  readonly drum: boolean;
+  /** "Say it" for a stray thought, while it is open. */
+  readonly stray: ReactNode;
+  readonly note: string;
+  readonly onNote: (note: string) => void;
+  readonly onRaiseHand: () => void;
+  readonly onStray: () => void;
+  readonly onDone: () => void;
+  readonly onNotYet: () => void;
+  readonly onAnother: () => void;
+  readonly onBackOnBoard: () => void;
+  readonly onSaveNote: () => void;
+  readonly onErase: () => void;
+  readonly onClosePartial: () => void;
+  readonly onNext: () => void;
+  readonly onRecess: () => void;
+}
+
+/**
+ * A period: the camera pulled back to the whole room while he paces and grades, the time left,
+ * raise a hand, a stray thought, then the drum and "Done?". Done brings the camera in to the
+ * graded paper; Not yet gives partial credit. Drawn from props only, for the registry.
+ */
+export function SessionView(props: SessionViewProps) {
+  const t = useT();
+  const sizing = useTextSizing();
+  const insets = useSafeAreaInsets();
+  const { clock, panel } = props;
+  const timeUp = clock?.timeUp ?? false;
+  const size = (n: number) => ({ fontSize: sizing.size(n) });
+
+  const working = (
+    <View style={styles.panel} testID="session-working">
+      <View style={styles.headRow}>
+        <Text allowFontScaling={sizing.allowFontScaling} style={[type.label, { color: ink.muted }]}>
+          {timeUp ? t('session.time') : t('session.working')}
+        </Text>
+        {clock?.inTime && !props.heavy ? (
+          <Text
+            allowFontScaling={sizing.allowFontScaling}
+            style={[type.hand, { color: ink.red }, size(18)]}
+          >
+            {t('session.inTime')}
+          </Text>
+        ) : null}
+      </View>
+      <Text
+        accessibilityRole="header"
+        allowFontScaling={sizing.allowFontScaling}
+        numberOfLines={3}
+        style={[styles.taskTitle, size(19)]}
+      >
+        {props.title}
+      </Text>
+      {clock !== null ? (
+        <>
+          <View style={styles.timerRow}>
+            <Text
+              testID="session-left"
+              accessibilityLabel={t('session.left', { time: clock.left })}
+              allowFontScaling={sizing.allowFontScaling}
+              style={[type.rounded, styles.timer, size(64)]}
+            >
+              {clock.left}
+            </Text>
+            <Text allowFontScaling={sizing.allowFontScaling} style={[styles.muted, size(15)]}>
+              {t('session.of', { minutes: clock.minutes })}
+            </Text>
+          </View>
+          <View style={styles.track}>
+            <View style={[styles.trackFill, { width: `${clock.gone * 100}%` }]} />
+          </View>
+        </>
+      ) : null}
+      {props.stray ?? (
+        <View style={styles.buttons}>
+          {!timeUp ? (
+            <View style={styles.pair}>
+              <Pressable
+                testID="session-raise-hand"
+                accessibilityRole="button"
+                onPress={props.onRaiseHand}
+                style={[shapes.button, shapes.soft, styles.small]}
+              >
+                <ClassIcon name="hand" color={ink.text} />
+                <Text
+                  allowFontScaling={sizing.allowFontScaling}
+                  numberOfLines={1}
+                  style={[buttonText.soft, size(15)]}
+                >
+                  {t('session.raiseHand')}
+                </Text>
+              </Pressable>
+              <Pressable
+                testID="session-stray"
+                accessibilityRole="button"
+                onPress={props.onStray}
+                style={[shapes.button, shapes.soft, styles.small]}
+              >
+                <ClassIcon name="pencil" color={ink.text} />
+                <Text
+                  allowFontScaling={sizing.allowFontScaling}
+                  numberOfLines={1}
+                  style={[buttonText.soft, size(15)]}
+                >
+                  {t('session.strayThought')}
+                </Text>
+              </Pressable>
+            </View>
+          ) : (
+            <Animated.View entering={FadeIn.duration(360)}>
+              <Pressable
+                testID="session-not-yet"
+                accessibilityRole="button"
+                onPress={props.onNotYet}
+                style={[shapes.button, shapes.soft, styles.small]}
+              >
+                <Text allowFontScaling={sizing.allowFontScaling} style={buttonText.soft}>
+                  {t('session.notYet')}
+                </Text>
+              </Pressable>
+            </Animated.View>
+          )}
+          <Pressable
+            testID="session-done"
+            accessibilityRole="button"
+            onPress={props.onDone}
+            style={[shapes.button, shapes.ink]}
+          >
+            <Text allowFontScaling={sizing.allowFontScaling} style={buttonText.ink}>
+              {t('session.done')}
+            </Text>
+          </Pressable>
+        </View>
+      )}
+    </View>
+  );
+
+  const partial = <PartialPanel {...props} which="choices" />;
+  const note = <PartialPanel {...props} which="note" />;
+
+  const finish =
+    props.finish === null ? null : (
+      <View style={styles.panel} testID="session-finish">
+        <FinishPaper
+          title={props.finish.title}
+          comment={props.finish.comment}
+          waitedDays={props.finish.waitedDays}
+          tookMinutes={props.finish.tookMinutes}
+        />
+        <View style={styles.finishButtons}>
+          {props.finish.recessOffered ? (
+            <Pressable
+              testID="finish-recess"
+              accessibilityRole="button"
+              onPress={props.onRecess}
+              style={[shapes.button, shapes.soft]}
+            >
+              <Text allowFontScaling={sizing.allowFontScaling} style={buttonText.soft}>
+                {t('finish.recess')}
+              </Text>
+            </Pressable>
+          ) : null}
+          <Pressable
+            testID="finish-next"
+            accessibilityRole="button"
+            onPress={props.onNext}
+            style={[shapes.button, shapes.ink, styles.grow]}
+          >
+            <Text allowFontScaling={sizing.allowFontScaling} style={buttonText.ink}>
+              {t('finish.next')}
+            </Text>
+          </Pressable>
+        </View>
+      </View>
+    );
+
+  return (
+    <View style={styles.fill} testID="session">
+      <Classroom
+        style={StyleSheet.absoluteFill}
+        framing={props.framing}
+        mood={props.mood}
+        pace={props.pace}
+        chalk={props.chalkboard.chalk}
+        date={props.chalkboard.date}
+        more={props.chalkboard.more}
+        carvings={props.carvings}
+        {...(props.line !== null ? { accessibilityLabel: props.line } : {})}
+      />
+      {props.heavy ? (
+        <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.quiet]} />
+      ) : null}
+      {props.happening !== null ? <HappeningScene happening={props.happening} /> : null}
+      {panel === 'finish' && props.finish?.comment != null ? <Confetti /> : null}
+      {props.line !== null && props.line !== '' ? (
+        <SpeechBubble text={props.line} place={props.framing === 'desk' ? 'desk' : 'room'} />
+      ) : null}
+      <View
+        style={[styles.sheet, shapes.sheet, { paddingBottom: Math.max(insets.bottom, 12) + 8 }]}
+      >
+        <View style={[shapes.grabber, styles.grabber]} />
+        {panel === 'finish'
+          ? finish
+          : panel === 'partial'
+            ? partial
+            : panel === 'note'
+              ? note
+              : working}
+      </View>
+      {props.drum ? <DrumBurst /> : null}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  fill: { flex: 1, backgroundColor: '#E8D2AE' },
+  quiet: { backgroundColor: ink.grey },
+  sheet: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: 20 },
+  grabber: { marginTop: 10, marginBottom: 14 },
+  panel: { gap: 10 },
+  headRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    minHeight: 22,
+  },
+  taskTitle: { fontWeight: '600', color: ink.text, letterSpacing: -0.2 },
+  timerRow: { flexDirection: 'row', alignItems: 'baseline', gap: 10, marginTop: 4 },
+  timer: { color: ink.text, letterSpacing: -1, fontVariant: ['tabular-nums'] },
+  muted: { color: ink.muted },
+  track: {
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: 'rgba(28,26,24,0.08)',
+    overflow: 'hidden',
+    marginTop: 4,
+  },
+  trackFill: { height: '100%', borderRadius: 3, backgroundColor: ink.text },
+  buttons: { gap: 10, marginTop: 14 },
+  pair: { flexDirection: 'row', gap: 10 },
+  small: { flex: 1, minHeight: 48, paddingHorizontal: 10 },
+  finishButtons: { flexDirection: 'row', gap: 10, marginTop: 18 },
+  grow: { flex: 1 },
+});

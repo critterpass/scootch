@@ -11,6 +11,7 @@ import { HOLD_SECONDS, holdRisingAt, holdRisingFrom } from './hold-rising';
 
 const NAMES = [
   'aww',
+  'bell',
   'cancel',
   'catch-cinch',
   'catch-float',
@@ -26,6 +27,8 @@ const NAMES = [
   'catch-swoosh',
   'catch-unlock',
   'catch-yank',
+  'chalk',
+  'drum',
   'finish',
   'grumble',
   'hatch',
@@ -34,10 +37,12 @@ const NAMES = [
   'nudge',
   'park-a-thought',
   'quiet-finish',
+  'red-pen',
   'send',
   'shrink',
   'squeak',
   'start-burst',
+  'tea-sip',
   'tick',
   'two-minutes-left',
 ];

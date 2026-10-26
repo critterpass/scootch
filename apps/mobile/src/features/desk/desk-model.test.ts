@@ -1,0 +1,132 @@
+import { describe, expect, it } from '@jest/globals';
+
+import { MINUTE_MS, momentAt } from '@phusclass/domain/board';
+
+import { openMigratedDatabase } from '../../data/test-database';
+import { createBoardStore } from '../../state/board-store';
+
+import { deskModel } from './desk-model';
+
+/** A board on a real database, a clock moved by hand, and the desk as the screen reads it. */
+async function deskAt(start: string, name: string | null = 'Trần Minh Anh') {
+  let at = Date.parse(start);
+  let id = 0;
+  const store = createBoardStore({
+    db: await openMigratedDatabase(),
+    clock: () => momentAt(at, 'UTC', 4),
+    newId: () => `id-${(id += 1)}`,
+  });
+  await store.load();
+  return {
+    store,
+    desk: (language: 'en' | 'vi' = 'en') =>
+      deskModel({ snapshot: store.getSnapshot(), language, name }),
+    wait: (minutes: number) => {
+      at += minutes * MINUTE_MS;
+      store.tick();
+    },
+  };
+}
+
+const morning = '2026-10-27T09:00:00Z';
+
+describe('the fuse and his pressure', () => {
+  it('burns the fuse over two minutes while his pose climbs the ladder', async () => {
+    const { store, desk, wait } = await deskAt(morning);
+    await store.say('Email the dentist to move Thursday');
+    await store.screened('id-1', 'none');
+
+    expect(desk()).toMatchObject({ mood: 'calm', pressure: 0, fuse: { left: 1 }, pulse: 'none' });
+    wait(1);
+    expect(desk().fuse?.left).toBeCloseTo(0.5);
+    expect(desk().line?.moment).toBe('pressure0');
+
+    wait(1);
+    expect(desk()).toMatchObject({ mood: 'over', pressure: 1, fuse: { left: 0 } });
+    wait(3);
+    expect(desk()).toMatchObject({ mood: 'crossed', pressure: 2 });
+    wait(5);
+    expect(desk()).toMatchObject({ mood: 'ruler', pressure: 3, chalkThrow: false });
+  });
+
+  it('shouts the full name at 4, with the chalk thrown, and goes silent at 5', async () => {
+    const { store, desk, wait } = await deskAt(morning);
+    await store.say('Email the dentist');
+    wait(20);
+    expect(desk()).toMatchObject({ mood: 'name', pressure: 4, chalkThrow: true, glare: false });
+    expect(desk().line?.text).toContain('TRẦN. MINH. ANH');
+    expect(desk('vi').line?.text).toContain('TRẦN. MINH. ANH');
+
+    wait(20);
+    expect(desk()).toMatchObject({ mood: 'stare', pressure: 5, chalkThrow: false, glare: true });
+    expect(desk().line?.text).toBe('...');
+  });
+
+  it('keeps tapping the ruler at 4 when no name was given at roll call', async () => {
+    const { store, desk, wait } = await deskAt(morning, null);
+    await store.say('Email the dentist');
+    wait(20);
+    expect(desk().line?.moment).toBe('pressure3');
+    expect(desk().chalkThrow).toBe(true);
+  });
+
+  it('says nothing about what an unscreened task is, only about the wait', async () => {
+    const { store, desk, wait } = await deskAt(morning);
+    await store.say('Email the dentist');
+    for (const minutes of [0, 3, 3, 4, 10, 20]) {
+      wait(minutes);
+      expect(desk().line?.text ?? '').not.toContain('Email the dentist');
+      expect(desk('vi').line?.text ?? '').not.toContain('Email the dentist');
+    }
+  });
+
+  it('says why he picked it first, then waits', async () => {
+    const { store, desk, wait } = await deskAt(morning);
+    await store.say('Call the bank today');
+    expect(desk().line?.moment).toBe('pickDueToday');
+    wait(0.5);
+    expect(desk().line?.moment).toBe('pressure0');
+  });
+});
+
+describe('a heavy task on the desk', () => {
+  it('has no fuse, pressure, thrown chalk, happening or late slip, and he is quiet', async () => {
+    const { store, desk, wait } = await deskAt(morning);
+    await store.say('Call the hospital about Dad’s results');
+    wait(60);
+    const model = desk();
+    expect(model).toMatchObject({
+      heavy: true,
+      mood: 'serious',
+      pressure: 0,
+      fuse: null,
+      pulse: 'none',
+      chalkThrow: false,
+      glare: false,
+      canSlip: false,
+      happening: null,
+      chalk: { quiet: true, next: [], more: 0 },
+    });
+    expect(model.line?.moment).toBe('seriousCompany');
+    expect(model.task?.tallies).toBe(0);
+  });
+});
+
+describe('the chalkboard and the empty desk', () => {
+  it('shows today’s task, the next two and how many more', async () => {
+    const { store, desk } = await deskAt(morning);
+    await store.say(
+      'Email the dentist. Renew passport. Tax receipts. Reply to Minh. Fix the bike light.',
+    );
+    const { chalk } = desk();
+    expect(chalk.main).toBe(store.getSnapshot().desk?.task.text);
+    expect(chalk.next).toHaveLength(2);
+    expect(chalk.more).toBe(2);
+  });
+
+  it('is suspicious of an empty board', async () => {
+    const { desk } = await deskAt(morning);
+    expect(desk()).toMatchObject({ phase: 'empty', task: null, canSlip: false, fuse: null });
+    expect(desk().line?.moment).toBe('emptyDesk');
+  });
+});

@@ -21,6 +21,8 @@ export const ROUTE_MOTION: Readonly<Record<string, RouteMotion>> = {
   index: 'home',
   board: 'none',
   logbook: 'none',
+  session: 'fade',
+  timetable: 'sheet',
   '(dev)': 'push',
 };
 
