@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Share sheet</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+@font-face{font-family:'Kithfield Hand';src:url(/_blob/14e9dde70c051ba67648e65c4cc548b4) format('woff2');font-weight:700;font-display:swap}
+body{margin:0}
+.r{font-family:ui-rounded,'SF Pro Rounded',Nunito,system-ui,sans-serif}
+.hand{font-family:'Kithfield Hand',ui-rounded,cursive;font-weight:700}
+.press{transition:transform 200ms cubic-bezier(.32,.72,0,1);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.press:active{transform:scale(.96)}
+.chip{flex:none;height:36px;padding:0 14px;border:none;border-radius:18px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;transition:background-color 220ms,color 220ms}
+.card{position:absolute;left:50%;top:0;width:212px;height:282px;margin-left:-106px;border-radius:10px;box-shadow:0 2px 4px rgba(40,30,20,0.08),0 18px 40px rgba(40,30,20,0.16);overflow:hidden;transition:opacity 320ms cubic-bezier(.32,.72,0,1),transform 420ms cubic-bezier(.32,.72,0,1)}
+.tape{position:relative;color:transparent!important}
+.tape::after{content:'';position:absolute;left:-4px;right:-4px;top:-1px;bottom:-1px;background:#FFFFFF;border-radius:2px;box-shadow:0 1px 2px rgba(0,0,0,0.12);transform:rotate(-1.2deg)}
+.tgt{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11.5px;color:#3E3933;border:none;background:transparent;font-family:inherit;cursor:pointer}
+.tgt span:first-child{width:56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center}
+@media (prefers-reduced-motion: reduce){.press,.chip,.card{transition:none}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #F7F1E8; color: #1C1A18; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', Inter, system-ui, sans-serif">
+  <div style="position: absolute; inset: 0; pointer-events: none"><dc-import name="App" screen="finish" autoplay="false" hint-size="390px,844px"></dc-import></div>
+  <div style="position: absolute; inset: 0; background: rgba(30,22,14,0.36)"></div>
+
+  <section aria-label="Share" style="position: absolute; left: 0; right: 0; bottom: 0; height: 720px; border-radius: 34px 34px 0 0; background: #FFFDF8; box-shadow: 0 -10px 30px rgba(40,30,20,0.12)">
+    <span style="position: absolute; top: 10px; left: 50%; margin-left: -18px; width: 36px; height: 5px; border-radius: 3px; background: rgba(28,26,24,0.16)"></span>
+    <header style="position: absolute; top: 26px; left: 22px; right: 22px; display: flex; justify-content: space-between; align-items: flex-end">
+      <span style="display: flex; flex-direction: column"><b style="font-size: 24px; letter-spacing: -0.02em">Show it off</b></span>
+      <button class="press" aria-label="Close" style="width: 34px; height: 34px; border: none; border-radius: 17px; background: rgba(28,26,24,0.06); display: flex; align-items: center; justify-content: center; padding: 0"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1C1A18" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+    </header>
+
+    <div style="position: absolute; top: 96px; left: 0; right: 0; height: 290px">
+      <div class="card" style="background: #FFFFFF; opacity: {{o0}}; transform: {{t0}}">
+        <div style="position: absolute; inset: 0; background: repeating-linear-gradient(180deg, transparent 0 25px, #DCE6F5 25px 26px); background-position: 0 14px"></div>
+        <div style="position: absolute; left: 22px; top: 0; bottom: 0; width: 1.5px; background: #F2B8B4"></div>
+        <div style="position: relative; padding: 14px 14px 0 32px; display: flex; flex-direction: column; gap: 4px">
+          <span style="font-size: 8px; font-weight: 800; letter-spacing: .14em; color: #8A7F74">TEST · CLASS 11A</span>
+          <span class="hand {{tape}}" style="font-size: 20px; line-height: 1.15; color: #1C1A18; margin-top: 4px">Email the dentist</span>
+          <span style="font-size: 11px; color: #5E5852; margin-top: 2px">Waited 9 days. Took 11 minutes.</span>
+        </div>
+        <svg width="96" height="80" viewBox="0 0 96 80" aria-hidden="true" style="position: absolute; left: 60px; top: 112px"><path d="M8 44 L36 70 L90 8" fill="none" stroke="#D42A24" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        <span class="hand" style="position: absolute; left: 32px; right: 12px; bottom: 44px; font-size: 16px; line-height: 1.2; color: #D42A24">Hm. Good. Next time, day one.</span>
+        <span style="position: absolute; left: 32px; bottom: 14px; font-size: 8px; font-weight: 800; letter-spacing: .12em; color: #B0A69B">PHUSCLASS.APP</span>
+        <div style="position: absolute; right: 8px; bottom: 6px; width: 46px; height: 50px"><dc-import name="Phu" mood="approve" size="46" hint-size="46px,50px"></dc-import></div>
+      </div>
+      <div class="card" style="background: #FFF8E6; opacity: {{o1}}; transform: {{t1}}; box-shadow: inset 0 0 0 3px #E0B44A, inset 0 0 0 8px #FFF8E6, inset 0 0 0 9.5px #E0B44A, 0 18px 40px rgba(40,30,20,0.16)">
+        <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 24px 18px 0; gap: 4px">
+          <span style="font-size: 7.5px; font-weight: 800; letter-spacing: .16em; color: #9A6B00">PHU’S CLASS</span>
+          <span class="hand" style="font-size: 34px; line-height: 1; color: #C9241E">Certificate</span>
+          <span style="font-size: 10px; color: #6B655E; margin-top: 6px">awarded to</span>
+          <span class="hand" style="font-size: 19px">Trần Minh Anh</span>
+          <span style="font-size: 10.5px; line-height: 1.4; color: #3E3933; margin-top: 6px">for starting <span class="{{tape}}">the dentist email</span> the day it was set.</span>
+        </div>
+        <div style="position: absolute; left: 50%; bottom: 22px; margin-left: -26px; width: 52px; height: 52px; border-radius: 26px; border: 2.5px solid #D42A24; color: #D42A24; display: flex; align-items: center; justify-content: center; transform: rotate(-10deg); opacity: .85"><span style="font-size: 7px; font-weight: 800; letter-spacing: .1em; text-align: center; line-height: 1.3">PHU’S<br>CLASS</span></div>
+      </div>
+      <div class="card" style="background: #F4F7FB; opacity: {{o2}}; transform: {{t2}}">
+        <div style="position: absolute; top: 0; left: 0; right: 0; height: 30px; background: #2B4C9A; display: flex; align-items: center; padding: 0 14px"><span style="font-size: 8.5px; font-weight: 800; letter-spacing: .14em; color: #FFFFFF">NOTE HOME</span></div>
+        <div style="position: absolute; inset: 30px 0 0; background: repeating-linear-gradient(180deg, transparent 0 23px, #D3DCEA 23px 24px); background-position: 0 10px"></div>
+        <p class="hand" style="position: relative; margin: 42px 16px 0; font-size: 15.5px; line-height: 24px; color: #2B4C9A">Dear parents of Trần Minh Anh. Today your child emailed <span class="{{tape}}">the dentist</span>. It had waited nine days. I have no complaints at this time.</p>
+        <svg width="70" height="26" viewBox="0 0 84 30" aria-hidden="true" style="position: absolute; right: 14px; bottom: 16px"><path d="M5 27 C7 19 8 11 10 3 C15 0 23 4 19 10 C16 14 10 13 8 11 M12 14 C15 9 18 4 20 2 C21 8 18 17 19 24 C20 18 24 13 26 17 C27 21 26 24 29 22 C31 19 31 16 32 15 C32 20 33 24 36 22 C38 20 38 17 39 15 C39 20 40 24 44 21 C52 17 64 16 82 9 M35 9 L40 4" fill="none" stroke="#D42A24" stroke-width="2.2" stroke-linecap="round"></path></svg>
+      </div>
+      <div class="card" style="background: #C08A55; opacity: {{o3}}; transform: {{t3}}">
+        <div style="position: absolute; inset: 0; background: repeating-linear-gradient(176deg, rgba(255,255,255,0.0) 0 14px, rgba(120,70,30,0.10) 14px 16px)"></div>
+        <span class="hand" style="position: absolute; left: 22px; top: 30px; font-size: 18px; color: rgba(70,38,14,0.55); transform: rotate(-6deg)">M.A. was here</span>
+        <span class="hand" style="position: absolute; right: 20px; top: 84px; font-size: 22px; color: rgba(70,38,14,0.5); transform: rotate(8deg)">+ dentist ✓</span>
+        <span style="position: absolute; left: 30px; top: 132px; width: 70px; height: 70px; border-radius: 35px; box-shadow: inset 0 0 0 3px rgba(70,38,14,0.35)"></span>
+        <span class="hand" style="position: absolute; left: 46px; top: 154px; font-size: 18px; color: rgba(70,38,14,0.5)">11A</span>
+        <span class="hand" style="position: absolute; right: 22px; bottom: 54px; font-size: 16px; color: rgba(70,38,14,0.5); transform: rotate(-4deg)">recess!!</span>
+        <span style="position: absolute; left: 0; right: 0; bottom: 0; height: 30px; background: rgba(70,38,14,0.25); display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 800; letter-spacing: .14em; color: #FFF1DC">YOUR DESK · OCTOBER</span>
+      </div>
+    </div>
+
+    <div role="radiogroup" aria-label="Card" style="position: absolute; top: 404px; left: 0; right: 0; display: flex; gap: 8px; padding: 0 22px; overflow: hidden">
+      <sc-for list="{{formats}}" as="item" hint-placeholder-count="4"><button class="chip" role="radio" aria-checked="{{item.on}}" onClick="{{item.pick}}" style="background: {{item.bg}}; color: {{item.fg}}">{{item.t}}</button></sc-for>
+    </div>
+
+    <button class="press" onClick="{{toggle}}" role="switch" aria-checked="{{hideOn}}" style="position: absolute; top: 458px; left: 22px; right: 22px; height: 50px; border: none; border-radius: 16px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(60,40,20,0.06); padding: 0 10px 0 14px; display: flex; align-items: center; gap: 12px; font: inherit; color: #1C1A18; cursor: pointer">
+      <span style="width: 30px; height: 18px; border-radius: 3px; background: #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,0.18); transform: rotate(-6deg)"></span>
+      <span style="flex: 1; text-align: left; display: flex; flex-direction: column; line-height: 1.25"><span style="font-size: 15px; font-weight: 600">White-out the task</span><span style="font-size: 12px; color: #8A7F74">Like you did in class</span></span>
+      <span style="width: 46px; height: 28px; border-radius: 14px; background: {{swBg}}; position: relative; transition: background-color 240ms"><span style="position: absolute; top: 2px; left: {{swX}}; width: 24px; height: 24px; border-radius: 12px; background: #FFFFFF; box-shadow: 0 2px 4px rgba(0,0,0,0.18); transition: left 280ms cubic-bezier(.32,.72,0,1)"></span></span>
+    </button>
+
+    <div style="position: absolute; top: 536px; left: 22px; right: 22px; display: flex; justify-content: space-between">
+      <button class="tgt press"><span style="background: #34C759"><svg width="28" height="28" viewBox="0 0 24 24" fill="#FFFFFF" aria-hidden="true"><path d="M12 4c-4.97 0-9 3.36-9 7.5 0 2.3 1.25 4.36 3.2 5.74-.12 1.06-.6 2.3-1.7 3.26 2.03-.1 3.6-.86 4.67-1.6.89.22 1.84.35 2.83.35 4.97 0 9-3.36 9-7.5S16.97 4 12 4z"></path></svg></span><span>Messages</span></button>
+      <button class="tgt press"><span style="background: linear-gradient(45deg, #F9C33C, #E1306C 55%, #8B3AB8)"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="5"></rect><circle cx="12" cy="12" r="3.6"></circle><circle cx="17" cy="7" r=".6" fill="#FFFFFF"></circle></svg></span><span>Story</span></button>
+      <button class="tgt press"><span style="background: rgba(28,26,24,0.06)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1C1A18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"></path></svg></span><span>Save</span></button>
+      <button class="tgt press"><span style="background: rgba(28,26,24,0.06)"><svg width="24" height="24" viewBox="0 0 24 24" fill="#1C1A18" aria-hidden="true"><circle cx="6" cy="12" r="1.8"></circle><circle cx="12" cy="12" r="1.8"></circle><circle cx="18" cy="12" r="1.8"></circle></svg></span><span>More</span></button>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"format":{"editor":"int","default":0,"min":0,"max":3},"hide":{"editor":"boolean","default":false},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const S = this.state || {};
+    const f = S.f ?? (Number(this.props.format) || 0);
+    const hide = S.hide ?? (this.props.hide === true || this.props.hide === 'true');
+    const out = {
+      formats: ['Test', 'Certificate', 'Note home', 'Your desk'].map((t, i) => ({ t, on: String(f === i), bg: f === i ? '#1C1A18' : 'rgba(28,26,24,0.06)', fg: f === i ? '#FFFFFF' : '#1C1A18', pick: () => this.setState({ f: i }) })),
+      tape: hide ? 'tape' : '',
+      hideOn: String(hide),
+      swBg: hide ? '#34A867' : 'rgba(120,120,128,0.24)',
+      swX: hide ? '20px' : '2px',
+      toggle: () => this.setState({ hide: !hide })
+    };
+    [0, 1, 2, 3].forEach((i) => {
+      const d = i - f;
+      out['o' + i] = d === 0 ? 1 : 0;
+      out['t' + i] = d === 0 ? 'none' : 'translateX(' + (d * 36) + 'px) rotate(' + (d * 4) + 'deg) scale(.92)';
+    });
+    return out;
+  }
+}
+</script>
+</body>
+</html>

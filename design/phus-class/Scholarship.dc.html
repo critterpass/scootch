@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Scholarship</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+@font-face{font-family:'Kithfield Hand';src:url(/_blob/14e9dde70c051ba67648e65c4cc548b4) format('woff2');font-weight:700;font-display:swap}
+body{margin:0}
+.r{font-family:ui-rounded,'SF Pro Rounded',Nunito,system-ui,sans-serif}
+.hand{font-family:'Kithfield Hand',ui-rounded,cursive;font-weight:700}
+.press{transition:transform 200ms cubic-bezier(.32,.72,0,1);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.press:active{transform:scale(.97)}
+.rise{animation:rise 560ms cubic-bezier(.32,.72,0,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(24px) scale(.98)}to{opacity:1;transform:none}}
+.stampIn{animation:stampIn 520ms 260ms cubic-bezier(.34,1.56,.64,1) both}
+@keyframes stampIn{0%{opacity:0;transform:rotate(12deg) scale(1.9)}55%{opacity:.95;transform:rotate(12deg) scale(.94)}100%{opacity:.9;transform:rotate(12deg) scale(1)}}
+@media (prefers-reduced-motion: reduce){.press{transition:none}.rise,.stampIn{animation:none}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #E9E1D6; color: #1C1A18; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', Inter, system-ui, sans-serif">
+  <div style="position: absolute; inset: 0; background: rgba(30,22,14,0.32)"></div>
+
+  <sc-if value="{{asking}}" hint-placeholder-val="{{ true }}">
+    <section class="rise" aria-label="Ask for a scholarship" style="position: absolute; left: 0; right: 0; bottom: 0; height: 548px; border-radius: 34px 34px 0 0; background: #FFFDF8; box-shadow: 0 -10px 30px rgba(40,30,20,0.12); padding: 30px 22px 34px; box-sizing: border-box; display: flex; flex-direction: column">
+      <span style="position: absolute; top: 10px; left: 50%; margin-left: -18px; width: 36px; height: 5px; border-radius: 3px; background: rgba(28,26,24,0.16)"></span>
+      <div style="display: flex; gap: 14px; align-items: flex-end">
+        <div style="flex: 1; display: flex; flex-direction: column; gap: 2px">
+          <h2 style="margin: 0; font-size: 28px; line-height: 1.12; font-weight: 800; letter-spacing: -0.02em">Can’t pay right now?</h2>
+        </div>
+        <div style="width: 96px; height: 106px; flex-shrink: 0; margin-bottom: -6px"><dc-import name="Phu" mood="calm" size="96" hint-size="96px,106px"></dc-import></div>
+      </div>
+      <p style="margin: 14px 0 0; font-size: 15.5px; line-height: 1.5; color: #4A443E">Ask for a scholarship: a free school year. No proof, no form.</p>
+      <label style="margin-top: 20px; display: flex; flex-direction: column; gap: 8px">
+        <span style="font-size: 12px; font-weight: 700; letter-spacing: .06em; color: #8A7F74">A NOTE FOR HIM · OPTIONAL</span>
+        <span style="min-height: 104px; border-radius: 18px; background: #FFFFFF; box-shadow: inset 0 0 0 1.5px rgba(28,26,24,0.10); padding: 14px 16px; box-sizing: border-box; font-size: 16px; line-height: 1.45; color: #B0A69B">Student budget this year.</span>
+      </label>
+      <div style="margin-top: auto; display: flex; flex-direction: column; gap: 10px">
+        <button class="press" onClick="{{ask}}" style="height: 54px; border: none; border-radius: 27px; background: #1C1A18; color: #FFFFFF; font: inherit; font-size: 17px; font-weight: 700">Ask for the scholarship</button>
+        <span style="font-size: 12.5px; line-height: 1.45; color: #8A7F74; text-align: center">Leave it blank and the answer is the same.</span>
+      </div>
+    </section>
+  </sc-if>
+
+  <sc-if value="{{granted}}" hint-placeholder-val="{{ false }}">
+    <section class="rise" aria-label="Scholarship granted" style="position: absolute; left: 0; right: 0; bottom: 0; height: 640px; border-radius: 34px 34px 0 0; background: #FFFDF8; box-shadow: 0 -10px 30px rgba(40,30,20,0.12); padding: 30px 20px 34px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center">
+      <span style="position: absolute; top: 10px; left: 50%; margin-left: -18px; width: 36px; height: 5px; border-radius: 3px; background: rgba(28,26,24,0.16)"></span>
+      <div style="position: relative; width: 100%; margin-top: 8px; border-radius: 10px; background: #FFF8E6; box-shadow: inset 0 0 0 2px #E0B44A, inset 0 0 0 6px #FFF8E6, inset 0 0 0 7.5px #E0B44A, 0 10px 26px rgba(60,40,20,0.10); padding: 22px 22px 24px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px">
+        <span style="font-size: 9.5px; font-weight: 800; letter-spacing: .16em; color: #9A6B00">PHU’S CLASS · 11A</span>
+        <span class="hand" style="font-size: 40px; line-height: 1.05; color: #C9241E; margin-top: 4px">Scholarship</span>
+        <span style="font-size: 13px; color: #6B655E">is awarded to</span>
+        <span class="hand" style="font-size: 26px; color: #1C1A18; border-bottom: 1.5px dotted rgba(28,26,24,0.25); padding: 0 8px 2px">Trần Minh Anh</span>
+        <span style="margin-top: 8px; font-size: 14px; line-height: 1.45; color: #3E3933">for the 2026–27 school year.</span>
+        <div style="width: 100%; display: flex; justify-content: space-between; align-items: flex-end; margin-top: 18px">
+          <span style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px"><span style="font-size: 9px; font-weight: 800; letter-spacing: .1em; color: #8A7F74">27 OCT 2026</span></span>
+          <span style="display: flex; flex-direction: column; align-items: flex-end; gap: 0"><svg width="84" height="30" viewBox="0 0 84 30" role="img" aria-label="Thầy Phú’s signature"><path d="M5 27 C7 19 8 11 10 3 C15 0 23 4 19 10 C16 14 10 13 8 11 M12 14 C15 9 18 4 20 2 C21 8 18 17 19 24 C20 18 24 13 26 17 C27 21 26 24 29 22 C31 19 31 16 32 15 C32 20 33 24 36 22 C38 20 38 17 39 15 C39 20 40 24 44 21 C52 17 64 16 82 9 M35 9 L40 4" fill="none" stroke="#2B4C9A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg><span style="font-size: 9px; font-weight: 800; letter-spacing: .1em; color: #8A7F74">HOMEROOM TEACHER</span></span>
+        </div>
+        <div class="stampIn" aria-hidden="true" style="position: absolute; left: 50%; margin-left: -46px; bottom: 6px; width: 74px; height: 74px; border-radius: 37px; border: 3px solid #D42A24; color: #D42A24; display: flex; align-items: center; justify-content: center; mix-blend-mode: multiply; opacity: .9"><span class="hand" style="font-size: 17px; line-height: 1">APPROVED</span></div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px; margin-top: 18px; width: 100%">
+        <div style="width: 64px; height: 70px; flex-shrink: 0"><dc-import name="Phu" mood="approve" size="64" hint-size="64px,70px"></dc-import></div>
+        <p class="r" style="margin: 0; font-size: 17px; line-height: 1.35; font-weight: 800">“Granted. Now there is no excuse.”</p>
+      </div>
+      <button class="press" onClick="{{back}}" style="margin-top: auto; width: 100%; height: 54px; border: none; border-radius: 27px; background: #EAF4EE; color: #2F6B56; font: inherit; font-size: 17px; font-weight: 700">Back to class</button>
+    </section>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"granted":{"editor":"boolean","default":false},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const S = this.state || {};
+    const granted = S.granted ?? (this.props.granted === true || this.props.granted === 'true');
+    return {
+      asking: !granted,
+      granted,
+      ask: () => this.setState({ granted: true }),
+      back: () => this.setState({ granted: false })
+    };
+  }
+}
+</script>
+</body>
+</html>

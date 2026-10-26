@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Splash</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+@font-face{font-family:'Kithfield Hand';src:url(/_blob/14e9dde70c051ba67648e65c4cc548b4) format('woff2');font-weight:700;font-display:swap}
+body{margin:0}
+.hand{font-family:'Kithfield Hand',ui-rounded,cursive;font-weight:700}
+.r{font-family:ui-rounded,'SF Pro Rounded',Nunito,system-ui,sans-serif}
+.sp-tung{position:absolute;font-family:'Kithfield Hand',cursive;font-weight:700;font-size:34px;color:#D42A24;opacity:0;text-shadow:2px 2px 0 #FFFFFF,-2px -2px 0 #FFFFFF,2px -2px 0 #FFFFFF,-2px 2px 0 #FFFFFF}
+.sp-line{stroke-dasharray:260}
+@keyframes spWriteA{0%{clip-path:inset(0 100% 0 0)}100%{clip-path:inset(0 0 0 0)}}
+@keyframes spLineA{0%{stroke-dashoffset:260}100%{stroke-dashoffset:0}}
+@keyframes spRiseA{0%{transform:translateY(96px)}70%{transform:translateY(-8px)}100%{transform:translateY(0)}}
+@keyframes spTungA{0%{opacity:0;transform:scale(.4) rotate(var(--r))}35%{opacity:1;transform:scale(1.15) rotate(var(--r))}60%{transform:scale(1) rotate(var(--r))}100%{opacity:0;transform:scale(1) translateY(-14px) rotate(var(--r))}}
+@keyframes spShakeA{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px) rotate(-.6deg)}45%{transform:translateX(3px) rotate(.4deg)}70%{transform:translateX(-2px)}}
+@keyframes spZoomA{0%{transform:none;opacity:1}40%{opacity:1}100%{transform:translateY(-233px) scale(1.15);opacity:0}}
+@keyframes spRoomA{0%{opacity:0;transform:scale(1.03)}20%{opacity:0}100%{opacity:1;transform:none}}
+@keyframes spSheetA{0%{transform:translateY(110%)}100%{transform:translateY(0)}}
+@keyframes spFadeA{0%{opacity:0}100%{opacity:1}}
+@keyframes spDustA{0%{opacity:0;transform:translateY(0)}30%{opacity:.8}100%{opacity:0;transform:translateY(18px)}}
+.runA .sp-title{animation:spWriteA 760ms cubic-bezier(.45,.05,.4,1) 260ms both}
+.runA .sp-line{animation:spLineA 420ms cubic-bezier(.32,.72,0,1) 980ms both}
+.runA .sp-dust{animation:spDustA 900ms ease-out 600ms both}
+.runA .sp-phu{animation:spRiseA 620ms cubic-bezier(.34,1.56,.64,1) 1160ms both}
+.runA .sp-t1{animation:spTungA 620ms cubic-bezier(.34,1.56,.64,1) 1820ms both}
+.runA .sp-t2{animation:spTungA 620ms cubic-bezier(.34,1.56,.64,1) 2080ms both}
+.runA .sp-t3{animation:spTungA 620ms cubic-bezier(.34,1.56,.64,1) 2340ms both}
+.runA .sp-board{animation:spShakeA 260ms ease-out 1820ms 1,spShakeA 260ms ease-out 2080ms 1,spShakeA 260ms ease-out 2340ms 1}
+.runA .sp-stage{animation:spZoomA 760ms cubic-bezier(.7,0,.2,1) 2980ms both}
+.runA .sp-room{animation:spRoomA 900ms cubic-bezier(.7,0,.2,1) 2980ms both}
+.runA .sp-sheet{animation:spSheetA 620ms cubic-bezier(.32,.72,0,1) 3520ms both}
+.runA .sp-bubble{animation:spFadeA 300ms ease 3880ms both}
+@keyframes spWriteB{0%{clip-path:inset(0 100% 0 0)}100%{clip-path:inset(0 0 0 0)}}
+@keyframes spLineB{0%{stroke-dashoffset:260}100%{stroke-dashoffset:0}}
+@keyframes spRiseB{0%{transform:translateY(96px)}70%{transform:translateY(-8px)}100%{transform:translateY(0)}}
+@keyframes spTungB{0%{opacity:0;transform:scale(.4) rotate(var(--r))}35%{opacity:1;transform:scale(1.15) rotate(var(--r))}60%{transform:scale(1) rotate(var(--r))}100%{opacity:0;transform:scale(1) translateY(-14px) rotate(var(--r))}}
+@keyframes spShakeB{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px) rotate(-.6deg)}45%{transform:translateX(3px) rotate(.4deg)}70%{transform:translateX(-2px)}}
+@keyframes spZoomB{0%{transform:none;opacity:1}40%{opacity:1}100%{transform:translateY(-233px) scale(1.15);opacity:0}}
+@keyframes spRoomB{0%{opacity:0;transform:scale(1.03)}20%{opacity:0}100%{opacity:1;transform:none}}
+@keyframes spSheetB{0%{transform:translateY(110%)}100%{transform:translateY(0)}}
+@keyframes spFadeB{0%{opacity:0}100%{opacity:1}}
+@keyframes spDustB{0%{opacity:0;transform:translateY(0)}30%{opacity:.8}100%{opacity:0;transform:translateY(18px)}}
+.runB .sp-title{animation:spWriteB 760ms cubic-bezier(.45,.05,.4,1) 260ms both}
+.runB .sp-line{animation:spLineB 420ms cubic-bezier(.32,.72,0,1) 980ms both}
+.runB .sp-dust{animation:spDustB 900ms ease-out 600ms both}
+.runB .sp-phu{animation:spRiseB 620ms cubic-bezier(.34,1.56,.64,1) 1160ms both}
+.runB .sp-t1{animation:spTungB 620ms cubic-bezier(.34,1.56,.64,1) 1820ms both}
+.runB .sp-t2{animation:spTungB 620ms cubic-bezier(.34,1.56,.64,1) 2080ms both}
+.runB .sp-t3{animation:spTungB 620ms cubic-bezier(.34,1.56,.64,1) 2340ms both}
+.runB .sp-board{animation:spShakeB 260ms ease-out 1820ms 1,spShakeB 260ms ease-out 2080ms 1,spShakeB 260ms ease-out 2340ms 1}
+.runB .sp-stage{animation:spZoomB 760ms cubic-bezier(.7,0,.2,1) 2980ms both}
+.runB .sp-room{animation:spRoomB 900ms cubic-bezier(.7,0,.2,1) 2980ms both}
+.runB .sp-sheet{animation:spSheetB 620ms cubic-bezier(.32,.72,0,1) 3520ms both}
+.runB .sp-bubble{animation:spFadeB 300ms ease 3880ms both}
+@media (prefers-reduced-motion: reduce){
+  .runA *,.runB *{animation:none!important}
+  .runA .sp-stage,.runB .sp-stage{animation:spFadeOutRM 300ms ease 1600ms both!important}
+  .runA .sp-room,.runB .sp-room,.runA .sp-sheet,.runB .sp-sheet,.runA .sp-bubble,.runB .sp-bubble{animation:spFade 300ms ease 1600ms both!important}
+  .sp-tung{display:none}
+}
+@keyframes spFadeOutRM{to{opacity:0}}
+@keyframes spFade{0%{opacity:0}100%{opacity:1}}
+</style>
+</helmet>
+<div class="{{run}}" onClick="{{replay}}" role="img" aria-label="Phu’s Class. Thầy Phú peeks over the chalkboard, the drum sounds, and class begins." style="position: relative; width: 390px; height: 844px; overflow: hidden; background: #F7F1E8; color: #1C1A18; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', Inter, system-ui, sans-serif; cursor: pointer">
+
+  <div class="sp-room" style="position: absolute; inset: 0; opacity: 0; transform-origin: 50% 86px">
+    <dc-import name="Room" w="390" h="844" vx="440" vy="40" vw="720" mood="over" chalk="Dentist email" hint-size="390px,844px"></dc-import>
+  </div>
+  <div class="sp-bubble" style="position: absolute; left: 22px; top: 96px; opacity: 0; background: #FFFFFF; border-radius: 16px; padding: 10px 14px; font-size: 15px; font-weight: 800; box-shadow: 0 6px 16px rgba(40,30,20,0.16)">Sit. Two minutes.</div>
+  <section class="sp-sheet" style="position: absolute; left: 0; right: 0; bottom: 0; height: 330px; border-radius: 34px 34px 0 0; background: rgba(255,253,249,0.97); box-shadow: 0 -8px 30px rgba(60,40,20,0.12); transform: translateY(110%); padding: 30px 20px 0; box-sizing: border-box; display: flex; flex-direction: column; gap: 6px">
+    <span style="position: absolute; top: 10px; left: 50%; margin-left: -18px; width: 36px; height: 5px; border-radius: 3px; background: rgba(28,26,24,0.16)"></span>
+    <div style="display: flex; justify-content: space-between"><span style="font-size: 12px; font-weight: 700; letter-spacing: .06em; color: #D42A24">ON YOUR DESK</span><span style="font-size: 13px; color: #6B655E">9 days</span></div>
+    <span style="font-size: 25px; line-height: 1.18; font-weight: 700; letter-spacing: -0.02em">Email the dentist to move Thursday</span>
+    <div style="display: flex; gap: 10px; margin-top: 20px"><span style="width: 112px; height: 56px; border-radius: 28px; background: rgba(28,26,24,0.06); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 17px">Late slip</span><span style="flex: 1; height: 56px; border-radius: 28px; background: #D42A24; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 17px">Start 10 min</span></div>
+  </section>
+
+  <div class="sp-stage" style="position: absolute; left: 0; right: 0; top: 0; bottom: 0; transform-origin: 50% 319px">
+    <div style="position: absolute; left: 50%; top: 214px; width: 300px; margin-left: -150px; height: 210px">
+      <div class="sp-phu" style="position: absolute; left: 50%; top: -84px; margin-left: -80px; width: 160px; height: 176px; transform: translateY(96px)">
+        <dc-import name="Phu" mood="calm" size="160" hint-size="160px,176px"></dc-import>
+      </div>
+      <div class="sp-board" style="position: absolute; inset: 0; border-radius: 28px; background: #8A5A36; padding: 10px; box-sizing: border-box; box-shadow: 0 18px 40px rgba(60,40,20,0.22)">
+        <div style="position: relative; width: 100%; height: 100%; border-radius: 19px; background: #2F6B56; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center">
+          <div style="position: absolute; top: 0; left: 0; width: 110px; height: 100%; background: #357560; transform: skewX(-16deg); transform-origin: top left"></div>
+          <span class="hand sp-title" style="position: relative; font-size: 46px; line-height: 1; color: #F4FAF6; clip-path: inset(0 100% 0 0)">Phu<span style="display: inline-block; width: 0.22em; margin-left: -0.04em; overflow: visible">’</span>s Class</span>
+          <svg width="200" height="18" viewBox="0 0 200 18" aria-hidden="true" style="position: relative; margin-top: 8px"><path class="sp-line" d="M6 10 C46 4 92 14 132 8 C156 5 176 8 194 9" fill="none" stroke="#F7D774" stroke-width="3.5" stroke-linecap="round"></path></svg>
+          <span class="sp-dust" style="position: absolute; left: 62%; top: 66%; width: 5px; height: 5px; border-radius: 3px; background: rgba(244,250,246,0.7); opacity: 0"></span>
+          <span class="sp-dust" style="position: absolute; left: 70%; top: 60%; width: 3px; height: 3px; border-radius: 2px; background: rgba(244,250,246,0.7); opacity: 0"></span>
+        </div>
+        <span style="position: absolute; left: 30px; right: 30px; bottom: -10px; height: 10px; border-radius: 0 0 6px 6px; background: #6E4528"></span>
+        <span style="position: absolute; left: 92px; bottom: -6px; width: 26px; height: 6px; border-radius: 3px; background: #FFFFFF"></span>
+      </div>
+      <span class="sp-tung sp-t1" style="left: -18px; top: 156px; --r: -10deg">Tùng!</span>
+      <span class="sp-tung sp-t2" style="right: -18px; top: 120px; --r: 8deg">Tùng!</span>
+      <span class="sp-tung sp-t3" style="left: 50%; margin-left: -48px; top: 232px; --r: -3deg; font-size: 42px">Tùng!</span>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const S = this.state || {};
+    const n = S.n || 0;
+    return {
+      run: n % 2 ? 'runB' : 'runA',
+      replay: () => this.setState({ n: n + 1 })
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,635 @@
+{
+  "v": 3,
+  "createdOnFiles": {
+    "v": 1,
+    "at": "2026-10-26T10:00:00Z"
+  },
+  "title": "Phu’s Class — Lớp Thầy Phú",
+  "launch": {
+    "view": "canvas"
+  },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 1440,
+      "h": 1520,
+      "title": "Thầy Phú — character sheet"
+    },
+    "Rig.dc.html": {
+      "x": 1520,
+      "y": 0,
+      "w": 1200,
+      "h": 1520,
+      "title": "Built for Rive"
+    },
+    "Phu.dc.html": {
+      "x": 2800,
+      "y": 0,
+      "w": 200,
+      "h": 220,
+      "title": "Thầy Phú component"
+    },
+    "AppIcon.dc.html": {
+      "x": 2800,
+      "y": 340,
+      "w": 256,
+      "h": 256,
+      "title": "App icon"
+    },
+    "NeverTwice.dc.html": {
+      "x": 0,
+      "y": 3860,
+      "w": 1440,
+      "h": 1240,
+      "title": "Never the same twice — the system"
+    },
+    "HapCat.dc.html": {
+      "x": 1520,
+      "y": 3860,
+      "w": 390,
+      "h": 844,
+      "title": "A cat on his desk"
+    },
+    "HapPlane.dc.html": {
+      "x": 1990,
+      "y": 3860,
+      "w": 390,
+      "h": 844,
+      "title": "A paper plane, mid-period"
+    },
+    "HapPower.dc.html": {
+      "x": 2460,
+      "y": 3860,
+      "w": 390,
+      "h": 844,
+      "title": "Mất điện"
+    },
+    "HapFlowers.dc.html": {
+      "x": 2930,
+      "y": 3860,
+      "w": 390,
+      "h": 844,
+      "title": "20/11, Teachers’ Day"
+    },
+    "HapQuiz.dc.html": {
+      "x": 3400,
+      "y": 3860,
+      "w": 390,
+      "h": 844,
+      "title": "Bỏ giấy ra! Pop-quiz day"
+    },
+    "HapRain.dc.html": {
+      "x": 3870,
+      "y": 3860,
+      "w": 390,
+      "h": 844,
+      "title": "Monsoon recess"
+    },
+    "FirstDay.dc.html": {
+      "x": 470,
+      "y": 5360,
+      "w": 390,
+      "h": 844,
+      "title": "▶ First day — play onboarding",
+      "is_interactive": true
+    },
+    "RollCall.dc.html": {
+      "x": 940,
+      "y": 5360,
+      "w": 390,
+      "h": 844,
+      "title": "Roll call · Điểm danh"
+    },
+    "NotesHome.dc.html": {
+      "x": 1410,
+      "y": 5360,
+      "w": 390,
+      "h": 844,
+      "title": "Notes home · Sổ liên lạc"
+    },
+    "EmptyDesk.dc.html": {
+      "x": 1880,
+      "y": 5360,
+      "w": 390,
+      "h": 844,
+      "title": "Empty desk"
+    },
+    "App.dc.html": {
+      "x": 0,
+      "y": 6464,
+      "w": 390,
+      "h": 844,
+      "title": "▶ Prototype — play the loop",
+      "is_interactive": true
+    },
+    "Desk.dc.html": {
+      "x": 470,
+      "y": 6464,
+      "w": 390,
+      "h": 844,
+      "title": "The desk"
+    },
+    "DeskHot.dc.html": {
+      "x": 940,
+      "y": 6464,
+      "w": 390,
+      "h": 844,
+      "title": "He’s had enough (chalk incoming)"
+    },
+    "FrontRow.dc.html": {
+      "x": 1410,
+      "y": 6464,
+      "w": 390,
+      "h": 844,
+      "title": "Five slips: front row"
+    },
+    "Listening.dc.html": {
+      "x": 1880,
+      "y": 6464,
+      "w": 390,
+      "h": 844,
+      "title": "Telling him"
+    },
+    "Typing.dc.html": {
+      "x": 2350,
+      "y": 6464,
+      "w": 390,
+      "h": 844,
+      "title": "Writing it down"
+    },
+    "Board.dc.html": {
+      "x": 1410,
+      "y": 8672,
+      "w": 390,
+      "h": 844,
+      "title": "The board"
+    },
+    "LateSlip.dc.html": {
+      "x": 2820,
+      "y": 6464,
+      "w": 390,
+      "h": 844,
+      "title": "Late slip"
+    },
+    "Session.dc.html": {
+      "x": 0,
+      "y": 7568,
+      "w": 390,
+      "h": 844,
+      "title": "Wide shot: he paces"
+    },
+    "Partial.dc.html": {
+      "x": 470,
+      "y": 7568,
+      "w": 390,
+      "h": 844,
+      "title": "Not yet: partial credit"
+    },
+    "Finish.dc.html": {
+      "x": 940,
+      "y": 7568,
+      "w": 390,
+      "h": 844,
+      "title": "The red check"
+    },
+    "Recess.dc.html": {
+      "x": 1410,
+      "y": 7568,
+      "w": 390,
+      "h": 844,
+      "title": "Ra chơi: widest shot"
+    },
+    "Serious.dc.html": {
+      "x": 1880,
+      "y": 7568,
+      "w": 390,
+      "h": 844,
+      "title": "A heavy task"
+    },
+    "Settings.dc.html": {
+      "x": 0,
+      "y": 9776,
+      "w": 390,
+      "h": 1940,
+      "title": "Settings · Phòng giáo vụ",
+      "is_interactive": true
+    },
+    "Crisis.dc.html": {
+      "x": 470,
+      "y": 9776,
+      "w": 390,
+      "h": 844,
+      "title": "Helplines (crisis)"
+    },
+    "ShareCard.dc.html": {
+      "x": 0,
+      "y": 11996,
+      "w": 2000,
+      "h": 760,
+      "title": "Share cards"
+    },
+    "Outside.dc.html": {
+      "x": 0,
+      "y": 13016,
+      "w": 1640,
+      "h": 1240,
+      "title": "Lock Screen, Dynamic Island, StandBy, widgets"
+    },
+    "Dial.dc.html": {
+      "x": 2800,
+      "y": 680,
+      "w": 240,
+      "h": 240,
+      "title": "Day dial component"
+    },
+    "Prop.dc.html": {
+      "x": 2800,
+      "y": 1000,
+      "w": 150,
+      "h": 104,
+      "title": "Prop component"
+    },
+    "Poses.dc.html": {
+      "x": 0,
+      "y": 1860,
+      "w": 1440,
+      "h": 1600,
+      "title": "Poses, actions, emotions"
+    },
+    "Props.dc.html": {
+      "x": 1520,
+      "y": 1860,
+      "w": 1440,
+      "h": 1060,
+      "title": "Props"
+    },
+    "Motion.dc.html": {
+      "x": 3040,
+      "y": 1860,
+      "w": 1440,
+      "h": 1500,
+      "title": "Motion and haptics"
+    },
+    "Tuition.dc.html": {
+      "x": 0,
+      "y": 14676,
+      "w": 390,
+      "h": 844,
+      "title": "Tuition: the receipt"
+    },
+    "Money.dc.html": {
+      "x": 3370,
+      "y": 14676,
+      "w": 1440,
+      "h": 1880,
+      "title": "Tuition · the plan"
+    },
+    "OfflineDesk.dc.html": {
+      "x": 3290,
+      "y": 6464,
+      "w": 390,
+      "h": 844,
+      "title": "No connection: he still hears you"
+    },
+    "RecessNotice.dc.html": {
+      "x": 2350,
+      "y": 7568,
+      "w": 390,
+      "h": 844,
+      "title": "Recess: a notice on the wall"
+    },
+    "TimetableAsk.dc.html": {
+      "x": 940,
+      "y": 9776,
+      "w": 390,
+      "h": 844,
+      "title": "Timetable: first open"
+    },
+    "TimetableWeekend.dc.html": {
+      "x": 1410,
+      "y": 9776,
+      "w": 390,
+      "h": 844,
+      "title": "Timetable: no classes"
+    },
+    "TimetableLocked.dc.html": {
+      "x": 1880,
+      "y": 9776,
+      "w": 390,
+      "h": 844,
+      "title": "Timetable: without tuition"
+    },
+    "LogbookEmpty.dc.html": {
+      "x": 2820,
+      "y": 8672,
+      "w": 390,
+      "h": 844,
+      "title": "Logbook, first day"
+    },
+    "ReportCard.dc.html": {
+      "x": 2350,
+      "y": 9776,
+      "w": 390,
+      "h": 844,
+      "title": "Học bạ: the report card"
+    },
+    "ShareSheet.dc.html": {
+      "x": 2080,
+      "y": 11996,
+      "w": 390,
+      "h": 844,
+      "title": "Share sheet"
+    },
+    "TuitionTrial.dc.html": {
+      "x": 470,
+      "y": 14676,
+      "w": 390,
+      "h": 844,
+      "title": "Tuition: free week started"
+    },
+    "TuitionPaid.dc.html": {
+      "x": 940,
+      "y": 14676,
+      "w": 390,
+      "h": 844,
+      "title": "Tuition: paid"
+    },
+    "TuitionPending.dc.html": {
+      "x": 1410,
+      "y": 14676,
+      "w": 390,
+      "h": 844,
+      "title": "Tuition: Ask to Buy"
+    },
+    "TuitionFailed.dc.html": {
+      "x": 1880,
+      "y": 14676,
+      "w": 390,
+      "h": 844,
+      "title": "Tuition: payment failed"
+    },
+    "Scholarship.dc.html": {
+      "x": 2350,
+      "y": 14676,
+      "w": 390,
+      "h": 844,
+      "title": "Scholarship: asking"
+    },
+    "ScholarshipGranted.dc.html": {
+      "x": 2820,
+      "y": 14676,
+      "w": 390,
+      "h": 844,
+      "title": "Scholarship: granted"
+    },
+    "NavSwipeUp.dc.html": {
+      "x": 0,
+      "y": 8672,
+      "w": 390,
+      "h": 844,
+      "title": "Swipe the desk up: the title stays, the timetable rises"
+    },
+    "TimetableSheet.dc.html": {
+      "x": 470,
+      "y": 8672,
+      "w": 390,
+      "h": 844,
+      "title": "Timetable"
+    },
+    "NavPullBoard.dc.html": {
+      "x": 940,
+      "y": 8672,
+      "w": 390,
+      "h": 844,
+      "title": "Pull down: the chalkboard comes off the wall"
+    },
+    "NavPullLog.dc.html": {
+      "x": 1880,
+      "y": 8672,
+      "w": 390,
+      "h": 844,
+      "title": "Pull again: the logbook page comes down"
+    },
+    "LogbookPage.dc.html": {
+      "x": 2350,
+      "y": 8672,
+      "w": 390,
+      "h": 844,
+      "title": "Logbook"
+    },
+    "Duo.dc.html": {
+      "x": 0,
+      "y": 17016,
+      "w": 1280,
+      "h": 1240,
+      "title": "▶ iPhone Duo: play the folds"
+    },
+    "DuoGuide.dc.html": {
+      "x": 1360,
+      "y": 17016,
+      "w": 1440,
+      "h": 2330,
+      "title": "iPhone Duo: the plan"
+    },
+    "DuoClosed.dc.html": {
+      "x": 2880,
+      "y": 17016,
+      "w": 1100,
+      "h": 1100,
+      "title": "Duo · Closed"
+    },
+    "DuoOpen.dc.html": {
+      "x": 4060,
+      "y": 17016,
+      "w": 1100,
+      "h": 1100,
+      "title": "Duo · Open"
+    },
+    "DuoBook.dc.html": {
+      "x": 2880,
+      "y": 18196,
+      "w": 1100,
+      "h": 1100,
+      "title": "Duo · Half open"
+    },
+    "DuoStand.dc.html": {
+      "x": 4060,
+      "y": 18196,
+      "w": 1100,
+      "h": 1100,
+      "title": "Duo · Desk stand"
+    },
+    "DuoSplit.dc.html": {
+      "x": 2880,
+      "y": 19376,
+      "w": 1100,
+      "h": 1100,
+      "title": "Duo · Split View"
+    },
+    "Room.dc.html": {
+      "x": 0,
+      "y": 18336,
+      "w": 1280,
+      "h": 800,
+      "title": "Wide classroom component"
+    },
+    "Splash.dc.html": {
+      "x": 0,
+      "y": 5360,
+      "w": 390,
+      "h": 844,
+      "title": "▶ Splash: tap to replay"
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Rig.dc.html",
+    "Phu.dc.html",
+    "AppIcon.dc.html",
+    "Dial.dc.html",
+    "Prop.dc.html",
+    "Poses.dc.html",
+    "Props.dc.html",
+    "Motion.dc.html",
+    "NeverTwice.dc.html",
+    "HapCat.dc.html",
+    "HapPlane.dc.html",
+    "HapPower.dc.html",
+    "HapFlowers.dc.html",
+    "HapQuiz.dc.html",
+    "HapRain.dc.html",
+    "FirstDay.dc.html",
+    "RollCall.dc.html",
+    "NotesHome.dc.html",
+    "EmptyDesk.dc.html",
+    "App.dc.html",
+    "Desk.dc.html",
+    "DeskHot.dc.html",
+    "FrontRow.dc.html",
+    "Listening.dc.html",
+    "Typing.dc.html",
+    "Board.dc.html",
+    "LateSlip.dc.html",
+    "Session.dc.html",
+    "Partial.dc.html",
+    "Finish.dc.html",
+    "Recess.dc.html",
+    "Serious.dc.html",
+    "Settings.dc.html",
+    "Crisis.dc.html",
+    "ShareCard.dc.html",
+    "Outside.dc.html",
+    "Tuition.dc.html",
+    "Money.dc.html",
+    "OfflineDesk.dc.html",
+    "RecessNotice.dc.html",
+    "TimetableAsk.dc.html",
+    "TimetableWeekend.dc.html",
+    "TimetableLocked.dc.html",
+    "LogbookEmpty.dc.html",
+    "ReportCard.dc.html",
+    "ShareSheet.dc.html",
+    "TuitionTrial.dc.html",
+    "TuitionPaid.dc.html",
+    "TuitionPending.dc.html",
+    "TuitionFailed.dc.html",
+    "Scholarship.dc.html",
+    "ScholarshipGranted.dc.html",
+    "NavSwipeUp.dc.html",
+    "TimetableSheet.dc.html",
+    "NavPullBoard.dc.html",
+    "NavPullLog.dc.html",
+    "LogbookPage.dc.html",
+    "Duo.dc.html",
+    "DuoGuide.dc.html",
+    "DuoClosed.dc.html",
+    "DuoOpen.dc.html",
+    "DuoBook.dc.html",
+    "DuoStand.dc.html",
+    "DuoSplit.dc.html",
+    "Room.dc.html",
+    "Splash.dc.html"
+  ],
+  "notes": {
+    "titleNever": {
+      "x": 0,
+      "y": 3600,
+      "text": "Never the same twice",
+      "kind": "title1",
+      "maxW": 4260
+    },
+    "titleFirst": {
+      "x": 0,
+      "y": 5100,
+      "text": "First day of class",
+      "kind": "title1",
+      "maxW": 1800
+    },
+    "loopTitle": {
+      "x": 0,
+      "y": 6204,
+      "text": "One task on the desk",
+      "kind": "title1",
+      "maxW": 3680
+    },
+    "titleWork": {
+      "x": 0,
+      "y": 7308,
+      "text": "The drum, and after",
+      "kind": "title1",
+      "maxW": 2270
+    },
+    "titleAround": {
+      "x": 0,
+      "y": 9516,
+      "text": "Around the classroom",
+      "kind": "title1",
+      "maxW": 1800
+    },
+    "titleShare": {
+      "x": 0,
+      "y": 11736,
+      "text": "Share",
+      "kind": "title1",
+      "maxW": 2000
+    },
+    "titleOutside": {
+      "x": 0,
+      "y": 12756,
+      "text": "Outside the app",
+      "kind": "title1",
+      "maxW": 1900
+    },
+    "titleCast": {
+      "x": 0,
+      "y": 1600,
+      "text": "Thầy Phú, his things, how they move",
+      "kind": "title1",
+      "maxW": 4480
+    },
+    "titleTuition": {
+      "x": 0,
+      "y": 14416,
+      "text": "Tuition",
+      "kind": "title1",
+      "maxW": 4480
+    },
+    "titleNav": {
+      "x": 0,
+      "y": 8412,
+      "text": "Pull and swipe",
+      "kind": "title1",
+      "maxW": 4480
+    },
+    "titleDuo": {
+      "x": 0,
+      "y": 16756,
+      "text": "iPhone Duo",
+      "kind": "title1",
+      "maxW": 4480
+    }
+  },
+  "designSystems": []
+}

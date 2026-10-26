@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>iPhone Duo, the plan</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@500&amp;display=swap">
+<style>
+@font-face{font-family:'Kithfield Hand';src:url(/_blob/14e9dde70c051ba67648e65c4cc548b4) format('woff2');font-weight:700;font-display:swap}
+body{margin:0}
+.hand{font-family:'Kithfield Hand',ui-rounded,cursive;font-weight:700}
+.mono{font-family:'SF Mono',ui-monospace,'JetBrains Mono',monospace}
+.card{background:#FFFFFF;border-radius:26px;padding:26px 28px;box-shadow:0 1px 2px rgba(40,30,20,0.05),0 12px 30px rgba(40,30,20,0.05);display:flex;flex-direction:column;gap:12px}
+.grp{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8A7F74}
+.rule{display:grid;grid-template-columns:28px minmax(0,1fr);column-gap:12px;font-size:15px;line-height:1.5}
+.rule i{font-style:normal;font-weight:800;color:#D42A24}
+.row{display:grid;grid-template-columns:230px minmax(0,1fr) 170px;column-gap:20px;padding:13px 0;border-top:1px solid rgba(28,26,24,0.07);font-size:14.5px;line-height:1.5;align-items:start}
+.pic{display:flex;align-items:center;gap:10px;font-weight:700}
+</style>
+</helmet>
+<div style="width: 1440px; height: 2330px; box-sizing: border-box; padding: 64px; background: #FFFAF2; color: #1C1A18; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', Inter, system-ui, sans-serif; display: flex; flex-direction: column; gap: 26px">
+  <header style="display: flex; flex-direction: column; gap: 8px">
+    <span class="hand" style="font-size: 22px; color: #D42A24">two displays, one classroom</span>
+    <h1 style="margin: 0; font-size: 64px; line-height: 1; font-weight: 800; letter-spacing: -0.03em">iPhone Duo</h1>
+    <p style="margin: 0; font-size: 18px; color: #5E5852; max-width: 900px; line-height: 1.5">Closed, it is the desk: one task. Open, the board joins as the left page. Half open, it stands on your real desk and he paces on the top half while you work. Nothing resets as the phone moves; everything glides.</p>
+  </header>
+
+  <section class="card">
+    <span class="grp">The room got wider</span>
+    <div style="border-radius: 18px; overflow: hidden; height: 820px"><dc-import name="Room" w="1312" h="820" vx="0" vy="0" vw="1600" mood="calm" chalk="Dentist email" hint-size="1312px,820px"></dc-import></div>
+    <p style="margin: 0; font-size: 14.5px; color: #5E5852; line-height: 1.5">New for the inner display: the door with the 11A plate, a notice board, a wall fan that turns, a bookshelf with a globe, a second row of desks, and an Odd Eggs Studio carving. The outer display and every phone keep seeing the middle of the same room.</p>
+  </section>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px">
+    <section class="card">
+      <span class="grp">Applied from the guidelines</span>
+      <div class="rule"><i>1</i><span><b>Two levels on the inner display.</b> Closed shows the desk. Open adds the board as a leading pane, the way Mail adds its list.</span></div>
+      <div class="rule"><i>2</i><span><b>Same state everywhere.</b> The task, the timer, the fuse and his mood never restart when the phone opens or closes.</span></div>
+      <div class="rule"><i>3</i><span><b>Controls on the side.</b> Board, Timetable and Logbook down the trailing edge with symbols and titles; Settings at the bottom; the rest in the system overflow menu.</span></div>
+      <div class="rule"><i>4</i><span><b>Nothing in the fold.</b> Half open, both pages step away from the crease and become equal. His pacing stops short of it.</span></div>
+      <div class="rule"><i>5</i><span><b>The room runs full bleed.</b> The classroom extends under the side controls; text and buttons stay inside the safe area.</span></div>
+      <div class="rule"><i>6</i><span><b>Small moves, not rearrangements.</b> Every element glides to its new place. Nothing vanishes and reappears elsewhere.</span></div>
+    </section>
+    <section class="card">
+      <span class="grp">Sizes this design assumes</span>
+      <p style="margin: 0; font-size: 15px; line-height: 1.5">The guidelines give no point sizes, so these are working numbers to replace when the device specs are public.</p>
+      <div class="row" style="grid-template-columns: 170px minmax(0,1fr); border-top: none"><b>Outer display</b><span class="mono" style="font-size: 13.5px">480 × 620 pt · camera in the top trailing corner</span></div>
+      <div class="row" style="grid-template-columns: 170px minmax(0,1fr)"><b>Inner, landscape</b><span class="mono" style="font-size: 13.5px">960 × 620 pt · fold at x 480</span></div>
+      <div class="row" style="grid-template-columns: 170px minmax(0,1fr)"><b>Inner, portrait</b><span class="mono" style="font-size: 13.5px">620 × 960 pt · fold at y 480</span></div>
+      <div class="row" style="grid-template-columns: 170px minmax(0,1fr)"><b>Fold, half open</b><span class="mono" style="font-size: 13.5px">48 pt reserved region · read from ReservedRegion</span></div>
+      <div class="row" style="grid-template-columns: 170px minmax(0,1fr)"><b>Side controls</b><span class="mono" style="font-size: 13.5px">64 pt column · 44 pt targets</span></div>
+    </section>
+  </div>
+
+  <section class="card" style="gap: 4px">
+    <span class="grp" style="margin-bottom: 8px">Moving between poses</span>
+    <div class="row" style="border-top: none; font-size: 12px; font-weight: 700; letter-spacing: .06em; color: #8A7F74"><span>CHANGE</span><span>WHAT MOVES</span><span>TIMING</span></div>
+    <sc-for list="{{moves}}" as="item" hint-placeholder-count="7">
+      <div class="row"><span class="pic">{{item.a}}</span><span>{{item.w}}</span><span class="mono" style="font-size: 12.5px; color: #5E5852">{{item.t}}</span></div>
+    </sc-for>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2330}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      moves: [
+        ['Closed → Open', 'The device widens from the middle. The board slides in as the left page a beat later. The classroom camera pulls back to fit the right page. The desk card glides across and keeps its task. He says one line.', '700 · +70 · 760'],
+        ['Open → Half open', 'Both pages step away from the fold and become equal. The crease shades in. Nothing else moves.', '700 · 420 fade'],
+        ['Half open → Desk stand', 'The phone turns. The classroom becomes the top half and he starts pacing. The desk card becomes the session on the bottom half. The side controls fade; a bottom bar rises.', '700 · 420'],
+        ['Open → Split View', 'Your other app slides in from the right. His pane narrows to the left half. The controls fade from the right edge and appear on the left, never sliding across.', '700 · 420 crossfade'],
+        ['Any → Closed', 'The board leaves first, then the device narrows. The desk card settles back on the outer display. He goes back to his tea.', '700 · 760'],
+        ['Mid-session, any change', 'The timer never pauses or restarts. Only its size and place change.', 'live'],
+        ['Reduce Motion', 'Every change is a 200 ms crossfade. Nothing slides, zooms or paces.', '200']
+      ].map((r) => ({ a: r[0], w: r[1], t: r[2] }))
+    };
+  }
+}
+</script>
+</body>
+</html>

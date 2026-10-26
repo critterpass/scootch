@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Report card</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Nunito:wght@700;800;900&amp;display=swap">
+<style>
+@font-face{font-family:'Kithfield Hand';src:url(/_blob/14e9dde70c051ba67648e65c4cc548b4) format('woff2');font-weight:700;font-display:swap}
+body{margin:0}
+.r{font-family:ui-rounded,'SF Pro Rounded',Nunito,system-ui,sans-serif}
+.hand{font-family:'Kithfield Hand',ui-rounded,cursive;font-weight:700}
+.glass{background:rgba(255,255,255,0.66);-webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%);border:1px solid rgba(255,255,255,0.9);box-shadow:inset 0 1px 0 rgba(255,255,255,0.95),0 6px 18px rgba(60,40,20,0.08),0 1px 2px rgba(60,40,20,0.06)}
+.press{transition:transform 200ms cubic-bezier(.32,.72,0,1);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.press:active{transform:scale(.97)}
+.lbl{font-size:9px;font-weight:800;letter-spacing:.12em;color:#8A7F74}
+.trow{display:grid;grid-template-columns:92px minmax(0,1fr);column-gap:10px;align-items:baseline;padding:5px 0;border-top:1px solid rgba(28,26,24,0.07);font-size:13.5px}
+.seg{flex:1;height:30px;border:none;border-radius:9px;font:inherit;font-size:13.5px;font-weight:600;cursor:pointer;transition:background-color 240ms,box-shadow 240ms}
+.tape{background:#FFFFFF;box-shadow:0 0 0 1px rgba(28,26,24,0.06);color:transparent;border-radius:2px}
+@media (prefers-reduced-motion: reduce){.press,.seg{transition:none}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #F7F1E8; color: #1C1A18; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', Inter, system-ui, sans-serif">
+  <a href="Logbook.dc.html" class="glass press" aria-label="Back to the logbook" style="position: absolute; top: 52px; left: 16px; width: 40px; height: 40px; border-radius: 20px; display: flex; align-items: center; justify-content: center">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1C1A18" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
+  </a>
+  <div class="glass" role="radiogroup" aria-label="Term" style="position: absolute; top: 52px; right: 16px; width: 196px; height: 40px; border-radius: 20px; padding: 5px; box-sizing: border-box; display: flex; gap: 2px">
+    <sc-for list="{{terms}}" as="item" hint-placeholder-count="2"><button class="seg" role="radio" aria-checked="{{item.on}}" onClick="{{item.pick}}" style="background: {{item.bg}}; box-shadow: {{item.sh}}">{{item.t}}</button></sc-for>
+  </div>
+
+  <header style="position: absolute; top: 104px; left: 20px; right: 20px">
+    <h1 style="margin: 0; font-size: 34px; line-height: 1.1; font-weight: 800; letter-spacing: -0.025em">Report card</h1>
+  </header>
+
+  <article aria-label="Report card, first term" style="position: absolute; top: 180px; left: 16px; right: 16px; height: 520px; border-radius: 8px; background: #FFFDF7; box-shadow: 0 1px 2px rgba(60,40,20,0.06), 0 20px 44px rgba(60,40,20,0.11); overflow: hidden">
+    <div style="height: 8px; background: repeating-linear-gradient(90deg, #2B4C9A 0 18px, #D42A24 18px 36px)"></div>
+    <div style="padding: 14px 18px 0; display: flex; flex-direction: column; gap: 3px">
+      <div style="display: flex; justify-content: space-between; align-items: baseline"><span class="lbl" style="color: #2B4C9A">REPORT CARD</span><span class="lbl">{{term}} · 2026–27</span></div>
+      <div style="display: flex; align-items: baseline; gap: 8px; font-size: 12px; color: #8A7F74; margin-top: 4px">Name<span class="hand" style="flex: 1; font-size: 20px; color: #1C1A18; border-bottom: 1.5px dotted rgba(28,26,24,0.22); padding: 0 2px 1px">Trần Minh Anh</span><span>Class 11A</span></div>
+    </div>
+
+    <div style="padding: 14px 18px 0">
+      <div style="padding-bottom: 6px"><span class="lbl">HANDED IN</span></div>
+      <sc-for list="{{subjects}}" as="item" hint-placeholder-count="4">
+        <div class="trow"><span style="display: flex; flex-direction: column; line-height: 1.2"><b style="font-weight: 700">{{item.vn}}</b></span><span class="hand {{tapeCls}}" style="font-size: 16px; line-height: 1.25; color: #2B4C9A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{item.ex}}</span></div>
+      </sc-for>
+    </div>
+
+    <div style="margin: 12px 18px 0; padding: 9px 12px; border-radius: 12px; background: rgba(28,26,24,0.035); display: flex; flex-direction: column; gap: 2px">
+      <span class="lbl">THE HARDEST ONE</span>
+      <span style="font-size: 14.5px; font-weight: 700"><span class="{{tapeCls}}">Email the dentist</span></span>
+      <span style="font-size: 12.5px; color: #6B655E">Waited nine days. Took eleven minutes.</span>
+    </div>
+
+    <div style="padding: 14px 18px 0; display: flex; flex-direction: column; gap: 4px">
+      <span class="lbl">TEACHER’S COMMENT</span>
+      <p class="hand" style="margin: 2px 0 0; font-size: 18px; line-height: 1.3; color: #C9241E">Hands things in. Argues with the drum less than in September.</p>
+    </div>
+
+    <div style="position: absolute; left: 18px; right: 18px; bottom: 16px; display: flex; justify-content: space-between; align-items: flex-end">
+      <span style="display: flex; flex-direction: column; gap: 4px"><span class="lbl">CONDUCT</span><span style="position: relative; display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 34px"><span class="hand" style="font-size: 22px; color: #C9241E">Good</span><svg width="64" height="34" viewBox="0 0 64 34" aria-hidden="true" style="position: absolute; inset: 0"><path d="M8 18 C6 6 50 2 57 12 C64 22 40 31 22 29 C10 28 4 22 10 14" fill="none" stroke="#C9241E" stroke-width="2" stroke-linecap="round"></path></svg></span></span>
+      <span style="position: relative; display: flex; flex-direction: column; align-items: flex-end; gap: 0">
+        <span aria-hidden="true" style="position: absolute; right: 54px; bottom: 6px; width: 62px; height: 62px; border-radius: 31px; border: 2.5px solid #D42A24; color: #D42A24; display: flex; align-items: center; justify-content: center; transform: rotate(-12deg); mix-blend-mode: multiply; opacity: .8"><span style="font-size: 7.5px; font-weight: 800; letter-spacing: .1em; text-align: center; line-height: 1.3">PHU’S<br>CLASS</span></span>
+        <svg width="84" height="30" viewBox="0 0 84 30" role="img" aria-label="Thầy Phú’s signature"><path d="M5 27 C7 19 8 11 10 3 C15 0 23 4 19 10 C16 14 10 13 8 11 M12 14 C15 9 18 4 20 2 C21 8 18 17 19 24 C20 18 24 13 26 17 C27 21 26 24 29 22 C31 19 31 16 32 15 C32 20 33 24 36 22 C38 20 38 17 39 15 C39 20 40 24 44 21 C52 17 64 16 82 9 M35 9 L40 4" fill="none" stroke="#2B4C9A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        <span class="lbl">HOMEROOM TEACHER</span>
+      </span>
+    </div>
+    <sc-if value="{{later}}" hint-placeholder-val="{{ false }}">
+      <div style="position: absolute; left: 0; right: 0; top: 96px; bottom: 0; background: #FFFDF7; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center; padding: 0 36px">
+        <div style="width: 110px; height: 121px"><dc-import name="Phu" mood="grading" size="110" hint-size="110px,121px"></dc-import></div>
+        <span style="font-size: 17px; font-weight: 700">Term 2 starts in February.</span>
+        <span style="font-size: 14px; line-height: 1.45; color: #6B655E">He writes this page as the term goes. Nothing to read yet.</span>
+      </div>
+    </sc-if>
+  </article>
+
+  <div style="position: absolute; left: 16px; right: 16px; top: 712px; display: flex; flex-direction: column; gap: 10px">
+    <button class="press" onClick="{{toggleTape}}" role="switch" aria-checked="{{hideOn}}" style="height: 44px; border: none; border-radius: 16px; background: #FFFFFF; box-shadow: 0 1px 2px rgba(60,40,20,0.05); padding: 0 8px 0 14px; display: flex; align-items: center; gap: 10px; font: inherit; font-size: 14.5px; color: #1C1A18; cursor: pointer">
+      <span style="flex: 1; text-align: left">Hide task names with white-out</span>
+      <span style="width: 46px; height: 28px; border-radius: 14px; background: {{swBg}}; position: relative; transition: background-color 240ms"><span style="position: absolute; top: 2px; left: {{swX}}; width: 24px; height: 24px; border-radius: 12px; background: #FFFFFF; box-shadow: 0 2px 4px rgba(0,0,0,0.18); transition: left 280ms cubic-bezier(.32,.72,0,1)"></span></span>
+    </button>
+    <div style="display: flex; gap: 10px">
+      <button class="press" style="flex: 1; height: 50px; border: none; border-radius: 25px; background: rgba(28,26,24,0.06); color: #1C1A18; font: inherit; font-size: 16px; font-weight: 700">Print</button>
+      <button class="press" style="flex: 1.6; height: 50px; border: none; border-radius: 25px; background: #1C1A18; color: #FFFFFF; font: inherit; font-size: 16px; font-weight: 700">Share</button>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const S = this.state || {};
+    const term = S.term ?? 0;
+    const hide = S.hide ?? false;
+    const data = [['Paperwork', '', 'Tax receipts, passport'], ['Home', '', 'The sink, bike light'], ['Calls', '', 'Mum, the landlord'], ['Health', '', 'The dentist, at last']];
+    return {
+      term: term ? 'TERM 2' : 'TERM 1',
+      terms: ['Term 1', 'Term 2'].map((t, i) => ({ t, on: String(term === i), bg: term === i ? '#FFFFFF' : 'transparent', sh: term === i ? '0 2px 6px rgba(60,40,20,0.12)' : 'none', pick: () => this.setState({ term: i }) })),
+      subjects: data.map((r) => ({ vn: r[0], en: r[1], ex: r[2] })),
+      later: term === 1,
+      tapeCls: hide ? 'tape' : '',
+      hideOn: String(hide),
+      swBg: hide ? '#34A867' : 'rgba(120,120,128,0.24)',
+      swX: hide ? '20px' : '2px',
+      toggleTape: () => this.setState({ hide: !hide })
+    };
+  }
+}
+</script>
+</body>
+</html>

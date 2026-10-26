@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Day dial</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&amp;display=swap">
+<style>
+body{margin:0;overflow:hidden}
+.dl-free{animation:dlFree 2.8s ease-in-out infinite}
+@keyframes dlFree{0%,100%{opacity:1}50%{opacity:.62}}
+@media (prefers-reduced-motion: reduce){.dl-free{animation:none}}
+</style>
+</helmet>
+<div style="position: relative; width: {{px}}; height: {{px}}; overflow: hidden">
+  <svg viewBox="0 0 240 240" width="100%" height="100%" style="display: block" role="img" aria-label="{{label}}">
+    <defs>
+      <filter id="dlKnob" x="-60%" y="-60%" width="220%" height="220%"><feDropShadow dx="0" dy="1.5" stdDeviation="2" flood-color="#3C2814" flood-opacity="0.28"></feDropShadow></filter>
+    </defs>
+    <path d="{{track}}" fill="none" stroke="{{trackColor}}" stroke-width="18" stroke-linecap="round"></path>
+    <sc-for list="{{arcs}}" as="a" hint-placeholder-count="6">
+      <path class="{{a.cls}}" d="{{a.d}}" fill="none" stroke="{{a.c}}" stroke-width="18" stroke-linecap="round" opacity="{{a.op}}"></path>
+    </sc-for>
+    <sc-for list="{{nums}}" as="t" hint-placeholder-count="3">
+      <text x="{{t.x}}" y="{{t.y}}" text-anchor="middle" dominant-baseline="central" font-family="ui-rounded, 'SF Pro Rounded', Nunito, system-ui, sans-serif" font-weight="700" font-size="11" fill="{{numColor}}">{{t.l}}</text>
+    </sc-for>
+    <circle cx="120" cy="120" r="66" fill="{{face}}"></circle>
+    <circle cx="{{hx}}" cy="{{hy}}" r="10.5" fill="{{knob}}" filter="url(#dlKnob)"></circle>
+    <circle cx="{{hx}}" cy="{{hy}}" r="4" fill="{{dot}}"></circle>
+    <text x="120" y="212" text-anchor="middle" dominant-baseline="central" font-family="ui-rounded, 'SF Pro Rounded', Nunito, system-ui, sans-serif" font-weight="800" font-size="11.5" letter-spacing="0.6" fill="#D42A24">{{caption}}</text>
+  </svg>
+  <div style="position: absolute; left: 50%; top: 50%; width: {{facePx}}; height: {{facePx}}; margin-left: {{faceOff}}; margin-top: {{faceOff}}; border-radius: 50%; overflow: hidden; display: flex; justify-content: center">
+    <span style="margin-top: {{phuTop}}"><dc-import name="Phu" mood="{{mood}}" size="{{phuSize}}" hint-size="100%,100%"></dc-import></span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"size":{"editor":"int","default":240,"min":80,"max":600},"now":{"editor":"float","default":8.2},"dark":{"editor":"boolean","default":false},"booked":{"editor":"boolean","default":false},"empty":{"editor":"boolean","default":false},"mood":{"editor":"enum","options":["over","calm","grading","sleep","point","watch"],"default":"over"},"$preview":{"width":240,"height":240}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const size = Number(this.props.size ?? 240) || 240;
+    const now = Number(this.props.now ?? 8.2);
+    const dark = this.props.dark === true || this.props.dark === 'true';
+    const booked = this.props.booked === true || this.props.booked === 'true';
+    const empty = this.props.empty === true || this.props.empty === 'true';
+    const deg = (h) => -150 + (h - 7) * 30;
+    const pt = (r, d) => { const a = d * Math.PI / 180; return [120 + r * Math.sin(a), 120 - r * Math.cos(a)]; };
+    const f = (p) => p[0].toFixed(1) + ' ' + p[1].toFixed(1);
+    const arc = (r, h1, h2, inset) => {
+      const d1 = deg(h1) + inset, d2 = Math.max(d1 + 0.5, deg(h2) - inset);
+      return 'M' + f(pt(r, d1)) + ' A' + r + ' ' + r + ' 0 ' + (d2 - d1 > 180 ? 1 : 0) + ' 1 ' + f(pt(r, d2));
+    };
+    const ev = empty ? [] : [
+      { a: 8, b: 8.5, kind: 'class' },
+      { a: 8.5, b: 10, kind: booked ? 'booked' : 'free' },
+      { a: 10, b: 11, kind: 'class' },
+      { a: 12.5, b: 13.5, kind: 'class' },
+      { a: 14.0, b: 15, kind: 'free' },
+      { a: 15, b: 15.75, kind: 'class' }
+    ];
+    const colors = dark
+      ? { class: '#5E6B7D', free: 'rgba(226,69,62,0.58)', booked: '#E2453E' }
+      : { class: '#BCC6D3', free: '#F2A49B', booked: '#D42A24' };
+    const ahead = ev.filter((e) => e.kind === 'free' && e.b > now).length;
+    const d = deg(now);
+    return {
+      px: size + 'px',
+      label: 'Today’s timetable as a dial. ' + ahead + ' free periods left.',
+      track: arc(94, 7, 17, 0),
+      trackColor: dark ? 'rgba(255,255,255,0.08)' : '#F1E8DA',
+      arcs: ev.map((e) => ({
+        d: arc(94, e.a, e.b, 3.2),
+        c: colors[e.kind],
+        op: e.b <= now ? 0.4 : 1,
+        cls: e.kind === 'free' && e.b > now ? 'dl-free' : ''
+      })),
+      hx: pt(94, d)[0].toFixed(1),
+      hy: pt(94, d)[1].toFixed(1),
+      knob: dark ? '#F7F1E8' : '#FFFFFF',
+      dot: '#1C1A18',
+      nums: [8, 12, 16].map((h) => { const q = pt(73, deg(h)); return { x: q[0].toFixed(1), y: q[1].toFixed(1), l: String(h) }; }),
+      numColor: dark ? 'rgba(255,255,255,0.42)' : '#B4AA9E',
+      face: dark ? 'rgba(255,255,255,0.06)' : '#FFF4E4',
+      caption: empty ? 'NO CLASSES' : ahead ? ahead + (ahead > 1 ? ' FREE PERIODS' : ' FREE PERIOD') : 'NO FREE PERIODS',
+      facePx: Math.round(size * 0.44) + 'px',
+      faceOff: Math.round(-size * 0.22) + 'px',
+      phuSize: String(Math.round(size * 0.56)),
+      phuTop: Math.round(-size * 0.05) + 'px',
+      mood: this.props.mood || 'over'
+    };
+  }
+}
+</script>
+</body>
+</html>
