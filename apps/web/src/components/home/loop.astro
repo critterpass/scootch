@@ -1,0 +1,158 @@
+---
+import type { Language } from '@phusclass/i18n';
+
+import { copyFor } from '../../copy';
+import Phu, { type Mood } from '../phu.astro';
+import Prop from '../prop.astro';
+
+interface Props {
+  language: Language;
+}
+
+// One period, in five scenes: say it, he picks, the fuse, the drum, the red pen.
+const { language } = Astro.props;
+const loop = copyFor(language).home.loop;
+const pressure: readonly Mood[] = ['calm', 'over', 'crossed', 'ruler', 'name', 'stare'];
+const said = copyFor(language).home.hero.board;
+---
+
+<section class="band loop" id="loop" aria-labelledby="loop-title">
+  <div class="wrap">
+    <p class="eyebrow">{loop.eyebrow}</p>
+    <h2 id="loop-title" class="section-title">{loop.title}</h2>
+
+    <ol class="scenes">
+      <li class="scene-row" data-reveal>
+        <div class="scene-words">
+          <span class="scene-number hand" aria-hidden="true">1</span>
+          <h3>{loop.say.title}</h3>
+          <p>{loop.say.body}</p>
+        </div>
+        <div class="scene-art say-art" aria-hidden="true">
+          <p class="said">{loop.say.said}</p>
+          <div class="mini-board board">
+            {
+              said.map((item, index) => (
+                <p class="hand flying-note" style={`--i:${index}`}>
+                  {item}
+                </p>
+              ))
+            }
+          </div>
+        </div>
+      </li>
+
+      <li class="scene-row" data-reveal>
+        <div class="scene-words">
+          <span class="scene-number hand" aria-hidden="true">2</span>
+          <h3>{loop.pick.title}</h3>
+          <p>{loop.pick.body}</p>
+          <blockquote class="his-line hand">“{loop.pick.line}”</blockquote>
+        </div>
+        <div class="scene-art pick-art" aria-hidden="true">
+          <Phu mood="point" class="pick-phu" />
+          <div class="desk-top">
+            <p class="index-card hand">{loop.pick.task}</p>
+          </div>
+        </div>
+      </li>
+
+      <li class="scene-row fuse-row" data-reveal>
+        <div class="scene-words">
+          <span class="scene-number hand" aria-hidden="true">3</span>
+          <h3>{loop.fuse.title}</h3>
+          <p>{loop.fuse.body}</p>
+          <p class="small">{loop.fuse.hint}</p>
+        </div>
+        <div class="fuse" data-fuse data-step="0">
+          <div class="fuse-stage">
+            <div class="fuse-faces">
+              {
+                pressure.map((mood, index) => (
+                  <Phu mood={mood} class:list={['fuse-face', { on: index === 0 }]} />
+                ))
+              }
+            </div>
+            <div class="fuse-drum" aria-hidden="true">
+              <Prop name="drum" />
+              <p class="hand">{loop.drum.beat}</p>
+            </div>
+          </div>
+          <div class="fuse-words" aria-live="polite">
+            {
+              loop.fuse.steps.map((step, index) => (
+                <div class="fuse-say" data-say={index} hidden={index !== 0}>
+                  <p class="hand fuse-line">“{step.line}”</p>
+                  <p class="small">{step.pose}</p>
+                </div>
+              ))
+            }
+          </div>
+          <div class="fuse-controls">
+            <div class="fuse-steps" role="group" aria-label={loop.fuse.stepsLabel}>
+              {
+                pressure.map((_, index) => (
+                  <button
+                    type="button"
+                    data-step-to={index}
+                    aria-pressed={index === 0 ? 'true' : 'false'}
+                    aria-label={loop.fuse.step.replace('{n}', String(index))}
+                  >
+                    {index}
+                  </button>
+                ))
+              }
+            </div>
+            <button type="button" class="fuse-start" data-fuse-start>
+              <span>{loop.fuse.start}</span>
+            </button>
+          </div>
+        </div>
+      </li>
+
+      <li class="scene-row" data-reveal>
+        <div class="scene-words">
+          <span class="scene-number hand" aria-hidden="true">4</span>
+          <h3>{loop.drum.title}</h3>
+          <p>{loop.drum.body}</p>
+        </div>
+        <div class="scene-art drum-art" aria-hidden="true">
+          <Prop name="drum" class="drum-big" />
+          <p class="beats hand">
+            {loop.drum.beat.split(' ').map((beat, index) => <span style={`--i:${index}`}>{beat}</span>)}
+          </p>
+          <Phu mood="grading" class="drum-phu" />
+        </div>
+      </li>
+
+      <li class="scene-row" data-reveal>
+        <div class="scene-words">
+          <span class="scene-number hand" aria-hidden="true">5</span>
+          <h3>{loop.pen.title}</h3>
+          <p>{loop.pen.body}</p>
+          <p class="small">{loop.pen.tenNote}</p>
+        </div>
+        <div class="scene-art pen-art">
+          <div class="test-paper">
+            <p class="hand paper-task">{loop.pen.paper}</p>
+            <p class="paper-waited">{loop.pen.waited}</p>
+            <svg class="red-check" viewBox="0 0 120 90" aria-hidden="true">
+              <path d="M10 50 L42 78 L110 10" pathLength="1"></path>
+            </svg>
+            <ul class="ladder hand">
+              {loop.pen.ladder.map((comment) => <li>{comment}</li>)}
+              <li class="ten">{loop.pen.ten}</li>
+            </ul>
+          </div>
+          <Phu mood="approve" class="pen-phu" />
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<script>
+  import { startFuse } from '../../scripts/fuse';
+
+  for (const fuse of document.querySelectorAll<HTMLElement>('[data-fuse]')) startFuse(fuse);
+</script>

@@ -1,0 +1,103 @@
+---
+import type { Language } from '@phusclass/i18n';
+
+import { copyFor, localPath } from '../../copy';
+import Phu from '../phu.astro';
+import Prop from '../prop.astro';
+
+interface Props {
+  language: Language;
+}
+
+// The happenings, the seasons and the carved desk: the classroom is where the surprise lives.
+const { language } = Astro.props;
+const never = copyFor(language).home.never;
+const rules = copyFor(language).home.rules;
+---
+
+<section class="band never" aria-labelledby="never-title">
+  <div class="wrap">
+    <p class="eyebrow">{never.eyebrow}</p>
+    <h2 id="never-title" class="section-title">{never.title}</h2>
+    <p class="lede">{never.lede}</p>
+
+    <ul class="happenings">
+      {
+        never.happenings.map((item, index) => (
+          <li class="happening" data-reveal style={`--i:${index}`}>
+            <Prop name={item.art} class="happening-art" />
+            <div>
+              <h3>{item.title}</h3>
+              {item.line !== '' && <p class="hand his">“{item.line}”</p>}
+              {item.after !== '' && <p class="small">{item.after}</p>}
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+
+    <h3 class="sub-title">{never.seasonsTitle}</h3>
+    <ul class="seasons">
+      {
+        never.seasons.map((season, index) => (
+          <li class="season" data-reveal style={`--i:${index}`}>
+            <Prop name={season.art} class="season-art" />
+            <p class="hand season-name">{season.title}</p>
+            <p class="small">{season.body}</p>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="desk-remembers" data-reveal>
+      <div>
+        <h3>{never.deskTitle}</h3>
+        <p>{never.deskBody}</p>
+      </div>
+      <div class="carved" aria-hidden="true">
+        <svg viewBox="0 0 400 170">
+          <path d="M40 20 H360 L392 130 H8 Z" fill="#E8B07A"></path>
+          <path d="M8 130 H392 V148 H8 Z" fill="#C8884F"></path>
+          <path d="M30 148 H52 V170 H30 Z M348 148 H370 V170 H348 Z" fill="#8A5A36"></path>
+          <g fill="none" stroke="#A9733F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path class="carving" style="--i:0" d="M80 46 l6 12 13 2 -10 9 3 13 -12 -7 -12 7 3 -13 -10 -9 13 -2 Z"></path>
+            <path class="carving" style="--i:1" d="M150 64 c-8 -10 -22 -2 -14 10 l14 14 14 -14 c8 -12 -6 -20 -14 -10 Z"></path>
+            <text class="carving" style="--i:2" x="196" y="96" fill="#A9733F" stroke="none" font-family="Kithfield Hand, cursive" font-size="34" transform="rotate(-4 220 90)">M.A</text>
+            <path class="carving" style="--i:3" d="M290 50 c18 -8 36 -8 50 0 M296 64 h38"></path>
+            <circle class="carving" style="--i:4" cx="320" cy="100" r="16"></circle>
+            <path class="carving" style="--i:4" d="M312 94 v14 M320 94 c6 0 6 14 0 14 c-6 0 -6 -14 0 -14"></path>
+          </g>
+          <path class="carving gold" style="--i:5" d="M110 100 l5 10 11 2 -8 8 2 11 -10 -5 -10 5 2 -11 -8 -8 11 -2 Z" fill="#FFC93C"></path>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band rules" aria-labelledby="rules-title">
+  <div class="wrap rules-grid">
+    <div class="board rules-board" data-reveal>
+      <p class="eyebrow">{rules.eyebrow}</p>
+      <h2 id="rules-title" class="section-title">{rules.title}</h2>
+      <ul class="struck">
+        {
+          rules.struck.map((item, index) => (
+            <li class="hand" style={`--i:${index}`}>
+              <span>{item}</span>
+            </li>
+          ))
+        }
+      </ul>
+      <p>{rules.body}</p>
+    </div>
+    <div class="heavy">
+      <Phu mood="serious" label={rules.heavyArt} class="heavy-phu" />
+      <h3>{rules.heavyTitle}</h3>
+      <p>{rules.heavyBody}</p>
+      <p>{rules.crisisBody}</p>
+      <a class="button button-quiet" href={localPath(language, "/helplines")}>
+        {rules.helplines}
+      </a>
+    </div>
+  </div>
+</section>

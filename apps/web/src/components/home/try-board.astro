@@ -1,0 +1,73 @@
+---
+import type { Language } from '@phusclass/i18n';
+
+import { copyFor, localPath } from '../../copy';
+import AppStoreBadge from '../app-store-badge.astro';
+import Phu from '../phu.astro';
+
+interface Props {
+  language: Language;
+}
+
+// A chalkboard to try him on: a task typed here gets one line from a small offline set. Nothing
+// leaves the page. The phone's care gate runs first: a heavy task gets a plain answer, and a
+// crisis gets no Thầy Phú at all, only the way to a helpline.
+const { language } = Astro.props;
+const copy = copyFor(language).home;
+const tryIt = copy.tryIt;
+---
+
+<section class="band try" aria-labelledby="try-title">
+  <div class="wrap">
+    <div class="board try-board" data-try data-language={language} data-empty={tryIt.empty} data-plain={tryIt.plain}>
+      <div class="try-words">
+        <p class="eyebrow">{tryIt.eyebrow}</p>
+        <h2 id="try-title" class="section-title">{tryIt.title}</h2>
+        <form class="try-form" data-try-form>
+          <label class="sr-only" for="try-task">{tryIt.label}</label>
+          <input
+            id="try-task"
+            class="hand"
+            name="task"
+            type="text"
+            maxlength="120"
+            autocomplete="off"
+            enterkeyhint="done"
+            placeholder={tryIt.placeholder}
+          />
+          <button type="submit" class="button button-chalk">{tryIt.button}</button>
+        </form>
+        <p class="small chalk-note">{tryIt.note}</p>
+      </div>
+      <div class="try-answer" aria-live="polite">
+        <p class="hand try-task" data-try-task></p>
+        <div class="try-reply" data-try-reply>
+          <Phu mood="over" class="try-phu try-phu-act" />
+          <Phu mood="calm" class="try-phu try-phu-plain" />
+          <p class="bubble hand" data-try-line>{tryIt.empty}</p>
+        </div>
+        <div class="try-care" data-try-care hidden>
+          <p>{tryIt.crisis}</p>
+          <a class="button button-quiet" href={localPath(language, '/helplines')}>{tryIt.crisisLink}</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band end">
+  <div class="wrap end-row">
+    <Phu mood="wave" class="end-phu" />
+    <div>
+      <h2 class="hand end-title">{copy.end.title}</h2>
+      <p>{copy.end.body}</p>
+      <AppStoreBadge language={language} />
+    </div>
+  </div>
+</section>
+
+<script>
+  import { startTryBoard } from '../../scripts/try-board';
+
+  for (const board of document.querySelectorAll<HTMLElement>('[data-try]')) startTryBoard(board);
+</script>

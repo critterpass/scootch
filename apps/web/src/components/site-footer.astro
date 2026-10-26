@@ -1,74 +1,55 @@
 ---
 import type { Language } from '@phusclass/i18n';
 
-import { copyFor, localPath } from '../copy';
+import { copyFor, localPath, type SitePage } from '../copy';
 
 interface Props {
   language: Language;
-  path: `/${string}`;
+  path: SitePage;
 }
 
 const { language, path } = Astro.props;
 const copy = copyFor(language);
 const other: Language = language === 'en' ? 'vi' : 'en';
-const to = (page: `/${string}`) => localPath(language, page);
-
-const groups = [
-  {
-    title: copy.footer.brand,
-    links: [
-      { href: `${to('/help')}#isnt`, label: copy.footer.whatItIs },
-      { href: to('/support'), label: copy.footer.support },
-    ],
-  },
-  {
-    title: copy.footer.help,
-    links: [
-      { href: to('/help'), label: copy.footer.help },
-      { href: to('/helplines'), label: copy.footer.helplines },
-      { href: to('/privacy'), label: copy.footer.privacy },
-      { href: to('/terms'), label: copy.footer.terms },
-    ],
-  },
+const to = (page: SitePage) => localPath(language, page);
+const links = [
+  { href: to('/'), label: copy.footer.home },
+  { href: to('/tuition'), label: copy.footer.tuition },
+  { href: to('/support'), label: copy.footer.support },
+  { href: to('/helplines'), label: copy.footer.helplines },
+  { href: to('/privacy'), label: copy.footer.privacy },
+  { href: to('/terms'), label: copy.footer.terms },
 ];
 ---
 
-<footer class="site-footer on-night">
-  <div class="wrap">
-    <div class="footer-top">
-      <div class="footer-brand">
-        <a class="logo" href={to('/')} aria-label={copy.brand.name}>{copy.brand.name}<span>.</span></a>
-        <p>{copy.footer.tagline}</p>
-      </div>
-      {
-        groups.map((group) => (
-          <div class="footer-group">
-            <h2>{group.title}</h2>
-            <ul>
-              {group.links.map((link) => (
-                <li>
-                  <a href={link.href}>{link.label}</a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))
-      }
-      <div class="care-card">
-        <h2>{copy.footer.hardTime}</h2>
-        <p>{copy.footer.hardBody}</p>
-        <a href={to('/helplines')}>{copy.footer.findHelpline}</a>
-      </div>
+<footer class="site-footer board">
+  <div class="wrap footer-grid">
+    <div class="footer-brand">
+      <p class="hand footer-name">{copy.brand.name}</p>
+      <p>{copy.footer.tagline}</p>
     </div>
-    <div class="footer-mark" aria-hidden="true">
-      <span class="wordmark">{copy.brand.name}<span>.</span></span>
+    <nav class="footer-links" aria-label={copy.footer.pages}>
+      <ul>
+        {
+          links.map((link) => (
+            <li>
+              <a href={link.href}>{link.label}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    <div class="care-card">
+      <h2>{copy.footer.hardTime}</h2>
+      <p>{copy.footer.hardBody}</p>
+      <a href={to('/helplines')}>{copy.footer.findHelpline}</a>
     </div>
-    <div class="footer-end">
-      <p>{copy.footer.supportTool}</p>
-      <p>
-        {copy.footer.copyright} ·
-        <a href={localPath(other, path)} lang={other} hreflang={other}>{copy.footer.otherLanguage}</a>
-      </p>
-    </div>
+  </div>
+  <div class="wrap footer-end">
+    <p>{copy.footer.supportTool}</p>
+    <p>
+      {copy.footer.publisher} ·
+      <a href={localPath(other, path)} lang={other} hreflang={other}>{copy.nav.otherLanguage}</a>
+    </p>
   </div>
 </footer>

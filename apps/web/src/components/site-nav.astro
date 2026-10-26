@@ -1,22 +1,30 @@
 ---
 import type { Language } from '@phusclass/i18n';
 
-import { appStoreUrl, copyFor, localPath, preLaunch } from '../copy';
+import { appStoreUrl, copyFor, localPath, preLaunch, type SitePage } from '../copy';
 
 interface Props {
   language: Language;
-  path: `/${string}`;
+  path: SitePage;
 }
 
 const { language, path } = Astro.props;
 const copy = copyFor(language);
+const other: Language = language === 'en' ? 'vi' : 'en';
 const home = localPath(language, '/');
-const links = [{ href: localPath(language, '/help'), label: copy.nav.help, current: path === '/help' }];
+const links = [
+  { href: `${home}#loop`, label: copy.nav.loop, current: false },
+  { href: localPath(language, '/tuition'), label: copy.nav.tuition, current: path === '/tuition' },
+  { href: localPath(language, '/support'), label: copy.nav.support, current: path === '/support' },
+];
 ---
 
 <header class="site-nav">
-  <div class="wrap site-nav-row">
-    <a class="logo" href={home} aria-label={copy.brand.name}>{copy.brand.name}<span>.</span></a>
+  <div class="wrap nav-row">
+    <a class="nav-brand" href={home}>
+      <img src="/favicon.svg" alt="" width="36" height="36" />
+      <span class="hand">{copy.brand.name}</span>
+    </a>
     <nav class="nav-links" aria-label={copy.nav.label}>
       {
         links.map((link) => (
@@ -26,11 +34,18 @@ const links = [{ href: localPath(language, '/help'), label: copy.nav.help, curre
         ))
       }
     </nav>
+    <a
+      class="nav-language"
+      href={localPath(other, path)}
+      lang={other}
+      hreflang={other}
+      aria-label={copy.nav.otherLanguageLabel}
+      data-language-switch>{copy.nav.otherLanguage}</a
+    >
     {
       !preLaunch && (
-        <a class="get-capsule" href={appStoreUrl} data-magnet>
+        <a class="button button-red nav-get" href={appStoreUrl}>
           {copy.nav.getTheApp}
-          <span class="dot" aria-hidden="true">↓</span>
         </a>
       )
     }
@@ -46,8 +61,5 @@ const links = [{ href: localPath(language, '/help'), label: copy.nav.help, curre
         }
       </nav>
     </details>
-  </div>
-  <div class="scroll-line" aria-hidden="true">
-    <div class="scroll-line-fill" data-scroll-fill></div>
   </div>
 </header>

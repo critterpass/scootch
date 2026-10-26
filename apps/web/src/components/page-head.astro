@@ -1,0 +1,26 @@
+---
+import Phu, { type Mood } from './phu.astro';
+
+interface Props {
+  eyebrow?: string;
+  headline: string;
+  lede: string;
+  /** Thầy Phú beside the headline; none on a quiet page. */
+  mood?: Mood;
+}
+
+// The top of an inner page: a strip of chalkboard with the headline written on it.
+const { eyebrow = '', headline, lede, mood } = Astro.props;
+---
+
+<header class="page-head board">
+  <div class="wrap page-head-row">
+    <div class="page-head-words">
+      {eyebrow !== '' && <p class="eyebrow">{eyebrow}</p>}
+      <h1 class="hand page-title">{headline}</h1>
+      <p class="lede">{lede}</p>
+      <slot />
+    </div>
+    {mood && <Phu mood={mood} class="page-head-phu" />}
+  </div>
+</header>

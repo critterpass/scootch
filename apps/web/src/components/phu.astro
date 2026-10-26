@@ -1,0 +1,41 @@
+---
+import { drawingIds } from '../lib/drawing-ids';
+
+// Thầy Phú in one pose, drawn from `design/phus-class/Phu.dc.html` (the files in `src/art/phu`).
+// Inlined so that he can move with the page; each drawing gets ids of its own.
+const drawings = import.meta.glob<string>('../art/phu/*.svg', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+});
+
+export type Mood =
+  | 'calm'
+  | 'over'
+  | 'crossed'
+  | 'ruler'
+  | 'name'
+  | 'stare'
+  | 'approve'
+  | 'grading'
+  | 'serious'
+  | 'surprised'
+  | 'laugh'
+  | 'moved'
+  | 'think'
+  | 'point'
+  | 'wave'
+  | 'sleep';
+
+interface Props {
+  mood: Mood;
+  /** What he is doing, for anyone who cannot see him. Empty when the words beside him say it. */
+  label?: string;
+  class?: string;
+}
+
+const { mood, label = '', class: className } = Astro.props;
+const svg = drawingIds(drawings[`../art/phu/${mood}.svg`] ?? '', label);
+---
+
+<span class:list={['phu', `phu-${mood}`, className]} set:html={svg} />

@@ -1,14 +1,15 @@
 ---
-import { languagePaths, plainFor } from '../../copy';
+import { helpFor, languagePaths, pageLanguage } from '../../copy';
 import SiteLayout from '../../layouts/site-layout.astro';
 import { VIETNAM, findAHelpline, helplineRows, type HelplineRow } from '../../lib/helplines';
 
 export const getStaticPaths = languagePaths;
-const language = Astro.params.lang === 'vi' ? 'vi' : 'en';
-const copy = plainFor(language).helplines;
+const language = pageLanguage(Astro.params.lang);
+const copy = helpFor(language).helplines;
 
-// No joke on this page. Vietnam comes first for a reader in Vietnamese, and its
-// block ends with the directory: Vietnam has no line for adults that is open around the clock.
+// No joke on this page, no Thầy Phú and no motion. Vietnam comes first for a reader in
+// Vietnamese, and its block ends with the directory: Vietnam has no line for adults that is open
+// around the clock.
 const find = { href: findAHelpline.href, label: findAHelpline.label };
 const all = helplineRows(language);
 const inVietnam = (row: HelplineRow) => row.region === VIETNAM;
@@ -22,8 +23,8 @@ const rows = [
 ];
 ---
 
-<SiteLayout language={language} path="/helplines" title={copy.title} description={copy.description}>
-  <article class="wrap plain helplines">
+<SiteLayout language={language} path="/helplines" title={copy.title} description={copy.description} quiet>
+  <article class="wrap doc helplines">
     <h1>{copy.headline}</h1>
     <p class="lede">{copy.intro}</p>
     <ul class="helpline-list" data-helplines>

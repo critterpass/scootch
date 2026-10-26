@@ -1,0 +1,27 @@
+---
+import type { Language } from '@phusclass/i18n';
+
+import { copyFor } from '../../copy';
+import SiteLayout from '../../layouts/site-layout.astro';
+
+import Hero from './hero.astro';
+import Loop from './loop.astro';
+import NeverTwice from './never-twice.astro';
+import TryBoard from './try-board.astro';
+import TuitionFaq from './tuition-faq.astro';
+
+interface Props {
+  language: Language;
+}
+
+const { language } = Astro.props;
+const home = copyFor(language).home;
+---
+
+<SiteLayout language={language} path="/" title={home.title} description={home.description}>
+  <Hero language={language} />
+  <Loop language={language} />
+  <NeverTwice language={language} />
+  <TuitionFaq language={language} />
+  <TryBoard language={language} />
+</SiteLayout>

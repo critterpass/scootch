@@ -8,6 +8,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "typecheck": "astro check",
+    "images": "node scripts/make-images.mjs",
     "bundle:pre-launch": "PUBLIC_PRE_LAUNCH=1 astro build --outDir dist-pre-launch",
     "test:site": "pnpm run bundle:pre-launch && playwright test -c tests/playwright.config.ts"
   },

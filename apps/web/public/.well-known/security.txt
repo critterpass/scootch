@@ -1,0 +1,4 @@
+Contact: mailto:hello@phusclass.com
+Expires: 2027-10-27T00:00:00.000Z
+Preferred-Languages: en, vi
+Canonical: https://phusclass.com/.well-known/security.txt
