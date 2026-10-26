@@ -1,0 +1,85 @@
+appId: com.phusclass.dev
+---
+# The fresh-user walk, the board and the logbook: pull the chalkboard down off the desk into the
+# board, swap a task onto the desk, push the board back up; then pull the logbook down from the
+# board and push it back. The desk publishes its chalkboard as `desk-chalkboard`; until the desk
+# draws it there is no way onto the board from the desk, and this step waits for it.
+- runFlow:
+    when:
+      visible:
+        id: 'desk-chalkboard'
+    commands:
+      # Pull down on the desk: the chalkboard grows into the board.
+      - swipe:
+          from:
+            id: 'desk-chalkboard'
+          direction: DOWN
+          duration: 700
+      - extendedWaitUntil:
+          visible:
+            id: 'board'
+          timeout: 10000
+      - takeScreenshot: fresh-board-open
+      # A task onto the desk, through the row's menu (the tap way to the swipe).
+      - runFlow:
+          when:
+            visible:
+              id: 'board-row-1'
+          commands:
+            - tapOn:
+                id: 'board-row-1'
+            - tapOn:
+                id: 'board-menu-desk'
+            - extendedWaitUntil:
+                notVisible:
+                  id: 'board-menu'
+                timeout: 5000
+            - takeScreenshot: fresh-board-swapped
+      # The ledge pushes the board back up, onto the desk.
+      - tapOn:
+          id: 'board-close'
+      - extendedWaitUntil:
+          notVisible:
+            id: 'board'
+          timeout: 10000
+      - assertVisible:
+          id: 'desk-chalkboard'
+      # Tapping the chalkboard opens the board too.
+      - tapOn:
+          id: 'desk-chalkboard'
+      - extendedWaitUntil:
+          visible:
+            id: 'board'
+          timeout: 10000
+      # Pull down on the board's heading: the logbook page lowers from the top.
+      - swipe:
+          from:
+            id: 'board-timetable'
+          direction: DOWN
+          duration: 700
+      - extendedWaitUntil:
+          visible:
+            id: 'logbook-screen'
+          timeout: 10000
+      - takeScreenshot: fresh-logbook-open
+      - tapOn:
+          id: 'logbook-close'
+      - extendedWaitUntil:
+          notVisible:
+            id: 'logbook-screen'
+          timeout: 10000
+      # The tap way to the logbook, and back.
+      - tapOn:
+          id: 'board-logbook'
+      - extendedWaitUntil:
+          visible:
+            id: 'logbook-screen'
+          timeout: 10000
+      - tapOn:
+          id: 'logbook-close'
+      - tapOn:
+          id: 'board-close'
+      - extendedWaitUntil:
+          visible:
+            id: 'desk-chalkboard'
+          timeout: 10000
