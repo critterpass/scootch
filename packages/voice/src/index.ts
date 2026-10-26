@@ -1,10 +1,3 @@
-// The voice guide, the line checker and the offline lines. Eval sets live in `evals/`.
-export * from './check';
-export * from './context-words';
-export * from './grounding';
-export * from './guide';
-export * from './line-rules';
-export * from './offline';
-export * from './offline/choose';
-export * from './task-lines';
+// Thầy Phú's offline voice and its line check live in `./class`. Eval sets live in `evals/`.
+export * from './class';
 export { normalise, stripMarks, vietnameseShare, wordsOf } from './text';

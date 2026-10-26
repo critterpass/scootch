@@ -86,7 +86,7 @@ phone cannot.
 | Picking and splitting | The phone, as rules in `packages/domain`: the pick order, deadlines, heard times and splitting a ramble | Ported from the server's task call. Where Apple's on-device model is available (iOS 26 and later) it splits rambles and words lines through a small native module (native batch two); the rules are the fallback and never wait on it |
 | Serious-mode and crisis screen | The phone's keyword gate first, offline; then Jev when online | A task said offline stays plain ("Written down.") until Jev screens it when the connection returns. The on-device model may only add caution, never clear a task |
 | His lines | The offline pack first (`packages/voice/offline/`), written per language | The server writes a fresh line only for a task the pack has no good line for, when online and screened |
-| Fresh lines | DeepSeek, on the server | Every line passes the code check (`packages/voice/src/check.ts`) before it is shown |
+| Fresh lines | DeepSeek, on the server | Every line passes the code check (`packages/voice/src/class/check.ts`) before it is shown |
 | The timetable | The phone reads the calendar | Events never leave the phone; the calendar is never edited |
 | Share images | The phone draws them | Nothing is uploaded to make a card |
 

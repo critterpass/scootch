@@ -1,5 +1,3 @@
-import type { WordList } from './guide/types';
-
 const vietnameseLetter = /[àáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/;
 
 /** Lower case, composed accents, straight apostrophes and single spaces. */
@@ -27,21 +25,4 @@ export function vietnameseShare(text: string): number {
   const words = wordsOf(text);
   if (words.length === 0) return 0;
   return words.filter((word) => vietnameseLetter.test(word)).length / words.length;
-}
-
-function escapeForPattern(text: string): string {
-  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-/** One pattern that finds any entry of a word list as a whole word or phrase. */
-export function wordListPattern(list: WordList): RegExp {
-  const entries = list.map((entry) => {
-    const open = entry.endsWith('*');
-    const body = normalise(open ? entry.slice(0, -1) : entry)
-      .split(' ')
-      .map(escapeForPattern)
-      .join('[\\s-]+');
-    return open ? `${body}[\\p{L}]*` : body;
-  });
-  return new RegExp(`(?<![\\p{L}\\p{N}])(?:${entries.join('|')})(?![\\p{L}\\p{N}])`, 'u');
 }

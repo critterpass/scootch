@@ -3,10 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Prompts, the voice guide, offline lines and eval sets",
+  "description": "Thầy Phú's offline voice, its line check, and the screening eval set",
   "sideEffects": false,
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./class": "./src/class/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
