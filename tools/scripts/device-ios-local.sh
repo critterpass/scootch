@@ -86,8 +86,12 @@ echo $$ >"$lock/pid"
 held=true
 
 # One simulator for local runs, erased each time: a clean install with no permission granted.
+# The newest iOS runtime that can run the device: a point release may ship for one device only.
 runtime=$(xcrun simctl list runtimes -j |
-  jq -r '[.runtimes[] | select(.isAvailable and .platform == "iOS")] | sort_by(.version | split(".") | map(tonumber)) | last | .identifier')
+  jq -r --arg device "$device" '[.runtimes[] | select(.isAvailable and .platform == "iOS")
+    | select([.supportedDeviceTypes[]?.name] | index($device))]
+    | sort_by(.version | split(".") | map(tonumber)) | last | .identifier // empty')
+[ -n "$runtime" ] || { echo "No available iOS runtime runs \"$device\"." >&2; exit 1; }
 udid=$(xcrun simctl list devices -j |
   jq -r --arg name "$sim_name" --arg rt "$runtime" '.devices[$rt][]? | select(.name == $name) | .udid' | head -1)
 if [ -z "$udid" ]; then udid=$(xcrun simctl create "$sim_name" "$device" "$runtime"); fi
