@@ -3,7 +3,7 @@
 Interface strings in English and Vietnamese: buttons, labels, settings and system copy. Plain
 TypeScript, so the same package runs in the app, the website and the Worker.
 
-**Lines Scootch speaks never go here.** They are written per language by the AI routes, or come
+**Lines Thầy Phú speaks never go here.** They are written per language by the AI routes, or come
 from `packages/voice/offline/`. This package holds only what the interface itself says.
 
 ## Use
@@ -12,8 +12,8 @@ from `packages/voice/offline/`. This package holds only what the interface itsel
 import { pickLanguage, t } from '@phusclass/i18n';
 
 const language = pickLanguage(deviceLocales, storedChoice); // 'vi' or 'en'
-t(language, 'talk.hold'); // 'Giữ để nói'
-t(language, 'world.thingsLiveHere', { count: 7 });
+t(language, 'desk.sit'); // 'Ngồi.'
+t(language, 'care.helpline.hours.dayRange', { first: 'Thứ 2', last: 'Thứ 6' });
 ```
 
 TypeScript checks the key and its parameters where `t` is called. A stored choice (the switch in

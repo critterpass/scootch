@@ -23,7 +23,7 @@ export interface HapticsPlayer {
   stop(name: string): void;
 }
 
-/** Who a notification is from when it is not Scootch: a monster, with its picture's file name. */
+/** Who a notification is from, with its picture's file name in the App Group. */
 export interface NotificationSender {
   readonly name: string;
   readonly image: string | null;
@@ -33,7 +33,7 @@ export interface LocalNotification {
   readonly id: string;
   readonly at: Instant;
   readonly text: string;
-  /** The monster that sends it. Left out, it is Scootch's own. */
+  /** Who sends it. Left out, it is the app's own. */
   readonly from?: NotificationSender | undefined;
   /** The thing it is about, which its tap and its actions act on. */
   readonly taskId?: string | undefined;
@@ -52,7 +52,7 @@ export interface NotificationScheduler {
 
 /** The session's Live Activity. Every method does nothing where there are no Live Activities. */
 export interface LiveActivityPort {
-  /** `taskId` finds the task's monster and words on the Lock Screen; without one it shows a plain session. */
+  /** `taskId` ties the activity to its task, so a tap on it opens that session. */
   start(activity: {
     title: string;
     taskId?: string | undefined;
@@ -60,9 +60,9 @@ export interface LiveActivityPort {
     line: string;
   }): Promise<void>;
   update(activity: { endsAt: Instant; line: string }): Promise<void>;
-  /** Time is up and the session goes on: the activity stays, counting up. */
+  /** Time is up and the session goes on. */
   overtime(): Promise<void>;
-  /** `caught` leaves the caught card on the Lock Screen; otherwise the activity goes at once. */
+  /** The activity goes at once. `caught` is kept for the runner, which still passes it. */
   end(caught?: boolean): Promise<void>;
 }
 

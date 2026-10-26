@@ -1,16 +1,15 @@
 import Constants from 'expo-constants';
 
-/** The three ways to hold Plus. */
-export const PLANS = ['monthly', 'yearly', 'lifetime'] as const;
+/** The two ways to pay tuition. The school year is offered first. */
+export const PLANS = ['yearly', 'monthly'] as const;
 export type PlanId = (typeof PLANS)[number];
 
 /**
- * A product's identifier as it is created in App Store Connect. Apple keeps identifiers unique
- * across the whole developer account, so the production app's carry a prefix and the dev app's
- * do not.
+ * A plan's product identifier as it is created in App Store Connect. Apple keeps identifiers
+ * unique across the whole developer account, so the dev app's carry `dev` in theirs.
  */
-export function storeProductId(id: string, variant: unknown = appVariant()): string {
-  return variant === 'prd' ? `scootch_${id}` : id;
+export function storeProductId(plan: PlanId, variant: unknown = appVariant()): string {
+  return variant === 'prd' ? `phusclass.tuition.${plan}` : `phusclass.dev.tuition.${plan}`;
 }
 
 function appVariant(): unknown {
@@ -18,21 +17,20 @@ function appVariant(): unknown {
 }
 
 export const PLAN_PRODUCTS: Readonly<Record<PlanId, string>> = {
-  monthly: storeProductId('plus_monthly'),
-  yearly: storeProductId('plus_yearly'),
-  lifetime: storeProductId('plus_lifetime'),
+  yearly: storeProductId('yearly'),
+  monthly: storeProductId('monthly'),
 };
 
-/** The one entitlement every plan grants. */
-export const PLUS_ENTITLEMENT = 'plus';
+/** The one entitlement both plans grant. */
+export const TUITION_ENTITLEMENT = 'tuition';
 
-/** The plan the sheet opens on. */
+/** The plan the receipt opens on. */
 export const PRESELECTED_PLAN: PlanId = 'yearly';
 
-/** The pages the sheet always links to. */
+/** The pages the receipt always links to. */
 export const LEGAL_LINKS = {
-  terms: 'https://scootch.app/terms',
-  privacy: 'https://scootch.app/privacy',
+  terms: 'https://phusclass.com/terms',
+  privacy: 'https://phusclass.com/privacy',
 } as const;
 
 export function planOfProduct(productId: string): PlanId | null {

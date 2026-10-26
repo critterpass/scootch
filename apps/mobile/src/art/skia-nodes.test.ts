@@ -1,15 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import {
-  buildMonster,
-  buildScootch,
-  MONSTER_BODIES,
-  SCOOTCH_MOODS,
-  specFromSeed,
-  WORK_MODE_ATTACHMENTS,
-  type DrawCommand,
-  type PathSegment,
-} from '@phusclass/art';
+import { ell, Pen, type BoilFrame, type DrawCommand, type PathSegment } from '@phusclass/art';
 
 import {
   groupMatrix,
@@ -19,9 +10,6 @@ import {
   toSkiaNodes,
   type SkiaNode,
 } from './skia-nodes';
-
-type ScootchDrawing = Parameters<typeof buildScootch>[0];
-type MonsterBody = keyof typeof MONSTER_BODIES;
 
 const SQUARE = [['M', 0, 0], ['L', 10, 0], ['L', 10, 10], ['Z']] as const;
 
@@ -77,27 +65,25 @@ const ONE_SEGMENT_OF_EACH: {
   Z: ['Z'],
 };
 
-/** Every drawing the app can ask the art package for. */
-function everyDrawing(): DrawCommand[][] {
-  const drawings: DrawCommand[][] = [];
-  const attitudes: ScootchDrawing['attitude'][] = ['soft', 'cheeky', 'unhinged'];
-  for (const mood of Object.keys(SCOOTCH_MOODS) as ScootchDrawing['mood'][]) {
-    for (const attitude of attitudes) {
-      const props = { mood, attitude, workMode: null, reducedMotion: false };
-      drawings.push(buildScootch(props), buildScootch(props, { blink: 1, bob: 1, beat: 0.5 }));
-    }
-  }
-  for (const workMode of Object.keys(WORK_MODE_ATTACHMENTS) as ScootchDrawing['workMode'][]) {
-    const props = { mood: 'working', attitude: 'cheeky', workMode, reducedMotion: false } as const;
-    drawings.push(buildScootch(props), buildScootch(props, { beat: 0.5 }));
-  }
-  for (const body of Object.keys(MONSTER_BODIES) as MonsterBody[]) {
-    drawings.push(
-      buildMonster(specFromSeed(body, body)),
-      buildMonster(specFromSeed(body, 'b'), 0.5),
-    );
-  }
-  return drawings;
+/** Drawings made the way the art package makes them: by its pen, nested in a transform and a clip. */
+function sampleDrawings(): DrawCommand[][] {
+  const frames: BoilFrame[] = [0, 1, 2];
+  return frames.map((frame) => {
+    const pen = new Pen(7, frame);
+    const blob = ell(100, 100, 40, 30);
+    pen.riso(blob, '#F3E6D3', '#E2CDB0', [100, 100], 80, 60);
+    pen.fill(ell(90, 95, 6, 6), '#1C1A17');
+    pen.line(blob, 2.8);
+    return [
+      { op: 'save' },
+      ONE_OF_EACH.transform,
+      ONE_OF_EACH.clip,
+      ...pen.commands,
+      { op: 'restore' },
+      ONE_OF_EACH.fill,
+      ONE_OF_EACH.stroke,
+    ];
+  });
 }
 
 function drawn(nodes: readonly SkiaNode[]): SkiaNode[] {
@@ -120,8 +106,8 @@ describe('drawing commands as Skia nodes', () => {
     expect(() => svgPath([arc])).toThrow(/"A"/);
   });
 
-  it('draws every fill and stroke of every Scootch and monster the art package builds', () => {
-    const drawings = everyDrawing();
+  it('draws every fill and stroke of a drawing the art package makes', () => {
+    const drawings = sampleDrawings();
     const emitted = new Set(drawings.flatMap((commands) => commands.map((c) => c.op)));
     for (const op of emitted) expect(MAPPED_OPS).toContain(op);
 

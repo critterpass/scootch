@@ -29,87 +29,24 @@ describe('how each route arrives and leaves', () => {
     expect(rootRoutes().sort()).toEqual(Object.keys(ROUTE_MOTION).sort());
   });
 
-  it('lets a person swipe back from the world, the zoo, the record, settings and their children', () => {
-    const swipedBack = [
-      'world',
-      'zoo',
-      'record',
-      'studio',
-      'settings',
-      'finish-with',
-      'privacy',
-      'helplines',
-      'plus/manage',
-      'plus/records',
-    ];
-    for (const route of swipedBack) {
-      expect(stackMotion(route, true)).toMatchObject({
-        animation: 'default',
+  it('holds the desk in place: it is never swiped away', () => {
+    expect(routeMotion('index')).toBe('home');
+    for (const mayMove of [true, false]) {
+      expect(stackMotion('index', mayMove)).toMatchObject({
         presentation: 'card',
-        gestureEnabled: true,
+        gestureEnabled: false,
       });
     }
   });
 
-  it('lets a page of rows be swiped back from anywhere, and a picture only from its edge', () => {
-    for (const route of ['settings', 'privacy', 'helplines', 'finish-with']) {
-      expect(stackMotion(route, true).fullScreenGestureEnabled).toBe(true);
-    }
-    // The island, the binder and the disc are dragged sideways themselves.
-    for (const route of ['world', 'zoo', 'record']) {
-      expect(stackMotion(route, true).fullScreenGestureEnabled).toBe(false);
-    }
-  });
-
-  it('presents a whole page as the page sheet, laid out as a card is and pulled down to close', () => {
-    for (const route of ['plus/index', 'share']) {
-      const options = stackMotion(route, true);
-      expect(options).toMatchObject({ presentation: 'modal', gestureEnabled: true });
-      // A form sheet gives a page no height to fill: a page is never presented as one.
-      expect(options).not.toHaveProperty('sheetAllowedDetents');
-    }
-  });
-
-  it('presents a haunt as a sheet with a grabber that is as tall as what is on it', () => {
-    for (const route of ['haunt/send', 'haunt/received']) {
-      expect(stackMotion(route, true)).toMatchObject({
-        presentation: 'formSheet',
-        gestureEnabled: true,
-        sheetGrabberVisible: true,
-        sheetAllowedDetents: 'fitToContents',
-      });
-    }
-  });
-
-  it('fades into the session and the reveal, which cannot be swiped away', () => {
-    for (const route of ['session', 'reveal']) {
-      expect(stackMotion(route, true)).toMatchObject({ animation: 'fade', gestureEnabled: false });
-    }
-  });
-
-  it('cannot be swiped out of mid-session: leaving goes through the close control and its question', () => {
-    expect(stackMotion('session', true).gestureEnabled).toBe(false);
-    expect(stackMotion('session', false).gestureEnabled).toBe(false);
-  });
-
-  it('never lets a session, the reveal, a purchase moment or care be swiped away, moving or not', () => {
-    const held = Object.keys(ROUTE_MOTION).filter((route) =>
-      ['fade', 'none'].includes(routeMotion(route)),
-    );
-    expect(held).toEqual(expect.arrayContaining(['session', 'reveal', 'care']));
-    for (const route of held) {
-      for (const mayMove of [true, false]) {
-        const options = stackMotion(route, mayMove);
-        expect(options.gestureEnabled).toBe(false);
-        expect(options.fullScreenGestureEnabled).toBe(false);
-        expect(options.presentation).toBe('card');
-      }
-    }
-  });
-
-  it('plays nothing on the way into care', () => {
-    expect(stackMotion('care', true)).toMatchObject({ animation: 'none', gestureEnabled: false });
-    expect(routeMotion('care')).toBe('none');
+  it('pushes a route it does not name, with the swipe back', () => {
+    expect(routeMotion('a-page-nobody-named')).toBe('push');
+    expect(stackMotion('a-page-nobody-named', true)).toMatchObject({
+      animation: 'default',
+      presentation: 'card',
+      gestureEnabled: true,
+      fullScreenGestureEnabled: false,
+    });
   });
 
   it('only crossfades where nothing may move, and still lets a person go back', () => {
@@ -117,13 +54,12 @@ describe('how each route arrives and leaves', () => {
       const { animation } = stackMotion(route, false);
       expect(['fade', 'none']).toContain(animation);
     }
-    expect(stackMotion('settings', false).gestureEnabled).toBe(true);
+    expect(stackMotion('(dev)', false).gestureEnabled).toBe(true);
   });
 
-  it('reads a return to the one screen or the world as going back', () => {
+  it('reads a return to the desk as going back', () => {
     expect(stackMotion('index', true).animationTypeForReplace).toBe('pop');
-    expect(stackMotion('world', true).animationTypeForReplace).toBe('pop');
-    expect(stackMotion('zoo', true).animationTypeForReplace).toBe('push');
+    expect(stackMotion('(dev)', true).animationTypeForReplace).toBe('push');
   });
 });
 
@@ -139,13 +75,13 @@ describe('the Motion switch and the stack', () => {
 
   it("lets the system's push play when the switch is set to full", () => {
     const { mayMove } = feelFor({ ...facts, motion: 'full' });
-    expect(stackMotion('settings', mayMove).animation).toBe('default');
+    expect(stackMotion('(dev)', mayMove).animation).toBe('default');
   });
 
   it('holds the stack still around a serious task and on a crisis day', () => {
     for (const care of ['serious', 'crisis'] as const) {
       const { mayMove } = feelFor({ ...facts, motion: 'full', care });
-      expect(stackMotion('world', mayMove).animation).toBe('fade');
+      expect(stackMotion('(dev)', mayMove).animation).toBe('fade');
     }
   });
 });
@@ -169,67 +105,7 @@ describe('closing a screen', () => {
 
   it('goes to its fallback when it was opened with nothing under it', () => {
     const alone = router(false);
-    goBack(alone, '/settings');
-    expect(alone.calls).toEqual(['replace /settings']);
-  });
-});
-
-/** A stack that moves as the router's documents say push, replace, back and dismissTo do. */
-function walk(start: string[]) {
-  const stack = [...start];
-  const router = {
-    stack,
-    push: (href: string) => void stack.push(href),
-    replace: (href: string) => void stack.splice(stack.length - 1, 1, href),
-    canGoBack: () => stack.length > 1,
-    back: () => void stack.pop(),
-    dismissTo: (href: string) => {
-      const at = stack.lastIndexOf(href);
-      if (at >= 0) stack.splice(at + 1);
-      else stack.splice(stack.length - 1, 1, href);
-    },
-  };
-  return router;
-}
-
-describe('the paths a new person walks', () => {
-  it('goes from the one screen to the session, the reveal and home again, leaving one home', () => {
-    const router = walk(['/']);
-    router.push('/session');
-    router.replace('/reveal');
-    // The reveal hands back to the session for the treat and the parked thoughts.
-    router.replace('/session');
-    router.dismissTo('/');
-    expect(router.stack).toEqual(['/']);
-  });
-
-  it('comes home from a session the app was reopened into, with nothing under it', () => {
-    const router = walk(['/session']);
-    router.dismissTo('/');
-    expect(router.stack).toEqual(['/']);
-  });
-
-  it('opens Settings and a page of it, and closes each back to where it came from', () => {
-    const router = walk(['/']);
-    router.push('/settings');
-    router.push('/privacy');
-    goBack(router, '/settings');
-    expect(router.stack).toEqual(['/', '/settings']);
-    goBack(router, '/');
-    expect(router.stack).toEqual(['/']);
-  });
-
-  it('opens the world, the record inside it, and closes the record back to the world', () => {
-    const pushed = walk(['/']);
-    pushed.push('/world');
-    pushed.push('/record');
-    pushed.dismissTo('/world');
-    expect(pushed.stack).toEqual(['/', '/world']);
-
-    // The world's own buttons replace it with its child: closing the child is still the world.
-    const replaced = walk(['/', '/world']);
-    replaced.replace('/zoo');
-    replaced.dismissTo('/world');
-    expect(replaced.stack).toEqual(['/', '/world']);
+    goBack(alone, '/');
+    expect(alone.calls).toEqual(['replace /']);
   });
 });

@@ -4,39 +4,37 @@ import type { ConfigContext, ExpoConfig } from 'expo/config';
 // package's TypeScript source.
 import palettes from '../../packages/tokens/src/colors.json' with { type: 'json' };
 
-import { withAlternateAppIcons } from './plugins/with-alternate-app-icons.js';
-
 /** Two environments, dev and prd. `e2e-test` is the dev app as device runs install it. */
 type AppVariant = 'dev' | 'prd' | 'e2e-test';
 
 interface VariantConfig {
   name: string;
-  /** The extensions and the App Clip sit beneath it (targets/<name>/expo-target.config.js). */
+  /** The extensions sit beneath it (targets/<name>/expo-target.config.js). */
   bundleIdentifier: string;
-  /** Shared by the app, its extensions and the App Clip (targets/_shared/AppGroup.swift). */
+  /** Shared by the app and its extensions (targets/_shared/AppGroup.swift). */
   appGroup: string;
   scheme: string;
   /** Over-the-air updates. Off for device runs, which swap in the commit's own bundle. */
   updates: boolean;
 }
 
-const EAS_PROJECT_ID = '534fb786-e7e7-4058-a3c4-636196dc5078';
+const EAS_PROJECT_ID = '9fa12e59-52d4-4bbe-a34d-90e2ed174bf1';
 const APPLE_TEAM_ID = 'YFND2EEW8S';
-/** Universal links, App Clip invocations and shared web credentials. */
-const LINK_HOST = 'scootch.app';
+/** Universal links and shared web credentials. */
+const LINK_HOST = 'phusclass.com';
 /**
- * The oldest iOS the app, its extensions and the App Clip install on. Every target reads this one
- * value (targets/<name>/expo-target.config.js take it from `ios.deploymentTarget`). iOS 17 is the
- * oldest: widgets whose monsters are buttons and a Live Activity whose buttons work on the Lock
- * Screen need it. What needs iOS 18 (controls, tinted icons) is switched on there.
+ * The oldest iOS the app and its extensions install on. Every target reads this one value
+ * (targets/<name>/expo-target.config.js take it from `ios.deploymentTarget`). iOS 17 is the oldest:
+ * interactive widgets and a Live Activity whose buttons work on the Lock Screen need it. What
+ * needs iOS 18 (controls, tinted icons) is switched on there.
  */
 const IOS_DEPLOYMENT_TARGET = '17.0';
 
 const DEV: VariantConfig = {
-  name: 'Scootch Dev',
-  bundleIdentifier: 'app.scootch.dev',
-  appGroup: 'group.app.scootch.dev',
-  scheme: 'scootch-dev',
+  name: "Phu's Class Dev",
+  bundleIdentifier: 'com.phusclass.dev',
+  appGroup: 'group.com.phusclass.dev',
+  scheme: 'phusclass-dev',
   updates: true,
 };
 
@@ -44,10 +42,10 @@ const VARIANTS: Record<AppVariant, VariantConfig> = {
   dev: DEV,
   'e2e-test': { ...DEV, updates: false },
   prd: {
-    name: 'Scootch',
-    bundleIdentifier: 'app.scootch',
-    appGroup: 'group.app.scootch',
-    scheme: 'scootch',
+    name: "Phu's Class",
+    bundleIdentifier: 'com.phusclass',
+    appGroup: 'group.com.phusclass',
+    scheme: 'phusclass',
     updates: true,
   },
 };
@@ -64,38 +62,43 @@ const appVariant = resolveVariant();
 const variant = VARIANTS[appVariant];
 
 /**
- * What iOS shows when it asks for the microphone, for speech recognition, for the camera and to add
- * a picture to Photos, per language.
+ * What iOS shows when it asks for the microphone, for speech recognition, for the calendars and to
+ * add a picture to Photos, per language. Thầy Phú says them, plainly.
  */
+const CALENDAR_EN =
+  'To turn your day into a timetable. I read your calendar on this phone and never change it.';
+const CALENDAR_VI =
+  'Để biến ngày của em thành thời khóa biểu. Thầy chỉ đọc lịch trên điện thoại này và không bao giờ sửa nó.';
 const PERMISSION_STRINGS = {
   en: {
-    NSMicrophoneUsageDescription: 'Scootch uses the microphone so you can talk instead of type.',
+    NSMicrophoneUsageDescription:
+      'So you can say a task out loud instead of typing it. I listen only while you hold.',
     NSSpeechRecognitionUsageDescription:
-      'Scootch turns what you say into text so you do not have to type.',
-    NSCameraUsageDescription:
-      'Scootch looks at a photo you take of the mess to find one place to start.',
-    NSPhotoLibraryAddUsageDescription:
-      'Scootch saves a card or a wallpaper to your photos when you tap Save.',
-    // Apple asks for this whenever a linked library can read photos. Scootch never does.
+      'Your words are turned into text on this phone, so I can write the task on the board.',
+    NSCalendarsUsageDescription: CALENDAR_EN,
+    NSCalendarsFullAccessUsageDescription: CALENDAR_EN,
+    NSPhotoLibraryAddUsageDescription: 'To save a card you chose to share to your photos.',
+    // Apple asks for this whenever a linked library can read photos. The app never does.
     NSPhotoLibraryUsageDescription:
-      'Scootch only adds the cards and wallpapers you save to your photos. It never looks at the rest.',
+      'I only add the cards you save to your photos. I never look at the rest.',
   },
   vi: {
-    NSMicrophoneUsageDescription: 'Scootch dùng micro để bạn có thể nói thay vì gõ.',
+    NSMicrophoneUsageDescription:
+      'Để em nói việc cần làm thay vì gõ. Thầy chỉ nghe khi em giữ nút.',
     NSSpeechRecognitionUsageDescription:
-      'Scootch chuyển lời bạn nói thành chữ để bạn không phải gõ.',
-    NSCameraUsageDescription: 'Scootch xem tấm ảnh bạn chụp đống bừa bộn để tìm một chỗ bắt đầu.',
-    NSPhotoLibraryAddUsageDescription:
-      'Scootch lưu thẻ hoặc hình nền vào ảnh của bạn khi bạn chạm Lưu.',
+      'Lời em nói được chuyển thành chữ ngay trên điện thoại này, để thầy ghi việc lên bảng.',
+    NSCalendarsUsageDescription: CALENDAR_VI,
+    NSCalendarsFullAccessUsageDescription: CALENDAR_VI,
+    NSPhotoLibraryAddUsageDescription: 'Để lưu tấm thẻ em chọn chia sẻ vào ảnh.',
     NSPhotoLibraryUsageDescription:
-      'Scootch chỉ thêm những thẻ và hình nền bạn lưu vào ảnh. Scootch không bao giờ xem các ảnh khác.',
+      'Thầy chỉ thêm những tấm thẻ em lưu vào ảnh. Thầy không bao giờ xem các ảnh khác.',
   },
 };
 
 /**
  * Every capability the app is signed with. Each one is also ticked on the App ID, so adding one
- * here means a new provisioning profile and a new native build. Push (`aps-environment`), Sign in
- * with Apple and Associated Domains are written by their own config fields and plugins.
+ * here means a new provisioning profile and a new native build. Push (`aps-environment`) and
+ * Associated Domains are written by their own config fields and plugins.
  */
 const IOS_ENTITLEMENTS = {
   'com.apple.security.application-groups': [variant.appGroup],
@@ -104,43 +107,16 @@ const IOS_ENTITLEMENTS = {
   // iCloud key-value storage, one store per app.
   'com.apple.developer.ubiquity-kvstore-identifier': `$(TeamIdentifierPrefix)${variant.bundleIdentifier}`,
   'com.apple.developer.usernotifications.time-sensitive': true,
-  // A notification from a monster: its name and picture where the app's would be.
-  'com.apple.developer.usernotifications.communication': true,
-  'com.apple.developer.associated-appclip-app-identifiers': [
-    `$(AppIdentifierPrefix)${variant.bundleIdentifier}.Clip`,
-  ],
 };
-
-/**
- * The nine icons the app can change to, by the names `src/features/look/icons.ts` asks for. The
- * tenth, Cheeky, is the app's own icon.
- */
-const ALTERNATE_ICONS = [
-  'soft',
-  'unhinged',
-  'paper',
-  'holo',
-  'chrome',
-  'jelly',
-  'glass',
-  'velvet',
-  'riso',
-].map((icon) => ({
-  name: `Icon-${icon}`,
-  light: `./assets/icons/${icon}.png`,
-  dark: `./assets/icons/${icon}-dark.png`,
-  tinted: `./assets/icons/${icon}-tinted.png`,
-}));
 
 const app = ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: variant.name,
   owner: 'critterpass',
-  slug: 'scootch',
+  slug: 'phusclass',
   scheme: variant.scheme,
   version: '1.0.0',
   orientation: 'portrait',
-  // Drawn by assets/render-app-icon.ts: Cheeky, the attitude a phone starts with.
   icon: './assets/icon.png',
   userInterfaceStyle: 'automatic',
   // The native window behind every screen, shown before the first frame.
@@ -158,30 +134,22 @@ const app = ({ config }: ConfigContext): ExpoConfig => ({
     appleTeamId: APPLE_TEAM_ID,
     deploymentTarget: IOS_DEPLOYMENT_TARGET,
     supportsTablet: false,
-    // The app's own icon in the three ways iOS shows one. The other nine are declared below.
+    // The app's icon in the three ways iOS shows one.
     icon: {
-      light: './assets/icons/cheeky.png',
-      dark: './assets/icons/cheeky-dark.png',
-      tinted: './assets/icons/cheeky-tinted.png',
+      light: './assets/icons/app.png',
+      dark: './assets/icons/app-dark.png',
+      tinted: './assets/icons/app-tinted.png',
     },
-    usesAppleSignIn: true,
-    associatedDomains: [
-      `applinks:${LINK_HOST}`,
-      `appclips:${LINK_HOST}`,
-      `webcredentials:${LINK_HOST}`,
-    ],
+    associatedDomains: [`applinks:${LINK_HOST}`, `webcredentials:${LINK_HOST}`],
     // No encryption beyond what the operating system provides.
     config: { usesNonExemptEncryption: false },
     infoPlist: {
       ...PERMISSION_STRINGS.en,
       // Lets iOS pick the Vietnamese permission strings on a Vietnamese phone.
       CFBundleAllowMixedLocalizations: true,
-      // The system draws a notification as a message from a sender only for an app that says it
-      // sends messages (modules/scootch-notifications).
-      NSUserActivityTypes: ['INSendMessageIntent'],
       NSSupportsLiveActivities: true,
       NSSupportsLiveActivitiesFrequentUpdates: true,
-      // Lets a silent push wake the app (a table changing, a Live Activity token to renew).
+      // Lets a silent push wake the app (a Live Activity token to renew).
       UIBackgroundModes: ['remote-notification'],
     },
     entitlements: IOS_ENTITLEMENTS,
@@ -211,7 +179,6 @@ const app = ({ config }: ConfigContext): ExpoConfig => ({
       // Expo's modules compile against API 37; runtime behaviour still targets API 36.
       { android: { compileSdkVersion: 37, targetSdkVersion: 36 } },
     ],
-    'expo-apple-authentication',
     // Push entitlement on iOS; notification defaults on Android.
     'expo-notifications',
     [
@@ -234,20 +201,16 @@ const app = ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
     [
-      'expo-camera',
+      'expo-calendar',
       {
-        // Stills only: the camera never records sound or video, and reads no barcodes. The
-        // microphone string stays the one speech recognition shows.
-        cameraPermission: PERMISSION_STRINGS.en.NSCameraUsageDescription,
-        microphonePermission: PERMISSION_STRINGS.en.NSMicrophoneUsageDescription,
-        recordAudioAndroid: false,
-        barcodeScannerEnabled: false,
+        // Read only: the timetable is made from the day's events, and nothing is ever written back.
+        calendarPermission: PERMISSION_STRINGS.en.NSCalendarsFullAccessUsageDescription,
       },
     ],
     [
       'expo-media-library',
       {
-        // Saving a card only ever adds a picture and the app never reads the photo library. The
+        // Saving a shared card only ever adds a picture and the app never reads the photo library. The
         // read string is still required: Apple refuses a binary whose linked library can read
         // photos without one. No Android media-read permission.
         photosPermission: PERMISSION_STRINGS.en.NSPhotoLibraryUsageDescription,
@@ -271,8 +234,8 @@ const app = ({ config }: ConfigContext): ExpoConfig => ({
     // use; the key-value store entitlement is set above instead), @shopify/react-native-skia,
     // react-native-reanimated, react-native-worklets, react-native-gesture-handler, expo-font,
     // expo-sharing, expo-file-system, expo-clipboard, expo-crypto, expo-application, expo-device,
-    // expo-glass-effect, @expo/ui, expo-image-manipulator and the local modules/scootch-live-activity
-    // and modules/scootch-reading.
+    // expo-glass-effect, @expo/ui and the local modules (modules/phusclass-live-activity,
+    // modules/phusclass-notifications, modules/app-icon).
   ],
   experiments: {
     typedRoutes: true,
@@ -284,5 +247,4 @@ const app = ({ config }: ConfigContext): ExpoConfig => ({
   },
 });
 
-export default (context: ConfigContext): ExpoConfig =>
-  withAlternateAppIcons(app(context), ALTERNATE_ICONS);
+export default app;

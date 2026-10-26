@@ -1,4 +1,4 @@
-import type { Catalogue, Language, ParamsArgument, StringKey } from './catalogue-types';
+import type { Catalogue, Entry, Language, ParamsArgument, StringKey } from './catalogue-types';
 import { en } from './en';
 import { vi } from './vi';
 
@@ -23,16 +23,14 @@ function pluralCategory(language: Language, count: number): Intl.LDMLPluralRule 
 }
 
 /**
- * The interface string for a key, in a language. `{name}` placeholders are filled from `params`;
- * a plural string picks its form from `params.count`.
+ * One catalogue entry as text in a language. `{name}` placeholders are filled from `values`; a
+ * plural entry picks its form from `values.count`.
  */
-export function t<Key extends StringKey>(
+export function textOf(
+  entry: Entry,
   language: Language,
-  key: Key,
-  ...[params]: ParamsArgument<Key>
+  values: Readonly<Record<string, string | number>> = {},
 ): string {
-  const values: Readonly<Record<string, string | number>> = params ?? {};
-  const entry = catalogues[language][key];
   let text: string;
   if (typeof entry === 'string') {
     text = entry;
@@ -45,4 +43,13 @@ export function t<Key extends StringKey>(
     const value = values[name];
     return value === undefined ? placeholder : String(value);
   });
+}
+
+/** The interface string for a key, in a language, with its placeholders filled. */
+export function t<Key extends StringKey>(
+  language: Language,
+  key: Key,
+  ...[params]: ParamsArgument<Key>
+): string {
+  return textOf(catalogues[language][key], language, params ?? {});
 }

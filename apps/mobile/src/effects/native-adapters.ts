@@ -3,24 +3,11 @@ import { File, Paths } from 'expo-file-system';
 import * as Haptics from 'expo-haptics';
 import * as Notifications from 'expo-notifications';
 
-import {
-  HOUR_MS,
-  HUNT_CAUGHT_CARD_MS,
-  catchHunt,
-  huntOfSession,
-  nextHuntChange,
-  resumeHunt,
-  type HuntRecord,
-} from '@phusclass/domain';
 import { CUES, encodeWav, type HapticTap } from '@phusclass/sound';
 
-import * as LiveActivity from '../../modules/scootch-live-activity';
-import * as MonsterNotifications from '../../modules/scootch-notifications';
+import * as LiveActivity from '../../modules/phusclass-live-activity';
+import * as SenderNotifications from '../../modules/phusclass-notifications';
 import { getNetworkStateAsync } from '../features/offline/connection';
-import { nativeSharedStore } from '../features/surfaces/native-surface-ports';
-import { SHARED_KEYS } from '../features/surfaces/surface-ports';
-import type { SurfaceSnapshot } from '../features/surfaces/surface-snapshot';
-import { readHunt } from '../features/surfaces/hunt-store';
 
 import { nextLiveLineTurn } from './live-line-turns';
 import { createTapScheduler } from './tap-scheduler';
@@ -120,19 +107,19 @@ export const nativeHaptics: HapticsPlayer = createTapScheduler(systemTimers, (ta
 export const nativeNotifications: NotificationScheduler = {
   scheduledIds: async () =>
     (await Notifications.getAllScheduledNotificationsAsync()).map((request) => request.identifier),
-  schedule: async ({ id, at, text, from, taskId, actions, picture }) => {
-    // A monster's message, or one with the bites under it, is the native module's to send: only
-    // it can give a notification a sender. A build without the module sends the same words with
-    // the monster's name as the title.
-    if ((from || actions || picture) && MonsterNotifications.isAvailable()) {
-      await MonsterNotifications.schedule({
+  schedule: async ({ id, at, text, from, taskId, picture }) => {
+    // One with a sender or a picture is the native module's to send: only it can give a
+    // notification a sender. A build without the module sends the same words with the sender's
+    // name as the title.
+    if ((from || picture) && SenderNotifications.isAvailable()) {
+      await SenderNotifications.schedule({
         id,
         at,
+        title: null,
         body: text,
         senderName: from?.name ?? null,
         senderImage: from?.image ?? null,
         taskId: taskId ?? null,
-        actions: actions === true,
         attachment: picture ?? null,
       });
       return;
@@ -161,61 +148,10 @@ async function endAll(): Promise<void> {
   for (const id of await liveIds()) await LiveActivity.end(id, undefined, 0);
 }
 
-/**
- * Takes everything off the Lock Screen, the card of the last catch included: it has ended but
- * stays until the top of its hour, and a new session would otherwise stand beside it.
- */
+/** Takes everything off the Lock Screen, so a new session never stands beside an old one. */
 async function clearAll(): Promise<void> {
   for (const activity of await LiveActivity.listActive()) {
     if (activity.status !== 'dismissed') await LiveActivity.end(activity.id, undefined, 0);
-  }
-}
-
-/** The hunt record in the App Group, which the Lock Screen's buttons move with the app away. */
-function storedHunt(): HuntRecord | null {
-  try {
-    return readHunt(nativeSharedStore().get(SHARED_KEYS.hunt));
-  } catch {
-    return null;
-  }
-}
-
-function keepHunt(hunt: HuntRecord | null): void {
-  try {
-    const shared = nativeSharedStore();
-    if (hunt === null) shared.remove(SHARED_KEYS.hunt);
-    else shared.set(SHARED_KEYS.hunt, JSON.stringify(hunt));
-  } catch {
-    // Without the App Group the activity still shows; only its buttons have nothing to move.
-  }
-}
-
-/** Two ends closer than this are the same end, read at two moments. */
-const SAME_END_MS = 5_000;
-
-/**
- * The card of the hunt that was just caught, and its caught line, from the snapshot as it stood
- * while the session ran: by the time the Lock Screen is looked at, the snapshot is about the rest
- * of the day. A task with no monster there (a serious one) has no card.
- */
-function caughtCard(taskId: string): {
-  line: string | null;
-  caught: LiveActivity.SessionActivityCaughtCard | null;
-} {
-  try {
-    const stored = nativeSharedStore().get(SHARED_KEYS.snapshot);
-    const snapshot = stored === null ? null : (JSON.parse(stored) as Partial<SurfaceSnapshot>);
-    if (snapshot?.taskId !== taskId) return { line: null, caught: null };
-    const name = snapshot.monsterName ?? null;
-    return {
-      line: snapshot.taskLines?.caught ?? null,
-      caught:
-        name === null
-          ? null
-          : { name, image: snapshot.monsterImage ?? null, number: (snapshot.shelf ?? 0) + 1 },
-    };
-  } catch {
-    return { line: null, caught: null };
   }
 }
 
@@ -228,88 +164,32 @@ async function isOffline(): Promise<boolean> {
   }
 }
 
-/** Stale when the picture next changes by the clock, or at the next line turn if that is sooner. */
-function staleAt(hunt: HuntRecord | null, endsAt: number): number {
-  const now = Date.now();
-  const turn = nextLiveLineTurn(now, endsAt);
-  const change = hunt === null ? null : nextHuntChange(hunt, now);
-  return change === null ? turn : Math.min(turn, change);
-}
-
 /**
  * The session's Live Activity through the local module. The module answers "nothing there" on
  * Android and where Live Activities are switched off, so every call is then a no-op. The activity
- * is found by asking iOS which ones are live, so it is still reachable after a relaunch. The hunt
- * record it carries is kept in the App Group as well, where the Lock Screen's buttons move it.
+ * is found by asking iOS which ones are live, so it is still reachable after a relaunch. It goes
+ * stale at the next line turn, so the system draws it again with the line of that moment.
  */
 export const nativeLiveActivity: LiveActivityPort = {
   start: async ({ title, taskId, endsAt, line }) => {
     await clearAll();
-    const now = Date.now();
-    const stored = storedHunt();
-    // A hunt begun or moved outside the app keeps the moment its clock started. It is this
-    // session's only when it ends where the session does; anything else was left behind.
-    const resumed =
-      stored !== null &&
-      stored.taskId === taskId &&
-      stored.caughtAt === null &&
-      stored.stoppedAt === null
-        ? resumeHunt(stored, now)
-        : null;
-    const same = resumed !== null && Math.abs(resumed.endsAt - endsAt) < SAME_END_MS;
-    const hunt: HuntRecord | null =
-      taskId === undefined
-        ? null
-        : { ...(same ? resumed : huntOfSession(taskId, now, endsAt)), endsAt };
-    keepHunt(hunt);
     await LiveActivity.start(
       { taskTitle: title, taskId: taskId ?? null },
-      { endDate: endsAt, line, hunt, offline: await isOffline() },
-      // Stale at the next change: the system then draws the activity again, and the widget
-      // extension shows what the record and the shared snapshot have for that moment.
-      { staleDate: staleAt(hunt, endsAt) },
+      { endDate: endsAt, line, offline: await isOffline() },
+      { staleDate: nextLiveLineTurn(Date.now(), endsAt) },
     );
   },
   update: async ({ endsAt, line }) => {
-    const stored = storedHunt();
-    const hunt = stored === null ? null : { ...stored, endsAt };
-    keepHunt(hunt);
     const offline = await isOffline();
     for (const id of await liveIds()) {
       await LiveActivity.update(
         id,
-        { endDate: endsAt, line, hunt, offline },
-        { staleDate: staleAt(hunt, endsAt) },
+        { endDate: endsAt, line, offline },
+        { staleDate: nextLiveLineTurn(Date.now(), endsAt) },
       );
     }
   },
-  overtime: async () => {
-    // The record already says so: the clock passed its end. Drawing it again shows the gold count.
-    const hunt = storedHunt();
-    if (hunt === null) return endAll();
-    for (const activity of await LiveActivity.listActive()) {
-      if (activity.status !== 'active' && activity.status !== 'stale') continue;
-      await LiveActivity.update(activity.id, { ...activity.state, hunt });
-    }
-  },
-  end: async (caught) => {
-    const stored = storedHunt();
-    keepHunt(null);
-    if (!caught || stored === null) return endAll();
-    const now = Date.now();
-    const hunt = catchHunt(stored, now);
-    const card = caughtCard(stored.taskId);
-    // The caught card stays until the top of the hour after it would have folded.
-    const leaves = (Math.floor((now + HUNT_CAUGHT_CARD_MS) / HOUR_MS) + 1) * HOUR_MS;
-    for (const activity of await LiveActivity.listActive()) {
-      if (activity.status !== 'active' && activity.status !== 'stale') continue;
-      const final = {
-        ...activity.state,
-        hunt,
-        line: card.line ?? activity.state.line,
-        caught: card.caught,
-      };
-      await LiveActivity.end(activity.id, final, (leaves - now) / 1000);
-    }
-  },
+  // Past its end the activity has nothing true left to count, so it goes.
+  overtime: endAll,
+  end: () => endAll(),
 };

@@ -1,16 +1,21 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { storeProductId } from './products';
+import { PLANS, storeProductId } from './products';
 
 describe('store product identifiers', () => {
-  it('keeps the plain identifier outside production', () => {
-    expect(storeProductId('plus_monthly', 'dev')).toBe('plus_monthly');
-    expect(storeProductId('ink_gold_leaf', 'e2e-test')).toBe('ink_gold_leaf');
-    expect(storeProductId('plus_yearly', undefined)).toBe('plus_yearly');
+  it('names the production products as App Store Connect has them', () => {
+    expect(storeProductId('yearly', 'prd')).toBe('phusclass.tuition.yearly');
+    expect(storeProductId('monthly', 'prd')).toBe('phusclass.tuition.monthly');
   });
 
-  it('prefixes every production identifier, since Apple keeps them unique per account', () => {
-    expect(storeProductId('plus_monthly', 'prd')).toBe('scootch_plus_monthly');
-    expect(storeProductId('ink_gold_leaf', 'prd')).toBe('scootch_ink_gold_leaf');
+  it("gives every other build the dev app's products, which Apple keeps apart", () => {
+    for (const variant of ['dev', 'e2e-test', undefined]) {
+      expect(storeProductId('yearly', variant)).toBe('phusclass.dev.tuition.yearly');
+      expect(storeProductId('monthly', variant)).toBe('phusclass.dev.tuition.monthly');
+    }
+  });
+
+  it('offers the school year first', () => {
+    expect(PLANS[0]).toBe('yearly');
   });
 });

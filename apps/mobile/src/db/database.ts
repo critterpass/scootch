@@ -1,6 +1,6 @@
 import { type Migration, type MigrationDatabase, runMigrations } from './migrate';
 
-export const DATABASE_NAME = 'scootch.db';
+export const DATABASE_NAME = 'phusclass.db';
 
 // Every file in ./migrations is one migration, named by its file. Adding a schema change is adding
 // a file; nothing else lists them.

@@ -100,7 +100,7 @@ export type Translate = <Key extends StringKey>(
   ...params: [keyof ParamsOf<Key>] extends [never] ? [] : [params: ParamsOf<Key>]
 ) => string;
 
-/** The interface string for a key, in the current language: `const t = useT(); t('session.start')`. */
+/** The interface string for a key, in the current language: `const t = useT(); t('desk.sit')`. */
 export function useT(): Translate {
   const { language } = useContext(LanguageContext);
   return useMemo<Translate>(

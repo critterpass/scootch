@@ -2,8 +2,11 @@ import type { Entry } from './catalogue-types';
 
 type LooseCatalogue = Readonly<Record<string, Entry>>;
 
-/** Words that are deliberately the same in English and Vietnamese. Keep this list short. */
-export const sameInBothLanguages: readonly string[] = ['Scootch', 'Plus'];
+/**
+ * Words that are deliberately the same in English and Vietnamese: names, and the drum. Keep this
+ * list short.
+ */
+export const sameInBothLanguages: readonly string[] = ['Thầy Phú', 'Tùng!'];
 
 function texts(entry: Entry): string[] {
   return typeof entry === 'string' ? [entry] : Object.values(entry);

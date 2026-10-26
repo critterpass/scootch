@@ -11,20 +11,13 @@ export interface PlanOffer {
   readonly trialDays: number | null;
 }
 
-/** A single purchase from the shelf, with the store's own localised price text. */
-export interface ItemOffer {
-  readonly productId: string;
-  readonly priceText: string;
-}
-
 export interface Offerings {
   readonly plans: Readonly<Partial<Record<PlanId, PlanOffer>>>;
-  readonly items: Readonly<Record<string, ItemOffer>>;
 }
 
 /** What the store says about this customer. Every date is the store's, never the phone's. */
 export interface CustomerState {
-  /** The plan that holds Plus right now; `null` when nothing does. */
+  /** The plan that pays tuition right now; `null` when nothing does. */
   readonly activePlan: PlanId | null;
   /** The active plan is in its free trial. */
   readonly inTrial: boolean;
@@ -35,10 +28,8 @@ export interface CustomerState {
   /** When a subscription that will not renew runs out; `null` when it renews or never ends. */
   readonly endsAt: Instant | null;
   readonly willRenew: boolean;
-  /** Why Plus is gone, when it was held before; `null` when it is held or never was. */
+  /** Why tuition lapsed, when it was paid before; `null` when it is paid or never was. */
   readonly lapse: 'expired' | 'refunded' | null;
-  /** Single purchases this Apple ID owns: the shelf's items. */
-  readonly ownedItems: readonly string[];
 }
 
 export const FREE_CUSTOMER: CustomerState = {
@@ -49,7 +40,6 @@ export const FREE_CUSTOMER: CustomerState = {
   endsAt: null,
   willRenew: false,
   lapse: null,
-  ownedItems: [],
 };
 
 export type PurchaseOutcome =
@@ -73,8 +63,8 @@ export class PurchasesUnavailable extends Error {
 export interface PurchasesPort {
   /** False when no store is configured: every call then rejects with `PurchasesUnavailable`. */
   readonly available: boolean;
-  /** The plans and the listed shelf items, with their localised prices. */
-  offerings(itemProductIds: readonly string[]): Promise<Offerings>;
+  /** The plans, with their localised prices. */
+  offerings(): Promise<Offerings>;
   purchase(productId: string): Promise<PurchaseOutcome>;
   /** Brings back what this Apple ID bought. No account is involved. */
   restore(): Promise<CustomerState>;
