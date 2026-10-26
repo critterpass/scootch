@@ -88,7 +88,8 @@ export const plainEn = {
     title: 'Questions, answered straight · Phu’s Class',
     description: 'Fifteen questions about Phu’s Class, answered straight.',
     headline: 'Questions, answered straight.',
-    intro: 'Fifteen of them. Still stuck? Write to help@phusclass.com. A person reads every message.',
+    intro:
+      'Fifteen of them. Still stuck? Write to help@phusclass.com. A person reads every message.',
     notOutYet:
       'Phu’s Class isn’t out yet. These answers describe the app as it will be on its first day.',
     helplinesLink: 'Find a helpline in your country',

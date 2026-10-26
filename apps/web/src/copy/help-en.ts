@@ -11,7 +11,13 @@ export const helpEn = {
     search: 'Search',
     oneAnswer: '1 answer',
     answers: '{count} answers',
-    nav: ['Questions', 'Helplines', 'What Phu’s Class is and isn’t', 'Privacy, plainly', 'Write to us'],
+    nav: [
+      'Questions',
+      'Helplines',
+      'What Phu’s Class is and isn’t',
+      'Privacy, plainly',
+      'Write to us',
+    ],
     questionsTitle: 'Questions people actually ask',
     tags: [
       'Plus',

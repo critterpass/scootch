@@ -5,7 +5,8 @@ import type { plainEn } from './plain-en';
 export const plainVi = {
   privacy: {
     title: 'Quyền riêng tư, nói thẳng · Lớp Thầy Phú',
-    description: 'Lớp Thầy Phú giữ gì, giữ bao lâu, và điều gì không bao giờ dùng để huấn luyện AI.',
+    description:
+      'Lớp Thầy Phú giữ gì, giữ bao lâu, và điều gì không bao giờ dùng để huấn luyện AI.',
     headline: 'Quyền riêng tư, nói thẳng.',
     intro:
       'Cái gì được giữ lại và giữ bao lâu. Những gì bạn nói hay gõ không bao giờ được dùng để huấn luyện mô hình AI.',

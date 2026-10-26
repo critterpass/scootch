@@ -6,8 +6,7 @@
 const spring = 'cubic-bezier(.32,.72,0,1)';
 const bounce = 'cubic-bezier(.34,1.56,.64,1)';
 
-const stillPage = (): boolean =>
-  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const stillPage = (): boolean => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /** Calls `seen` once for each element, the first time it scrolls into view. */
 function onceInView(
