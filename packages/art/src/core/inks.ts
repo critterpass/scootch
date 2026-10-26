@@ -1,4 +1,14 @@
-import type { MonsterInk } from './spec';
+/** The named inks a drawing can be made in. */
+export type InkId =
+  | 'charcoal'
+  | 'navy'
+  | 'moss'
+  | 'plum'
+  | 'teal'
+  | 'rust'
+  | 'mustard'
+  | 'lilac'
+  | 'kraft';
 
 export interface InkPair {
   readonly body: string;
@@ -7,7 +17,7 @@ export interface InkPair {
   readonly light: boolean;
 }
 
-export const INKS: Record<MonsterInk, InkPair> = {
+export const INKS: Record<InkId, InkPair> = {
   charcoal: { body: '#3A3430', shade: '#221E1B', light: false },
   navy: { body: '#34506E', shade: '#22364C', light: false },
   moss: { body: '#4C6A4C', shade: '#334833', light: false },
@@ -19,8 +29,8 @@ export const INKS: Record<MonsterInk, InkPair> = {
   kraft: { body: '#B8925F', shade: '#987443', light: true },
 };
 
-/** The inks a body draws from when it names none of its own. Kraft belongs to the box alone. */
-export const COMMON_INKS: readonly MonsterInk[] = [
+/** The inks a drawing picks from when it names none of its own. Kraft is kept for paper and card. */
+export const COMMON_INKS: readonly InkId[] = [
   'charcoal',
   'navy',
   'moss',

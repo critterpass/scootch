@@ -1,17 +1,8 @@
 // The Node side of the package: PNG exports for share images and link previews. Kept out of the
 // main entry, so the app never bundles the native canvas.
 import { createCanvas } from '@napi-rs/canvas';
-import type { CardData } from '@phusclass/domain';
 
 import { canvasFont, drawCommands } from './backends/canvas2d';
-import {
-  buildCard,
-  CARD_BLEED,
-  CARD_HEIGHT,
-  CARD_WIDTH,
-  type CardOptions,
-} from './card/build-card';
-import { buildStory, type ShareComposition, type StoryOptions } from './card/build-story';
 import type { DrawCommand } from './core/commands';
 import type { MeasureText } from './core/text';
 
@@ -24,52 +15,19 @@ export const measureWithCanvas: MeasureText = (text, style) => {
   return ruler.measureText(text).width + [...text].length * (style.tracking ?? 0) * style.size;
 };
 
-interface Placement {
+/** A drawing made in its own `width` by `height` space. */
+export interface Picture {
   readonly width: number;
   readonly height: number;
-  readonly scale: number;
-  readonly x: number;
-  readonly y: number;
+  readonly commands: readonly DrawCommand[];
 }
 
-function renderPng(commands: readonly DrawCommand[], at: Placement): Buffer {
-  const canvas = createCanvas(at.width, at.height);
+/** A picture as a PNG `pixels` wide, at the picture's own ratio, on a transparent ground. */
+export function renderPicturePng(picture: Picture, pixels: number): Buffer {
+  const scale = pixels / picture.width;
+  const canvas = createCanvas(pixels, Math.round(picture.height * scale));
   const ctx = canvas.getContext('2d');
-  ctx.translate(at.x, at.y);
-  ctx.scale(at.scale, at.scale);
-  drawCommands(ctx, commands);
+  ctx.scale(scale, scale);
+  drawCommands(ctx, picture.commands);
   return canvas.toBuffer('image/png');
-}
-
-/**
- * One card as a PNG `width` pixels wide, at the card's own ratio, on a transparent ground. The
- * card sits a little inside the image, so the stamp that hangs over its edge is not cut off.
- */
-export function renderCardPng(data: CardData, options: CardOptions, width: number): Buffer {
-  const height = Math.round((width * CARD_HEIGHT) / CARD_WIDTH);
-  const scale = width / (CARD_WIDTH + CARD_BLEED * 2);
-  return renderPng(buildCard(data, { measure: measureWithCanvas, ...options }), {
-    width,
-    height,
-    scale,
-    x: CARD_BLEED * scale,
-    y: (height - CARD_HEIGHT * scale) / 2,
-  });
-}
-
-/** Any shared picture as a PNG `width` pixels wide. */
-export function renderSharePng(picture: ShareComposition, width: number): Buffer {
-  const scale = width / picture.width;
-  return renderPng(picture.commands, {
-    width,
-    height: Math.round(picture.height * scale),
-    scale,
-    x: 0,
-    y: 0,
-  });
-}
-
-/** The share story of a catch as a PNG `width` pixels wide. */
-export function renderStoryPng(data: CardData, options: StoryOptions, width: number): Buffer {
-  return renderSharePng(buildStory(data, { measure: measureWithCanvas, ...options }), width);
 }

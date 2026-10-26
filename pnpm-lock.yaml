@@ -694,9 +694,6 @@ importers:
       '@napi-rs/canvas':
         specifier: 'catalog:'
         version: 1.0.10
-      '@phusclass/domain':
-        specifier: workspace:*
-        version: link:../domain
     devDependencies:
       '@types/node':
         specifier: 'catalog:'

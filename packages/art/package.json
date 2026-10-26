@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Scootch, monsters and cards (Skia) and the pose baker",
+  "description": "The drawing model, its backends (canvas, SVG) and the surface baker",
   "sideEffects": false,
   "exports": {
     ".": "./src/index.ts",
@@ -11,17 +11,11 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "generate": "tsx ../../tools/scripts/generate-index.ts src/monsters src/scootch/moods src/work-modes src/card/finishes src/card/materials",
-    "test": "tsx ../../tools/scripts/generate-index.ts --check src/monsters src/scootch/moods src/work-modes src/card/finishes src/card/materials && vitest run --passWithNoTests",
-    "zoo": "tsx scripts/render-zoo.ts",
-    "scootch": "tsx scripts/render-scootch.ts",
-    "work-modes": "tsx scripts/render-work-modes.ts",
-    "cards": "tsx scripts/render-cards.ts",
-    "motion": "tsx scripts/render-motion.ts"
+    "test": "vitest run --passWithNoTests",
+    "bake": "tsx scripts/bake-surfaces.ts"
   },
   "dependencies": {
-    "@napi-rs/canvas": "catalog:",
-    "@phusclass/domain": "workspace:*"
+    "@napi-rs/canvas": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:"

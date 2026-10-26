@@ -10,12 +10,12 @@ import { renderPngWithCanvas } from './render-png';
 
 const COMMITTED = path.resolve(
   import.meta.dirname,
-  '../../../../apps/mobile/targets/widgets/ScootchArt.xcassets',
+  '../../../../apps/mobile/targets/widgets/SurfaceArt.xcassets',
 );
 
 const made: string[] = [];
 function folder(): string {
-  const dir = mkdtempSync(path.join(tmpdir(), 'scootch-bake-'));
+  const dir = mkdtempSync(path.join(tmpdir(), 'phusclass-bake-'));
   made.push(dir);
   return dir;
 }
@@ -39,7 +39,7 @@ const png = (dir: string, art: BakedArt, scale: number) =>
 
 describe('the surface art baker', { timeout: 60_000 }, () => {
   const all = bakedArt();
-  const sample = all.filter((art) => ['ScootchWorkingCheeky', 'GlyphPlay'].includes(art.name));
+  const sample = all.filter((art) => ['GlyphPlus', 'GlyphPlay'].includes(art.name));
 
   it('bakes the same bytes every time', () => {
     const first = folder();
@@ -81,15 +81,10 @@ describe('the surface art baker', { timeout: 60_000 }, () => {
     expect(bake(sample, dir, renderPngWithCanvas).written).toEqual(['GlyphPlay']);
   });
 
-  it('has every pose the surfaces ask for, and the serious pose once', () => {
+  it('names every image once', () => {
     const names = all.map((art) => art.name);
     expect(new Set(names).size).toBe(names.length);
-    for (const pose of ['Working', 'Waiting', 'Asleep', 'Celebrating']) {
-      for (const attitude of ['Soft', 'Cheeky', 'Unhinged']) {
-        expect(names).toContain(`Scootch${pose}${attitude}`);
-      }
-    }
-    expect(names.filter((name) => name.startsWith('ScootchSerious'))).toEqual(['ScootchSerious']);
+    expect(names).toEqual(['GlyphPlay', 'GlyphPlus', 'GlyphLock']);
   });
 
   it('matches the baked art committed in the widget target', () => {

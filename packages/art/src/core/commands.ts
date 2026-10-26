@@ -1,7 +1,7 @@
 /**
- * The drawing model: a monster is a flat list of these commands, in a 200 by 200 unit space with
- * the ground at y = 172. A backend (2D canvas, SVG, Skia) only has to replay the list. A card is
- * the same kind of list in its own, larger space.
+ * The drawing model: a drawing is a flat list of these commands, in a 200 by 200 unit space with
+ * the ground at y = 172. A backend (2D canvas, SVG, Skia) only has to replay the list. A larger
+ * picture is the same kind of list in its own, larger space.
  */
 export type PathSegment =
   | readonly ['M', number, number]
@@ -104,5 +104,5 @@ export interface TextCommand {
 
 /** Width and height of the drawing space. */
 export const VIEW_SIZE = 200;
-/** The y of the ground line monsters stand on. */
+/** The y of the ground line a figure stands on. */
 export const GROUND_Y = 172;
