@@ -5,7 +5,7 @@
 #
 #   tools/scripts/native-build-ios.sh <e2e-test|dev|prd> <out dir>
 #
-# Writes <out dir>/scootch-<profile>-ios.tar.gz (the simulator app) or .ipa (the signed store
+# Writes <out dir>/phusclass-<profile>-ios.tar.gz (the simulator app) or .ipa (the signed store
 # build), and its path as the `artifact` step output.
 #
 # Env: EXPO_TOKEN, EAS_CLI (the pinned eas-cli package). For a store profile, optionally
@@ -27,7 +27,7 @@ case "$profile" in
 esac
 
 mkdir -p "$out_dir"
-artifact=$(cd "$out_dir" && pwd)/scootch-$profile-ios.$extension
+artifact=$(cd "$out_dir" && pwd)/phusclass-$profile-ios.$extension
 
 # Only a signed build is given the key, and only as a file nobody else on the runner can read.
 if [ "$profile" != e2e-test ] && [ -n "${ASC_API_KEY_P8:-}" ] && [ -n "${EXPO_ASC_KEY_ID:-}" ] &&

@@ -9,10 +9,10 @@ import { canvas, compareSheets, SHEET, type DesignScreen, type SheetState } from
 const VARIANTS = ['en-light-default', 'vi-light-default'];
 
 const hello: DesignScreen = {
-  board: 'Scootch',
+  board: 'Desk',
   section: '01 First launch',
   screen: 'Hello',
-  path: 'design/renders/scootch/01-first-launch--hello.png',
+  path: 'design/renders/desk/01-first-launch--hello.png',
   width: 10,
   height: 20,
 };
@@ -26,7 +26,7 @@ function state(id: string, design: SheetState['design'], reason?: string): Sheet
   };
 }
 
-const designed = state('hello', { board: 'Scootch', section: '01 First launch', screen: 'Hello' });
+const designed = state('hello', { board: 'Desk', section: '01 First launch', screen: 'Hello' });
 
 describe('design-beside-device sheets', () => {
   let root: string;
@@ -109,7 +109,7 @@ describe('design-beside-device sheets', () => {
 
     const result = await compare([
       state('gap', null, 'The design has no screen for a failed save.'),
-      state('unlisted', { board: 'Scootch', section: '01 First launch', screen: 'Goodbye' }),
+      state('unlisted', { board: 'Desk', section: '01 First launch', screen: 'Goodbye' }),
       designed,
     ]);
 
@@ -117,7 +117,7 @@ describe('design-beside-device sheets', () => {
       { id: 'gap', reason: 'The design has no screen for a failed save.' },
       {
         id: 'unlisted',
-        reason: '"Scootch / 01 First launch / Goodbye" is not in design/screens.json',
+        reason: '"Desk / 01 First launch / Goodbye" is not in design/screens.json',
       },
       { id: 'hello', reason: `no render at ${hello.path}` },
     ]);

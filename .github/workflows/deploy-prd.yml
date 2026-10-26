@@ -1,4 +1,4 @@
-# Deploys one release to production: the API (database migrations first) and scootch.app.
+# Deploys one release to production: the API (database migrations first) and phusclass.com.
 # A release is a `v*` tag on a commit that is already on main, so it has passed `ci passed` as a
 # pull request and has been running on dev. Nothing else reaches production.
 #   git tag v1.0.0 <commit on main> && git push origin v1.0.0
@@ -65,15 +65,15 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Apply database migrations
         working-directory: apps/api
-        run: pnpm exec wrangler d1 migrations apply scootch --env prd --remote
+        run: pnpm exec wrangler d1 migrations apply phusclass --env prd --remote
       - name: Deploy the API
         working-directory: apps/api
         run: pnpm exec wrangler deploy --env prd --var "COMMIT_SHA:${GITHUB_SHA::7}"
-      # Longer than dev waits: the first deploy also waits for api.scootch.app's certificate.
+      # Longer than dev waits: the first deploy also waits for api.phusclass.com's certificate.
       - name: Wait until prd serves this commit
         run: |
           for attempt in $(seq 1 60); do
-            got=$(curl -s --max-time 10 https://api.scootch.app/v1/health || true)
+            got=$(curl -s --max-time 10 https://api.phusclass.com/v1/health || true)
             case "$got" in *"\"commit\":\"${GITHUB_SHA::7}\""*) echo "$got"; exit 0 ;; esac
             sleep 3
           done

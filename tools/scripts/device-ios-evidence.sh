@@ -63,7 +63,7 @@ symbols() {
   for bin in "${bins[@]}"; do nm -arch arm64 -gU "$bin" 2>/dev/null | awk '{print $NF}'; done | sort -u >"$exports"
   : >"$file"
   for bin in "${bins[@]}"; do
-    nm -arch arm64 -u "$bin" 2>/dev/null | awk '{print $NF}' | grep -E '^_\$s[0-9]+(Expo|Scootch)' | sort -u |
+    nm -arch arm64 -u "$bin" 2>/dev/null | awk '{print $NF}' | grep -E '^_\$s[0-9]+(Expo|Phusclass)' | sort -u |
       comm -23 - "$exports" | sed "s#^#${bin#"$app"/} needs #" >>"$file"
   done
   rm -f "$exports"
@@ -72,7 +72,7 @@ symbols() {
     head -5 "$file"
     return 1
   fi
-  echo "No missing Expo or Scootch symbols in ${#bins[@]} binaries"
+  echo "No missing Expo or Phu's Class symbols in ${#bins[@]} binaries"
 }
 
 # One direct launch with the console attached: prints what the process writes, or why it was refused.
@@ -88,7 +88,7 @@ launch() {
     wait "$pid"
     echo "launch command exited $? after ${waited}s" >>"$out/direct-launch.txt"
   fi
-  xcrun simctl spawn "$udid" launchctl list 2>/dev/null | grep -i -E 'scootch|PID' >"$out/direct-launch-processes.txt" || true
+  xcrun simctl spawn "$udid" launchctl list 2>/dev/null | grep -i -E 'phusclass|PID' >"$out/direct-launch-processes.txt" || true
   xcrun simctl terminate "$udid" "$id" >/dev/null 2>&1 || true
 }
 
@@ -100,15 +100,15 @@ crashes() {
     \( -name '*.ips' -o -name '*.crash' \) -mmin -60 2>/dev/null |
     while IFS= read -r report; do
       case "$(basename "$report")" in
-        *Scootch* | *scootch* | *Widget* | *Clip* | *Notification* | *Hermes*) head -c 300000 "$report" >"$out/crash-reports/$(basename "$report")" ;;
+        *Phus* | *phus* | *Widget* | *Clip* | *Notification* | *Hermes*) head -c 300000 "$report" >"$out/crash-reports/$(basename "$report")" ;;
       esac
     done
   ls -la "$HOME/Library/Logs/DiagnosticReports" >"$out/crash-reports/listing.txt" 2>&1 || true
   xcrun simctl spawn "$udid" log show --last 15m --style compact \
-    --predicate "process IN {\"ScootchDev\",\"SpringBoard\",\"runningboardd\",\"installd\",\"containermanagerd\",\"amfid\",\"launchd_sim\",\"dyld\"} AND (eventMessage CONTAINS \"scootch\" OR eventMessage CONTAINS \"Scootch\" OR eventMessage CONTAINS \"$id\" OR process == \"ScootchDev\")" \
+    --predicate "process IN {\"PhusClassDev\",\"SpringBoard\",\"runningboardd\",\"installd\",\"containermanagerd\",\"amfid\",\"launchd_sim\",\"dyld\"} AND (eventMessage CONTAINS \"phusclass\" OR eventMessage CONTAINS \"Phusclass\" OR eventMessage CONTAINS \"$id\" OR process == \"PhusClassDev\")" \
     2>&1 | tail -c 400000 >"$out/system-log-app.txt" || true
   xcrun simctl spawn "$udid" log show --last 15m --style compact \
-    --predicate 'eventMessage CONTAINS[c] "scootch" AND (eventMessage CONTAINS[c] "crash" OR eventMessage CONTAINS[c] "terminat" OR eventMessage CONTAINS[c] "denied" OR eventMessage CONTAINS[c] "entitlement" OR eventMessage CONTAINS[c] "signature" OR eventMessage CONTAINS[c] "exited" OR eventMessage CONTAINS[c] "fail")' \
+    --predicate 'eventMessage CONTAINS[c] "phusclass" AND (eventMessage CONTAINS[c] "crash" OR eventMessage CONTAINS[c] "terminat" OR eventMessage CONTAINS[c] "denied" OR eventMessage CONTAINS[c] "entitlement" OR eventMessage CONTAINS[c] "signature" OR eventMessage CONTAINS[c] "exited" OR eventMessage CONTAINS[c] "fail")' \
     2>&1 | tail -c 200000 >"$out/system-log-refusals.txt" || true
 }
 

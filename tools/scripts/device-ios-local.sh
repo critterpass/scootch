@@ -5,8 +5,8 @@
 #
 #   tools/scripts/device-ios-local.sh [folder or file under e2e/]   (default e2e/fresh)
 #
-# Unlike a GitHub run it keeps one simulator ("Scootch local", erased before every run) and keeps
-# the newest downloaded builds under ~/Library/Caches/scootch/e2e-builds, so a rerun starts in
+# Unlike a GitHub run it keeps one simulator ("Phu's Class local", erased before every run) and keeps
+# the newest downloaded builds under ~/Library/Caches/phusclass/e2e-builds, so a rerun starts in
 # seconds. Runs on one Mac queue for that simulator, one at a time; the JavaScript export does not
 # wait. Only the newest run outputs are kept: simulators and recordings once filled this disk.
 # Uncommitted JavaScript is exported as well: the js-commit label then reads `<commit>-local`.
@@ -14,19 +14,19 @@
 # Needs: Xcode with an iOS runtime, jq, gh (signed in), Java 17 and Maestro (~/.maestro/bin).
 # Env: MODE (run|capture|video, default run), DEVICE (default "iPhone 17"), MAESTRO_STATES and
 # MAESTRO_VARIANTS (as the workflow inputs), OUT (default
-# ~/Library/Caches/scootch/device-runs/<time>, outside the repository: screenshots never go in it).
+# ~/Library/Caches/phusclass/device-runs/<time>, outside the repository: screenshots never go in it).
 set -euo pipefail
 
 flows=${1:-e2e/fresh}
 repo_root=$(cd "$(dirname "$0")/../.." && pwd)
 here=$repo_root/tools/scripts
-cache=$HOME/Library/Caches/scootch/e2e-builds
+cache=$HOME/Library/Caches/phusclass/e2e-builds
 builds_kept=3
 runs_kept=5
-lock=/private/tmp/scootch-simulator-lock
-sim_name="Scootch local"
+lock=/private/tmp/phusclass-simulator-lock
+sim_name="Phu's Class local"
 device=${DEVICE:-iPhone 17}
-runs=$HOME/Library/Caches/scootch/device-runs
+runs=$HOME/Library/Caches/phusclass/device-runs
 out=${OUT:-$runs/$(date +%Y%m%d-%H%M%S)}
 mkdir -p "$cache" "$out"
 out=$(cd "$out" && pwd)

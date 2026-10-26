@@ -1,0 +1,12 @@
+appId: com.phusclass.dev
+---
+# The fresh-user walk, step one: a clean install opens on the desk, and the desk says "Sit.". No
+# seed, no deep link, nothing granted beforehand.
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: 'desk-sit'
+    timeout: 90000
+- assertVisible: 'Sit.'
+- takeScreenshot: desk-sit--en-light-default

@@ -1,8 +1,8 @@
-appId: app.scootch.dev
+appId: com.phusclass.dev
 ---
 # Captures every registered screen state in every variant, for the design-beside-device sheets.
-# Run it with mode=capture and flows=e2e/sheets. It reaches the registry the way a developer does,
-# through the more button on the one screen, and reads the list from the app itself:
+# Run it with mode=capture and flows=e2e/sheets. It opens the registry by its link once the desk is up,
+# and reads the list from the app itself:
 # `registry-count` holds the number of rows and `registry-name-<n>` the name of the n-th, so a new
 # registry file needs no change here. Each image is named `<state id>--<variant>`.
 # With MAESTRO_STATES (a comma-separated list of state id prefixes; the device workflow's `states`
@@ -11,57 +11,16 @@ appId: app.scootch.dev
 # only those variants. Empty or unset: every row.
 - launchApp:
     clearState: true
-# A clean install meets first launch before the one screen: say hello, keep the attitude and skip
-# both favours. The developer tools then open from the more button in the top corner.
 - extendedWaitUntil:
     visible:
-      id: 'launch-hello-next'
+      id: 'desk-sit'
     timeout: 90000
-- tapOn:
-    id: 'launch-hello-next'
-- extendedWaitUntil:
-    visible:
-      id: 'launch-attitude-confirm'
-    timeout: 30000
-- tapOn:
-    id: 'launch-attitude-confirm'
-- extendedWaitUntil:
-    visible:
-      id: 'launch-permission-skip'
-    timeout: 30000
-- tapOn:
-    id: 'launch-permission-skip'
-- extendedWaitUntil:
-    visible:
-      id: 'launch-permission-skip'
-    timeout: 30000
-- tapOn:
-    id: 'launch-permission-skip'
-- extendedWaitUntil:
-    visible:
-      id: 'more-button'
-    timeout: 60000
-- tapOn:
-    id: 'more-button'
-- scrollUntilVisible:
-    element:
-      id: 'developer-tools'
-    direction: DOWN
-    timeout: 120000
-    # Centred, so the row is not left at the screen's lower edge, where it counts as not visible.
-    centerElement: true
-- tapOn:
-    id: 'developer-tools'
-- extendedWaitUntil:
-    visible:
-      id: 'dev-open-registry'
-    timeout: 15000
-- tapOn:
-    id: 'dev-open-registry'
+# The desk has no way to the developer tools, so the registry opens by its link.
+- openLink: phusclass-dev:///registry
 - extendedWaitUntil:
     visible:
       id: 'registry-count'
-    timeout: 15000
+    timeout: 30000
 - evalScript: "${output.states = typeof MAESTRO_STATES === 'undefined' ? '' : MAESTRO_STATES.trim()}"
 - evalScript: "${output.variants = typeof MAESTRO_VARIANTS === 'undefined' ? '' : MAESTRO_VARIANTS.trim()}"
 # The first time the keyboard is used, iOS may stop to explain sliding a finger across the letters,

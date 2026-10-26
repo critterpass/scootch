@@ -11,7 +11,7 @@ set -euo pipefail
 apk=$1
 out_dir=$2
 flows=$3
-package=app.scootch.dev
+package=com.phusclass.dev
 here=$(cd "$(dirname "$0")" && pwd)
 serial=$(adb devices | awk 'NR > 1 && $2 == "device" { print $1; exit }')
 mkdir -p "$out_dir/failures"
