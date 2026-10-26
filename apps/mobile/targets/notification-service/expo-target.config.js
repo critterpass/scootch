@@ -6,7 +6,7 @@
  */
 module.exports = (config) => ({
   type: 'notification-service',
-  name: 'ScootchNotificationService',
+  name: 'PhusclassNotificationService',
   bundleIdentifier: '.notification-service',
   // One minimum iOS version for the app and every target: IOS_DEPLOYMENT_TARGET in app.config.ts.
   deploymentTarget: config.ios.deploymentTarget,

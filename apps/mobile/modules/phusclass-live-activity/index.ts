@@ -7,8 +7,8 @@ import type {
   SessionActivityStartOptions,
   SessionActivityState,
   SessionActivityUpdateOptions,
-} from './src/ScootchLiveActivity.types';
-import { nativeScootchLiveActivityModule as native } from './src/ScootchLiveActivityModule';
+} from './src/PhusclassLiveActivity.types';
+import { nativePhusclassLiveActivityModule as native } from './src/PhusclassLiveActivityModule';
 
 export type {
   ActiveSessionActivity,
@@ -16,15 +16,11 @@ export type {
   PushToStartTokenEvent,
   PushTokenEvent,
   SessionActivityAttributes,
-  SessionActivityCaughtCard,
-  SessionActivityHunt,
   SessionActivityStartOptions,
   SessionActivityState,
   SessionActivityStatus,
-  SessionActivityTable,
-  SessionActivityTableSeat,
   SessionActivityUpdateOptions,
-} from './src/ScootchLiveActivity.types';
+} from './src/PhusclassLiveActivity.types';
 
 const NO_SUBSCRIPTION: LiveActivitySubscription = { remove: () => undefined };
 
@@ -75,18 +71,6 @@ export async function end(
 export async function listActive(): Promise<ActiveSessionActivity[]> {
   if (!native) return [];
   return native.listActive();
-}
-
-/**
- * Tells Siri and Spotlight that the waiting monsters changed, so the names they offer are today's.
- * Nothing happens where there are no shortcuts, or in a binary made before them.
- */
-export function refreshShortcuts(): void {
-  try {
-    native?.refreshShortcuts();
-  } catch {
-    // An older binary has no such call.
-  }
 }
 
 /** Fires with the token for updating one activity started with `pushUpdates`. */

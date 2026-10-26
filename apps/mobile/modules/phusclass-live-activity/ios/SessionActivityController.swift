@@ -10,7 +10,7 @@ enum SessionActivityError: Error, CustomStringConvertible {
         switch self {
         case .invalidAttributes: return "attributes need a taskTitle string"
         case .invalidState:
-            return "state needs endDate (milliseconds since 1970), a line string and, when it has a hunt or a caught card, a whole one"
+            return "state needs endDate (milliseconds since 1970) and a line string"
         }
     }
 }
@@ -48,13 +48,7 @@ enum SessionActivityController {
     /// False when no activity has that id, for one the user or the system already removed.
     static func update(id: String, state: [String: Any], options: [String: Any]?) async throws -> Bool {
         guard let activity = find(id) else { return false }
-        // An update that says nothing of the table (a line turning, the clock moving) keeps the
-        // table that is there: only an update that names it, as a table or as none, changes it.
-        var whole = state
-        if whole["table"] == nil, let table = json(from: activity.content.state.table) {
-            whole["table"] = table
-        }
-        await activity.update(try content(from: whole, options: options))
+        await activity.update(try content(from: state, options: options))
         return true
     }
 
@@ -89,10 +83,7 @@ enum SessionActivityController {
                 "state": [
                     "endDate": activity.content.state.endDate.timeIntervalSince1970 * 1000,
                     "line": activity.content.state.line,
-                    "hunt": json(from: activity.content.state.hunt) ?? NSNull(),
                     "offline": activity.content.state.offline ?? NSNull(),
-                    "caught": json(from: activity.content.state.caught) ?? NSNull(),
-                    "table": json(from: activity.content.state.table) ?? NSNull(),
                 ] as [String: Any],
                 "status": status(of: activity),
             ]
@@ -109,44 +100,11 @@ enum SessionActivityController {
         guard let endDate = date(state["endDate"]), let line = state["line"] as? String else {
             throw SessionActivityError.invalidState
         }
-        // A hunt or a card that cannot be read is a mistake in the caller, not a session without one.
-        var hunt: HuntRecord?
-        if let given = state["hunt"], !(given is NSNull) {
-            guard let record = value(HuntRecord.self, from: given) else {
-                throw SessionActivityError.invalidState
-            }
-            hunt = record
-        }
-        var caught: SessionActivityAttributes.CaughtCard?
-        if let given = state["caught"], !(given is NSNull) {
-            guard let card = value(SessionActivityAttributes.CaughtCard.self, from: given) else {
-                throw SessionActivityError.invalidState
-            }
-            caught = card
-        }
-        // A table that cannot be read is left out: the session still shows as a hunt.
-        let table = state["table"].flatMap { given in
-            given is NSNull ? nil : value(SessionActivityAttributes.Table.self, from: given)
-        }
         return ActivityContent(
             state: SessionActivityAttributes.ContentState(
-                endDate: endDate, line: line, hunt: hunt, offline: state["offline"] as? Bool,
-                caught: caught, table: table),
+                endDate: endDate, line: line, offline: state["offline"] as? Bool),
             staleDate: date(options?["staleDate"])
         )
-    }
-
-    /// A value as JavaScript sends it: the type's own fields, times in milliseconds.
-    private static func value<T: Decodable>(_ type: T.Type, from given: Any) -> T? {
-        guard JSONSerialization.isValidJSONObject(given),
-            let data = try? JSONSerialization.data(withJSONObject: given)
-        else { return nil }
-        return try? JSONDecoder().decode(type, from: data)
-    }
-
-    private static func json<T: Encodable>(from value: T?) -> [String: Any]? {
-        guard let value, let data = try? JSONEncoder().encode(value) else { return nil }
-        return (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
     }
 
     private static func date(_ milliseconds: Any?) -> Date? {

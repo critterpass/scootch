@@ -1,8 +1,8 @@
 {
-  "name": "scootch-notifications",
+  "name": "phusclass-notifications",
   "version": "1.0.0",
   "private": true,
-  "description": "Local notifications sent in a monster's name with its picture, and the actions under them.",
+  "description": "Local notifications, sent as a message from their sender with a picture.",
   "main": "index.ts",
   "types": "index.ts",
   "license": "UNLICENSED"

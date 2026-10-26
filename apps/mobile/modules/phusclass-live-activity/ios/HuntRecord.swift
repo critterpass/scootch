@@ -1,1 +1,0 @@
-../../../targets/_shared/HuntRecord.swift

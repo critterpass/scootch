@@ -1,4 +1,4 @@
-import { nativeScootchAppIconModule as native } from './src/ScootchAppIconModule';
+import { nativePhusclassAppIconModule as native } from './src/PhusclassAppIconModule';
 
 /** False on Android, and where the system does not let an app change its icon. */
 export function isSupported(): boolean {
