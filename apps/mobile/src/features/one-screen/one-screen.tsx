@@ -2,7 +2,7 @@ import { useIsFocused, useRouter, type Href } from 'expo-router';
 import { useEffect, useRef, useState, type ReactElement } from 'react';
 import { Linking, View } from 'react-native';
 
-import { FREE_STARTS_PER_DAY, hasStartLeft, startsAllowed, type Attitude } from '@scootch/domain';
+import { FREE_STARTS_PER_DAY, hasStartLeft, startsAllowed, type Attitude } from '@phusclass/domain';
 
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { useCue, useDispatch, useDrawer, useSession } from '../../state/day-store-provider';

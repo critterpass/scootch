@@ -67,7 +67,7 @@ jobs:
       - uses: actions/setup-node@v7
         with: { node-version: 24, cache: pnpm }
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @scootch/api test
+      - run: pnpm --filter @phusclass/api test
 
   mobile:
     name: mobile tests
@@ -78,7 +78,7 @@ jobs:
       - uses: actions/setup-node@v7
         with: { node-version: 24, cache: pnpm }
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @scootch/mobile test
+      - run: pnpm --filter @phusclass/mobile test
 
   # The site is bundled once, then the monster maker's states run in a real browser with the API
   # answered at the network boundary.
@@ -91,9 +91,9 @@ jobs:
       - uses: actions/setup-node@v7
         with: { node-version: 24, cache: pnpm }
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @scootch/web exec playwright install --with-deps chromium
-      - run: pnpm --filter @scootch/web build
-      - run: pnpm --filter @scootch/web test:site
+      - run: pnpm --filter @phusclass/web exec playwright install --with-deps chromium
+      - run: pnpm --filter @phusclass/web build
+      - run: pnpm --filter @phusclass/web test:site
 
   no-ids:
     name: no plan ids or deferral words in source

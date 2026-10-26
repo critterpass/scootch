@@ -1,5 +1,5 @@
-import type { Instant, SessionEffect } from '@scootch/domain';
-import { CUES } from '@scootch/sound';
+import type { Instant, SessionEffect } from '@phusclass/domain';
+import { CUES } from '@phusclass/sound';
 
 import type {
   Clock,

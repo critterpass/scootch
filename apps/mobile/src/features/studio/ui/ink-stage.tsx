@@ -2,8 +2,8 @@ import { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
-import { dotScreen, type DrawCommand } from '@scootch/art';
-import { fonts } from '@scootch/tokens';
+import { dotScreen, type DrawCommand } from '@phusclass/art';
+import { fonts } from '@phusclass/tokens';
 
 import { Scootch } from '../../../art/Scootch';
 import { useT } from '../../../i18n/i18n-provider';

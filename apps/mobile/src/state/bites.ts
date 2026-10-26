@@ -1,4 +1,4 @@
-import { bittenScale, tickBite, type Bite, type MonsterRow, type TaskRow } from '@scootch/domain';
+import { bittenScale, tickBite, type Bite, type MonsterRow, type TaskRow } from '@phusclass/domain';
 
 import type { DayContext } from './day-types';
 import { showsComedy } from './shows-comedy';

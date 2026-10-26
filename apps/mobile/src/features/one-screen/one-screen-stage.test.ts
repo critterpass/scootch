@@ -3,9 +3,9 @@ import path from 'node:path';
 
 import { describe, expect, it } from '@jest/globals';
 
-import { DAY_MS, startRefused, type TaskCreateStartResponse } from '@scootch/domain';
-import { languages, t } from '@scootch/i18n';
-import { noTaskLine } from '@scootch/voice';
+import { DAY_MS, startRefused, type TaskCreateStartResponse } from '@phusclass/domain';
+import { languages, t } from '@phusclass/i18n';
+import { noTaskLine } from '@phusclass/voice';
 
 import crisisFixture from '../../../../../packages/voice/fixtures/task.create.crisis.en.json';
 import seriousFixture from '../../../../../packages/voice/fixtures/task.create.serious.en.json';

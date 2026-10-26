@@ -1,4 +1,4 @@
-import { taskCreateLinesRequestSchema } from '@scootch/domain';
+import { taskCreateLinesRequestSchema } from '@phusclass/domain';
 
 import { continuationSecret, openContinuation } from '../ai/task-create/continuation';
 import { writeLines } from '../ai/task-create/write-lines';

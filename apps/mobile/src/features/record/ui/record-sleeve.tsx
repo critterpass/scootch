@@ -11,8 +11,8 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import type { MonsterSpec } from '@scootch/domain';
-import { fonts } from '@scootch/tokens';
+import type { MonsterSpec } from '@phusclass/domain';
+import { fonts } from '@phusclass/tokens';
 
 import { Monster } from '../../../art/Monster';
 import { SPRING_CURVE } from '../../../ui/motion/motion-tokens';

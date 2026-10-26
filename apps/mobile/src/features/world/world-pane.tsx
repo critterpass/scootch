@@ -2,8 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 
-import type { Attitude, Id, IsoDate, MonsterRow, WorldPieceRow } from '@scootch/domain';
-import { spacing } from '@scootch/tokens';
+import type { Attitude, Id, IsoDate, MonsterRow, WorldPieceRow } from '@phusclass/domain';
+import { spacing } from '@phusclass/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
 import { SendIcon } from '../../ui/icons';

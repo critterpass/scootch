@@ -1,6 +1,6 @@
 import { StyleSheet, Text } from 'react-native';
 
-import { fonts } from '@scootch/tokens';
+import { fonts } from '@phusclass/tokens';
 
 import { onInkOf } from '../../ui/buttons';
 import { PressSpring } from '../../ui/motion/press-spring';

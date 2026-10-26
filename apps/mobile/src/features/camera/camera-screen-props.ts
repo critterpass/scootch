@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-import type { Attitude, CameraAccess, CameraMode } from '@scootch/domain';
+import type { Attitude, CameraAccess, CameraMode } from '@phusclass/domain';
 
 import type { CameraRead } from './camera-read';
 

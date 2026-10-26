@@ -1,6 +1,6 @@
 import { StyleSheet, Text } from 'react-native';
 
-import { fonts, shadows, tracking } from '@scootch/tokens';
+import { fonts, shadows, tracking } from '@phusclass/tokens';
 
 import { useT } from '../../../i18n/i18n-provider';
 import { CONTROL_HEIGHT, GlassDock, onInkOf } from '../../../ui/buttons';

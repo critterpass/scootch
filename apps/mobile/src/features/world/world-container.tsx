@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useState } from 'react';
 
-import type { Id } from '@scootch/domain';
+import type { Id } from '@phusclass/domain';
 
 import { openRepositories } from '../../data/repositories';
 import { useToday } from '../../state/day-store-provider';

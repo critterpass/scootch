@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { fonts, spacing } from '@scootch/tokens';
+import { fonts, spacing } from '@phusclass/tokens';
 
 import { CapsuleButton, GlassDock, onInkOf, type CapsuleButtonProps } from '../../ui/buttons';
 import { PressSpring } from '../../ui/motion/press-spring';

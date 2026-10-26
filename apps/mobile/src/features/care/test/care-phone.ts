@@ -1,4 +1,4 @@
-import type { SessionEvent, TaskCreateRequest, TaskCreateResponse } from '@scootch/domain';
+import type { SessionEvent, TaskCreateRequest, TaskCreateResponse } from '@phusclass/domain';
 
 import { createTaskClient } from '../../../api/task-client';
 import { openRepositories } from '../../../data/repositories';

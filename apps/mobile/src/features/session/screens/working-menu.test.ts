@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { t as translate } from '@scootch/i18n';
+import { t as translate } from '@phusclass/i18n';
 
 import { fixtureModel, NO_ACTIONS } from '../registry/fixtures';
 import { sessionInks } from '../ui/session-inks';

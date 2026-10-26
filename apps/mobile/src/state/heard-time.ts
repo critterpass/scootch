@@ -12,9 +12,9 @@ import {
   type SettingsRow,
   type TaskCreateRequest,
   type TimedNotification,
-} from '@scootch/domain';
-import type { Language } from '@scootch/i18n';
-import { getReadyLine } from '@scootch/voice';
+} from '@phusclass/domain';
+import type { Language } from '@phusclass/i18n';
+import { getReadyLine } from '@phusclass/voice';
 
 import type { TaskFirstStage } from '../api/task-client';
 import type { PlannedText } from '../effects/effects-runner';

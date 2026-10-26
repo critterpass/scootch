@@ -6,7 +6,7 @@ import {
   type SessionMinutes,
   type TaskRow,
   type WorkMode,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import { refusalOf } from '../../api/together-api';
 import { showsComedy, showsSelling, type SellingDay } from '../../state/shows-comedy';

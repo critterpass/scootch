@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 
-import { CARD_MATERIALS, rgba, type DrawCommand } from '@scootch/art';
-import type { CardFinish } from '@scootch/domain';
-import { fonts } from '@scootch/tokens';
+import { CARD_MATERIALS, rgba, type DrawCommand } from '@phusclass/art';
+import type { CardFinish } from '@phusclass/domain';
+import { fonts } from '@phusclass/tokens';
 
 import { Scootch, type ScootchProps } from '../../../art/Scootch';
 import { useT } from '../../../i18n/i18n-provider';

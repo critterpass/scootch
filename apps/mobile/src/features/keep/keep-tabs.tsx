@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 
-import { fonts, shadows, tracking } from '@scootch/tokens';
+import { fonts, shadows, tracking } from '@phusclass/tokens';
 
 import { CONTROL_HEIGHT, DOCK_PADDING, GlassDock, onInkOf } from '../../ui/buttons';
 import { PressSpring } from '../../ui/motion/press-spring';

@@ -2,7 +2,7 @@
  * Draws a contact sheet: every body once, hatched from the seed the Characters board uses for it,
  * then one monster at four sizes. For looking at the generator beside the design.
  *
- *   pnpm --filter @scootch/art zoo [output.png]
+ *   pnpm --filter @phusclass/art zoo [output.png]
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';

@@ -1,5 +1,5 @@
-import type { Instant } from '@scootch/domain';
-import type { Language } from '@scootch/i18n';
+import type { Instant } from '@phusclass/domain';
+import type { Language } from '@phusclass/i18n';
 
 /** A store date as the person reads it: "13 October 2027", in their zone and language. */
 export function longDate(instant: Instant, language: Language, timeZone: string): string {

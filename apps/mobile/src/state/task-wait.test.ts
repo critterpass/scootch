@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { FREE_STARTS_PER_DAY, type TaskCreateStartResponse } from '@scootch/domain';
+import { FREE_STARTS_PER_DAY, type TaskCreateStartResponse } from '@phusclass/domain';
 
 import type { Judged } from '../api/scootch-api';
 import { composerReducer, initialComposer } from '../features/composer/composer-machine';

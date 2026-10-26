@@ -1,7 +1,7 @@
 // The eval for a thing that arrives from a website monster. For each thing it does what a visitor
 // and then their phone do: the website's maker hatches a monster, the monster is given a page,
 // and the thing is sent through the task call with that page (stage one, the name, the pack).
-//   SCOOTCH_API_URL=http://localhost:8787 pnpm --filter @scootch/voice eval:adopted
+//   SCOOTCH_API_URL=http://localhost:8787 pnpm --filter @phusclass/voice eval:adopted
 //   EVAL_LANGUAGES=vi narrows the run.
 // It checks that the monster comes back as itself (name, card line, seed and body), that the kind
 // line and the hatch line written about it pass the voice check, and that the pack is whole. The
@@ -12,7 +12,7 @@ import {
   taskCreateNameResponseSchema,
   taskCreatePackResponseSchema,
   taskCreateStartResponseSchema,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import { checkLine } from '../../src/index.ts';
 import { baseUrl, languages, pooled, post, share, spread, startTask } from '../shared.mjs';

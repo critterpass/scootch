@@ -1,6 +1,6 @@
 import { StyleSheet, Text, useColorScheme } from 'react-native';
 
-import { colors, fonts, spacing } from '@scootch/tokens';
+import { colors, fonts, spacing } from '@phusclass/tokens';
 
 /**
  * Names the commit whose JavaScript is running. Device runs export the bundle with

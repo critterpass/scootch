@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { durationSeconds, type RecordInstrument, type Track } from '@scootch/sound';
+import { durationSeconds, type RecordInstrument, type Track } from '@phusclass/sound';
 
 import { armAngle, litInstruments, NEEDLE_DROP_MS, trackKey, weekTrack } from './record-audio';
 import type { PcmPlayer } from './pcm-player';

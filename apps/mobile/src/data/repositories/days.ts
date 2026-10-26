@@ -1,4 +1,4 @@
-import { dayRowSchema, type DayRow } from '@scootch/domain';
+import { dayRowSchema, type DayRow } from '@phusclass/domain';
 
 import { createTable, type SqlDatabase, type Table } from '../table';
 

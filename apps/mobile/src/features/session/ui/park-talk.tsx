@@ -8,7 +8,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import { spacing } from '@scootch/tokens';
+import { spacing } from '@phusclass/tokens';
 
 import type { Translate } from '../../../i18n/i18n-provider';
 import { CONTROL_HEIGHT } from '../../../ui/buttons';

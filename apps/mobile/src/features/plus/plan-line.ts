@@ -1,4 +1,4 @@
-import { FREE_STARTS_PER_DAY } from '@scootch/domain';
+import { FREE_STARTS_PER_DAY } from '@phusclass/domain';
 
 import type { Translate } from '../../i18n/i18n-provider';
 

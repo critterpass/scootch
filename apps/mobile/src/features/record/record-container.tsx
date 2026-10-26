@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo } from 'react';
 
-import { isoWeekOf } from '@scootch/domain';
+import { isoWeekOf } from '@phusclass/domain';
 
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { useToday } from '../../state/day-store-provider';

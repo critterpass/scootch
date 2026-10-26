@@ -6,7 +6,7 @@ import {
   CARD_LABELS,
   CARD_WIDTH,
   toSvg,
-} from '@scootch/art';
+} from '@phusclass/art';
 
 import { startCardTilt } from './card-tilt';
 import {

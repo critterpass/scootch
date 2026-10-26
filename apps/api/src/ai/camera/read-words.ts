@@ -1,4 +1,4 @@
-import type { CameraReadLine } from '@scootch/domain';
+import type { CameraReadLine } from '@phusclass/domain';
 
 import { ApiError } from '../../errors';
 import type { RouteContext } from '../../route';

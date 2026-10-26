@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { biggerZone, type CameraMode } from '@scootch/domain';
-import type { StringKey } from '@scootch/i18n';
-import { radius, spacing } from '@scootch/tokens';
+import { biggerZone, type CameraMode } from '@phusclass/domain';
+import type { StringKey } from '@phusclass/i18n';
+import { radius, spacing } from '@phusclass/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
 import { CapsuleButton, GlassPill } from '../../ui/buttons';

@@ -1,4 +1,4 @@
-import type { Instant } from '@scootch/domain';
+import type { Instant } from '@phusclass/domain';
 
 /** What the member card carries besides the plan: its number and when the person joined. */
 export interface Member {

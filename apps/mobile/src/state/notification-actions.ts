@@ -1,4 +1,4 @@
-import { addDays, type Id } from '@scootch/domain';
+import { addDays, type Id } from '@phusclass/domain';
 
 import { biteTicked } from './bites';
 import type { DayContext, DayEvent } from './day-types';

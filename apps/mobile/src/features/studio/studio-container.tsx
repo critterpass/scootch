@@ -1,7 +1,7 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 
-import type { MonsterRow } from '@scootch/domain';
+import type { MonsterRow } from '@phusclass/domain';
 
 import { useT } from '../../i18n/i18n-provider';
 import { useToday } from '../../state/day-store-provider';

@@ -6,7 +6,7 @@ import {
   type Id,
   type ParkedThought,
   type ParkedThoughtRow,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import type { DayContext } from './day-types';
 

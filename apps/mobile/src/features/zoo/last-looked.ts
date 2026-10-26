@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react';
 
-import type { Id } from '@scootch/domain';
+import type { Id } from '@phusclass/domain';
 
 /**
  * The card last taken out of its pocket, kept while the app is open: the card screen writes it as

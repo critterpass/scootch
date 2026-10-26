@@ -6,7 +6,7 @@ import {
   todayState,
   type ClockTime,
   type SessionRow,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import { dayNotifications } from './day-notifications';
 import { showsComedy } from './shows-comedy';

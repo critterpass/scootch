@@ -1,4 +1,4 @@
-import type { HapticTap } from '@scootch/sound';
+import type { HapticTap } from '@phusclass/sound';
 
 import type { HapticsPlayer, Timers } from './adapters';
 

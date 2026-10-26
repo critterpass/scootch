@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, ReduceMotion } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { spacing } from '@scootch/tokens';
+import { spacing } from '@phusclass/tokens';
 
 import type { SessionInks } from './session-inks';
 import { CornerBar } from '../../../ui/corner-bar';

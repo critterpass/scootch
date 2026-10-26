@@ -14,9 +14,9 @@ import {
   type SessionRow,
   type SettingsRow,
   type TodayState,
-} from '@scootch/domain';
-import { t } from '@scootch/i18n';
-import { noTaskLine, offlineLine, offlinePacks } from '@scootch/voice';
+} from '@phusclass/domain';
+import { t } from '@phusclass/i18n';
+import { noTaskLine, offlineLine, offlinePacks } from '@phusclass/voice';
 
 import type { NotificationSender } from '../effects/adapters';
 import type { PlannedText } from '../effects/effects-runner';

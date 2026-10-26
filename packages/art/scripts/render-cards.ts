@@ -3,14 +3,14 @@
  * in every finish, a wild card, a card with the task hidden, a Vietnamese card with a long name
  * and long flavour text, and the two share stories.
  *
- *   pnpm --filter @scootch/art cards [folder]
+ *   pnpm --filter @phusclass/art cards [folder]
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
 import { createCanvas } from '@napi-rs/canvas';
-import { CARD_FINISH_IDS, type CardData } from '@scootch/domain';
+import { CARD_FINISH_IDS, type CardData } from '@phusclass/domain';
 
 import {
   buildCard,

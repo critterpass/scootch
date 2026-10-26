@@ -1,6 +1,6 @@
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
 
-import { radius, spacing } from '@scootch/tokens';
+import { radius, spacing } from '@phusclass/tokens';
 
 import type { WhoCanSit } from '../../api/together-api';
 import { useT } from '../../i18n/i18n-provider';

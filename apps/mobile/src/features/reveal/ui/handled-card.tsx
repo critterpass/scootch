@@ -21,9 +21,9 @@ import {
   CARD_WIDTH,
   FOIL_BY_RARITY,
   VIEW_SIZE,
-} from '@scootch/art';
-import type { CardData, GuessMinutes } from '@scootch/domain';
-import type { Language } from '@scootch/i18n';
+} from '@phusclass/art';
+import type { CardData, GuessMinutes } from '@phusclass/domain';
+import type { Language } from '@phusclass/i18n';
 
 import { Scootch } from '../../../art/Scootch';
 import { CommandLayer } from '../../../art/skia-commands';

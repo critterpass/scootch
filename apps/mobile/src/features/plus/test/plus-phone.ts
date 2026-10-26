@@ -1,4 +1,4 @@
-import type { SessionEvent, TaskCreatePass, TaskCreateResponse } from '@scootch/domain';
+import type { SessionEvent, TaskCreatePass, TaskCreateResponse } from '@phusclass/domain';
 
 import passFixture from '../../../../../../packages/voice/fixtures/task.create.en.json';
 import { createTaskClient } from '../../../api/task-client';

@@ -2,9 +2,9 @@ import { memo, type ReactNode } from 'react';
 import { StyleSheet, View, type ViewProps } from 'react-native';
 import Animated from 'react-native-reanimated';
 
-import { GROUND_Y, VIEW_SIZE } from '@scootch/art';
-import type { MonsterRow } from '@scootch/domain';
-import { fonts } from '@scootch/tokens';
+import { GROUND_Y, VIEW_SIZE } from '@phusclass/art';
+import type { MonsterRow } from '@phusclass/domain';
+import { fonts } from '@phusclass/tokens';
 
 import { Monster } from '../../../art/Monster';
 import type { SessionInks } from '../ui/session-inks';

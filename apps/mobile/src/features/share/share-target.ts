@@ -1,6 +1,6 @@
-import type { PostcardData, ShareFrame, SleeveData, WantedData } from '@scootch/art';
-import type { CardData, SignedWords, TaskRow } from '@scootch/domain';
-import type { Language } from '@scootch/i18n';
+import type { PostcardData, ShareFrame, SleeveData, WantedData } from '@phusclass/art';
+import type { CardData, SignedWords, TaskRow } from '@phusclass/domain';
+import type { Language } from '@phusclass/i18n';
 
 import type { Keepsakes } from '../../state/keepsakes';
 

@@ -1,4 +1,4 @@
-import type { CardData, Language, ScreenVerdict } from '@scootch/domain';
+import type { CardData, Language, ScreenVerdict } from '@phusclass/domain';
 
 import type { HttpClient } from './http-client';
 

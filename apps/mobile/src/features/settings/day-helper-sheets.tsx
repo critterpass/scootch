@@ -7,7 +7,7 @@ import {
   type ClockTime,
   type DayMoment,
   type SettingsRow,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import { useT } from '../../i18n/i18n-provider';
 import { FittedSheet, SheetHeading } from '../../ui/fitted-sheet';

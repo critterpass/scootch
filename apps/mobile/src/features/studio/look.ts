@@ -1,4 +1,4 @@
-import { CARD_FINISH_IDS, type CardFinish } from '@scootch/domain';
+import { CARD_FINISH_IDS, type CardFinish } from '@phusclass/domain';
 
 import {
   FREE_LOOK,

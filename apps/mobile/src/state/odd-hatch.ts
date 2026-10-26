@@ -1,4 +1,4 @@
-import { oddHatchFor, type MonsterRow, type TaskRow } from '@scootch/domain';
+import { oddHatchFor, type MonsterRow, type TaskRow } from '@phusclass/domain';
 
 import type { DayContext } from './day-types';
 

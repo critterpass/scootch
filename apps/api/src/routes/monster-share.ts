@@ -1,4 +1,4 @@
-import { monsterBodyTypeSchema } from '@scootch/domain';
+import { monsterBodyTypeSchema } from '@phusclass/domain';
 import { z } from 'zod';
 
 import type { DecideContext } from '../ai/decide';

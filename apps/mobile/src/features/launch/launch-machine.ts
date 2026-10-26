@@ -1,4 +1,4 @@
-import { isoFromInstant, type Attitude, type Instant, type SettingsRow } from '@scootch/domain';
+import { isoFromInstant, type Attitude, type Instant, type SettingsRow } from '@phusclass/domain';
 
 /** The two things first launch asks for, in the order it asks. */
 export const FAVOURS = ['notifications', 'microphone'] as const;

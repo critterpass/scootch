@@ -1,4 +1,4 @@
-import { getReadyLeadMinutes, showsOthersHunting, type SettingsRow } from '@scootch/domain';
+import { getReadyLeadMinutes, showsOthersHunting, type SettingsRow } from '@phusclass/domain';
 
 import { useT } from '../../i18n/i18n-provider';
 

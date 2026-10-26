@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 
-import type { TableSeat, WorkMode } from '@scootch/domain';
-import { spacing } from '@scootch/tokens';
+import type { TableSeat, WorkMode } from '@phusclass/domain';
+import { spacing } from '@phusclass/tokens';
 
 import { useT, type Translate } from '../../i18n/i18n-provider';
 import { useScreenStyle } from '../../ui/use-screen-style';

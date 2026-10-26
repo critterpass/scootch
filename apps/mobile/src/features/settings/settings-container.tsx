@@ -2,7 +2,7 @@ import { useIsFocused, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Linking, Share } from 'react-native';
 
-import type { SettingsRow } from '@scootch/domain';
+import type { SettingsRow } from '@phusclass/domain';
 
 import { useMusicWhenSilent } from '../../effects/sound-mode';
 import { useLanguage, useT } from '../../i18n/i18n-provider';

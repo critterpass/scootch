@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState, type ComponentRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import type { InTheWay } from '@scootch/domain';
-import { fonts } from '@scootch/tokens';
+import type { InTheWay } from '@phusclass/domain';
+import { fonts } from '@phusclass/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
 import { useScreenStyle } from '../../ui/use-screen-style';

@@ -21,7 +21,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 
-import { spacing } from '@scootch/tokens';
+import { spacing } from '@phusclass/tokens';
 
 import { SPRING_CURVE } from '../../ui/motion/motion-tokens';
 import { useFeel } from '../../ui/motion/use-feel';

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { StyleSheet, View, type ViewProps } from 'react-native';
 
-import { shadows } from '@scootch/tokens';
+import { shadows } from '@phusclass/tokens';
 
 import { CapsuleButton, GlassDock } from '../../../ui/buttons';
 

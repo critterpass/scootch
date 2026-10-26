@@ -1,4 +1,4 @@
-import type { Language } from '@scootch/i18n';
+import type { Language } from '@phusclass/i18n';
 
 import type { Condition, ScreenState } from '../../../screens/registry/support/screen-state';
 import type { CatchKind } from '../catch/catch-kinds';

@@ -11,7 +11,7 @@ import Animated, {
   type SharedValue,
 } from 'react-native-reanimated';
 
-import { fonts } from '@scootch/tokens';
+import { fonts } from '@phusclass/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
 import { CONTROL_HEIGHT } from '../../ui/buttons';

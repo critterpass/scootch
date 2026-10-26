@@ -11,8 +11,8 @@ import {
   nextHuntChange,
   resumeHunt,
   type HuntRecord,
-} from '@scootch/domain';
-import { CUES, encodeWav, type HapticTap } from '@scootch/sound';
+} from '@phusclass/domain';
+import { CUES, encodeWav, type HapticTap } from '@phusclass/sound';
 
 import * as LiveActivity from '../../modules/scootch-live-activity';
 import * as MonsterNotifications from '../../modules/scootch-notifications';

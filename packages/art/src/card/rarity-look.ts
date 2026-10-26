@@ -1,4 +1,4 @@
-import type { CardRarity } from '@scootch/domain';
+import type { CardRarity } from '@phusclass/domain';
 
 import type { FinishMaterial, Tint } from './material';
 import { holo } from './materials/holo';

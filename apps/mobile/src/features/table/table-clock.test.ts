@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { MINUTE_MS, type LiveSession, type TaskCreatePass } from '@scootch/domain';
+import { MINUTE_MS, type LiveSession, type TaskCreatePass } from '@phusclass/domain';
 
 import fixtures from '../../../../../packages/domain/src/contracts/fixtures/table-messages.json';
 import passFixture from '../../../../../packages/voice/fixtures/task.create.en.json';

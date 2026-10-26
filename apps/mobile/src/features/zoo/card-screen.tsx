@@ -12,8 +12,8 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { scheduleOnRN } from 'react-native-worklets';
 
-import type { DrawCommand } from '@scootch/art';
-import type { Language } from '@scootch/i18n';
+import type { DrawCommand } from '@phusclass/art';
+import type { Language } from '@phusclass/i18n';
 
 import { useT } from '../../i18n/i18n-provider';
 import { CORNER } from '../../ui/corner-bar';

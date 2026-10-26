@@ -1,4 +1,4 @@
-import { normalise, stripMarks } from '@scootch/voice';
+import { normalise, stripMarks } from '@phusclass/voice';
 
 /**
  * Dates heard in a ramble. The model only points at the user's phrase and offers a candidate

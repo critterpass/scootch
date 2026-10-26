@@ -1,4 +1,4 @@
-import type { CardFinish, MonsterSpec } from '@scootch/domain';
+import type { CardFinish, MonsterSpec } from '@phusclass/domain';
 
 import { buildMonster } from '../core/build-monster';
 import { VIEW_SIZE, type DrawCommand } from '../core/commands';

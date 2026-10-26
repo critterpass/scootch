@@ -1,8 +1,8 @@
 import { Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 
-import { CAMERA_MODES, isSentMode, type CameraMode } from '@scootch/domain';
-import type { StringKey } from '@scootch/i18n';
-import { radius, spacing } from '@scootch/tokens';
+import { CAMERA_MODES, isSentMode, type CameraMode } from '@phusclass/domain';
+import type { StringKey } from '@phusclass/i18n';
+import { radius, spacing } from '@phusclass/tokens';
 
 import { Scootch } from '../../art/Scootch';
 import { useT } from '../../i18n/i18n-provider';

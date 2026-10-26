@@ -1,4 +1,4 @@
-import type { Id } from '@scootch/domain';
+import type { Id } from '@phusclass/domain';
 
 import type { SqlDatabase } from './table';
 

@@ -1,4 +1,4 @@
-import type { StringKey } from '@scootch/i18n';
+import type { StringKey } from '@phusclass/i18n';
 
 type CatchKey = Extract<StringKey, `session.catch.${string}`>;
 

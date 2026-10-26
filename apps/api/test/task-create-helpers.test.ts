@@ -7,8 +7,8 @@ import {
   type TaskCreatePass,
   type TaskCreateRequest,
   type TaskCreateStartPass,
-} from '@scootch/domain';
-import { checkCueLine, checkTaskCopy, helperLine, offlinePacks } from '@scootch/voice';
+} from '@phusclass/domain';
+import { checkCueLine, checkTaskCopy, helperLine, offlinePacks } from '@phusclass/voice';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import passVi from '../../../packages/voice/fixtures/task.create.vi.json';

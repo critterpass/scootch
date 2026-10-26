@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { fonts } from '@scootch/tokens';
+import { fonts } from '@phusclass/tokens';
 
 import { useTextSizing } from '../../../screens/registry/support/forced-variant';
 import { PressSpring } from '../../../ui/motion/press-spring';

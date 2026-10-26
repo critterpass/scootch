@@ -11,7 +11,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 
-import { ITEM_TEXT_MAX, type DrawerItemRow } from '@scootch/domain';
+import { ITEM_TEXT_MAX, type DrawerItemRow } from '@phusclass/domain';
 
 import { useT } from '../../i18n/i18n-provider';
 import { BinIcon, Tick } from '../../ui/icons';

@@ -1,5 +1,5 @@
 import { StyleSheet, View } from 'react-native';
-import type { MonsterSpec } from '@scootch/domain';
+import type { MonsterSpec } from '@phusclass/domain';
 
 import { Monster } from '../../../art/Monster';
 import type { OddHatchProps } from '../odd-hatch-figures';

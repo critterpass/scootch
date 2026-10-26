@@ -5,7 +5,7 @@ import {
   OFFER_AFTER_CATCHES,
   PLUS_STARTS_PER_DAY,
   type TaskCreateResponse,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import seriousFixture from '../../../../../packages/voice/fixtures/task.create.serious.en.json';
 import { plusLine } from '../../state/lines';

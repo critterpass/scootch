@@ -7,8 +7,8 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import { CARD_MATERIALS, rgba, roundRect, type DrawCommand } from '@scootch/art';
-import type { CardFinish } from '@scootch/domain';
+import { CARD_MATERIALS, rgba, roundRect, type DrawCommand } from '@phusclass/art';
+import type { CardFinish } from '@phusclass/domain';
 
 import { useT } from '../../../i18n/i18n-provider';
 import { useAppearance } from '../../../screens/registry/support/forced-variant';

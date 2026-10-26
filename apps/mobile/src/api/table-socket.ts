@@ -6,7 +6,7 @@ import {
   type SessionMinutes,
   type TableServerMessage,
   type WorkMode,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import type { Timers } from '../effects/adapters';
 

@@ -1,4 +1,4 @@
-import { stripMarks, wordsOf } from '@scootch/voice';
+import { stripMarks, wordsOf } from '@phusclass/voice';
 import { z } from 'zod';
 
 import { recordAiUsage } from '../ledger';

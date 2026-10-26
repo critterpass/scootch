@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 
-import type { Language } from '@scootch/i18n';
+import type { Language } from '@phusclass/i18n';
 
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { useDispatch } from '../../state/day-store-provider';

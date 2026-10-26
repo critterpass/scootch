@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
-import { builtInTaskTexts, isBuiltInTaskText } from '@scootch/domain';
-import { languages, t } from '@scootch/i18n';
+import { builtInTaskTexts, isBuiltInTaskText } from '@phusclass/domain';
+import { languages, t } from '@phusclass/i18n';
 
 import { careGate } from './care-gate';
 

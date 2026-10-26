@@ -6,7 +6,7 @@ import {
   HOUR_MS,
   nextScootchDayStart,
   type TaskCreateStartResponse,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import crisisFixture from '../../../../packages/voice/fixtures/task.create.crisis.en.json';
 

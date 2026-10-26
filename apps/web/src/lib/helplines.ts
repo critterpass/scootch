@@ -5,9 +5,9 @@ import {
   textLink,
   type Helpline,
   type Language,
-} from '@scootch/i18n';
+} from '@phusclass/i18n';
 
-// The numbers, their hours and the dates they were verified live in `@scootch/i18n`, in the one
+// The numbers, their hours and the dates they were verified live in `@phusclass/i18n`, in the one
 // table the app reads too. This file adds only what the page needs around a row: the country's
 // name and the words on its links.
 

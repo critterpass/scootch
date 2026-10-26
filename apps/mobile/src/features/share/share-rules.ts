@@ -1,6 +1,6 @@
-import type { TaskRow } from '@scootch/domain';
+import type { TaskRow } from '@phusclass/domain';
 
-import type { TodayState } from '@scootch/domain';
+import type { TodayState } from '@phusclass/domain';
 
 import { showsComedy } from '../../state/shows-comedy';
 

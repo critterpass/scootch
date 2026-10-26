@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { buildMaterial, CARD_MATERIALS } from '@scootch/art';
+import { buildMaterial, CARD_MATERIALS } from '@phusclass/art';
 
 import { CommandCanvas } from '../../reveal/ui/command-canvas';
 import type { FinishItem, InkItem, StudioItem, TrailId } from '../catalogue';

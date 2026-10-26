@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import type { MonsterRow, TaskRow } from '@scootch/domain';
+import type { MonsterRow, TaskRow } from '@phusclass/domain';
 
 import {
   asRows,

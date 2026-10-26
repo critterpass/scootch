@@ -2,14 +2,14 @@
  * Draws a labelled contact sheet of Scootch in every work mode, at rest, with the plain working
  * pose last. For looking at the modes beside the design.
  *
- *   pnpm --filter @scootch/art work-modes [output.png]
+ *   pnpm --filter @phusclass/art work-modes [output.png]
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
 import { createCanvas } from '@napi-rs/canvas';
-import { WORK_MODE_IDS, type WorkMode } from '@scootch/domain';
+import { WORK_MODE_IDS, type WorkMode } from '@phusclass/domain';
 
 import { buildScootch, drawCommands, VIEW_SIZE } from '../src/index';
 

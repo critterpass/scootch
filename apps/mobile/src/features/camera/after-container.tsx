@@ -3,8 +3,8 @@ import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet } from 'react-native';
 
-import { readDesk } from '@scootch/domain';
-import { noTaskLine } from '@scootch/voice';
+import { readDesk } from '@phusclass/domain';
+import { noTaskLine } from '@phusclass/voice';
 
 import { getReading } from '../../../modules/scootch-reading';
 import { useLanguage, useT } from '../../i18n/i18n-provider';

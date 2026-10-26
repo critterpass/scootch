@@ -1,6 +1,6 @@
 import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 
-import { radius, spacing } from '@scootch/tokens';
+import { radius, spacing } from '@phusclass/tokens';
 
 import { CloseButton } from '../../../ui/corner-bar';
 

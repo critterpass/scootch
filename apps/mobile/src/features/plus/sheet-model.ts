@@ -1,4 +1,4 @@
-import type { NoTaskSlot } from '@scootch/voice';
+import type { NoTaskSlot } from '@phusclass/voice';
 
 import type { Translate } from '../../i18n/i18n-provider';
 

@@ -17,8 +17,8 @@ import {
   type CameraConsent,
   type CameraMode,
   type CameraTries,
-} from '@scootch/domain';
-import { noTaskLine, offlinePacks } from '@scootch/voice';
+} from '@phusclass/domain';
+import { noTaskLine, offlinePacks } from '@phusclass/voice';
 
 import { getReading } from '../../../modules/scootch-reading';
 import { appHttp } from '../../api/app-http';

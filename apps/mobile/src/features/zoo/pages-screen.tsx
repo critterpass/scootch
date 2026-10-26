@@ -10,9 +10,9 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { scheduleOnRN } from 'react-native-worklets';
 
-import { CARD_LABELS } from '@scootch/art';
-import type { Language } from '@scootch/i18n';
-import { fonts } from '@scootch/tokens';
+import { CARD_LABELS } from '@phusclass/art';
+import type { Language } from '@phusclass/i18n';
+import { fonts } from '@phusclass/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
 import { CapsuleButton, GlassDock } from '../../ui/buttons';

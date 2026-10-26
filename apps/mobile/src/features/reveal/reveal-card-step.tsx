@@ -14,7 +14,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import { spacing } from '@scootch/tokens';
+import { spacing } from '@phusclass/tokens';
 
 import { useCue } from '../../state/day-store-provider';
 import { RiseIn } from '../../ui/motion/rise-in';

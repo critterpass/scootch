@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn, LayoutAnimationConfig, ReduceMotion } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { fonts, spacing } from '@scootch/tokens';
+import { fonts, spacing } from '@phusclass/tokens';
 
 import type { MonsterProps } from '../../art/Monster';
 import { useT } from '../../i18n/i18n-provider';

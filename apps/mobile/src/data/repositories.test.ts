@@ -22,7 +22,7 @@ import {
   type TaskRow,
   type WeekRecordRow,
   type WorldPieceRow,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import { readStoredLanguage } from '../i18n/language-store';
 

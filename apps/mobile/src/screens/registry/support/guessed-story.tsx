@@ -1,6 +1,6 @@
-import { SHARE_FRAMES } from '@scootch/art';
-import type { GuessMinutes } from '@scootch/domain';
-import type { Language } from '@scootch/i18n';
+import { SHARE_FRAMES } from '@phusclass/art';
+import type { GuessMinutes } from '@phusclass/domain';
+import type { Language } from '@phusclass/i18n';
 
 import { fixtureMonster, fixtureTask } from '../../../features/reveal/registry/keep-fixtures';
 import { composeShareImage, type ShareDress } from '../../../features/share/share-image';

@@ -1,4 +1,4 @@
-import { PURCHASE_STATES } from '@scootch/domain';
+import { PURCHASE_STATES } from '@phusclass/domain';
 import { z } from 'zod';
 
 import type { Account } from '../accounts/accounts';

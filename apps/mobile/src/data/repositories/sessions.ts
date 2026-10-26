@@ -1,4 +1,4 @@
-import { sessionRowSchema, type SessionRow } from '@scootch/domain';
+import { sessionRowSchema, type SessionRow } from '@phusclass/domain';
 
 import { createTable, type SqlDatabase, type Table } from '../table';
 

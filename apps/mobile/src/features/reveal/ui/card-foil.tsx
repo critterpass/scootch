@@ -9,7 +9,7 @@ import {
 import { memo, useMemo } from 'react';
 import { useDerivedValue, type SharedValue } from 'react-native-reanimated';
 
-import { FOIL_LIGHT, type CardFinishInks, type FoilStrength } from '@scootch/art';
+import { FOIL_LIGHT, type CardFinishInks, type FoilStrength } from '@phusclass/art';
 
 import { gradientEnds, inkAt, slidBox, type Box } from './foil-geometry';
 

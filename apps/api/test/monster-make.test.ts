@@ -1,7 +1,7 @@
 import { createExecutionContext, waitOnExecutionContext } from 'cloudflare:test';
 import { env } from 'cloudflare:workers';
-import { MONSTER_BODY_TYPE_IDS } from '@scootch/domain';
-import { offlineLine, offlinePacks } from '@scootch/voice';
+import { MONSTER_BODY_TYPE_IDS } from '@phusclass/domain';
+import { offlineLine, offlinePacks } from '@phusclass/voice';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 

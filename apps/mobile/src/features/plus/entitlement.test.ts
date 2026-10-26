@@ -7,7 +7,7 @@ import {
   PLUS_STARTS_PER_DAY,
   holdingsAfter,
   type PurchaseState,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import { plusMemory } from '../../data/plus-memory';
 import { openTestDatabase } from '../../data/test/open-test-database';

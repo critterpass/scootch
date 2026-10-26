@@ -9,7 +9,7 @@ import { scootchSvg } from '../src/lib/drawings';
 // pixels. Runs only when RENDER_HOME_PREVIEW is set; the images are committed.
 test.skip(!process.env['RENDER_HOME_PREVIEW'], 'RENDER_HOME_PREVIEW is not set');
 
-// The site's light inks, as in `@scootch/tokens` (its JSON cannot be imported from a test file).
+// The site's light inks, as in `@phusclass/tokens` (its JSON cannot be imported from a test file).
 const ink = {
   page: '#F6F3EE',
   ink: '#1C1A17',

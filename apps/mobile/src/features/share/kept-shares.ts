@@ -1,4 +1,4 @@
-import type { Language } from '@scootch/i18n';
+import type { Language } from '@phusclass/i18n';
 
 /**
  * One page this phone put on the website, and the token that takes it down. The key says which

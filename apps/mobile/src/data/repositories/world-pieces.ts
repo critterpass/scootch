@@ -1,4 +1,4 @@
-import { worldPieceRowSchema, type WorldPieceRow } from '@scootch/domain';
+import { worldPieceRowSchema, type WorldPieceRow } from '@phusclass/domain';
 
 import { createTable, type SqlDatabase, type Table } from '../table';
 

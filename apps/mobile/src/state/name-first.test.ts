@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import type { TaskCreateNameResponse, TaskCreatePackResponse } from '@scootch/domain';
+import type { TaskCreateNameResponse, TaskCreatePackResponse } from '@phusclass/domain';
 
 import nameFixture from '../../../../packages/voice/fixtures/task.create_name.en.json';
 import packFixture from '../../../../packages/voice/fixtures/task.create_pack.en.json';

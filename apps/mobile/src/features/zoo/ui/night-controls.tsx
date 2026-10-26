@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { fonts, spacing } from '@scootch/tokens';
+import { fonts, spacing } from '@phusclass/tokens';
 
 import { PressSpring } from '../../../ui/motion/press-spring';
 import { useScreenStyle } from '../../../ui/use-screen-style';

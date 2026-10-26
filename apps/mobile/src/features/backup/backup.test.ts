@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { HOUR_MS, MINUTE_MS } from '@scootch/domain';
+import { HOUR_MS, MINUTE_MS } from '@phusclass/domain';
 
 import { SERVER_DELETE_PENDING_KEY, settingsValues } from './settings-values';
 import { buildSnapshot, restoreSnapshot } from './snapshot';

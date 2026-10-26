@@ -4,8 +4,8 @@ import {
   type Language,
   type TaskCreateRequest,
   type TaskLabels,
-} from '@scootch/domain';
-import { groundedShare } from '@scootch/voice';
+} from '@phusclass/domain';
+import { groundedShare } from '@phusclass/voice';
 
 import { decideContext, type TaskCreateContext } from './context';
 import { wallClockMinutes } from './heard-times';

@@ -1,4 +1,4 @@
-import { buildMonster, type MONSTER_BODIES, specFromSeed, toSvg } from '@scootch/art';
+import { buildMonster, type MONSTER_BODIES, specFromSeed, toSvg } from '@phusclass/art';
 
 import {
   dateLocale,

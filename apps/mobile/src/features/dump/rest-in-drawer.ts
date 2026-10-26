@@ -1,4 +1,4 @@
-import type { SettingsRow } from '@scootch/domain';
+import type { SettingsRow } from '@phusclass/domain';
 
 import { lineWithNoTask } from '../../state/lines';
 

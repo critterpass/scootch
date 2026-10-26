@@ -4,7 +4,7 @@ import {
   type SessionMinutes,
   type TableSeat,
   type TableServerMessage,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import type { ConnectionStatus, SeatMode, TableConnection } from '../../api/table-socket';
 

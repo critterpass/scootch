@@ -3,7 +3,7 @@ import {
   taskCreateResponseSchema,
   taskCreateStartResponseSchema,
   type TaskCreateStartPass,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 import { env } from 'cloudflare:workers';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 

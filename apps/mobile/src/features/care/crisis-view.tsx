@@ -1,6 +1,6 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { fonts, fontSizes, spacing } from '@scootch/tokens';
+import { fonts, fontSizes, spacing } from '@phusclass/tokens';
 
 import { Scootch } from '../../art/Scootch';
 import { useLanguage, useT } from '../../i18n/i18n-provider';

@@ -10,7 +10,7 @@ import {
   workLoop,
   type DrawCommand,
   type MONSTER_BODIES,
-} from '@scootch/art';
+} from '@phusclass/art';
 
 export type BodyType = keyof typeof MONSTER_BODIES;
 type ScootchProps = Parameters<typeof buildScootch>[0];

@@ -1,4 +1,4 @@
-import type { WorkMode } from '@scootch/domain';
+import type { WorkMode } from '@phusclass/domain';
 
 import * as modes from '../work-modes/index.generated';
 import type { WorkModeAttachment } from './work-mode-kit';

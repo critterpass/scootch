@@ -1,6 +1,6 @@
-import type { MonsterRow, SettingsRow, WorldPieceRow } from '@scootch/domain';
+import type { MonsterRow, SettingsRow, WorldPieceRow } from '@phusclass/domain';
 
-import { helperLine } from '@scootch/voice';
+import { helperLine } from '@phusclass/voice';
 
 import { pieceKind } from '../world/landmarks';
 import { inLandingOrder } from '../world/world-layout';

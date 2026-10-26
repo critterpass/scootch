@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSharedValue, type SharedValue } from 'react-native-reanimated';
 
-import type { SessionEvent } from '@scootch/domain';
+import type { SessionEvent } from '@phusclass/domain';
 
 import {
   holdControl,

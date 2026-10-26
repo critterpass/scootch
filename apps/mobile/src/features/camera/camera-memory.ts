@@ -3,7 +3,7 @@ import {
   type CameraConsent,
   type CameraTries,
   type SentMode,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import type { PlusMemory } from '../../data/plus-memory';
 

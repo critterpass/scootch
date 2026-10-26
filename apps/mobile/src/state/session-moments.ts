@@ -5,7 +5,7 @@ import {
   type Instant,
   type LiveSession,
   type SessionEffect,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import type { DayContext } from './day-types';
 import { NO_AFTER_LINES, lineFor } from './lines';

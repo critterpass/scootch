@@ -1,8 +1,8 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
-import type { Attitude } from '@scootch/domain';
-import { spacing } from '@scootch/tokens';
+import type { Attitude } from '@phusclass/domain';
+import { spacing } from '@phusclass/tokens';
 
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { useDataTools, useDispatch } from '../../state/day-store-provider';

@@ -2,7 +2,7 @@
  * Renders every cue, three sample weeks and a 15-second clip to WAV files for listening, and
  * prints what can be measured about each: length, peak, loudness, brightness and attack.
  *
- *   pnpm --filter @scootch/sound samples <folder>
+ *   pnpm --filter @phusclass/sound samples <folder>
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';

@@ -1,6 +1,6 @@
-import type { Attitude, DayHeardTime } from '@scootch/domain';
-import type { Language } from '@scootch/i18n';
-import { helperLine, timeSaidBackLine } from '@scootch/voice';
+import type { Attitude, DayHeardTime } from '@phusclass/domain';
+import type { Language } from '@phusclass/i18n';
+import { helperLine, timeSaidBackLine } from '@phusclass/voice';
 
 import { useT } from '../../i18n/i18n-provider';
 import { useDispatch } from '../../state/day-store-provider';

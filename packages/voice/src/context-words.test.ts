@@ -1,4 +1,4 @@
-import type { Language, MonsterBodyType } from '@scootch/domain';
+import type { Language, MonsterBodyType } from '@phusclass/domain';
 import { describe, expect, it } from 'vitest';
 
 import { checkLine, type CheckReason } from './check';

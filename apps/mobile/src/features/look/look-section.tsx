@@ -1,6 +1,6 @@
 import { Image, StyleSheet } from 'react-native';
 
-import type { CardFinish, SettingsRow } from '@scootch/domain';
+import type { CardFinish, SettingsRow } from '@phusclass/domain';
 
 import { useT } from '../../i18n/i18n-provider';
 import { FinishThumb, THUMB_SLOT, WallpaperThumb } from '../settings/look-thumbs';

@@ -10,9 +10,9 @@ import {
   roundRect,
   VIEW_SIZE,
   type DrawCommand,
-} from '@scootch/art';
-import type { CardRarity, MonsterRow } from '@scootch/domain';
-import { fonts } from '@scootch/tokens';
+} from '@phusclass/art';
+import type { CardRarity, MonsterRow } from '@phusclass/domain';
+import { fonts } from '@phusclass/tokens';
 
 import { CommandLayer } from '../../../art/skia-commands';
 import { useAppearance } from '../../../screens/registry/support/forced-variant';

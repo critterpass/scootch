@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { attitudeSchema, scootchMoodSchema, scootchPropsSchema } from '@scootch/domain';
+import { attitudeSchema, scootchMoodSchema, scootchPropsSchema } from '@phusclass/domain';
 
 import { buildScootch, SCOOTCH_MOODS } from './build-scootch';
 

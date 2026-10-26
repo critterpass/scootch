@@ -1,4 +1,4 @@
-import type { ScootchMood } from '@scootch/domain';
+import type { ScootchMood } from '@phusclass/domain';
 
 import { frac, TAU } from './loop-math';
 

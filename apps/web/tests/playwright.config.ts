@@ -6,7 +6,7 @@ export const preLaunchUrl = 'http://127.0.0.1:4324';
 /** The bundled site in the local Workers runtime, routed as it is when deployed. No API behind it. */
 export const workerUrl = 'http://127.0.0.1:4325';
 
-// Runs against the bundled site, served as static files: `pnpm --filter @scootch/web build` for
+// Runs against the bundled site, served as static files: `pnpm --filter @phusclass/web build` for
 // the site, and the `test:site` script bundles the pre-launch variant before the tests start.
 export default defineConfig({
   testDir: '.',

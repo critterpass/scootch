@@ -5,7 +5,7 @@ import {
   MONSTER_BODY_TYPE_IDS,
   monsterMoodSchema,
   scootchMoodSchema,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import { buildMonster } from '../core/build-monster';
 import { VIEW_SIZE, type DrawCommand, type Matrix } from '../core/commands';

@@ -7,7 +7,7 @@ import {
   type RecordInstrument,
   type Stereo,
   type Track,
-} from '@scootch/sound';
+} from '@phusclass/sound';
 
 import type { RecordRow } from './record-week';
 

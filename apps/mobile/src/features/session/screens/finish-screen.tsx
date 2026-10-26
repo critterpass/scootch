@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { spacing } from '@scootch/tokens';
+import { spacing } from '@phusclass/tokens';
 
 import { BurstMarks } from '../ui/burst-marks';
 import { Characters } from '../ui/characters';

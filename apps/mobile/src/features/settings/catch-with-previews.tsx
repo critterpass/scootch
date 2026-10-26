@@ -2,8 +2,8 @@ import { useRef, useState, type ReactNode } from 'react';
 import { StyleSheet, View, type ViewProps } from 'react-native';
 import { useSharedValue } from 'react-native-reanimated';
 
-import { specFromSeed } from '@scootch/art';
-import type { MonsterRow } from '@scootch/domain';
+import { specFromSeed } from '@phusclass/art';
+import type { MonsterRow } from '@phusclass/domain';
 
 import { Monster } from '../../art/Monster';
 import { Scootch } from '../../art/Scootch';

@@ -2,9 +2,9 @@ import { useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { SHARE_FRAMES, type ShareFrame } from '@scootch/art';
-import { localDateTime, type TodayState } from '@scootch/domain';
-import type { Language } from '@scootch/i18n';
+import { SHARE_FRAMES, type ShareFrame } from '@phusclass/art';
+import { localDateTime, type TodayState } from '@phusclass/domain';
+import type { Language } from '@phusclass/i18n';
 
 import { siteBaseUrl } from '../../api/api-config';
 import { openRepositories } from '../../data/repositories';

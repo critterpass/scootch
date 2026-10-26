@@ -1,5 +1,5 @@
-import type { Energy, Language, TaskCreateRequest } from '@scootch/domain';
-import { promptWordLimit, type TaskLineFailure } from '@scootch/voice';
+import type { Energy, Language, TaskCreateRequest } from '@phusclass/domain';
+import { promptWordLimit, type TaskLineFailure } from '@phusclass/voice';
 
 const weekdayNames: Readonly<Record<Language, readonly string[]>> = {
   en: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],

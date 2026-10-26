@@ -1,7 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { CARD_FINISH_IDS } from '@scootch/domain';
-import { t as translate } from '@scootch/i18n';
+import { CARD_FINISH_IDS } from '@phusclass/domain';
+import { t as translate } from '@phusclass/i18n';
 
 import { plusMemory } from '../../data/plus-memory';
 import { openTestDatabase } from '../../data/test/open-test-database';

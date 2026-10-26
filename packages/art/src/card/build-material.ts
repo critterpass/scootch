@@ -1,4 +1,4 @@
-import type { CardFinish } from '@scootch/domain';
+import type { CardFinish } from '@phusclass/domain';
 
 import type { BlendMode, DrawCommand, GradientStop, Path, PathSegment } from '../core/commands';
 import type { FinishMaterial, MaterialLayer } from './material';

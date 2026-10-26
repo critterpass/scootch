@@ -1,4 +1,4 @@
-import { huntingBeatResponseSchema, huntingCountResponseSchema } from '@scootch/domain';
+import { huntingBeatResponseSchema, huntingCountResponseSchema } from '@phusclass/domain';
 
 import type { HttpClient } from './http-client';
 

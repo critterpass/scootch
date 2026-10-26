@@ -9,8 +9,8 @@ import {
   type Instant,
   type IsoDate,
   type StartCue,
-} from '@scootch/domain';
-import { fonts } from '@scootch/tokens';
+} from '@phusclass/domain';
+import { fonts } from '@phusclass/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
 import { useScreenStyle } from '../../ui/use-screen-style';

@@ -1,6 +1,6 @@
 import { env } from 'cloudflare:workers';
-import { taskCreateResponseSchema, type TaskCreateResponse } from '@scootch/domain';
-import { offlineLine, offlinePacks } from '@scootch/voice';
+import { taskCreateResponseSchema, type TaskCreateResponse } from '@phusclass/domain';
+import { offlineLine, offlinePacks } from '@phusclass/voice';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { hashDeviceToken } from '../src/device-auth';

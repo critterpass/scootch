@@ -1,10 +1,10 @@
 // The eval for "pick for me": sends one short text at a time through stage one of the task call,
 // as a phone with things parked does (`canChoose`), and checks whether it was read as a request to
 // choose or as a task.
-//   SCOOTCH_API_URL=http://localhost:8787 EVAL_CONCURRENCY=1 pnpm --filter @scootch/voice eval:choose
+//   SCOOTCH_API_URL=http://localhost:8787 EVAL_CONCURRENCY=1 pnpm --filter @phusclass/voice eval:choose
 // It prints a table per language and exits non-zero when any task was read as a request to choose
 // (that loses a person's words), or when under 80% of the requests were heard.
-import { taskCreateStartResponseSchema } from '@scootch/domain';
+import { taskCreateStartResponseSchema } from '@phusclass/domain';
 
 import { atOnce, baseUrl, casesFor, languages, pooled, share, startTask } from '../shared.mjs';
 

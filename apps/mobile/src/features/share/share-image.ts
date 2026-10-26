@@ -21,8 +21,8 @@ import {
   type ShareFrame,
   type SleeveData,
   type WantedData,
-} from '@scootch/art';
-import type { CardData, CardFinish, GuessMinutes, TaskRow } from '@scootch/domain';
+} from '@phusclass/art';
+import type { CardData, CardFinish, GuessMinutes, TaskRow } from '@phusclass/domain';
 
 import type { DayLog, MonthWrap } from './share-logs';
 import { shareOffered } from './share-rules';

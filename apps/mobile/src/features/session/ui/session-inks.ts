@@ -1,4 +1,4 @@
-import type { ColorScheme, Palette } from '@scootch/tokens';
+import type { ColorScheme, Palette } from '@phusclass/tokens';
 
 import type { InkId } from '../../studio/catalogue';
 import { paletteIn } from '../../../ui/use-palette';

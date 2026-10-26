@@ -1,4 +1,4 @@
-import { DAY_MS, instantFromIso, isoFromInstant, type Id, type Instant } from '@scootch/domain';
+import { DAY_MS, instantFromIso, isoFromInstant, type Id, type Instant } from '@phusclass/domain';
 
 import type { SqlDatabase } from './table';
 

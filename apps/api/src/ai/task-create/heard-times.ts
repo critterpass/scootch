@@ -1,5 +1,5 @@
-import { DAY_ROLLOVER_HOUR, localDateTime } from '@scootch/domain';
-import { normalise, stripMarks } from '@scootch/voice';
+import { DAY_ROLLOVER_HOUR, localDateTime } from '@phusclass/domain';
+import { normalise, stripMarks } from '@phusclass/voice';
 
 import { resolveHeardDate } from './deadlines';
 

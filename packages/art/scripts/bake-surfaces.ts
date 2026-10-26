@@ -2,7 +2,7 @@
  * Bakes Scootch's poses and the small glyphs into the widget target's asset catalogue, for the
  * Swift surfaces (widgets, the Live Activity, the control). Art that has not changed is skipped.
  *
- *   pnpm --filter @scootch/art exec tsx scripts/bake-surfaces.ts [catalogue folder]
+ *   pnpm --filter @phusclass/art exec tsx scripts/bake-surfaces.ts [catalogue folder]
  */
 import path from 'node:path';
 

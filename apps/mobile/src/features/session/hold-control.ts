@@ -1,4 +1,4 @@
-import type { SessionEvent } from '@scootch/domain';
+import type { SessionEvent } from '@phusclass/domain';
 
 /** What the control is: one that is held until it fills, or one that is tapped twice. */
 export type HoldKind = 'hold' | 'double_tap';

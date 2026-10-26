@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import type { TodayState } from '@scootch/domain';
+import type { TodayState } from '@phusclass/domain';
 
 import { defaultSettings } from '../../data/repositories/settings';
 

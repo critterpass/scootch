@@ -1,4 +1,4 @@
-import { lineLimits } from '@scootch/voice';
+import { lineLimits } from '@phusclass/voice';
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
 

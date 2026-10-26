@@ -1,7 +1,7 @@
 import { createAudioPlayer, type AudioPlayer } from 'expo-audio';
 import { File, Paths } from 'expo-file-system';
 
-import { encodeWav } from '@scootch/sound';
+import { encodeWav } from '@phusclass/sound';
 
 import { soundMode } from '../../effects/sound-mode';
 

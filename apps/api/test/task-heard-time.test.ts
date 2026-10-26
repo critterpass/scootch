@@ -2,7 +2,7 @@ import {
   taskCreateStartRequestSchema,
   taskCreateStartResponseSchema,
   type TaskCreateStartPass,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import heardEn from '../../../packages/voice/fixtures/task.create_start.heard_time.en.json';

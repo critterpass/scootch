@@ -1,4 +1,4 @@
-import type { CardLanguage } from '@scootch/art';
+import type { CardLanguage } from '@phusclass/art';
 import type {
   CardData,
   GuessMinutes,
@@ -6,8 +6,8 @@ import type {
   OddWord,
   SignedWords,
   TaskRow,
-} from '@scootch/domain';
-import { encodeWav, type Stereo } from '@scootch/sound';
+} from '@phusclass/domain';
+import { encodeWav, type Stereo } from '@phusclass/sound';
 
 import type { CardShareRequest, ShareApi } from '../../api/share-api';
 import { refusalOf } from '../../api/together-api';

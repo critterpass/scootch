@@ -2,8 +2,8 @@ import { useState, type ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import type { Attitude } from '@scootch/domain';
-import { fonts } from '@scootch/tokens';
+import type { Attitude } from '@phusclass/domain';
+import { fonts } from '@phusclass/tokens';
 
 import type { ScootchProps } from '../../art/Scootch';
 import { useT } from '../../i18n/i18n-provider';

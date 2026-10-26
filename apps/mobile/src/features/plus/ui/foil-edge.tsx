@@ -1,7 +1,7 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { StyleSheet, View, type ViewProps } from 'react-native';
 
-import { roundRect, type DrawCommand } from '@scootch/art';
+import { roundRect, type DrawCommand } from '@phusclass/art';
 
 import { CommandCanvas } from '../../reveal/ui/command-canvas';
 

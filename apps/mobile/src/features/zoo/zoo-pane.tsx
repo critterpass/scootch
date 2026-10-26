@@ -2,10 +2,10 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { FlatList, StyleSheet, useWindowDimensions, View } from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 
-import { CARD_LABELS } from '@scootch/art';
-import type { Id } from '@scootch/domain';
-import type { Language } from '@scootch/i18n';
-import { spacing } from '@scootch/tokens';
+import { CARD_LABELS } from '@phusclass/art';
+import type { Id } from '@phusclass/domain';
+import type { Language } from '@phusclass/i18n';
+import { spacing } from '@phusclass/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
 import { EdgeFade } from '../../ui/edge-fade';

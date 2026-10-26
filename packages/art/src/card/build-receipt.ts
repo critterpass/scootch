@@ -1,4 +1,4 @@
-import type { CardFinish } from '@scootch/domain';
+import type { CardFinish } from '@phusclass/domain';
 
 import type { DrawCommand, PathSegment } from '../core/commands';
 import { estimateTextWidth, type TextStyle } from '../core/text';

@@ -5,7 +5,7 @@ import { SQLiteProvider } from 'expo-sqlite';
 import type { ReactNode } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-import { colors } from '@scootch/tokens';
+import { colors } from '@phusclass/tokens';
 
 import { DATABASE_NAME, prepareDatabase } from '../db/database';
 import { SoundMode } from '../effects/sound-mode';

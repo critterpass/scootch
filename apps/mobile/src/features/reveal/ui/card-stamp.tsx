@@ -3,9 +3,9 @@ import { useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import Animated, { interpolate, useAnimatedStyle, type SharedValue } from 'react-native-reanimated';
 
-import { buildCardLayers, CARD_BLEED, CARD_WIDTH } from '@scootch/art';
-import type { CardData } from '@scootch/domain';
-import type { Language } from '@scootch/i18n';
+import { buildCardLayers, CARD_BLEED, CARD_WIDTH } from '@phusclass/art';
+import type { CardData } from '@phusclass/domain';
+import type { Language } from '@phusclass/i18n';
 
 import { CommandLayer } from '../../../art/skia-commands';
 

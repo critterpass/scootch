@@ -5,8 +5,8 @@ import {
   type Attitude,
   type CameraPaperResponse,
   type Language,
-} from '@scootch/domain';
-import { checkLine, normalise, offlineLine, promptWordLimit } from '@scootch/voice';
+} from '@phusclass/domain';
+import { checkLine, normalise, offlineLine, promptWordLimit } from '@phusclass/voice';
 import { z } from 'zod';
 
 import { numberedLines, screenReadWords } from '../ai/camera/read-words';

@@ -1,6 +1,6 @@
 import { StyleSheet, Text } from 'react-native';
 
-import { fonts } from '@scootch/tokens';
+import { fonts } from '@phusclass/tokens';
 
 import { useScreenStyle } from '../../ui/use-screen-style';
 

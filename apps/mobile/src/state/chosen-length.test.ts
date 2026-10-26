@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import type { StartCue } from '@scootch/domain';
+import type { StartCue } from '@phusclass/domain';
 
 import { openRepositories } from '../data/repositories';
 

@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import type { ClockTime } from '@scootch/domain';
-import { fonts, spacing } from '@scootch/tokens';
+import type { ClockTime } from '@phusclass/domain';
+import { fonts, spacing } from '@phusclass/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
 import { useScreenStyle } from '../../ui/use-screen-style';

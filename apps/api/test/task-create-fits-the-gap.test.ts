@@ -2,7 +2,7 @@ import {
   taskCreateStartResponseSchema,
   type TaskCreateRequest,
   type TaskCreateStartPass,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { asksForAFit, minutesBeforeGetReady } from '../src/ai/task-create/fit-the-gap';

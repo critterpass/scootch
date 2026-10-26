@@ -1,6 +1,6 @@
 import { lazy } from 'react';
 
-import type { Attitude } from '@scootch/domain';
+import type { Attitude } from '@phusclass/domain';
 
 import {
   standardVariants,

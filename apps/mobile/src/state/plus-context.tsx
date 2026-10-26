@@ -1,6 +1,6 @@
 import { createContext, useContext, useSyncExternalStore } from 'react';
 
-import type { SettingsRow } from '@scootch/domain';
+import type { SettingsRow } from '@phusclass/domain';
 
 import type { PlusMemory } from '../data/plus-memory';
 import { unlockedFor } from '../features/plus/entitlement';

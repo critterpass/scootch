@@ -6,8 +6,8 @@ import {
   type MonsterRow,
   type QuietNote,
   type TaskRow,
-} from '@scootch/domain';
-import type { StringKey } from '@scootch/i18n';
+} from '@phusclass/domain';
+import type { StringKey } from '@phusclass/i18n';
 
 import type { DayState, Reveal } from '../../state/day-types';
 import { showsComedy } from '../../state/shows-comedy';

@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 
-import { CARD_BLEED, CARD_HEIGHT, CARD_WIDTH, type CardTilt } from '@scootch/art';
-import type { CardData } from '@scootch/domain';
-import type { Language } from '@scootch/i18n';
+import { CARD_BLEED, CARD_HEIGHT, CARD_WIDTH, type CardTilt } from '@phusclass/art';
+import type { CardData } from '@phusclass/domain';
+import type { Language } from '@phusclass/i18n';
 
 import { composeCardImage } from '../../share/share-image';
 import { cardSpokenLabel } from '../../zoo/zoo-cards';

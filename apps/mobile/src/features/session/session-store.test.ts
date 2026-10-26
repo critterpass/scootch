@@ -8,7 +8,7 @@ import {
   type SessionEvent,
   type TaskCreatePass,
   type TaskCreateResponse,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import passFixture from '../../../../../packages/voice/fixtures/task.create.en.json';
 import seriousFixture from '../../../../../packages/voice/fixtures/task.create.serious.en.json';

@@ -3,8 +3,8 @@ import path from 'node:path';
 
 import { describe, expect, it } from '@jest/globals';
 
-import { languages } from '@scootch/i18n';
-import { offlinePacks } from '@scootch/voice';
+import { languages } from '@phusclass/i18n';
+import { offlinePacks } from '@phusclass/voice';
 
 import { screenStates } from '../../screens/registry/support/all-states';
 

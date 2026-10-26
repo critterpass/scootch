@@ -1,4 +1,4 @@
-import { taskCreateStartResponseSchema } from '@scootch/domain';
+import { taskCreateStartResponseSchema } from '@phusclass/domain';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { registerDevice } from './support';

@@ -6,8 +6,8 @@ import {
   type SessionTone,
   type SettingsRow,
   type TaskRow,
-} from '@scootch/domain';
-import { t } from '@scootch/i18n';
+} from '@phusclass/domain';
+import { t } from '@phusclass/i18n';
 import {
   noTaskLine,
   offlineLine,
@@ -15,7 +15,7 @@ import {
   offlineSlots,
   type NoTaskSlot,
   type OfflineSlot,
-} from '@scootch/voice';
+} from '@phusclass/voice';
 
 import { showsComedy, showsSelling, type SellingDay } from './shows-comedy';
 

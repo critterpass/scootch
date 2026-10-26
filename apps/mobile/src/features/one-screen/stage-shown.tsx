@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
 
-import type { Attitude, Energy, Id, InTheWay, IsoDate } from '@scootch/domain';
-import { inTheWayLine } from '@scootch/voice';
-import type { Language } from '@scootch/i18n';
+import type { Attitude, Energy, Id, InTheWay, IsoDate } from '@phusclass/domain';
+import { inTheWayLine } from '@phusclass/voice';
+import type { Language } from '@phusclass/i18n';
 
 import type { ScootchProps } from '../../art/Scootch';
 import type { Translate } from '../../i18n/i18n-provider';

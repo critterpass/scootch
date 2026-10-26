@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type RefObject } from 'react';
 
-import type { MonsterRow, SessionEvent } from '@scootch/domain';
+import type { MonsterRow, SessionEvent } from '@phusclass/domain';
 
 import type { Translate } from '../../../i18n/i18n-provider';
 import type { SessionInks } from '../ui/session-inks';

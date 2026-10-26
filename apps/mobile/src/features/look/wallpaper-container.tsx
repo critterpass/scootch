@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Linking } from 'react-native';
 
-import type { MonsterRow, WorldPieceRow } from '@scootch/domain';
+import type { MonsterRow, WorldPieceRow } from '@phusclass/domain';
 
 import { useDispatch, useToday } from '../../state/day-store-provider';
 import { useKeepsakes } from '../../state/keepsakes';

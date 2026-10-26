@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ComponentRef, type RefObject } from 'react';
 import { AccessibilityInfo, StyleSheet, View } from 'react-native';
 
-import type { StringKey } from '@scootch/i18n';
+import type { StringKey } from '@phusclass/i18n';
 
 import type { MonsterProps } from '../../../art/Monster';
 import type { ScootchProps } from '../../../art/Scootch';

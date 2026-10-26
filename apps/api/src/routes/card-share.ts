@@ -1,4 +1,4 @@
-import { cardDataSchema, screenVerdictSchema } from '@scootch/domain';
+import { cardDataSchema, screenVerdictSchema } from '@phusclass/domain';
 import { z } from 'zod';
 
 import { refusal } from '../accounts/ids';

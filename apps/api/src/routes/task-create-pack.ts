@@ -1,4 +1,4 @@
-import { taskCreatePackRequestSchema } from '@scootch/domain';
+import { taskCreatePackRequestSchema } from '@phusclass/domain';
 
 import { continuationSecret, openContinuation } from '../ai/task-create/continuation';
 import { writePack } from '../ai/task-create/write-lines';

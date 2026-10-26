@@ -1,4 +1,4 @@
-import type { MONSTER_BODIES } from '@scootch/art';
+import type { MONSTER_BODIES } from '@phusclass/art';
 
 import { showArt } from './live-art';
 import { wireOpenInApp } from './open-in-app';

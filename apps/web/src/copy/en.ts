@@ -2,7 +2,7 @@ import { homeEn } from './home-en';
 
 /**
  * The website's own words in English, and the source of the key set. The interface words the site
- * shares with the app (the brand, "Plus") come from `@scootch/i18n`; a monster's name and card
+ * shares with the app (the brand, "Plus") come from `@phusclass/i18n`; a monster's name and card
  * line are written per visitor by the API, never here.
  */
 export const en = {

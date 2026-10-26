@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, useColorScheme, View } from 'react-native';
 
-import { MONSTER_BODIES, SCOOTCH_MOODS, specFromSeed } from '@scootch/art';
-import { colors, fonts, spacing, type Palette } from '@scootch/tokens';
+import { MONSTER_BODIES, SCOOTCH_MOODS, specFromSeed } from '@phusclass/art';
+import { colors, fonts, spacing, type Palette } from '@phusclass/tokens';
 
 import { Monster } from '../../art/Monster';
 import { Scootch, type ScootchProps } from '../../art/Scootch';

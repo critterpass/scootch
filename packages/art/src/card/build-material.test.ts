@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { CARD_FINISH_IDS } from '@scootch/domain';
+import { CARD_FINISH_IDS } from '@phusclass/domain';
 
 import { toSvg } from '../backends/svg';
 import type { DrawCommand } from '../core/commands';

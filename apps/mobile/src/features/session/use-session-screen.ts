@@ -7,7 +7,7 @@ import {
   type MonsterRow,
   type ParkedThought,
   type SessionEvent,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { useCharacterMotion } from '../../ui/motion/use-feel';

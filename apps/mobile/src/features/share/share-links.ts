@@ -1,4 +1,4 @@
-import type { Language } from '@scootch/i18n';
+import type { Language } from '@phusclass/i18n';
 
 /** The website's pages of shared things: a haunt, a table invite, a caught card and a story. */
 export type SharedPageKind = 'h' | 't' | 'c' | 's';

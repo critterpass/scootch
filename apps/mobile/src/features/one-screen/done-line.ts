@@ -1,6 +1,6 @@
-import type { Attitude } from '@scootch/domain';
-import type { Language } from '@scootch/i18n';
-import { offlinePacks } from '@scootch/voice';
+import type { Attitude } from '@phusclass/domain';
+import type { Language } from '@phusclass/i18n';
+import { offlinePacks } from '@phusclass/voice';
 
 import type { DayState } from '../../state/day-types';
 import { lineWithNoTask } from '../../state/lines';

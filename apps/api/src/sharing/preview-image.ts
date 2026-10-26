@@ -1,6 +1,6 @@
 import { initWasm, Resvg } from '@resvg/resvg-wasm';
 import resvgModule from '@resvg/resvg-wasm/index_bg.wasm';
-import { buildMonster, specFromSeed, toSvg } from '@scootch/art';
+import { buildMonster, specFromSeed, toSvg } from '@phusclass/art';
 
 import italic from './fonts/nunito-500-italic.bin';
 import semibold from './fonts/nunito-600.bin';

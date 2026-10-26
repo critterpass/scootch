@@ -1,4 +1,4 @@
-import { colors, type ColorScheme, type Palette } from '@scootch/tokens';
+import { colors, type ColorScheme, type Palette } from '@phusclass/tokens';
 
 import { inkOf, type InkId } from '../features/studio/catalogue';
 import { useAppearance } from '../screens/registry/support/forced-variant';

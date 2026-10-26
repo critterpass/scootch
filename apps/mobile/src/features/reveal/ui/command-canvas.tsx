@@ -1,7 +1,7 @@
 import { Canvas, Group } from '@shopify/react-native-skia';
 import { View } from 'react-native';
 
-import type { DrawCommand } from '@scootch/art';
+import type { DrawCommand } from '@phusclass/art';
 
 import { CommandLayer } from '../../../art/skia-commands';
 

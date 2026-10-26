@@ -5,7 +5,7 @@ import {
   rollOver,
   type IsoDate,
   type TaskRow,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import type { DayContext } from './day-types';
 

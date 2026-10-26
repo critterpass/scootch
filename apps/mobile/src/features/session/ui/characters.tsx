@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 
-import type { MonsterRow } from '@scootch/domain';
+import type { MonsterRow } from '@phusclass/domain';
 import { Monster, type MonsterProps } from '../../../art/Monster';
 import { Scootch, type ScootchProps } from '../../../art/Scootch';
 

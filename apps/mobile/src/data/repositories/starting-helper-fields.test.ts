@@ -11,7 +11,7 @@ import {
   type MonsterRow,
   type SessionRow,
   type TaskRow,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import { type Migration, type MigrationDatabase, runMigrations } from '../../db/migrate';
 import { isRestorableSnapshot, restoreSnapshot } from '../../features/backup/snapshot';

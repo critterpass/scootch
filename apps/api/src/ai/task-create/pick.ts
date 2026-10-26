@@ -1,5 +1,5 @@
-import type { TaskCreateRequest } from '@scootch/domain';
-import { wordsOf } from '@scootch/voice';
+import type { TaskCreateRequest } from '@phusclass/domain';
+import { wordsOf } from '@phusclass/voice';
 
 import { ApiError } from '../../errors';
 import { generate } from '../deepseek';

@@ -1,4 +1,4 @@
-import { specFromSeed } from '@scootch/art';
+import { specFromSeed } from '@phusclass/art';
 import {
   addDays,
   MONSTER_BODY_TYPE_IDS,
@@ -8,8 +8,8 @@ import {
   type RecordBarRow,
   type TaskRow,
   type WorldPieceRow,
-} from '@scootch/domain';
-import type { Language } from '@scootch/i18n';
+} from '@phusclass/domain';
+import type { Language } from '@phusclass/i18n';
 
 import { seedRoll } from '../../world/piece-kit';
 import type { CaughtMonster } from '../../zoo/zoo-cards';

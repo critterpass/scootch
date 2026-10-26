@@ -1,4 +1,4 @@
-import type { ScootchMood, ScootchProps } from '@scootch/domain';
+import type { ScootchMood, ScootchProps } from '@phusclass/domain';
 
 import { GROUND_Y, type DrawCommand } from '../core/commands';
 import { bez, ell, ribbon, type Point } from '../core/geometry';

@@ -1,4 +1,4 @@
-import { drawCommands, GROUND_Y, toSvg, VIEW_SIZE } from '@scootch/art';
+import { drawCommands, GROUND_Y, toSvg, VIEW_SIZE } from '@phusclass/art';
 
 import { artFrame, BREATH, type ArtSpec } from '../lib/art-spec';
 

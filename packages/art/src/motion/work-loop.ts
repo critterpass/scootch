@@ -1,4 +1,4 @@
-import type { WorkMode } from '@scootch/domain';
+import type { WorkMode } from '@phusclass/domain';
 
 import { WORK_MODE_ATTACHMENTS } from '../scootch/work-mode-attachment';
 import { clamp, frac, smooth, TAU } from './loop-math';

@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import type { TaskCreateStartResponse } from '@scootch/domain';
+import type { TaskCreateStartResponse } from '@phusclass/domain';
 
 import seriousFixture from '../../../../packages/voice/fixtures/task.create.serious.en.json';
 

@@ -1,10 +1,10 @@
 // The labels' eval: asks a running API for the body and the work mode of one small task at a
 // time, through stage one of the task call (where the labels are decided), and checks each
 // against the bodies and work modes its case accepts.
-//   SCOOTCH_API_URL=http://localhost:8787 EVAL_CONCURRENCY=1 pnpm --filter @scootch/voice eval:labels
+//   SCOOTCH_API_URL=http://localhost:8787 EVAL_CONCURRENCY=1 pnpm --filter @phusclass/voice eval:labels
 // It prints a table per language and exits non-zero under 85% on body fit. The work mode is
 // reported beside it and has no bar of its own yet.
-import { taskCreateStartResponseSchema } from '@scootch/domain';
+import { taskCreateStartResponseSchema } from '@phusclass/domain';
 
 import { atOnce, baseUrl, casesFor, languages, pooled, share, startTask } from '../shared.mjs';
 

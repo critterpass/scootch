@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react';
 
-import type { CardFinish } from '@scootch/domain';
+import type { CardFinish } from '@phusclass/domain';
 
 import { useToday } from '../../state/day-store-provider';
 import { usePlusState } from '../../state/plus-context';

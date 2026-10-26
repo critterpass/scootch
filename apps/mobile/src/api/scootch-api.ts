@@ -15,7 +15,7 @@ import {
   type TaskCreateRequest,
   type TaskCreateResponse,
   type TaskCreateStartResponse,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import type { HttpClient } from './http-client';
 

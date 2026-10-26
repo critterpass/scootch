@@ -1,4 +1,4 @@
-import { CARD_BLEED, CARD_HEIGHT, CARD_WIDTH } from '@scootch/art';
+import { CARD_BLEED, CARD_HEIGHT, CARD_WIDTH } from '@phusclass/art';
 
 /** The canvas a card is drawn in for a card of this width: the card and the stamp's overhang. */
 export function cardCanvasSize(cardWidth: number): { width: number; height: number } {

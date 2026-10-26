@@ -1,6 +1,6 @@
 import type { Href } from 'expo-router';
 
-import type { Id } from '@scootch/domain';
+import type { Id } from '@phusclass/domain';
 
 import type { ShelfSort } from './binder';
 

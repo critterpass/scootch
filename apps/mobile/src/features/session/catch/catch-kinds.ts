@@ -5,7 +5,7 @@ import {
   type Id,
   type OddCatchKind,
   type OddDraw,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 /**
  * The eight ways a task's monster is caught, in the order the roll counts them. The order is

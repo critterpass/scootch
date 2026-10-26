@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { WORK_MODE_IDS, type TableSeat, type WorkMode } from '@scootch/domain';
-import { fonts, radius, spacing } from '@scootch/tokens';
+import { WORK_MODE_IDS, type TableSeat, type WorkMode } from '@phusclass/domain';
+import { fonts, radius, spacing } from '@phusclass/tokens';
 
 import { Scootch, type ScootchProps } from '../../art/Scootch';
 import { useT } from '../../i18n/i18n-provider';

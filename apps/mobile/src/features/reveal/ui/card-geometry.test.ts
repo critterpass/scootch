@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { FOIL_LIGHT } from '@scootch/art';
+import { FOIL_LIGHT } from '@phusclass/art';
 
 import { cardCanvasSize, cardWidthIn } from './card-size';
 import { gradientEnds, slidBox } from './foil-geometry';

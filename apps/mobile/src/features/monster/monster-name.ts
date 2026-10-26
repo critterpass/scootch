@@ -1,4 +1,4 @@
-import type { MonsterRow } from '@scootch/domain';
+import type { MonsterRow } from '@phusclass/domain';
 
 import type { Translate } from '../../i18n/i18n-provider';
 

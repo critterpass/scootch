@@ -11,9 +11,9 @@ import {
 import { memo, useMemo } from 'react';
 import { StyleSheet, Text } from 'react-native';
 
-import { VIEW_SIZE } from '@scootch/art';
-import type { MonsterRow } from '@scootch/domain';
-import { fonts } from '@scootch/tokens';
+import { VIEW_SIZE } from '@phusclass/art';
+import type { MonsterRow } from '@phusclass/domain';
+import { fonts } from '@phusclass/tokens';
 
 import { useAppearance } from '../../../screens/registry/support/forced-variant';
 import { PressSpring } from '../../../ui/motion/press-spring';

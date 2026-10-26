@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 
-import { noTaskLine } from '@scootch/voice';
+import { noTaskLine } from '@phusclass/voice';
 
 import { useLanguage, useT } from '../../../i18n/i18n-provider';
 import { AfterScreen, type AfterShown } from '../after-screen';

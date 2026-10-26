@@ -1,4 +1,4 @@
-import type { Language } from '@scootch/domain';
+import type { Language } from '@phusclass/domain';
 
 import { apiBaseUrl, keychainTokenStore } from './api-config';
 import { createHttpClient, type HttpClient } from './http-client';

@@ -1,4 +1,4 @@
-import { instantFromIso, type SettingsRow } from '@scootch/domain';
+import { instantFromIso, type SettingsRow } from '@phusclass/domain';
 
 import { plusMemory } from '../data/plus-memory';
 import type { Repositories } from '../data/repositories';

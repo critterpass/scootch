@@ -2,9 +2,9 @@ import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import type { Attitude } from '@scootch/domain';
-import { shadows, spacing } from '@scootch/tokens';
-import { noTaskLine } from '@scootch/voice';
+import type { Attitude } from '@phusclass/domain';
+import { shadows, spacing } from '@phusclass/tokens';
+import { noTaskLine } from '@phusclass/voice';
 
 import { Scootch } from '../../art/Scootch';
 import { useLanguage, useT } from '../../i18n/i18n-provider';

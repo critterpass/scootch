@@ -1,4 +1,4 @@
-import type { Attitude, ScootchMood } from '@scootch/domain';
+import type { Attitude, ScootchMood } from '@phusclass/domain';
 
 import { VIEW_SIZE, type DrawCommand, type Path } from '../core/commands';
 import { buildScootch } from '../scootch/build-scootch';

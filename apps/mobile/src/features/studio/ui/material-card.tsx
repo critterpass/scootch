@@ -4,8 +4,8 @@ import { StyleSheet, View } from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle, useDerivedValue } from 'react-native-reanimated';
 
-import { buildMaterialParts, CARD_MATERIALS, MATERIAL_LIGHT, rgba } from '@scootch/art';
-import type { CardFinish } from '@scootch/domain';
+import { buildMaterialParts, CARD_MATERIALS, MATERIAL_LIGHT, rgba } from '@phusclass/art';
+import type { CardFinish } from '@phusclass/domain';
 
 import { CommandLayer } from '../../../art/skia-commands';
 import { useScreenStyle } from '../../../ui/use-screen-style';

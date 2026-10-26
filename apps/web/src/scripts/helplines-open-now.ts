@@ -1,4 +1,4 @@
-import { HELPLINES, orderedAt, type Helpline } from '@scootch/i18n';
+import { HELPLINES, orderedAt, type Helpline } from '@phusclass/i18n';
 
 const HALF_A_MINUTE = 30_000;
 

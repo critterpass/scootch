@@ -1,4 +1,4 @@
-import { hasStartLeft } from '@scootch/domain';
+import { hasStartLeft } from '@phusclass/domain';
 
 import { careGate } from '../api/care-gate';
 

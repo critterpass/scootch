@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { useWindowDimensions } from 'react-native';
 
-import { specFromSeed } from '@scootch/art';
-import type { MonsterBodyType, MonsterSpec } from '@scootch/domain';
+import { specFromSeed } from '@phusclass/art';
+import type { MonsterBodyType, MonsterSpec } from '@phusclass/domain';
 
 import { HAUNT_DARES, type Friend, type HauntDare } from '../../api/together-api';
 import { useT } from '../../i18n/i18n-provider';

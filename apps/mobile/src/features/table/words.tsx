@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { StyleSheet, Text, type TextProps } from 'react-native';
 
-import { fonts } from '@scootch/tokens';
+import { fonts } from '@phusclass/tokens';
 
 import { useLanguage } from '../../i18n/i18n-provider';
 import { useScreenStyle } from '../../ui/use-screen-style';

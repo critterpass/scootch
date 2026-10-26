@@ -1,10 +1,10 @@
-import { cuePlaceholder, type Attitude, type InTheWay, type Language } from '@scootch/domain';
+import { cuePlaceholder, type Attitude, type InTheWay, type Language } from '@phusclass/domain';
 import {
   controlsNotes,
   exampleMonsterTitles,
   promptWordLimit,
   renderVoiceGuide,
-} from '@scootch/voice';
+} from '@phusclass/voice';
 
 /** Soft sends one notification a day; Cheeky and Unhinged up to three. */
 export function notificationCount(attitude: Attitude): number {

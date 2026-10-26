@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { StyleSheet, TextInput } from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 
-import { fonts, shadows } from '@scootch/tokens';
+import { fonts, shadows } from '@phusclass/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
 import { CONTROL_HEIGHT } from '../../ui/buttons';

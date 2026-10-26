@@ -11,8 +11,8 @@ import {
   type Language,
   type RoomZone,
   type ZoneLetter,
-} from '@scootch/domain';
-import { noTaskLine } from '@scootch/voice';
+} from '@phusclass/domain';
+import { noTaskLine } from '@phusclass/voice';
 
 import type { OcrLine, OcrQualityIssue, ReadingApi } from '../../../modules/scootch-reading';
 import type { CameraApi } from '../../api/camera-api';

@@ -1,7 +1,7 @@
 import { useRef, useState, type ComponentRef } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { fonts, shadows } from '@scootch/tokens';
+import { fonts, shadows } from '@phusclass/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
 import { Chevron } from '../../ui/icons';

@@ -1,8 +1,8 @@
 import { useMemo, useRef, useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 
-import { specFromSeed } from '@scootch/art';
-import { fonts, spacing } from '@scootch/tokens';
+import { specFromSeed } from '@phusclass/art';
+import { fonts, spacing } from '@phusclass/tokens';
 
 import type { MonsterPage } from '../../api/monster-page-api';
 import { useT } from '../../i18n/i18n-provider';

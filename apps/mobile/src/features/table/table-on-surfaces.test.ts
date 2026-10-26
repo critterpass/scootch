@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import type { TableSeat } from '@scootch/domain';
+import type { TableSeat } from '@phusclass/domain';
 
 import { tableOnSurfaces, WAVE_SHOWS_MS } from './table-on-surfaces';
 

@@ -1,8 +1,8 @@
 import { StyleSheet, View } from 'react-native';
 
-import type { SentMode } from '@scootch/domain';
-import type { StringKey } from '@scootch/i18n';
-import { spacing } from '@scootch/tokens';
+import type { SentMode } from '@phusclass/domain';
+import type { StringKey } from '@phusclass/i18n';
+import { spacing } from '@phusclass/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
 import { CapsuleButton } from '../../ui/buttons';

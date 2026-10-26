@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { TABLE_CLOSE_CODES, tableClientMessageSchema } from '@scootch/domain';
+import { TABLE_CLOSE_CODES, tableClientMessageSchema } from '@phusclass/domain';
 
 import fixtures from '../../../../packages/domain/src/contracts/fixtures/table-messages.json';
 import { fakeTime } from '../effects/test/fake-adapters';

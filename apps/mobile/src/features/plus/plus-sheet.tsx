@@ -1,7 +1,7 @@
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import type { Attitude } from '@scootch/domain';
-import { fonts, spacing } from '@scootch/tokens';
+import type { Attitude } from '@phusclass/domain';
+import { fonts, spacing } from '@phusclass/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
 import { PressSpring } from '../../ui/motion/press-spring';

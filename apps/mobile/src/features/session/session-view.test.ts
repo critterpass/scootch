@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { MINUTE_MS, sessionReducer, sessionSet, type SessionState } from '@scootch/domain';
+import { MINUTE_MS, sessionReducer, sessionSet, type SessionState } from '@phusclass/domain';
 
 import {
   NOTHING_PASSED,

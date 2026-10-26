@@ -1,4 +1,4 @@
-import type { Attitude } from '@scootch/domain';
+import type { Attitude } from '@phusclass/domain';
 
 export type Pair = readonly [number, number];
 

@@ -2,8 +2,8 @@ import { Link, type Href } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, useColorScheme, View } from 'react-native';
 
-import type { Language } from '@scootch/i18n';
-import { colors, fonts, fontSizes, radius, spacing, type Palette } from '@scootch/tokens';
+import type { Language } from '@phusclass/i18n';
+import { colors, fonts, fontSizes, radius, spacing, type Palette } from '@phusclass/tokens';
 
 import { shortSession } from '../../features/session/dev/short-session';
 import { useLanguage } from '../../i18n/i18n-provider';

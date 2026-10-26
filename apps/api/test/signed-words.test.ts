@@ -1,6 +1,6 @@
 import { createExecutionContext, waitOnExecutionContext } from 'cloudflare:test';
 import { env } from 'cloudflare:workers';
-import { taskCreateNameResponseSchema, taskCreateStartResponseSchema } from '@scootch/domain';
+import { taskCreateNameResponseSchema, taskCreateStartResponseSchema } from '@phusclass/domain';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { sharedCard } from '../../web/tests/shared-fixtures';

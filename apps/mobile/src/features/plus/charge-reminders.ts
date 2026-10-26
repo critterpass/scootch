@@ -4,9 +4,9 @@ import {
   type Instant,
   type IsoDate,
   localDateTime,
-} from '@scootch/domain';
-import type { Language } from '@scootch/i18n';
-import { noTaskLine, renewalLine } from '@scootch/voice';
+} from '@phusclass/domain';
+import type { Language } from '@phusclass/i18n';
+import { noTaskLine, renewalLine } from '@phusclass/voice';
 
 import type { LocalNotification, NotificationScheduler } from '../../effects/adapters';
 

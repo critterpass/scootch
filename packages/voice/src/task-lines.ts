@@ -6,7 +6,7 @@ import {
   type Language,
   type MonsterCopy,
   type SessionLinePack,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import { checkWrittenLine, type CheckReason, type LineKind } from './check';
 import { repeatedSteps } from './line-rules';

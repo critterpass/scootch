@@ -1,4 +1,4 @@
-import type { Id, WorldPieceRow } from '@scootch/domain';
+import type { Id, WorldPieceRow } from '@phusclass/domain';
 
 import { landmarkName, pieceKind } from './landmarks';
 import { seedRoll } from './piece-kit';

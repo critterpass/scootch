@@ -1,4 +1,4 @@
-import { clockAt, type InTheWay, type TaskCreateRequest } from '@scootch/domain';
+import { clockAt, type InTheWay, type TaskCreateRequest } from '@phusclass/domain';
 
 import type { DayContext, Offer } from './day-types';
 

@@ -1,4 +1,4 @@
-import type { DrawCommand, Path } from '@scootch/art';
+import type { DrawCommand, Path } from '@phusclass/art';
 
 /** The inks the world is printed in. */
 export interface WorldInks {

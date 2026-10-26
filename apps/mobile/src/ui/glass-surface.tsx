@@ -7,7 +7,7 @@ import {
 import type { ReactNode } from 'react';
 import { StyleSheet, View, type ViewProps } from 'react-native';
 
-import { colors, shadows } from '@scootch/tokens';
+import { colors, shadows } from '@phusclass/tokens';
 
 import { useAppearance } from '../screens/registry/support/forced-variant';
 

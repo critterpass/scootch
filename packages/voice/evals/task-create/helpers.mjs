@@ -18,7 +18,7 @@ import {
   taskCreateNameResponseSchema,
   taskCreatePackResponseSchema,
   taskCreateStartResponseSchema,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import { checkTaskCopy, isGroundedIn, stripMarks } from '../../src/index.ts';
 import { languages, pooled, post, share, startTask } from '../shared.mjs';

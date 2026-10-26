@@ -1,5 +1,5 @@
-import { CARD_FINISH_IDS, type CardFinish } from '@scootch/domain';
-import type { StringKey } from '@scootch/i18n';
+import { CARD_FINISH_IDS, type CardFinish } from '@phusclass/domain';
+import type { StringKey } from '@phusclass/i18n';
 
 import { storeProductId } from '../plus/products';
 

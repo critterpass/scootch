@@ -3,8 +3,8 @@ import {
   type CardFinish,
   type ClockTime,
   type SettingsRow,
-} from '@scootch/domain';
-import type { Language } from '@scootch/i18n';
+} from '@phusclass/domain';
+import type { Language } from '@phusclass/i18n';
 
 import { useT } from '../../i18n/i18n-provider';
 import { useAppearance } from '../../screens/registry/support/forced-variant';

@@ -1,11 +1,11 @@
-import { CARD_LABELS, formatCardDate, type CardLanguage } from '@scootch/art';
+import { CARD_LABELS, formatCardDate, type CardLanguage } from '@phusclass/art';
 import {
   dayOfLurking,
   type Id,
   type IsoDate,
   type MonsterRow,
   type TaskRow,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import { showsComedy } from '../../state/shows-comedy';
 

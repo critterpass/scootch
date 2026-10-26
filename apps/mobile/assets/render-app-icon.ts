@@ -4,13 +4,13 @@
  * splash image, from the art package into this folder. Run again whenever Scootch's drawing or
  * an icon's ground changes:
  *
- *   pnpm --filter @scootch/mobile icons
+ *   pnpm --filter @phusclass/mobile icons
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
 import { createCanvas } from '@napi-rs/canvas';
-import { buildScootch, drawCommands, VIEW_SIZE } from '@scootch/art';
+import { buildScootch, drawCommands, VIEW_SIZE } from '@phusclass/art';
 
 import { fill, ICONS, radial, SIZE, type AppIcon } from './app-icon-grounds';
 

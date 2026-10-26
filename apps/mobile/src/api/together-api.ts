@@ -1,4 +1,4 @@
-import { monsterBodyTypeSchema, type MonsterBodyType, type PurchaseState } from '@scootch/domain';
+import { monsterBodyTypeSchema, type MonsterBodyType, type PurchaseState } from '@phusclass/domain';
 
 import { ApiClientError } from './api-error';
 import type { HttpClient } from './http-client';

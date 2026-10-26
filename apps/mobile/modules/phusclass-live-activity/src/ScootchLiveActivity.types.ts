@@ -11,7 +11,7 @@ export interface SessionActivityAttributes {
 }
 
 /**
- * The session as the Lock Screen follows it: the fields of `HuntRecord` in `@scootch/domain` and of
+ * The session as the Lock Screen follows it: the fields of `HuntRecord` in `@phusclass/domain` and of
  * `targets/_shared/HuntRecord.swift`. Times are milliseconds since 1970.
  */
 export interface SessionActivityHunt {

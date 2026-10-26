@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useState } from 'react';
 
-import { localDateTime } from '@scootch/domain';
+import { localDateTime } from '@phusclass/domain';
 
 import { openRepositories } from '../../data/repositories';
 import { useLanguage } from '../../i18n/i18n-provider';

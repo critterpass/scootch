@@ -20,7 +20,7 @@ import {
   eggRing,
   eggRock,
   eggShard,
-} from '@scootch/art';
+} from '@phusclass/art';
 
 import { useScreenStyle } from '../ui/use-screen-style';
 

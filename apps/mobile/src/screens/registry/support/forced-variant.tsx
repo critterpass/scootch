@@ -1,7 +1,7 @@
 import { createContext, useContext, type ReactNode } from 'react';
 import { Platform, useColorScheme } from 'react-native';
 
-import type { ColorScheme } from '@scootch/tokens';
+import type { ColorScheme } from '@phusclass/tokens';
 
 import { ForcedLanguage } from '../../../i18n/i18n-provider';
 import type { ScreenVariant, TextSize } from './screen-state';

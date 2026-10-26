@@ -8,7 +8,7 @@ import type {
   TaskRow,
   WeekRecordRow,
   WorldPieceRow,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import { openRepositories, type Repositories } from '../data/repositories';
 import type { SurpriseDropRow } from '../data/repositories/surprise-drops';

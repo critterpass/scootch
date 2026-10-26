@@ -1,4 +1,4 @@
-import type { CardData } from '@scootch/domain';
+import type { CardData } from '@phusclass/domain';
 
 import { buildMonster } from '../core/build-monster';
 import { VIEW_SIZE, type DrawCommand } from '../core/commands';

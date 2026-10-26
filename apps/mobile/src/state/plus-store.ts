@@ -1,4 +1,4 @@
-import type { Unlocked } from '@scootch/domain';
+import type { Unlocked } from '@phusclass/domain';
 
 import type { PlusMemory } from '../data/plus-memory';
 import { unlockedFor } from '../features/plus/entitlement';

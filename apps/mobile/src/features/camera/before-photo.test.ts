@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { DAY_MS, type MonsterRow, type TaskRow } from '@scootch/domain';
+import { DAY_MS, type MonsterRow, type TaskRow } from '@phusclass/domain';
 
 import {
   afterFigures,

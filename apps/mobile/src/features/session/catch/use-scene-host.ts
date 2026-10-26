@@ -6,7 +6,7 @@ import {
   withTiming,
 } from 'react-native-reanimated';
 
-import type { SessionEvent } from '@scootch/domain';
+import type { SessionEvent } from '@phusclass/domain';
 
 import type { AnimatedViewStyle } from '../../../ui/motion/animated-style';
 

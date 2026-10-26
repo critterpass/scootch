@@ -1,4 +1,4 @@
-import { MONSTER_BODY_TYPE_IDS, type MonsterBodyType } from '@scootch/domain';
+import { MONSTER_BODY_TYPE_IDS, type MonsterBodyType } from '@phusclass/domain';
 import { describe, expect, it } from 'vitest';
 
 import { bodyFrom, bodyTypeQuestion, genericBody } from '../src/ai/task-create/labels';

@@ -4,7 +4,7 @@ import {
   settingsRowSchema,
   type Language,
   type SettingsRow,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import type { SqlDatabase } from '../table';
 

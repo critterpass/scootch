@@ -1,4 +1,4 @@
-import type { HuntRecord } from '@scootch/domain';
+import type { HuntRecord } from '@phusclass/domain';
 
 const instantOrNull = (value: unknown): number | null =>
   typeof value === 'number' && Number.isFinite(value) ? value : null;

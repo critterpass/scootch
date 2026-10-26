@@ -7,9 +7,9 @@ import {
   type SessionEvent,
   type TaskCreatePass,
   type TaskCreateResponse,
-} from '@scootch/domain';
-import { t } from '@scootch/i18n';
-import { offlinePacks } from '@scootch/voice';
+} from '@phusclass/domain';
+import { t } from '@phusclass/i18n';
+import { offlinePacks } from '@phusclass/voice';
 
 import crisisFixture from '../../../../packages/voice/fixtures/task.create.crisis.en.json';
 import passFixture from '../../../../packages/voice/fixtures/task.create.en.json';

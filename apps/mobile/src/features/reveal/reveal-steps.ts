@@ -4,7 +4,7 @@ import type {
   SessionTone,
   TaskRow,
   WorldPieceRow,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import type { SurpriseDropRow } from '../../data/repositories/surprise-drops';
 

@@ -1,6 +1,6 @@
 import { StyleSheet, useWindowDimensions } from 'react-native';
 
-import { spacing } from '@scootch/tokens';
+import { spacing } from '@phusclass/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
 import { RiseIn } from '../../ui/motion/rise-in';

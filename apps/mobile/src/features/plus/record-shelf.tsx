@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 
-import type { MonsterSpec } from '@scootch/domain';
-import { radius, shadows, spacing } from '@scootch/tokens';
+import type { MonsterSpec } from '@phusclass/domain';
+import { radius, shadows, spacing } from '@phusclass/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
 import { PressSpring } from '../../ui/motion/press-spring';

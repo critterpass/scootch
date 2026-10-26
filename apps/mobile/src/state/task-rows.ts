@@ -1,4 +1,4 @@
-import { specFromSeed } from '@scootch/art';
+import { specFromSeed } from '@phusclass/art';
 import {
   MONSTER_BODY_TYPE_IDS,
   isoFromInstant,
@@ -11,8 +11,8 @@ import {
   type TaskLabels,
   type TaskRow,
   type TaskScreen,
-} from '@scootch/domain';
-import { offlineLine, offlineMonsterName, offlinePacks } from '@scootch/voice';
+} from '@phusclass/domain';
+import { offlineLine, offlineMonsterName, offlinePacks } from '@phusclass/voice';
 
 import type { DayContext } from './day-types';
 import { sizeStep } from './smaller';

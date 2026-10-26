@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { MINUTE_MS, type TaskCreateStartResponse } from '@scootch/domain';
+import { MINUTE_MS, type TaskCreateStartResponse } from '@phusclass/domain';
 
 import seriousFixture from '../../../../packages/voice/fixtures/task.create.serious.en.json';
 import nameFixture from '../../../../packages/voice/fixtures/task.create_name.en.json';

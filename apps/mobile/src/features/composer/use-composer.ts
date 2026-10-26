@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import type { Language } from '@scootch/i18n';
+import type { Language } from '@phusclass/i18n';
 
 import {
   composerReducer,

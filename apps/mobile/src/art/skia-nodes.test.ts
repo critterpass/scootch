@@ -9,7 +9,7 @@ import {
   WORK_MODE_ATTACHMENTS,
   type DrawCommand,
   type PathSegment,
-} from '@scootch/art';
+} from '@phusclass/art';
 
 import {
   groupMatrix,

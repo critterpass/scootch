@@ -20,7 +20,7 @@ import type {
   StartCue,
   TaskRow,
   TodayState,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import type { TaskClient } from '../api/task-client';
 import type { Repositories } from '../data/repositories';

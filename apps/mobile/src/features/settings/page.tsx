@@ -9,7 +9,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { fonts, fontSizes, spacing } from '@scootch/tokens';
+import { fonts, fontSizes, spacing } from '@phusclass/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
 import { BackButton, CORNER, CornerBar, MenuButton } from '../../ui/corner-bar';

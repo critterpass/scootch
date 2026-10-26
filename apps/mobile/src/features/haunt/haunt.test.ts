@@ -2,8 +2,8 @@ import { randomUUID } from 'node:crypto';
 
 import { describe, expect, it } from '@jest/globals';
 
-import { hauntSeedSchema, type TaskCreatePass, type TaskCreateResponse } from '@scootch/domain';
-import { t } from '@scootch/i18n';
+import { hauntSeedSchema, type TaskCreatePass, type TaskCreateResponse } from '@phusclass/domain';
+import { t } from '@phusclass/i18n';
 
 import passFixture from '../../../../../packages/voice/fixtures/task.create.en.json';
 import seriousFixture from '../../../../../packages/voice/fixtures/task.create.serious.en.json';

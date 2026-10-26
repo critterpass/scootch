@@ -1,6 +1,6 @@
 import type { Href } from 'expo-router';
 
-import type { MonsterRow, TaskRow } from '@scootch/domain';
+import type { MonsterRow, TaskRow } from '@phusclass/domain';
 
 import type {
   Friend,

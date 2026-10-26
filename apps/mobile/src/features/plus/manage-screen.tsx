@@ -1,7 +1,7 @@
 import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
-import { FREE_STARTS_PER_DAY } from '@scootch/domain';
-import { fonts, shadows, spacing } from '@scootch/tokens';
+import { FREE_STARTS_PER_DAY } from '@phusclass/domain';
+import { fonts, shadows, spacing } from '@phusclass/tokens';
 
 import { Scootch } from '../../art/Scootch';
 import { useT } from '../../i18n/i18n-provider';

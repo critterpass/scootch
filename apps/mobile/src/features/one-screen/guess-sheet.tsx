@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { GUESS_MINUTES, type GuessMinutes } from '@scootch/domain';
-import { fonts } from '@scootch/tokens';
+import { GUESS_MINUTES, type GuessMinutes } from '@phusclass/domain';
+import { fonts } from '@phusclass/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
 import { CapsuleButton } from '../../ui/buttons';

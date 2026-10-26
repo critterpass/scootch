@@ -1,4 +1,4 @@
-import { MINUTE_MS, type SessionMinutes } from '@scootch/domain';
+import { MINUTE_MS, type SessionMinutes } from '@phusclass/domain';
 
 import type { TableState } from './table-store';
 

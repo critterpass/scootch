@@ -1,4 +1,4 @@
-import { cuePlaceholder, type Attitude, type InTheWay, type Language } from '@scootch/domain';
+import { cuePlaceholder, type Attitude, type InTheWay, type Language } from '@phusclass/domain';
 import { describe, expect, it } from 'vitest';
 
 import { checkLine, type LineKind } from '../check';

@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
 
-import type { GuessMinutes } from '@scootch/domain';
-import type { Language } from '@scootch/i18n';
-import { offlineLine } from '@scootch/voice';
+import type { GuessMinutes } from '@phusclass/domain';
+import type { Language } from '@phusclass/i18n';
+import { offlineLine } from '@phusclass/voice';
 
 import type { KeepTab } from '../../keep/keep-motion';
 import { KeepScreen } from '../../keep/keep-screen';

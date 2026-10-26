@@ -1,6 +1,6 @@
 import { Text, type StyleProp, type TextProps, type TextStyle } from 'react-native';
 
-import { fonts, fontSizes } from '@scootch/tokens';
+import { fonts, fontSizes } from '@phusclass/tokens';
 
 import { useTextSizing } from '../../../screens/registry/support/forced-variant';
 

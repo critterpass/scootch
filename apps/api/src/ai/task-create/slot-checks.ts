@@ -1,5 +1,5 @@
-import type { Attitude, Language } from '@scootch/domain';
-import { treatPlaceholder } from '@scootch/domain';
+import type { Attitude, Language } from '@phusclass/domain';
+import { treatPlaceholder } from '@phusclass/domain';
 import {
   checkCueLine,
   checkLine,
@@ -8,7 +8,7 @@ import {
   type LineCheck,
   type LineKind,
   type TaskLineReason,
-} from '@scootch/voice';
+} from '@phusclass/voice';
 
 /**
  * The voice check on a line as the person will read it: the treat line is checked with the

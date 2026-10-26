@@ -1,4 +1,4 @@
-import type { Box } from '@scootch/domain';
+import type { Box } from '@phusclass/domain';
 
 export interface Size {
   readonly width: number;

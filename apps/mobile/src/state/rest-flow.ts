@@ -1,4 +1,4 @@
-import { addDays, nextStartAfter, type TaskRow } from '@scootch/domain';
+import { addDays, nextStartAfter, type TaskRow } from '@phusclass/domain';
 
 import type { DayContext } from './day-types';
 

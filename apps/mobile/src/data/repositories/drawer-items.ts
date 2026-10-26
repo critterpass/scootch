@@ -1,4 +1,4 @@
-import { drawerItemRowSchema, type DrawerItemRow } from '@scootch/domain';
+import { drawerItemRowSchema, type DrawerItemRow } from '@phusclass/domain';
 
 import { createTable, type SqlDatabase, type Table } from '../table';
 

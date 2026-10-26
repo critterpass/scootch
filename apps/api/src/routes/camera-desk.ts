@@ -3,8 +3,8 @@ import {
   cameraDeskResponseSchema,
   type CameraDeskResponse,
   type Language,
-} from '@scootch/domain';
-import { noTaskLine, promptWordLimit } from '@scootch/voice';
+} from '@phusclass/domain';
+import { noTaskLine, promptWordLimit } from '@phusclass/voice';
 import { z } from 'zod';
 
 import {

@@ -1,5 +1,5 @@
 import type { ComponentType } from 'react';
-import type { MonsterRow, OddWord } from '@scootch/domain';
+import type { MonsterRow, OddWord } from '@phusclass/domain';
 
 import type { MonsterProps } from '../../art/Monster';
 

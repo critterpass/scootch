@@ -1,5 +1,5 @@
-import { MINUTE_MS, hasStartLeft, type TaskCreateRequest, type TaskRow } from '@scootch/domain';
-import { asksToChoose } from '@scootch/voice';
+import { MINUTE_MS, hasStartLeft, type TaskCreateRequest, type TaskRow } from '@phusclass/domain';
+import { asksToChoose } from '@phusclass/voice';
 
 import { careGate } from '../api/care-gate';
 import type { TaskCall } from '../api/task-client';

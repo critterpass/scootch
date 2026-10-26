@@ -24,7 +24,7 @@ import {
   VIEW_SIZE,
   type DrawCommand,
   type MonsterLife,
-} from '@scootch/art';
+} from '@phusclass/art';
 
 import { useForcedVariant } from '../screens/registry/support/forced-variant';
 

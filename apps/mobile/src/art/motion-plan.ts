@@ -9,7 +9,7 @@ import {
   type buildScootch,
   type ScootchLook,
   type ScootchMotion,
-} from '@scootch/art';
+} from '@phusclass/art';
 
 type ScootchDrawing = Parameters<typeof buildScootch>[0];
 type Mood = ScootchDrawing['mood'];

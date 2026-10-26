@@ -1,4 +1,4 @@
-import { mayShowOffer, type Instant, type OfferMoment, type PurchaseState } from '@scootch/domain';
+import { mayShowOffer, type Instant, type OfferMoment, type PurchaseState } from '@phusclass/domain';
 
 /** What the phone knows when the world opens. */
 export interface OfferFacts {

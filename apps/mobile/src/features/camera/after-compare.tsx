@@ -3,7 +3,7 @@ import { Image, StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 
-import { radius, spacing } from '@scootch/tokens';
+import { radius, spacing } from '@phusclass/tokens';
 
 import { SessionText } from '../session/ui/session-text';
 

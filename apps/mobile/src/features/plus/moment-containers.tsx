@@ -1,13 +1,13 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect } from 'react';
 
-import { localDateTime } from '@scootch/domain';
+import { localDateTime } from '@phusclass/domain';
 
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { useToday } from '../../state/day-store-provider';
 import { useLighthouse } from '../world/use-lighthouse';
 import { plusLine } from '../../state/lines';
-import type { NoTaskSlot } from '@scootch/voice';
+import type { NoTaskSlot } from '@phusclass/voice';
 import { usePlusRuntime, usePlusState } from '../../state/plus-context';
 
 import { throughAppleSheet } from './apple-sheet';

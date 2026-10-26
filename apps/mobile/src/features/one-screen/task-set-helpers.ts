@@ -7,8 +7,8 @@ import {
   type Instant,
   type StartCue,
   type TaskRow,
-} from '@scootch/domain';
-import type { StringKey } from '@scootch/i18n';
+} from '@phusclass/domain';
+import type { StringKey } from '@phusclass/i18n';
 
 import { bitesOf } from '../../state/bites';
 

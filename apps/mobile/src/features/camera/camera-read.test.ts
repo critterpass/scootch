@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
-import { noTaskLine } from '@scootch/voice';
+import { noTaskLine } from '@phusclass/voice';
 
 import type { OcrResult, ReadingApi, ThingsResult } from '../../../modules/scootch-reading';
 import type { CameraApi } from '../../api/camera-api';

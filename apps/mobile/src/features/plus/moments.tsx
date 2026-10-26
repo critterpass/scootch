@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 
-import { FREE_STARTS_PER_DAY, type Attitude } from '@scootch/domain';
+import { FREE_STARTS_PER_DAY, type Attitude } from '@phusclass/domain';
 
 import { Scootch, type ScootchProps } from '../../art/Scootch';
 import { useT } from '../../i18n/i18n-provider';

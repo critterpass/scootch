@@ -1,7 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { attitudeSchema, type TaskCreatePass, type TaskCreateResponse } from '@scootch/domain';
-import { checkLine, offlinePacks } from '@scootch/voice';
+import { attitudeSchema, type TaskCreatePass, type TaskCreateResponse } from '@phusclass/domain';
+import { checkLine, offlinePacks } from '@phusclass/voice';
 
 import crisisFixture from '../../../../../packages/voice/fixtures/task.create.crisis.en.json';
 import passFixture from '../../../../../packages/voice/fixtures/task.create.en.json';

@@ -17,7 +17,7 @@ import {
   type Language,
   type ParamsOf,
   type StringKey,
-} from '@scootch/i18n';
+} from '@phusclass/i18n';
 
 import { readStoredLanguage, storeLanguage } from './language-store';
 

@@ -1,6 +1,6 @@
 import { createContext, useContext, useSyncExternalStore } from 'react';
 
-import type { PurchaseState } from '@scootch/domain';
+import type { PurchaseState } from '@phusclass/domain';
 
 import type { HttpClient } from '../api/http-client';
 import { createShareApi, type ShareApi } from '../api/share-api';

@@ -5,7 +5,7 @@ import {
   monsterBodyTypeSchema,
   taskTextSchema,
   type TaskContinuation,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 import { z } from 'zod';
 
 import type { Bindings } from '../../env';

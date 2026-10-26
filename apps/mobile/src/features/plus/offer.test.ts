@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { DAY_MS, OFFER_AFTER_CATCHES, OFFER_QUIET_DAYS, dismissOffer } from '@scootch/domain';
+import { DAY_MS, OFFER_AFTER_CATCHES, OFFER_QUIET_DAYS, dismissOffer } from '@phusclass/domain';
 
 import { readOfferFacts } from '../../state/plus-runtime';
 

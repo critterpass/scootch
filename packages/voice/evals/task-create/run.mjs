@@ -1,7 +1,7 @@
 // The task call's eval: sends every ramble to a running API as the phone does (stage one, then
 // the monster's name and hatch line, then the pack with a treat) and checks each answer and how
 // long each part took.
-//   SCOOTCH_API_URL=http://localhost:8787 EVAL_CONCURRENCY=1 pnpm --filter @scootch/voice eval:task
+//   SCOOTCH_API_URL=http://localhost:8787 EVAL_CONCURRENCY=1 pnpm --filter @phusclass/voice eval:task
 //   EVAL_LANGUAGES=vi narrows the run; EVAL_OUTPUT=/tmp/answers.json keeps the answers;
 //   EVAL_ATTITUDES=soft,cheeky asks only those; EVAL_ATTITUDES=rotate gives each ramble one
 //   attitude in turn (a third of the calls). The default is every ramble at all three.
@@ -24,7 +24,7 @@ import {
   taskCreatePackResponseSchema,
   taskCreateResponseSchema,
   taskCreateStartResponseSchema,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import {
   checkTaskCopy,

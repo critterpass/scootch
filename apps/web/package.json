@@ -1,5 +1,5 @@
 {
-  "name": "@scootch/web",
+  "name": "@phusclass/web",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -13,9 +13,9 @@
   },
   "dependencies": {
     "@astrojs/cloudflare": "catalog:",
-    "@scootch/art": "workspace:*",
-    "@scootch/i18n": "workspace:*",
-    "@scootch/tokens": "workspace:*",
+    "@phusclass/art": "workspace:*",
+    "@phusclass/i18n": "workspace:*",
+    "@phusclass/tokens": "workspace:*",
     "astro": "catalog:"
   },
   "devDependencies": {

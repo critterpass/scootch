@@ -2,7 +2,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useSyncExternalStore } from 'react';
 import { Linking } from 'react-native';
 
-import { localDateTime } from '@scootch/domain';
+import { localDateTime } from '@phusclass/domain';
 
 import { useLanguage } from '../../i18n/i18n-provider';
 import { useToday } from '../../state/day-store-provider';

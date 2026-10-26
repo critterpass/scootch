@@ -1,4 +1,4 @@
-import { daysBetween, type IsoDate, type MonsterRow, type WorldPieceRow } from '@scootch/domain';
+import { daysBetween, type IsoDate, type MonsterRow, type WorldPieceRow } from '@phusclass/domain';
 
 import type { Translate } from '../../i18n/i18n-provider';
 

@@ -7,7 +7,7 @@ import {
   MONSTER_BODY_TYPE_IDS,
   scootchMoodSchema,
   WORK_MODE_IDS,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import { buildMonster } from '../core/build-monster';
 import { hash } from '../core/rng';

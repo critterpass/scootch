@@ -9,8 +9,8 @@ import {
   type ClockTime,
   type DayMoment,
   type StartCue,
-} from '@scootch/domain';
-import { fonts, spacing } from '@scootch/tokens';
+} from '@phusclass/domain';
+import { fonts, spacing } from '@phusclass/tokens';
 
 import { useT, type Translate } from '../../i18n/i18n-provider';
 import { momentLabel } from '../../state/start-cue';

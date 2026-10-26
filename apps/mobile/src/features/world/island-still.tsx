@@ -1,8 +1,8 @@
 import { Group } from '@shopify/react-native-skia';
 import { useMemo } from 'react';
 
-import { buildScootch, GROUND_Y, VIEW_SIZE } from '@scootch/art';
-import type { MonsterRow, WorldPieceRow } from '@scootch/domain';
+import { buildScootch, GROUND_Y, VIEW_SIZE } from '@phusclass/art';
+import type { MonsterRow, WorldPieceRow } from '@phusclass/domain';
 
 import { CommandLayer } from '../../art/skia-commands';
 

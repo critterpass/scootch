@@ -1,9 +1,9 @@
 /**
  * The app's side of the helpline table. The rows, their hours and the rules for what is open live
- * in `@scootch/i18n`, where the website reads the very same table; this file adds only the words
+ * in `@phusclass/i18n`, where the website reads the very same table; this file adds only the words
  * on the app's buttons. Nothing here is ever logged.
  */
-import type { Helpline } from '@scootch/i18n';
+import type { Helpline } from '@phusclass/i18n';
 
 import type { Translate } from '../../i18n/i18n-provider';
 
@@ -15,8 +15,8 @@ export {
   helplinesFor,
   orderedAt,
   textLink,
-} from '@scootch/i18n';
-export type { Helpline } from '@scootch/i18n';
+} from '@phusclass/i18n';
+export type { Helpline } from '@phusclass/i18n';
 
 /** The words on a helpline's button: what to do, the number, and whose line it is. */
 export function helplineLabel(t: Translate, line: Helpline): string {

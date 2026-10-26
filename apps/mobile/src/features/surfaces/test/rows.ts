@@ -4,9 +4,9 @@ import type {
   SessionLinePack,
   SessionRow,
   TaskRow,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
-import { specFromSeed } from '@scootch/art';
+import { specFromSeed } from '@phusclass/art';
 
 export const JOKES: SessionLinePack = {
   hatch: 'That dentist email has grandchildren now.',

@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { AppState } from 'react-native';
 
-import { t } from '@scootch/i18n';
+import { t } from '@phusclass/i18n';
 
 import { setActionLabels, setMorningHunt } from '../../../modules/scootch-notifications';
 import type { DayStore } from '../../state/day-store';

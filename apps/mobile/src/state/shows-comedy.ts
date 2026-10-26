@@ -1,4 +1,4 @@
-import type { TaskRow, TodayState } from '@scootch/domain';
+import type { TaskRow, TodayState } from '@phusclass/domain';
 
 import { careGate } from '../api/care-gate';
 

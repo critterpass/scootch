@@ -1,4 +1,4 @@
-import type { ReceiptRow } from '@scootch/art';
+import type { ReceiptRow } from '@phusclass/art';
 import {
   instantFromIso,
   localDateTime,
@@ -6,7 +6,7 @@ import {
   type MonsterRow,
   type MonsterSpec,
   type TaskRow,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import { shareOffered } from './share-rules';
 

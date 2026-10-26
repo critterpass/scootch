@@ -8,8 +8,8 @@ import {
 } from '@shopify/react-native-skia';
 import { useMemo } from 'react';
 
-import { buildScootch, VIEW_SIZE } from '@scootch/art';
-import type { MonsterRow, WorldPieceRow } from '@scootch/domain';
+import { buildScootch, VIEW_SIZE } from '@phusclass/art';
+import type { MonsterRow, WorldPieceRow } from '@phusclass/domain';
 
 import { CommandLayer } from '../../art/skia-commands';
 import { IslandStill } from '../world/island-still';

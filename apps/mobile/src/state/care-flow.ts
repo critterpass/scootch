@@ -6,7 +6,7 @@ import {
   localDateTime,
   type Instant,
   type QuietHours,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import { careGate } from '../api/care-gate';
 import type { SessionContext } from '../effects/adapters';

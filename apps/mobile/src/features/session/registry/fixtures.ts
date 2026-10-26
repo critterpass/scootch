@@ -1,7 +1,7 @@
-import { specFromSeed } from '@scootch/art';
-import { MINUTE_MS, type MonsterRow, type ParkedThought } from '@scootch/domain';
-import type { Language } from '@scootch/i18n';
-import { offlineLine, offlinePacks, type OfflineSlot } from '@scootch/voice';
+import { specFromSeed } from '@phusclass/art';
+import { MINUTE_MS, type MonsterRow, type ParkedThought } from '@phusclass/domain';
+import type { Language } from '@phusclass/i18n';
+import { offlineLine, offlinePacks, type OfflineSlot } from '@phusclass/voice';
 
 import type { ShownLine } from '../../../state/day-types';
 import type { SessionActions, SessionModel } from '../screens/screen-props';

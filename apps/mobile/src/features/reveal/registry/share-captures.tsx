@@ -1,5 +1,5 @@
-import { SHARE_FRAMES } from '@scootch/art';
-import type { Language } from '@scootch/i18n';
+import { SHARE_FRAMES } from '@phusclass/art';
+import type { Language } from '@phusclass/i18n';
 
 import {
   MONTH_FORMATS,

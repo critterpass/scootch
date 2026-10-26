@@ -1,5 +1,5 @@
-import type { IsoDate } from '@scootch/domain';
-import type { Language } from '@scootch/i18n';
+import type { IsoDate } from '@phusclass/domain';
+import type { Language } from '@phusclass/i18n';
 
 import type { Translate } from '../../i18n/i18n-provider';
 import { dayWords } from '../drawer/day-words';

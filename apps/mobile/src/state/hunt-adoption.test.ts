@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { MINUTE_MS, beginHunt, moreHunt, pauseHunt, type HuntRecord } from '@scootch/domain';
+import { MINUTE_MS, beginHunt, moreHunt, pauseHunt, type HuntRecord } from '@phusclass/domain';
 
 import { openRepositories } from '../data/repositories';
 import { readHunt } from '../features/surfaces/hunt-store';

@@ -1,4 +1,4 @@
-import { cardDataSchema } from '@scootch/domain';
+import { cardDataSchema } from '@phusclass/domain';
 import { z } from 'zod';
 
 import { languageSchema } from '../contracts';

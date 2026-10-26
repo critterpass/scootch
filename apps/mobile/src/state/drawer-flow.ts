@@ -7,7 +7,7 @@ import {
   nextStartAfter,
   sameThing,
   type Id,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import { forgetArrivedPage, moveArrivedPage } from './arrived-pages';
 import type { DayContext } from './day-types';

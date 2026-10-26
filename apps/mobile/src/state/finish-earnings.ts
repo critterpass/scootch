@@ -1,4 +1,4 @@
-import { isoFromInstant, sessionEarnings, type SessionTone, type TaskRow } from '@scootch/domain';
+import { isoFromInstant, sessionEarnings, type SessionTone, type TaskRow } from '@phusclass/domain';
 
 import type { DayContext } from './day-types';
 import { sittingsOf } from './late-catch';

@@ -1,5 +1,5 @@
-import type { Energy, MonsterBodyType, TaskLabels, WorkMode } from '@scootch/domain';
-import { asksToChoose, wordsOf } from '@scootch/voice';
+import type { Energy, MonsterBodyType, TaskLabels, WorkMode } from '@phusclass/domain';
+import { asksToChoose, wordsOf } from '@phusclass/voice';
 
 import { decide, type DecideContext, type DecisionQuestion } from '../decide';
 import type { ChoiceQuestion } from '../jev';

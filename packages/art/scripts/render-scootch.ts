@@ -2,14 +2,14 @@
  * Draws a contact sheet of Scootch: one row per mood, one column per attitude. For looking at the
  * character beside the design.
  *
- *   pnpm --filter @scootch/art scootch [output.png]
+ *   pnpm --filter @phusclass/art scootch [output.png]
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
 import { createCanvas } from '@napi-rs/canvas';
-import { attitudeSchema, scootchMoodSchema } from '@scootch/domain';
+import { attitudeSchema, scootchMoodSchema } from '@phusclass/domain';
 
 import { buildScootch, drawCommands, VIEW_SIZE } from '../src/index';
 

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { StyleSheet, Switch, Text, View } from 'react-native';
 
-import { fonts, shadows, spacing } from '@scootch/tokens';
+import { fonts, shadows, spacing } from '@phusclass/tokens';
 
 import { Chevron, Tick } from '../../ui/icons';
 import { useScreenStyle } from '../../ui/use-screen-style';

@@ -1,4 +1,4 @@
-import type { buildScootch } from '@scootch/art';
+import type { buildScootch } from '@phusclass/art';
 
 import { showArt } from './live-art';
 import { wireOpenInApp } from './open-in-app';

@@ -11,8 +11,8 @@ import Animated, {
   type SharedValue,
 } from 'react-native-reanimated';
 
-import type { WorkMode } from '@scootch/domain';
-import { fonts } from '@scootch/tokens';
+import type { WorkMode } from '@phusclass/domain';
+import { fonts } from '@phusclass/tokens';
 
 import { Scootch } from '../../../art/Scootch';
 import { Chevron } from '../../../ui/icons';

@@ -1,4 +1,4 @@
-import { MINUTE_MS, showsOthersHunting, type SettingsRow } from '@scootch/domain';
+import { MINUTE_MS, showsOthersHunting, type SettingsRow } from '@phusclass/domain';
 
 import type { HuntingApi } from '../api/hunting-api';
 import type { Timers } from '../effects/adapters';

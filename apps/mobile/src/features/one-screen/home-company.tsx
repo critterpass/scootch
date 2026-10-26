@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 
-import { spacing } from '@scootch/tokens';
+import { spacing } from '@phusclass/tokens';
 
 import type { DayEvent } from '../../state/day-types';
 import { AfterPhotoPill } from '../camera/after-photo-pill';

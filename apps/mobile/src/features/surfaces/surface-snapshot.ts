@@ -13,9 +13,9 @@ import {
   type SettingsRow,
   type TaskRow,
   type TodayState,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
-import { offlinePacks } from '@scootch/voice';
+import { offlinePacks } from '@phusclass/voice';
 
 import { liveLineTurns } from '../../effects/live-line-turns';
 import { bitesOf } from '../../state/bites';

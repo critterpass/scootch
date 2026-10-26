@@ -1,4 +1,4 @@
-import { recordBarRowSchema, type RecordBarRow } from '@scootch/domain';
+import { recordBarRowSchema, type RecordBarRow } from '@phusclass/domain';
 
 import { createTable, type SqlDatabase, type Table } from '../table';
 

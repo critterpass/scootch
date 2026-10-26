@@ -1,4 +1,4 @@
-import type { Attitude, Language, TaskCreatePass } from '@scootch/domain';
+import type { Attitude, Language, TaskCreatePass } from '@phusclass/domain';
 import { describe, expect, it } from 'vitest';
 
 import passEn from '../fixtures/task.create.en.json' with { type: 'json' };

@@ -1,8 +1,8 @@
 import { useRouter } from 'expo-router';
-import { specFromSeed } from '@scootch/art';
-import type { DrawerItemRow, MonsterRow, TaskRow } from '@scootch/domain';
-import type { Language } from '@scootch/i18n';
-import { offlineLine, offlineMonsterName, offlinePacks } from '@scootch/voice';
+import { specFromSeed } from '@phusclass/art';
+import type { DrawerItemRow, MonsterRow, TaskRow } from '@phusclass/domain';
+import type { Language } from '@phusclass/i18n';
+import { offlineLine, offlineMonsterName, offlinePacks } from '@phusclass/voice';
 
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { DrawerSheet } from '../drawer/drawer-sheet';

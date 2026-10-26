@@ -1,4 +1,4 @@
-import { guessAndReal, type CardFinish, type CardRarity } from '@scootch/domain';
+import { guessAndReal, type CardFinish, type CardRarity } from '@phusclass/domain';
 
 export type CardLanguage = 'en' | 'vi';
 

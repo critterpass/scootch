@@ -1,4 +1,4 @@
-import type { TaskCreateRequest, TaskRow, TaskScreen } from '@scootch/domain';
+import type { TaskCreateRequest, TaskRow, TaskScreen } from '@phusclass/domain';
 
 import type { TaskCall } from '../api/task-client';
 

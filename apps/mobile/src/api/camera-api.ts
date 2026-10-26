@@ -11,7 +11,7 @@ import {
   type CameraRoomResponse,
   type CameraScreenRequest,
   type CameraScreenResponse,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import type { HttpClient } from './http-client';
 

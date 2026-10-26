@@ -2,7 +2,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Share } from 'react-native';
 
-import { MINUTE_MS, type TableSeat } from '@scootch/domain';
+import { MINUTE_MS, type TableSeat } from '@phusclass/domain';
 
 import { siteBaseUrl } from '../../api/api-config';
 import { useLanguage, useT } from '../../i18n/i18n-provider';

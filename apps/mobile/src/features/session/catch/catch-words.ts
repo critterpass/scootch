@@ -1,4 +1,4 @@
-import type { StringKey } from '@scootch/i18n';
+import type { StringKey } from '@phusclass/i18n';
 
 import type { Translate } from '../../../i18n/i18n-provider';
 import type { SessionModel } from '../screens/screen-props';

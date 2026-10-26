@@ -1,5 +1,5 @@
 /* The site's shell and the pieces every page shares. The app's palette arrives from
-   @scootch/tokens (set on :root by the layout); the inks below are the website's own. Every size
+   @phusclass/tokens (set on :root by the layout); the inks below are the website's own. Every size
    is in rem, so the page follows the reader's text size and reflows to one column. */
 @font-face {
   font-family: 'Nunito';

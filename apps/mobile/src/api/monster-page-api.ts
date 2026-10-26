@@ -1,4 +1,4 @@
-import { MONSTER_BODY_TYPE_IDS, type Language, type MonsterBodyType } from '@scootch/domain';
+import { MONSTER_BODY_TYPE_IDS, type Language, type MonsterBodyType } from '@phusclass/domain';
 
 import type { HttpClient } from './http-client';
 

@@ -8,8 +8,8 @@ import {
   type TaskCreateStartPass,
   type TaskJudge,
   type TaskLabels,
-} from '@scootch/domain';
-import { checkLine, offlinePacks, wordsOf } from '@scootch/voice';
+} from '@phusclass/domain';
+import { checkLine, offlinePacks, wordsOf } from '@phusclass/voice';
 
 import { ApiError } from '../../errors';
 import { readSharedMonster } from '../../sharing/shared-monsters';

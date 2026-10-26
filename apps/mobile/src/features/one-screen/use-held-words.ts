@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import type { Energy, InTheWay } from '@scootch/domain';
+import type { Energy, InTheWay } from '@phusclass/domain';
 
 import { careGate } from '../../api/care-gate';
 

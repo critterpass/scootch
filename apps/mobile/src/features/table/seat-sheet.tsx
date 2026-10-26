@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
 
-import type { TableSeat } from '@scootch/domain';
-import { radius, spacing } from '@scootch/tokens';
+import type { TableSeat } from '@phusclass/domain';
+import { radius, spacing } from '@phusclass/tokens';
 
 import { REPORT_REASONS, type ReportReason } from '../../api/together-api';
 import { useT } from '../../i18n/i18n-provider';

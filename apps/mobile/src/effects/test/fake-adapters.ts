@@ -1,5 +1,5 @@
-import type { Instant, ParkedThought } from '@scootch/domain';
-import type { HapticTap } from '@scootch/sound';
+import type { Instant, ParkedThought } from '@phusclass/domain';
+import type { HapticTap } from '@phusclass/sound';
 
 import type {
   Clock,

@@ -1,4 +1,4 @@
-import { taskCreateRequestSchema, type TaskCreateStartResponse } from '@scootch/domain';
+import { taskCreateRequestSchema, type TaskCreateStartResponse } from '@phusclass/domain';
 
 import { continuationSecret, sealContinuation } from '../ai/task-create/continuation';
 import { createTask, startTask } from '../ai/task-create/create-task';

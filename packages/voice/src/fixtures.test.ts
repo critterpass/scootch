@@ -1,4 +1,4 @@
-import { aiRoutes, type AiRouteId } from '@scootch/domain';
+import { aiRoutes, type AiRouteId } from '@phusclass/domain';
 import { describe, expect, it } from 'vitest';
 
 import unscreenedEn from '../fixtures/screen.input.unscreened.en.json' with { type: 'json' };

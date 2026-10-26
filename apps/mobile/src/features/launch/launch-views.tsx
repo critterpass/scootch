@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import type { Attitude } from '@scootch/domain';
-import { fonts, radius, spacing } from '@scootch/tokens';
+import type { Attitude } from '@phusclass/domain';
+import { fonts, radius, spacing } from '@phusclass/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
 import { CapsuleButton } from '../../ui/buttons';

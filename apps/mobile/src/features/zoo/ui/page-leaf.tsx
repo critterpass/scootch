@@ -1,8 +1,8 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { CARD_LABELS } from '@scootch/art';
-import type { Language } from '@scootch/i18n';
-import { fonts } from '@scootch/tokens';
+import { CARD_LABELS } from '@phusclass/art';
+import type { Language } from '@phusclass/i18n';
+import { fonts } from '@phusclass/tokens';
 
 import { useT } from '../../../i18n/i18n-provider';
 import { PressSpring } from '../../../ui/motion/press-spring';

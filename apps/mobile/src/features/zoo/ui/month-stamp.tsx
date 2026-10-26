@@ -8,8 +8,8 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import { buildMaterial, CARD_MATERIALS } from '@scootch/art';
-import { fonts } from '@scootch/tokens';
+import { buildMaterial, CARD_MATERIALS } from '@phusclass/art';
+import { fonts } from '@phusclass/tokens';
 
 import { STAMP as LANDING } from '../../../ui/motion/motion-tokens';
 import { useScreenStyle } from '../../../ui/use-screen-style';

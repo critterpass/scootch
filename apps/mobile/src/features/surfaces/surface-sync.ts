@@ -6,7 +6,7 @@ import {
   localDateTime,
   isoWeekOf,
   type CardFinish,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import type { Repositories } from '../../data/repositories';
 import type { DayStore } from '../../state/day-store';

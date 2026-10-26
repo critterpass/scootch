@@ -1,4 +1,4 @@
-import { HOUR_MS, instantFromIso, isoFromInstant, type Instant } from '@scootch/domain';
+import { HOUR_MS, instantFromIso, isoFromInstant, type Instant } from '@phusclass/domain';
 
 import type { Repositories } from '../../data/repositories';
 import type { SqlDatabase } from '../../data/table';

@@ -1,4 +1,4 @@
-import type { InTheWay } from '@scootch/domain';
+import type { InTheWay } from '@phusclass/domain';
 
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { OneScreenView } from '../one-screen/one-screen-view';

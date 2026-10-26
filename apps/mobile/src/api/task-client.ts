@@ -10,7 +10,7 @@ import type {
   SessionLinePack,
   TaskCreateRequest,
   TaskLabels,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import type { ScootchApi } from './scootch-api';
 

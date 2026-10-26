@@ -1,4 +1,4 @@
-import { monsterRowSchema, type MonsterRow } from '@scootch/domain';
+import { monsterRowSchema, type MonsterRow } from '@phusclass/domain';
 
 import { createTable, type SqlDatabase, type Table } from '../table';
 

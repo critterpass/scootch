@@ -1,4 +1,4 @@
-import type { Attitude } from '@scootch/domain';
+import type { Attitude } from '@phusclass/domain';
 
 /** The slots an offline line can fill. `working` and `notification` hold several to rotate. */
 export const offlineSlots = [

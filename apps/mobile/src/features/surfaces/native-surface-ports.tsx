@@ -5,7 +5,7 @@ import * as Notifications from 'expo-notifications';
 import { router } from 'expo-router';
 import { File, Paths, type Directory } from 'expo-file-system';
 
-import { buildMonster, buildScootch, VIEW_SIZE } from '@scootch/art';
+import { buildMonster, buildScootch, VIEW_SIZE } from '@phusclass/art';
 
 import { refreshShortcuts } from '../../../modules/scootch-live-activity';
 

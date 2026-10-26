@@ -8,9 +8,9 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import type { ShareFrame } from '@scootch/art';
-import type { Language } from '@scootch/i18n';
-import { fonts, spacing } from '@scootch/tokens';
+import type { ShareFrame } from '@phusclass/art';
+import type { Language } from '@phusclass/i18n';
+import { fonts, spacing } from '@phusclass/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
 import { CloseButton, CORNER, CornerBar } from '../../ui/corner-bar';

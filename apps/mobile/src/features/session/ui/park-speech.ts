@@ -1,6 +1,6 @@
 import { AVAudioSessionCategory, AVAudioSessionCategoryOptions } from 'expo-speech-recognition';
 
-import type { Language } from '@scootch/i18n';
+import type { Language } from '@phusclass/i18n';
 
 import { soundMode } from '../../../effects/sound-mode';
 import { phoneSpeech } from '../../composer/phone-speech';

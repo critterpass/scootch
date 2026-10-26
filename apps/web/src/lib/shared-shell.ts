@@ -1,5 +1,5 @@
 import { env } from 'cloudflare:workers';
-import type { Language } from '@scootch/i18n';
+import type { Language } from '@phusclass/i18n';
 
 import { bannerOpening, withoutBanner } from './app-links';
 import {

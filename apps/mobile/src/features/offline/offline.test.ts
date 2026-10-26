@@ -1,7 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { t } from '@scootch/i18n';
-import { offlinePacks } from '@scootch/voice';
+import { t } from '@phusclass/i18n';
+import { offlinePacks } from '@phusclass/voice';
 
 import { lineFor } from '../../state/lines';
 import { stagedPhone, stagedServer } from '../../state/test/staged-phone';

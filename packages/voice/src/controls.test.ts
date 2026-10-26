@@ -1,4 +1,4 @@
-import type { Language } from '@scootch/domain';
+import type { Language } from '@phusclass/domain';
 import { describe, expect, it } from 'vitest';
 
 import { checkLine, lineKinds } from './check';

@@ -1,4 +1,4 @@
-import { DEFAULT_DAY_MOMENT_TIMES, type StartCue } from '@scootch/domain';
+import { DEFAULT_DAY_MOMENT_TIMES, type StartCue } from '@phusclass/domain';
 
 import { TaskSet, useCapture } from './captures';
 import type { TaskSetHelpers } from './task-set-helpers';

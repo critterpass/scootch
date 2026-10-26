@@ -1,4 +1,4 @@
-import type { Language, MonsterBodyType } from '@scootch/domain';
+import type { Language, MonsterBodyType } from '@phusclass/domain';
 
 import { offlinePacks } from './index';
 

@@ -1,4 +1,4 @@
-import { t, type Language } from '@scootch/i18n';
+import { t, type Language } from '@phusclass/i18n';
 
 import { en, type Loosen, type SiteCopy } from './en';
 import { pagesEn } from './pages-en';

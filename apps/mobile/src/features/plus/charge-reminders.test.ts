@@ -1,7 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { DAY_MS, HOUR_MS } from '@scootch/domain';
-import { noTaskLine } from '@scootch/voice';
+import { DAY_MS, HOUR_MS } from '@phusclass/domain';
+import { noTaskLine } from '@phusclass/voice';
 
 import { fakeDevice } from '../../effects/test/fake-adapters';
 

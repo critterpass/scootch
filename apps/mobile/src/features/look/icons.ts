@@ -1,4 +1,4 @@
-import type { Attitude, CardFinish, SettingsRow } from '@scootch/domain';
+import type { Attitude, CardFinish, SettingsRow } from '@phusclass/domain';
 
 /**
  * The app's ten icons: one for each attitude and one for each card finish. They are drawn by

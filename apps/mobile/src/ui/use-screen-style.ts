@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AccessibilityInfo, useWindowDimensions } from 'react-native';
 
-import type { Palette } from '@scootch/tokens';
+import type { Palette } from '@phusclass/tokens';
 
 import {
   useForcedVariant,

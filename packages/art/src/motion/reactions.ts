@@ -1,4 +1,4 @@
-import type { MonsterMood, ScootchMood } from '@scootch/domain';
+import type { MonsterMood, ScootchMood } from '@phusclass/domain';
 
 import { clamp } from './loop-math';
 

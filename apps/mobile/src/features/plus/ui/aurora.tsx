@@ -10,7 +10,7 @@ import {
   type SharedValue,
 } from 'react-native-reanimated';
 
-import type { DrawCommand, Path } from '@scootch/art';
+import type { DrawCommand, Path } from '@phusclass/art';
 
 import { CommandLayer } from '../../../art/skia-commands';
 import { useScreenStyle } from '../../../ui/use-screen-style';

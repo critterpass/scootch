@@ -10,7 +10,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import type { MonsterSpec } from '@scootch/domain';
+import type { MonsterSpec } from '@phusclass/domain';
 
 import { CommandCanvas } from '../../reveal/ui/command-canvas';
 import {

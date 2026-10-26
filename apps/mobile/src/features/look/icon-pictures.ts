@@ -1,6 +1,6 @@
 import type { ImageSourcePropType } from 'react-native';
 
-import type { Attitude, CardFinish } from '@scootch/domain';
+import type { Attitude, CardFinish } from '@phusclass/domain';
 
 import chrome from '../../../assets/icons/preview/chrome.png';
 import cheeky from '../../../assets/icons/preview/cheeky.png';

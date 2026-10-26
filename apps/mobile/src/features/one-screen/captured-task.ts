@@ -1,4 +1,4 @@
-import type { TaskRow } from '@scootch/domain';
+import type { TaskRow } from '@phusclass/domain';
 
 /** A task as the phone stores it before any answer has come: its own words and nothing else. */
 export function capturedTask(text: string, screen: TaskRow['screen']): TaskRow {

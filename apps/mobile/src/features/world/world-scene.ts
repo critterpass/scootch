@@ -1,5 +1,5 @@
-import { buildScootch, GROUND_Y, VIEW_SIZE, type DrawCommand } from '@scootch/art';
-import type { Id, MonsterRow, WorldPieceRow } from '@scootch/domain';
+import { buildScootch, GROUND_Y, VIEW_SIZE, type DrawCommand } from '@phusclass/art';
+import type { Id, MonsterRow, WorldPieceRow } from '@phusclass/domain';
 
 import { islandCommands } from './island-commands';
 import { ISLAND_SPACE, layoutIsland, SCOOTCH_AT } from './island-layout';

@@ -1,9 +1,9 @@
-import { specFromSeed } from '@scootch/art';
+import { specFromSeed } from '@phusclass/art';
 import { View } from 'react-native';
 
-import { DAY_MS } from '@scootch/domain';
-import { spacing } from '@scootch/tokens';
-import { noTaskLine } from '@scootch/voice';
+import { DAY_MS } from '@phusclass/domain';
+import { spacing } from '@phusclass/tokens';
+import { noTaskLine } from '@phusclass/voice';
 
 import { useLanguage, useT } from '../../../i18n/i18n-provider';
 import { PlusContext, type PlusRuntime } from '../../../state/plus-context';

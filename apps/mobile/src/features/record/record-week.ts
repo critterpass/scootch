@@ -8,8 +8,8 @@ import {
   type TaskRow,
   type WeekRecordRow,
   type WorkMode,
-} from '@scootch/domain';
-import type { RecordInstrument } from '@scootch/sound';
+} from '@phusclass/domain';
+import type { RecordInstrument } from '@phusclass/sound';
 
 /** One thing caught on a day of the week: its monster's name and the task it was. */
 export interface DayCatch {

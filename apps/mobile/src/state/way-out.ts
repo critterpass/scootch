@@ -1,4 +1,4 @@
-import { addDays } from '@scootch/domain';
+import { addDays } from '@phusclass/domain';
 
 import { parkWhole } from './day-rollover';
 import type { DayContext } from './day-types';

@@ -1,5 +1,5 @@
-import { buildReceipt } from '@scootch/art';
-import type { CardFinish, IsoDate, Language } from '@scootch/domain';
+import { buildReceipt } from '@phusclass/art';
+import type { CardFinish, IsoDate, Language } from '@phusclass/domain';
 
 import type { Repositories } from '../../data/repositories';
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import type { CardFinish } from '@scootch/domain';
+import type { CardFinish } from '@phusclass/domain';
 
 import { alternateName, APP_ICONS, iconFor, mayShow, type IconFacts } from './icons';
 

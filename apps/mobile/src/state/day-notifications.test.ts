@@ -7,8 +7,8 @@ import {
   type IsoDate,
   type SettingsRow,
   type TodayState,
-} from '@scootch/domain';
-import { offlinePacks } from '@scootch/voice';
+} from '@phusclass/domain';
+import { offlinePacks } from '@phusclass/voice';
 
 import { defaultSettings } from '../data/repositories/settings';
 import { fakeRunner } from '../effects/test/fake-adapters';

@@ -1,4 +1,4 @@
-import type { GuessMinutes } from '@scootch/domain';
+import type { GuessMinutes } from '@phusclass/domain';
 
 import type { DayContext } from './day-types';
 

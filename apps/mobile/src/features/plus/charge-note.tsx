@@ -1,4 +1,4 @@
-import { localDateTime } from '@scootch/domain';
+import { localDateTime } from '@phusclass/domain';
 
 import { useT } from '../../i18n/i18n-provider';
 import { usePlusRuntime, usePlusState } from '../../state/plus-context';

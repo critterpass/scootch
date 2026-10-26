@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Text, View } from 'react-native';
 
-import type { DrawerItemRow, Id, IsoDate } from '@scootch/domain';
+import type { DrawerItemRow, Id, IsoDate } from '@phusclass/domain';
 
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { CloseIcon } from '../../ui/icons';

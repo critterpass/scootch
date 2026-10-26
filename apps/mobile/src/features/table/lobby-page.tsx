@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 
-import { fonts, radius, spacing } from '@scootch/tokens';
+import { fonts, radius, spacing } from '@phusclass/tokens';
 
 import type { FriendsTable } from '../../api/together-api';
 import { Scootch } from '../../art/Scootch';

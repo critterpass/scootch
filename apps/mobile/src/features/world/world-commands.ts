@@ -1,6 +1,6 @@
-import { buildMonster, VIEW_SIZE, type DrawCommand } from '@scootch/art';
-import type { Id, MonsterRow } from '@scootch/domain';
-import type { ColorScheme } from '@scootch/tokens';
+import { buildMonster, VIEW_SIZE, type DrawCommand } from '@phusclass/art';
+import type { Id, MonsterRow } from '@phusclass/domain';
+import type { ColorScheme } from '@phusclass/tokens';
 
 import { fill, PIECE_BOX, placedIn, seedRoll, type PieceArt, type WorldInks } from './piece-kit';
 import * as pieces from './pieces/index.generated';

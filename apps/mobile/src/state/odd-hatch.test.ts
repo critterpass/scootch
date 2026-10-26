@@ -3,13 +3,13 @@ import path from 'node:path';
 
 import { describe, expect, it } from '@jest/globals';
 
-import { specFromSeed } from '@scootch/art';
+import { specFromSeed } from '@phusclass/art';
 import {
   isOddWeek,
   type MonsterRow,
   type TaskCreateNameResponse,
   type TaskCreatePackResponse,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import nameFixture from '../../../../packages/voice/fixtures/task.create_name.en.json';
 import packFixture from '../../../../packages/voice/fixtures/task.create_pack.en.json';

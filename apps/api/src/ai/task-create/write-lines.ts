@@ -5,8 +5,8 @@ import {
   type MonsterCopy,
   type TaskCreateLinesResponse,
   type TaskCreatePackResponse,
-} from '@scootch/domain';
-import { cueSlot, offlineMonsterName, type LineKind } from '@scootch/voice';
+} from '@phusclass/domain';
+import { cueSlot, offlineMonsterName, type LineKind } from '@phusclass/voice';
 
 import { ApiError } from '../../errors';
 import { noteTakenIn } from '../../sharing/shared-monsters';

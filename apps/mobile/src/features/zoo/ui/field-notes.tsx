@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { dotScreen, type DrawCommand } from '@scootch/art';
-import { fonts } from '@scootch/tokens';
+import { dotScreen, type DrawCommand } from '@phusclass/art';
+import { fonts } from '@phusclass/tokens';
 
 import { useT } from '../../../i18n/i18n-provider';
 import { STAMPED } from '../../plus/ui/member-card';

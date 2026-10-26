@@ -5,8 +5,8 @@ import type {
   OneThing,
   ParkedItem,
   TaskCreateRequest,
-} from '@scootch/domain';
-import { groundedShare, isGroundedIn, normalise, wordsOf } from '@scootch/voice';
+} from '@phusclass/domain';
+import { groundedShare, isGroundedIn, normalise, wordsOf } from '@phusclass/voice';
 
 import { resolveHeardDate } from './deadlines';
 import { namesAnotherDay, resolveHeardTime, wallClockMinutes } from './heard-times';

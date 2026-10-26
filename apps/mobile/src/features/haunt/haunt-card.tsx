@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import type { MonsterSpec } from '@scootch/domain';
-import { fonts } from '@scootch/tokens';
+import type { MonsterSpec } from '@phusclass/domain';
+import { fonts } from '@phusclass/tokens';
 
 import { Monster } from '../../art/Monster';
 import { useT } from '../../i18n/i18n-provider';

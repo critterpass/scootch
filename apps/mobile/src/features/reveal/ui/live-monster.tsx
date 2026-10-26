@@ -1,6 +1,6 @@
 import { memo, useEffect, useMemo, useState } from 'react';
 
-import { boilFrame, buildMonster, type DrawCommand, type MonsterLife } from '@scootch/art';
+import { boilFrame, buildMonster, type DrawCommand, type MonsterLife } from '@phusclass/art';
 
 import { FULL_HZ } from '../../../art/motion-plan';
 import { CommandLayer } from '../../../art/skia-commands';

@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 
-import { spacing } from '@scootch/tokens';
+import { spacing } from '@phusclass/tokens';
 
 import { CORNER } from '../../ui/corner-bar';
 import { useScreenStyle } from '../../ui/use-screen-style';

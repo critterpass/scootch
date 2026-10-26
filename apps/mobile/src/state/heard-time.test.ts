@@ -7,8 +7,8 @@ import {
   type IsoDate,
   type SettingsRow,
   type TodayState,
-} from '@scootch/domain';
-import { getReadyLine } from '@scootch/voice';
+} from '@phusclass/domain';
+import { getReadyLine } from '@phusclass/voice';
 
 import { defaultSettings } from '../data/repositories/settings';
 import { seriousTask, taskRow } from '../features/surfaces/test/rows';

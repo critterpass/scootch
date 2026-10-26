@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 
-import type { Language } from '@scootch/i18n';
-import type { RecordInstrument } from '@scootch/sound';
+import type { Language } from '@phusclass/i18n';
+import type { RecordInstrument } from '@phusclass/sound';
 
 import { useT } from '../../../i18n/i18n-provider';
 import { useScreenStyle } from '../../../ui/use-screen-style';

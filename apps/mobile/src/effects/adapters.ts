@@ -1,5 +1,5 @@
-import type { Instant, ParkedThought, SessionLine } from '@scootch/domain';
-import type { HapticTap } from '@scootch/sound';
+import type { Instant, ParkedThought, SessionLine } from '@phusclass/domain';
+import type { HapticTap } from '@phusclass/sound';
 
 /** The current instant. Nothing in the runner or the store reads the system clock directly. */
 export interface Clock {

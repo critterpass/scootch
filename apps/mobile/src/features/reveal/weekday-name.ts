@@ -1,4 +1,4 @@
-import type { Language } from '@scootch/i18n';
+import type { Language } from '@phusclass/i18n';
 
 // The first of January 2024 was a Monday.
 const MONDAY = Date.UTC(2024, 0, 1);

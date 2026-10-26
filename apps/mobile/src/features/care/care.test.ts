@@ -1,7 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
-import type { TaskCreatePass, TaskCreateResponse, TodayState } from '@scootch/domain';
-import { offlinePacks } from '@scootch/voice';
+import type { TaskCreatePass, TaskCreateResponse, TodayState } from '@phusclass/domain';
+import { offlinePacks } from '@phusclass/voice';
 
 import crisisFixture from '../../../../../packages/voice/fixtures/task.create.crisis.en.json';
 import passFixture from '../../../../../packages/voice/fixtures/task.create.en.json';

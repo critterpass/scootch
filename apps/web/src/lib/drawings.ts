@@ -1,4 +1,4 @@
-import { toSvg } from '@scootch/art';
+import { toSvg } from '@phusclass/art';
 
 import { artFrame, type ArtSpec, type BodyType, type ScootchMood, type WorkMode } from './art-spec';
 

@@ -1,4 +1,4 @@
-import type { CardData } from '@scootch/domain';
+import type { CardData } from '@phusclass/domain';
 
 /**
  * The foil as a screen lights it: a band of five colours laid over the face in colour dodge, and

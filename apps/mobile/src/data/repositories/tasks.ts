@@ -1,4 +1,4 @@
-import { taskRowSchema, type TaskRow } from '@scootch/domain';
+import { taskRowSchema, type TaskRow } from '@phusclass/domain';
 
 import { createTable, type SqlDatabase, type Table } from '../table';
 

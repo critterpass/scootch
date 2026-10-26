@@ -3,7 +3,7 @@ import path from 'node:path';
 
 import { describe, expect, it } from '@jest/globals';
 
-import type { TaskCreatePass, TaskCreateResponse } from '@scootch/domain';
+import type { TaskCreatePass, TaskCreateResponse } from '@phusclass/domain';
 
 import fixtures from '../../../../../packages/domain/src/contracts/fixtures/table-messages.json';
 import passFixture from '../../../../../packages/voice/fixtures/task.create.en.json';

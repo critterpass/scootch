@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { t as translate } from '@scootch/i18n';
+import { t as translate } from '@phusclass/i18n';
 
 import type { Translate } from '../../i18n/i18n-provider';
 

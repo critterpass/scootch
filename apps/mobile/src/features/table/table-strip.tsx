@@ -2,8 +2,8 @@ import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import type { LiveSession, TableSeat, WorkMode } from '@scootch/domain';
-import { spacing } from '@scootch/tokens';
+import type { LiveSession, TableSeat, WorkMode } from '@phusclass/domain';
+import { spacing } from '@phusclass/tokens';
 
 import { Scootch } from '../../art/Scootch';
 import { useT } from '../../i18n/i18n-provider';

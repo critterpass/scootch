@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { WORK_MODE_IDS, type ScootchProps, type WorkMode } from '@scootch/domain';
+import { WORK_MODE_IDS, type ScootchProps, type WorkMode } from '@phusclass/domain';
 
 import { buildScootch } from './build-scootch';
 import { WORK_MODE_ATTACHMENTS } from './work-mode-attachment';

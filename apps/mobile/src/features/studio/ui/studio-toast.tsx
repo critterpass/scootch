@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { fonts } from '@scootch/tokens';
+import { fonts } from '@phusclass/tokens';
 
 import { BOUNCE_CURVE, CROSSFADE_MS } from '../../../ui/motion/motion-tokens';
 import { useRouteSheet } from '../../../ui/use-route-sheet';

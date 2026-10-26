@@ -1,7 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { addDays } from '@scootch/domain';
-import { t as translate, type Language } from '@scootch/i18n';
+import { addDays } from '@phusclass/domain';
+import { t as translate, type Language } from '@phusclass/i18n';
 
 import type { Translate } from '../../i18n/i18n-provider';
 import { FIXTURE_MONDAY, fixtureMonsters, fixturePieces } from '../reveal/registry/keep-fixtures';

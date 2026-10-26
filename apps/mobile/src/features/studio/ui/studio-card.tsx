@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { CARD_MATERIALS, rgba } from '@scootch/art';
-import { fonts } from '@scootch/tokens';
+import { CARD_MATERIALS, rgba } from '@phusclass/art';
+import { fonts } from '@phusclass/tokens';
 
 import { Scootch } from '../../../art/Scootch';
 import { useT } from '../../../i18n/i18n-provider';

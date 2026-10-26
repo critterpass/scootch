@@ -15,9 +15,9 @@ import {
   rgba,
   VIEW_SIZE,
   type DrawCommand,
-} from '@scootch/art';
-import type { Language } from '@scootch/i18n';
-import { fonts } from '@scootch/tokens';
+} from '@phusclass/art';
+import type { Language } from '@phusclass/i18n';
+import { fonts } from '@phusclass/tokens';
 
 import { CommandLayer } from '../../../art/skia-commands';
 import { useT } from '../../../i18n/i18n-provider';

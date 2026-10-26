@@ -1,4 +1,4 @@
-import type { Instant } from '@scootch/domain';
+import type { Instant } from '@phusclass/domain';
 
 /** How often the Live Activity's line turns over to the next of the session's working lines. */
 export const LIVE_LINE_EVERY_MS = 3 * 60_000;

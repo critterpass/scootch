@@ -11,9 +11,9 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import type { DrawCommand } from '@scootch/art';
-import type { Attitude } from '@scootch/domain';
-import { fonts, spacing } from '@scootch/tokens';
+import type { DrawCommand } from '@phusclass/art';
+import type { Attitude } from '@phusclass/domain';
+import { fonts, spacing } from '@phusclass/tokens';
 
 import { Scootch } from '../../art/Scootch';
 import { CommandLayer } from '../../art/skia-commands';

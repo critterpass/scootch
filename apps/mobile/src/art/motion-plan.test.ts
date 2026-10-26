@@ -1,7 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { buildScootch } from '@scootch/art';
-import { scootchMoodSchema, WORK_MODE_IDS } from '@scootch/domain';
+import { buildScootch } from '@phusclass/art';
+import { scootchMoodSchema, WORK_MODE_IDS } from '@phusclass/domain';
 
 import {
   animatedValues,

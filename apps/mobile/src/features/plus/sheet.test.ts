@@ -1,7 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { PLUS_STARTS_PER_DAY } from '@scootch/domain';
-import { t as translate, type Language } from '@scootch/i18n';
+import { PLUS_STARTS_PER_DAY } from '@phusclass/domain';
+import { t as translate, type Language } from '@phusclass/i18n';
 
 import { plusMemory } from '../../data/plus-memory';
 import { openTestDatabase } from '../../data/test/open-test-database';

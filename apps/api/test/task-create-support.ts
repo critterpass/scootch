@@ -1,6 +1,6 @@
 import { createExecutionContext, waitOnExecutionContext } from 'cloudflare:test';
 import { env } from 'cloudflare:workers';
-import type { TaskCreatePass, TaskCreateRequest, TaskCreateResponse } from '@scootch/domain';
+import type { TaskCreatePass, TaskCreateRequest, TaskCreateResponse } from '@phusclass/domain';
 import { expect, vi } from 'vitest';
 
 import passEn from '../../../packages/voice/fixtures/task.create.en.json';

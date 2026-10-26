@@ -1,4 +1,4 @@
-import type { Unlocked } from '@scootch/domain';
+import type { Unlocked } from '@phusclass/domain';
 
 import type { CustomerState } from '../plus/purchases-port';
 

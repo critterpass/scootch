@@ -1,5 +1,5 @@
-import { buildMonster, VIEW_SIZE, type DrawCommand, type Path } from '@scootch/art';
-import type { MonsterSpec } from '@scootch/domain';
+import { buildMonster, VIEW_SIZE, type DrawCommand, type Path } from '@phusclass/art';
+import type { MonsterSpec } from '@phusclass/domain';
 
 import { fill, placedIn, stroke } from '../world/piece-kit';
 

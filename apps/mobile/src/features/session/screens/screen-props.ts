@@ -5,7 +5,7 @@ import type {
   SessionEvent,
   SessionOpening,
   WorkMode,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import type { Translate } from '../../../i18n/i18n-provider';
 import type { CatchKind } from '../catch/catch-kinds';

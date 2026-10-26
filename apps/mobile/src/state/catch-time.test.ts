@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { HOUR_MS, MINUTE_MS, type SessionEvent } from '@scootch/domain';
+import { HOUR_MS, MINUTE_MS, type SessionEvent } from '@phusclass/domain';
 
 import { openRepositories } from '../data/repositories';
 

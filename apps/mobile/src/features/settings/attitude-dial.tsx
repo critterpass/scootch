@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import type { Attitude } from '@scootch/domain';
-import { fonts, shadows, spacing } from '@scootch/tokens';
+import type { Attitude } from '@phusclass/domain';
+import { fonts, shadows, spacing } from '@phusclass/tokens';
 
 import { Scootch, type ScootchProps } from '../../art/Scootch';
 import { useT } from '../../i18n/i18n-provider';

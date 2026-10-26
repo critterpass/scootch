@@ -1,4 +1,4 @@
-import type { MONSTER_BODIES } from '@scootch/art';
+import type { MONSTER_BODIES } from '@phusclass/art';
 
 import { getPath } from './get-page';
 import { showArt } from './live-art';

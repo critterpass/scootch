@@ -1,5 +1,5 @@
-import { specFromSeed } from '@scootch/art';
-import type { TableSeat } from '@scootch/domain';
+import { specFromSeed } from '@phusclass/art';
+import type { TableSeat } from '@phusclass/domain';
 
 import { useT } from '../../i18n/i18n-provider';
 import { NamePage, SignInCancelledPage, SignInPage } from '../account/account-page';

@@ -1,4 +1,4 @@
-import { taskCreateResponseSchema, type TaskCreateResponse } from '@scootch/domain';
+import { taskCreateResponseSchema, type TaskCreateResponse } from '@phusclass/domain';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { wireErrorOf } from './support';

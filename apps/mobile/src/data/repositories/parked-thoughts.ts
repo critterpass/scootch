@@ -1,4 +1,4 @@
-import { parkedThoughtRowSchema, type ParkedThoughtRow } from '@scootch/domain';
+import { parkedThoughtRowSchema, type ParkedThoughtRow } from '@phusclass/domain';
 
 import { createTable, type SqlDatabase, type Table } from '../table';
 

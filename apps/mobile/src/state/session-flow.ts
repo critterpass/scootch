@@ -11,7 +11,7 @@ import {
   type SessionRow,
   type SessionState,
   type TaskRow,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import type { SessionContext } from '../effects/adapters';
 

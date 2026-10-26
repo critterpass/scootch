@@ -8,7 +8,7 @@ import {
   type SharedValue,
 } from 'react-native-reanimated';
 
-import { MOOD_SQUASH_SECONDS, TAP_REACTION_SECONDS } from '@scootch/art';
+import { MOOD_SQUASH_SECONDS, TAP_REACTION_SECONDS } from '@phusclass/art';
 
 /**
  * Seconds since the character last changed, as a value the UI thread runs from zero to the end of

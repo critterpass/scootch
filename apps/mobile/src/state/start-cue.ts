@@ -16,9 +16,9 @@ import {
   type TaskRow,
   type TimedNotification,
   type TodayState,
-} from '@scootch/domain';
-import { t, type Language, type StringKey } from '@scootch/i18n';
-import { helperLine } from '@scootch/voice';
+} from '@phusclass/domain';
+import { t, type Language, type StringKey } from '@phusclass/i18n';
+import { helperLine } from '@phusclass/voice';
 
 import type { Repositories } from '../data/repositories';
 

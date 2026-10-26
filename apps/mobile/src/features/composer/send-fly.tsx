@@ -9,7 +9,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { fonts } from '@scootch/tokens';
+import { fonts } from '@phusclass/tokens';
 
 import { CONTROL_HEIGHT } from '../../ui/buttons';
 import { GlassSurface } from '../../ui/glass-surface';

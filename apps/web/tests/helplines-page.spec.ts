@@ -1,6 +1,6 @@
 import { expect, test, type Browser } from '@playwright/test';
 
-import { HELPLINES, dialLink, textLink } from '@scootch/i18n';
+import { HELPLINES, dialLink, textLink } from '@phusclass/i18n';
 
 const PATHS = ['/helplines', '/vi/helplines'];
 const DIRECTORY = 'https://findahelpline.com';

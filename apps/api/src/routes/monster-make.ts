@@ -6,14 +6,14 @@ import {
   type Attitude,
   type Language,
   type MonsterBodyType,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 import {
   checkLine,
   offlineLine,
   offlinePacks,
   promptWordLimit,
   renderVoiceGuide,
-} from '@scootch/voice';
+} from '@phusclass/voice';
 import { z } from 'zod';
 
 import { decide, type DecideContext } from '../ai/decide';

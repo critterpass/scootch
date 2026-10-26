@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { EGG_BURST_SECONDS, EGG_SHAKE_SECONDS } from '@scootch/art';
-import type { Attitude, MonsterRow } from '@scootch/domain';
+import { EGG_BURST_SECONDS, EGG_SHAKE_SECONDS } from '@phusclass/art';
+import type { Attitude, MonsterRow } from '@phusclass/domain';
 
 import { HatchEgg } from '../../art/hatch-egg';
 import { Monster, type MonsterProps } from '../../art/Monster';

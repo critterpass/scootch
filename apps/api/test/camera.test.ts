@@ -5,8 +5,8 @@ import {
   cameraPaperResponseSchema,
   cameraRoomResponseSchema,
   cameraScreenResponseSchema,
-} from '@scootch/domain';
-import { noTaskLine, offlineLine } from '@scootch/voice';
+} from '@phusclass/domain';
+import { noTaskLine, offlineLine } from '@phusclass/voice';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { createApp } from '../src/app';

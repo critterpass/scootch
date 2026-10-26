@@ -1,7 +1,7 @@
 import type { ComponentType } from 'react';
 
-import { languages, type Language } from '@scootch/i18n';
-import type { ColorScheme } from '@scootch/tokens';
+import { languages, type Language } from '@phusclass/i18n';
+import type { ColorScheme } from '@phusclass/tokens';
 
 /** `largest` is the largest accessibility text size the platform offers. */
 export type TextSize = 'default' | 'largest';

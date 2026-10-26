@@ -1,4 +1,4 @@
-import type { CardData } from '@scootch/domain';
+import type { CardData } from '@phusclass/domain';
 
 import type { DrawCommand } from '../core/commands';
 import { baseline, fitText, textCommand, type MeasureText, type TextStyle } from '../core/text';

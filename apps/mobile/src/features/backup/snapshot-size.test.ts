@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import type { SessionLinePack } from '@scootch/domain';
+import type { SessionLinePack } from '@phusclass/domain';
 
 import passFixture from '../../../../../packages/voice/fixtures/task.create.en.json';
 import { openRepositories, type Repositories } from '../../data/repositories';

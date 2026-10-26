@@ -1,4 +1,4 @@
-import type { IsoDate, WorldPieceRow } from '@scootch/domain';
+import type { IsoDate, WorldPieceRow } from '@phusclass/domain';
 
 import type { PieceArt } from './piece-kit';
 import { lighthouse } from './landmarks/lighthouse';

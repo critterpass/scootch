@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import type { ClockTime, DayMoment, StartCue } from '@scootch/domain';
+import type { ClockTime, DayMoment, StartCue } from '@phusclass/domain';
 
 import { useT } from '../../i18n/i18n-provider';
 import { HelperChip } from '../one-screen/helper-chip';

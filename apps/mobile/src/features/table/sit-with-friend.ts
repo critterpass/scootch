@@ -1,4 +1,4 @@
-import type { TaskRow } from '@scootch/domain';
+import type { TaskRow } from '@phusclass/domain';
 import type { Href } from 'expo-router';
 
 import type { TogetherRuntime } from '../../state/together-context';

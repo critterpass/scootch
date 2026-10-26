@@ -1,5 +1,5 @@
-import type { Language } from '@scootch/i18n';
-import { noTaskLine } from '@scootch/voice';
+import type { Language } from '@phusclass/i18n';
+import { noTaskLine } from '@phusclass/voice';
 
 import { fixtureModel } from '../../features/session/registry/fixtures';
 import { CARE_BOARD, sessionState } from '../../features/session/registry/session-state';

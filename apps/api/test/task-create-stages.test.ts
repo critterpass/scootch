@@ -4,7 +4,7 @@ import {
   taskCreatePackResponseSchema,
   taskCreateStartResponseSchema,
   type TaskCreateStartPass,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import {

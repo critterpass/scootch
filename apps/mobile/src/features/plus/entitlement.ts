@@ -3,7 +3,7 @@ import {
   type PurchaseState,
   type StoreSubscription,
   type Unlocked,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import type { CustomerState } from './purchases-port';
 

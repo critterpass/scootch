@@ -1,4 +1,4 @@
-import { nextStartAfter, type MonsterRow, type TaskRow } from '@scootch/domain';
+import { nextStartAfter, type MonsterRow, type TaskRow } from '@phusclass/domain';
 
 import type { DayContext } from './day-types';
 import { nextSteps } from './lines';

@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { pickLanguage } from '@scootch/i18n';
+import { pickLanguage } from '@phusclass/i18n';
 
 import { sql as createSettings } from '../db/migrations/0001-create-settings';
 import { readStoredLanguage, storeLanguage, type SettingsDatabase } from './language-store';

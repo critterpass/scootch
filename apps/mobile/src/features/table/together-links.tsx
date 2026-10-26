@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
-import type { MonsterRow, TaskRow } from '@scootch/domain';
+import type { MonsterRow, TaskRow } from '@phusclass/domain';
 
 import { useT } from '../../i18n/i18n-provider';
 import type { SellingDay } from '../../state/shows-comedy';

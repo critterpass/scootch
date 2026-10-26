@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { buildMaterial, CARD_MATERIALS, rgba } from '@scootch/art';
-import type { CardFinish } from '@scootch/domain';
+import { buildMaterial, CARD_MATERIALS, rgba } from '@phusclass/art';
+import type { CardFinish } from '@phusclass/domain';
 
 import { Scootch } from '../../art/Scootch';
 import { memberNumber, STAMPED } from '../plus/ui/member-card';

@@ -1,4 +1,4 @@
-import type { Id, IsoDate } from '@scootch/domain';
+import type { Id, IsoDate } from '@phusclass/domain';
 
 import type { SqlDatabase } from './table';
 

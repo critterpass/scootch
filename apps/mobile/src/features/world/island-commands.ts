@@ -1,5 +1,5 @@
-import { buildMonster, GROUND_Y, VIEW_SIZE, type DrawCommand, type Path } from '@scootch/art';
-import type { Id, MonsterRow } from '@scootch/domain';
+import { buildMonster, GROUND_Y, VIEW_SIZE, type DrawCommand, type Path } from '@phusclass/art';
+import type { Id, MonsterRow } from '@phusclass/domain';
 
 import { LANDMARK_BOX, SCOOTCH_AT, type IslandItem, type IslandLayout } from './island-layout';
 import { LANDMARK_ART } from './landmarks';

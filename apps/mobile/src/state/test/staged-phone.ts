@@ -3,7 +3,7 @@ import type {
   TaskCreateNameResponse,
   TaskCreatePackResponse,
   TaskCreateStartResponse,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import linesFixture from '../../../../../packages/voice/fixtures/task.create_lines.en.json';
 import startFixture from '../../../../../packages/voice/fixtures/task.create_start.en.json';

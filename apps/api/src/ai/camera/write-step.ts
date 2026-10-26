@@ -1,5 +1,5 @@
-import type { Attitude, CameraStepWords, Language } from '@scootch/domain';
-import { checkLine, checkWrittenLine, renderVoiceGuide } from '@scootch/voice';
+import type { Attitude, CameraStepWords, Language } from '@phusclass/domain';
+import { checkLine, checkWrittenLine, renderVoiceGuide } from '@phusclass/voice';
 import type { z } from 'zod';
 
 import { ApiError } from '../../errors';

@@ -6,7 +6,7 @@ import {
   type DrawerEvent,
   type Id,
   type TaskRow,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import { moveArrivedPage } from './arrived-pages';
 import type { DayContext } from './day-types';

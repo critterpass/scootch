@@ -1,5 +1,5 @@
-import { buildMonster, type MONSTER_BODIES, specFromSeed, toSvg } from '@scootch/art';
-import { colors } from '@scootch/tokens';
+import { buildMonster, type MONSTER_BODIES, specFromSeed, toSvg } from '@phusclass/art';
+import { colors } from '@phusclass/tokens';
 
 export type CardToSave = {
   readonly seed: string;

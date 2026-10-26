@@ -1,4 +1,4 @@
-import { taskCreateNameRequestSchema, type TaskCreateNameResponse } from '@scootch/domain';
+import { taskCreateNameRequestSchema, type TaskCreateNameResponse } from '@phusclass/domain';
 
 import {
   continuationSecret,

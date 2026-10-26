@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { StyleSheet, Text, View, type TextProps } from 'react-native';
 
-import { fonts } from '@scootch/tokens';
+import { fonts } from '@phusclass/tokens';
 
 import { useTextSizing } from '../../../screens/registry/support/forced-variant';
 import { PopIn } from '../../../ui/motion/pop-in';

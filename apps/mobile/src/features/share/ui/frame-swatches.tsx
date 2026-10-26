@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { buildMaterial, FRAME_LOOKS, type ShareFrame } from '@scootch/art';
-import { fonts } from '@scootch/tokens';
+import { buildMaterial, FRAME_LOOKS, type ShareFrame } from '@phusclass/art';
+import { fonts } from '@phusclass/tokens';
 
 import { useT } from '../../../i18n/i18n-provider';
 import { PressSpring } from '../../../ui/motion/press-spring';

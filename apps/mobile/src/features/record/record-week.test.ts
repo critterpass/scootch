@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { durationSeconds, peak } from '@scootch/sound';
+import { durationSeconds, peak } from '@phusclass/sound';
 
 import { fixtureBars, fixtureMonsters, fixtureTask } from '../reveal/registry/keep-fixtures';
 

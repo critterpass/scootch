@@ -1,7 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import { useCallback, useState } from 'react';
 
-import type { Attitude } from '@scootch/domain';
+import type { Attitude } from '@phusclass/domain';
 
 import { useLanguage } from '../../i18n/i18n-provider';
 import { useCue, useDispatch } from '../../state/day-store-provider';

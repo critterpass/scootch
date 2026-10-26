@@ -1,7 +1,7 @@
 # Contracts
 
 The shapes every lane builds against, as zod schemas with inferred types.
-Import them from `@scootch/domain` through `index.ts`.
+Import them from `@phusclass/domain` through `index.ts`.
 
 | File | What it holds |
 |---|---|

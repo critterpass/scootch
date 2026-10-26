@@ -4,7 +4,7 @@
  * idle, nervous and caught, the three boil frames enlarged and the hatch entrance. With `--frames`
  * it also writes each loop's frames one by one, for making an animated preview.
  *
- *   pnpm --filter @scootch/art motion [folder] [--frames]
+ *   pnpm --filter @phusclass/art motion [folder] [--frames]
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';

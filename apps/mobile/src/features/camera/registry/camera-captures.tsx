@@ -7,8 +7,8 @@ import {
   type CameraAccess,
   type CameraMode,
   type FoundThing,
-} from '@scootch/domain';
-import { noTaskLine, offlineLine, offlinePacks } from '@scootch/voice';
+} from '@phusclass/domain';
+import { noTaskLine, offlineLine, offlinePacks } from '@phusclass/voice';
 
 import { useLanguage, useT } from '../../../i18n/i18n-provider';
 import { useForcedVariant } from '../../../screens/registry/support/forced-variant';

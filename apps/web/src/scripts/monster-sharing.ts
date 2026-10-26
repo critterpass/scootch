@@ -1,4 +1,4 @@
-import type { MONSTER_BODIES } from '@scootch/art';
+import type { MONSTER_BODIES } from '@phusclass/art';
 
 export type Shareable = {
   readonly seed: string;

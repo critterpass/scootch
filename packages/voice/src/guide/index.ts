@@ -1,4 +1,4 @@
-import type { Attitude, Language } from '@scootch/domain';
+import type { Attitude, Language } from '@phusclass/domain';
 
 import { enGuide } from './en';
 import type { VoiceGuide } from './types';

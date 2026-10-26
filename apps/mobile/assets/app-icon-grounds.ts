@@ -2,7 +2,7 @@
 // a card finish's material. `render-app-icon.ts` stands Scootch on each.
 import type { SKRSContext2D } from '@napi-rs/canvas';
 
-import type { ScootchMood } from '@scootch/domain';
+import type { ScootchMood } from '@phusclass/domain';
 
 export const SIZE = 1024;
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { consentAfter, type CameraConsent } from '@scootch/domain';
+import { consentAfter, type CameraConsent } from '@phusclass/domain';
 
 import { getReading } from '../../../modules/scootch-reading';
 import { usePlusRuntime } from '../../state/plus-context';

@@ -1,4 +1,4 @@
-import type { Attitude, Language } from '@scootch/domain';
+import type { Attitude, Language } from '@phusclass/domain';
 
 /** Things Scootch never jokes about, whatever the task. */
 export const offLimitsTopics = ['politics', 'religion', 'bodies', 'harm', 'hardship'] as const;

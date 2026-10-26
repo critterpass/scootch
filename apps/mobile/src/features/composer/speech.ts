@@ -1,6 +1,6 @@
 import { ExpoSpeechRecognitionModule as Recognizer } from 'expo-speech-recognition';
 
-import type { Language } from '@scootch/i18n';
+import type { Language } from '@phusclass/i18n';
 
 import type { VoiceStatus } from './composer-machine';
 

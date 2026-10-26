@@ -1,4 +1,4 @@
-import { weekRecordRowSchema, type WeekRecordRow } from '@scootch/domain';
+import { weekRecordRowSchema, type WeekRecordRow } from '@phusclass/domain';
 
 import { createTable, type SqlDatabase, type Table } from '../table';
 

@@ -1,4 +1,4 @@
-import { DRAWER_CLOSED, currentScootchDay, isoFromInstant, type ClockTime } from '@scootch/domain';
+import { DRAWER_CLOSED, currentScootchDay, isoFromInstant, type ClockTime } from '@phusclass/domain';
 
 import { defaultSettings } from '../data/repositories/settings';
 import type { EffectSwitches, ScreenSink } from '../effects/adapters';

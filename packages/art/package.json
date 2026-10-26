@@ -1,5 +1,5 @@
 {
-  "name": "@scootch/art",
+  "name": "@phusclass/art",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@napi-rs/canvas": "catalog:",
-    "@scootch/domain": "workspace:*"
+    "@phusclass/domain": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "catalog:"

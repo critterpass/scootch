@@ -1,4 +1,4 @@
-import type { MonsterSpec } from '@scootch/domain';
+import type { MonsterSpec } from '@phusclass/domain';
 
 import { buildMonster } from '../core/build-monster';
 import { VIEW_SIZE, type DrawCommand, type Path } from '../core/commands';

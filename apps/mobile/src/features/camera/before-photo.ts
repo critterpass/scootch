@@ -1,4 +1,4 @@
-import { DAY_MS, type MonsterRow, type TaskRow } from '@scootch/domain';
+import { DAY_MS, type MonsterRow, type TaskRow } from '@phusclass/domain';
 
 /** The photo a session began with: where it is kept, and what the phone found in it. */
 export interface BeforePhoto {

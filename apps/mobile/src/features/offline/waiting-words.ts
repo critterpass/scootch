@@ -1,4 +1,4 @@
-import type { Attitude, Language, TaskRow } from '@scootch/domain';
+import type { Attitude, Language, TaskRow } from '@phusclass/domain';
 
 import { lineWithNoTask } from '../../state/lines';
 import { showsComedy } from '../../state/shows-comedy';

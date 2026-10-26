@@ -1,7 +1,7 @@
 // The Node side of the package: PNG exports for share images and link previews. Kept out of the
 // main entry, so the app never bundles the native canvas.
 import { createCanvas } from '@napi-rs/canvas';
-import type { CardData } from '@scootch/domain';
+import type { CardData } from '@phusclass/domain';
 
 import { canvasFont, drawCommands } from './backends/canvas2d';
 import {

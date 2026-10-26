@@ -14,7 +14,7 @@ import {
   type Gaze,
   type ScootchGround,
   type ScootchTone,
-} from '@scootch/art';
+} from '@phusclass/art';
 
 import { inkOf, type InkId } from '../features/studio/catalogue';
 import { useAppearance, useForcedVariant } from '../screens/registry/support/forced-variant';

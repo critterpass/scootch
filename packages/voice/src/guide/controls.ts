@@ -1,4 +1,4 @@
-import type { Language } from '@scootch/domain';
+import type { Language } from '@phusclass/domain';
 
 /**
  * The controls a line may tell the person to use, said exactly. The writer is shown this, and

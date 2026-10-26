@@ -19,7 +19,7 @@ Precedence: product brief > phase file > design board > older notes.
   stop and report `NEEDS_CONTEXT`.
 - **Never wait in your turn.** Push, dispatch, report the run id, stop.
 - **Tests.** Locally run only the test file for what you changed
-  (`pnpm --filter @scootch/<pkg> test -- <file>`). CI runs the suites. Write a
+  (`pnpm --filter @phusclass/<pkg> test -- <file>`). CI runs the suites. Write a
   test only where it protects behaviour: money, permissions, the care screen,
   state machines, sync, external contracts. No snapshot tests.
 - **Real behaviour only.** Test doubles only at network boundaries, with

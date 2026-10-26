@@ -1,4 +1,4 @@
-import type { Language } from '@scootch/i18n';
+import type { Language } from '@phusclass/i18n';
 
 import { togetherEn } from '../copy/together-en';
 import { togetherVi } from '../copy/together-vi';

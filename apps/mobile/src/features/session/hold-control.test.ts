@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import type { SessionEvent } from '@scootch/domain';
+import type { SessionEvent } from '@phusclass/domain';
 
 import {
   CONFIRM_WINDOW_MS,

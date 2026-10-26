@@ -1,4 +1,4 @@
-import type { MonsterRow } from '@scootch/domain';
+import type { MonsterRow } from '@phusclass/domain';
 
 import type { MonsterPainter, SharedFiles } from './surface-ports';
 

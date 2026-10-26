@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { DAY_MS, FREE_STARTS_PER_DAY, HOUR_MS, MINUTE_MS } from '@scootch/domain';
+import { DAY_MS, FREE_STARTS_PER_DAY, HOUR_MS, MINUTE_MS } from '@phusclass/domain';
 
 import { MORNING, stagedPhone, stagedServer } from './test/staged-phone';
 

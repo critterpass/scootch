@@ -7,7 +7,7 @@ import {
   type Language,
   type SettingsRow,
   type TaskRow,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import { reminderTime } from '../../state/care-flow';
 import type { DayEvent } from '../../state/day-types';

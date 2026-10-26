@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
-import { addDays, isOddWeek } from '@scootch/domain';
+import { addDays, isOddWeek } from '@phusclass/domain';
 
 import { catchStage, clockLeft, gestureUnlocked, trapProgress } from './catch-flow';
 import {

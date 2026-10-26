@@ -1,4 +1,4 @@
-import { DAY_MS, type Instant, type SettingsRow } from '@scootch/domain';
+import { DAY_MS, type Instant, type SettingsRow } from '@phusclass/domain';
 
 import type { MonsterPage } from '../../api/monster-page-api';
 import { arrivedMonsterKey, withShare, type KeptShares } from '../share/kept-shares';

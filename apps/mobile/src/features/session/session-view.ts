@@ -5,7 +5,7 @@ import {
   type ParkedThought,
   type SessionEvent,
   type SessionState,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import type { ShownLine } from '../../state/day-types';
 

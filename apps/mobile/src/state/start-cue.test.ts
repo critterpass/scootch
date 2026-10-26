@@ -1,7 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
-import type { Attitude, StartCue, TaskCreateStartResponse } from '@scootch/domain';
-import { helperLine } from '@scootch/voice';
+import type { Attitude, StartCue, TaskCreateStartResponse } from '@phusclass/domain';
+import { helperLine } from '@phusclass/voice';
 
 import seriousFixture from '../../../../packages/voice/fixtures/task.create.serious.en.json';
 import { DEFAULT_ACTION, askOf } from '../features/surfaces/notification-responses';

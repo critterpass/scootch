@@ -1,4 +1,4 @@
-import type { Attitude, InTheWay, Language } from '@scootch/domain';
+import type { Attitude, InTheWay, Language } from '@phusclass/domain';
 
 import { enOffline } from './en';
 import type { HelperSlot, NoTaskSlot, OfflinePack, OfflineSlot, PlainHelperSlot } from './types';

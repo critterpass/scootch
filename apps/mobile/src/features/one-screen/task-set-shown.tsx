@@ -1,8 +1,8 @@
 import { getCalendars } from 'expo-localization';
 import { useState } from 'react';
 
-import { dayMomentTimes, startRefused, type Attitude, type StartCue } from '@scootch/domain';
-import type { Language } from '@scootch/i18n';
+import { dayMomentTimes, startRefused, type Attitude, type StartCue } from '@phusclass/domain';
+import type { Language } from '@phusclass/i18n';
 
 import type { ScootchProps } from '../../art/Scootch';
 import type { Translate } from '../../i18n/i18n-provider';

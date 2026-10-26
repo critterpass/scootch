@@ -11,7 +11,7 @@ import {
   type SkPicture,
 } from '@shopify/react-native-skia';
 
-import type { DrawCommand } from '@scootch/art';
+import type { DrawCommand } from '@phusclass/art';
 
 import { toSkiaNodes, type SkiaNode } from '../../art/skia-nodes';
 

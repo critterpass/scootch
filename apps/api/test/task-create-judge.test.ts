@@ -1,4 +1,4 @@
-import { taskCreateResponseSchema, taskCreateStartResponseSchema } from '@scootch/domain';
+import { taskCreateResponseSchema, taskCreateStartResponseSchema } from '@phusclass/domain';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { answersStatus, deepseekAnswers, perQuestion, timesOut, type Reply } from './ai-providers';

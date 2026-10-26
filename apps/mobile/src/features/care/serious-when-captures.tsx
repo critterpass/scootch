@@ -1,4 +1,4 @@
-import type { TaskRow } from '@scootch/domain';
+import type { TaskRow } from '@phusclass/domain';
 
 import { defaultSettings } from '../../data/repositories/settings';
 import { useLanguage } from '../../i18n/i18n-provider';

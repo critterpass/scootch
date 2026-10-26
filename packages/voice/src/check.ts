@@ -1,6 +1,6 @@
-import type { Attitude, Language } from '@scootch/domain';
+import type { Attitude, Language } from '@phusclass/domain';
 import { contextWordReasons } from './context-words';
-import { treatPlaceholder } from '@scootch/domain';
+import { treatPlaceholder } from '@phusclass/domain';
 
 import { monsterFirstName, untrueControls, voiceGuides } from './guide';
 import { copiesExampleTitle, isSentenceCased } from './line-rules';

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { radius, spacing } from '@scootch/tokens';
+import { radius, spacing } from '@phusclass/tokens';
 
 import { Chevron } from '../../../ui/icons';
 import { useScreenStyle } from '../../../ui/use-screen-style';

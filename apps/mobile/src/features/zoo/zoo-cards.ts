@@ -1,4 +1,4 @@
-import { CARD_LABELS, type CardLanguage } from '@scootch/art';
+import { CARD_LABELS, type CardLanguage } from '@phusclass/art';
 import {
   guessAndReal,
   isUnlocked,
@@ -6,8 +6,8 @@ import {
   type MonsterRow,
   type OddWord,
   type TaskRow,
-} from '@scootch/domain';
-import { t } from '@scootch/i18n';
+} from '@phusclass/domain';
+import { t } from '@phusclass/i18n';
 
 /** A monster with its card: every card field was frozen at the catch. */
 export type CaughtMonster = MonsterRow & {

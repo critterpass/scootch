@@ -7,7 +7,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import { fonts } from '@scootch/tokens';
+import { fonts } from '@phusclass/tokens';
 
 import { Scootch, type ScootchProps } from '../../art/Scootch';
 import { useLanguage, useT } from '../../i18n/i18n-provider';

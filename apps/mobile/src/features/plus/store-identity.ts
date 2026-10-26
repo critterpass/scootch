@@ -1,4 +1,4 @@
-import { plusCustomerResponseSchema } from '@scootch/domain';
+import { plusCustomerResponseSchema } from '@phusclass/domain';
 
 import type { HttpClient } from '../../api/http-client';
 import type { PlusMemory } from '../../data/plus-memory';

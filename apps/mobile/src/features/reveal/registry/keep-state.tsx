@@ -1,6 +1,6 @@
 import { lazy } from 'react';
 
-import type { GuessMinutes } from '@scootch/domain';
+import type { GuessMinutes } from '@phusclass/domain';
 
 import { useLanguage } from '../../../i18n/i18n-provider';
 import {

@@ -4,7 +4,7 @@ import {
   isoFromInstant,
   type Sitting,
   type TaskRow,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import { arrivedPageOf } from './arrived-pages';
 import { enterCrisis } from './care-flow';

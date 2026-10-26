@@ -1,4 +1,4 @@
-import { FRIEND_PASS_SEATS } from '@scootch/domain';
+import { FRIEND_PASS_SEATS } from '@phusclass/domain';
 
 import {
   TABLE_MAX_NUDGES,

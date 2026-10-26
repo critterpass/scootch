@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { DAY_MS, FREE_STARTS_PER_DAY } from '@scootch/domain';
+import { DAY_MS, FREE_STARTS_PER_DAY } from '@phusclass/domain';
 
 import { stageOf } from '../features/one-screen/one-screen-stage';
 

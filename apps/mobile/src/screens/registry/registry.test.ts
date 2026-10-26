@@ -3,7 +3,7 @@ import path from 'node:path';
 
 import { describe, expect, it } from '@jest/globals';
 
-import { languages } from '@scootch/i18n';
+import { languages } from '@phusclass/i18n';
 
 import { captures, screenStates } from './support/all-states';
 

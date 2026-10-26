@@ -1,4 +1,4 @@
-import type { TaskLabels } from '@scootch/domain';
+import type { TaskLabels } from '@phusclass/domain';
 
 import type { ScootchApi } from './scootch-api';
 import {

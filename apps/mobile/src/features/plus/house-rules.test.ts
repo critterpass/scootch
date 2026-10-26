@@ -3,7 +3,7 @@ import path from 'node:path';
 
 import { describe, expect, it } from '@jest/globals';
 
-import { ALWAYS_FREE, PURCHASE_STATES, isUnlocked, unlockedBy } from '@scootch/domain';
+import { ALWAYS_FREE, PURCHASE_STATES, isUnlocked, unlockedBy } from '@phusclass/domain';
 
 import { STUDIO, STUDIO_KINDS } from '../studio/catalogue';
 

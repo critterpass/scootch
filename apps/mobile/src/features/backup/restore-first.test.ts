@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { HOUR_MS } from '@scootch/domain';
+import { HOUR_MS } from '@phusclass/domain';
 
 import { stagedPhone, stagedServer } from '../../state/test/staged-phone';
 

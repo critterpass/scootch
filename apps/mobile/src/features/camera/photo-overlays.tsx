@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 
-import { colors } from '@scootch/tokens';
+import { colors } from '@phusclass/tokens';
 
 import { SessionText } from '../session/ui/session-text';
 

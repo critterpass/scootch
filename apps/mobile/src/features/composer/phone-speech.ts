@@ -1,6 +1,6 @@
 import { addNetworkStateListener, getNetworkStateAsync, type NetworkState } from 'expo-network';
 
-import { speechTokenResponseSchema, type Language } from '@scootch/domain';
+import { speechTokenResponseSchema, type Language } from '@phusclass/domain';
 
 import { appHttp } from '../../api/app-http';
 

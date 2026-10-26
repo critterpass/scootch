@@ -1,6 +1,6 @@
 import { getCalendars } from 'expo-localization';
 
-import { MINUTE_MS, nextScootchDayStart } from '@scootch/domain';
+import { MINUTE_MS, nextScootchDayStart } from '@phusclass/domain';
 
 import { systemClock, systemTimers } from '../effects/native-adapters';
 

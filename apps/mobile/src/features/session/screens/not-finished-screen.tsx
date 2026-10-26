@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
 
-import type { SessionEvent } from '@scootch/domain';
-import type { StringKey } from '@scootch/i18n';
-import { spacing } from '@scootch/tokens';
+import type { SessionEvent } from '@phusclass/domain';
+import type { StringKey } from '@phusclass/i18n';
+import { spacing } from '@phusclass/tokens';
 
 import { Scootch } from '../../../art/Scootch';
 import { PaperCard, Stage, Words } from '../ui/drawn-parts';

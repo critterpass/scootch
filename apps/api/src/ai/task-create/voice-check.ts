@@ -1,5 +1,5 @@
-import type { Attitude, Language } from '@scootch/domain';
-import { BITE_COUNT } from '@scootch/domain';
+import type { Attitude, Language } from '@phusclass/domain';
+import { BITE_COUNT } from '@phusclass/domain';
 import {
   cueSlot,
   helperLine,
@@ -15,7 +15,7 @@ import {
   type OfflineSlot,
   type TaskLineFailure,
   type TaskLineReason,
-} from '@scootch/voice';
+} from '@phusclass/voice';
 import { z } from 'zod';
 
 import { notificationCount } from './line-briefs';

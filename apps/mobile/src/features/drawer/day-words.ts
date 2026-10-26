@@ -1,5 +1,5 @@
-import { daysBetween, type IsoDate } from '@scootch/domain';
-import type { Language } from '@scootch/i18n';
+import { daysBetween, type IsoDate } from '@phusclass/domain';
+import type { Language } from '@phusclass/i18n';
 
 /**
  * A calendar day in the person's words: the weekday while it is within the week ahead, and the

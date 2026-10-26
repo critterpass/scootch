@@ -11,8 +11,8 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import { GROUND_Y, VIEW_SIZE } from '@scootch/art';
-import type { Attitude, Id, MonsterRow, WorldPieceRow } from '@scootch/domain';
+import { GROUND_Y, VIEW_SIZE } from '@phusclass/art';
+import type { Attitude, Id, MonsterRow, WorldPieceRow } from '@phusclass/domain';
 
 import { Scootch, type ScootchProps } from '../../art/Scootch';
 

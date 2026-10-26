@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
-import { fonts, spacing } from '@scootch/tokens';
+import { fonts, spacing } from '@phusclass/tokens';
 
 import { useT } from '../../../i18n/i18n-provider';
 import { BOUNCE_CURVE } from '../../../ui/motion/motion-tokens';

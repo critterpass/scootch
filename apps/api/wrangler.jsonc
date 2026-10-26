@@ -3,7 +3,7 @@
   // Two environments only: `--env dev` (Worker `scootch-dev`) and `--env prd` (Worker `scootch`).
   // Bindings are not inherited, so each environment declares its own. Local runs and the tests use
   // `dev` with simulated bindings, which need no Cloudflare account.
-  "name": "scootch",
+  "name": "phusclass",
   "main": "src/index.ts",
   "compatibility_date": "2026-08-01",
   // The operations bot's morning digest and spend check: 08:00 in Asia/Ho_Chi_Minh, which is
@@ -44,7 +44,7 @@
       "migrations": [{ "tag": "table-object", "new_sqlite_classes": ["TableObject"] }],
     },
     "prd": {
-      "name": "scootch",
+      "name": "phusclass",
       // The one address the App Store app calls. A Worker with a route has no workers.dev address.
       "routes": [{ "pattern": "api.scootch.app", "custom_domain": true }],
       "vars": { "ENVIRONMENT": "prd", "COMMIT_SHA": "local" },

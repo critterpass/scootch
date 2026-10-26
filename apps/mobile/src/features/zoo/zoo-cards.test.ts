@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { buildCard, CARD_LABELS } from '@scootch/art';
+import { buildCard, CARD_LABELS } from '@phusclass/art';
 
 import {
   asRows,

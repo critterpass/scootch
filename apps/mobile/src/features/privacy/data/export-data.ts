@@ -8,7 +8,7 @@ import {
   type TaskRow,
   type WeekRecordRow,
   type WorldPieceRow,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import type { Repositories } from '../../../data/repositories';
 import { readStoredSettings, type CrisisDay, type StoredSettings } from '../../backup/snapshot';

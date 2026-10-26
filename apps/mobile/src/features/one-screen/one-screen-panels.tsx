@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import type { Instant } from '@scootch/domain';
-import { fonts, shadows } from '@scootch/tokens';
+import type { Instant } from '@phusclass/domain';
+import { fonts, shadows } from '@phusclass/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
 import { Chevron } from '../../ui/icons';

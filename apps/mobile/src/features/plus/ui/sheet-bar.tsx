@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { fonts } from '@scootch/tokens';
+import { fonts } from '@phusclass/tokens';
 
 import { useT } from '../../../i18n/i18n-provider';
 import { PressSpring } from '../../../ui/motion/press-spring';

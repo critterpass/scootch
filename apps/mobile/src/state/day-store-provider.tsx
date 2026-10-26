@@ -15,8 +15,8 @@ import {
 } from 'react';
 import { AccessibilityInfo, AppState } from 'react-native';
 
-import { memberNumberResponseSchema, type Language } from '@scootch/domain';
-import { CUES } from '@scootch/sound';
+import { memberNumberResponseSchema, type Language } from '@phusclass/domain';
+import { CUES } from '@phusclass/sound';
 
 import { apiBaseUrl, keychainTokenStore } from '../api/api-config';
 import { appHttp } from '../api/app-http';

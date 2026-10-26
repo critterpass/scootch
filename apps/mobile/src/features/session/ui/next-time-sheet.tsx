@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { spacing } from '@scootch/tokens';
+import { spacing } from '@phusclass/tokens';
 
 import type { Translate } from '../../../i18n/i18n-provider';
 import { CapsuleButton, DOCK_PADDING, GlassDock } from '../../../ui/buttons';

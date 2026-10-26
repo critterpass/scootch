@@ -4,7 +4,7 @@ import {
   startRefused,
   type HuntRecord,
   type SessionRow,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import type { DayContext } from './day-types';
 import { currentTask } from './session-flow';

@@ -2,9 +2,9 @@ import { useState, type ReactNode } from 'react';
 import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 
-import type { Language } from '@scootch/i18n';
-import type { RecordInstrument } from '@scootch/sound';
-import { spacing } from '@scootch/tokens';
+import type { Language } from '@phusclass/i18n';
+import type { RecordInstrument } from '@phusclass/sound';
+import { spacing } from '@phusclass/tokens';
 
 import { Scootch } from '../../art/Scootch';
 import { useT } from '../../i18n/i18n-provider';

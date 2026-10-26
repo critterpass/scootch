@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { spacing } from '@scootch/tokens';
+import { spacing } from '@phusclass/tokens';
 
 import { CapsuleButton, GlassDock } from '../../../ui/buttons';
 import { CloseButton, CornerBar } from '../../../ui/corner-bar';

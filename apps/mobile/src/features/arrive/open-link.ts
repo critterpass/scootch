@@ -1,4 +1,4 @@
-import type { Instant } from '@scootch/domain';
+import type { Instant } from '@phusclass/domain';
 
 import type { MonsterPage } from '../../api/monster-page-api';
 import { holderOfPage, type PageHolders } from '../../state/arrived-pages';

@@ -1,4 +1,4 @@
-import type { MonsterRow, MonsterSpec, WorldPieceRow } from '@scootch/domain';
+import type { MonsterRow, MonsterSpec, WorldPieceRow } from '@phusclass/domain';
 
 /** The App Group's key-value store, shared with the widget extension. Values are strings. */
 export interface SharedStore {

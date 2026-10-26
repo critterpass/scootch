@@ -2,8 +2,8 @@ import { useIsFocused } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { roundRect, type DrawCommand, type MonsterLife } from '@scootch/art';
-import { fonts } from '@scootch/tokens';
+import { roundRect, type DrawCommand, type MonsterLife } from '@phusclass/art';
+import { fonts } from '@phusclass/tokens';
 
 import { Monster, type MonsterProps } from '../../../art/Monster';
 import { Scootch } from '../../../art/Scootch';

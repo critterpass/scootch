@@ -9,7 +9,7 @@ import {
   type ParkedThought,
   type SessionRow,
   type TaskRow,
-} from '@scootch/domain';
+} from '@phusclass/domain';
 
 import type { DayContext } from './day-types';
 import { toneFor } from './lines';

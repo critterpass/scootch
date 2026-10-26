@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { sessionReducer, sessionSet, type TaskCreateStartResponse } from '@scootch/domain';
+import { sessionReducer, sessionSet, type TaskCreateStartResponse } from '@phusclass/domain';
 
 import seriousFixture from '../../../../packages/voice/fixtures/task.create.serious.en.json';
 import type { HuntingApi } from '../api/hunting-api';

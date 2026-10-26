@@ -1,7 +1,7 @@
 import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useState } from 'react';
 
-import { localDateTime } from '@scootch/domain';
+import { localDateTime } from '@phusclass/domain';
 
 import { openRepositories } from '../../data/repositories';
 import { usePlusRuntime, usePlusState } from '../../state/plus-context';
