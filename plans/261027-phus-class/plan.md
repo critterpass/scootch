@@ -97,6 +97,7 @@ Status lines below follow `CLAUDE.md`: `- Status: done — <sha>` or
 - Done when: unit tests cover the pick order, pressure, slips, front row, fading, the comment ladder and the care rules.
 
 ### 2.3 His voice and hearing
+- Status: voice half done — c2c80ed; the composer, splitting and the care gate are todo
 - Do:
   - The offline line pack for every moment the brief names, written fresh in English and in Vietnamese, with the banned-word lists and `check.ts` rules.
   - The composer: hold to talk with on-device speech and live words, typing, and "Hold it, then talk." for short taps.
