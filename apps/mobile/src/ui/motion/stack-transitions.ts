@@ -27,6 +27,13 @@ export const ROUTE_MOTION: Readonly<Record<string, RouteMotion>> = {
   'tuition/index': 'sheet',
   'tuition/scholarship': 'fitted',
   'report-card': 'push',
+  'first-day/index': 'fade',
+  settings: 'push',
+  'settings/name': 'push',
+  'settings/quiet-hours': 'push',
+  'care/crisis': 'none',
+  'care/serious': 'fade',
+  'care/helplines': 'push',
   '(dev)': 'push',
 };
 

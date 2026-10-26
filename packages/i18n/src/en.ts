@@ -11,6 +11,9 @@ import { enTuition } from './en-tuition';
 import { enTimetable } from './en-timetable';
 import { enReportCard } from './en-report-card';
 import { enShare } from './en-share';
+import { enFirstDay } from './en-first-day';
+import { enSettings } from './en-settings';
+import { enCare } from './en-care';
 
 export const en = {
   ...enCommon,
@@ -21,4 +24,7 @@ export const en = {
   ...enTimetable,
   ...enReportCard,
   ...enShare,
+  ...enFirstDay,
+  ...enSettings,
+  ...enCare,
 } as const;

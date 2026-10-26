@@ -1,0 +1,28 @@
+/** Care: the crisis screen, the helplines page and serious mode. */
+export const viCare = {
+  'care.crisis.title': 'Lúc này em không cần làm gì cả.',
+  'care.crisis.body':
+    'Nếu em đang nghĩ đến việc làm hại bản thân, hãy nói chuyện với ai đó ngay tối nay. Miễn phí và kín đáo.',
+  'care.crisis.putAway': 'Hôm nay mọi việc đã được cất đi.',
+  'care.crisis.close': 'Đóng',
+  'care.crisis.close.hint': 'Quay lại lớp học. Không ai hỏi gì cả.',
+  'care.helplines.near': 'Gần em',
+  'care.helplines.elsewhere': 'Ở nơi khác',
+  'care.helplines.directory': 'Tìm đường dây hỗ trợ miễn phí ở nước em tại findahelpline.com.',
+  'care.helplines.directory.open': 'Mở findahelpline.com',
+  'care.helplines.call': 'Gọi',
+  'care.helplines.call.label': 'Gọi {name}, số {number}',
+  'care.helplines.message': 'Nhắn tin',
+  'care.helplines.message.label': 'Nhắn tin cho {name}, số {number}',
+  'care.helplines.emergency': 'Cấp cứu',
+  'care.helplines.intro': 'Miễn phí và kín đáo. Em có thể gọi bất kỳ số nào khi họ đang mở.',
+  'care.serious.chalkMore': 'Mọi việc khác để sau',
+  'care.serious.sit': 'Ngồi cùng thầy',
+  'care.serious.sit.hint': 'Bắt đầu một tiết yên lặng, không tính giờ',
+  'care.serious.notNow': 'Để sau',
+  'care.serious.notNow.hint': 'Quay lại bàn',
+  'care.serious.beFunny.hint': 'Thầy trở lại như thường với việc này',
+  'care.serious.room': 'Lớp học yên lặng, xám màu. Thầy Phú đã bỏ kính.',
+  'care.phu.serious': 'Thầy Phú bỏ kính',
+  'care.phu.tea': 'Thầy Phú nhấp trà',
+};

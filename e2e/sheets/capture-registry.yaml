@@ -1,7 +1,7 @@
 appId: com.phusclass.dev
 ---
 # Captures every registered screen state in every variant, for the design-beside-device sheets.
-# Run it with mode=capture and flows=e2e/sheets. It opens the registry by its link once the desk is up,
+# Run it with mode=capture and flows=e2e/sheets. It opens the registry by its link once the app is up,
 # and reads the list from the app itself:
 # `registry-count` holds the number of rows and `registry-name-<n>` the name of the n-th, so a new
 # registry file needs no change here. Each image is named `<state id>--<variant>`.
@@ -11,9 +11,10 @@ appId: com.phusclass.dev
 # only those variants. Empty or unset: every row.
 - launchApp:
     clearState: true
+# A clean install opens on the first day.
 - extendedWaitUntil:
     visible:
-      id: 'desk'
+      id: 'first-day'
     timeout: 90000
 # The desk has no way to the developer tools, so the registry opens by its link.
 - openLink: phusclass-dev:///registry

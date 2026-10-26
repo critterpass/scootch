@@ -139,6 +139,7 @@ Status lines below follow `CLAUDE.md`: `- Status: done — <sha>` or
 - Boards: `NavPullBoard`, `Board`, `NavPullLog`, `LogbookPage`, `LogbookEmpty`.
 
 ### 3.3 First day, settings and care
+- Status: done — pending merge
 - Do:
   - First day's four beats: the classroom push-in, roll call with the full name, notes home with one real example, the empty desk.
   - Settings, with export and delete everything.

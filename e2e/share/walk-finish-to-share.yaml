@@ -6,10 +6,8 @@ appId: com.phusclass.dev
 # finish. No seed and no link.
 - launchApp:
     clearState: true
-- extendedWaitUntil:
-    visible:
-      id: 'desk'
-    timeout: 90000
+# A clean install opens on the first day; it is walked to the desk.
+- runFlow: ../common/first-day-not-now.yaml
 - tapOn:
     id: 'composer-type'
 - extendedWaitUntil:

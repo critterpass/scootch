@@ -1,0 +1,45 @@
+appId: com.phusclass.dev
+---
+# The first day, walked the shortest honest way, for a flow that starts from a clean install and
+# is about something after it: take a seat, answer roll call, "Not now" to notes home (so no
+# permission is asked), and on to the desk. Run it with `runFlow` right after `launchApp`.
+- extendedWaitUntil:
+    visible:
+      id: 'first-day-take-seat'
+    timeout: 90000
+- tapOn:
+    id: 'first-day-take-seat'
+- extendedWaitUntil:
+    visible:
+      id: 'first-day-name'
+    timeout: 10000
+- tapOn:
+    id: 'first-day-name'
+- inputText: 'Tran Minh Anh'
+- runFlow:
+    when:
+      visible: 'Continue'
+    commands:
+      - tapOn: 'Continue'
+      - tapOn:
+          id: 'first-day-name'
+      - eraseText: 40
+      - inputText: 'Tran Minh Anh'
+- tapOn:
+    id: 'first-day-present'
+- extendedWaitUntil:
+    visible:
+      id: 'first-day-not-now'
+    timeout: 10000
+- tapOn:
+    id: 'first-day-not-now'
+- extendedWaitUntil:
+    visible:
+      id: 'first-day-to-desk'
+    timeout: 10000
+- tapOn:
+    id: 'first-day-to-desk'
+- extendedWaitUntil:
+    visible:
+      id: 'desk'
+    timeout: 15000

@@ -2,12 +2,13 @@ appId: com.phusclass.dev
 ---
 # Captures the classroom's developer screen for the sheets beside the Phu, Prop, Room and App
 # boards: the room at each camera shot, a pressure pose, and the pose and prop galleries. It opens
-# the screen by its link once the desk is up, as the registry capture does.
+# the screen by its link once the app is up, as the registry capture does.
 - launchApp:
     clearState: true
+# A clean install opens on the first day.
 - extendedWaitUntil:
     visible:
-      id: 'desk'
+      id: 'first-day'
     timeout: 90000
 - openLink: phusclass-dev:///dev-classroom
 # iOS asks before a link opens the app.
