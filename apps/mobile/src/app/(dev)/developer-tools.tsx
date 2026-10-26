@@ -12,6 +12,7 @@ import { PressSpring } from '../../ui/motion/press-spring';
 
 const SCREENS: readonly { id: string; label: string; href: Href }[] = [
   { id: 'dev-open-registry', label: 'Screen registry', href: '/registry' },
+  { id: 'dev-open-classroom', label: 'Classroom', href: '/dev-classroom' },
 ];
 
 const LANGUAGE_CHOICES: readonly { id: string; label: string; language: Language | null }[] = [
