@@ -61,15 +61,14 @@ Status lines below follow `CLAUDE.md`: `- Status: done — <sha>` or
 ### 1.2 Native batch one
 - Status: todo
 - Do:
-  - Declare every capability and target that launch needs:
+  - Declare every capability and target the screens need:
     - app group and keychain group
     - push, time-sensitive notifications and a notification service extension
     - widgets and the Live Activity: one target, shells only
-    - an App Intents extension for "Add to the board" and "Start the desk's task"
-    - the calendar
+    - the calendar (`expo-calendar`)
     - on-device speech
-    - the Foundation Models native module, with a stub on older iOS
   - Rename the native modules to `phusclass-*`.
+  - The on-device model module and the App Intents go in native batch two (5.1), so this build is not held up by them.
   - Run `native-build.yml` with `profile=e2e-test` and with `profile=dev submit=true`. That puts the first TestFlight build on "Phu's Class Dev".
 - Done when: the `e2e-test` build is published for device runs and a dev build is processing in TestFlight.
 
@@ -166,6 +165,7 @@ Status lines below follow `CLAUDE.md`: `- Status: done — <sha>` or
 
 ### 5.1 Surfaces
 - Do:
+  - The on-device model module (`modules/phusclass-intelligence`): splitting a ramble and a light care check on iOS 26 and later, with a stub elsewhere. The rules from 2.3 stay the fallback.
   - The Live Activity and Dynamic Island: his face at the current pressure, the fuse, the session timer.
   - Widgets: small, medium, the timetable (tuition), Lock Screen accessories, StandBy at night.
   - Notifications with his face.
