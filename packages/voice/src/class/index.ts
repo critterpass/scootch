@@ -16,8 +16,8 @@ export {
   type ChosenLine,
   type FillValues,
 } from './choose';
-export { linesEn } from './lines.en';
-export { linesVi } from './lines.vi';
+export { linesEn } from './lines/en';
+export { linesVi } from './lines/vi';
 export {
   fixedMoments,
   moments,

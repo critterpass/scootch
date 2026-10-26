@@ -1,5 +1,5 @@
-import { linesEn } from './lines.en';
-import { linesVi } from './lines.vi';
+import { linesEn } from './lines/en';
+import { linesVi } from './lines/vi';
 import type { ClassLanguage, LinePack, Moment, Placeholder } from './types';
 
 export const linePacks: Readonly<Record<ClassLanguage, LinePack>> = { en: linesEn, vi: linesVi };
