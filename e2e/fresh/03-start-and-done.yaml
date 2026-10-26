@@ -1,0 +1,36 @@
+appId: com.phusclass.dev
+---
+# The fresh-user walk, step three: Start. The drum, and the camera pulls back to the whole room
+# while the period runs. Done brings the camera back in to the graded paper; Next returns to the
+# desk, empty again.
+- tapOn:
+    id: 'desk-start'
+- extendedWaitUntil:
+    visible:
+      id: 'session-working'
+    timeout: 15000
+- assertVisible:
+    id: 'session-left'
+- assertVisible: 'Working beside him'
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: session-running--en-light-default
+- tapOn:
+    id: 'session-raise-hand'
+- takeScreenshot: session-raise-hand--en-light-default
+- tapOn:
+    id: 'session-done'
+- extendedWaitUntil:
+    visible:
+      id: 'finish-paper'
+    timeout: 15000
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: session-finish--en-light-default
+- tapOn:
+    id: 'finish-next'
+- extendedWaitUntil:
+    visible:
+      id: 'desk'
+    timeout: 15000
+- assertVisible: 'Your desk is clear.'

@@ -13,10 +13,14 @@ appId: com.phusclass.dev
     clearState: true
 - extendedWaitUntil:
     visible:
-      id: 'desk-sit'
+      id: 'desk'
     timeout: 90000
 # The desk has no way to the developer tools, so the registry opens by its link.
 - openLink: phusclass-dev:///registry
+# iOS asks before a link opens the app.
+- tapOn:
+    text: 'Open'
+    optional: true
 - extendedWaitUntil:
     visible:
       id: 'registry-count'

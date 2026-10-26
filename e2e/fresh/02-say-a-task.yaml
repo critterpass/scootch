@@ -1,0 +1,32 @@
+appId: com.phusclass.dev
+---
+# The fresh-user walk, step two: telling him a task. The simulator has no microphone, so the task
+# is typed; it goes onto the board and, the desk being empty, straight onto the desk, with the fuse
+# burning around Start.
+- tapOn:
+    id: 'composer-type'
+- extendedWaitUntil:
+    visible:
+      id: 'composer-input'
+    timeout: 10000
+- inputText: 'Email the dentist to move Thursday'
+# The first time the keyboard is used, iOS may explain sliding across the letters.
+- tapOn:
+    text: 'Continue'
+    optional: true
+- takeScreenshot: desk-typing--en-light-default-keyboard-open
+- tapOn:
+    id: 'composer-send'
+- extendedWaitUntil:
+    visible:
+      id: 'desk-title'
+    timeout: 15000
+# "Thursday" is heard as its due date: the task is the rest, in the user's words.
+- assertVisible: 'Email the dentist to move'
+- assertVisible:
+    id: 'desk-start'
+- assertVisible:
+    id: 'desk-late-slip'
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: desk-waiting--en-light-default
