@@ -6,16 +6,13 @@ Import them from `@phusclass/domain` through `index.ts`.
 | File | What it holds |
 |---|---|
 | `common.ts` | Language, attitude, energy, the care verdict, date strings, ids and the wire error |
-| `art.ts` | Scootch's props, the 30 work-mode ids, the monster spec (20 bodies), the card data |
-| `ai-routes.ts` | The `aiRoutes` map: one request and one response schema per route id |
+| `ai-routes.ts` | The `aiRoutes` map: one request and one response schema per route the server serves |
 | `ai-task-call.ts` | `task.create`, the one call per task, and its line packs |
 | `ai-task-stages.ts` | The same call in stages: `task.create_start` (fast), then `task.create_lines`, or `task.create_name` and `task.create_pack` |
-| `ai-small-routes.ts` | Shrink, bargain, stuck help, pick for me, morning line, weekly sentence, record name |
-| `ai-labels.ts` | `screen.input` and the typed decisions (work mode, body type, size, energy, share, table name) |
+| `ai-small-routes.ts` | Shrink, bargain, stuck help, pick for me, morning line, weekly sentence |
+| `ai-labels.ts` | `screen.input` and the typed decisions (size, energy, share) |
 | `local-db.ts` | The phone's tables, one row schema each, with derived fields marked |
-| `table-messages.ts` | The messages between a phone and its table, and the close codes |
-| `together.ts` | What the routes for tables, friends, pasted codes, haunts and push tokens answer with |
-| `public-pages.ts` | What the website's table invite and haunt pages read, and the answers that carry their link ids |
+| `plus.ts` | The id the store knows this phone by, for tuition |
 
 Recorded fixtures live in `packages/voice/fixtures/` as
 `<route id>.<language>.json`, with `<route id>.<case>.<language>.json` for a
@@ -27,7 +24,7 @@ written in Vietnamese, not translated.
 
 `screen.input` and `task.create` return a verdict. The phone stores it on the
 task (`screen` in `local-db.ts`) and every screen checks that stored flag. A
-serious task has no monster, card, share or burst. A crisis text is never
+serious task has no act, joke, grade, fuse, share or burst. A crisis text is never
 stored as a task.
 
 ## When a contract does not fit

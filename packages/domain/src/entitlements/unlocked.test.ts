@@ -52,7 +52,7 @@ describe('what each purchase state unlocks', () => {
     ['monthly', true, PLUS_STARTS_PER_DAY, 3],
     ['yearly', true, PLUS_STARTS_PER_DAY, 3],
     ['lifetime', true, PLUS_STARTS_PER_DAY, 3],
-    // A trial or subscription that lapsed, and a purchase Apple refunded, are free Scootch again.
+    // A trial or subscription that lapsed, and a purchase Apple refunded, are back to the free app.
     ['expired', false, FREE_STARTS_PER_DAY, 0],
     ['refunded', false, FREE_STARTS_PER_DAY, 0],
     // A guest sits at the host's table on the host's pass; it gives the guest no Plus of their own.

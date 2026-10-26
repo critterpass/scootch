@@ -50,18 +50,12 @@ export const taskCreateRequestSchema = z.object({
   /** One things already offered from this text and turned down with "Another". */
   declined: z.array(taskTextSchema).max(10).optional(),
   /**
-   * The phone has things parked and can show Scootch's own pick of them: a text that only asks
+   * The phone has things parked and can show Thầy Phú's own pick of them: a text that only asks
    * him to choose may be answered with `choose`. Unset, such a text is treated as any other.
    */
   canChoose: z.boolean().optional(),
   /** True asks for stage one only; the answer is then `taskCreateStartResponseSchema`. */
   staged: z.boolean().optional(),
-  /**
-   * The id of a monster made on the website (`scootch.app/m/<id>`), when the text is the thing
-   * that monster was hatched from. A passed text then keeps that monster: its name, card line,
-   * body and seed. An id that names no wild monster changes nothing.
-   */
-  monsterPage: z.string().min(1).max(64).optional(),
   /** What the user said is in the way, when they answered. Absent when skipped or never asked. */
   inTheWay: inTheWaySchema.optional(),
   /**
@@ -98,7 +92,7 @@ export const heardDeadlineSchema = z.object({
   dueDate: isoDateSchema,
   /** The user's own words for the date, "due on Friday". */
   heardAs: z.string().min(1).max(80),
-  /** What Scootch says about it. Plain words when the verdict is serious. */
+  /** What Thầy Phú says about it. Plain words when the verdict is serious. */
   line: lineSchema,
 });
 export type HeardDeadline = z.infer<typeof heardDeadlineSchema>;
@@ -131,9 +125,9 @@ export type MonsterCopy = z.infer<typeof monsterCopySchema>;
 
 /** Labels the server gathers alongside the writing, so the phone makes one call. */
 export const taskLabelsSchema = z.object({
-  /** False means Scootch offers to shrink the task before the start. */
+  /** False means Thầy Phú offers to shrink the task before the start. */
   fitsTenMinutes: z.boolean(),
-  /** True means Scootch never offers to share this task. */
+  /** True means Thầy Phú never offers to share this task. */
   sharePrivate: z.boolean(),
 });
 export type TaskLabels = z.infer<typeof taskLabelsSchema>;
@@ -159,7 +153,7 @@ export const sessionLinePackSchema = z.object({
   start: lineSchema,
   /** Rotated through the session and the Live Activity. */
   working: z.array(lineSchema).min(3).max(8),
-  /** Said when Scootch is opened or its Live Activity is tapped mid-session. */
+  /** Said when Thầy Phú is opened or its Live Activity is tapped mid-session. */
   pickedUp: lineSchema,
   /** The timed check-in that offers a tiny next step. */
   checkIn: lineSchema,
@@ -297,7 +291,7 @@ const crisisSchema = taskJudgeSchema.extend({ verdict: z.literal('crisis') });
 const rejectSchema = taskJudgeSchema.extend({ verdict: z.literal('reject') });
 
 /**
- * The text named nothing to do and asked Scootch to choose ("pick for me"). Nothing is written or
+ * The text named nothing to do and asked Thầy Phú to choose ("pick for me"). Nothing is written or
  * parked; the phone offers one of the things it already holds. Only answered when `canChoose`.
  */
 const chooseSchema = taskJudgeSchema.extend({ verdict: z.literal('choose') });

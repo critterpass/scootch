@@ -77,7 +77,7 @@ export type SessionStuckRequest = z.infer<typeof sessionStuckRequestSchema>;
 export const sessionStuckResponseSchema = z.object({ step: lineSchema });
 export type SessionStuckResponse = z.infer<typeof sessionStuckResponseSchema>;
 
-// task.pick: Scootch chooses when the user cannot. Candidates are screened drawer items.
+// task.pick: Thầy Phú chooses when the user cannot. Candidates are screened drawer items.
 
 export const taskPickRequestSchema = spokenRequestSchema.extend({
   energy: energySchema,

@@ -9,11 +9,11 @@ import {
   endTime,
   getReadyTime,
   heardGap,
-  instantOnScootchDay,
+  instantOnSchoolDay,
   longestLengthWithin,
 } from './ends-at';
 import { MINUTE_MS, instantFromIso } from './local-time';
-import { scootchDayOf } from './scootch-day';
+import { schoolDayOf } from './school-day';
 import { TODAY } from './test/rows';
 
 const LONDON = 'Europe/London';
@@ -34,12 +34,12 @@ describe('the end time of a length', () => {
   it('runs across midnight and across the hour the day rolls over at', () => {
     expect(endTime(london('23:50'), 25, LONDON).clock).toBe('00:15');
     expect(endTime(london('22:30'), 180, LONDON).clock).toBe('01:30');
-    // 03:50 belongs to the Scootch day before; a length started then ends in the next one.
+    // 03:50 belongs to the school day before; a length started then ends in the next one.
     const beforeRollover = london('03:50', 1);
     const end = endTime(beforeRollover, 25, LONDON);
     expect(end.clock).toBe('04:15');
-    expect(scootchDayOf(beforeRollover, LONDON)).toBe(TODAY);
-    expect(scootchDayOf(end.at, LONDON)).toBe('2026-10-07');
+    expect(schoolDayOf(beforeRollover, LONDON)).toBe(TODAY);
+    expect(schoolDayOf(end.at, LONDON)).toBe('2026-10-07');
   });
 
   it('follows the clock when it changes: an hour that happens twice is still one length', () => {
@@ -80,16 +80,16 @@ describe('when a thing with a cue is brought back', () => {
   });
 
   it('keeps the small hours with the day they end, and stops at the rollover', () => {
-    // 01:30 on Tuesday's Scootch day is Wednesday on the calendar.
+    // 01:30 on Tuesday's school day is Wednesday on the calendar.
     const late: StartCue = { kind: 'time', at: '01:30' };
     expect(back(late, london('23:00'))).toEqual({
       at: london('01:30', 1),
       clock: '01:30',
       ahead: true,
     });
-    expect(instantOnScootchDay(TODAY, '03:59', LONDON)).toBe(london('03:59', 1));
+    expect(instantOnSchoolDay(TODAY, '03:59', LONDON)).toBe(london('03:59', 1));
     // 04:00 is where Tuesday began: at three the next morning it is long gone, not an hour away.
-    expect(instantOnScootchDay(TODAY, '04:00', LONDON)).toBe(london('04:00'));
+    expect(instantOnSchoolDay(TODAY, '04:00', LONDON)).toBe(london('04:00'));
     expect(back({ kind: 'time', at: '04:00' }, london('03:00', 1)).ahead).toBe(false);
   });
 });
@@ -162,13 +162,13 @@ describe('the time before a heard time', () => {
       longestMinutes: 50,
       fits: true,
     });
-    // After midnight it is still the same Scootch day, and a time in its small hours is ahead.
+    // After midnight it is still the same school day, and a time in its small hours is ahead.
     const car = { at: '01:30', heardAs: 'car at half one', watched: true };
     expect(gap(london('00:10', 1), car)).toMatchObject({ gapMinutes: 45, longestMinutes: 40 });
   });
 
   it('does not reach across the rollover: a time after it is not on this day', () => {
-    // At three in the morning, 04:30 on this Scootch day was yesterday morning.
+    // At three in the morning, 04:30 on this school day was yesterday morning.
     const flight = { at: '04:30', heardAs: 'flight at half four', watched: true };
     expect(gap(london('03:00', 1), flight)).toBeNull();
   });

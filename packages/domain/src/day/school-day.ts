@@ -2,14 +2,14 @@ import type { IsoDate } from '../contracts';
 
 import { addDays, instantOfLocal, localDateTime, type Instant } from './local-time';
 
-/** A Scootch day starts at this hour on the user's wall clock, so a late night belongs to the day before. */
+/** A school day starts at this hour on the user's wall clock, so a late night belongs to the day before. */
 export const DAY_ROLLOVER_HOUR = 4;
 
 /**
- * The Scootch day an instant belongs to in one time zone. It follows the wall clock, so a day is 23
+ * The school day an instant belongs to in one time zone. It follows the wall clock, so a day is 23
  * or 25 hours long when the clocks change, and it is never worked out in UTC.
  */
-export function scootchDayOf(
+export function schoolDayOf(
   now: Instant,
   timeZone: string,
   rolloverHour: number = DAY_ROLLOVER_HOUR,
@@ -31,23 +31,23 @@ export interface CurrentDayInput {
  * Today for a user who may have changed time zone. A day that has been opened is never reopened:
  * flying west keeps the day already under way, flying east may start the next one early.
  */
-export function currentScootchDay(input: CurrentDayInput): IsoDate {
-  const here = scootchDayOf(input.now, input.timeZone, input.rolloverHour);
+export function currentSchoolDay(input: CurrentDayInput): IsoDate {
+  const here = schoolDayOf(input.now, input.timeZone, input.rolloverHour);
   return input.latestDay !== null && input.latestDay > here ? input.latestDay : here;
 }
 
-/** The instant the Scootch day after the one `now` belongs to starts, in one time zone. */
-export function nextScootchDayStart(
+/** The instant the school day after the one `now` belongs to starts, in one time zone. */
+export function nextSchoolDayStart(
   now: Instant,
   timeZone: string,
   rolloverHour: number = DAY_ROLLOVER_HOUR,
 ): Instant {
-  const today = scootchDayOf(now, timeZone, rolloverHour);
-  return scootchDayStart(addDays(today, 1), timeZone, rolloverHour);
+  const today = schoolDayOf(now, timeZone, rolloverHour);
+  return schoolDayStart(addDays(today, 1), timeZone, rolloverHour);
 }
 
-/** The instant a Scootch day starts in one time zone. */
-export function scootchDayStart(
+/** The instant a school day starts in one time zone. */
+export function schoolDayStart(
   day: IsoDate,
   timeZone: string,
   rolloverHour: number = DAY_ROLLOVER_HOUR,

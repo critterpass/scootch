@@ -16,7 +16,7 @@ export const PURCHASE_STATES = [
 ] as const;
 export type PurchaseState = (typeof PURCHASE_STATES)[number];
 
-/** The states that hold Plus. Every other state is free Scootch, all of it. */
+/** The states that hold Plus. Every other state is the free app, all of it. */
 export const PLUS_STATES: readonly PurchaseState[] = ['trial', 'monthly', 'yearly', 'lifetime'];
 
 /** Free forever, whatever the store says. No purchase state may take one of these away. */

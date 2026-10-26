@@ -11,7 +11,7 @@ import {
 import { checkWrittenLine, type CheckReason, type LineKind } from './check';
 import { repeatedSteps } from './line-rules';
 
-/** The parts of a task call's answer that Scootch says, as opposed to the user's own tasks. */
+/** The parts of a task call's answer that Thầy Phú says, as opposed to the user's own tasks. */
 export type TaskCopy = {
   readonly monster: MonsterCopy;
   readonly lines: SessionLinePack;

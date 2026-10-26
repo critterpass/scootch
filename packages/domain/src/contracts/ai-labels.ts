@@ -49,7 +49,7 @@ export const screenInputResponseSchema = decisionMetaSchema.extend({
 });
 export type ScreenInputResponse = z.infer<typeof screenInputResponseSchema>;
 
-// task.size: does the task fit ten minutes, or should Scootch offer to shrink it.
+// task.size: does the task fit ten minutes, or should Thầy Phú offer to shrink it.
 
 export const taskSizeRequestSchema = labelRequestSchema;
 export type TaskSizeRequest = z.infer<typeof taskSizeRequestSchema>;
@@ -70,7 +70,7 @@ export const rambleEnergyResponseSchema = decisionMetaSchema.extend({
 });
 export type RambleEnergyResponse = z.infer<typeof rambleEnergyResponseSchema>;
 
-// share.private: should Scootch avoid offering to share this task.
+// share.private: should Thầy Phú avoid offering to share this task.
 
 export const sharePrivateRequestSchema = labelRequestSchema;
 export type SharePrivateRequest = z.infer<typeof sharePrivateRequestSchema>;

@@ -12,11 +12,11 @@ import {
   isoFromInstant,
   localDateTime,
 } from './local-time';
-import { currentScootchDay, scootchDayOf, scootchDayStart } from './scootch-day';
+import { currentSchoolDay, schoolDayOf, schoolDayStart } from './school-day';
 
 const at = (iso: string) => instantFromIso(iso);
 
-describe('the Scootch day an instant belongs to', () => {
+describe('the school day an instant belongs to', () => {
   it.each([
     // Ho Chi Minh City is UTC+7 all year: the day turns at 04:00 there, which is 21:00 UTC.
     ['Asia/Ho_Chi_Minh', '2026-10-06T20:59:00Z', '2026-10-06'],
@@ -42,7 +42,7 @@ describe('the Scootch day an instant belongs to', () => {
     ['Europe/London', '2026-10-25T03:59:00Z', '2026-10-24'],
     ['Europe/London', '2026-10-25T04:00:00Z', '2026-10-25'],
   ])('in %s at %s it is %s', (timeZone, instant, day) => {
-    expect(scootchDayOf(at(instant), timeZone)).toBe(day);
+    expect(schoolDayOf(at(instant), timeZone)).toBe(day);
   });
 
   it.each([
@@ -53,15 +53,15 @@ describe('the Scootch day an instant belongs to', () => {
     ['Europe/London', '2026-10-24', 25],
     ['Asia/Ho_Chi_Minh', '2026-10-24', 24],
   ])('in %s the day %s lasts %i hours', (timeZone, day, hours) => {
-    const length = scootchDayStart(addDays(day, 1), timeZone) - scootchDayStart(day, timeZone);
+    const length = schoolDayStart(addDays(day, 1), timeZone) - schoolDayStart(day, timeZone);
     expect(length / HOUR_MS).toBe(hours);
   });
 
   it('starts each day at 04:00 on the local clock', () => {
-    expect(isoFromInstant(scootchDayStart('2026-03-08', 'America/New_York'))).toBe(
+    expect(isoFromInstant(schoolDayStart('2026-03-08', 'America/New_York'))).toBe(
       '2026-03-08T08:00:00.000Z',
     );
-    expect(isoFromInstant(scootchDayStart('2026-10-07', 'Asia/Ho_Chi_Minh'))).toBe(
+    expect(isoFromInstant(schoolDayStart('2026-10-07', 'Asia/Ho_Chi_Minh'))).toBe(
       '2026-10-06T21:00:00.000Z',
     );
   });
@@ -95,7 +95,7 @@ describe('a user who changes time zone', () => {
     ['flew east', '2026-10-06T21:00:00Z', 'Asia/Ho_Chi_Minh', '2026-10-06', '2026-10-07'],
     ['east, small hours', '2026-10-06T19:00:00Z', 'Asia/Ho_Chi_Minh', '2026-10-06', '2026-10-06'],
   ])('%s: %s in %s is %s', (_name, instant, timeZone, latestDay, day) => {
-    expect(currentScootchDay({ now: at(instant), timeZone, latestDay })).toBe(day);
+    expect(currentSchoolDay({ now: at(instant), timeZone, latestDay })).toBe(day);
   });
 });
 
@@ -120,8 +120,8 @@ describe('day rollover properties', { timeout: 60_000 }, () => {
         instant,
         fc.integer({ min: 0, max: 23 * HOUR_MS }),
         (timeZone, now, gap) => {
-          const before = scootchDayOf(now, timeZone);
-          const after = scootchDayOf(now + gap, timeZone);
+          const before = schoolDayOf(now, timeZone);
+          const after = schoolDayOf(now + gap, timeZone);
           expect(after >= before).toBe(true);
           expect(daysBetween(before, after)).toBeLessThanOrEqual(1);
         },
@@ -133,7 +133,7 @@ describe('day rollover properties', { timeout: 60_000 }, () => {
     fc.assert(
       fc.property(instant, (now) => {
         const expected = new Date(now + 7 * HOUR_MS - 4 * HOUR_MS).toISOString().slice(0, 10);
-        expect(scootchDayOf(now, 'Asia/Ho_Chi_Minh')).toBe(expected);
+        expect(schoolDayOf(now, 'Asia/Ho_Chi_Minh')).toBe(expected);
       }),
     );
   });
@@ -141,9 +141,9 @@ describe('day rollover properties', { timeout: 60_000 }, () => {
   it('puts every instant inside the day it names', () => {
     fc.assert(
       fc.property(zone, instant, (timeZone, now) => {
-        const day = scootchDayOf(now, timeZone);
-        expect(scootchDayStart(day, timeZone)).toBeLessThanOrEqual(now);
-        expect(scootchDayStart(addDays(day, 1), timeZone)).toBeGreaterThan(now);
+        const day = schoolDayOf(now, timeZone);
+        expect(schoolDayStart(day, timeZone)).toBeLessThanOrEqual(now);
+        expect(schoolDayStart(addDays(day, 1), timeZone)).toBeGreaterThan(now);
       }),
     );
   });
@@ -156,9 +156,9 @@ describe('day rollover properties', { timeout: 60_000 }, () => {
         let latestDay: IsoDate | null = null;
         for (const { timeZone, wait } of hops) {
           now += wait;
-          const day = currentScootchDay({ now, timeZone, latestDay });
+          const day = currentSchoolDay({ now, timeZone, latestDay });
           if (latestDay !== null) expect(day >= latestDay).toBe(true);
-          expect(day >= scootchDayOf(now, timeZone)).toBe(true);
+          expect(day >= schoolDayOf(now, timeZone)).toBe(true);
           latestDay = day;
         }
       }),

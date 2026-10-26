@@ -145,7 +145,7 @@ describe('checkLine', () => {
     expect(reasons).toEqual(['banned_word']);
   });
 
-  it.each(languages)('fails every line the %s guide says Scootch never says', (language) => {
+  it.each(languages)('fails every line the %s guide says Thầy Phú never says', (language) => {
     for (const attitude of attitudes) {
       for (const text of voiceGuides[language].attitudes[attitude].never) {
         const result = checkLine({ text, kind: 'working', language, attitude });

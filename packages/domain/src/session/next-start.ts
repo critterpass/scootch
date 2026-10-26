@@ -60,7 +60,7 @@ export interface SessionOpening {
 
 /**
  * The user's line, while the sitting is opened on it: from the task being set until a minute
- * after the start. Before any line of Scootch's, and `null` once it has folded away, when the
+ * after the start. Before any line of Thầy Phú's, and `null` once it has folded away, when the
  * session is over, and when no line was left.
  */
 export function sessionOpening(

@@ -5,7 +5,7 @@ import { marimba } from '../instruments/tuned';
 
 const LOUDNESS = -23;
 
-/** Scootch starts listening: two quick marimba notes stepping up, with one light tap. */
+/** Thầy Phú starts listening: two quick marimba notes stepping up, with one light tap. */
 export const listen: Cue = {
   name: 'listen',
   loudness: LOUDNESS,

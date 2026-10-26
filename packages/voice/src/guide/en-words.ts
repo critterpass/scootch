@@ -83,7 +83,7 @@ export const enWords: Pick<
     hardship: ['homeless*', 'beggar*', 'bankrupt*'],
   },
   offLimitsNote:
-    "politics and governments, religion, anyone's body or looks, death or self-harm, poverty or homelessness, the user's worth, and days that went by. If the task itself touches one of these, write about Scootch and the furniture instead.",
+    "politics and governments, religion, anyone's body or looks, death or self-harm, poverty or homelessness, the user's worth, and days that went by. If the task itself touches one of these, write about Thầy Phú and the furniture instead.",
   userWorth: [
     'your fault',
     'wrong with you',

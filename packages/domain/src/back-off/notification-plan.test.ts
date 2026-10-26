@@ -8,8 +8,8 @@ import {
   instantOfLocal,
   isoFromInstant,
   localDateTime,
-  scootchDayOf,
-  scootchDayStart,
+  schoolDayOf,
+  schoolDayStart,
 } from '../day';
 import { TODAY } from '../day/test/rows';
 
@@ -175,7 +175,7 @@ describe('when they go out', () => {
     ]);
   });
 
-  it('keeps a small-hours start inside the same Scootch day when no quiet hours are set', () => {
+  it('keeps a small-hours start inside the same school day when no quiet hours are set', () => {
     const none = { start: '00:00', end: '00:00' };
     const { notifications } = plan({ usualStart: '02:00', quietHours: none });
     expect(notifications.map((one) => isoFromInstant(one.at))).toEqual([
@@ -217,8 +217,8 @@ describe('notification plan properties', { timeout: 60_000 }, () => {
         for (const one of notifications) {
           const local = localDateTime(one.at, input.timeZone);
           expect(isQuietMinute(local.hour * 60 + local.minute, input.quietHours)).toBe(false);
-          expect(scootchDayOf(one.at, input.timeZone)).toBe(input.localDate);
-          expect(one.at).toBeGreaterThanOrEqual(scootchDayStart(input.localDate, input.timeZone));
+          expect(schoolDayOf(one.at, input.timeZone)).toBe(input.localDate);
+          expect(one.at).toBeGreaterThanOrEqual(schoolDayStart(input.localDate, input.timeZone));
           expect(one.at).toBeGreaterThan(previous);
           expect(rank(one.volume)).toBeLessThanOrEqual(rank(ceilings[input.attitude]));
           previous = one.at;
@@ -334,7 +334,7 @@ describe('a cue and a get-ready nudge', () => {
   });
 
   it('is dropped when quiet hours last until the day is over, and the day is as it was', () => {
-    // Ten at night: quiet until 08:30, by when the Scootch day has rolled over.
+    // Ten at night: quiet until 08:30, by when the school day has rolled over.
     expect(day({ attitude: 'soft', timed: [cue('22:00')] })).toEqual(['13:10 line 0']);
     expect(plan({ timed: [cue('22:00')] })).toStrictEqual(plan({}));
     expect(plan({ timed: [cue('01:30', 1)] })).toStrictEqual(plan({}));
@@ -366,7 +366,7 @@ describe('a cue and a get-ready nudge', () => {
     expect(day({ ignoredDays: 11, timed: [cue('16:45')] })).toEqual(['16:45 cue']);
   });
 
-  it('sends the get-ready nudge once, from Scootch, and never late', () => {
+  it('sends the get-ready nudge once, from Thầy Phú, and never late', () => {
     expect(plan({ attitude: 'soft', timed: [getReady('14:25')] }).notifications).toEqual([
       { at: on('14:25'), ordinal: 0, volume: 'soft', loudness: 1, kind: 'get_ready' },
     ]);
@@ -418,7 +418,7 @@ describe('a cue and a get-ready nudge', () => {
   it('never adds a message, breaks the spacing, or sends in quiet hours or on another day', () => {
     fc.assert(
       fc.property(anyInput, anyTimed, fc.boolean(), (input, timedFrom, plain) => {
-        const start = scootchDayStart(input.localDate, input.timeZone);
+        const start = schoolDayStart(input.localDate, input.timeZone);
         const timed = timedFrom(start);
         const { notifications } = notificationPlan({ ...input, timed, plain });
 
@@ -437,7 +437,7 @@ describe('a cue and a get-ready nudge', () => {
         for (const [index, at] of times.entries()) {
           const local = localDateTime(at, input.timeZone);
           expect(isQuietMinute(local.hour * 60 + local.minute, input.quietHours)).toBe(false);
-          expect(scootchDayOf(at, input.timeZone)).toBe(input.localDate);
+          expect(schoolDayOf(at, input.timeZone)).toBe(input.localDate);
           const before = times[index - 1];
           if (before !== undefined) {
             expect(at - before).toBeGreaterThanOrEqual(NOTIFICATION_SPACING_MINUTES * MINUTE_MS);

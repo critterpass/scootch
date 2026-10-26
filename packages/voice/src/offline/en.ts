@@ -100,7 +100,7 @@ export const enOffline: OfflinePack = {
   },
   noTask: {
     soft: {
-      hello: "Oh, hello. I'm Scootch. I'm glad you're here.",
+      hello: "Oh, hello. I'm Thầy Phú. I'm glad you're here.",
       about: 'I help you start one small thing a day, and I sit with you while you do it.',
       attitudeAsk: 'How much drama would you like from me?',
       favours: "Two small favours, if that's all right.",
@@ -141,7 +141,7 @@ export const enOffline: OfflinePack = {
       eveningReceipt: '{count} done today. Your receipt is attached.',
     },
     cheeky: {
-      hello: "Oh! You're here. I'm Scootch. I've been waiting for you specifically.",
+      hello: "Oh! You're here. I'm Thầy Phú. I've been waiting for you specifically.",
       about: 'I help you start one small thing a day, and I sit with you while you do it.',
       attitudeAsk: 'How much drama can you handle?',
       favours: 'Two tiny favours.',
@@ -182,7 +182,7 @@ export const enOffline: OfflinePack = {
       eveningReceipt: '{count} done. Receipt attached, as is tradition.',
     },
     unhinged: {
-      hello: "YOU'RE HERE. I'm Scootch. I have been rehearsing this moment in a mirror.",
+      hello: "YOU'RE HERE. I'm Thầy Phú. I have been rehearsing this moment in a mirror.",
       about: 'I help you start one small thing a day, and I sit with you while you do it. Loudly.',
       attitudeAsk: 'HOW MUCH DRAMA CAN YOU HANDLE?',
       favours: 'TWO TINY FAVOURS. I practised asking.',

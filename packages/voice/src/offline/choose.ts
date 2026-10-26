@@ -1,7 +1,7 @@
 import { stripMarks, wordsOf } from '../text';
 
 /**
- * What a person says, as the whole of what they say, to hand the choice to Scootch. The phone
+ * What a person says, as the whole of what they say, to hand the choice to Thầy Phú. The phone
  * knows these by itself, so "pick for me" works with no connection; anything looser is the
  * decision model's to read. Vietnamese is matched with and without its marks.
  */
@@ -46,7 +46,8 @@ const CHOOSE_PHRASES = [
 
 /** Small words that can stand before or after the request without changing it. */
 const FILLERS = new Set([
-  'scootch',
+  'thay',
+  'phu',
   'please',
   'just',
   'hey',
@@ -62,7 +63,7 @@ const tidy = (text: string) => wordsOf(stripMarks(text));
 const known = new Set(CHOOSE_PHRASES.map((phrase) => tidy(phrase).join(' ')));
 
 /**
- * True when the text is nothing but a request for Scootch to choose. A text that names anything
+ * True when the text is nothing but a request for Thầy Phú to choose. A text that names anything
  * to do is never one, whatever words it uses: "pick up the parcel" is a task.
  */
 export function asksToChoose(text: string): boolean {

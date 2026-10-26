@@ -239,7 +239,7 @@ export const settingsRowSchema = z.object({
   quietHoursStart: clockTimeSchema,
   quietHoursEnd: clockTimeSchema,
   /**
-   * Who a session opens on: the task's monster and its rolled catch, or Scootch at work with the
+   * Who a session opens on: the task's monster and its rolled catch, or Thầy Phú at work with the
    * hold to finish. Either is one tap from the other while the session runs.
    */
   catchWith: z.enum(['rolled', 'hold']),

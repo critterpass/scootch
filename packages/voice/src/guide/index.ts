@@ -73,7 +73,7 @@ function section(title: string, lines: readonly string[]): string {
 
 /**
  * The voice guide as prompt text, in its own language, for one attitude and one seed. Every
- * route that writes in Scootch's voice starts its system prompt with this.
+ * route that writes in Thầy Phú's voice starts its system prompt with this.
  */
 export function renderVoiceGuide(language: Language, attitude: Attitude, seed: number): string {
   const guide = voiceGuides[language];

@@ -1,14 +1,6 @@
 /** The named inks a drawing can be made in. */
 export type InkId =
-  | 'charcoal'
-  | 'navy'
-  | 'moss'
-  | 'plum'
-  | 'teal'
-  | 'rust'
-  | 'mustard'
-  | 'lilac'
-  | 'kraft';
+  'charcoal' | 'navy' | 'moss' | 'plum' | 'teal' | 'rust' | 'mustard' | 'lilac' | 'kraft';
 
 export interface InkPair {
   readonly body: string;
