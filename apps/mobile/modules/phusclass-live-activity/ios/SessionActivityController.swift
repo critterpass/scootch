@@ -10,7 +10,7 @@ enum SessionActivityError: Error, CustomStringConvertible {
         switch self {
         case .invalidAttributes: return "attributes need a taskTitle string"
         case .invalidState:
-            return "state needs endDate (milliseconds since 1970) and a line string"
+            return "state needs endDate (milliseconds since 1970), a line string, and a mode of desk or session if any"
         }
     }
 }
@@ -80,14 +80,26 @@ enum SessionActivityController {
                     "taskTitle": activity.attributes.taskTitle,
                     "taskId": activity.attributes.taskId ?? NSNull(),
                 ] as [String: Any],
-                "state": [
-                    "endDate": activity.content.state.endDate.timeIntervalSince1970 * 1000,
-                    "line": activity.content.state.line,
-                    "offline": activity.content.state.offline ?? NSNull(),
-                ] as [String: Any],
+                "state": state(of: activity.content.state),
                 "status": status(of: activity),
             ]
         }
+    }
+
+    private static func state(of state: SessionActivityAttributes.ContentState) -> [String: Any] {
+        let ms = { (date: Date?) -> Any in date.map { $0.timeIntervalSince1970 * 1000 } ?? NSNull() }
+        return [
+            "endDate": state.endDate.timeIntervalSince1970 * 1000,
+            "line": state.line,
+            "offline": state.offline ?? NSNull(),
+            "mode": state.mode ?? "session",
+            "pressure": state.pressure ?? NSNull(),
+            "pressureAt": state.pressureAt.map { $0.map { $0.timeIntervalSince1970 * 1000 } } ?? NSNull(),
+            "fuseStart": ms(state.fuseStart),
+            "fuseEnd": ms(state.fuseEnd),
+            "startDate": ms(state.startDate),
+            "heavy": state.heavy ?? NSNull(),
+        ]
     }
 
     private static func find(_ id: String) -> SessionActivity? {
@@ -100,9 +112,18 @@ enum SessionActivityController {
         guard let endDate = date(state["endDate"]), let line = state["line"] as? String else {
             throw SessionActivityError.invalidState
         }
+        let mode = state["mode"] as? String
+        guard mode == nil || mode == "desk" || mode == "session" else {
+            throw SessionActivityError.invalidState
+        }
+        let rises = (state["pressureAt"] as? [Any])?.compactMap { date($0) }
         return ActivityContent(
             state: SessionActivityAttributes.ContentState(
-                endDate: endDate, line: line, offline: state["offline"] as? Bool),
+                endDate: endDate, line: line, offline: state["offline"] as? Bool, mode: mode,
+                pressure: (state["pressure"] as? NSNumber).map { min(5, max(0, $0.intValue)) },
+                pressureAt: rises.map { Array($0.sorted().prefix(5)) },
+                fuseStart: date(state["fuseStart"]), fuseEnd: date(state["fuseEnd"]),
+                startDate: date(state["startDate"]), heavy: state["heavy"] as? Bool),
             staleDate: date(options?["staleDate"])
         )
     }

@@ -5,6 +5,8 @@ import { Platform } from 'react-native';
 import type { HttpClient } from '../../api/http-client';
 import { isPushBundleId, registerPushToken } from '../../api/push-client';
 
+import { noteFaceAttachment } from '../surfaces/note-face';
+
 import type { PlannedNote } from './notes-plan';
 
 const NOTE_PREFIX = 'note-home-';
@@ -44,6 +46,8 @@ export async function scheduleNotes(plan: readonly PlannedNote[]): Promise<void>
       .map((one) => Notifications.cancelScheduledNotificationAsync(one.identifier)),
   );
   for (const note of plan) {
+    // A local note never reaches the service extension, so his face is attached here.
+    const face = await noteFaceAttachment(note.step);
     await Notifications.scheduleNotificationAsync({
       identifier: note.id,
       content: {
@@ -53,6 +57,7 @@ export async function scheduleNotes(plan: readonly PlannedNote[]): Promise<void>
         // (0 calm to 5 glare; notes home use 1 to 3).
         data: { taskId: note.taskId, face: note.face, 'phu-pressure': note.step },
         threadIdentifier: 'notes-home',
+        ...(face === null ? {} : { attachments: [face] }),
         interruptionLevel: note.timeSensitive ? 'timeSensitive' : 'active',
       },
       trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: note.at },

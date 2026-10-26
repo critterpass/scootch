@@ -12,7 +12,7 @@ import {
   type IsoDate,
   type Task,
 } from '@phusclass/domain/board';
-import { hear, type HeardTask } from '@phusclass/domain/hearing';
+import { hearWithModel, type HeardTask } from '@phusclass/domain/hearing';
 
 import type { CareGateResult } from '../api/care-gate';
 import { readCarvings } from '../data/carvings-repository';
@@ -109,11 +109,11 @@ export function boardActions(core: BoardCore) {
     say: (text: string) =>
       core.act(async (): Promise<readonly HeardTask[]> => {
         const now = deps.clock();
-        const heard = hear(text, {
-          today: now.day,
-          nowMinutes: now.minuteOfDay,
-          dayFirst: deps.dayFirst ?? true,
-        });
+        const heard = await hearWithModel(
+          text,
+          { today: now.day, nowMinutes: now.minuteOfDay, dayFirst: deps.dayFirst ?? true },
+          { split: deps.split },
+        );
         const whole = core.gate(text);
         const added = heard.tasks.map((one) =>
           newTask({

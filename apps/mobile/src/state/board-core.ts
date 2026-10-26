@@ -6,6 +6,8 @@ import {
   type Task,
 } from '@phusclass/domain/board';
 
+import type { ModelSplit } from '@phusclass/domain/hearing';
+
 import { careGate, type CareGateResult } from '../api/care-gate';
 import type { DataDatabase } from '../data/data-database';
 import { writeKv } from '../data/kv-repository';
@@ -23,6 +25,8 @@ export type BoardStoreDeps = {
   readonly gate?: (text: string) => CareGateResult;
   /** How `3/4` reads: day first unless the region writes the month first. */
   readonly dayFirst?: boolean;
+  /** The on-device model's split of a ramble, tried first and never waited on for long. */
+  readonly split?: ModelSplit;
 };
 
 /** Keys the store keeps in `kv` and `settings`. */

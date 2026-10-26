@@ -2,6 +2,7 @@
 export * from './deadlines';
 export * from './find-date';
 export * from './hear';
+export * from './hear-with-model';
 export * from './heard-times';
 export * from './split';
 export * from './split-words';
