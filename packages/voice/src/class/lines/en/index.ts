@@ -10,6 +10,7 @@ import { notes } from './notes';
 import { happenings } from './happenings';
 import { days } from './days';
 import { care } from './care';
+import { share } from './share';
 
 /** Thầy Phú in English: crisp, slightly formal, dry. See `guide.en.md`. */
 export const linesEn: LinePack = {
@@ -24,4 +25,5 @@ export const linesEn: LinePack = {
   ...happenings,
   ...days,
   ...care,
+  ...share,
 };

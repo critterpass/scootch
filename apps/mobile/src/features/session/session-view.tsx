@@ -8,10 +8,12 @@ import type { Happening } from '@phusclass/domain/board';
 
 import { Classroom } from '../../classroom/classroom';
 import { useT } from '../../i18n/i18n-provider';
+import { useBoard } from '../../state/board-provider';
 import { useTextSizing } from '../../screens/registry/support/forced-variant';
 import { ClassIcon } from '../desk/class-icons';
 import { buttonText, ink, shapes, type } from '../desk/class-style';
 import { SpeechBubble } from '../desk/speech-bubble';
+import { ShareButton } from '../share/share-button';
 
 import { DrumBurst } from './drum-burst';
 import { Confetti, FinishPaper, type FinishPaperProps } from './finish-paper';
@@ -64,6 +66,8 @@ export function SessionView(props: SessionViewProps) {
   const sizing = useTextSizing();
   const insets = useSafeAreaInsets();
   const { clock, panel } = props;
+  // The finish being shown is the store's last one; its share button checks the guard itself.
+  const finishedId = useBoard().lastFinish?.task.id ?? null;
   const timeUp = clock?.timeUp ?? false;
   const size = (n: number) => ({ fontSize: sizing.size(n) });
 
@@ -187,6 +191,15 @@ export function SessionView(props: SessionViewProps) {
           tookMinutes={props.finish.tookMinutes}
         />
         <View style={styles.finishButtons}>
+          {finishedId !== null && !props.heavy ? (
+            <ShareButton
+              logEntryId={finishedId}
+              label={t('share.open')}
+              color={ink.text}
+              style={[shapes.button, shapes.soft, styles.share]}
+              testID="finish-share"
+            />
+          ) : null}
           {props.finish.recessOffered ? (
             <Pressable
               testID="finish-recess"
@@ -252,6 +265,7 @@ export function SessionView(props: SessionViewProps) {
 }
 
 const styles = StyleSheet.create({
+  share: { width: 56, paddingHorizontal: 0, alignItems: 'center', justifyContent: 'center' },
   fill: { flex: 1, backgroundColor: '#E8D2AE' },
   quiet: { backgroundColor: ink.grey },
   sheet: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: 20 },

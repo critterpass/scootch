@@ -1,0 +1,490 @@
+appId: com.phusclass.dev
+---
+# The share sheet's four cards, white-out on and off, beside the ShareCard and ShareSheet boards.
+# Opens the registry by its link (as the sheets capture does), narrows it once to the share states
+# and the variants wanted, and opens each row by its id. Ends by opening the share route itself for
+# a finish that is not in the logbook: it must say there is nothing to share, and close.
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: 'desk'
+    timeout: 90000
+- openLink: phusclass-dev:///registry
+- tapOn:
+    text: 'Open'
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: 'registry-count'
+    timeout: 30000
+- tapOn:
+    id: 'registry-states'
+- inputText: 'share-'
+- runFlow:
+    when:
+      visible: 'Continue'
+    commands:
+      - tapOn: 'Continue'
+      - tapOn:
+          id: 'registry-states'
+      - eraseText: 40
+      - inputText: 'share-'
+- tapOn:
+    id: 'registry-variants'
+- inputText: 'en-light-default,vi-light-default,en-light-largest,vi-light-default-long-text,en-dark-default'
+- pressKey: Enter
+- scrollUntilVisible:
+    element:
+      id: 'registry-row-share-certificate--en-light-default'
+    direction: DOWN
+    timeout: 30000
+    centerElement: true
+- tapOn:
+    id: 'registry-row-share-certificate--en-light-default'
+- extendedWaitUntil:
+    visible:
+      id: 'share-sheet'
+    timeout: 10000
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: share-certificate--en-light-default
+- tapOn:
+    point: '50%,7%'
+- extendedWaitUntil:
+    visible:
+      id: 'registry-list'
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: 'registry-row-share-certificate--vi-light-default'
+    direction: DOWN
+    timeout: 30000
+    centerElement: true
+- tapOn:
+    id: 'registry-row-share-certificate--vi-light-default'
+- extendedWaitUntil:
+    visible:
+      id: 'share-sheet'
+    timeout: 10000
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: share-certificate--vi-light-default
+- tapOn:
+    point: '50%,7%'
+- extendedWaitUntil:
+    visible:
+      id: 'registry-list'
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: 'registry-row-share-certificate-hidden--en-light-default'
+    direction: DOWN
+    timeout: 30000
+    centerElement: true
+- tapOn:
+    id: 'registry-row-share-certificate-hidden--en-light-default'
+- extendedWaitUntil:
+    visible:
+      id: 'share-sheet'
+    timeout: 10000
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: share-certificate-hidden--en-light-default
+- tapOn:
+    point: '50%,7%'
+- extendedWaitUntil:
+    visible:
+      id: 'registry-list'
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: 'registry-row-share-certificate-hidden--vi-light-default'
+    direction: DOWN
+    timeout: 30000
+    centerElement: true
+- tapOn:
+    id: 'registry-row-share-certificate-hidden--vi-light-default'
+- extendedWaitUntil:
+    visible:
+      id: 'share-sheet'
+    timeout: 10000
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: share-certificate-hidden--vi-light-default
+- tapOn:
+    point: '50%,7%'
+- extendedWaitUntil:
+    visible:
+      id: 'registry-list'
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: 'registry-row-share-desk--en-light-default'
+    direction: DOWN
+    timeout: 30000
+    centerElement: true
+- tapOn:
+    id: 'registry-row-share-desk--en-light-default'
+- extendedWaitUntil:
+    visible:
+      id: 'share-sheet'
+    timeout: 10000
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: share-desk--en-light-default
+- tapOn:
+    point: '50%,7%'
+- extendedWaitUntil:
+    visible:
+      id: 'registry-list'
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: 'registry-row-share-desk--en-dark-default'
+    direction: DOWN
+    timeout: 30000
+    centerElement: true
+- tapOn:
+    id: 'registry-row-share-desk--en-dark-default'
+- extendedWaitUntil:
+    visible:
+      id: 'share-sheet'
+    timeout: 10000
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: share-desk--en-dark-default
+- tapOn:
+    point: '50%,7%'
+- extendedWaitUntil:
+    visible:
+      id: 'registry-list'
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: 'registry-row-share-desk--vi-light-default'
+    direction: DOWN
+    timeout: 30000
+    centerElement: true
+- tapOn:
+    id: 'registry-row-share-desk--vi-light-default'
+- extendedWaitUntil:
+    visible:
+      id: 'share-sheet'
+    timeout: 10000
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: share-desk--vi-light-default
+- tapOn:
+    point: '50%,7%'
+- extendedWaitUntil:
+    visible:
+      id: 'registry-list'
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: 'registry-row-share-note--en-light-default'
+    direction: DOWN
+    timeout: 30000
+    centerElement: true
+- tapOn:
+    id: 'registry-row-share-note--en-light-default'
+- extendedWaitUntil:
+    visible:
+      id: 'share-sheet'
+    timeout: 10000
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: share-note--en-light-default
+- tapOn:
+    point: '50%,7%'
+- extendedWaitUntil:
+    visible:
+      id: 'registry-list'
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: 'registry-row-share-note--en-light-largest'
+    direction: DOWN
+    timeout: 30000
+    centerElement: true
+- tapOn:
+    id: 'registry-row-share-note--en-light-largest'
+- extendedWaitUntil:
+    visible:
+      id: 'share-sheet'
+    timeout: 10000
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: share-note--en-light-largest
+- tapOn:
+    point: '50%,7%'
+- extendedWaitUntil:
+    visible:
+      id: 'registry-list'
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: 'registry-row-share-note--vi-light-default'
+    direction: DOWN
+    timeout: 30000
+    centerElement: true
+- tapOn:
+    id: 'registry-row-share-note--vi-light-default'
+- extendedWaitUntil:
+    visible:
+      id: 'share-sheet'
+    timeout: 10000
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: share-note--vi-light-default
+- tapOn:
+    point: '50%,7%'
+- extendedWaitUntil:
+    visible:
+      id: 'registry-list'
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: 'registry-row-share-note--vi-light-default-long-text'
+    direction: DOWN
+    timeout: 30000
+    centerElement: true
+- tapOn:
+    id: 'registry-row-share-note--vi-light-default-long-text'
+- extendedWaitUntil:
+    visible:
+      id: 'share-sheet'
+    timeout: 10000
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: share-note--vi-light-default-long-text
+- tapOn:
+    point: '50%,7%'
+- extendedWaitUntil:
+    visible:
+      id: 'registry-list'
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: 'registry-row-share-note-hidden--en-light-default'
+    direction: DOWN
+    timeout: 30000
+    centerElement: true
+- tapOn:
+    id: 'registry-row-share-note-hidden--en-light-default'
+- extendedWaitUntil:
+    visible:
+      id: 'share-sheet'
+    timeout: 10000
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: share-note-hidden--en-light-default
+- tapOn:
+    point: '50%,7%'
+- extendedWaitUntil:
+    visible:
+      id: 'registry-list'
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: 'registry-row-share-note-hidden--vi-light-default'
+    direction: DOWN
+    timeout: 30000
+    centerElement: true
+- tapOn:
+    id: 'registry-row-share-note-hidden--vi-light-default'
+- extendedWaitUntil:
+    visible:
+      id: 'share-sheet'
+    timeout: 10000
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: share-note-hidden--vi-light-default
+- tapOn:
+    point: '50%,7%'
+- extendedWaitUntil:
+    visible:
+      id: 'registry-list'
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: 'registry-row-share-nothing--en-light-default'
+    direction: DOWN
+    timeout: 30000
+    centerElement: true
+- tapOn:
+    id: 'registry-row-share-nothing--en-light-default'
+- extendedWaitUntil:
+    visible:
+      id: 'share-sheet'
+    timeout: 10000
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: share-nothing--en-light-default
+- tapOn:
+    point: '50%,7%'
+- extendedWaitUntil:
+    visible:
+      id: 'registry-list'
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: 'registry-row-share-nothing--vi-light-default'
+    direction: DOWN
+    timeout: 30000
+    centerElement: true
+- tapOn:
+    id: 'registry-row-share-nothing--vi-light-default'
+- extendedWaitUntil:
+    visible:
+      id: 'share-sheet'
+    timeout: 10000
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: share-nothing--vi-light-default
+- tapOn:
+    point: '50%,7%'
+- extendedWaitUntil:
+    visible:
+      id: 'registry-list'
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: 'registry-row-share-paper--en-light-default'
+    direction: DOWN
+    timeout: 30000
+    centerElement: true
+- tapOn:
+    id: 'registry-row-share-paper--en-light-default'
+- extendedWaitUntil:
+    visible:
+      id: 'share-sheet'
+    timeout: 10000
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: share-paper--en-light-default
+- tapOn:
+    point: '50%,7%'
+- extendedWaitUntil:
+    visible:
+      id: 'registry-list'
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: 'registry-row-share-paper--en-light-largest'
+    direction: DOWN
+    timeout: 30000
+    centerElement: true
+- tapOn:
+    id: 'registry-row-share-paper--en-light-largest'
+- extendedWaitUntil:
+    visible:
+      id: 'share-sheet'
+    timeout: 10000
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: share-paper--en-light-largest
+- tapOn:
+    point: '50%,7%'
+- extendedWaitUntil:
+    visible:
+      id: 'registry-list'
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: 'registry-row-share-paper--vi-light-default'
+    direction: DOWN
+    timeout: 30000
+    centerElement: true
+- tapOn:
+    id: 'registry-row-share-paper--vi-light-default'
+- extendedWaitUntil:
+    visible:
+      id: 'share-sheet'
+    timeout: 10000
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: share-paper--vi-light-default
+- tapOn:
+    point: '50%,7%'
+- extendedWaitUntil:
+    visible:
+      id: 'registry-list'
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: 'registry-row-share-paper--vi-light-default-long-text'
+    direction: DOWN
+    timeout: 30000
+    centerElement: true
+- tapOn:
+    id: 'registry-row-share-paper--vi-light-default-long-text'
+- extendedWaitUntil:
+    visible:
+      id: 'share-sheet'
+    timeout: 10000
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: share-paper--vi-light-default-long-text
+- tapOn:
+    point: '50%,7%'
+- extendedWaitUntil:
+    visible:
+      id: 'registry-list'
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: 'registry-row-share-paper-hidden--en-light-default'
+    direction: DOWN
+    timeout: 30000
+    centerElement: true
+- tapOn:
+    id: 'registry-row-share-paper-hidden--en-light-default'
+- extendedWaitUntil:
+    visible:
+      id: 'share-sheet'
+    timeout: 10000
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: share-paper-hidden--en-light-default
+- tapOn:
+    point: '50%,7%'
+- extendedWaitUntil:
+    visible:
+      id: 'registry-list'
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: 'registry-row-share-paper-hidden--vi-light-default'
+    direction: DOWN
+    timeout: 30000
+    centerElement: true
+- tapOn:
+    id: 'registry-row-share-paper-hidden--vi-light-default'
+- extendedWaitUntil:
+    visible:
+      id: 'share-sheet'
+    timeout: 10000
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: share-paper-hidden--vi-light-default
+- tapOn:
+    point: '50%,7%'
+- extendedWaitUntil:
+    visible:
+      id: 'registry-list'
+    timeout: 15000
+- openLink: phusclass-dev:///share/not-a-finish
+- tapOn:
+    text: 'Open'
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: 'share-nothing'
+    timeout: 15000
+- takeScreenshot: share-route-nothing
+- tapOn:
+    id: 'share-close'
+- assertNotVisible:
+    id: 'share-nothing'

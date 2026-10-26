@@ -8,6 +8,7 @@ import { HAND_FAMILY } from '../../classroom/use-hand-font';
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import type { PaperInks } from '../board/chalk';
+import { ShareButton } from '../share/share-button';
 
 import type { LogbookRow } from './logbook-rows';
 import { Signature } from './signature';
@@ -39,65 +40,95 @@ export function LogbookLine({
   const words = row.comment === null ? null : commentWords(row.comment, language);
   const signed = row.comment === null ? [] : [words ?? t('logbook.ten'), t('logbook.signed')];
   return (
-    <View
-      testID={`logbook-row-${index}`}
-      accessible
-      accessibilityLabel={[row.day, row.text, row.detail, ...signed]
-        .filter((part) => part !== null)
-        .join('. ')}
-      style={[styles.row, largeText ? styles.rowLarge : null]}
-    >
-      <Text
-        allowFontScaling={allowFontScaling}
-        style={[
-          styles.day,
-          largeText ? styles.dayLarge : null,
-          { color: ink.red, fontSize: size(15) },
-        ]}
+    // The share button sits beside the line, not inside it: the line is read as one element.
+    <View style={styles.line}>
+      <View
+        testID={`logbook-row-${index}`}
+        accessible
+        accessibilityLabel={[row.day, row.text, row.detail, ...signed]
+          .filter((part) => part !== null)
+          .join('. ')}
+        style={[styles.row, styles.grow, largeText ? styles.rowLarge : null]}
       >
-        {row.day ?? ''}
-      </Text>
-      <View style={[styles.what, largeText ? styles.whatLarge : null]}>
         <Text
           allowFontScaling={allowFontScaling}
-          style={[styles.task, { color: ink.ink, fontSize: size(16) }]}
+          style={[
+            styles.day,
+            largeText ? styles.dayLarge : null,
+            { color: ink.red, fontSize: size(15) },
+          ]}
         >
-          {row.text}
+          {row.day ?? ''}
         </Text>
-        <Text
-          allowFontScaling={allowFontScaling}
-          style={[styles.detail, { color: ink.muted, fontSize: size(12.5) }]}
-        >
-          {row.detail}
-        </Text>
-      </View>
-      {row.comment === null ? null : (
-        <View style={[styles.signed, largeText ? styles.signedLarge : null]}>
-          {words === null ? (
-            <View style={[styles.ten, { borderColor: ink.red }]}>
+        <View style={[styles.what, largeText ? styles.whatLarge : null]}>
+          <Text
+            allowFontScaling={allowFontScaling}
+            style={[styles.task, { color: ink.ink, fontSize: size(16) }]}
+          >
+            {row.text}
+          </Text>
+          <Text
+            allowFontScaling={allowFontScaling}
+            style={[styles.detail, { color: ink.muted, fontSize: size(12.5) }]}
+          >
+            {row.detail}
+          </Text>
+        </View>
+        {row.comment === null ? null : (
+          <View style={[styles.signed, largeText ? styles.signedLarge : null]}>
+            {words === null ? (
+              <View style={[styles.ten, { borderColor: ink.red }]}>
+                <Text
+                  allowFontScaling={allowFontScaling}
+                  style={[styles.tenText, { color: ink.red, fontSize: size(15) }]}
+                >
+                  10
+                </Text>
+              </View>
+            ) : (
               <Text
                 allowFontScaling={allowFontScaling}
-                style={[styles.tenText, { color: ink.red, fontSize: size(15) }]}
+                style={[styles.comment, { color: ink.red, fontSize: size(15) }]}
               >
-                10
+                {words}
               </Text>
-            </View>
-          ) : (
-            <Text
-              allowFontScaling={allowFontScaling}
-              style={[styles.comment, { color: ink.red, fontSize: size(15) }]}
-            >
-              {words}
-            </Text>
-          )}
-          <Signature color={ink.red} />
-        </View>
-      )}
+            )}
+            <Signature color={ink.red} />
+          </View>
+        )}
+      </View>
+      <ShareButton
+        logEntryId={row.id}
+        label={t('share.openLine', { task: row.text })}
+        color={ink.muted}
+        size={18}
+        style={[styles.share, largeText ? styles.shareLarge : null]}
+        testID={`logbook-share-${index}`}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  share: {
+    width: 44,
+    height: 44,
+    marginLeft: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  shareLarge: {
+    marginLeft: 0,
+    alignSelf: 'flex-start',
+    marginTop: 8,
+  },
+  line: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  grow: {
+    flex: 1,
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
