@@ -1,6 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { PLANS, storeProductId } from './products';
+import { legalLink, PLANS, storeProductId } from './products';
 
 describe('store product identifiers', () => {
   it('names the production products as App Store Connect has them', () => {
@@ -17,5 +17,10 @@ describe('store product identifiers', () => {
 
   it('offers the school year first', () => {
     expect(PLANS[0]).toBe('yearly');
+  });
+
+  it('links the terms and privacy pages in the language the receipt is read in', () => {
+    expect(legalLink('terms', 'en')).toBe('https://phusclass.com/terms');
+    expect(legalLink('privacy', 'vi')).toBe('https://phusclass.com/vi/privacy');
   });
 });

@@ -15,6 +15,7 @@ import { clockText } from '../session/session-model';
 import { DrumBurst } from '../session/drum-burst';
 import { afterSlip } from '../slip/slip-model';
 import { SlipSheet } from '../slip/slip-sheet';
+import { TuitionNotice } from '../tuition/tuition-notice';
 import { useLanguage } from '../../i18n/i18n-provider';
 import { useBoard, useBoardStore } from '../../state/board-provider';
 import { RECESS_MS } from '../../state/board-view';
@@ -210,6 +211,7 @@ export function DeskScreen() {
       keyboard={typing ? keyboard : 0}
       chosenMinutes={chosenMinutes}
       recess={recess}
+      notice={<TuitionNotice />}
       gestures={gestures}
       composer={
         <ComposerBar

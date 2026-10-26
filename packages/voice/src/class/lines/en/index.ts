@@ -11,6 +11,7 @@ import { happenings } from './happenings';
 import { days } from './days';
 import { care } from './care';
 import { share } from './share';
+import { timetable } from './timetable';
 
 /** Thầy Phú in English: crisp, slightly formal, dry. See `guide.en.md`. */
 export const linesEn: LinePack = {
@@ -26,4 +27,5 @@ export const linesEn: LinePack = {
   ...days,
   ...care,
   ...share,
+  ...timetable,
 };

@@ -1,0 +1,63 @@
+appId: com.phusclass.dev
+---
+# The fresh-user walk, the timetable and tuition: the desk sheet's tap way up opens the timetable,
+# which without tuition is the quiet lock; its one button opens the receipt, and "Can't pay right
+# now?" under it opens the scholarship. Nothing here offers tuition by itself: each step is a tap.
+# The e2e-test build has no store key, so the receipt says the store is closed on this phone.
+- tapOn:
+    id: 'desk-timetable'
+- extendedWaitUntil:
+    visible:
+      id: 'timetable-lock'
+    timeout: 10000
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: fresh-timetable-locked
+- tapOn:
+    id: 'timetable-lock-receipt'
+- extendedWaitUntil:
+    visible:
+      id: 'tuition-receipt'
+    timeout: 10000
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: fresh-tuition-receipt
+- scrollUntilVisible:
+    element:
+      id: 'tuition-cant-pay'
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: 'tuition-cant-pay'
+- extendedWaitUntil:
+    visible:
+      id: 'scholarship-ask'
+    timeout: 10000
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: fresh-scholarship
+# The sheet is pulled down to close; then the receipt and the timetable are closed by their buttons.
+- swipe:
+    direction: DOWN
+    duration: 600
+- extendedWaitUntil:
+    notVisible:
+      id: 'scholarship-ask'
+    timeout: 10000
+- scrollUntilVisible:
+    element:
+      id: 'tuition-close'
+    direction: UP
+    timeout: 10000
+- tapOn:
+    id: 'tuition-close'
+- extendedWaitUntil:
+    visible:
+      id: 'timetable-close'
+    timeout: 10000
+- tapOn:
+    id: 'timetable-close'
+- extendedWaitUntil:
+    visible:
+      id: 'desk'
+    timeout: 10000

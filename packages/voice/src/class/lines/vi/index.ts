@@ -11,6 +11,7 @@ import { happenings } from './happenings';
 import { days } from './days';
 import { care } from './care';
 import { share } from './share';
+import { timetable } from './timetable';
 
 /** Thầy Phú bằng tiếng Việt: thầy xưng thầy, gọi em. Xem `guide.vi.md`. */
 export const linesVi: LinePack = {
@@ -26,4 +27,5 @@ export const linesVi: LinePack = {
   ...days,
   ...care,
   ...share,
+  ...timetable,
 };

@@ -150,6 +150,7 @@ Status lines below follow `CLAUDE.md`: `- Status: done — <sha>` or
 ## Phase 4: tuition, timetable, sharing (two lanes)
 
 ### 4.1 Tuition and the timetable
+- Status: done — pending merge
 - Do:
   - The receipt with the two plans and the trial card (today, his reminder, first charge), PAID, pending and failed.
   - The scholarship. Locked controls where paid things live.
