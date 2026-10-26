@@ -52,6 +52,8 @@ export interface DeskViewProps {
   /** The length chosen for the next period, if one was. */
   readonly chosenMinutes: number | null;
   readonly recess: RecessView | null;
+  /** Pinned on the chalkboard at recess: the tuition notice, when the board's rule puts it up. */
+  readonly notice?: ReactNode;
   /** Overlays above everything: the slip sheet, flying chalk, the drum. */
   readonly overlays?: ReactNode;
   readonly gestures?: Pick<
@@ -142,7 +144,9 @@ export function DeskView(props: DeskViewProps) {
             },
           ]}
         />
-      ) : null}
+      ) : (
+        props.notice
+      )}
     </View>
   );
 

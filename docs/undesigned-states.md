@@ -21,7 +21,17 @@ state is designed or removed. Scootch's list is in the history of this file.
 | Session | A stray thought typed in the period's sheet | The board has the Stray thought button only. The composer takes the buttons' place until it is handed in |
 | Session | Back on the board: the field for one line for next time | The board shows the choice and, later, the note on the desk, not the writing of it. His prompt in the bubble, the field in the slip's handwriting |
 | Finish | The circled 10, drawn with no words | The brief names it; the Finish board draws only "Good." |
-| Timetable | The sheet swiped up from the desk, locked, with "Tuition" | The timetable is the tuition lane's; until it lands this stub holds the route |
 | Share sheet | Nothing to share: the sheet opened for a serious task or on a crisis day | Screens never offer sharing then; opened anyway, the sheet keeps its heading and close and says one plain line |
 | Share, note home | A long task in the note | The board's note is short; a long task makes his hand smaller, down to 14 points, before any word is cut |
 | Share, your desk | The arrow and flower carvings | The domain carves them; no board draws them. Drawn in the desk's cut stroke, the size of the board's star |
+| Timetable | Calendar access refused, with Open Settings | No board draws a refused calendar. The ask card's frame with one plain line and the settings button |
+| Timetable | The room behind the open sheet | The App board shows the desk room under the scrim. The timetable route draws the same classroom behind its sheet, so the desk does not vanish when the route changes |
+| Timetable | The periods list in two halves, numbered, with recess between | The brief asks for halves, numbered periods and recess; the App board's list shows only the later classes. The list's own rows, with a recess strip between the halves |
+| Tuition | The receipt for someone on a scholarship | No board draws it. The receipt with a blue SCHOLARSHIP stamp and two lines: open now, the year's end with nothing charged |
+| Tuition | The win-back month | The brief offers a lapsed student a free month through Apple's win-back offer. The offer receipt with his win-back line under the subtitle and "Take the free month" |
+| Tuition | A phone with no store | No board draws it. The offer receipt with no prices and one plain line in place of the button |
+| Tuition | Restore found nothing | No board draws it. One plain line in place of the fine print |
+| Tuition | Apple's subscription terms | Apple requires them on the page that sells a subscription; no board writes them. Small muted text under the links |
+| Scholarship | The ask that did not reach the office | No board draws a failed ask. One red line above the button; nothing changes |
+| Report card | Without tuition | The brief puts a quiet lock where the report card lives. The timetable's lock panel under the page's title |
+| Report card | Print | The board has Print beside Share; printing needs a native module this app does not have. Share sends the report as text, names left out under white-out |

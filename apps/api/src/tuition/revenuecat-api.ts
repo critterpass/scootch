@@ -25,7 +25,8 @@ const entitlementsSchema = z.object({
 /** The tuition entitlement id at RevenueCat, per project, kept for the life of the isolate. */
 const tuitionEntitlementIds = new Map<string, string>();
 
-class RevenueCatUnavailable extends Error {}
+/** RevenueCat could not be reached, or did not answer in a shape this reads. */
+export class RevenueCatUnavailable extends Error {}
 
 async function getJson(env: Bindings, path: string): Promise<unknown> {
   let response: Response;
@@ -44,7 +45,11 @@ async function getJson(env: Bindings, path: string): Promise<unknown> {
   });
 }
 
-async function tuitionEntitlementId(env: Bindings, projectId: string): Promise<string | undefined> {
+/** RevenueCat's own id for the tuition entitlement in a project; undefined when it has none. */
+export async function tuitionEntitlementId(
+  env: Bindings,
+  projectId: string,
+): Promise<string | undefined> {
   const kept = tuitionEntitlementIds.get(projectId);
   if (kept !== undefined) return kept;
   const parsed = entitlementsSchema.safeParse(
@@ -96,4 +101,53 @@ export async function askRevenueCat(
     if (error instanceof RevenueCatUnavailable) return undefined;
     throw error;
   }
+}
+
+async function postJson(env: Bindings, path: string, body: unknown): Promise<Response> {
+  try {
+    return await fetch(`${revenueCatApiBase}${path}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${env.REVENUECAT_API_V2_KEY ?? ''}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(fetchTimeoutMs),
+    });
+  } catch {
+    throw new RevenueCatUnavailable();
+  }
+}
+
+/**
+ * Grants tuition to a customer until `expiresAt`, as a promotional entitlement (API v2's "Grant an
+ * entitlement"). A customer RevenueCat has not seen yet is created first, under the same id the
+ * phone logs in with. RevenueCat ignores a grant within two hours of one already given, which
+ * leaves the customer holding tuition all the same. Throws `RevenueCatUnavailable` when RevenueCat
+ * is not set up for this environment or does not take the grant.
+ */
+export async function grantTuition(
+  env: Bindings,
+  appUserId: string,
+  expiresAt: Date,
+): Promise<void> {
+  const projectId = env.REVENUECAT_PROJECT_ID;
+  if (!env.REVENUECAT_API_V2_KEY || !projectId) throw new RevenueCatUnavailable();
+  const entitlementId = await tuitionEntitlementId(env, projectId);
+  if (entitlementId === undefined) throw new RevenueCatUnavailable();
+  const project = `/projects/${encodeURIComponent(projectId)}`;
+  const grant = () =>
+    postJson(
+      env,
+      `${project}/customers/${encodeURIComponent(appUserId)}/actions/grant_entitlement`,
+      { entitlement_id: entitlementId, expires_at: expiresAt.getTime() },
+    );
+  let response = await grant();
+  if (response.status === 404) {
+    const created = await postJson(env, `${project}/customers`, { id: appUserId });
+    // 409: the customer was made in the meantime, by the phone's first call to RevenueCat.
+    if (!created.ok && created.status !== 409) throw new RevenueCatUnavailable();
+    response = await grant();
+  }
+  if (!response.ok) throw new RevenueCatUnavailable();
 }

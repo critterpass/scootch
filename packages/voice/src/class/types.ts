@@ -81,6 +81,10 @@ export const moments = [
   'tuitionFirstNotice',
   'scholarshipGranted',
   'winBack',
+  // The timetable and the report card.
+  'timetableAsk',
+  'timetableWeekend',
+  'reportCardComment',
   // Happenings.
   'happeningCat',
   'happeningPaperPlane',

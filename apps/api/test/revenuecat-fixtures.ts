@@ -132,3 +132,19 @@ export const customerNotFound = {
   retryable: false,
   doc_url: 'https://errors.rev.cat/resource-missing',
 };
+
+/**
+ * API v2's answer to "Grant an entitlement": 201 with the customer, now holding the promotional
+ * entitlement until the asked time.
+ */
+export function grantAnswer(customerId: string, expiresAt: number): Response {
+  return Response.json(
+    customerAnswer(customerId, [{ entitlement_id: tuitionEntitlementId, expires_at: expiresAt }]),
+    { status: 201 },
+  );
+}
+
+/** API v2's answer to "Create a customer": 201 with the new customer, holding nothing. */
+export function createdCustomerAnswer(customerId: string): Response {
+  return Response.json(customerAnswer(customerId, []), { status: 201 });
+}

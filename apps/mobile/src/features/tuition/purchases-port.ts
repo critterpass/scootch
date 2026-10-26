@@ -2,13 +2,33 @@ import type { Instant } from '@phusclass/domain';
 
 import type { PlanId } from './products';
 
+/** A store period: Apple's free week is `{ unit: 'WEEK', count: 1 }`. */
+export interface StorePeriod {
+  readonly unit: 'DAY' | 'WEEK' | 'MONTH' | 'YEAR';
+  readonly count: number;
+}
+
+/** A free stretch the store offers this Apple ID before the first charge. */
+export interface FreeOffer {
+  /** The store's id for the offer; empty for a plan's introductory free trial. */
+  readonly id: string;
+  readonly period: StorePeriod;
+}
+
 /** One plan as the store sells it here and now. The price is the store's own localised text. */
 export interface PlanOffer {
   readonly plan: PlanId;
   readonly productId: string;
+  /** The store's localised price, "$39.99" or "499.000 ₫". */
   readonly priceText: string;
-  /** The free trial this Apple ID is offered on the plan, in days; `null` when there is none. */
-  readonly trialDays: number | null;
+  /** The same price as a number in the store's currency, for comparing the two plans. */
+  readonly price: number;
+  /** The yearly price spread over twelve months, as the store writes it; `null` for a month. */
+  readonly perMonthText: string | null;
+  /** The free trial this Apple ID is offered on the plan; `null` when there is none. */
+  readonly trial: FreeOffer | null;
+  /** Apple's win-back offer for someone whose tuition lapsed; `null` when none is offered. */
+  readonly winBack: FreeOffer | null;
 }
 
 export interface Offerings {
@@ -19,6 +39,10 @@ export interface Offerings {
 export interface CustomerState {
   /** The plan that pays tuition right now; `null` when nothing does. */
   readonly activePlan: PlanId | null;
+  /** Tuition is held through a scholarship (a promotional grant), not a plan. */
+  readonly scholarship: boolean;
+  /** When the scholarship ends; `null` without one. */
+  readonly scholarshipEndsAt: Instant | null;
   /** The active plan is in its free trial. */
   readonly inTrial: boolean;
   /** When the trial ends and the first charge is made; `null` outside a trial. */
@@ -28,12 +52,14 @@ export interface CustomerState {
   /** When a subscription that will not renew runs out; `null` when it renews or never ends. */
   readonly endsAt: Instant | null;
   readonly willRenew: boolean;
-  /** Why tuition lapsed, when it was paid before; `null` when it is paid or never was. */
-  readonly lapse: 'expired' | 'refunded' | null;
+  /** Tuition was paid before and has lapsed; `null` when it is held or never was. */
+  readonly lapse: 'expired' | null;
 }
 
 export const FREE_CUSTOMER: CustomerState = {
   activePlan: null,
+  scholarship: false,
+  scholarshipEndsAt: null,
   inTrial: false,
   trialEndsAt: null,
   renewsAt: null,
@@ -44,6 +70,8 @@ export const FREE_CUSTOMER: CustomerState = {
 
 export type PurchaseOutcome =
   | { readonly kind: 'purchased'; readonly customer: CustomerState }
+  /** Ask to Buy: the family organiser has to say yes. Nothing is charged until they do. */
+  | { readonly kind: 'pending' }
   /** The person closed the store's sheet. Nothing is wrong and nothing is said. */
   | { readonly kind: 'cancelled' }
   | { readonly kind: 'failed' };
@@ -63,16 +91,23 @@ export class PurchasesUnavailable extends Error {
 export interface PurchasesPort {
   /** False when no store is configured: every call then rejects with `PurchasesUnavailable`. */
   readonly available: boolean;
-  /** The plans, with their localised prices. */
+  /** The plans, with their localised prices and any free stretch on offer. */
   offerings(): Promise<Offerings>;
-  purchase(productId: string): Promise<PurchaseOutcome>;
+  /** Buys a plan; with `winBack`, through Apple's win-back offer of that id. */
+  purchase(productId: string, winBack?: string): Promise<PurchaseOutcome>;
   /** Brings back what this Apple ID bought. No account is involved. */
   restore(): Promise<CustomerState>;
-  customer(): Promise<CustomerState>;
+  /** What the store says now; `fresh` skips the store's cache, after the server changed it. */
+  customer(fresh?: boolean): Promise<CustomerState>;
   /** Opens Apple's own manage-subscriptions sheet, and resolves when it has closed. */
   manageSubscriptions(): Promise<void>;
   /** Tells the app when the store reports a change by itself. Returns the unsubscribe. */
   onCustomerChange(listener: (customer: CustomerState) => void): () => void;
+  /**
+   * Resolves once the store knows this phone by the id the server hands out, so a scholarship the
+   * server grants shows up here. Rejects when that cannot be had now.
+   */
+  linked(): Promise<void>;
 }
 
 /** The port of a phone with no store: nothing can be bought, and it says so. */
@@ -84,4 +119,5 @@ export const unavailablePurchases: PurchasesPort = {
   customer: () => Promise.reject(new PurchasesUnavailable()),
   manageSubscriptions: () => Promise.reject(new PurchasesUnavailable()),
   onCustomerChange: () => () => undefined,
+  linked: () => Promise.reject(new PurchasesUnavailable()),
 };

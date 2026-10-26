@@ -8,3 +8,4 @@ export * from './revenuecat-webhook';
 export * from './screen-input';
 export * from './telegram-webhook';
 export * from './tuition-customer';
+export * from './tuition-scholarship';
