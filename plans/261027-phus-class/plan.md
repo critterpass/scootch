@@ -85,6 +85,7 @@ Status lines below follow `CLAUDE.md`: `- Status: done — <sha>` or
 - Done when: a dev gallery screen on the simulator, with a sheet beside the `Poses` and `Props` boards.
 
 ### 2.2 The board and its rules
+- Status: done — pending merge
 - Do: in `packages/domain` and the app's SQLite:
   - Tasks, the pick order (brief 3), deadlines and heard times (ported to the phone).
   - Late slips with tallies, accepted reasons, front row at five.

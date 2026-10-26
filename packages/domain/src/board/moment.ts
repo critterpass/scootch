@@ -14,12 +14,15 @@ export const MINUTE_MS = 60_000;
 export const HOUR_MS = 60 * MINUTE_MS;
 export const DAY_MS = 24 * HOUR_MS;
 
-/** One moment, read three ways: the instant, the wall-clock day and the minutes since midnight. */
+/** One moment, read three ways: the instant, the day it belongs to and the wall clock. */
 export type Moment = {
   readonly at: Instant;
+  /** The day this moment belongs to. With a rollover hour, the small hours belong to the day before. */
   readonly day: IsoDate;
   /** Minutes since midnight on the wall clock, 0 to 1439. */
   readonly minuteOfDay: number;
+  /** Minutes after midnight at which a day begins: 0, or the rollover hour. */
+  readonly rolloverMinute?: number;
 };
 
 /** Where the rules get "now" from. */
@@ -44,26 +47,37 @@ function formatterFor(timeZone: string): Intl.DateTimeFormat {
   return formatter;
 }
 
-/** The moment an instant is on the wall clock of one time zone. */
-export function momentAt(at: Instant, timeZone: string): Moment {
+/**
+ * The moment an instant is on the wall clock of one time zone. With a rollover hour, a day starts
+ * at that hour, so a late night still belongs to the day before.
+ */
+export function momentAt(at: Instant, timeZone: string, rolloverHour = 0): Moment {
   const parts: Record<string, string> = {};
   for (const part of formatterFor(timeZone).formatToParts(at)) parts[part.type] = part.value;
+  const wallDay = `${parts['year']}-${parts['month']}-${parts['day']}`;
+  const hour = Number(parts['hour']);
   return {
     at,
-    day: `${parts['year']}-${parts['month']}-${parts['day']}`,
-    minuteOfDay: Number(parts['hour']) * 60 + Number(parts['minute']),
+    day: hour < rolloverHour ? addDays(wallDay, -1) : wallDay,
+    minuteOfDay: hour * 60 + Number(parts['minute']),
+    rolloverMinute: rolloverHour * 60,
   };
 }
 
 /** A clock that reads the device's time in one zone. */
-export function wallClock(timeZone: string, read: () => Instant = Date.now): Clock {
-  return () => momentAt(read(), timeZone);
+export function wallClock(
+  timeZone: string,
+  rolloverHour = 0,
+  read: () => Instant = Date.now,
+): Clock {
+  return () => momentAt(read(), timeZone, rolloverHour);
 }
 
-/** The instant the wall-clock day of a moment began, to the minute. */
+/** The instant the day of a moment began, to the minute: midnight, or the rollover hour. */
 export function dayStartOf(moment: Moment): Instant {
   const intoMinute = ((moment.at % MINUTE_MS) + MINUTE_MS) % MINUTE_MS;
-  return moment.at - intoMinute - moment.minuteOfDay * MINUTE_MS;
+  const sinceStart = (moment.minuteOfDay - (moment.rolloverMinute ?? 0) + 1440) % 1440;
+  return moment.at - intoMinute - sinceStart * MINUTE_MS;
 }
 
 function utcOf(day: IsoDate): number {

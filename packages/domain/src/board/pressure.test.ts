@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { openDesk } from './actions';
-import { MINUTE_MS } from './moment';
+import { MINUTE_MS, momentAt } from './moment';
 import { startPeriod } from './period';
 import { FUSE_MS, fuseOf, isInsideFuse, nextPressureAt, pressureOf } from './pressure';
 import { later, onDesk, when } from './testing';
@@ -43,6 +43,16 @@ describe('pressure on a waiting desk task', () => {
 
     expect(pressureOf(task, when('2026-10-27', '00:03'))).toBe(1);
     expect(pressureOf(task, when('2026-10-27', '00:01'))).toBe(0);
+  });
+
+  it('keeps counting through midnight when the day rolls over at four', () => {
+    const lateNight = momentAt(Date.parse('2026-10-26T23:58:00Z'), 'UTC', 4);
+    const task = onDesk(lateNight);
+    const afterMidnight = momentAt(Date.parse('2026-10-27T00:03:00Z'), 'UTC', 4);
+
+    expect(afterMidnight.day).toBe('2026-10-26');
+    expect(pressureOf(task, afterMidnight)).toBe(2);
+    expect(pressureOf(task, momentAt(afterMidnight.at, 'UTC'))).toBe(1);
   });
 
   it('goes back to zero when the period starts', () => {
