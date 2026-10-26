@@ -10,6 +10,10 @@ appId: com.phusclass.dev
       id: 'desk-sit'
     timeout: 90000
 - openLink: phusclass-dev:///dev-classroom
+# iOS asks before a link opens the app.
+- tapOn:
+    text: 'Open'
+    optional: true
 - extendedWaitUntil:
     visible:
       id: 'dev-classroom-view'
