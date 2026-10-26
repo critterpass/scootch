@@ -27,11 +27,11 @@ Phases are ordered by dependency and sized by task count. No time estimates.
 | 04 | [The day loop](phase-04-day-loop.md) | 10 | 01 (art and routes arrive from 02, 03) | works on a phone end to end, with the home revamp and the starting helpers; saying "done" to finish is not wired |
 | 05 | [Keeping: cards, world, record, share](phase-05-keeping.md) | 8 | 02, 04 | redrawn (binder, keeping tabs, one share composer) and merged; sharing never walked; the week's name, wearing a drop and the record video are not built |
 | 06 | [System surfaces](phase-06-system-surfaces.md) | 7 | 02, 04 | replaced by [the redrawn surfaces](../261008-0120-system-surfaces-outside-the-app/plan.md): built; the widgets at rest and the Live Activity seen on a phone, the rest unseen; no remote push reaches a phone |
-| 07 | [Care, edge states and settings](phase-07-care-edge-and-settings.md) | 8 | 03, 04 | settings, privacy and helplines work; the care screen can be closed (8 Oct); serious, crisis, offline and restore never walked on a device |
+| 07 | [Care, edge states and settings](phase-07-care-edge-and-settings.md) | 8 | 03, 04 | serious, crisis and offline walked as a fresh user on the simulator (13 Oct, #199, #201, #203); restore and a real phone not yet |
 | 08 | [Plus](phase-08-plus.md) | 8 | 05 | redrawn twice and merged; inks dress Scootch and the app; no purchase ever made; no webhook; the server does not check Plus |
 | 09 | [Tables and haunting](phase-09-tables-and-haunting.md) | 8 | 03, 04 | the app half is built and has ways in; Sign in with Apple has never completed on a build; push is off; seven server items open |
 | 10 | [Website and growth](phase-10-website-and-growth.md) | 8 | 02, 03 | redrawn and live at scootch.app from release tags; a monster's link opens the app (founder, 9 Oct); the App Clip has never been opened |
-| 11 | [Launch](phase-11-launch.md) | 7 | all | started: production deployed, App Store build submitted 12 Oct; Care and Money gates not passed |
+| 11 | [Launch](phase-11-launch.md) | 7 | all | started: production deployed, App Store build submitted 12 Oct; Care gate passed on the simulator 13 Oct; Money gate not passed |
 
 ## Follow-on plans
 
@@ -150,15 +150,16 @@ of two; a larger table needs Plus.
 
 ### Next, in order
 
-1. The care gate: walk serious, crisis and offline on the simulator, and fix
-   what the walk finds.
-2. The money gate: the RevenueCat webhook, Plus checked on the server, a
-   sandbox purchase, restore and cancel walked end to end.
-3. System surfaces and the camera walked on the simulator and on the
-   founder's phone, with a way back to the camera.
-4. What remains from the not-built list, with remote push and Sign in with
+1. The money gate: the webhook in RevenueCat's dashboard, then a sandbox
+   purchase, restore and cancel on the founder's phone, read back on the
+   server's record.
+2. System surfaces on the founder's phone: a hunt from a widget with the app
+   closed, the Lock Screen, StandBy, notifications and their actions, the share
+   sheet. The camera stays hidden by the founder's choice (13 Oct) until its own
+   design pass places the way in.
+3. What remains from the not-built list, with remote push and Sign in with
    Apple first, so two friends can sit at a table.
-5. Production and launch.
+4. Production and launch.
 
 ## Order of work
 
@@ -186,8 +187,8 @@ A and C merge.
 | Voice | End of 00 | Passed 7 Oct 2026: the founder read the samples in both languages; DeepSeek writes Scootch |
 | Native batch one | End of 01 | Passed: a TestFlight build installed 7 Oct 2026; prd native builds since 9 Oct. No record yet of an over-the-air update seen arriving on a phone |
 | First minute | End of 04 | Passed online 7 Oct 2026 on a device run and on the founder's iPhone; offline for the session is not yet walked |
-| Care | End of 07 | Not passed. The screening eval missed no crisis on 9 Oct (#173); the walk with no joke on a heavy task has not run |
-| Money | End of 08 | Not passed. No sandbox purchase, trial, restore or cancel has been made; the house rules are checked by test only |
+| Care | End of 07 | Passed on the simulator 13 Oct 2026: the screening eval against dev scored 233 of 239 with no crisis missed and every serious and crisis case right (the six misses are ordinary tasks called too heavy); the fresh walk 01 to 11 passes in order with serious, crisis and offline (#199, #201, #203) and shows no monster, joke, card, share or burst on a heavy task, online or held offline (#197, #203). Not yet seen on a real phone |
+| Money | End of 08 | Not passed. The server keeps its own Plus record from RevenueCat's webhook (#195) and the app logs in to RevenueCat with the id the server hands out (#196); the dashboard's webhook and a sandbox purchase, restore and cancel on the founder's phone are still to do |
 | Release | End of 11 | Not passed. prd deployed from v1.0.0-rc.6 on 12 Oct 2026 and served that commit on its health check (run 38252230612); no fuller smoke check is recorded. The full fresh-user walk on the release candidate is not required: the founder waived it on 8 Oct 2026 |
 
 Each phase also ends with design-beside-device sheets for every screen it
@@ -233,7 +234,7 @@ Things only the founder can do. Phase 00 lists them with the exact steps.
 9. Done 7 Oct: a Cloudflare API token and account id are repository secrets.
 10. Approved 7 Oct: EAS builds for Scootch (never for a JavaScript-only
     change).
-11. Open: Apple's push key, so the server can send remote pushes.
+11. Done on dev: Apple's push key is set on the dev Worker (`APNS_KEY_ID`, `APNS_KEY_P8`, `APNS_TEAM_ID`); remote push is still off behind its flag and the phone does not yet register a token.
 
 ## Decided 7 Oct 2026
 
