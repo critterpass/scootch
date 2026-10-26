@@ -1,9 +1,7 @@
 ---
-import Critter from '../../components/critter.astro';
 import RisingWords from '../../components/rising-words.astro';
 import { languagePaths, localPath, pagesFor, plainFor, preLaunch } from '../../copy';
 import SiteLayout from '../../layouts/site-layout.astro';
-import { scootchArt } from '../../lib/drawings';
 import { VIETNAM, findAHelpline, helplineRows } from '../../lib/helplines';
 import '../../styles/help.css';
 
@@ -41,7 +39,6 @@ const [privacyBetween = '', privacyAfter = ''] = privacyRest.split('{terms}');
           </span>
         </div>
       </div>
-      <Critter art={scootchArt('listening')} size="13.75rem" />
     </div>
   </section>
 
@@ -67,7 +64,6 @@ const [privacyBetween = '', privacyAfter = ''] = privacyRest.split('{terms}');
               ))
             }
             <p class="help-none" data-help-none hidden>
-              <Critter art={scootchArt('thinking')} size="4.5rem" />
               {copy.none}
             </p>
           </div>

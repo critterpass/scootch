@@ -1,35 +1,17 @@
-/** The Get and Help pages, in English. */
+/** The Help page, in English. */
 export const helpEn = {
-  get: {
-    title: 'Get Scootch',
-    description:
-      'Scootch is on iPhone. Point your camera at the code, or tap the button on your phone.',
-    eyebrow: 'Get Scootch',
-    words: ['Your', 'monster', 'is', 'waiting.'],
-    phoneBody: 'Free on iPhone. Anything you hatched here can come with you.',
-    deskBody:
-      'On a laptop? Point your iPhone’s camera at the code. It opens this page on your phone, and the App Store is one tap from there.',
-    soonBody: 'Scootch isn’t out yet. Leave an email and you’ll hear the day it is.',
-    store: 'Get it on the App Store',
-    qrLabel: 'A QR code that opens this page on your phone',
-    qrCaption: 'Point your iPhone camera here',
-    androidEyebrow: 'Android',
-    androidTitle: 'Not on Android yet.',
-    pressEyebrow: 'Press kit',
-    pressTitle: 'Writing about Scootch?',
-  },
   help: {
-    title: 'Help · Scootch',
+    title: 'Help · Phu’s Class',
     description:
-      'Questions answered straight, helplines, what Scootch is and isn’t, and privacy in short.',
-    address: 'scootch.app/help',
+      'Questions answered straight, helplines, what Phu’s Class is and isn’t, and privacy in short.',
+    address: 'phusclass.com/help',
     words: ['How', 'can', 'I', 'help?'],
     searchLabel: 'Search the questions',
     searchPlaceholder: 'Search: cancel, offline, tables…',
     search: 'Search',
     oneAnswer: '1 answer',
     answers: '{count} answers',
-    nav: ['Questions', 'Helplines', 'What Scootch is and isn’t', 'Privacy, plainly', 'Write to us'],
+    nav: ['Questions', 'Helplines', 'What Phu’s Class is and isn’t', 'Privacy, plainly', 'Write to us'],
     questionsTitle: 'Questions people actually ask',
     tags: [
       'Plus',
@@ -54,15 +36,15 @@ export const helpEn = {
       'You deserve a real person, not a cartoon. These lines are free and confidential. If you’re in danger right now, call your local emergency number.',
     country: 'Country',
     allHelplines: 'Every country, with opening hours',
-    isntTitle: 'What Scootch is, and isn’t',
-    is: 'Scootch is',
+    isntTitle: 'What Phu’s Class is, and isn’t',
+    is: 'Phu’s Class is',
     isList: [
       'A small, silly companion for starting things',
       'A way to make a scary task feel smaller',
       'Quiet company while you work',
       'Free, with nothing that counts your days',
     ],
-    isnt: 'Scootch isn’t',
+    isnt: 'Phu’s Class isn’t',
     isntList: [
       'A diagnosis, treatment or cure for ADHD or anything else',
       'A therapist, a coach or a crisis service',
@@ -74,7 +56,7 @@ export const helpEn = {
       {
         tag: 'Voice',
         title: 'Rambles stay rambles',
-        body: 'Your voice is turned into text and Scootch never keeps the audio.',
+        body: 'Your voice is turned into text and Phu’s Class never keeps the audio.',
       },
       {
         tag: 'Tasks',
@@ -98,6 +80,6 @@ export const helpEn = {
     termsLink: 'terms',
     contactTitle: 'Write to a person',
     contactBody: 'A person reads every message, and won’t make you explain yourself.',
-    contactEmail: 'help@scootch.app',
+    contactEmail: 'help@phusclass.com',
   },
 } as const;

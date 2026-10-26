@@ -1,4 +1,4 @@
-/* The Help page: a search over the questions, then helplines, what Scootch is, privacy, a person. */
+/* The Help page: a search over the questions, then helplines, what Phu's Class is, privacy, a person. */
 .help-hero {
   display: flex;
   flex-wrap: wrap;
@@ -244,9 +244,5 @@
     flex: 1 1 100%;
     display: flex;
     flex-wrap: wrap;
-  }
-  .help-hero > .critter {
-    --size: 8rem !important;
-    margin-left: auto;
   }
 }

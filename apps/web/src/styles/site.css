@@ -232,17 +232,10 @@ a {
 .drawing {
   display: block;
 }
-.drawing svg,
-.critter svg {
+.drawing svg {
   display: block;
   width: 100%;
   height: auto;
-}
-/* One drawn character. `--size` is its width; it never shrinks inside a row. */
-.critter {
-  display: block;
-  flex: none;
-  width: var(--size, 6rem);
 }
 
 /* Paper tooth over a section, and the riso dot screen behind a hero. */
@@ -596,319 +589,8 @@ a {
   max-width: 44em;
 }
 
-/* A card in one of the seven finishes. The finish is a base, a sheen that slides as the card
-   leans, sparkle and tooth; the words sit on top in the finish's own ink. */
-.mcard {
-  --card-ink: #1c1a17;
-  --card-sub: #6f6a62;
-  position: relative;
-  overflow: hidden;
-  border-radius: 1.5rem;
-  color: var(--card-ink);
-  transform-style: preserve-3d;
-  box-shadow:
-    inset 0 0 0 1px rgb(28 26 23 / 0.1),
-    0 1.875rem 3.125rem -1.25rem rgb(28 26 23 / 0.45);
-}
-.mcard > * {
-  position: relative;
-}
-.mcard-base,
-.mcard-sheen,
-.mcard-spark,
-.mcard-tooth,
-.mcard-glare {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-.mcard-base {
-  background: #fbf8f3;
-}
-.mcard-sheen {
-  background-image: linear-gradient(
-    115deg,
-    transparent 35%,
-    rgb(255 255 255 / 0.7) 50%,
-    transparent 65%
-  );
-  background-size: 300% 300%;
-  background-position: 50% 50%;
-  opacity: 0.6;
-}
-.mcard-spark {
-  background-image:
-    radial-gradient(circle, rgb(255 255 255 / 0.95) 0 1px, transparent 1.6px),
-    radial-gradient(circle, rgb(255 255 255 / 0.7) 0 0.8px, transparent 1.3px);
-  background-size:
-    13px 13px,
-    7px 7px;
-  background-position:
-    0 0,
-    3px 5px;
-  mix-blend-mode: screen;
-  opacity: 0;
-}
-.mcard-tooth {
-  background: var(--grain) 0 0 / 11.25rem 11.25rem;
-  mix-blend-mode: overlay;
-  opacity: 0.5;
-}
-.mcard-glare {
-  mix-blend-mode: soft-light;
-}
-[data-finish='holo'] {
-  box-shadow:
-    inset 0 0 0 1px rgb(255 255 255 / 0.7),
-    0 2.5rem 4.375rem -1.625rem rgb(80 40 120 / 0.55);
-  --card-sub: rgb(28 26 23 / 0.68);
-}
-[data-finish='holo'] > .mcard-base {
-  background: linear-gradient(135deg, #f3edfb 0%, #e6f7f6 45%, #fbf1e4 100%);
-}
-[data-finish='holo'] > .mcard-sheen {
-  background-image: repeating-linear-gradient(
-    115deg,
-    rgb(255 105 180 / 0.5) 0%,
-    rgb(100 215 255 / 0.5) 5%,
-    rgb(255 235 120 / 0.5) 10%,
-    rgb(150 120 255 / 0.5) 15%,
-    rgb(255 105 180 / 0.5) 20%
-  );
-  opacity: 0.9;
-}
-[data-finish='holo'] > .mcard-spark {
-  opacity: 0.9;
-}
-[data-finish='holo'] > .mcard-tooth {
-  opacity: 0.2;
-}
-[data-finish='chrome'] {
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.95),
-    inset 0 -1px 0 rgb(0 0 0 / 0.3),
-    inset 0 0 0 1px rgb(0 0 0 / 0.12),
-    0 1.875rem 3.125rem -1.25rem rgb(28 26 23 / 0.55);
-  --card-sub: rgb(28 26 23 / 0.72);
-}
-[data-finish='chrome'] > .mcard-base {
-  background: linear-gradient(
-    165deg,
-    #fdfdfc 0%,
-    #b9b5ae 20%,
-    #f2efea 36%,
-    #5f5b56 50%,
-    #d6d2cc 62%,
-    #8a867f 80%,
-    #f4f2ee 100%
-  );
-}
-[data-finish='chrome'] > .mcard-sheen {
-  background-image: linear-gradient(
-    115deg,
-    transparent 38%,
-    rgb(255 255 255 / 0.95) 48%,
-    rgb(255 255 255 / 0) 58%
-  );
-  mix-blend-mode: screen;
-  opacity: 1;
-}
-[data-finish='chrome'] > .mcard-tooth {
-  opacity: 0.15;
-}
-[data-finish='jelly'] {
-  --card-ink: #fff8f3;
-  --card-sub: rgb(255 248 243 / 0.88);
-  box-shadow:
-    inset 0 0.625rem 1.5rem rgb(255 255 255 / 0.4),
-    inset 0 -1.5rem 2.5rem rgb(110 20 0 / 0.5),
-    inset 0 0 0 1px rgb(255 255 255 / 0.25),
-    0 1.875rem 3.125rem -1rem rgb(240 86 46 / 0.6);
-}
-[data-finish='jelly'] > .mcard-base {
-  background: radial-gradient(
-    120% 90% at 30% 10%,
-    #ffc1ad 0%,
-    #f7774f 35%,
-    #f0562e 55%,
-    #a92f14 100%
-  );
-}
-[data-finish='jelly'] > .mcard-sheen {
-  background-image:
-    radial-gradient(55% 22% at 35% 10%, rgb(255 255 255 / 0.85), rgb(255 255 255 / 0) 70%),
-    radial-gradient(30% 12% at 70% 92%, rgb(255 220 200 / 0.6), rgb(255 255 255 / 0) 70%);
-  background-size: 100% 100%;
-  opacity: 1;
-}
-[data-finish='jelly'] > .mcard-tooth {
-  opacity: 0;
-}
-[data-finish='glass'] {
-  --card-sub: rgb(28 26 23 / 0.72);
-  box-shadow:
-    inset 0 1px 1px rgb(255 255 255 / 0.95),
-    inset 0 0 0 1px rgb(255 255 255 / 0.55),
-    0 1.875rem 3.125rem -1.25rem rgb(28 26 23 / 0.4);
-}
-[data-finish='glass'] > .mcard-base {
-  inset: -1.5rem;
-  background:
-    radial-gradient(circle at 18% 22%, rgb(240 86 46 / 0.9) 0 16%, transparent 42%),
-    radial-gradient(circle at 85% 75%, rgb(110 170 255 / 0.85) 0 18%, transparent 46%),
-    radial-gradient(circle at 70% 12%, rgb(255 210 90 / 0.85) 0 10%, transparent 34%), #ece8e1;
-  filter: blur(1rem) saturate(1.4);
-}
-[data-finish='glass'] > .mcard-sheen {
-  background-image: linear-gradient(
-    160deg,
-    rgb(255 255 255 / 0.55) 0%,
-    rgb(255 255 255 / 0.12) 40%,
-    rgb(255 255 255 / 0.3) 100%
-  );
-  background-size: 100% 100%;
-  opacity: 1;
-}
-[data-finish='glass'] > .mcard-tooth {
-  opacity: 0.2;
-}
-[data-finish='velvet'] {
-  --card-ink: #f3ebdd;
-  --card-sub: rgb(243 235 221 / 0.8);
-  box-shadow:
-    inset 0 0 1.75rem rgb(0 0 0 / 0.4),
-    inset 0 0 0 1px rgb(255 255 255 / 0.06),
-    0 1.875rem 3.125rem -1.25rem rgb(20 40 30 / 0.6);
-}
-[data-finish='velvet'] > .mcard-base {
-  background: radial-gradient(90% 70% at 30% 20%, #3f6e58 0%, #2c5141 55%, #1f3b2f 100%);
-}
-[data-finish='velvet'] > .mcard-sheen {
-  background-image: radial-gradient(
-    70% 50% at 30% 15%,
-    rgb(255 255 255 / 0.14),
-    rgb(255 255 255 / 0) 70%
-  );
-  background-size: 100% 100%;
-  opacity: 1;
-}
-[data-finish='velvet'] > .mcard-tooth {
-  opacity: 0.9;
-}
-[data-finish='riso'] {
-  --card-sub: #4e443b;
-}
-[data-finish='riso'] > .mcard-base {
-  background:
-    radial-gradient(circle, rgb(240 86 46 / 0.8) 30%, transparent 33%) 0 0 / 6px 6px,
-    radial-gradient(circle, rgb(52 96 200 / 0.4) 30%, transparent 33%) 3px 3px / 6px 6px,
-    #f4ebda;
-}
-[data-finish='riso'] > .mcard-sheen {
-  background-image: linear-gradient(
-    115deg,
-    transparent 40%,
-    rgb(255 255 255 / 0.35) 50%,
-    transparent 60%
-  );
-  opacity: 0.7;
-}
-[data-finish='riso'] > .mcard-tooth {
-  opacity: 0.6;
-}
 
-/* A monster's card: a window with the monster in it, its name, a line, and two stamped corners. */
-.monster-card {
-  /* The card is a figure: the browser's own 40px side margins would push it off centre. */
-  margin: 0;
-  width: min(100%, 18.75rem);
-  aspect-ratio: 300 / 420;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  padding: 1rem;
-}
-.monster-card .card-top,
-.monster-card .card-foot {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.5rem;
-  font: 700 0.625rem/1 var(--mono);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--card-sub);
-}
-.monster-card .card-foot {
-  margin-top: auto;
-}
-.card-window {
-  flex: 1 1 50%;
-  min-height: 0;
-  border-radius: 0.875rem;
-  overflow: hidden;
-  background:
-    radial-gradient(rgb(28 26 23 / 0.12) 1.4px, transparent 1.6px) 0 0 / 0.6875rem 0.6875rem,
-    #f6f3ee;
-  box-shadow: inset 0 0 0 1px rgb(28 26 23 / 0.1);
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-}
-.card-window > * {
-  width: 86%;
-  max-height: 100%;
-}
-.card-window svg {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-.monster-card .card-name {
-  font: 900 1.5625rem/1.02 var(--heading);
-  letter-spacing: -0.03em;
-  text-wrap: balance;
-}
-/* The monster's kind line, under its name: small capitals, as the app's card sets it. */
-.monster-card .card-kind {
-  font: 700 0.6875rem/1.2 var(--mono);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--card-sub);
-}
-.monster-card .card-typed,
-.monster-card .card-flavour {
-  font-size: 0.84375rem;
-  line-height: 1.35;
-  color: var(--card-sub);
-  text-wrap: pretty;
-}
-.monster-card .card-typed {
-  font-style: italic;
-}
-.card-stamp {
-  position: absolute;
-  left: 50%;
-  top: 38%;
-  translate: -50% -50%;
-  rotate: -14deg;
-  padding: 0.5rem 1rem;
-  border: 0.25rem solid var(--tomato);
-  border-radius: 0.875rem;
-  color: var(--tomato);
-  font: 900 2.625rem/1 var(--heading);
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  background: rgb(255 255 255 / 0.78);
-  box-shadow: 0 0.625rem 1.25rem -0.625rem rgb(240 86 46 / 0.6);
-  z-index: 4;
-  white-space: nowrap;
-}
-.tilt-space {
-  perspective: 68.75rem;
-}
-
-/* The bar: glass that the page scrolls under, with a line Scootch runs along as it does. */
+/* The bar: glass that the page scrolls under, with a line that fills as it does. */
 .logo {
   font: 900 1.5rem/1 var(--heading);
   letter-spacing: -0.03em;
@@ -993,19 +675,6 @@ a {
   place-items: center;
   font: 900 0.8125rem/1 var(--heading);
 }
-.app-icon {
-  --size: 2.25rem;
-  position: relative;
-  overflow: hidden;
-  flex: none;
-  width: var(--size);
-  height: var(--size);
-  display: block;
-  border-radius: 22.5%;
-  box-shadow:
-    0 0 0 0.5px rgb(28 26 23 / 0.14),
-    0 0.375rem 0.875rem -0.375rem rgb(28 26 23 / 0.6);
-}
 .scroll-line {
   position: relative;
   height: 0.1875rem;
@@ -1016,14 +685,6 @@ a {
   inset: 0 auto 0 0;
   width: 0;
   background: linear-gradient(90deg, var(--tomato-glow), var(--tomato));
-}
-.scroll-line-runner {
-  position: absolute;
-  left: 0;
-  top: -0.1875rem;
-  translate: -50% 0;
-  pointer-events: none;
-  --size: 1.875rem;
 }
 .nav-menu {
   display: none;
@@ -1061,7 +722,7 @@ a {
   width: auto;
 }
 
-/* The footer: always night. Links, the care card, three critters peeking over the wordmark. */
+/* The footer: always night. Links, the care card and the wordmark. */
 .site-footer {
   --page: var(--footer);
   background: var(--footer);
@@ -1147,23 +808,8 @@ a {
   justify-items: center;
   margin-top: 1.5rem;
 }
-.footer-peek {
-  display: flex;
-  gap: 6vw;
-  justify-content: center;
-  align-items: flex-end;
-  margin-bottom: -2.4vw;
-  position: relative;
-  z-index: 1;
-}
-.footer-peek .critter {
-  --size: clamp(4rem, 9vw, 8rem);
-}
-.footer-peek .critter:nth-child(2) {
-  --size: clamp(5rem, 11vw, 10rem);
-}
 .wordmark {
-  font: 900 clamp(5.25rem, 19vw, 17.5rem) / 0.82 var(--heading);
+  font: 900 clamp(3.25rem, 11vw, 10.5rem) / 1 var(--heading);
   letter-spacing: -0.065em;
   user-select: none;
 }
@@ -1344,38 +990,7 @@ a {
   }
 }
 
-/* Things that never stop: critters that bob, peek and drift, chrome that rolls, pressed buttons. */
-.bob {
-  animation: bob 2.6s ease-in-out infinite alternate;
-}
-.bob:nth-of-type(2n) {
-  animation-duration: 3.1s;
-}
-.bob:nth-of-type(3n) {
-  animation-duration: 3.6s;
-}
-.peek {
-  animation: peek 1.6s ease-in-out infinite alternate;
-}
-.peek:nth-child(2) {
-  animation-duration: 1.9s;
-}
-.peek:nth-child(3) {
-  animation-duration: 2.2s;
-}
-@keyframes bob {
-  from {
-    transform: translateY(0) rotate(-3deg);
-  }
-  to {
-    transform: translateY(-1rem) rotate(3deg);
-  }
-}
-@keyframes peek {
-  to {
-    transform: translateY(-0.875rem);
-  }
-}
+/* Things that never stop: chrome that rolls, pressed buttons. */
 .button:active,
 .chip:active,
 .get-capsule:active {
