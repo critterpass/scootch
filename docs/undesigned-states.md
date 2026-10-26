@@ -22,3 +22,6 @@ state is designed or removed. Scootch's list is in the history of this file.
 | Session | Back on the board: the field for one line for next time | The board shows the choice and, later, the note on the desk, not the writing of it. His prompt in the bubble, the field in the slip's handwriting |
 | Finish | The circled 10, drawn with no words | The brief names it; the Finish board draws only "Good." |
 | Timetable | The sheet swiped up from the desk, locked, with "Tuition" | The timetable is the tuition lane's; until it lands this stub holds the route |
+| Share sheet | Nothing to share: the sheet opened for a serious task or on a crisis day | Screens never offer sharing then; opened anyway, the sheet keeps its heading and close and says one plain line |
+| Share, note home | A long task in the note | The board's note is short; a long task makes his hand smaller, down to 14 points, before any word is cut |
+| Share, your desk | The arrow and flower carvings | The domain carves them; no board draws them. Drawn in the desk's cut stroke, the size of the board's star |

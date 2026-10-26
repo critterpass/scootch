@@ -101,6 +101,10 @@ export const moments = [
   'coldDay',
   'tapedGlasses',
   'newHaircut',
+  // The note home a finish can be shared as (sổ liên lạc): who did it, then how long it waited.
+  'shareNoteDone',
+  'shareNoteWaited',
+  'shareNoteSameDay',
   // Care.
   'seriousCompany',
   'seriousBeFunny',
@@ -157,8 +161,20 @@ export type SilentMoment = keyof typeof silentMoments;
  * - `{minutes}`: a number of minutes.
  * - `{date}` and `{time}`: a date or a time, already formatted for the language.
  * - `{price}`: a price, already formatted by the store.
+ * - `{waited}`: how long a finished task had waited, written out for the language ("nine days").
+ *   Only the shared note home holds it: the brief has him write the wait on a note the user
+ *   chose to share, and nowhere else does he count it.
  */
-export const placeholders = ['task', 'name', 'NAME', 'minutes', 'date', 'time', 'price'] as const;
+export const placeholders = [
+  'task',
+  'name',
+  'NAME',
+  'minutes',
+  'date',
+  'time',
+  'price',
+  'waited',
+] as const;
 export type Placeholder = (typeof placeholders)[number];
 
 type Variants<M extends Moment> = M extends SilentMoment

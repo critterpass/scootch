@@ -1,0 +1,76 @@
+appId: com.phusclass.dev
+---
+# A fresh walk from a finish to the share sheet: a task typed onto the desk, started and finished,
+# then Share on the graded paper. The sheet offers the paper, the note home and the desk (no giấy
+# khen: this finish did not earn one); white-out goes over the task, and closing it returns to the
+# finish. No seed and no link.
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: 'desk'
+    timeout: 90000
+- tapOn:
+    id: 'composer-type'
+- extendedWaitUntil:
+    visible:
+      id: 'composer-input'
+    timeout: 10000
+- inputText: 'Email the dentist'
+- tapOn:
+    text: 'Continue'
+    optional: true
+- tapOn:
+    id: 'composer-send'
+- extendedWaitUntil:
+    visible:
+      id: 'desk-start'
+    timeout: 15000
+- tapOn:
+    id: 'desk-start'
+- extendedWaitUntil:
+    visible:
+      id: 'session-done'
+    timeout: 15000
+- tapOn:
+    id: 'session-done'
+- extendedWaitUntil:
+    visible:
+      id: 'finish-share'
+    timeout: 15000
+- tapOn:
+    id: 'finish-share'
+- extendedWaitUntil:
+    visible:
+      id: 'share-sheet'
+    timeout: 15000
+- assertVisible:
+    id: 'share-format-paper'
+- assertVisible:
+    id: 'share-format-note'
+- assertVisible:
+    id: 'share-format-desk'
+- assertNotVisible:
+    id: 'share-format-certificate'
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: share-walk-paper
+- tapOn:
+    id: 'share-hide'
+- tapOn:
+    id: 'share-format-note'
+- extendedWaitUntil:
+    visible:
+      id: 'share-preview-note'
+    timeout: 5000
+- waitForAnimationToEnd:
+    timeout: 2000
+- takeScreenshot: share-walk-note-hidden
+- tapOn:
+    id: 'share-close'
+- extendedWaitUntil:
+    visible:
+      id: 'finish-next'
+    timeout: 15000
+- assertNotVisible:
+    id: 'share-sheet'

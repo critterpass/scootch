@@ -23,6 +23,7 @@ export const ROUTE_MOTION: Readonly<Record<string, RouteMotion>> = {
   logbook: 'none',
   session: 'fade',
   timetable: 'sheet',
+  'share/[id]': 'sheet',
   '(dev)': 'push',
 };
 

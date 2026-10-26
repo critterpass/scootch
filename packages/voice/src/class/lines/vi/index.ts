@@ -10,6 +10,7 @@ import { notes } from './notes';
 import { happenings } from './happenings';
 import { days } from './days';
 import { care } from './care';
+import { share } from './share';
 
 /** Thầy Phú bằng tiếng Việt: thầy xưng thầy, gọi em. Xem `guide.vi.md`. */
 export const linesVi: LinePack = {
@@ -24,4 +25,5 @@ export const linesVi: LinePack = {
   ...happenings,
   ...days,
   ...care,
+  ...share,
 };

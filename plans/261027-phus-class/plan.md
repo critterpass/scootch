@@ -161,6 +161,7 @@ Status lines below follow `CLAUDE.md`: `- Status: done — <sha>` or
 - Boards: `Tuition*`, `Scholarship*`, `NavSwipeUp`, `TimetableSheet`, `Timetable*`, `ReportCard`.
 
 ### 4.2 Sharing
+- Status: done — pending merge (roll call must write the full name to `student.fullName`; until then the cards say "my student")
 - Do:
   - The four formats with white-out tape: the test paper, the giấy khen, the sổ liên lạc note and the carved desk.
   - Made on the phone; never offered for a serious task, nothing on a crisis day.
