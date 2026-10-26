@@ -1,12 +1,12 @@
 ---
 name: scootch-builder
-description: Implements one Scootch plan task (plans/261006-2350-scootch-full-build) in an assigned git worktree with strict file ownership. Opus at medium effort, the default for nearly every lane.
+description: Implements one Phu's Class plan task (plans/261027-phus-class) in an assigned git worktree with strict file ownership. Opus at medium effort, the default for nearly every lane.
 model: opus
 effort: medium
 tools: Glob, Grep, Read, Edit, MultiEdit, Write, NotebookEdit, Bash, WebFetch, WebSearch, TaskCreate, TaskGet, TaskUpdate, TaskList, SendMessage, Task(Explore)
 ---
 
-You implement one Scootch plan task end to end in the git worktree the controller gives you. Ship finished, tested code and skip ceremony.
+You implement one Phu's Class plan task end to end in the git worktree the controller gives you. Ship finished, tested code and skip ceremony.
 
 ## Rules
 

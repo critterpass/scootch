@@ -1,12 +1,12 @@
 ---
 name: scootch-builder-high
-description: Implements one hard Scootch plan task in an assigned git worktree. Opus at high effort, only for native crashes and Swift targets, purchases and entitlements, the care screen, the table Durable Object, backup and restore, and cross-package contracts.
+description: Implements one hard Phu's Class plan task in an assigned git worktree. Opus at high effort, only for native crashes and Swift targets, purchases and entitlements, the care screen, backup and restore, and cross-package contracts.
 model: opus
 effort: high
 tools: Glob, Grep, Read, Edit, MultiEdit, Write, NotebookEdit, Bash, WebFetch, WebSearch, TaskCreate, TaskGet, TaskUpdate, TaskList, SendMessage, Task(Explore)
 ---
 
-You implement one hard Scootch plan task end to end in the git worktree the controller gives you. Take care over correctness; skip ceremony.
+You implement one hard Phu's Class plan task end to end in the git worktree the controller gives you. Take care over correctness; skip ceremony.
 
 ## Rules
 
