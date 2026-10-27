@@ -1,26 +1,22 @@
-# Phu's Class: agent contract
+# Phu's Class
 
-Binding for every coding agent. The reasons are in [docs/workflow.md](docs/workflow.md).
+Project rules for every coding agent.
 
 ## Read before coding
 
 1. [docs/product-brief.md](docs/product-brief.md) sections 2, 4 and 6 (the rules that never bend,
    Thầy Phú, and care).
-2. [plans/261027-phus-class/plan.md](plans/261027-phus-class/plan.md), then your task.
-3. Only the sections of [docs/tech-decisions.md](docs/tech-decisions.md) your task names.
-4. For interface work: the boards your task names under [design/phus-class/](design/phus-class/)
-   (its README maps every board).
+2. [plans/261027-phus-class/plan.md](plans/261027-phus-class/plan.md) and
+   [docs/tech-decisions.md](docs/tech-decisions.md) where they touch your change.
+3. For interface work: the boards for the screen under [design/phus-class/](design/phus-class/)
+   (its README maps every board). Build from the markup a board renders, not from script values
+   no template uses.
 
 Precedence: product brief > plan > design board > older notes. The Scootch boards in `design/` and
 the plans before `plans/261027-phus-class/` are history, not instructions.
 
 ## How to work
 
-- **One lane, one task.** Finish it, prove it, commit, report, stop. Your brief
-  has a time box; if you will exceed it, stop and say why.
-- **Owns list.** Change only the files your task lists. Needing anything else:
-  stop and report `NEEDS_CONTEXT`.
-- **Never wait in your turn.** Push, dispatch, report the run id, stop.
 - **Tests.** Locally run only the test file for what you changed
   (`pnpm --filter @phusclass/<pkg> test -- <file>`). CI runs the suites. Write a
   test only where it protects behaviour: money, permissions, the care screen,
@@ -55,8 +51,8 @@ the plans before `plans/261027-phus-class/` are history, not instructions.
 - No full typecheck, lint or test suites locally. No Docker. No Android emulator.
 - iOS flows run on the local simulator only through
   `tools/scripts/device-ios-local.sh <flow or folder>`: one shared simulator,
-  queued, erased each run. Iterate there; the pull request's device run is
-  still on GitHub Actions. Never create another simulator.
+  queued, erased each run. Prove device behaviour there, not with GitHub device runs (too slow).
+  Never create another simulator.
 - Installs go through `tools/scripts/lane-install.sh`.
 - Kill only a process id you started. Never `pkill -f` or `killall`.
 - Never `git stash`. Never fetch run screenshots into the repository.
@@ -79,9 +75,8 @@ the plans before `plans/261027-phus-class/` are history, not instructions.
 
 ## Interface work
 
-- A pull request that touches a screen ships design-beside-device sheets of
-  every touched screen, including long text, the largest text size, keyboard
-  open, empty and offline states.
+- A pull request that touches a screen shows the touched screens beside their boards
+  (design-beside-device sheets), including the largest text size and keyboard open.
 - Add or extend the fresh-user walk for your flow (`e2e/fresh/`). No seeded
   shortcuts.
 
@@ -92,19 +87,6 @@ the plans before `plans/261027-phus-class/` are history, not instructions.
 
 ## Commits and pull requests
 
-- Branch `feat/<area>-<behaviour>`, conventional commits, one commit per task.
-- One pull request per lane per cycle. Merge with `gh pr merge --auto --squash`.
-  No `--watch`, no polling loops.
+- Branch `feat/<area>-<behaviour>` or `fix/...`, conventional commits.
+- Merge with `gh pr merge --auto --squash`.
 - No AI references, session links or attribution lines in commits or bodies.
-
-## Status
-
-Tick the task in the plan: `- Status: done — <short sha>` or
-`blocked — <reason>`. End every pass with:
-
-```
-Status: DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT
-Summary: one or two sentences
-Evidence: test output, run id or sheet path; and what was not checked
-Concerns/Blockers: optional
-```
