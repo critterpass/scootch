@@ -15,10 +15,6 @@ export const care: Pick<
   ],
   seriousBeFunny: ['Thầy hiểu. Như bình thường nhé.', 'Được. Vậy học như thường.', 'Tuỳ em.'],
   crisis: [],
-  crisisCompany: [
-    'Thầy ở đây.',
-    'Cứ từ từ. Thầy ngồi đây.',
-    'Hôm nay không có bài. Thầy ở ngay đây.',
-  ],
+  crisisCompany: ['Thầy ở đây.', 'Cứ từ từ. Thầy ngồi đây.', 'Không vội đâu. Thầy ở ngay đây.'],
   standBy: ['Ngủ đi.'],
 };

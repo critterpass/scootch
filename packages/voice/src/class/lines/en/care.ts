@@ -15,6 +15,6 @@ export const care: Pick<
   ],
   seriousBeFunny: ['Understood. Back to normal.', 'All right. As you were.', 'As you wish.'],
   crisis: [],
-  crisisCompany: ['I’m here.', 'Take your time. I’m staying.', 'No tasks today. I’m right here.'],
+  crisisCompany: ['I’m here.', 'Take your time. I’m staying.', 'No rush. I’m right here.'],
   standBy: ['Go to sleep.'],
 };
