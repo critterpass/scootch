@@ -22,7 +22,7 @@ import { useScreenStyle } from '../../ui/use-screen-style';
 import { BoardFoot, BoardHeading } from './board-parts';
 import { BoardRowView, type RowAction } from './board-row';
 import type { BoardRow } from './board-rows';
-import { CHALK } from './chalk';
+import { CHALK, PAGE } from './chalk';
 import { RowMenu } from './row-menu';
 
 export { LedgeHandle } from './board-parts';
@@ -121,6 +121,7 @@ export function BoardPage({
           onOpen={setOpenRow}
           onMenu={(id) => setMenu({ id })}
           onAction={act}
+          page={page}
         />
       ))
     );
@@ -135,20 +136,28 @@ export function BoardPage({
           // of the board is squeezed out.
           <ScrollView {...scrolled} style={styles.fill} contentContainerStyle={styles.scrollAll}>
             {heading}
-            <View style={styles.list}>{list}</View>
+            <View style={page ? styles.pageList : styles.list}>{list}</View>
             {foot}
           </ScrollView>
         ) : (
           <>
             {heading}
-            <ScrollView {...scrolled} style={styles.fill} contentContainerStyle={styles.list}>
+            {/* The list ends above his line; a longer one scrolls in its own clipped space. */}
+            <ScrollView
+              {...scrolled}
+              style={[styles.fill, styles.clip]}
+              contentContainerStyle={page ? styles.pageList : styles.list}
+            >
               {list}
             </ScrollView>
             {foot}
           </>
         )}
       </Animated.View>
-      <View style={{ paddingBottom: insets.bottom, backgroundColor: CHALK.ledge }}>{ledge}</View>
+      {/* Beside the desk the page's ledge is its frame's, clear of the screen's edges. */}
+      {page ? null : (
+        <View style={{ paddingBottom: insets.bottom, backgroundColor: CHALK.ledge }}>{ledge}</View>
+      )}
       {menu !== null && menuRow !== undefined ? (
         <RowMenu
           row={menuRow}
@@ -184,9 +193,18 @@ const styles = StyleSheet.create({
   scrollAll: {
     paddingBottom: 8,
   },
+  clip: {
+    overflow: 'hidden',
+  },
   list: {
     paddingHorizontal: 16,
     paddingBottom: 16,
+  },
+  pageList: {
+    paddingTop: PAGE.listTop,
+    paddingLeft: PAGE.listLeft,
+    paddingRight: PAGE.listRight,
+    paddingBottom: 8,
   },
   emptyHint: {
     color: CHALK.faint,

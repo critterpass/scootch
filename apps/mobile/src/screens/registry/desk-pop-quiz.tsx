@@ -7,7 +7,7 @@ import type { ScreenState } from './support/screen-state';
 /** A pop-quiz day: fifteen-minute periods. */
 export const deskPopQuiz: ScreenState = {
   id: 'desk-pop-quiz',
-  design: { board: 'HapQuiz', section: 'One task on the desk', screen: 'HapQuiz' },
+  design: { board: 'HapQuiz', section: 'Never the same twice', screen: 'HapQuiz' },
   component: lazy(() =>
     import('../../features/desk/desk-fixture').then(({ DeskFixture }) => ({
       default: () => <DeskFixture which="pop-quiz" />,

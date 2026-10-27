@@ -7,7 +7,7 @@ import type { ScreenState } from './support/screen-state';
 /** Recess: the camera further back, his tea at the window. */
 export const deskRecess: ScreenState = {
   id: 'desk-recess',
-  design: { board: 'Recess', section: 'One task on the desk', screen: 'Recess' },
+  design: { board: 'Recess', section: 'The drum, and after', screen: 'Recess' },
   component: lazy(() =>
     import('../../features/desk/desk-fixture').then(({ DeskFixture }) => ({
       default: () => <DeskFixture which="recess" />,

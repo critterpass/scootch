@@ -4,6 +4,7 @@ import {
   momentAt,
   newTask,
   type Happening,
+  type IsoDate,
   type Task,
 } from '@phusclass/domain/board';
 import type { Language } from '@phusclass/i18n';
@@ -77,6 +78,19 @@ const SHORT: Record<Language, readonly string[]> = {
   ],
 };
 
+/**
+ * What the App and Duo boards chalk in the other rows' corners: Landlord email's two tallies,
+ * Renew passport's 14 Nov, Tax receipts' four, Reply to Minh's Friday and the gym trial's
+ * Wednesday. They are the tasks' own late slips and due days, so the board's rules order them.
+ */
+const MARKS: Readonly<Record<number, { readonly slips?: number; readonly due?: IsoDate }>> = {
+  1: { slips: 2 },
+  2: { due: '2026-11-14' },
+  3: { slips: 4 },
+  4: { due: '2026-10-30' },
+  5: { due: '2026-10-28' },
+};
+
 /** Every capture of a classroom state: daylight only, both languages, both text sizes. */
 export function classVariants(conditions: readonly Condition[] = []): ScreenVariant[] {
   return standardVariants(conditions).filter((variant) => variant.appearance === 'light');
@@ -123,8 +137,9 @@ export function fixtureSnapshot(options: FixtureOptions): BoardSnapshot {
           at: now - (9 - i) * DAY_MS,
           care: options.heavy && i === 0 ? 'serious' : 'none',
           screened: true,
+          dueDate: MARKS[i]?.due ?? null,
         });
-        if (i !== 0) return task;
+        if (i !== 0) return { ...task, slips: slipsOf(MARKS[i]?.slips ?? 0, now) };
         const since = now - waited;
         return {
           ...task,
