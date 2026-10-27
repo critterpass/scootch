@@ -8,7 +8,9 @@ Mac's simulator the same way (see Running on a Mac).
   **Every feature extends this folder** with its next numbered step (`02-…`, `03-…`); a feature
   without a step here has not been proven for a real user.
 - `e2e/sheets/` captures registry states for the design-beside-device sheets. It opens the
-  registry by its link, the one place a flow may use `openLink`.
+  developer screens directly, the one place a flow may: on iOS by the launch argument
+  `openDeveloperScreen` (a link stops on the system's prompt, and on a hosted simulator reaches the
+  app only after the flow has given up), on Android by its link (`openLink`).
 - `e2e/_run/` belongs to the pipeline. `js-commit.yaml` runs first in every run and is not a place
   for product flows.
 
@@ -217,7 +219,8 @@ never fetched into the repository: a sister repository filled a disk that way.
 - Start from a clean install (`launchApp` with `clearState: true`) and get everywhere the way a
   person does: by pressing what is on the screen.
 - No seeded shortcuts: no seed buttons, no prepared accounts, no state written behind the app.
-- No deep links (`openLink`) to skip steps. Only the sheets capture opens the registry by its link.
+- No deep links (`openLink`) or launch arguments to skip steps. Only the sheets captures open the
+  developer screens that way.
 - Meet the real permission prompts; nothing is granted beforehand.
 - Find elements by test id; match text only when the text is the thing being proven.
 - Assert the outcome of each step (what the screen shows afterwards), not just that it rendered.
