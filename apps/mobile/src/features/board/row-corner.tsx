@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { fonts } from '@phusclass/tokens';
@@ -6,6 +6,7 @@ import { fonts } from '@phusclass/tokens';
 import { HAND_FAMILY } from '../../classroom/use-hand-font';
 import { useT } from '../../i18n/i18n-provider';
 import type { AnimatedViewStyle } from '../../ui/motion/animated-style';
+import { PressSpring } from '../../ui/motion/press-spring';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { ClassIcon } from '../desk/class-icons';
 
@@ -37,7 +38,7 @@ export function RowCorner({
   if (row.faded) {
     return (
       <View style={[styles.fadeChoices, largeText ? styles.fadeChoicesLarge : null]}>
-        <Pressable
+        <PressSpring
           testID={`board-keep-${index}`}
           accessibilityRole="button"
           onPress={() => onAct('keep')}
@@ -50,8 +51,8 @@ export function RowCorner({
           >
             {t('board.stillYours.keep')}
           </Text>
-        </Pressable>
-        <Pressable
+        </PressSpring>
+        <PressSpring
           testID={`board-let-go-${index}`}
           accessibilityRole="button"
           onPress={() => onAct('letGo')}
@@ -64,7 +65,7 @@ export function RowCorner({
           >
             {t('board.stillYours.letGo')}
           </Text>
-        </Pressable>
+        </PressSpring>
       </View>
     );
   }
@@ -122,7 +123,7 @@ export function SwipeActions({
       accessibilityElementsHidden
     >
       {actions.map((action) => (
-        <Pressable
+        <PressSpring
           key={action}
           testID={`board-swipe-${action}-${index}`}
           onPress={() => onAct(action)}
@@ -144,7 +145,7 @@ export function SwipeActions({
           >
             {text[action]}
           </Text>
-        </Pressable>
+        </PressSpring>
       ))}
     </Animated.View>
   );

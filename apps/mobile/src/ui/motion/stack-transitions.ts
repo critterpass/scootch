@@ -11,19 +11,20 @@
  * - `fitted`: a small sheet with a grabber, as tall as what is on it. Its content has its own
  *   height and never scrolls; the sheet takes that height.
  * - `fade`: a moment, not a place. No swipe.
- * - `none`: care, where a crisis day is simply there with nothing playing around it; and a
- *   screen that draws its own arrival (the board grows out of the chalkboard, the logbook page
- *   lowers over the board), so the system plays nothing of its own.
+ * - `over`: a screen drawn from a pull, laid over the one beneath, which shows through it. It draws
+ *   its own arrival from the finger (the board grows out of the chalkboard, the logbook page
+ *   lowers over the board, the desk sheet rises into the timetable), so the system plays nothing.
+ * - `none`: care, where a crisis day is simply there with nothing playing around it.
  */
-export type RouteMotion = 'home' | 'push' | 'sheet' | 'fitted' | 'fade' | 'none';
+export type RouteMotion = 'home' | 'push' | 'sheet' | 'fitted' | 'fade' | 'over' | 'none';
 
 export const ROUTE_MOTION: Readonly<Record<string, RouteMotion>> = {
   index: 'home',
-  board: 'none',
-  logbook: 'none',
+  board: 'over',
+  logbook: 'over',
   session: 'fade',
   'share/[id]': 'sheet',
-  timetable: 'none',
+  timetable: 'over',
   'tuition/index': 'sheet',
   'tuition/scholarship': 'fitted',
   'report-card': 'push',
@@ -48,7 +49,7 @@ const SWIPED_BACK_ANYWHERE: ReadonlySet<string> = new Set(['(dev)']);
 
 export interface StackMotionOptions {
   readonly animation: 'default' | 'fade' | 'none';
-  readonly presentation: 'card' | 'modal' | 'formSheet';
+  readonly presentation: 'card' | 'modal' | 'formSheet' | 'transparentModal';
   /** The swipe back (or the pull down on a sheet). */
   readonly gestureEnabled: boolean;
   /** The swipe back starts anywhere across the screen, not only at its edge. */
@@ -57,6 +58,8 @@ export interface StackMotionOptions {
   /** A fitted sheet is as tall as its content, and rests nowhere else. */
   readonly sheetAllowedDetents?: 'fitToContents';
   readonly sheetGrabberVisible?: boolean;
+  /** A screen laid over another is see-through: the one beneath shows wherever it draws nothing. */
+  readonly contentStyle?: { readonly backgroundColor: 'transparent' };
 }
 
 export function routeMotion(routeName: string): RouteMotion {
@@ -73,6 +76,15 @@ export function stackMotion(routeName: string, mayMove: boolean): StackMotionOpt
   const animationTypeForReplace = RETURNED_TO.has(routeName) ? 'pop' : 'push';
   const moving = mayMove ? 'default' : 'fade';
   switch (motion) {
+    case 'over':
+      return {
+        animation: 'none',
+        presentation: 'transparentModal',
+        gestureEnabled: false,
+        fullScreenGestureEnabled: false,
+        animationTypeForReplace,
+        contentStyle: { backgroundColor: 'transparent' },
+      };
     case 'none':
       return {
         animation: 'none',

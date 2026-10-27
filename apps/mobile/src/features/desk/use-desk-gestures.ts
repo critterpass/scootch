@@ -1,54 +1,72 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useMemo } from 'react';
+import { useWindowDimensions } from 'react-native';
 import { Gesture } from 'react-native-gesture-handler';
 import { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { scheduleOnRN } from 'react-native-worklets';
 
 import {
   boardPull,
+  boardPullFromDesk,
   boardPullHeld,
+  boardPullVelocity,
+  deskSheetTop,
+  PULL_SETTLE,
   timetablePull,
+  timetablePullFromDesk,
   timetablePullHeld,
+  timetablePullVelocity,
+  timetableTravel,
 } from '../../ui/motion/hand-off';
-import { useMayMove } from '../../ui/motion/use-feel';
+import { touchHaptic } from '../../ui/motion/press-spring';
+import { useFeel } from '../../ui/motion/use-feel';
 
-/** A sheet's spring after a drag, carrying the finger's speed (the motion skill's table). */
-const SETTLE = { duration: 300, dampingRatio: 0.8 } as const;
-/** The pulls' travel in points, from rest to fully open, as the App board measures them. */
-const TRAVEL = { board: 260, timetable: 464 } as const;
-/** Down past this many points, the board opens under the finger. */
-const BOARD_OPENS_AT = 90;
-/** Up past this share of its travel, the timetable opens. */
-const TIMETABLE_OPENS_AT = 0.25;
-/** A flick this fast (points a second) opens whatever the distance. */
-const FLICK = 600;
+import { BOARD_OPENS_AT, BOARD_TRAVEL } from './pull-release';
+
 /** How far the desk sheet sinks while the board comes down over it, as the App board moves it. */
 const SHEET_SINKS = 380;
 
+function clamp01(value: number): number {
+  'worklet';
+  return Math.max(0, Math.min(1, value));
+}
+
 /**
- * The desk's two pulls, on the shared values in `hand-off.ts`. Down on the classroom: the desk
- * writes `boardPull` while the finger is on it and pushes the board past the mark (or on a flick);
- * from there the board follows the finger and, on release, springs open or back. Up on the desk
- * sheet: the same for the timetable. Short of the mark, the desk springs its pull home. Each has a
- * tap alternative: the chalkboard, and the sheet's grabber.
+ * The desk's two pulls, on the shared values in `hand-off.ts`. Down on the classroom: the moment
+ * the finger takes the pull the board's route opens and draws it from the first point; the desk
+ * writes the pull while the finger is on it, and hands the board the finger's speed as it lets go.
+ * Up on the desk sheet: the same for the timetable. Each has a tap alternative: the chalkboard,
+ * and the sheet's grabber, where the route arrives by itself.
  */
 export function useDeskGestures(enabled: boolean) {
   const router = useRouter();
-  const mayMove = useMayMove();
+  const { mayMove, haptics } = useFeel();
+  const { height } = useWindowDimensions();
+  const insetTop = useSafeAreaInsets().top;
 
   const openBoard = useCallback(() => router.push('/board'), [router]);
   const openTimetable = useCallback(() => router.push('/timetable'), [router]);
+  const markFelt = useCallback(() => {
+    if (haptics) touchHaptic('primary');
+  }, [haptics]);
 
-  // Back at the desk: whatever was pulled is home.
+  // Back at the desk: whatever was pulled is home (the routes leave it there; this is the net).
   useFocusEffect(
     useCallback(() => {
-      if (!boardPullHeld.get()) boardPull.set(mayMove ? withSpring(0, SETTLE) : 0);
-      if (!timetablePullHeld.get()) timetablePull.set(mayMove ? withSpring(0, SETTLE) : 0);
+      if (!boardPullHeld.get()) {
+        boardPullFromDesk.set(false);
+        boardPull.set(mayMove ? withSpring(0, PULL_SETTLE) : 0);
+      }
+      if (!timetablePullHeld.get()) {
+        timetablePullFromDesk.set(false);
+        timetablePull.set(mayMove ? withSpring(0, PULL_SETTLE) : 0);
+      }
     }, [mayMove]),
   );
 
-  // Whether this pull has already pushed the board, on the UI thread with the gesture.
-  const pushed = useSharedValue(false);
+  // Whether this pull has passed the board's mark, felt once, on the UI thread with the gesture.
+  const marked = useSharedValue(false);
   const pullBoard = useMemo(() => {
     return Gesture.Pan()
       .enabled(enabled)
@@ -56,31 +74,27 @@ export function useDeskGestures(enabled: boolean) {
       .failOffsetY(-12)
       .failOffsetX([-24, 24])
       .onStart(() => {
-        pushed.set(false);
+        marked.set(false);
         boardPullHeld.set(true);
+        boardPullFromDesk.set(true);
+        scheduleOnRN(openBoard);
       })
       .onUpdate((event) => {
         const pulled = Math.max(0, event.translationY);
-        boardPull.set(Math.min(1, pulled / TRAVEL.board));
-        if (!pushed.get() && pulled >= BOARD_OPENS_AT) {
-          pushed.set(true);
-          scheduleOnRN(openBoard);
+        boardPull.set(Math.min(1, pulled / BOARD_TRAVEL));
+        if (!marked.get() && pulled >= BOARD_OPENS_AT) {
+          marked.set(true);
+          scheduleOnRN(markFelt);
         }
       })
       .onEnd((event) => {
+        boardPullVelocity.set(event.velocityY / BOARD_TRAVEL);
         boardPullHeld.set(false);
-        if (pushed.get()) return;
-        if (event.velocityY >= FLICK) {
-          pushed.set(true);
-          scheduleOnRN(openBoard);
-          return;
-        }
-        boardPull.set(withSpring(0, { ...SETTLE, velocity: event.velocityY / TRAVEL.board }));
       })
       .onFinalize(() => {
         boardPullHeld.set(false);
       });
-  }, [enabled, openBoard, pushed]);
+  }, [enabled, openBoard, markFelt, marked]);
 
   const swipeTimetable = useMemo(
     () =>
@@ -88,40 +102,46 @@ export function useDeskGestures(enabled: boolean) {
         .enabled(enabled)
         .activeOffsetY(-10)
         .failOffsetY(10)
+        .onBegin((event) => {
+          // The sheet's top as it rests, felt under the finger at every touch (the keyboard moves
+          // it): where it is on screen, less how far the pulls have moved it.
+          const shift =
+            clamp01(boardPull.get()) * SHEET_SINKS -
+            clamp01(timetablePull.get()) * timetableTravel(height, insetTop);
+          deskSheetTop.set(event.absoluteY - event.y - shift);
+        })
         .onStart(() => {
           timetablePullHeld.set(true);
+          timetablePullFromDesk.set(true);
+          scheduleOnRN(openTimetable);
         })
         .onUpdate((event) => {
-          timetablePull.set(Math.min(1, Math.max(0, -event.translationY / TRAVEL.timetable)));
+          timetablePull.set(clamp01(-event.translationY / timetableTravel(height, insetTop)));
         })
         .onEnd((event) => {
+          timetablePullVelocity.set(-event.velocityY / timetableTravel(height, insetTop));
           timetablePullHeld.set(false);
-          const share = -event.translationY / TRAVEL.timetable;
-          if (share >= TIMETABLE_OPENS_AT || -event.velocityY >= FLICK) {
-            timetablePull.set(withSpring(1, SETTLE));
-            scheduleOnRN(openTimetable);
-            return;
-          }
-          timetablePull.set(
-            withSpring(0, { ...SETTLE, velocity: -event.velocityY / TRAVEL.timetable }),
-          );
         })
         .onFinalize(() => {
           timetablePullHeld.set(false);
         }),
-    [enabled, openTimetable],
+    [enabled, openTimetable, height, insetTop],
   );
 
-  // The sheet follows both pulls: down under the board, up into the timetable.
-  const sheetStyle = useAnimatedStyle(() => ({
-    transform: [
-      {
-        translateY:
-          Math.min(1, Math.max(0, boardPull.get())) * SHEET_SINKS -
-          Math.min(1, Math.max(0, timetablePull.get())) * TRAVEL.timetable,
-      },
-    ],
-  }));
+  // The sheet follows both pulls: down under the board, up into the timetable's sheet, which
+  // takes over from it by the time the timetable's own sheet is whole.
+  const sheetStyle = useAnimatedStyle(() => {
+    const rising = clamp01(timetablePull.get());
+    return {
+      opacity: 1 - clamp01((rising - 0.3) / 0.25),
+      transform: [
+        {
+          translateY:
+            clamp01(boardPull.get()) * SHEET_SINKS - rising * timetableTravel(height, insetTop),
+        },
+      ],
+    };
+  });
   // What sits on the sheet fades as it turns into the timetable.
   const sheetContentStyle = useAnimatedStyle(() => ({
     opacity: Math.max(0, 1 - timetablePull.get() * 1.8),
