@@ -1,13 +1,8 @@
 import { useRouter, type Href } from 'expo-router';
-import { useCallback, useEffect, useMemo } from 'react';
-import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { useCallback, useMemo } from 'react';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { GestureDetector, usePanGesture } from 'react-native-gesture-handler';
-import Animated, {
-  ReduceMotion,
-  useAnimatedStyle,
-  withSpring,
-  withTiming,
-} from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 
 import { useHandFont } from '../../classroom/use-hand-font';
@@ -15,8 +10,8 @@ import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { useAppearance } from '../../screens/registry/support/forced-variant';
 import { useBoard } from '../../state/board-provider';
 import { goBack } from '../../ui/motion/go-back';
-import { SPRING_CURVE } from '../../ui/motion/motion-tokens';
-import { touchHaptic } from '../../ui/motion/press-spring';
+import { usePullRoute } from '../../ui/motion/hand-off';
+import { PressSpring, touchHaptic } from '../../ui/motion/press-spring';
 import { useFeel } from '../../ui/motion/use-feel';
 import { BOARD, PAPER } from '../board/chalk';
 import { useCareGuard } from '../care/use-care-guard';
@@ -29,12 +24,10 @@ import { ReportCardRow } from './report-card-row';
 
 const REPORT_CARD = '/report-card' as Href;
 
-const ALWAYS = ReduceMotion.Never;
-const SETTLE = { duration: 420, dampingRatio: 0.9, reduceMotion: ALWAYS } as const;
-
 /**
  * The logbook route: the page lowered over the board. It carries on from wherever the board's
- * pull left it, and the handle at its foot pushes it back up (drag it, or tap it).
+ * pull left it, already moving, and the handle at its foot pushes it back up (drag it, or tap it)
+ * with the finger's speed.
  */
 export function LogbookScreen() {
   const crisis = useCareGuard();
@@ -48,50 +41,50 @@ export function LogbookScreen() {
   const ink = PAPER[useAppearance()];
   const { enrolled } = useTuition();
 
-  useEffect(() => {
-    if (!mayMove) logbookPull.set(1);
-    else {
-      logbookPull.set(
-        withTiming(1, { duration: BOARD.openMs, easing: SPRING_CURVE, reduceMotion: ALWAYS }),
-      );
-    }
-    // The page comes down once, as the route arrives.
-  }, []);
-
   const leave = useCallback(() => goBack(router, '/board'), [router]);
-  const close = useCallback(() => {
+  const route = usePullRoute(logbookPull, mayMove, leave);
+  const feelClose = useCallback(() => {
     if (haptics) touchHaptic('choice');
-    if (!mayMove) {
-      logbookPull.set(0);
-      leave();
-      return;
-    }
-    logbookPull.set(
-      withTiming(
-        0,
-        { duration: BOARD.closeMs, easing: SPRING_CURVE, reduceMotion: ALWAYS },
-        (finished) => {
-          if (finished) scheduleOnRN(leave);
-        },
-      ),
-    );
-  }, [haptics, mayMove, leave]);
+  }, [haptics]);
+  const close = useCallback(() => {
+    feelClose();
+    route.closeFromTap();
+  }, [feelClose, route]);
 
+  // The push up on the handle, from wherever the page is when the finger takes it.
+  const start = useSharedValue(1);
   const pushUp = usePanGesture({
     activeOffsetY: -8,
     failOffsetX: [-24, 24],
+    onActivate: () => {
+      'worklet';
+      start.set(logbookPull.get());
+      route.dragging.set(true);
+    },
     onUpdate: (event) => {
       'worklet';
       if (mayMove) {
-        logbookPull.set(Math.max(0, 1 + Math.min(0, event.translationY) / BOARD.logbookTravel));
+        logbookPull.set(
+          Math.max(0, Math.min(1, start.get() + event.translationY / BOARD.logbookTravel)),
+        );
       }
     },
     onDeactivate: (event) => {
       'worklet';
+      route.dragging.set(false);
+      const velocity = event.velocityY / BOARD.logbookTravel;
       const closes =
-        !event.canceled && (event.translationY < -100 || event.velocityY < -BOARD.flick);
-      if (closes) scheduleOnRN(close);
-      else logbookPull.set(withSpring(1, SETTLE));
+        !event.canceled &&
+        event.velocityY < BOARD.flick &&
+        (event.translationY < -100 || event.velocityY < -BOARD.flick);
+      if (closes) {
+        scheduleOnRN(feelClose);
+        route.close(velocity);
+      } else route.open(velocity, false);
+    },
+    onFinalize: () => {
+      'worklet';
+      route.dragging.set(false);
     },
   });
 
@@ -113,7 +106,7 @@ export function LogbookScreen() {
   if (crisis) return <View style={[styles.fill, { backgroundColor: ink.page }]} />;
 
   return (
-    <Animated.View style={[styles.fill, page]} testID="logbook-screen">
+    <Animated.View style={[styles.fill, page, route.shownStyle]} testID="logbook-screen">
       <LogbookPage
         testID="logbook"
         rows={rows}
@@ -124,7 +117,7 @@ export function LogbookScreen() {
         }
         handle={
           <GestureDetector gesture={pushUp}>
-            <Pressable
+            <PressSpring
               testID="logbook-close"
               accessibilityRole="button"
               accessibilityLabel={t('logbook.close')}
@@ -133,7 +126,7 @@ export function LogbookScreen() {
               style={styles.handle}
             >
               <View style={[styles.bar, { backgroundColor: ink.handle }]} />
-            </Pressable>
+            </PressSpring>
           </GestureDetector>
         }
       />

@@ -1,3 +1,4 @@
+import * as Haptics from 'expo-haptics';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View, type AccessibilityActionEvent } from 'react-native';
 import { GestureDetector, usePanGesture } from 'react-native-gesture-handler';
@@ -17,6 +18,7 @@ import { fonts } from '@phusclass/tokens';
 
 import { HAND_FAMILY } from '../../classroom/use-hand-font';
 import { useT } from '../../i18n/i18n-provider';
+import { SPRING_CURVE } from '../../ui/motion/motion-tokens';
 import { touchHaptic } from '../../ui/motion/press-spring';
 import { ROW } from '../../ui/motion/swipe-motion';
 import { useFeel } from '../../ui/motion/use-feel';
@@ -34,9 +36,15 @@ const STRIKE_MS = 380;
 const DONE_MS = 480;
 const WIPE_MS = 460;
 const STRIKE_CURVE = Easing.bezier(0.65, 0, 0.35, 1);
+/** Past its actions a row gives a third of the way, and never more than this. */
+const STRETCH = { give: 0.35, most: 24 } as const;
 /** A ticked or erased row leaves on CSS's `ease-in`, as the board's `doneRow` and `wipe` do. */
 const leave = (duration: number) =>
   ({ duration, easing: Easing.bezier(0.42, 0, 1, 1), reduceMotion: ALWAYS }) as const;
+
+/** A tick is felt as a success. */
+const feelTicked = () =>
+  void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => undefined);
 
 export type RowAction = 'desk' | 'reword' | 'tick' | 'erase' | 'keep' | 'letGo';
 
@@ -95,20 +103,15 @@ export function BoardRowView({
     },
     onUpdate: (event) => {
       'worklet';
-      slid.set(Math.max(-wide - 24, Math.min(0, start.get() + event.translationX)));
+      const raw = Math.min(0, start.get() + event.translationX);
+      const past = Math.max(0, -wide - raw);
+      slid.set(past > 0 ? -wide - Math.min(STRETCH.most, past * STRETCH.give) : raw);
     },
     onDeactivate: (event) => {
       'worklet';
       const opened =
         !event.canceled && (slid.get() < -BOARD.opensPast || event.velocityX < -BOARD.flick);
-      slid.set(
-        withSpring(opened ? -wide : 0, {
-          duration: SNAP.duration,
-          dampingRatio: SNAP.dampingRatio,
-          velocity: event.velocityX,
-          reduceMotion: ALWAYS,
-        }),
-      );
+      slid.set(withSpring(opened ? -wide : 0, { ...SNAP, velocity: event.velocityX }));
       scheduleOnRN(settle, opened);
     },
   });
@@ -116,12 +119,10 @@ export function BoardRowView({
   /** Plays a tick or an erase out, then hands it on. Where nothing may move, it is handed on at once. */
   const act = (action: RowAction) => {
     onOpen(null);
-    if (haptics && (action === 'tick' || action === 'desk')) touchHaptic('primary');
-    if (action !== 'tick' && action !== 'erase') {
-      onAction(row.id, action);
-      return;
-    }
-    if (!mayMove) {
+    if (haptics && action === 'tick') feelTicked();
+    else if (haptics && action === 'desk') touchHaptic('primary');
+    // Only a tick or an erase plays out, and only where things may move.
+    if ((action !== 'tick' && action !== 'erase') || !mayMove) {
       onAction(row.id, action);
       return;
     }
@@ -172,7 +173,7 @@ export function BoardRowView({
 
   return (
     <Animated.View
-      {...(mayMove ? { layout: LinearTransition.duration(ROW.closeMs) } : {})}
+      {...(mayMove ? { layout: LinearTransition.duration(ROW.closeMs).easing(SPRING_CURVE) } : {})}
       style={[styles.row, styles.ruled]}
     >
       <SwipeActions actions={actions} index={index} style={[{ width: wide }, behind]} onAct={act} />

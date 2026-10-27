@@ -1,4 +1,4 @@
-import { useRouter, type Href } from 'expo-router';
+import { type Href } from 'expo-router';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
@@ -23,9 +23,10 @@ import { useSay } from './use-say';
 const TIMETABLE = '/timetable' as Href;
 
 /**
- * The board route. It grows out of the chalkboard on the desk, following the desk's pull while
- * the finger is down and springing open or back when it lets go; the ledge pushes it back up. A
- * pull down on its header lowers the logbook page from the top.
+ * The board route. It grows out of the chalkboard on the desk, following the desk's pull from its
+ * first point and springing open or back when the finger lets go; the ledge pushes it back up. A
+ * pull down on its header lowers the logbook page from the top. The timetable goes back onto the
+ * desk first, and rises from the desk sheet.
  */
 export function BoardScreen() {
   const crisis = useCareGuard();
@@ -40,7 +41,6 @@ export function BoardScreen() {
   const t = useT();
   const { language } = useLanguage();
   const hand = useHandFont();
-  const router = useRouter();
   const { width, height } = useWindowDimensions();
   const grow = useBoardGrow(width, height);
   const logbook = useLogbookPull();
@@ -121,8 +121,8 @@ export function BoardScreen() {
   );
 
   return (
-    <View style={styles.fill} testID="board-screen">
-      <Animated.View style={[styles.clip, grow.clip]}>
+    <Animated.View style={[styles.fill, grow.shown]} testID="board-screen">
+      <Animated.View style={[styles.clip, { width, height }, grow.clip]}>
         <Animated.View style={[{ width, height }, grow.inner]}>
           <BoardPage
             rows={rows}
@@ -134,7 +134,7 @@ export function BoardScreen() {
             onAction={onAction}
             onReword={(id, text) => void controls.reword(id, text)}
             onLogbook={logbook.open}
-            onTimetable={() => router.push(TIMETABLE)}
+            onTimetable={() => grow.closeInto(TIMETABLE)}
             header={header}
             contentStyle={grow.content}
             ledge={
@@ -154,7 +154,7 @@ export function BoardScreen() {
           <LogbookPreview rows={logRows} week={isoWeek(today)} hand={hand} />
         </Animated.View>
       </Animated.View>
-    </View>
+    </Animated.View>
   );
 }
 
@@ -168,6 +168,8 @@ const styles = StyleSheet.create({
   },
   clip: {
     position: 'absolute',
+    left: 0,
+    top: 0,
     overflow: 'hidden',
   },
 });

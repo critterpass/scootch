@@ -1,14 +1,13 @@
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Linking } from 'react-native';
-import { withSpring } from 'react-native-reanimated';
 
 import { addDays, momentAt, weekdayOf } from '@phusclass/domain/board';
 
 import { useLanguage } from '../../i18n/i18n-provider';
 import { useBoard, useBoardStore } from '../../state/board-provider';
 import { goBack } from '../../ui/motion/go-back';
-import { timetablePull, timetablePullHeld } from '../../ui/motion/hand-off';
+import { timetablePull } from '../../ui/motion/hand-off';
 import { useMayMove } from '../../ui/motion/use-feel';
 import { useCareGuard } from '../care/use-care-guard';
 import { lineFor } from '../desk/his-line';
@@ -20,8 +19,6 @@ import { phoneCalendar, type CalendarAccess } from './calendar-port';
 import { freePicks, isWeekend, schoolDay, type CalendarEvent } from './periods';
 import { TimetableFrame } from './timetable-frame';
 import { TimetableView, type StripDay, type TimetableBody } from './timetable-view';
-
-const SETTLE = { damping: 26, stiffness: 260, mass: 1 } as const;
 
 /** The week the timetable shows: Monday to Sunday around the day. */
 export function weekOf(day: string, today: string, language: 'en' | 'vi'): StripDay[] {
@@ -78,14 +75,11 @@ export function TimetableScreen() {
   const today = snapshot.now.day;
   const [day, setDay] = useState(today);
   const [access, setAccess] = useState<CalendarAccess | null>(null);
-  const [events, setEvents] = useState<CalendarEvent[] | null>(null);
-  const { bookings, book } = useBookings(day);
-
-  // Arriving: the sheet finishes the rise the desk's swipe began, or rises from rest on a tap.
-  useEffect(() => {
-    if (timetablePullHeld.get()) return;
-    timetablePull.set(mayMove ? withSpring(1, SETTLE) : 1);
-  }, [mayMove]);
+  // The events of the day on show: a newly picked day keeps the old one up until its own arrive.
+  const [loaded, setLoaded] = useState<{ day: string; events: CalendarEvent[] } | null>(null);
+  const shown = loaded?.day ?? day;
+  const events = loaded?.events ?? null;
+  const { bookings, book } = useBookings(shown);
 
   useEffect(() => {
     if (!tuition.enrolled) return;
@@ -98,14 +92,13 @@ export function TimetableScreen() {
   useEffect(() => {
     if (access !== 'granted') return undefined;
     let current = true;
-    setEvents(null);
     void phoneCalendar
       .day(day, timeZone)
       .then((found) => {
-        if (current) setEvents(found);
+        if (current) setLoaded({ day, events: found });
       })
       .catch(() => {
-        if (current) setEvents([]);
+        if (current) setLoaded({ day, events: [] });
       });
     return () => {
       current = false;
@@ -124,18 +117,18 @@ export function TimetableScreen() {
     if (events === null) return { kind: 'loading' };
     const school = schoolDay(events);
     const tasks = snapshot.board.map((ranked) => ranked.task);
-    const at = momentAt(Date.parse(`${day}T12:00:00Z`), 'UTC');
-    const moment = day === today ? snapshot.now : at;
-    if (isWeekend(weekdayOf(day), school)) {
+    const at = momentAt(Date.parse(`${shown}T12:00:00Z`), 'UTC');
+    const moment = shown === today ? snapshot.now : at;
+    if (isWeekend(weekdayOf(shown), school)) {
       const pick = freePicks(school, tasks, moment, null)[0]?.task ?? null;
       const line =
         pick === null
           ? null
-          : (lineFor(language, 'timetableWeekend', `${day}:${pick.id}`, { task: pick.text })
+          : (lineFor(language, 'timetableWeekend', `${shown}:${pick.id}`, { task: pick.text })
               ?.text ?? null);
       return { kind: 'weekend', task: pick, line };
     }
-    const nowMinutes = day === today ? snapshot.now.minuteOfDay : null;
+    const nowMinutes = shown === today ? snapshot.now.minuteOfDay : null;
     return {
       kind: 'day',
       day: school,
@@ -143,7 +136,7 @@ export function TimetableScreen() {
       bookings,
       nowMinutes,
     };
-  }, [tuition.enrolled, access, events, snapshot, day, today, language, bookings]);
+  }, [tuition.enrolled, access, events, snapshot, shown, today, language, bookings]);
 
   if (crisis) return null;
 
@@ -154,29 +147,29 @@ export function TimetableScreen() {
       name={name}
       mayMove={mayMove}
       onClosed={close}
+      overDesk
     >
-      <TimetableView
-        days={weekOf(day, today, language)}
-        body={body}
-        onPickDay={setDay}
-        onAsk={() =>
-          void phoneCalendar
-            .ask()
-            .then(setAccess)
-            .catch(() => setAccess('denied'))
-        }
-        onNotNow={() => {
-          timetablePull.set(0);
-          close();
-        }}
-        onOpenSettings={() => void Linking.openSettings()}
-        onBook={book}
-        onToDesk={(taskId) => {
-          void store.swap(taskId);
-          timetablePull.set(0);
-          close();
-        }}
-      />
+      {(settleHome) => (
+        <TimetableView
+          days={weekOf(day, today, language)}
+          body={body}
+          bodyKey={`${shown}:${body.kind}`}
+          onPickDay={setDay}
+          onAsk={() =>
+            void phoneCalendar
+              .ask()
+              .then(setAccess)
+              .catch(() => setAccess('denied'))
+          }
+          onNotNow={settleHome}
+          onOpenSettings={() => void Linking.openSettings()}
+          onBook={book}
+          onToDesk={(taskId) => {
+            void store.swap(taskId);
+            settleHome();
+          }}
+        />
+      )}
     </TimetableFrame>
   );
 }

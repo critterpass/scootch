@@ -57,6 +57,22 @@ describe('how each route arrives and leaves', () => {
     expect(stackMotion('(dev)', false).gestureEnabled).toBe(true);
   });
 
+  it('lays the pulled screens over the one beneath, see-through, with nothing played by the system', () => {
+    for (const route of ['board', 'logbook', 'timetable']) {
+      expect(routeMotion(route)).toBe('over');
+      for (const mayMove of [true, false]) {
+        expect(stackMotion(route, mayMove)).toEqual({
+          animation: 'none',
+          presentation: 'transparentModal',
+          gestureEnabled: false,
+          fullScreenGestureEnabled: false,
+          animationTypeForReplace: 'push',
+          contentStyle: { backgroundColor: 'transparent' },
+        });
+      }
+    }
+  });
+
   it('reads a return to the desk as going back', () => {
     expect(stackMotion('index', true).animationTypeForReplace).toBe('pop');
     expect(stackMotion('(dev)', true).animationTypeForReplace).toBe('push');

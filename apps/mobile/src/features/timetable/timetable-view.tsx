@@ -1,9 +1,12 @@
 import type { Task } from '@phusclass/domain/board';
 import { fonts } from '@phusclass/tokens';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import Animated, { LayoutAnimationConfig } from 'react-native-reanimated';
 
 import { useHandFont } from '../../classroom/use-hand-font';
 import { useT } from '../../i18n/i18n-provider';
+import { PressSpring } from '../../ui/motion/press-spring';
+import { useFeel } from '../../ui/motion/use-feel';
 import { PhuFigure } from '../board/phu-figure';
 import { LockedPanel } from '../tuition/locked-panel';
 import { Capsule, paper, Sized } from '../tuition/receipt-parts';
@@ -11,6 +14,7 @@ import { Capsule, paper, Sized } from '../tuition/receipt-parts';
 import type { Bookings } from './bookings';
 import { DayBody } from './day-body';
 import { DayDial } from './day-dial';
+import { dayBodyMotion, DayStrip } from './day-strip';
 import { dialArcs } from './dial-math';
 import type { FreePick, SchoolDay } from './periods';
 
@@ -44,6 +48,8 @@ export type TimetableBody =
 export interface TimetableViewProps {
   readonly days: readonly StripDay[];
   readonly body: TimetableBody;
+  /** Which day and state the body shows: a new key crossfades the body in. */
+  readonly bodyKey?: string;
   readonly onPickDay: (date: string) => void;
   readonly onAsk: () => void;
   readonly onNotNow: () => void;
@@ -62,163 +68,132 @@ const DIAL_SIZE = 236;
 export function TimetableView(props: TimetableViewProps) {
   const t = useT();
   const hand = useHandFont();
+  const { mayMove } = useFeel();
   const { body } = props;
 
   return (
     <View style={styles.body}>
-      <View style={styles.strip} accessibilityRole="tablist">
-        {props.days.map((day) => (
-          <Pressable
-            key={day.date}
-            testID={`timetable-day-${day.date}`}
-            accessibilityRole="tab"
-            accessibilityLabel={day.spoken}
-            accessibilityState={{ selected: day.selected }}
-            onPress={() => props.onPickDay(day.date)}
-            style={[styles.day, day.selected ? styles.daySelected : null]}
-          >
-            <Sized
-              size={11}
-              style={[
-                styles.dayLetter,
-                { color: day.selected ? paper.white : day.weekend ? '#B0A69B' : paper.ink },
-              ]}
-            >
-              {day.letter}
-            </Sized>
-            <Sized
-              size={17}
-              style={[
-                styles.dayNumber,
-                { color: day.selected ? paper.white : day.weekend ? '#B0A69B' : paper.ink },
-              ]}
-            >
-              {day.number}
-            </Sized>
-          </Pressable>
-        ))}
-      </View>
-
-      {body.kind === 'ask' ? (
-        <View style={styles.askCard} testID="timetable-ask">
-          <View accessibilityElementsHidden style={styles.askPhu}>
-            <PhuFigure mood="point" width={130} hand={hand} />
-          </View>
-          <Sized size={22} role="header" style={styles.askTitle}>
-            {body.line}
-          </Sized>
-          <Sized size={14.5} style={styles.askBody}>
-            {t('timetable.ask.promise')}
-          </Sized>
-          <View style={styles.askButtons}>
-            <Capsule
-              testID="timetable-ask-show"
-              label={t('timetable.ask.show')}
-              tone="ink"
-              onPress={props.onAsk}
-            />
-            <Pressable
-              testID="timetable-ask-not-now"
-              accessibilityRole="button"
-              onPress={props.onNotNow}
-              style={styles.notNow}
-            >
-              <Sized size={15} style={styles.notNowText}>
-                {t('timetable.ask.notNow')}
+      <DayStrip days={props.days} onPick={props.onPickDay} />
+      <LayoutAnimationConfig skipEntering>
+        <Animated.View
+          key={props.bodyKey ?? body.kind}
+          {...dayBodyMotion(mayMove)}
+          style={styles.stack}
+        >
+          {body.kind === 'ask' ? (
+            <View style={styles.askCard} testID="timetable-ask">
+              <View accessibilityElementsHidden style={styles.askPhu}>
+                <PhuFigure mood="point" width={130} hand={hand} />
+              </View>
+              <Sized size={22} role="header" style={styles.askTitle}>
+                {body.line}
               </Sized>
-            </Pressable>
-          </View>
-        </View>
-      ) : null}
+              <Sized size={14.5} style={styles.askBody}>
+                {t('timetable.ask.promise')}
+              </Sized>
+              <View style={styles.askButtons}>
+                <Capsule
+                  testID="timetable-ask-show"
+                  label={t('timetable.ask.show')}
+                  tone="ink"
+                  onPress={props.onAsk}
+                />
+                <PressSpring
+                  testID="timetable-ask-not-now"
+                  accessibilityRole="button"
+                  onPress={props.onNotNow}
+                  style={styles.notNow}
+                >
+                  <Sized size={15} style={styles.notNowText}>
+                    {t('timetable.ask.notNow')}
+                  </Sized>
+                </PressSpring>
+              </View>
+            </View>
+          ) : null}
 
-      {body.kind === 'denied' ? (
-        <View style={styles.askCard} testID="timetable-denied">
-          <Sized size={15} style={styles.askBody}>
-            {t('timetable.denied')}
-          </Sized>
-          <Capsule label={t('timetable.openSettings')} tone="soft" onPress={props.onOpenSettings} />
-        </View>
-      ) : null}
-
-      {body.kind === 'loading' ? (
-        <Sized size={14} style={styles.loading}>
-          {t('timetable.reading')}
-        </Sized>
-      ) : null}
-
-      {body.kind === 'weekend' ? (
-        <View testID="timetable-weekend" style={styles.stack}>
-          <View style={styles.dialRow}>
-            <DayDial
-              size={DIAL_SIZE}
-              arcs={[]}
-              nowMinutes={null}
-              caption={t('timetable.dial.empty')}
-              label={t('timetable.weekend.title')}
-              mood="sleep"
-            />
-          </View>
-          <View style={styles.weekendCard}>
-            <Sized size={22} role="header" style={styles.weekendTitle}>
-              {t('timetable.weekend.title')}
-            </Sized>
-            <Sized size={14} style={styles.muted}>
-              {body.line ?? t('timetable.weekend.nothing')}
-            </Sized>
-            {body.task !== null && body.task.status !== 'desk' ? (
+          {body.kind === 'denied' ? (
+            <View style={styles.askCard} testID="timetable-denied">
+              <Sized size={15} style={styles.askBody}>
+                {t('timetable.denied')}
+              </Sized>
               <Capsule
-                testID="timetable-weekend-desk"
-                label={t('timetable.weekend.toDesk')}
+                label={t('timetable.openSettings')}
                 tone="soft"
-                onPress={() => body.task !== null && props.onToDesk(body.task.id)}
-              />
-            ) : null}
-          </View>
-        </View>
-      ) : null}
-
-      {body.kind === 'day' ? <DayBody body={body} onBook={props.onBook} /> : null}
-
-      {body.kind === 'locked' ? (
-        <View testID="timetable-locked" style={styles.lockedWrap}>
-          <View
-            accessibilityElementsHidden
-            importantForAccessibility="no-hide-descendants"
-            pointerEvents="none"
-            style={styles.lockedBehind}
-          >
-            <View style={styles.dialRow}>
-              <DayDial
-                size={DIAL_SIZE}
-                arcs={dialArcs(body.sample, new Set(), null)}
-                nowMinutes={8.2 * 60}
-                caption=""
-                label=""
-                mood="over"
+                onPress={props.onOpenSettings}
               />
             </View>
-          </View>
-          <LockedPanel style={styles.lockedPanel} testID="timetable-lock" />
-        </View>
-      ) : null}
+          ) : null}
+
+          {body.kind === 'loading' ? (
+            <Sized size={14} style={styles.loading}>
+              {t('timetable.reading')}
+            </Sized>
+          ) : null}
+
+          {body.kind === 'weekend' ? (
+            <View testID="timetable-weekend" style={styles.stack}>
+              <View style={styles.dialRow}>
+                <DayDial
+                  size={DIAL_SIZE}
+                  arcs={[]}
+                  nowMinutes={null}
+                  caption={t('timetable.dial.empty')}
+                  label={t('timetable.weekend.title')}
+                  mood="sleep"
+                />
+              </View>
+              <View style={styles.weekendCard}>
+                <Sized size={22} role="header" style={styles.weekendTitle}>
+                  {t('timetable.weekend.title')}
+                </Sized>
+                <Sized size={14} style={styles.muted}>
+                  {body.line ?? t('timetable.weekend.nothing')}
+                </Sized>
+                {body.task !== null && body.task.status !== 'desk' ? (
+                  <Capsule
+                    testID="timetable-weekend-desk"
+                    label={t('timetable.weekend.toDesk')}
+                    tone="soft"
+                    onPress={() => body.task !== null && props.onToDesk(body.task.id)}
+                  />
+                ) : null}
+              </View>
+            </View>
+          ) : null}
+
+          {body.kind === 'day' ? <DayBody body={body} onBook={props.onBook} /> : null}
+
+          {body.kind === 'locked' ? (
+            <View testID="timetable-locked" style={styles.lockedWrap}>
+              <View
+                accessibilityElementsHidden
+                importantForAccessibility="no-hide-descendants"
+                pointerEvents="none"
+                style={styles.lockedBehind}
+              >
+                <View style={styles.dialRow}>
+                  <DayDial
+                    size={DIAL_SIZE}
+                    arcs={dialArcs(body.sample, new Set(), null)}
+                    nowMinutes={8.2 * 60}
+                    caption=""
+                    label=""
+                    mood="over"
+                  />
+                </View>
+              </View>
+              <LockedPanel style={styles.lockedPanel} testID="timetable-lock" />
+            </View>
+          ) : null}
+        </Animated.View>
+      </LayoutAnimationConfig>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   body: { gap: 10 },
-  strip: { flexDirection: 'row', gap: 4, paddingHorizontal: 14 },
-  day: {
-    flex: 1,
-    minHeight: 54,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 6,
-  },
-  daySelected: { backgroundColor: paper.ink },
-  dayLetter: { fontWeight: '700', opacity: 0.7 },
-  dayNumber: { fontWeight: '700', fontVariant: ['tabular-nums'] },
   stack: { gap: 10 },
   dialRow: { alignItems: 'center', marginTop: 8 },
   askCard: {

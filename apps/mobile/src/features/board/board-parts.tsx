@@ -1,5 +1,5 @@
 import type { SkTypeface } from '@shopify/react-native-skia';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -8,6 +8,7 @@ import { fonts } from '@phusclass/tokens';
 
 import { HAND_FAMILY } from '../../classroom/use-hand-font';
 import { useT } from '../../i18n/i18n-provider';
+import { PressSpring } from '../../ui/motion/press-spring';
 import { useFeel } from '../../ui/motion/use-feel';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { ClassIcon, type ClassIconName } from '../desk/class-icons';
@@ -29,17 +30,12 @@ function BoardPill({
 }) {
   const { size, allowFontScaling } = useScreenStyle();
   return (
-    <Pressable
-      testID={id}
-      accessibilityRole="button"
-      onPress={onPress}
-      style={({ pressed }) => [styles.pill, pressed ? styles.pressed : null]}
-    >
+    <PressSpring testID={id} accessibilityRole="button" onPress={onPress} style={styles.pill}>
       <ClassIcon name={icon} color={CHALK.white} size={14} />
       <Text allowFontScaling={allowFontScaling} style={[styles.pillText, { fontSize: size(14) }]}>
         {label}
       </Text>
-    </Pressable>
+    </PressSpring>
   );
 }
 
@@ -179,9 +175,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-  },
-  pressed: {
-    transform: [{ scale: 0.965 }],
   },
   pillText: {
     color: CHALK.white,

@@ -1,9 +1,20 @@
-import { Fragment } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Fragment, useEffect } from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import Animated, {
+  Easing,
+  interpolateColor,
+  ReduceMotion,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 
+import type { Task } from '@phusclass/domain/board';
 import { fonts } from '@phusclass/tokens';
 
 import { useLanguage, useT, type Translate } from '../../i18n/i18n-provider';
+import { PressSpring } from '../../ui/motion/press-spring';
+import { useScreenStyle } from '../../ui/use-screen-style';
 import { paper, Sized } from '../tuition/receipt-parts';
 
 import { DayDial } from './day-dial';
@@ -12,6 +23,85 @@ import { clockOf, type Period, type SchoolDay } from './periods';
 import type { TimetableBody } from './timetable-view';
 
 const DIAL_SIZE = 236;
+/** Booking a free period: the card's inks change over 300 ms, the button's over 260 ms (CSS `ease`). */
+const inks = (duration: number) =>
+  ({
+    duration,
+    easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+    reduceMotion: ReduceMotion.Never,
+  }) as const;
+
+/** A free period with his pick, and Book it. */
+function FreeCard({
+  period,
+  task,
+  isBooked,
+  onBook,
+}: {
+  readonly period: Period;
+  readonly task: Task | null;
+  readonly isBooked: boolean;
+  readonly onBook: (periodId: string, taskId: string) => void;
+}) {
+  const t = useT();
+  const { size, allowFontScaling } = useScreenStyle();
+  const card = useSharedValue(isBooked ? 1 : 0);
+  const button = useSharedValue(isBooked ? 1 : 0);
+  useEffect(() => {
+    card.set(withTiming(isBooked ? 1 : 0, inks(300)));
+    button.set(withTiming(isBooked ? 1 : 0, inks(260)));
+  }, [isBooked, card, button]);
+  const ink = (rest: string, on: string) => () => {
+    'worklet';
+    return { color: interpolateColor(card.get(), [0, 1], [rest, on]) };
+  };
+  const fill = useAnimatedStyle(() => ({
+    backgroundColor: interpolateColor(card.get(), [0, 1], [paper.redSoft, paper.red]),
+  }));
+  const time = useAnimatedStyle(ink(paper.redDeep, paper.white));
+  const length = useAnimatedStyle(ink('#A8564F', 'rgba(255,255,255,0.8)'));
+  const words = useAnimatedStyle(ink(paper.ink, paper.white));
+  const bookFill = useAnimatedStyle(() => ({
+    backgroundColor: interpolateColor(button.get(), [0, 1], [paper.ink, 'rgba(255,255,255,0.22)']),
+  }));
+  const text = (points: number) => ({ fontSize: size(points) });
+  return (
+    <Animated.View testID={`timetable-free-${period.id}`} style={[styles.card, fill]}>
+      <Animated.Text allowFontScaling={allowFontScaling} style={[styles.cardTime, text(24), time]}>
+        {clockOf(period.start)}
+      </Animated.Text>
+      <Animated.Text allowFontScaling={allowFontScaling} style={[text(12), length]}>
+        {t('timetable.free.length', { count: period.end - period.start })}
+      </Animated.Text>
+      <Animated.Text
+        allowFontScaling={allowFontScaling}
+        numberOfLines={2}
+        style={[styles.cardTask, text(14), words]}
+      >
+        {task?.text ?? t('timetable.free.nothing')}
+      </Animated.Text>
+      {task !== null ? (
+        <PressSpring
+          testID={`timetable-book-${period.id}`}
+          accessibilityRole="button"
+          accessibilityLabel={
+            isBooked
+              ? t('timetable.free.booked')
+              : t('timetable.free.bookLabel', { task: task.text, time: clockOf(period.start) })
+          }
+          accessibilityState={{ selected: isBooked }}
+          onPress={() => onBook(period.id, task.id)}
+          style={styles.book}
+        >
+          <Animated.View style={[StyleSheet.absoluteFill, styles.bookFill, bookFill]} />
+          <Sized size={13.5} style={styles.bookText}>
+            {isBooked ? t('timetable.free.booked') : t('timetable.free.book')}
+          </Sized>
+        </PressSpring>
+      ) : null}
+    </Animated.View>
+  );
+}
 
 function subjectName(subject: Extract<Period, { kind: 'class' }>['subject'], t: Translate) {
   switch (subject) {
@@ -84,58 +174,15 @@ export function DayBody({
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.cards}
         >
-          {body.picks.map(({ period, task }) => {
-            const isBooked = task !== null && body.bookings[period.id] === task.id;
-            const minutes = period.end - period.start;
-            return (
-              <View
-                key={period.id}
-                testID={`timetable-free-${period.id}`}
-                style={[styles.card, { backgroundColor: isBooked ? paper.red : paper.redSoft }]}
-              >
-                <Sized
-                  size={24}
-                  style={[styles.cardTime, { color: isBooked ? paper.white : paper.redDeep }]}
-                >
-                  {clockOf(period.start)}
-                </Sized>
-                <Sized size={12} style={{ color: isBooked ? 'rgba(255,255,255,0.8)' : '#A8564F' }}>
-                  {t('timetable.free.length', { count: minutes })}
-                </Sized>
-                <Sized
-                  size={14}
-                  lines={2}
-                  style={[styles.cardTask, { color: isBooked ? paper.white : paper.ink }]}
-                >
-                  {task?.text ?? t('timetable.free.nothing')}
-                </Sized>
-                {task !== null ? (
-                  <Pressable
-                    testID={`timetable-book-${period.id}`}
-                    accessibilityRole="button"
-                    accessibilityLabel={
-                      isBooked
-                        ? t('timetable.free.booked')
-                        : t('timetable.free.bookLabel', {
-                            task: task.text,
-                            time: clockOf(period.start),
-                          })
-                    }
-                    accessibilityState={{ selected: isBooked }}
-                    onPress={() => onBook(period.id, task.id)}
-                    style={[
-                      styles.book,
-                      { backgroundColor: isBooked ? 'rgba(255,255,255,0.22)' : paper.ink },
-                    ]}
-                  >
-                    <Sized size={13.5} style={styles.bookText}>
-                      {isBooked ? t('timetable.free.booked') : t('timetable.free.book')}
-                    </Sized>
-                  </Pressable>
-                ) : null}
-              </View>
-            );
-          })}
+          {body.picks.map(({ period, task }) => (
+            <FreeCard
+              key={period.id}
+              period={period}
+              task={task}
+              isBooked={task !== null && body.bookings[period.id] === task.id}
+              onBook={onBook}
+            />
+          ))}
         </ScrollView>
       ) : null}
       <View style={styles.list}>
@@ -199,11 +246,11 @@ const styles = StyleSheet.create({
   book: {
     marginTop: 10,
     minHeight: 34,
-    borderRadius: 17,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 10,
   },
+  bookFill: { borderRadius: 17 },
   bookText: { color: paper.white, fontWeight: '700' },
   list: {
     marginHorizontal: 16,
