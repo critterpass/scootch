@@ -22,9 +22,9 @@ beforeAll(async () => {
   const million = 1_000_000;
   await addUsage({
     route: 'task.line',
-    model: 'deepseek-v4-pro',
-    input: 2 * million,
-    output: 2 * million,
+    model: 'claude-haiku-5-5',
+    input: 10 * million,
+    output: 10 * million,
     at: '2026-10-06T05:00:00.000Z',
   });
   await addUsage({
@@ -57,7 +57,7 @@ describe('the morning cron', () => {
         '[dev] Daily digest for 2026-10-06',
         'New devices: 2 (en 1, vi 1)',
         'Model calls: 2',
-        'Model spend: $6.2000 (placeholder prices, to be confirmed)',
+        'Model spend: $6.2000 (Haiku price set; Jev price a placeholder)',
         'Errors: not counted. Nothing records them.',
       ].join('\n'),
       [

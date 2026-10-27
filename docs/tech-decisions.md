@@ -62,10 +62,10 @@ Store build was made from, and refuses a change to the native fingerprint.
 
 ### Keys
 
-The founder's keys are reused: Jev (TypeSafe) and DeepSeek. They live in
+The founder's keys are reused: Jev (TypeSafe) and Anthropic. They live in
 Wrangler secrets and GitHub secrets, never in the repository. Usage is tagged
 per project (`phusclass`) in the cost ledger. The API's secrets, by name:
-`DEEPSEEK_API_KEY`, `TYPESAFE_API_KEY`, `TELEGRAM_BOT_TOKEN`,
+`ANTHROPIC_API_KEY`, `TYPESAFE_API_KEY`, `TELEGRAM_BOT_TOKEN`,
 `TELEGRAM_CHAT_ID`, `TELEGRAM_WEBHOOK_SECRET`, `REVENUECAT_API_V2_KEY`,
 `REVENUECAT_PROJECT_ID`, `REVENUECAT_WEBHOOK_AUTH`, `APNS_KEY_P8`,
 `APNS_KEY_ID`, `APNS_TEAM_ID` (`apps/api/.dev.vars.example`).
@@ -86,7 +86,7 @@ phone cannot.
 | Picking and splitting | The phone, as rules in `packages/domain`: the pick order, deadlines, heard times and splitting a ramble | Ported from the server's task call. Where Apple's on-device model is available (iOS 26 and later) it splits rambles and words lines through a small native module (native batch two); the rules are the fallback and never wait on it |
 | Serious-mode and crisis screen | The phone's keyword gate first, offline; then Jev when online | A task said offline stays plain ("Written down.") until Jev screens it when the connection returns. The on-device model may only add caution, never clear a task |
 | His lines | The offline pack first (`packages/voice/offline/`), written per language | The server writes a fresh line only for a task the pack has no good line for, when online and screened |
-| Fresh lines | DeepSeek, on the server | Every line passes the code check (`packages/voice/src/class/check.ts`) before it is shown |
+| Fresh lines | Claude Haiku 5.5 (`claude-haiku-5-5`), Anthropic API, on the server | Every line passes the code check (`packages/voice/src/class/check.ts`) before it is shown |
 | The timetable | The phone reads the calendar | Events never leave the phone; the calendar is never edited |
 | Share images | The phone draws them | Nothing is uploaded to make a card |
 
@@ -148,14 +148,28 @@ reject (abuse, injection). English is Jev's primary language; the eval set has
 English and Vietnamese cases, and a route that misses its bar in Vietnamese
 runs on the fallback model for Vietnamese until it passes.
 
-### The generation model: DeepSeek
+### The generation model: Claude Haiku 5.5
 
-Decided 7 Oct 2026 and kept: the larger model (`deepseek-v4-pro`) where the
-writing matters most, the fast model (`deepseek-flash`) for short replies and
-for restoring Vietnamese marks. Vietnamese lines are written in Vietnamese
-from a Vietnamese voice guide, never translated. What is said is never used
-for training: the founder has switched off data use for training on the
-DeepSeek platform.
+Decided 27 Oct 2026, replacing DeepSeek: Claude Haiku 5.5
+(`claude-haiku-5-5`) on the Anthropic API, called through the official SDK
+(`apps/api/src/ai/claude.ts`). One model, two tiers told apart by effort:
+`writer` at medium where the writing matters most, `fast` at low for short
+replies, the decision fallback and restoring Vietnamese marks. Thinking is
+adaptive; no sampling parameters and no prefill are sent. Every answer is
+structured output against a JSON schema, checked again in code; a refusal or a
+cut-off answer fails the call, and the caller's offline path decides (there is
+no second model). Priced at $0.10 input and $0.50 output per million tokens
+(prompts up to 100K tokens). Vietnamese lines are written in Vietnamese from a
+Vietnamese voice guide, never translated. Anthropic's commercial terms do not
+use API inputs or outputs for training, and the API deletes them within 30
+days.
+
+Measured 27 Oct 2026 from the founder's Mac, `max_tokens` 1000, on a short
+Vietnamese mark-restoring prompt: low effort with adaptive thinking answered
+in 1.2 to 2.5 s; low with thinking off in 1.2 to 1.7 s, but it rambled and
+once changed "dời" to "đổi"; medium in 1.3 to 2.3 s. So the fast tier stays at
+low with adaptive thinking, and the budgets are 3.5 s for restoring marks
+(both attempts) and 6 s for the decision fallback.
 
 ### On-device model
 
@@ -235,4 +249,4 @@ The bot never shows task text, rambles or transcripts.
 | On-device screen | Answered 7 Oct: keywords alone miss indirect crisis notes; the phone gates and Jev judges. Whether Apple's on-device model can add caution is untested |
 | Baked poses | Do Skia-drawn poses of Thầy Phú export cleanly for widgets and the Live Activity |
 | Token restore | Researched 7 Oct: Keychain sync plus key-value storage. Still to test on two real phones |
-| Voice | Of two DeepSeek models, the larger writes better in both languages but ignores length limits in Vietnamese; every line passes the code check, so a long line is replaced, never shown |
+| Voice | Does Claude Haiku 5.5 keep to length limits in Vietnamese as well as in English; every line passes the code check, so a long line is replaced, never shown |

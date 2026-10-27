@@ -18,7 +18,7 @@ export function botEnv(overrides: Partial<Bindings> = {}): Bindings {
     TELEGRAM_BOT_TOKEN: 'test-bot-token',
     TELEGRAM_CHAT_ID: String(founderChatId),
     TELEGRAM_WEBHOOK_SECRET: webhookSecret,
-    DEEPSEEK_API_KEY: 'test-deepseek-key',
+    ANTHROPIC_API_KEY: 'test-anthropic-key',
     TYPESAFE_API_KEY: 'test-typesafe-key',
     ...overrides,
   };

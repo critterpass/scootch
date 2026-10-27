@@ -27,8 +27,8 @@ export const legalEn = {
       ['Text checked for heavy topics', 'Our server, then TypeSafe', 'Not stored, not logged'],
       [
         'Text for a fresh line',
-        'Our server, then DeepSeek: the task’s words only',
-        'Not stored by us',
+        'Our server, then Anthropic (Claude): the task’s words only',
+        'Not stored by us. Anthropic deletes it within 30 days',
       ],
       ['Your calendar', 'Read on your phone only', 'Never leaves your phone'],
       [
@@ -66,14 +66,15 @@ export const legalEn = {
       {
         title: 'Checking for heavy things',
         body: [
-          'Before Thầy Phú says anything pointed about a task, its text is checked for crisis or heavy topics, so that the act can stop. Your phone checks first, with no connection. When you are online, the text is also sent to our server and from there to TypeSafe, a service that judges it. If TypeSafe does not answer, DeepSeek answers in its place. If Vietnamese was typed without tone marks, DeepSeek may first restore them so it can be read properly.',
-          'This text is not stored and not logged on our server, and it is never used to train models.',
+          'Before Thầy Phú says anything pointed about a task, its text is checked for crisis or heavy topics, so that the act can stop. Your phone checks first, with no connection. When you are online, the text is also sent to our server and from there to TypeSafe, a service that judges it. If TypeSafe does not answer, Anthropic (Claude) answers in its place. If Vietnamese was typed without tone marks, Claude may first restore them so it can be read properly.',
+          'This text is not stored and not logged on our server, and it is never used to train models. When Claude reads it, Anthropic’s API terms apply, as below.',
         ],
       },
       {
         title: 'His fresh lines',
         body: [
-          'Most of his lines are written in advance and come from the app itself. When you are online and a task is one he has no good line for, our server asks DeepSeek to write one. Only the task’s words are sent, with no name, device id or anything else about you. We do not store them.',
+          'Most of his lines are written in advance and come from the app itself. When you are online and a task is one he has no good line for, our server asks Anthropic (Claude) to write one. Only the task’s words are sent, with no name, device id or anything else about you. We do not store them.',
+          'Under Anthropic’s API terms, the words are not used to train models, and Anthropic deletes them within 30 days. It keeps them longer only where the law requires it or to enforce its usage policy (privacy.claude.com).',
         ],
       },
       {

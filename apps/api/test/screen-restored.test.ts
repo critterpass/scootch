@@ -6,11 +6,14 @@ import { screenInputQuestion, screenText, unscreenedResponse } from '../src/ai/s
 
 import {
   answersStatus,
+  claudeAnswers,
+  claudeMessage,
   connectionDrops,
-  deepseekAnswers,
   jevAnswers,
+  outputKeysIn,
   perQuestion,
   providers,
+  recordedClaude,
   timesOut,
   type Providers,
   type Reply,
@@ -27,36 +30,21 @@ let nextRoute = 0;
 function contextFor(doubles: Providers): DecideContext {
   nextRoute += 1;
   return {
-    env: { DB: env.DB, TYPESAFE_API_KEY: 'jev-test-key', DEEPSEEK_API_KEY: 'deepseek-test-key' },
+    env: { DB: env.DB, TYPESAFE_API_KEY: 'jev-test-key', ANTHROPIC_API_KEY: 'claude-test-key' },
     route: `test.restored.${nextRoute}`,
     deviceHash: null,
     fetch: doubles.fetch,
   };
 }
 
-const toolOf = (body: Record<string, unknown>) =>
-  (body['tools'] as { name: string }[] | undefined)?.[0]?.name ?? '';
+/** The restoring is the one request whose output is the note itself. */
+const isRestoring = (body: Record<string, unknown>) => outputKeysIn(body).join() === 'text';
 
 /** The fast tier restoring marks as `restored`, and answering any screen question with `judge`. */
 function fastTier(restored: string, judge: Reply = connectionDrops): Reply {
   return (request) =>
-    toolOf(request.body) === 'restore_marks'
-      ? Response.json({
-          id: 'msg_recorded',
-          type: 'message',
-          role: 'assistant',
-          model: request.body['model'],
-          content: [
-            {
-              type: 'tool_use',
-              id: 'call_recorded',
-              name: 'restore_marks',
-              input: { text: restored },
-            },
-          ],
-          stop_reason: 'tool_use',
-          usage: { input_tokens: 180, output_tokens: 24 },
-        })
+    isRestoring(request.body)
+      ? claudeMessage({ text: restored }, recordedClaude.marks)
       : judge(request);
 }
 
@@ -74,7 +62,7 @@ afterEach(() => {
 
 describe('Vietnamese typed without its marks', () => {
   it('is judged as typed and with marks restored, and the stricter verdict wins', async () => {
-    const doubles = providers({ jev: jevReads(danger), deepseek: fastTier(marked) });
+    const doubles = providers({ jev: jevReads(danger), claude: fastTier(marked) });
 
     const response = await screenText(contextFor(doubles), typed);
 
@@ -85,7 +73,7 @@ describe('Vietnamese typed without its marks', () => {
   });
 
   it('passes when both readings pass on Jev', async () => {
-    const doubles = providers({ jev: jevReads(calm), deepseek: fastTier(marked) });
+    const doubles = providers({ jev: jevReads(calm), claude: fastTier(marked) });
 
     expect(await screenText(contextFor(doubles), typed)).toMatchObject({
       verdict: 'pass',
@@ -94,7 +82,7 @@ describe('Vietnamese typed without its marks', () => {
   });
 
   it('is a crisis when only the preparation question sees one in the restored reading', async () => {
-    const doubles = providers({ jev: jevReads(calm, 0.8), deepseek: fastTier(marked) });
+    const doubles = providers({ jev: jevReads(calm, 0.8), claude: fastTier(marked) });
 
     expect((await screenText(contextFor(doubles), typed)).verdict).toBe('crisis');
   });
@@ -103,9 +91,9 @@ describe('Vietnamese typed without its marks', () => {
     ['adds a word', fastTier('mai tôi nộp bài tập toán')],
     ['times out', timesOut],
     ['hands the note back without a mark', fastTier(typed)],
-  ])('holds a note that passes as typed when the restoring %s', async (_, deepseek) => {
+  ])('holds a note that passes as typed when the restoring %s', async (_, claude) => {
     vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const doubles = providers({ jev: jevAnswers(calm), deepseek });
+    const doubles = providers({ jev: jevAnswers(calm), claude });
 
     expect(await screenText(contextFor(doubles), typed)).toEqual(unscreenedResponse);
     expect(doubles.sent.jev.every((sent) => sent['state'] === typed)).toBe(true);
@@ -118,7 +106,7 @@ describe('Vietnamese typed without its marks', () => {
     'keeps a %s found in the note as typed when the restoring fails',
     async (verdict, typedSays) => {
       vi.spyOn(console, 'warn').mockImplementation(() => {});
-      const doubles = providers({ jev: jevAnswers(typedSays), deepseek: timesOut });
+      const doubles = providers({ jev: jevAnswers(typedSays), claude: timesOut });
 
       expect(await screenText(contextFor(doubles), typed)).toMatchObject({
         verdict,
@@ -130,57 +118,57 @@ describe('Vietnamese typed without its marks', () => {
   it('asks for the marks once more when the first answer changed a letter, and reads the second', async () => {
     vi.spyOn(console, 'warn').mockImplementation(() => {});
     let asked = 0;
-    const deepseek: Reply = (request) => {
+    const claude: Reply = (request) => {
       asked += 1;
       return fastTier(asked === 1 ? 'mai nộp bài tập toan học' : marked)(request);
     };
-    const doubles = providers({ jev: jevReads(danger), deepseek });
+    const doubles = providers({ jev: jevReads(danger), claude });
 
     expect(await screenText(contextFor(doubles), typed)).toMatchObject({
       verdict: 'crisis',
       answeredBy: 'jev',
     });
-    expect(doubles.sent.deepseek).toHaveLength(2);
+    expect(doubles.sent.claude).toHaveLength(2);
   });
 
   it('asks for the marks no more than twice', async () => {
     vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const doubles = providers({ jev: jevAnswers(calm), deepseek: fastTier('mai nop bai tap') });
+    const doubles = providers({ jev: jevAnswers(calm), claude: fastTier('mai nop bai tap') });
 
     expect((await screenText(contextFor(doubles), typed)).reason).toBe('unscreened');
-    expect(doubles.sent.deepseek).toHaveLength(2);
+    expect(doubles.sent.claude).toHaveLength(2);
   });
 
   it('lets a short note with one such word pass as typed when nothing in it needed a mark', async () => {
     const note = 'Email Minh about lunch';
-    const doubles = providers({ jev: jevAnswers(calm), deepseek: fastTier(note) });
+    const doubles = providers({ jev: jevAnswers(calm), claude: fastTier(note) });
 
     expect(await screenText(contextFor(doubles), note)).toMatchObject({
       verdict: 'pass',
       answeredBy: 'jev',
     });
-    expect(doubles.sent.deepseek).toHaveLength(1);
+    expect(doubles.sent.claude).toHaveLength(1);
   });
 
   it.each([
     ['marked Vietnamese', marked],
     ['English', 'Renew my passport before the trip to Japan'],
   ])('asks for no restoring of %s', async (_, text) => {
-    const doubles = providers({ jev: jevAnswers(calm), deepseek: connectionDrops });
+    const doubles = providers({ jev: jevAnswers(calm), claude: connectionDrops });
 
     expect((await screenText(contextFor(doubles), text)).verdict).toBe('pass');
-    expect(doubles.sent.deepseek).toEqual([]);
+    expect(doubles.sent.claude).toEqual([]);
     expect(doubles.sent.jev).toHaveLength(3);
   });
 
   it('is not cleared by the fallback alone, restored or not', async () => {
     vi.spyOn(console, 'warn').mockImplementation(() => {});
     const fallback = perQuestion({
-      care: deepseekAnswers({ probabilities: calm }),
-      preparation: deepseekAnswers({ probabilities: { no: 0.98, yes: 0.02 } }),
-      misuse: deepseekAnswers({ probabilities: { genuine: 0.98, misuse: 0.02 } }),
+      care: claudeAnswers({ probabilities: calm }),
+      preparation: claudeAnswers({ probabilities: { no: 0.98, yes: 0.02 } }),
+      misuse: claudeAnswers({ probabilities: { genuine: 0.98, misuse: 0.02 } }),
     });
-    const doubles = providers({ jev: answersStatus(529), deepseek: fastTier(marked, fallback) });
+    const doubles = providers({ jev: answersStatus(529), claude: fastTier(marked, fallback) });
 
     expect(await screenText(contextFor(doubles), typed)).toEqual({
       verdict: 'serious',
@@ -195,7 +183,7 @@ describe('Vietnamese typed without its marks', () => {
 describe('a second attempt at Jev inside its time budget', () => {
   const ask = (doubles: Providers) =>
     decide(contextFor(doubles), { ...screenInputQuestion, text: 'Renew my passport' });
-  const fallback = deepseekAnswers({ probabilities: calm });
+  const fallback = claudeAnswers({ probabilities: calm });
 
   /** Jev failing with `first`, then answering. */
   function failsOnce(first: Reply): Reply {
@@ -211,11 +199,11 @@ describe('a second attempt at Jev inside its time budget', () => {
     ['the server errors (500)', answersStatus(500)],
     ['the answer is unreadable', () => Response.json({ answers: {} })],
   ] as [string, Reply][])('asks Jev once more when %s, and Jev answers', async (_, first) => {
-    const doubles = providers({ jev: failsOnce(first), deepseek: fallback });
+    const doubles = providers({ jev: failsOnce(first), claude: fallback });
 
     expect((await ask(doubles)).answeredBy).toBe('jev');
     expect(doubles.sent.jev).toHaveLength(2);
-    expect(doubles.sent.deepseek).toEqual([]);
+    expect(doubles.sent.claude).toEqual([]);
   });
 
   it.each([
@@ -224,7 +212,7 @@ describe('a second attempt at Jev inside its time budget', () => {
     ['is overloaded', answersStatus(529)],
   ] as [string, Reply][])('goes straight to the fallback when Jev %s', async (_, first) => {
     vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const doubles = providers({ jev: failsOnce(first), deepseek: fallback });
+    const doubles = providers({ jev: failsOnce(first), claude: fallback });
 
     expect((await ask(doubles)).answeredBy).toBe('fallback');
     expect(doubles.sent.jev).toHaveLength(1);
@@ -232,7 +220,7 @@ describe('a second attempt at Jev inside its time budget', () => {
 
   it('falls back after the second attempt fails too', async () => {
     vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const doubles = providers({ jev: connectionDrops, deepseek: fallback });
+    const doubles = providers({ jev: connectionDrops, claude: fallback });
 
     expect((await ask(doubles)).answeredBy).toBe('fallback');
     expect(doubles.sent.jev).toHaveLength(2);

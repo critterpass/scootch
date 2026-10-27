@@ -4,7 +4,16 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { DecideContext } from '../src/ai/decide';
 import { hasSameLetters, lacksVietnameseMarks, restoreMarks } from '../src/ai/vietnamese-marks';
 
-import { connectionDrops, providers, timesOut, type Reply } from './ai-providers';
+import {
+  claudeAnswers,
+  claudeRecorded,
+  claudeStops,
+  connectionDrops,
+  providers,
+  recordedClaude,
+  timesOut,
+  type Reply,
+} from './ai-providers';
 
 describe('finding Vietnamese typed without its marks', () => {
   it.each([
@@ -58,10 +67,10 @@ describe('the same-letters guard on a restored text', () => {
 describe('restoring marks on the fast tier', () => {
   const typed = 'mai nop bai tap toan';
 
-  function contextFor(deepseek: Reply) {
-    const doubles = providers({ jev: connectionDrops, deepseek });
+  function contextFor(claude: Reply) {
+    const doubles = providers({ jev: connectionDrops, claude });
     const context: DecideContext = {
-      env: { DB: env.DB, TYPESAFE_API_KEY: 'jev-test-key', DEEPSEEK_API_KEY: 'deepseek-test-key' },
+      env: { DB: env.DB, TYPESAFE_API_KEY: 'jev-test-key', ANTHROPIC_API_KEY: 'claude-test-key' },
       route: 'test.restore',
       deviceHash: null,
       fetch: doubles.fetch,
@@ -69,33 +78,20 @@ describe('restoring marks on the fast tier', () => {
     return { context, doubles };
   }
 
-  const restores =
-    (text: string): Reply =>
-    ({ body }) =>
-      Response.json({
-        id: 'msg_recorded',
-        type: 'message',
-        role: 'assistant',
-        model: body['model'],
-        content: [
-          { type: 'tool_use', id: 'call_recorded', name: 'restore_marks', input: { text } },
-        ],
-        stop_reason: 'tool_use',
-        usage: { input_tokens: 180, output_tokens: 24 },
-      });
+  const restores = (text: string): Reply => claudeAnswers({ text }, recordedClaude.marks);
 
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
   it('returns the text with its marks when nothing else changed', async () => {
-    const { context, doubles } = contextFor(restores('mai nộp bài tập toán'));
+    const { context, doubles } = contextFor(claudeRecorded(recordedClaude.marks));
 
     expect(await restoreMarks(context, typed)).toEqual({
       outcome: 'restored',
       text: 'mai nộp bài tập toán',
     });
-    expect(doubles.sent.deepseek[0]?.['model']).toBe('deepseek-flash');
+    expect(doubles.sent.claude[0]?.['model']).toBe('claude-haiku-5-5');
   });
 
   it.each([
@@ -103,6 +99,7 @@ describe('restoring marks on the fast tier', () => {
     ['answered the note instead', restores('Bạn nên bắt đầu ngay hôm nay.')],
     ['timed out', timesOut],
     ['could not be reached', connectionDrops],
+    ['refused', claudeStops('refusal')],
   ])('reads nothing when the model %s, and logs neither text', async (_, reply) => {
     const logged: unknown[][] = [];
     for (const level of ['log', 'warn', 'error'] as const) {

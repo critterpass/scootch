@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { recordAiUsage } from '../ledger';
 
 import type { DecideContext } from './decide';
-import { generate } from './deepseek';
+import { generate } from './claude';
 
 /**
  * Everyday Vietnamese words that are always written with a mark and are not English words once
@@ -46,13 +46,13 @@ export function hasSameLetters(original: string, restored: string): boolean {
 }
 
 /** The restoring's whole time budget, both attempts together. */
-export const restoreTimeoutMs = 2_000;
+export const restoreTimeoutMs = 3_500;
 
 /**
- * A second attempt is made only with this much of the budget left. Measured: the restoring
- * answered in 650 ms at the median and 950 ms at the slowest.
+ * A second attempt is made only with this much of the budget left. Measured on Claude Haiku 5.5
+ * at low effort with adaptive thinking: the restoring answered in 1.2 to 2.5 s.
  */
-export const restoreRetryNeedsMs = 1_000;
+export const restoreRetryNeedsMs = 1_200;
 
 /**
  * What the restoring came to. `unchanged` is a note the fast tier read and found nothing to mark
@@ -82,16 +82,16 @@ async function askForMarks(
 ): Promise<string | null> {
   try {
     const generated = await generate(
-      { apiKey: context.env.DEEPSEEK_API_KEY, ...(context.fetch ? { fetch: context.fetch } : {}) },
+      { apiKey: context.env.ANTHROPIC_API_KEY, ...(context.fetch ? { fetch: context.fetch } : {}) },
       {
         tier: 'fast',
         system: restoreSystem,
         prompt: `<note>\n${text.replaceAll('</note>', '<\\/note>')}\n</note>`,
-        tool: { name: 'restore_marks', description: 'Return the note with its marks restored.' },
         schema: z.object({
           text: z.string().describe('The note with every Vietnamese mark restored.'),
         }),
-        maxTokens: Math.min(4000, 200 + text.length),
+        // The note again, with room for a short thought before it.
+        maxTokens: Math.min(5000, 1000 + text.length),
         timeoutMs,
       },
     );

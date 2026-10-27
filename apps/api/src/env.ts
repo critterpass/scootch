@@ -6,7 +6,7 @@ import type { RequestIdVariables } from 'hono/request-id';
  * (local, ignored by git); `.dev.vars.example` lists the same names.
  */
 export const secretNames = [
-  'DEEPSEEK_API_KEY',
+  'ANTHROPIC_API_KEY',
   'TYPESAFE_API_KEY',
   'TELEGRAM_BOT_TOKEN',
   'TELEGRAM_CHAT_ID',

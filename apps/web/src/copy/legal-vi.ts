@@ -34,8 +34,8 @@ export const legalVi = {
       ],
       [
         'Chữ để viết câu mới',
-        'Máy chủ của chúng tôi, rồi tới DeepSeek: chỉ chữ của việc đó',
-        'Chúng tôi không lưu',
+        'Máy chủ của chúng tôi, rồi tới Anthropic (Claude): chỉ chữ của việc đó',
+        'Chúng tôi không lưu. Anthropic xoá trong vòng 30 ngày',
       ],
       ['Lịch của bạn', 'Chỉ đọc trên điện thoại', 'Không bao giờ rời điện thoại'],
       [
@@ -73,14 +73,15 @@ export const legalVi = {
       {
         title: 'Kiểm tra chuyện nặng lòng',
         body: [
-          'Trước khi Thầy Phú nói câu gì châm chọc về một việc, chữ của việc đó được kiểm tra xem có liên quan tới khủng hoảng hay chuyện nặng lòng không, để thầy biết lúc nào phải thôi diễn. Điện thoại kiểm tra trước, không cần mạng. Khi có mạng, chữ đó được gửi tới máy chủ của chúng tôi rồi tới TypeSafe, một dịch vụ đánh giá nội dung. Nếu TypeSafe không trả lời, DeepSeek trả lời thay. Nếu tiếng Việt được gõ không dấu, DeepSeek có thể thêm dấu trước để đọc cho đúng.',
-          'Phần chữ này không được lưu, không được ghi nhật ký trên máy chủ của chúng tôi, và không bao giờ được dùng để huấn luyện mô hình AI.',
+          'Trước khi Thầy Phú nói câu gì châm chọc về một việc, chữ của việc đó được kiểm tra xem có liên quan tới khủng hoảng hay chuyện nặng lòng không, để thầy biết lúc nào phải thôi diễn. Điện thoại kiểm tra trước, không cần mạng. Khi có mạng, chữ đó được gửi tới máy chủ của chúng tôi rồi tới TypeSafe, một dịch vụ đánh giá nội dung. Nếu TypeSafe không trả lời, Anthropic (Claude) trả lời thay. Nếu tiếng Việt được gõ không dấu, Claude có thể thêm dấu trước để đọc cho đúng.',
+          'Phần chữ này không được lưu, không được ghi nhật ký trên máy chủ của chúng tôi, và không bao giờ được dùng để huấn luyện mô hình AI. Khi Claude đọc phần chữ này, điều khoản API của Anthropic được áp dụng, như bên dưới.',
         ],
       },
       {
         title: 'Những câu mới của thầy',
         body: [
-          'Phần lớn câu của thầy đã được viết sẵn và nằm ngay trong app. Khi có mạng và gặp một việc thầy chưa có câu hợp, máy chủ của chúng tôi nhờ DeepSeek viết một câu. Chỉ chữ của việc đó được gửi đi, không kèm tên, mã thiết bị hay bất cứ thông tin nào về bạn. Chúng tôi không lưu lại.',
+          'Phần lớn câu của thầy đã được viết sẵn và nằm ngay trong app. Khi có mạng và gặp một việc thầy chưa có câu hợp, máy chủ của chúng tôi nhờ Anthropic (Claude) viết một câu. Chỉ chữ của việc đó được gửi đi, không kèm tên, mã thiết bị hay bất cứ thông tin nào về bạn. Chúng tôi không lưu lại.',
+          'Theo điều khoản API của Anthropic, phần chữ này không được dùng để huấn luyện mô hình AI, và Anthropic xoá nó trong vòng 30 ngày. Anthropic chỉ giữ lâu hơn khi luật yêu cầu hoặc để thực thi chính sách sử dụng của họ (privacy.claude.com).',
         ],
       },
       {

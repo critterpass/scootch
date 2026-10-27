@@ -9,8 +9,8 @@ import * as routes from '../src/routes/index.generated';
 
 import {
   answersStatus,
+  claudeAnswers,
   connectionDrops,
-  deepseekAnswers,
   jevAnswers,
   jevChoice,
   perQuestion,
@@ -37,7 +37,7 @@ async function screen(doubles: Providers, text = secretText) {
       },
       body: JSON.stringify({ language: 'en', text, source: 'typed' }),
     }),
-    { ...env, TYPESAFE_API_KEY: 'jev-test-key', DEEPSEEK_API_KEY: 'deepseek-test-key' },
+    { ...env, TYPESAFE_API_KEY: 'jev-test-key', ANTHROPIC_API_KEY: 'claude-test-key' },
     ctx,
   );
   await waitOnExecutionContext(ctx);
@@ -79,7 +79,7 @@ describe('POST /v1/screen-input', () => {
   it('answers pass for an ordinary note and sends Jev nothing but the text', async () => {
     const doubles = providers({
       jev: jevAnswers({ pass: 0.99, serious: 0.01, crisis: 0 }),
-      deepseek: connectionDrops,
+      claude: connectionDrops,
     });
 
     const { body } = await screen(doubles);
@@ -97,7 +97,7 @@ describe('POST /v1/screen-input', () => {
   it('answers crisis as soon as the crisis probability reaches the threshold', async () => {
     const doubles = providers({
       jev: jevAnswers({ pass: 0.85, serious: 0.03, crisis: 0.12 }),
-      deepseek: connectionDrops,
+      claude: connectionDrops,
     });
 
     const { body } = await screen(doubles);
@@ -108,7 +108,7 @@ describe('POST /v1/screen-input', () => {
   it('answers crisis when only the preparation question sees a plan', async () => {
     const doubles = providers({
       jev: jevAnswers({ pass: 0.86, serious: 0.11, crisis: 0.03 }, 0.72),
-      deepseek: connectionDrops,
+      claude: connectionDrops,
     });
 
     const { body } = await screen(doubles);
@@ -127,7 +127,7 @@ describe('POST /v1/screen-input', () => {
           preparation: jevChoice({ no: 0.99, yes: 0.01 }),
           misuse: jevChoice({ genuine: 0.04, misuse: 0.96 }),
         }),
-        deepseek: answersStatus(503),
+        claude: answersStatus(503),
       });
 
     const misuse = await screen(jev({ pass: 0.97, serious: 0.02, crisis: 0.01 }));
@@ -145,10 +145,10 @@ describe('POST /v1/screen-input', () => {
   it('uses the fast tier when Jev times out', async () => {
     const doubles = providers({
       jev: timesOut,
-      deepseek: perQuestion({
-        care: deepseekAnswers({ probabilities: { pass: 0.05, serious: 0.9, crisis: 0.05 } }),
-        preparation: deepseekAnswers({ probabilities: { no: 0.97, yes: 0.03 } }),
-        misuse: deepseekAnswers({ probabilities: { genuine: 0.98, misuse: 0.02 } }),
+      claude: perQuestion({
+        care: claudeAnswers({ probabilities: { pass: 0.05, serious: 0.9, crisis: 0.05 } }),
+        preparation: claudeAnswers({ probabilities: { no: 0.97, yes: 0.03 } }),
+        misuse: claudeAnswers({ probabilities: { genuine: 0.98, misuse: 0.02 } }),
       }),
     });
 
@@ -161,10 +161,10 @@ describe('POST /v1/screen-input', () => {
     const fast = (care: object, yes: number) =>
       providers({
         jev: answersStatus(529),
-        deepseek: perQuestion({
-          care: deepseekAnswers({ probabilities: care }),
-          preparation: deepseekAnswers({ probabilities: { no: 1 - yes, yes } }),
-          misuse: deepseekAnswers({ probabilities: { genuine: 0.98, misuse: 0.02 } }),
+        claude: perQuestion({
+          care: claudeAnswers({ probabilities: care }),
+          preparation: claudeAnswers({ probabilities: { no: 1 - yes, yes } }),
+          misuse: claudeAnswers({ probabilities: { genuine: 0.98, misuse: 0.02 } }),
         }),
       });
 
@@ -201,7 +201,7 @@ describe('POST /v1/screen-input', () => {
       };
 
       const { body } = await screen(
-        providers({ jev: perQuestion({ ...answers, [silent]: timesOut }), deepseek: timesOut }),
+        providers({ jev: perQuestion({ ...answers, [silent]: timesOut }), claude: timesOut }),
       );
 
       // Half a screen is no screen: short of a crisis the phone is told nothing was judged.
@@ -213,8 +213,8 @@ describe('POST /v1/screen-input', () => {
     ['both time out', timesOut, timesOut],
     ['both are down', answersStatus(529), answersStatus(503)],
     ['neither can be reached', connectionDrops, connectionDrops],
-  ] as const)('answers serious, never pass, when %s', async (_, jev, deepseek) => {
-    const { body } = await screen(providers({ jev, deepseek }));
+  ] as const)('answers serious, never pass, when %s', async (_, jev, claude) => {
+    const { body } = await screen(providers({ jev, claude }));
 
     expect(body).toEqual({
       verdict: 'serious',
@@ -232,9 +232,9 @@ describe('POST /v1/screen-input', () => {
     }
 
     const answered = await screen(
-      providers({ jev: jevAnswers({ pass: 1, serious: 0, crisis: 0 }), deepseek: timesOut }),
+      providers({ jev: jevAnswers({ pass: 1, serious: 0, crisis: 0 }), claude: timesOut }),
     );
-    await screen(providers({ jev: timesOut, deepseek: timesOut }));
+    await screen(providers({ jev: timesOut, claude: timesOut }));
 
     expect(JSON.stringify(logged)).not.toContain(secretText);
     const usage = await env.DB.prepare('SELECT * FROM ai_usage').all();

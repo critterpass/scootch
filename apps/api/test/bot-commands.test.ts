@@ -33,7 +33,7 @@ beforeAll(async () => {
   });
   await addUsage({
     route: 'task.line',
-    model: 'deepseek-flash',
+    model: 'claude-haiku-5-5',
     input: million,
     output: million,
     at: '2026-10-06T20:00:00.000Z',
@@ -41,9 +41,9 @@ beforeAll(async () => {
   });
   await addUsage({
     route: 'task.line',
-    model: 'deepseek-v4-pro',
-    input: million,
-    output: million,
+    model: 'claude-haiku-5-5',
+    input: 2 * million,
+    output: 2 * million,
     at: '2026-10-02T00:00:00.000Z',
     device: thisWeek,
   });
@@ -57,7 +57,7 @@ beforeAll(async () => {
   });
   await addUsage({
     route: 'task.line',
-    model: 'deepseek-flash',
+    model: 'claude-haiku-5-5',
     input: million,
     output: million,
     at: '2026-09-15T00:00:00.000Z',
@@ -68,21 +68,20 @@ describe('/costs', () => {
   it('adds up today and this month by route and by model, on the founder’s clock', async () => {
     expect(await ask('/costs', { now })).toBe(
       [
-        '[dev] Model spend (placeholder prices, to be confirmed)',
-        'Today: $0.7000 (2 calls)',
+        '[dev] Model spend (Haiku price set; Jev price a placeholder)',
+        'Today: $0.8000 (2 calls)',
         ' By route',
-        '  task.line: $0.5000 (1)',
+        '  task.line: $0.6000 (1)',
         '  screen.input: $0.2000 (1)',
         ' By model',
-        '  deepseek-flash: $0.5000 (1)',
+        '  claude-haiku-5-5: $0.6000 (1)',
         '  jev-1.13.0: $0.2000 (1)',
-        'This month: $3.7000 (4 calls)',
+        'This month: $2.0000 (4 calls)',
         ' By route',
-        '  task.line: $3.5000 (2)',
+        '  task.line: $1.8000 (2)',
         '  screen.input: $0.2000 (2)',
         ' By model',
-        '  deepseek-v4-pro: $3.0000 (1)',
-        '  deepseek-flash: $0.5000 (1)',
+        '  claude-haiku-5-5: $1.8000 (2)',
         '  jev-1.13.0: $0.2000 (1)',
         '  mystery-model: $0.0000 (1)',
         'No price for: mystery-model (counted as $0)',
@@ -131,7 +130,7 @@ describe('/user', () => {
 
     const labels = reply.split('\n').map((line) => line.replace(/^\[dev\] /, '').split(': ')[0]);
     expect(labels).toEqual(['Device', 'Created', 'Last seen', 'Language', 'Model calls']);
-    expect(reply).not.toMatch(/task\.create|deepseek/);
+    expect(reply).not.toMatch(/task\.create|claude/);
   });
 
   it('asks for more characters when several devices match, and says so when none does', async () => {

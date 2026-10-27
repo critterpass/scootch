@@ -16,7 +16,7 @@ function decision<Option extends string>(
   return {
     answer: { choice, probabilities, confidence: probabilities[choice] },
     answeredBy,
-    model: answeredBy === 'jev' ? 'jev-1.13.0' : 'deepseek-flash',
+    model: answeredBy === 'jev' ? 'jev-1.13.0' : 'claude-haiku-5-5',
   };
 }
 
