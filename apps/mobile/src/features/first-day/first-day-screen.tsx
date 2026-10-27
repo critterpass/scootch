@@ -8,6 +8,7 @@ import { TIMING, type Framing, type PhuMood } from '@phusclass/art/class';
 import { Classroom } from '../../classroom/classroom';
 import { useT } from '../../i18n/i18n-provider';
 import { CapsuleButton } from '../../ui/buttons';
+import { KeyboardCatcher } from '../../ui/keyboard-away';
 import { PressSpring } from '../../ui/motion/press-spring';
 import { useForcedVariant } from '../../screens/registry/support/forced-variant';
 import { useScreenStyle } from '../../ui/use-screen-style';
@@ -158,6 +159,8 @@ export function FirstDayScreen({ beat: start = 'class', typedName = '' }: FirstD
         style={StyleSheet.absoluteFill}
       />
       <Bubble text={line} wide={framing === 'firstDay'} />
+      {/* At roll call, a tap on the room puts the keyboard away. */}
+      <KeyboardCatcher />
       <KeyboardAvoidingView behavior="padding" style={styles.foot} pointerEvents="box-none">
         {beat === 'class' ? (
           <Sheet label={t('firstDay.label.first')} beat={beat}>

@@ -15,7 +15,6 @@ export const careHelplines: ScreenState = {
           kind="helplines"
           region="US"
           now={Date.parse('2026-10-28T07:00:00Z')}
-          onClose={() => undefined}
         />
       ),
     })),

@@ -5,7 +5,7 @@ import { HAND_FAMILY } from '../../classroom/use-hand-font';
 import { useT } from '../../i18n/i18n-provider';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
-import { Row } from './settings-parts';
+import { Row, TITLE_MAX_SCALE, titleSize } from './settings-parts';
 import { Barcode, Crest, Photo, Slot } from './student-card-art';
 
 const CARD_BLUE = '#2B5BA8';
@@ -58,16 +58,19 @@ export function StudentCard({ name, now }: { readonly name: string | null; reado
       <View style={styles.cardTop}>
         <Crest />
         <View style={styles.cardTopText}>
+          {/* The card's band keeps its words whole: they grow only so far. */}
           <Text
             allowFontScaling={allowFontScaling}
-            style={[styles.cardSchool, { fontSize: size(9.5) }]}
+            maxFontSizeMultiplier={TITLE_MAX_SCALE}
+            style={[styles.cardSchool, { fontSize: titleSize(size, 9.5) }]}
           >
             {t('brand.name')}
           </Text>
           <Text
             accessibilityRole="header"
             allowFontScaling={allowFontScaling}
-            style={[styles.cardTitle, { fontSize: size(15) }]}
+            maxFontSizeMultiplier={TITLE_MAX_SCALE}
+            style={[styles.cardTitle, { fontSize: titleSize(size, 15) }]}
           >
             {t('settings.card.title')}
           </Text>

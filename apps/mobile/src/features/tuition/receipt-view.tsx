@@ -1,12 +1,12 @@
 import type { PhuMood } from '@phusclass/art/class';
 import { localDateTime, type Instant } from '@phusclass/domain';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { StyleSheet, View } from 'react-native';
 
 import { useHandFont } from '../../classroom/use-hand-font';
 import { useLanguage, useT, type Translate } from '../../i18n/i18n-provider';
 import { GlassSurface } from '../../ui/glass-surface';
 import { PressSpring } from '../../ui/motion/press-spring';
+import { SheetPage } from '../../ui/sheet-page';
 import { PhuFigure } from '../board/phu-figure';
 
 import { ChargeCard } from './charge-card';
@@ -101,7 +101,6 @@ function fineText(
 export function ReceiptView(props: ReceiptViewProps) {
   const t = useT();
   const { language } = useLanguage();
-  const insets = useSafeAreaInsets();
   const hand = useHandFont();
   const { stage, offerings, customer, now, timeZone } = props;
   const today = localDateTime(now, timeZone).date;
@@ -129,128 +128,122 @@ export function ReceiptView(props: ReceiptViewProps) {
         : null;
 
   return (
-    <View style={[styles.page, { paddingTop: insets.top }]} testID="tuition">
-      <View style={styles.bar}>
-        <GlassSurface interactive style={styles.close}>
-          <PressSpring
-            testID="tuition-close"
-            accessibilityRole="button"
-            accessibilityLabel={t('tuition.close')}
-            onPress={props.onClose}
-            answeredBy="glass"
-            style={styles.closePress}
-          >
-            <Mark name="close" color={paper.ink} size={14} weight={2.6} />
-          </PressSpring>
-        </GlassSurface>
-        {stage === 'offer' || stage === 'failed' || stage === 'paid' || stage === 'trial' ? (
-          <PressSpring
-            testID={stage === 'paid' || stage === 'trial' ? 'tuition-manage' : 'tuition-restore'}
-            accessibilityRole="button"
-            onPress={stage === 'paid' || stage === 'trial' ? props.onManage : props.onRestore}
-            disabled={props.busy || !props.available}
-            hitSlop={8}
-            pressScale={PAPER_PRESS}
-          >
-            <Sized size={15} style={styles.corner}>
-              {stage === 'paid' || stage === 'trial' ? t('tuition.manage') : t('tuition.restore')}
-            </Sized>
-          </PressSpring>
-        ) : null}
-      </View>
-      <ScrollView
-        contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 24 }]}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.header}>
-          <View style={styles.headerText}>
-            <Sized size={34} role="header" style={styles.title}>
-              {t('tuition.title')}
-            </Sized>
-            <Sized size={14} style={styles.subtitle}>
-              {t('tuition.subtitle')}
-            </Sized>
-            {props.line !== null ? (
-              <Sized size={19} style={[handText, styles.line]}>
-                {props.line}
+    <SheetPage
+      testID="tuition"
+      background={paper.page}
+      contentStyle={styles.scroll}
+      showsVerticalScrollIndicator={false}
+      bar={
+        <>
+          <GlassSurface interactive style={styles.close}>
+            <PressSpring
+              testID="tuition-close"
+              accessibilityRole="button"
+              accessibilityLabel={t('tuition.close')}
+              onPress={props.onClose}
+              answeredBy="glass"
+              style={styles.closePress}
+            >
+              <Mark name="close" color={paper.ink} size={14} weight={2.6} />
+            </PressSpring>
+          </GlassSurface>
+          {stage === 'offer' || stage === 'failed' || stage === 'paid' || stage === 'trial' ? (
+            <PressSpring
+              testID={stage === 'paid' || stage === 'trial' ? 'tuition-manage' : 'tuition-restore'}
+              accessibilityRole="button"
+              onPress={stage === 'paid' || stage === 'trial' ? props.onManage : props.onRestore}
+              disabled={props.busy || !props.available}
+              hitSlop={8}
+              pressScale={PAPER_PRESS}
+            >
+              <Sized size={15} style={styles.corner}>
+                {stage === 'paid' || stage === 'trial' ? t('tuition.manage') : t('tuition.restore')}
               </Sized>
-            ) : null}
-          </View>
-          <View style={styles.phu} accessibilityElementsHidden>
-            <PhuFigure mood={MOODS[stage]} width={112} hand={hand} />
-          </View>
-        </View>
-        <ReceiptPaper
-          stage={stage}
-          plan={props.plan}
-          offerings={offerings}
-          name={props.name}
-          saving={yearSaving(offerings)}
-          stamp={stamp}
-          onPick={props.onPick}
-        />
-        <ChargeCard stage={stage} steps={steps} today={today} />
-        <View style={styles.actions}>
-          {props.available || stage !== 'offer' ? (
-            <Capsule
-              testID="tuition-primary"
-              label={primaryLabel(stage, chosen, t)}
-              tone={stage === 'offer' || stage === 'failed' ? 'ink' : 'green'}
-              disabled={props.busy || (stage === 'offer' && chosen === undefined)}
-              onPress={props.onPrimary}
-            />
-          ) : (
-            <Sized size={14} style={styles.fine}>
-              {t('tuition.unavailable')}
-            </Sized>
-          )}
-          {fine !== '' ? (
-            <Sized size={12} style={styles.fine}>
-              {fine}
+            </PressSpring>
+          ) : null}
+        </>
+      }
+    >
+      <View style={styles.header}>
+        <View style={styles.headerText}>
+          <Sized size={34} role="header" style={styles.title}>
+            {t('tuition.title')}
+          </Sized>
+          <Sized size={14} style={styles.subtitle}>
+            {t('tuition.subtitle')}
+          </Sized>
+          {props.line !== null ? (
+            <Sized size={19} style={[handText, styles.line]}>
+              {props.line}
             </Sized>
           ) : null}
         </View>
-        <View style={styles.links}>
-          <TextLink
-            testID="tuition-cant-pay"
-            label={t('tuition.cantPay')}
-            strong
-            onPress={props.onScholarship}
-          />
-          <Sized size={12.5} style={styles.dot}>
-            ·
-          </Sized>
-          <TextLink
-            testID="tuition-terms"
-            label={t('tuition.terms')}
-            onPress={() => props.onLink('terms')}
-          />
-          <Sized size={12.5} style={styles.dot}>
-            ·
-          </Sized>
-          <TextLink
-            testID="tuition-privacy"
-            label={t('tuition.privacy')}
-            onPress={() => props.onLink('privacy')}
-          />
+        <View style={styles.phu} accessibilityElementsHidden>
+          <PhuFigure mood={MOODS[stage]} width={112} hand={hand} />
         </View>
-        <Sized size={11} style={styles.disclosure}>
-          {t('tuition.disclosure')}
+      </View>
+      <ReceiptPaper
+        stage={stage}
+        plan={props.plan}
+        offerings={offerings}
+        name={props.name}
+        saving={yearSaving(offerings)}
+        stamp={stamp}
+        onPick={props.onPick}
+      />
+      <ChargeCard stage={stage} steps={steps} today={today} />
+      <View style={styles.actions}>
+        {props.available || stage !== 'offer' ? (
+          <Capsule
+            testID="tuition-primary"
+            label={primaryLabel(stage, chosen, t)}
+            tone={stage === 'offer' || stage === 'failed' ? 'ink' : 'green'}
+            disabled={props.busy || (stage === 'offer' && chosen === undefined)}
+            onPress={props.onPrimary}
+          />
+        ) : (
+          <Sized size={14} style={styles.fine}>
+            {t('tuition.unavailable')}
+          </Sized>
+        )}
+        {fine !== '' ? (
+          <Sized size={12} style={styles.fine}>
+            {fine}
+          </Sized>
+        ) : null}
+      </View>
+      <View style={styles.links}>
+        <TextLink
+          testID="tuition-cant-pay"
+          label={t('tuition.cantPay')}
+          strong
+          onPress={props.onScholarship}
+        />
+        <Sized size={12.5} style={styles.dot}>
+          ·
         </Sized>
-      </ScrollView>
-    </View>
+        <TextLink
+          testID="tuition-terms"
+          label={t('tuition.terms')}
+          onPress={() => props.onLink('terms')}
+        />
+        <Sized size={12.5} style={styles.dot}>
+          ·
+        </Sized>
+        <TextLink
+          testID="tuition-privacy"
+          label={t('tuition.privacy')}
+          onPress={() => props.onLink('privacy')}
+        />
+      </View>
+      <Sized size={11} style={styles.disclosure}>
+        {t('tuition.disclosure')}
+      </Sized>
+    </SheetPage>
   );
 }
 
 const styles = StyleSheet.create({
-  page: { flex: 1, backgroundColor: paper.page },
-  bar: {
-    minHeight: 56,
-    paddingHorizontal: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
   close: { width: 40, height: 40, borderRadius: 20 },
   closePress: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   corner: { color: '#6B655E', fontWeight: '500' },

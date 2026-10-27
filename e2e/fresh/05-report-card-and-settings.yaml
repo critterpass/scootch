@@ -92,18 +92,14 @@ appId: com.phusclass.dev
     notVisible:
       id: 'timetable'
     timeout: 10000
-# Back to the desk, where Start now gives fifteen minutes. The page is still scrolled down.
+# Back to the desk, where Start now gives fifteen minutes, by the system bar's way back, which
+# stays in place however far the page is scrolled.
 - extendedWaitUntil:
     visible:
       id: 'settings'
     timeout: 10000
-- scrollUntilVisible:
-    element:
-      id: 'settings-back'
-    direction: UP
-    timeout: 10000
 - tapOn:
-    id: 'settings-back'
+    text: 'Back'
 - extendedWaitUntil:
     visible:
       id: 'desk'

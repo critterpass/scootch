@@ -18,6 +18,7 @@ import { foldRoom } from '../../ui/fold/fold-camera';
 import { foldRoomStyle } from '../../ui/fold/fold-sheet';
 import { SideControls } from '../../ui/fold/side-controls';
 import { useFold } from '../../ui/fold/use-fold';
+import { KeyboardCatcher } from '../../ui/keyboard-away';
 import { duoBubble } from '../desk/duo-places';
 
 import { DrumBurst } from './drum-burst';
@@ -177,6 +178,8 @@ export function SessionView(props: SessionViewProps) {
           {...(duo ? { at: duoBubble(fold, room?.camera) } : {})}
         />
       ) : null}
+      {/* Writing the note, a tap on the room puts the keyboard away. */}
+      <KeyboardCatcher />
       <SessionSheet panel={panel} fold={fold}>
         {panel === 'finish'
           ? finish

@@ -1,7 +1,6 @@
 /** Settings: the student card, notes home and quiet hours, the class, tuition, privacy. */
 export const enSettings = {
   'settings.title': 'Settings',
-  'settings.back': 'Back',
   'settings.back.hint': 'Closes this page',
   'settings.card.title': 'Student card',
   'settings.card.name': 'Name',
@@ -65,6 +64,5 @@ export const enSettings = {
   'settings.quiet.earlier': 'Earlier',
   'settings.quiet.later': 'Later',
   'settings.quiet.foot': 'No note comes in these hours.',
-  'settings.done': 'Done',
   'settings.name.save': 'Save',
 } as const;

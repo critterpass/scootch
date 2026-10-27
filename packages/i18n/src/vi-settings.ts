@@ -1,7 +1,6 @@
 /** Settings: the student card, notes home and quiet hours, the class, tuition, privacy. */
 export const viSettings = {
   'settings.title': 'Cài đặt',
-  'settings.back': 'Quay lại',
   'settings.back.hint': 'Đóng trang này',
   'settings.card.title': 'Thẻ học sinh',
   'settings.card.name': 'Họ tên',
@@ -65,6 +64,5 @@ export const viSettings = {
   'settings.quiet.earlier': 'Sớm hơn',
   'settings.quiet.later': 'Muộn hơn',
   'settings.quiet.foot': 'Không có tin nào trong những giờ này.',
-  'settings.done': 'Xong',
   'settings.name.save': 'Lưu',
 };

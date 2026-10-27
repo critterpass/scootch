@@ -63,7 +63,7 @@ export function ShareSheet({
   readonly initialHide?: boolean;
   /**
    * Draws the board's own backdrop and rising sheet, for a capture shown full screen. The route
-   * sets it off: there the system's page sheet is the frame, and this fills it.
+   * sets it off: there the system's sheet is the frame, with its grabber, and this fills it.
    */
   readonly framed?: boolean;
 }): ReactElement {
@@ -142,154 +142,174 @@ export function ShareSheet({
   const scale = PREVIEW_WIDTH / CARD_WIDTH;
   const preview = cardFor('post');
 
-  return (
-    <View style={framed ? styles.fill : styles.page}>
-      {framed ? (
+  const content = (
+    <>
+      <View style={styles.header}>
+        <Text
+          accessibilityRole="header"
+          allowFontScaling={style.allowFontScaling}
+          style={[styles.title, { fontSize: style.size(24) }]}
+        >
+          {title}
+        </Text>
         <PressSpring
           accessibilityRole="button"
           accessibilityLabel={t('share.close')}
           onPress={onClose}
-          style={styles.backdrop}
-          testID="share-backdrop"
-        />
-      ) : null}
+          style={styles.close}
+          testID="share-close"
+        >
+          <CloseIcon color={INK} />
+        </PressSpring>
+      </View>
+
+      {ready === null ? (
+        offer === null ? null : (
+          <Text style={[styles.plain, text(17)]} testID="share-nothing">
+            {t('share.nothing')}
+          </Text>
+        )
+      ) : (
+        <>
+          <Animated.View
+            key={format}
+            entering={style.reducedMotion ? FadeIn.duration(CROSSFADE_MS) : cardIn(side)}
+            exiting={style.reducedMotion ? FadeOut.duration(CROSSFADE_MS) : cardOut(side)}
+            style={styles.previewWrap}
+            accessible
+            accessibilityRole="image"
+            accessibilityLabel={t('share.preview', {
+              format: t(FORMAT_KEYS[format ?? 'paper']),
+            })}
+            testID={`share-preview-${format}`}
+          >
+            <Canvas
+              style={[styles.preview, { width: PREVIEW_WIDTH, height: CARD_HEIGHTS.post * scale }]}
+            >
+              <Group transform={[{ scale }]}>{preview}</Group>
+            </Canvas>
+          </Animated.View>
+
+          <View
+            accessibilityRole="radiogroup"
+            accessibilityLabel={t('share.formats')}
+            style={styles.chips}
+          >
+            {ready.formats.map((one) => {
+              const on = one === format;
+              return (
+                <PressSpring
+                  key={one}
+                  accessibilityRole="radio"
+                  accessibilityState={{ checked: on }}
+                  accessibilityLabel={t(FORMAT_KEYS[one])}
+                  onPress={() => {
+                    if (format !== undefined && one !== format) {
+                      const from = ready.formats.indexOf(format);
+                      side.set(ready.formats.indexOf(one) > from ? 1 : -1);
+                    }
+                    setPicked(one);
+                  }}
+                  style={[styles.chip, { backgroundColor: on ? INK : CHIP }]}
+                  testID={`share-format-${one}`}
+                >
+                  <Text style={[styles.chipLabel, text(14), { color: on ? '#FFFFFF' : INK }]}>
+                    {t(FORMAT_KEYS[one])}
+                  </Text>
+                </PressSpring>
+              );
+            })}
+          </View>
+
+          <View style={styles.hideRow}>
+            <View style={styles.tapeIcon} />
+            <View style={styles.hideWords}>
+              <Text style={[styles.hideTitle, text(15)]}>{t('share.hide.title')}</Text>
+              <Text style={[styles.hideDetail, text(12)]}>{t('share.hide.detail')}</Text>
+            </View>
+            <Switch
+              value={hide}
+              onValueChange={setHide}
+              accessibilityLabel={t('share.hide.title')}
+              trackColor={{ true: '#34A867', false: 'rgba(120,120,128,0.24)' }}
+              testID="share-hide"
+            />
+          </View>
+
+          <View style={[styles.actions, style.largeText ? styles.actionsStacked : null]}>
+            {(
+              [
+                ['story', t('share.action.story'), story, '#E1306C'],
+                ['save', t('share.action.save'), save, CHIP],
+                ['share', t('share.action.share'), share, CHIP],
+              ] as const
+            ).map(([id, label, onPress, tint]) => (
+              <PressSpring
+                key={id}
+                accessibilityRole="button"
+                accessibilityLabel={label}
+                accessibilityState={{ busy: status === 'busy' }}
+                onPress={() => void onPress()}
+                style={styles.action}
+                testID={`share-${id}`}
+              >
+                <View style={[styles.actionIcon, { backgroundColor: tint }]}>
+                  <ActionGlyph kind={id} />
+                </View>
+                <Text style={[styles.actionLabel, text(11.5)]}>{label}</Text>
+              </PressSpring>
+            ))}
+          </View>
+          {status === 'saved' || status === 'not allowed' ? (
+            <Text
+              accessibilityLiveRegion="polite"
+              style={[styles.status, text(13)]}
+              testID="share-status"
+            >
+              {status === 'saved' ? t('share.saved') : t('share.saveOff')}
+            </Text>
+          ) : null}
+        </>
+      )}
+    </>
+  );
+
+  // On the system's sheet the scroll view is the screen's own first child: the sheet sizes it and
+  // follows it, so a pull down from the top of the page closes the sheet. The system draws the
+  // grabber.
+  if (!framed) {
+    return (
+      <ScrollView
+        style={styles.page}
+        contentContainerStyle={[
+          styles.content,
+          styles.contentInSheet,
+          { paddingBottom: insets.bottom + 16 },
+        ]}
+        testID="share-sheet"
+      >
+        {content}
+      </ScrollView>
+    );
+  }
+
+  return (
+    <View style={styles.fill}>
+      <PressSpring
+        accessibilityRole="button"
+        accessibilityLabel={t('share.close')}
+        onPress={onClose}
+        style={styles.backdrop}
+        testID="share-backdrop"
+      />
       <Animated.View
-        {...(style.reducedMotion || !framed ? {} : { entering: SlideInDown.duration(320) })}
-        style={[framed ? styles.sheet : styles.page, { paddingBottom: insets.bottom + 16 }]}
+        {...(style.reducedMotion ? {} : { entering: SlideInDown.duration(320) })}
+        style={[styles.sheet, { paddingBottom: insets.bottom + 16 }]}
         testID="share-sheet"
       >
         <View style={styles.grabber} />
         <ScrollView contentContainerStyle={styles.content} bounces={false}>
-          <View style={styles.header}>
-            <Text
-              accessibilityRole="header"
-              allowFontScaling={style.allowFontScaling}
-              style={[styles.title, { fontSize: style.size(24) }]}
-            >
-              {title}
-            </Text>
-            <PressSpring
-              accessibilityRole="button"
-              accessibilityLabel={t('share.close')}
-              onPress={onClose}
-              style={styles.close}
-              testID="share-close"
-            >
-              <CloseIcon color={INK} />
-            </PressSpring>
-          </View>
-
-          {ready === null ? (
-            offer === null ? null : (
-              <Text style={[styles.plain, text(17)]} testID="share-nothing">
-                {t('share.nothing')}
-              </Text>
-            )
-          ) : (
-            <>
-              <Animated.View
-                key={format}
-                entering={style.reducedMotion ? FadeIn.duration(CROSSFADE_MS) : cardIn(side)}
-                exiting={style.reducedMotion ? FadeOut.duration(CROSSFADE_MS) : cardOut(side)}
-                style={styles.previewWrap}
-                accessible
-                accessibilityRole="image"
-                accessibilityLabel={t('share.preview', {
-                  format: t(FORMAT_KEYS[format ?? 'paper']),
-                })}
-                testID={`share-preview-${format}`}
-              >
-                <Canvas
-                  style={[
-                    styles.preview,
-                    { width: PREVIEW_WIDTH, height: CARD_HEIGHTS.post * scale },
-                  ]}
-                >
-                  <Group transform={[{ scale }]}>{preview}</Group>
-                </Canvas>
-              </Animated.View>
-
-              <View
-                accessibilityRole="radiogroup"
-                accessibilityLabel={t('share.formats')}
-                style={styles.chips}
-              >
-                {ready.formats.map((one) => {
-                  const on = one === format;
-                  return (
-                    <PressSpring
-                      key={one}
-                      accessibilityRole="radio"
-                      accessibilityState={{ checked: on }}
-                      accessibilityLabel={t(FORMAT_KEYS[one])}
-                      onPress={() => {
-                        if (format !== undefined && one !== format) {
-                          const from = ready.formats.indexOf(format);
-                          side.set(ready.formats.indexOf(one) > from ? 1 : -1);
-                        }
-                        setPicked(one);
-                      }}
-                      style={[styles.chip, { backgroundColor: on ? INK : CHIP }]}
-                      testID={`share-format-${one}`}
-                    >
-                      <Text style={[styles.chipLabel, text(14), { color: on ? '#FFFFFF' : INK }]}>
-                        {t(FORMAT_KEYS[one])}
-                      </Text>
-                    </PressSpring>
-                  );
-                })}
-              </View>
-
-              <View style={styles.hideRow}>
-                <View style={styles.tapeIcon} />
-                <View style={styles.hideWords}>
-                  <Text style={[styles.hideTitle, text(15)]}>{t('share.hide.title')}</Text>
-                  <Text style={[styles.hideDetail, text(12)]}>{t('share.hide.detail')}</Text>
-                </View>
-                <Switch
-                  value={hide}
-                  onValueChange={setHide}
-                  accessibilityLabel={t('share.hide.title')}
-                  trackColor={{ true: '#34A867', false: 'rgba(120,120,128,0.24)' }}
-                  testID="share-hide"
-                />
-              </View>
-
-              <View style={[styles.actions, style.largeText ? styles.actionsStacked : null]}>
-                {(
-                  [
-                    ['story', t('share.action.story'), story, '#E1306C'],
-                    ['save', t('share.action.save'), save, CHIP],
-                    ['share', t('share.action.share'), share, CHIP],
-                  ] as const
-                ).map(([id, label, onPress, tint]) => (
-                  <PressSpring
-                    key={id}
-                    accessibilityRole="button"
-                    accessibilityLabel={label}
-                    accessibilityState={{ busy: status === 'busy' }}
-                    onPress={() => void onPress()}
-                    style={styles.action}
-                    testID={`share-${id}`}
-                  >
-                    <View style={[styles.actionIcon, { backgroundColor: tint }]}>
-                      <ActionGlyph kind={id} />
-                    </View>
-                    <Text style={[styles.actionLabel, text(11.5)]}>{label}</Text>
-                  </PressSpring>
-                ))}
-              </View>
-              {status === 'saved' || status === 'not allowed' ? (
-                <Text
-                  accessibilityLiveRegion="polite"
-                  style={[styles.status, text(13)]}
-                  testID="share-status"
-                >
-                  {status === 'saved' ? t('share.saved') : t('share.saveOff')}
-                </Text>
-              ) : null}
-            </>
-          )}
+          {content}
         </ScrollView>
       </Animated.View>
     </View>

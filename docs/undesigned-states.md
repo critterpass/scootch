@@ -45,14 +45,14 @@ state is designed or removed. Scootch's list is in the history of this file.
 | First day, the empty desk | The sheet's one button, "To my desk" | The `EmptyDesk` board is the desk itself; the first day needs one step that ends it and is marked done. Built from the capsule button |
 | Settings | The school drum as an on and off switch | The board's "Start and end: School drum" row opens a choice of sounds that does not exist; the drum is the one sound, so the row is the system switch |
 | Settings | The timetable as one row that opens it | The board's Timetable group has "Read my calendar" and "Calendars"; calendar access is asked by the timetable itself. One link row to the timetable, with the board's footnote |
-| Settings | Quiet hours page (from and to, in half hours) | The board draws the row only. Built from the settings groups, rows and capsule button |
-| Settings | Change the name he calls | The board links the student card to roll call; outside the first day it is a page with the roll-call field and a Save button |
+| Settings | Quiet hours page (from and to) | The board draws the row only. The system's bar with its large title and way back, and one settings group whose rows hold the system's compact time picker |
+| Settings | Change the name he calls | The board links the student card to roll call; outside the first day it is a page under the system's bar, titled with roll call's question, with the roll-call field and a Save button |
 | Settings | "Let the last note through Focus", "It's fine, be funny", Restore purchases, Privacy and Terms rows | The brief names them; the board does not draw them. Plain rows and the system switch |
 | Settings | The student card at the largest text sizes | The board draws the card at the default size only. The photo stands above the name and fields instead of beside them, so the name keeps its width |
 | Settings | The student card's photo, barcode and number | The board's photo is a drawn student, not the person, and its number is fixed. The same drawing for everyone; the number is class 11 and the school year's two years (1126 0026 2027 for 2026–27) |
 | Tuition | The receipt's number | The board writes Nº 0011 and nothing says what it counts. Class 11A's number on every receipt, in both languages |
 | Settings | No notes allowed by iOS: "Open iOS Settings" row | Turning notes on after the system prompt was refused. A link row under the switch |
-| Helplines, from Settings | The crisis page with the title "Helplines" and a Back button | The `Crisis` board is the crisis day only |
+| Helplines, from Settings | The crisis page under the system's bar, titled "Helplines", with its way back | The `Crisis` board is the crisis day only |
 | Crisis | A region with no verified helpline: the directory card alone, its button filled | The board draws Vietnam only |
 | Serious | "It's fine, be funny" under Not now | The brief names it; the `Serious` board does not draw it. A quiet text button, offered only for a task the screen judged serious |
 | Widgets | A tuition widget (chalkboard, timetable, StandBy) when tuition is not paid | The brief asks for a quiet lock; no board draws it. The lock glyph and "With tuition" in the widget's muted ink, opening tuition |

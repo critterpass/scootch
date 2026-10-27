@@ -23,6 +23,7 @@ import { scheduleOnRN } from 'react-native-worklets';
 
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { useTextSizing } from '../../screens/registry/support/forced-variant';
+import { KeyboardAway } from '../../ui/keyboard-away';
 import { PressSpring } from '../../ui/motion/press-spring';
 import { useFeel } from '../../ui/motion/use-feel';
 import { useScreenStyle } from '../../ui/use-screen-style';
@@ -258,11 +259,17 @@ export function SlipSheet({
           </Pressable>
         </GestureDetector>
         {largeText ? (
-          <ScrollView style={styles.scroll} contentContainerStyle={styles.body}>
+          <ScrollView
+            style={styles.scroll}
+            contentContainerStyle={styles.body}
+            keyboardDismissMode="on-drag"
+            keyboardShouldPersistTaps="handled"
+          >
             {content}
           </ScrollView>
         ) : (
-          <View style={styles.body}>{content}</View>
+          // A tap on the slip's empty room puts the keyboard away, as a tap beside a field does.
+          <KeyboardAway style={styles.body}>{content}</KeyboardAway>
         )}
       </Animated.View>
     </View>

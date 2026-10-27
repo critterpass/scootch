@@ -81,6 +81,21 @@ describe('how each route arrives and leaves', () => {
     }
   });
 
+  it('opens a whole page as the system sheet at full height, with its grabber and pull to close', () => {
+    for (const route of ['tuition/index', 'report-card', 'share/[id]']) {
+      expect(routeMotion(route)).toBe('sheet');
+      for (const mayMove of [true, false]) {
+        expect(stackMotion(route, mayMove)).toMatchObject({
+          presentation: 'formSheet',
+          gestureEnabled: true,
+          sheetAllowedDetents: [1],
+          sheetGrabberVisible: true,
+          sheetCornerRadius: 34,
+        });
+      }
+    }
+  });
+
   it('reads a return to the desk as going back', () => {
     expect(stackMotion('index', true).animationTypeForReplace).toBe('pop');
     expect(stackMotion('(dev)', true).animationTypeForReplace).toBe('push');

@@ -1,4 +1,5 @@
 import type { ViewProps } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useRouteSheet } from './use-route-sheet';
 import { SafeFrame } from './safe-frame';
@@ -17,4 +18,14 @@ export function SheetFrame({ style, ...rest }: ViewProps) {
   const sheet = useRouteSheet();
   if (!sheet) return <SafeFrame {...rest} style={style} />;
   return <SafeFrame {...rest} edges={IN_A_SHEET} minTop={SHEET_TOP} style={style} />;
+}
+
+/**
+ * Where a screen's own top row starts: under the grabber in a sheet, which is already below the
+ * status bar, and under the status bar on a page (a capture, a link opened cold).
+ */
+export function useScreenTop(): number {
+  const sheet = useRouteSheet();
+  const insets = useSafeAreaInsets();
+  return sheet ? SHEET_TOP : insets.top;
 }

@@ -158,6 +158,7 @@ export function Sheet({
         <ScrollView
           style={styles.sheetScroll}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
           contentContainerStyle={[styles.sheetContent, { paddingBottom: insets.bottom + 16 }]}
         >
           <View style={styles.sheetHead}>

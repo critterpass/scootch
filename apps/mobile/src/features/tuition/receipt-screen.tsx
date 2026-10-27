@@ -17,8 +17,9 @@ const SCHOLARSHIP = '/tuition/scholarship' as Href;
 
 /**
  * The receipt, on the store: it opens on what the store says (unstamped, in its free week, paid,
- * or on a scholarship), the school year picked first. Buying moves it to its stamp, Ask to Buy to
- * waiting, a failure to "Try again"; closing the store's sheet changes nothing and says nothing.
+ * or on a scholarship), the school year picked first. Buying moves it to its stamp (or closes it,
+ * where the store has not yet said what was bought), Ask to Buy to waiting, a failure to "Try
+ * again"; closing the store's sheet changes nothing and says nothing.
  */
 export function ReceiptScreen() {
   const t = useT();
@@ -55,7 +56,12 @@ export function ReceiptScreen() {
     setBusy(false);
     if (result.kind === 'pending') setOutcome('pending');
     else if (result.kind === 'failed') setOutcome('failed');
-    else if (result.kind === 'purchased') setOutcome(null);
+    else if (result.kind === 'purchased') {
+      setOutcome(null);
+      // Paid, the receipt takes its stamp. Where the store has not yet said what was bought, the
+      // receipt does not stay on offer under the store's "You're all set": it closes.
+      if (stageOf(result.customer) === 'offer') close();
+    }
   };
 
   return (
