@@ -12,7 +12,7 @@
 # The build url may also be a local file (device-ios-local.sh keeps a downloaded one).
 #
 # Env: DEVICE (default "iPhone 17"); SIM_UDID, an erased simulator to use instead of a new one;
-# and JS_COMMIT and MODE, read by device-run-flows.sh.
+# REDUCE_MOTION=1 to run with Reduce Motion on; and JS_COMMIT and MODE, read by device-run-flows.sh.
 set -euo pipefail
 
 build_url=$1
@@ -66,6 +66,11 @@ else
 fi
 xcrun simctl boot "$udid"
 xcrun simctl bootstatus "$udid" -b >/dev/null
+if [ "${REDUCE_MOTION:-0}" = 1 ]; then
+  # The accessibility default the system reads; the app is installed and launched after it is set.
+  xcrun simctl spawn "$udid" defaults write com.apple.Accessibility ReduceMotionEnabled -bool true
+  echo "Reduce Motion on"
+fi
 xcrun simctl status_bar "$udid" override --time 9:41 --batteryState charged --batteryLevel 100 \
   --cellularMode active --cellularBars 4 --wifiMode active --wifiBars 3 --dataNetwork wifi
 echo "Installing $(basename "$app") ($id)"
