@@ -44,6 +44,12 @@ export function dayBodyMotion(mayMove: boolean) {
   return { entering: mayMove ? dayIn : calmIn, exiting: FadeOut.duration(200).reduceMotion(NEVER) };
 }
 
+/**
+ * Seven chips share the width, so their text grows to twice its size and no further: every day
+ * then has the same size, with two figures side by side.
+ */
+const CHIP_MAX_SCALE = 2;
+
 /** One day in the strip. Picked, its ink comes in over 240 ms. */
 function DayChip({
   day,
@@ -77,13 +83,22 @@ function DayChip({
       <Animated.View style={[StyleSheet.absoluteFill, styles.fill, fill]} />
       <Animated.Text
         allowFontScaling={allowFontScaling}
-        style={[styles.letter, { fontSize: size(11) }, ink]}
+        numberOfLines={1}
+        adjustsFontSizeToFit
+        minimumFontScale={0.5}
+        maxFontSizeMultiplier={CHIP_MAX_SCALE}
+        style={[styles.letter, { fontSize: Math.min(size(11), 11 * CHIP_MAX_SCALE) }, ink]}
       >
         {day.letter}
       </Animated.Text>
+      {/* On one line whatever happens: a narrower phone shrinks it to the chip. */}
       <Animated.Text
         allowFontScaling={allowFontScaling}
-        style={[styles.number, { fontSize: size(17) }, ink]}
+        numberOfLines={1}
+        adjustsFontSizeToFit
+        minimumFontScale={0.5}
+        maxFontSizeMultiplier={CHIP_MAX_SCALE}
+        style={[styles.number, { fontSize: Math.min(size(17), 17 * CHIP_MAX_SCALE) }, ink]}
       >
         {day.number}
       </Animated.Text>
@@ -118,6 +133,11 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   fill: { borderRadius: 16 },
-  letter: { fontWeight: '700', opacity: 0.7 },
-  number: { fontWeight: '700', fontVariant: ['tabular-nums'] },
+  letter: { alignSelf: 'stretch', textAlign: 'center', fontWeight: '700', opacity: 0.7 },
+  number: {
+    alignSelf: 'stretch',
+    textAlign: 'center',
+    fontWeight: '700',
+    fontVariant: ['tabular-nums'],
+  },
 });

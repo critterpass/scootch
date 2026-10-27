@@ -9,7 +9,9 @@ on:
     paths:
       - design/*.dc.html
       - design/*.js
+      - design/phus-class/**
       - tools/scripts/render-design-screens.ts
+      - tools/scripts/render-phus-class-boards.ts
       - .github/workflows/design-renders.yml
 
 concurrency:

@@ -7,6 +7,11 @@ appId: com.phusclass.dev
     visible:
       id: 'first-day-take-seat'
     timeout: 90000
+# Wait for the splash to be gone before the first tap, however slow the device.
+- extendedWaitUntil:
+    notVisible:
+      id: 'splash'
+    timeout: 30000
 - tapOn:
     id: 'first-day-take-seat'
 - extendedWaitUntil:
