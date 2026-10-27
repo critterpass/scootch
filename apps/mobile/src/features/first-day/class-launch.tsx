@@ -1,4 +1,5 @@
 import { useRootNavigationState, useRouter, useSegments } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
 import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -12,7 +13,8 @@ import { useFirstDay } from './student';
 
 /**
  * What runs from launch: the redirect to the first day until it is done, the animated splash over
- * the first scene, and the app-wide care screening and notes home.
+ * the first scene once the system's launch screen is down, and the app-wide care screening and
+ * notes home.
  */
 export function ClassLaunch() {
   const firstDay = useFirstDay();
@@ -21,6 +23,9 @@ export function ClassLaunch() {
   const navigation = useRootNavigationState();
   const [quick, setQuick] = useState<boolean | null>(null);
   const [splashGone, setSplashGone] = useState(false);
+  // The system's launch screen is taken down here, so the card starts as it comes into view
+  // rather than playing unseen behind it.
+  const [launchGone, setLaunchGone] = useState(false);
   const top: string | undefined = segments[0];
 
   useEffect(() => {
@@ -37,6 +42,19 @@ export function ClassLaunch() {
     if (firstDay.loaded && quick === null) setQuick(firstDay.done);
   }, [firstDay.loaded, firstDay.done, quick]);
 
+  useEffect(() => {
+    if (quick === null) return;
+    let current = true;
+    void SplashScreen.hideAsync()
+      .catch(() => undefined)
+      .finally(() => {
+        if (current) setLaunchGone(true);
+      });
+    return () => {
+      current = false;
+    };
+  }, [quick]);
+
   useCareScreening();
   useNotesHome();
   useDeleteEverythingLeftover();
@@ -47,7 +65,7 @@ export function ClassLaunch() {
   if (quick === null) {
     return <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.cover]} />;
   }
-  return <Splash quick={quick} onDone={done} />;
+  return <Splash quick={quick} onDone={done} start={launchGone} />;
 }
 
 const styles = StyleSheet.create({

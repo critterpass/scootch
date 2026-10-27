@@ -3,6 +3,7 @@ import { StyleSheet } from 'react-native';
 import Animated, {
   Easing,
   interpolate,
+  makeMutable,
   useAnimatedStyle,
   useSharedValue,
   withDelay,
@@ -26,6 +27,10 @@ export const AT = {
   fly: 2980,
   flyMs: 760,
   fadeMs: 900,
+  sheet: 3520,
+  sheetMs: 620,
+  bubble: 3880,
+  bubbleMs: 300,
   end: 3900,
 } as const;
 const bezier = (a: number, b: number, c: number, d: number) => Easing.bezier(a, b, c, d);
@@ -37,6 +42,7 @@ export const SPLASH_CURVES = {
   WRITE: bezier(0.45, 0.05, 0.4, 1),
 } as const;
 const { CHARACTER } = SPLASH_CURVES;
+const CSS_EASE = bezier(0.25, 0.1, 0.25, 1);
 
 /** A drum word, as the board's `spTung`: pops to 1.15, settles to 1, then fades as it lifts. */
 export function Drum({ at, style, size, play }: DrumProps) {
@@ -116,3 +122,27 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 2, height: 2 },
   },
 });
+
+/**
+ * The first scene landing as the card goes, from the Splash board: its sheet rises from below at
+ * 3520 ms and his bubble fades in at 3880 ms. Each is 0 hidden and 1 in place; both rest at 1, so
+ * a screen shown without the full card is simply there.
+ */
+export const landing = { sheet: makeMutable(1), bubble: makeMutable(1) };
+
+/** Starts the landing with the full card; anything less leaves the scene in place. */
+export function startLanding(full: boolean): void {
+  if (!full) {
+    landing.sheet.set(1);
+    landing.bubble.set(1);
+    return;
+  }
+  landing.sheet.set(0);
+  landing.bubble.set(0);
+  landing.sheet.set(
+    withDelay(AT.sheet, withTiming(1, { duration: AT.sheetMs, easing: SPLASH_CURVES.INTERFACE })),
+  );
+  landing.bubble.set(
+    withDelay(AT.bubble, withTiming(1, { duration: AT.bubbleMs, easing: CSS_EASE })),
+  );
+}
