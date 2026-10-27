@@ -16,7 +16,7 @@ call.
 | Screenshot sets | `APP_IPHONE_67` (6.9", 1320 × 2868) and `APP_IPHONE_61` (6.3", 1206 × 2622), six frames each |
 | en-US sets | 6.9" `db659470-b8b1-4db8-9542-1f8ed2b39cc8`, 6.3" `046ecf02-5060-4a5a-82a6-c2b11768055d` |
 | vi sets | 6.9" `13f4e1c4-2c7b-4c34-9d1d-2c7f4e831c02`, 6.3" `83b8a725-de06-41e7-af47-0f4c227499f9` |
-| Review details | Not created yet: App Store Connect requires a contact phone to create them. Ready in `review.mjs` (contact Khánh Quốc, hello@phusclass.com) |
+| Review details | Set on 1.0 by `review.mjs` (contact Khanh Bui, hello@phusclass.com, no demo account). The phone is passed as `REVIEW_CONTACT_PHONE` and never kept here. |
 | Demo account | Not required |
 
 Why these sizes: App Store Connect requires at least one 6.3" (Dynamic Island, medium display)
