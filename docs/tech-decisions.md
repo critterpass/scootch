@@ -68,7 +68,7 @@ per project (`phusclass`) in the cost ledger. The API's secrets, by name:
 `ANTHROPIC_API_KEY`, `TYPESAFE_API_KEY`, `TELEGRAM_BOT_TOKEN`,
 `TELEGRAM_CHAT_ID`, `TELEGRAM_WEBHOOK_SECRET`, `REVENUECAT_API_V2_KEY`,
 `REVENUECAT_PROJECT_ID`, `REVENUECAT_WEBHOOK_AUTH`, `APNS_KEY_P8`,
-`APNS_KEY_ID`, `APNS_TEAM_ID` (`apps/api/.dev.vars.example`).
+`APNS_KEY_ID`, `APNS_TEAM_ID`, `ELEVENLABS_API_KEY` (`apps/api/.dev.vars.example`).
 
 The RevenueCat public SDK keys and the Sentry DSN are public client keys and
 are committed in `apps/mobile/eas.json`. Crash reports go to the Sentry
@@ -77,12 +77,12 @@ organisation `scootch`, project `phusclass-mobile` (EU).
 ## 2. AI: who does what
 
 The free lesson must cost about $0.10 a month a student (brief section 7), so
-hearing and picking run on the phone and the server writes only what the
-phone cannot.
+picking runs on the phone and the server writes only what the phone cannot.
+Hearing is streamed to ElevenLabs while the button is held.
 
 | Job | Runs on | Notes |
 |---|---|---|
-| Hearing (voice to text) | The phone: Apple speech, on-device only, in the app's language | Works offline and costs nothing. Audio never leaves the phone and is never kept. Typing is always there. ElevenLabs is gone |
+| Hearing (voice to text) | ElevenLabs Scribe Realtime (`scribe_v2_realtime`): the phone streams 16 kHz mono PCM from `modules/phusclass-mic` to its socket while the button is held, with a single-use token from `POST /v1/hearing/token` | The founder's call on 27 Oct 2026, after Apple's on-device speech could not hear Vietnamese on a phone set to another language. No language is named, so English and Vietnamese are both heard whatever the app's language; words appear as they are heard and the last phrase settles on letting go. It needs a connection: without one the composer says so and typing is one tap away. Audio goes to ElevenLabs while the button is held and is not kept on the phone; ElevenLabs keeps logs unless the account has zero retention. Every transcript goes through the same care gate as typed words |
 | Picking and splitting | The phone, as rules in `packages/domain`: the pick order, deadlines, heard times and splitting a ramble | Ported from the server's task call. Where Apple's on-device model is available (iOS 26 and later) it splits rambles and words lines through a small native module (native batch two); the rules are the fallback and never wait on it |
 | Serious-mode and crisis screen | The phone's keyword gate first, offline; then Jev when online | A task said offline stays plain ("Written down.") until Jev screens it when the connection returns. The on-device model may only add caution, never clear a task |
 | His lines | The offline pack first (`packages/voice/offline/`), written per language | The server writes a fresh line only for a task the pack has no good line for, when online and screened |
@@ -135,7 +135,7 @@ Jev answered in about 260 ms at the median and under 560 ms at worst.
 - Every route screens through the one function (`screenText`). The screen
   judges what a person typed, never what the server wrote.
 - Not yet tested: the reject label, long rambles, speech-to-text errors from
-  on-device hearing, more than a handful of mixed-language notes, and whether
+  hearing, more than a handful of mixed-language notes, and whether
   Apple's on-device model will label self-harm text or refuse it.
 
 ### Jev (TypeSafe)
@@ -202,8 +202,7 @@ Declared in batch one (27 Oct 2026): iOS 17.0 as the oldest system; the App
 Group and the Keychain group; iCloud key-value storage; Push and Time
 Sensitive notifications and a notification service extension; Live
 Activities; Associated Domains (`applinks:` and `webcredentials:` on
-phusclass.com); In-App Purchase; the microphone and on-device speech
-recognition; read access to the calendars (`expo-calendar`); adding to Photos
+phusclass.com); In-App Purchase; the microphone; read access to the calendars (`expo-calendar`); adding to Photos
 (saving a shared card); one widget target holding the widget and Live Activity
 shells; and the local modules `phusclass-live-activity`,
 `phusclass-notifications` and `app-icon`.
@@ -213,7 +212,10 @@ content extension, alternate app icons, Sign in with Apple and the
 Communication Notifications capability.
 
 Batch two adds the on-device model module and the App Intents (Siri and
-Shortcuts).
+Shortcuts). The voice batch (27 Oct 2026) replaces on-device speech
+recognition (`expo-speech-recognition`, and with it the speech recognition
+permission) with the local module `phusclass-mic`, which streams the
+microphone to ElevenLabs.
 
 A signed build can make or renew a provisioning profile by itself: the build
 step is given the App Store Connect key the submit step already uses.
@@ -244,7 +246,7 @@ The bot never shows task text, rambles or transcripts.
 
 | Risk | Question |
 |---|---|
-| On-device hearing | Is Apple's on-device speech good enough in Vietnamese, and how fast do words appear while speaking |
+| Streamed hearing | The first words of a hold appear about two seconds after speech starts (Scribe's first guess, measured 27 Oct 2026 with recorded clips); the last phrase settles about 0.4 s after letting go. Still to measure on a phone on mobile data |
 | Picking on the phone | Do the ported rules split a long ramble as well as the server's task call did, in both languages |
 | On-device screen | Answered 7 Oct: keywords alone miss indirect crisis notes; the phone gates and Jev judges. Whether Apple's on-device model can add caution is untested |
 | Baked poses | Do Skia-drawn poses of Thầy Phú export cleanly for widgets and the Live Activity |

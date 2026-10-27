@@ -92,7 +92,7 @@ export function DeskFixture({ which }: { readonly which: DeskCase }) {
   };
   const composerState: ComposerState =
     which === 'listening'
-      ? { mode: 'listening', since: 0, words: HEARD[language] }
+      ? { mode: 'listening', since: 0, words: HEARD[language], pending: '' }
       : which === 'typing'
         ? { mode: 'typing', draft, note: null }
         : { mode: 'idle', note: null };

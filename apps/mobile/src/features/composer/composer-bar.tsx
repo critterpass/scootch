@@ -9,6 +9,7 @@ import Animated, {
   useSharedValue,
   withSequence,
   withTiming,
+  type SharedValue,
 } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 
@@ -21,7 +22,13 @@ import { ClassIcon } from '../desk/class-icons';
 import { composerOver, css, deskActionsHeight } from '../desk/class-motion';
 import { curves, ink } from '../desk/class-style';
 
-import { IdleLayer, IDLE_HEIGHT, ListeningLayer, TypingLayer } from './composer-parts';
+import {
+  IdleLayer,
+  IDLE_HEIGHT,
+  ListeningLayer,
+  TypingLayer,
+  type ListeningPhase,
+} from './composer-parts';
 import type { ComposerNote, ComposerState } from './composer-machine';
 
 /** The listening panel where there is nothing to grow over. */
@@ -42,6 +49,8 @@ function roomOver(row: number): number {
 
 export interface ComposerBarProps {
   readonly state: ComposerState;
+  /** How loud the voice is while listening, 0 to 1. Left out, the bars move as for a steady voice. */
+  readonly level?: SharedValue<number>;
   readonly onPressIn: () => void;
   readonly onPressOut: () => void;
   readonly onType: () => void;
@@ -56,12 +65,19 @@ export interface ComposerBarProps {
 
 const NOTE_KEYS: Record<
   Exclude<ComposerNote, 'short tap'>,
-  'composer.micOff' | 'composer.noHearing' | 'composer.kept'
+  'composer.micOff' | 'composer.noConnection' | 'composer.noHearing' | 'composer.kept'
 > = {
   'mic off': 'composer.micOff',
+  'no connection': 'composer.noConnection',
   'no hearing': 'composer.noHearing',
   kept: 'composer.kept',
 };
+
+/** Which face the listening panel shows for a state of the composer. */
+function phaseOf(state: ComposerState): ListeningPhase {
+  if (state.mode === 'handing') return 'showing';
+  return state.mode === 'stopping' ? 'settling' : 'listening';
+}
 
 /**
  * "Say it" on the desk: hold to tell him, or the keyboard to type. Held, the bar grows up over
@@ -72,6 +88,7 @@ const NOTE_KEYS: Record<
  */
 export function ComposerBar({
   state,
+  level,
   onPressIn,
   onPressOut,
   onType,
@@ -90,12 +107,9 @@ export function ComposerBar({
   const showing = state.mode === 'handing';
   const typing = state.mode === 'typing';
   const open = listening || showing;
-  const words =
-    state.mode === 'listening' || state.mode === 'stopping'
-      ? state.words.trim()
-      : showing
-        ? state.text
-        : '';
+  const heard = state.mode === 'listening' || state.mode === 'stopping';
+  const words = heard ? state.words.trim() : showing ? state.text : '';
+  const pending = heard ? state.pending : '';
   const note =
     (state.mode === 'typing' || state.mode === 'idle') &&
     state.note !== null &&
@@ -207,8 +221,10 @@ export function ComposerBar({
                 {open ? (
                   <Animated.View key="open" {...fade} style={styles.layer}>
                     <ListeningLayer
-                      showing={showing}
+                      phase={phaseOf(state)}
                       words={words}
+                      pending={pending}
+                      {...(level === undefined ? {} : { level })}
                       minHeight={minListen}
                       mayMove={mayMove}
                       onLayout={onOpen}

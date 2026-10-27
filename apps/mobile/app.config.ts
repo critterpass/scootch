@@ -62,8 +62,9 @@ const appVariant = resolveVariant();
 const variant = VARIANTS[appVariant];
 
 /**
- * What iOS shows when it asks for the microphone, for speech recognition, for the calendars and to
- * add a picture to Photos, per language. Thầy Phú says them, plainly.
+ * What iOS shows when it asks for the microphone, for the calendars and to add a picture to Photos,
+ * per language. Thầy Phú says them, plainly. The microphone's string says where the voice goes:
+ * while the button is held it streams to a speech service, which turns it into text.
  */
 const CALENDAR_EN =
   'To turn your day into a timetable. I read your calendar on this phone and never change it.';
@@ -72,9 +73,7 @@ const CALENDAR_VI =
 const PERMISSION_STRINGS = {
   en: {
     NSMicrophoneUsageDescription:
-      'So you can say a task out loud instead of typing it. I listen only while you hold.',
-    NSSpeechRecognitionUsageDescription:
-      'Your words are turned into text on this phone, so I can write the task on the board.',
+      'So you can say a task out loud instead of typing it. I listen only while you hold, and a speech service turns your words into text.',
     NSCalendarsUsageDescription: CALENDAR_EN,
     NSCalendarsFullAccessUsageDescription: CALENDAR_EN,
     NSPhotoLibraryAddUsageDescription: 'To save a card you chose to share to your photos.',
@@ -84,9 +83,7 @@ const PERMISSION_STRINGS = {
   },
   vi: {
     NSMicrophoneUsageDescription:
-      'Để em nói việc cần làm thay vì gõ. Thầy chỉ nghe khi em giữ nút.',
-    NSSpeechRecognitionUsageDescription:
-      'Lời em nói được chuyển thành chữ ngay trên điện thoại này, để thầy ghi việc lên bảng.',
+      'Để em nói việc cần làm thay vì gõ. Thầy chỉ nghe khi em giữ nút, và một dịch vụ giọng nói chuyển lời em thành chữ.',
     NSCalendarsUsageDescription: CALENDAR_VI,
     NSCalendarsFullAccessUsageDescription: CALENDAR_VI,
     NSPhotoLibraryAddUsageDescription: 'Để lưu tấm thẻ em chọn chia sẻ vào ảnh.',
@@ -190,18 +187,11 @@ const app = ({ config }: ConfigContext): ExpoConfig => ({
     // Push entitlement on iOS; notification defaults on Android.
     'expo-notifications',
     [
-      'expo-speech-recognition',
-      {
-        microphonePermission: PERMISSION_STRINGS.en.NSMicrophoneUsageDescription,
-        speechRecognitionPermission: PERMISSION_STRINGS.en.NSSpeechRecognitionUsageDescription,
-      },
-    ],
-    [
       'expo-audio',
       {
-        // Sound cues only: nothing records through this library and nothing plays with the app in
-        // the background, so it adds no background mode, service or Android record permission.
-        // The microphone string stays the one speech recognition shows.
+        // Sound cues only: nothing records through this library (the microphone is
+        // modules/phusclass-mic) and nothing plays with the app in the background, so it adds no
+        // background mode, service or Android record permission. It writes the microphone string.
         microphonePermission: PERMISSION_STRINGS.en.NSMicrophoneUsageDescription,
         recordAudioAndroid: false,
         enableBackgroundPlayback: false,
@@ -244,7 +234,8 @@ const app = ({ config }: ConfigContext): ExpoConfig => ({
     // expo-sharing, expo-file-system, expo-clipboard, expo-crypto, expo-application, expo-device,
     // expo-glass-effect, @expo/ui and the local modules (modules/phusclass-live-activity,
     // modules/phusclass-notifications, modules/phusclass-intelligence, modules/app-icon,
-    // modules/phusclass-fold: the hinge and the fold on iPhone Duo, iOS 27.1 and later).
+    // modules/phusclass-fold: the hinge and the fold on iPhone Duo, iOS 27.1 and later,
+    // modules/phusclass-mic: the microphone as PCM while a task is said).
     // The App Intents for Siri and Shortcuts (targets/widgets/_shared) compile into the app and
     // the widget extension and need no capability; the on-device model links FoundationModels
     // weakly, so iOS 17 still launches.

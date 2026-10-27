@@ -1,0 +1,9 @@
+{
+  "name": "phusclass-mic",
+  "version": "1.0.0",
+  "private": true,
+  "description": "The microphone as 16 kHz mono PCM, with its level, while a task is said.",
+  "main": "index.ts",
+  "types": "index.ts",
+  "license": "UNLICENSED"
+}
