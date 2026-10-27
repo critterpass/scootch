@@ -136,6 +136,31 @@ describe('the room', () => {
     expect(lit.figure.defs).toContain('rmLamp');
   });
 
+  it('keeps the wall a layer of its own, for the pressure to warm', () => {
+    const wall = findLayer(room(base).figure, 'wall');
+    expect(JSON.stringify(wall)).toContain('#FFF1DC');
+    expect(JSON.stringify(findLayer(room({ ...base, lamp: true }).figure, 'wall'))).toContain(
+      '#E9DCC6',
+    );
+  });
+
+  it('gives back the same parts for the same words, so a new pose redraws only him', () => {
+    const parts = (scene: ReturnType<typeof room>) =>
+      scene.figure.root.pieces.map((p) => (p.kind === 'layer' ? p.layer : null));
+    const scene = { ...base, chalk: ['One'], carvings: [{ kind: 'star' }] as Carving[] };
+    const calm = parts(room({ ...scene, mood: 'calm' }));
+    const grading = parts(room({ ...scene, mood: 'grading', camera: framing('session', PHONE) }));
+    expect(grading).toHaveLength(calm.length);
+    grading.forEach((layer, i) => {
+      if (layer?.id === 'phu.place') expect(layer).not.toBe(calm[i]);
+      else expect(layer).toBe(calm[i]);
+    });
+    const moved = parts(room({ ...scene, mood: 'calm', phu: { x: 990, y: 345 } }));
+    expect(moved.find((l) => l?.id === 'phu.place')?.pivot).not.toEqual(
+      calm.find((l) => l?.id === 'phu.place')?.pivot,
+    );
+  });
+
   it('puts the class and banner the caller gives on the wall', () => {
     const back = texts('back', room({ ...base, plate: '12B', banner: 'TIÊN HỌC LỄ, HẬU HỌC VĂN' }));
     expect(back.map((t) => t.text)).toEqual(['12B', 'TIÊN HỌC LỄ, HẬU HỌC VĂN']);

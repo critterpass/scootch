@@ -219,6 +219,8 @@ export function backLayer(options: BackOptions, composition: Composition): Layer
   const figure = buildFigure({ name: 'back', ...ROOM_SIZE, label: '' }, BACKS[composition], {
     values: (h) => values[h],
     layer: (element: Element) => {
+      // The wall is its own layer, so a renderer can warm it with the pressure.
+      if (element.attrs.fill === '{{wall}}') return { id: 'wall' };
       if (element.attrs.class === 'rm-tick')
         return { id: 'clock.hand', pivot: [550, 56], motion: 'clockTick' };
       // The board turns the blades about the middle of their box; they turn about the hub here.

@@ -14,9 +14,13 @@ export interface LoopValues {
   opacity: number;
 }
 
+/** A layer at rest. */
+export const REST: LoopValues = { x: 0, y: 0, rotate: 0, scaleX: 1, scaleY: 1, opacity: 1 };
+
 const KEYS = ['x', 'y', 'rotate', 'scaleX', 'scaleY', 'opacity'] as const;
 
-function bezierY(curve: Curve, x: number): number {
+/** A cubic-bezier easing at `x` (0 to 1), as CSS eases one keyframe segment. */
+export function easeWorklet(curve: Curve, x: number): number {
   'worklet';
   const [x1, y1, x2, y2] = curve;
   const at = (a: number, b: number, t: number) =>
@@ -60,7 +64,7 @@ export function sampleLoopWorklet(loop: Loop, ms: number): LoopValues {
       if (edge !== undefined) out[key] = edge;
       continue;
     }
-    const t = b.at === a.at ? 1 : bezierY(loop.curve, (p - a.at) / (b.at - a.at));
+    const t = b.at === a.at ? 1 : easeWorklet(loop.curve, (p - a.at) / (b.at - a.at));
     out[key] = av + (bv - av) * t;
   }
   return out;
