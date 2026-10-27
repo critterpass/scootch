@@ -3,6 +3,7 @@ export * from './backup';
 export * from './data-delete';
 export * from './devices';
 export * from './health';
+export * from './hearing-tasks';
 export * from './hearing-token';
 export * from './push-tokens';
 export * from './revenuecat-webhook';

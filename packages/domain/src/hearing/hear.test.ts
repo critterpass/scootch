@@ -91,13 +91,12 @@ describe('hearing a ramble', () => {
     expect(brief(text)).toEqual(expected);
   });
 
-  it('never loses a ramble it cannot split: every sentence lands as said', () => {
+  it('never loses a ramble it cannot split: it lands as one task, as said', () => {
     const heard = hear("I don't even know. Everything is a mess", clock);
 
     expect(heard.how).toBe('sentences');
     expect(heard.tasks.map((task) => task.text)).toEqual([
-      "I don't even know",
-      'Everything is a mess',
+      "I don't even know. Everything is a mess",
     ]);
   });
 

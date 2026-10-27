@@ -1,22 +1,52 @@
-import { cutToFit, isCapital, upToLink, withoutLeading, type ChalkWord } from './short-name-words';
+import { vietnameseVerbs } from '../hearing/split-words';
+
+import {
+  cutToFit,
+  isCapital,
+  SHORT_NAME_MOST,
+  upToLink,
+  upToPause,
+  withoutLeading,
+  type ChalkWord,
+} from './short-name-words';
 
 /** Vietnamese: what is said before the task itself ("mình cần", "à"). */
 const FILLER: readonly (readonly string[])[] = [
   ['à'],
   ['ừ'],
   ['ờ'],
+  ['ờm'],
   ['ừm'],
   ['ok'],
   ['okay'],
+  ['thì', 'là'],
   ['thì'],
+  ['là'],
+  ['kiểu', 'như'],
+  ['kiểu', 'là'],
+  ['kiểu'],
+  ['ý', 'là'],
+  ['nói', 'chung', 'là'],
   ['rồi'],
   ['xong'],
   ['và'],
   ['với', 'lại'],
   ['còn'],
-  ...['mình', 'tôi', 'tớ', 'em', 'anh', 'chị', 'con', ''].flatMap((who) =>
+  ...[
+    'chúng ta',
+    'chúng mình',
+    'bọn mình',
+    'mình',
+    'tôi',
+    'tớ',
+    'em',
+    'anh',
+    'chị',
+    'con',
+    '',
+  ].flatMap((who) =>
     ['cần phải', 'cần', 'phải nhớ', 'phải', 'nhớ là', 'nhớ', 'muốn', 'nên', 'sẽ', 'định'].map(
-      (want) => [...(who === '' ? [] : [who]), ...want.split(' ')],
+      (want) => [...(who === '' ? [] : who.split(' ')), ...want.split(' ')],
     ),
   ),
 ];
@@ -55,6 +85,7 @@ const LINKS = new Set([
   'tới',
   'trong',
   'của',
+  'là',
 ]);
 
 /** Verbs that start a second clause after the person named ("… nha sĩ dời lịch"). */
@@ -82,7 +113,7 @@ const NEXT_VERBS = new Set([
 ]);
 
 /** A word left hanging at the end of a cut is dropped. */
-const DANGLING = new Set([...LINKS, 'cái', 'các', 'những', 'một']);
+const DANGLING = new Set([...LINKS, 'cái', 'các', 'những', 'một', 'ấy', 'đó', 'này']);
 
 /** Classifiers and plural words before a noun: chalk leaves them out. */
 const ARTICLES = new Set(['cái', 'các', 'những', 'một']);
@@ -134,11 +165,56 @@ function message(words: readonly ChalkWord[]): string[] | null {
   return person.length === 0 ? null : cutToFit([verb, ...person], DANGLING);
 }
 
+/** Links after which what a thing is for joins its name: "đánh giá cho việc thay Gemini". */
+const NAMED_BY = new Set(['cho', 'về', 'của']);
+
+/** Words that only stand before a thing: "việc thay Gemini" is "thay Gemini". */
+const LEAD_NOUNS = new Set(['việc', 'vụ', 'cái', 'các', 'những', 'bên']);
+
+const VERBS = vietnameseVerbs.map((verb) => verb.split(' '));
+
+function startsWithVerb(words: readonly ChalkWord[]): boolean {
+  return VERBS.some((verb) => verb.every((word, index) => words[index]?.low === word));
+}
+
+/**
+ * The thing itself, when the task starts with one: "làm cái đánh giá" is the evaluation, and
+ * "cái báo cáo" the report.
+ */
+function thingFirst(words: readonly ChalkWord[]): ChalkWord[] {
+  let task = [...words];
+  if (task[0]?.low === 'làm' && ARTICLES.has(task[1]?.low ?? '')) task = task.slice(1);
+  while (task.length > 1 && ARTICLES.has(task[0]?.low ?? '')) task = task.slice(1);
+  return task;
+}
+
+/**
+ * A thing named with what it is for, when the task starts with a noun and not a verb: "Đánh giá
+ * cho việc thay Gemini" → "Đánh giá thay Gemini". `null` when it does not fit.
+ */
+function namedBy(task: readonly ChalkWord[]): string[] | null {
+  if (startsWithVerb(task)) return null;
+  const head = upToLink(task, LINKS).filter((word) => !ARTICLES.has(word.low));
+  const last = head[head.length - 1];
+  if (last === undefined || head.length > 3) return null;
+  const at = task.indexOf(last) + 1;
+  const link = task[at];
+  if (link === undefined || !NAMED_BY.has(link.low)) return null;
+  let rest = task.slice(at + 1);
+  while (rest.length > 1 && LEAD_NOUNS.has(rest[0]?.low ?? '')) rest = rest.slice(1);
+  const object = upToLink(upToPause(rest), LINKS).map((word) => word.said);
+  if (object.length === 0) return null;
+  const named = [...head.map((word) => word.said), ...object];
+  return named.join(' ').length <= SHORT_NAME_MOST ? named : null;
+}
+
 /** Vietnamese chalk: the verb and its object, without filler or what follows a link. */
 export function chalkVietnamese(words: readonly ChalkWord[]): string[] {
-  const task = withoutLeading(words, FILLER);
+  const task = thingFirst(withoutLeading(words, FILLER));
   const sent = message(task);
   if (sent !== null) return sent;
+  const named = namedBy(task);
+  if (named !== null) return named;
   const [verb, ...rest] = task;
   if (verb === undefined) return [];
   const kept = [verb, ...upToLink(rest, LINKS).filter((word) => !ARTICLES.has(word.low))];

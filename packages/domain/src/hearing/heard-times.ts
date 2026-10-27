@@ -257,13 +257,18 @@ const englishTimes: readonly RegExp[] = [
 ].map((source) => new RegExp(`${START}(?:${source})${END}`, 'gu'));
 
 const VI_HOUR = `(?:\\d{1,2}|${oneOf(viNumbers)})`;
+/**
+ * An hour and its unit: digits take "giờ" or the short "h" and "g" ("3h"), a spoken number only
+ * "giờ", so that "chín" inside "tài chính" is never read as nine o'clock.
+ */
+const VI_HOUR_UNIT = `(?:\\d{1,2}\\s*(?:giờ|h|g)|(?:${oneOf(viNumbers)})\\s+giờ)`;
 const VI_HALF = '(?:sáng|trưa|chiều|tối|đêm|khuya)(?:\\s+(?:nay|mai))?';
 const VI_PREP = '(?:(?:vào\\s+)?lúc|khoảng|tầm|trước|đến|tới|vào)\\s+';
 /** "trong 2 giờ" and "mất 2 giờ" are lengths of time, not times. */
 const VI_NOT_LENGTH = '(?<!(?:trong|mất|hết|làm|tốn|khoảng\\s+mất)\\s)';
 
 const vietnameseTimes = [
-  `(?:${VI_HALF}\\s+)?(?:${VI_PREP})?${VI_NOT_LENGTH}${VI_HOUR}\\s*(?:giờ|h|g)(?:\\s*(?:kém\\s*${VI_HOUR}|rưỡi|\\d{1,2}(?:\\s*(?:phút|p))?))?(?:\\s+${VI_HALF})?`,
+  `(?:${VI_HALF}\\s+)?(?:${VI_PREP})?${VI_NOT_LENGTH}${VI_HOUR_UNIT}(?:\\s*(?:kém\\s*${VI_HOUR}|rưỡi|\\d{1,2}(?:\\s*(?:phút|p))?))?(?:\\s+${VI_HALF})?`,
   `(?:${VI_HALF}\\s+)?(?:${VI_PREP})?${VI_HOUR}\\s+rưỡi(?:\\s+${VI_HALF})?`,
   `(?:${VI_HALF}\\s+)?(?:vào\\s+)?lúc\\s+\\d{1,2}(?![/.\\-]\\d)(?:\\s+${VI_HALF})?`,
 ].map((source) => bothForms(`${START}(?:${source})${END}`));

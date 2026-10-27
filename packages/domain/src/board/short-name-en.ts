@@ -1,7 +1,10 @@
+import { englishVerbs } from '../hearing/split-words';
+
 import {
   cutToFit,
   SHORT_NAME_MOST,
   upToLink,
+  upToPause,
   withoutLeading,
   type ChalkWord,
 } from './short-name-words';
@@ -10,9 +13,24 @@ import {
 const FILLER: readonly (readonly string[])[] = [
   ['okay', 'so'],
   ['ok', 'so'],
+  ['okay'],
+  ['ok'],
   ['so'],
   ['um'],
   ['uh'],
+  ['uhm'],
+  ['umm'],
+  ['er'],
+  ['erm'],
+  ['hmm'],
+  ['like'],
+  ['well'],
+  ['we', 'need', 'to'],
+  ['we', 'need'],
+  ['i', 'need'],
+  ['we', 'have', 'to'],
+  ['we', 'should'],
+  ["let's"],
   ['and'],
   ['then'],
   ['also'],
@@ -119,18 +137,88 @@ function emailName({ word, to }: Emailed): string[] | null {
   return name.join(' ').length <= SHORT_NAME_MOST ? name : null;
 }
 
+/** Links after which a thing's name comes first on the chalk: "Evaluation for X" → "X eval". */
+const NAMED_BY = new Set(['for', 'of', 'about', 'on', 'with', 're', 'regarding']);
+
+/**
+ * Long words the chalk writes by their start, as people write them: still the task's own word,
+ * only shorter.
+ */
+const SHORTENED: Readonly<Record<string, string>> = {
+  evaluation: 'eval',
+  application: 'app',
+  information: 'info',
+  specification: 'spec',
+  configuration: 'config',
+  introduction: 'intro',
+  administration: 'admin',
+};
+
+const fits = (words: readonly string[]) => words.join(' ').length <= SHORT_NAME_MOST;
+
+/** Matches the case of the word it stands for: "Evaluation" → "Eval". */
+function shortened(word: string): string {
+  const short = SHORTENED[word.toLowerCase()];
+  if (short === undefined) return word;
+  return word.charAt(0) === word.charAt(0).toUpperCase()
+    ? short.charAt(0).toUpperCase() + short.slice(1)
+    : short;
+}
+
+/**
+ * A thing named by what it is for: "Evaluation for Gemini replacement" → "Gemini replacement
+ * eval", "Meeting with Tom" → "Tom meeting". Only for a task that starts with a short noun, not a
+ * verb, and only when the name fits; otherwise `null`.
+ */
+function namedBy(task: readonly ChalkWord[]): string[] | null {
+  const head = upToLink(task, LINKS).filter((word) => !ARTICLES.has(word.low));
+  const first = head[0];
+  if (first === undefined || head.length > 2 || englishVerbs.has(first.low)) return null;
+  const link = task[task.indexOf(head[head.length - 1] ?? first) + 1];
+  if (link === undefined || !NAMED_BY.has(link.low)) return null;
+  const object = upToLink(upToPause(task.slice(task.indexOf(link) + 1)), LINKS)
+    .filter((word) => !ARTICLES.has(word.low))
+    .map((word) => word.said);
+  if (object.length === 0 || object.length > 3 || /^\d/.test(object[0] ?? '')) return null;
+  // The first word was capitalised only because it came first.
+  const heads = head.map((word, index) => (index === 0 ? word.low : word.said));
+  const named = [
+    [...object, ...heads],
+    [...object, ...heads.map(shortened)],
+  ].find(fits);
+  if (named === undefined) return null;
+  const [lead = '', ...rest] = named;
+  return [lead.charAt(0).toUpperCase() + lead.slice(1), ...rest];
+}
+
+/**
+ * The verb and as much of its object as fits. An English noun phrase ends on its main word, so
+ * when the whole phrase is too long the verb keeps the last words: "Finish the quarterly budget
+ * report" → "Finish budget report".
+ */
+function verbPhrase(phrase: readonly string[]): string[] {
+  if (fits(phrase)) return [...phrase];
+  const [verb = '', ...object] = phrase;
+  for (let from = 1; from < object.length; from += 1) {
+    const kept = [verb, ...object.slice(from)];
+    if (fits(kept)) return kept;
+  }
+  return cutToFit(phrase, DANGLING);
+}
+
 /** English chalk: the verb and its object, without filler, articles or what follows a link. */
 export function chalkEnglish(words: readonly ChalkWord[]): string[] {
   const task = withoutLeading(words, FILLER);
   const message = emailed(task);
   const email = message === null ? null : emailName(message);
   if (email !== null) return email;
+  const named = namedBy(task);
+  if (named !== null) return named;
   const [verb, ...rest] = task;
   if (verb === undefined) return [];
   const phrase = [verb, ...upToLink(rest, LINKS, PARTICLES)];
   const kept = phrase.filter((word) => !ARTICLES.has(word.low));
-  return cutToFit(
-    (kept.length > 0 ? kept : phrase).map((word) => word.said),
-    DANGLING,
-  );
+  const said = (kept.length > 0 ? kept : phrase).map((word) => word.said);
+  // A verb with particles ("pick up") keeps its words in order; only an object loses its front.
+  return PARTICLES.has(said[1]?.toLowerCase() ?? '') ? cutToFit(said, DANGLING) : verbPhrase(said);
 }

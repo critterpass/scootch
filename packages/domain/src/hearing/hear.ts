@@ -14,6 +14,8 @@ export type HeardTask = {
   readonly dateHeardAs: string | null;
   /** A time still ahead today, or `null`. Never set when the part names another day. */
   readonly heardTime: { readonly at: string; readonly heardAs: string } | null;
+  /** The chalk name the model gave it, checked against what was said; `null` to work one out. */
+  readonly short: string | null;
 };
 
 export type Hearing = {
@@ -77,6 +79,7 @@ export function hearTask(part: string, clock: HearingClock): HeardTask {
     dueDate: due?.date ?? null,
     dateHeardAs: due?.heardAs ?? null,
     heardTime: keptTime === null ? null : { at: keptTime.at, heardAs: keptTime.heardAs },
+    short: null,
   };
 }
 

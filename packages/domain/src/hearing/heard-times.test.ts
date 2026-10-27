@@ -150,6 +150,8 @@ describe('finding a time today in Vietnamese', () => {
     ['a time tomorrow', 'mai 3 giờ chiều khám răng'],
     ['a time on another day', 'thứ sáu họp lúc 9 giờ'],
     ['a morning gone by', 'họp lúc 9 giờ sáng'],
+    ['a word that holds a number', 'nộp báo cáo tài chính quý ba'],
+    ['a word that holds a number, typed without marks', 'nop bao cao tai chinh quy ba'],
   ])('finds none in %s', (_, text) => {
     expect(findTimeToday(text, clock)).toBeNull();
   });

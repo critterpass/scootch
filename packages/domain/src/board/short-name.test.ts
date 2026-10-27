@@ -37,8 +37,26 @@ describe('a short name in English', () => {
     expect(shortName(task)).toBe(short);
   });
 
+  it('keeps the verb and the main word when the whole phrase does not fit', () => {
+    expect(shortName('Organise every single photograph from the wedding')).toBe(
+      'Organise photograph',
+    );
+    expect(shortName('Finish the quarterly budget report for Sarah')).toBe('Finish budget report');
+  });
+
   it('cuts at a word, never inside one, and leaves no word hanging', () => {
-    expect(shortName('Organise every single photograph from the wedding')).toBe('Organise every');
+    expect(shortName('Pick up the dry cleaning and the parcel from the post office')).toBe(
+      'Pick up dry cleaning',
+    );
+  });
+
+  it.each([
+    ['Evaluation for Gemini replacement', 'Gemini replacement eval'],
+    ['Meeting with Tom', 'Tom meeting'],
+    ['The onboarding doc for the new hires, it needs a section on VPN', 'New hires onboarding doc'],
+    ['Tickets for the concert on Friday', 'Concert tickets'],
+  ])('names a thing by what it is for: %s → %s', (task, short) => {
+    expect(shortName(task)).toBe(short);
   });
 });
 
@@ -54,7 +72,10 @@ describe('a short name in Vietnamese', () => {
     ['Hủy gói tập thử ở phòng gym', 'Hủy gói tập thử'],
     ['Mua quà sinh nhật cho Linh trước thứ Bảy', 'Mua quà sinh nhật'],
     ['Nhớ mua sữa tối nay', 'Mua sữa'],
-    ['Đặt lịch bảo dưỡng xe', 'Đặt lịch bảo dưỡng'],
+    ['Đặt lịch bảo dưỡng xe', 'Đặt lịch bảo dưỡng xe'],
+    ['Làm cái đánh giá cho việc thay Gemini', 'Đánh giá thay Gemini'],
+    ['Cái báo cáo tài chính quý ba ấy là phải nộp cho chị Hương', 'Báo cáo tài chính quý ba'],
+    ['Thì là mình cần gọi cho bên bảo hiểm về cái xe', 'Gọi bên bảo hiểm'],
   ])('%s → %s', (task, short) => {
     expect(shortName(task)).toBe(short);
   });
@@ -98,6 +119,10 @@ describe('every short name', () => {
           'need',
           'a',
           'very-long-word-indeed',
+          'evaluation',
+          'for',
+          'Gemini',
+          'meeting',
           'hospital',
           'results',
           'kết',
@@ -115,12 +140,12 @@ describe('every short name', () => {
       .map((list) => list.join(' ')),
   );
 
-  it('is made only of the task’s own words, so it says nothing the task did not', () => {
+  it('is made only of the task’s own words, or their starts, so it says nothing the task did not', () => {
     fc.assert(
       fc.property(tasks, (task) => {
-        const said = new Set(words(task));
+        const said = words(task);
         for (const word of words(shortName(task))) {
-          expect(said.has(word)).toBe(true);
+          expect(said.some((one) => one === word || one.startsWith(word))).toBe(true);
         }
       }),
     );

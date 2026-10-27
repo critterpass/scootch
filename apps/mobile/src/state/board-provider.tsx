@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useSyncExternalStore,
   type ReactNode,
 } from 'react';
@@ -15,6 +16,10 @@ import { wallClock } from '@phusclass/domain/board';
 import { hasMarks } from '@phusclass/domain/hearing';
 
 import { splitTasks } from '../../modules/phusclass-intelligence';
+import { appHttp } from '../api/app-http';
+import { hearingTasksSplit } from '../api/hearing-tasks-client';
+import { getNetworkStateAsync } from '../features/offline/connection';
+import { useLanguage } from '../i18n/i18n-provider';
 
 import { createBoardStore, type BoardStore } from './board-store';
 import type { BoardSnapshot } from './board-view';
@@ -35,6 +40,9 @@ const MONTH_FIRST_REGIONS = new Set(['US', 'PH', 'FM', 'MH', 'PW']);
  */
 export function BoardProvider({ children }: { readonly children: ReactNode }) {
   const db = useSQLiteContext();
+  const { language } = useLanguage();
+  const languageRef = useRef(language);
+  languageRef.current = language;
   const store = useMemo(() => {
     const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const region = getLocales()[0]?.regionCode ?? null;
@@ -43,8 +51,16 @@ export function BoardProvider({ children }: { readonly children: ReactNode }) {
       clock: wallClock(timeZone, DAY_ROLLOVER_HOUR),
       newId: randomUUID,
       dayFirst: region === null || !MONTH_FIRST_REGIONS.has(region),
-      // Apple's on-device model splits a ramble first where the phone has it; the rules hear it
-      // whenever it is not there, slow or unsure.
+      // With a connection the server's model hears what was said first, with a chalk name for
+      // each task; then Apple's on-device model where the phone has it. The rules hear it
+      // whenever neither is there, slow or unsure.
+      online: hearingTasksSplit(
+        appHttp(() => languageRef.current),
+        async () => {
+          const state = await getNetworkStateAsync();
+          return state.isConnected === true && state.isInternetReachable !== false;
+        },
+      ),
       split: (text) => splitTasks(text, hasMarks(text) ? 'vi' : 'en'),
     });
   }, [db]);
