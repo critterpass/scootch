@@ -34,9 +34,10 @@ if (sentryDsn) {
 }
 
 /**
- * Every route, in one native stack, each with the system transition the design gives it and none
- * with the system's bar: a screen draws its own heading. The page colour is behind every screen,
- * so no transition ever shows a blank white frame.
+ * Every route, in one native stack, each with the system transition the design gives it. No screen
+ * has the system's bar unless it asks for it: a pushed page puts up its own (`PageHeader`), and
+ * every other screen draws its own heading. The page colour is behind every screen, so no
+ * transition ever shows a blank white frame.
  */
 function Screens() {
   const mayMove = useMayMove();
@@ -53,7 +54,14 @@ function Screens() {
             paddingRight: statusClear(route.name, fold),
           },
           ...motion,
-          ...(sheetAllowedDetents ? { sheetAllowedDetents } : {}),
+          ...(sheetAllowedDetents === undefined
+            ? {}
+            : {
+                sheetAllowedDetents:
+                  typeof sheetAllowedDetents === 'string'
+                    ? sheetAllowedDetents
+                    : [...sheetAllowedDetents],
+              }),
           headerShown: false,
         };
       }}

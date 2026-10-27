@@ -1,9 +1,9 @@
-import { Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Pressable, StyleSheet, Switch, View } from 'react-native';
 
 import { useHandFont } from '../../classroom/use-hand-font';
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { GlassSurface } from '../../ui/glass-surface';
+import { SheetPage } from '../../ui/sheet-page';
 import { PhuFigure } from '../board/phu-figure';
 import { LockedPanel } from '../tuition/locked-panel';
 import { Mark } from '../tuition/marks';
@@ -39,186 +39,181 @@ export interface ReportCardViewProps {
 export function ReportCardView(props: ReportCardViewProps) {
   const t = useT();
   const { language } = useLanguage();
-  const insets = useSafeAreaInsets();
   const hand = useHandFont();
   const { card } = props;
   const tape = props.hidden ? styles.tape : null;
 
   return (
-    <View style={[styles.page, { paddingTop: insets.top }]} testID="report-card">
-      <View style={styles.bar}>
-        <GlassSurface interactive style={styles.back}>
-          <Pressable
-            testID="report-card-back"
-            accessibilityRole="button"
-            accessibilityLabel={t('reportCard.back')}
-            onPress={props.onBack}
-            style={styles.backPress}
-          >
-            <Mark name="back" color={paper.ink} size={16} />
-          </Pressable>
-        </GlassSurface>
-        {props.locked ? null : (
-          <View style={styles.terms} accessibilityRole="radiogroup">
-            {props.terms.map((term) => {
-              const on = term.number === card.term.number;
-              return (
-                <Pressable
-                  key={term.number}
-                  testID={`report-card-term-${term.number}`}
-                  accessibilityRole="radio"
-                  accessibilityState={{ checked: on }}
-                  onPress={() => props.onTerm(term)}
-                  style={[styles.term, on ? styles.termOn : null]}
-                >
-                  <Sized size={13} style={styles.termText}>
-                    {t('reportCard.term', { number: term.number })}
-                  </Sized>
-                </Pressable>
-              );
-            })}
-          </View>
-        )}
-      </View>
-      <ScrollView contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 24 }]}>
-        <Sized size={34} role="header" style={styles.title}>
-          {t('reportCard.title')}
-        </Sized>
-        {props.locked ? (
-          <LockedPanel style={styles.locked} testID="report-card-lock" />
-        ) : (
-          <>
-            <View style={styles.sheet} accessibilityLabel={t('reportCard.title')}>
-              <View style={styles.stripe} />
-              <View style={styles.head}>
-                <View style={styles.headRow}>
-                  <Label color={paper.blue}>{t('reportCard.heading')}</Label>
-                  <Label>
-                    {t('reportCard.termYear', { number: card.term.number, years: card.term.years })}
-                  </Label>
+    <SheetPage
+      testID="report-card"
+      background={paper.page}
+      contentStyle={styles.scroll}
+      bar={
+        <>
+          <GlassSurface interactive style={styles.back}>
+            <Pressable
+              testID="report-card-back"
+              accessibilityRole="button"
+              accessibilityLabel={t('reportCard.back')}
+              onPress={props.onBack}
+              style={styles.backPress}
+            >
+              <Mark name="back" color={paper.ink} size={16} />
+            </Pressable>
+          </GlassSurface>
+          {props.locked ? null : (
+            <View style={styles.terms} accessibilityRole="radiogroup">
+              {props.terms.map((term) => {
+                const on = term.number === card.term.number;
+                return (
+                  <Pressable
+                    key={term.number}
+                    testID={`report-card-term-${term.number}`}
+                    accessibilityRole="radio"
+                    accessibilityState={{ checked: on }}
+                    onPress={() => props.onTerm(term)}
+                    style={[styles.term, on ? styles.termOn : null]}
+                  >
+                    <Sized size={13} style={styles.termText}>
+                      {t('reportCard.term', { number: term.number })}
+                    </Sized>
+                  </Pressable>
+                );
+              })}
+            </View>
+          )}
+        </>
+      }
+    >
+      <Sized size={34} role="header" style={styles.title}>
+        {t('reportCard.title')}
+      </Sized>
+      {props.locked ? (
+        <LockedPanel style={styles.locked} testID="report-card-lock" />
+      ) : (
+        <>
+          <View style={styles.sheet} accessibilityLabel={t('reportCard.title')}>
+            <View style={styles.stripe} />
+            <View style={styles.head}>
+              <View style={styles.headRow}>
+                <Label color={paper.blue}>{t('reportCard.heading')}</Label>
+                <Label>
+                  {t('reportCard.termYear', { number: card.term.number, years: card.term.years })}
+                </Label>
+              </View>
+              <View style={styles.nameRow}>
+                <Sized size={12} style={styles.muted}>
+                  {t('reportCard.name')}
+                </Sized>
+                <Sized size={20} style={[handText, styles.name]} lines={1}>
+                  {props.name ?? ' '}
+                </Sized>
+                <Sized size={12} style={styles.muted}>
+                  {t('reportCard.class')}
+                </Sized>
+              </View>
+            </View>
+            {props.later || card.empty ? (
+              <View style={styles.later} testID="report-card-later">
+                <View accessibilityElementsHidden style={styles.laterPhu}>
+                  <PhuFigure mood="grading" width={110} hand={hand} />
                 </View>
-                <View style={styles.nameRow}>
-                  <Sized size={12} style={styles.muted}>
-                    {t('reportCard.name')}
+                {props.later ? (
+                  <Sized size={17} style={styles.laterTitle}>
+                    {t('reportCard.laterTitle', {
+                      number: card.term.number,
+                      month: monthName(card.term.from, language),
+                    })}
                   </Sized>
-                  <Sized size={20} style={[handText, styles.name]} lines={1}>
-                    {props.name ?? ' '}
-                  </Sized>
-                  <Sized size={12} style={styles.muted}>
-                    {t('reportCard.class')}
-                  </Sized>
+                ) : null}
+                <Sized size={14} style={styles.laterBody}>
+                  {t('reportCard.laterBody')}
+                </Sized>
+              </View>
+            ) : (
+              <View style={styles.inside}>
+                <View style={styles.section}>
+                  <Label>{t('reportCard.handedIn')}</Label>
+                  {card.lines.map((line) => (
+                    <View key={line.subject} style={styles.subjectRow}>
+                      <Sized size={14} style={styles.subject}>
+                        {subjectName(line.subject, t)}
+                      </Sized>
+                      <Sized size={16} lines={2} style={[handText, styles.examples, tape]}>
+                        {line.examples.join(', ')}
+                      </Sized>
+                    </View>
+                  ))}
+                </View>
+                {card.hardest !== null ? (
+                  <View style={styles.hardest}>
+                    <Label>{t('reportCard.hardest')}</Label>
+                    <Sized size={14.5} style={[styles.hardestText, tape]}>
+                      {card.hardest.text}
+                    </Sized>
+                    <Sized size={12.5} style={styles.muted}>
+                      {card.hardest.waitedDays === 0
+                        ? t('finish.sameDay')
+                        : t('finish.waited', { count: card.hardest.waitedDays })}
+                      {'. '}
+                      {t('finish.took', { count: card.hardest.tookMinutes })}
+                      {'.'}
+                    </Sized>
+                  </View>
+                ) : null}
+                {props.comment !== null ? (
+                  <View style={styles.section}>
+                    <Label>{t('reportCard.comment')}</Label>
+                    <Sized size={18} style={[handText, styles.comment]}>
+                      {props.comment}
+                    </Sized>
+                  </View>
+                ) : null}
+                <View style={styles.foot}>
+                  <View style={styles.conduct}>
+                    <Label>{t('reportCard.conduct')}</Label>
+                    <Sized size={22} style={[handText, styles.conductMark]}>
+                      {props.conduct}
+                    </Sized>
+                  </View>
+                  <View style={styles.signed}>
+                    <ReceiptSignature label={t('tuition.signature')} />
+                    <Label>{t('class.homeroomTeacher').toLocaleUpperCase(language)}</Label>
+                  </View>
                 </View>
               </View>
-              {props.later || card.empty ? (
-                <View style={styles.later} testID="report-card-later">
-                  <View accessibilityElementsHidden style={styles.laterPhu}>
-                    <PhuFigure mood="grading" width={110} hand={hand} />
-                  </View>
-                  {props.later ? (
-                    <Sized size={17} style={styles.laterTitle}>
-                      {t('reportCard.laterTitle', {
-                        number: card.term.number,
-                        month: monthName(card.term.from, language),
-                      })}
-                    </Sized>
-                  ) : null}
-                  <Sized size={14} style={styles.laterBody}>
-                    {t('reportCard.laterBody')}
-                  </Sized>
-                </View>
-              ) : (
-                <View style={styles.inside}>
-                  <View style={styles.section}>
-                    <Label>{t('reportCard.handedIn')}</Label>
-                    {card.lines.map((line) => (
-                      <View key={line.subject} style={styles.subjectRow}>
-                        <Sized size={14} style={styles.subject}>
-                          {subjectName(line.subject, t)}
-                        </Sized>
-                        <Sized size={16} lines={2} style={[handText, styles.examples, tape]}>
-                          {line.examples.join(', ')}
-                        </Sized>
-                      </View>
-                    ))}
-                  </View>
-                  {card.hardest !== null ? (
-                    <View style={styles.hardest}>
-                      <Label>{t('reportCard.hardest')}</Label>
-                      <Sized size={14.5} style={[styles.hardestText, tape]}>
-                        {card.hardest.text}
-                      </Sized>
-                      <Sized size={12.5} style={styles.muted}>
-                        {card.hardest.waitedDays === 0
-                          ? t('finish.sameDay')
-                          : t('finish.waited', { count: card.hardest.waitedDays })}
-                        {'. '}
-                        {t('finish.took', { count: card.hardest.tookMinutes })}
-                        {'.'}
-                      </Sized>
-                    </View>
-                  ) : null}
-                  {props.comment !== null ? (
-                    <View style={styles.section}>
-                      <Label>{t('reportCard.comment')}</Label>
-                      <Sized size={18} style={[handText, styles.comment]}>
-                        {props.comment}
-                      </Sized>
-                    </View>
-                  ) : null}
-                  <View style={styles.foot}>
-                    <View style={styles.conduct}>
-                      <Label>{t('reportCard.conduct')}</Label>
-                      <Sized size={22} style={[handText, styles.conductMark]}>
-                        {props.conduct}
-                      </Sized>
-                    </View>
-                    <View style={styles.signed}>
-                      <ReceiptSignature label={t('tuition.signature')} />
-                      <Label>{t('class.homeroomTeacher').toLocaleUpperCase(language)}</Label>
-                    </View>
-                  </View>
-                </View>
-              )}
-            </View>
-            {!props.later && !card.empty ? (
-              <>
-                <View style={styles.hideRow}>
-                  <Sized size={14.5} style={styles.hideText}>
-                    {t('reportCard.hide')}
-                  </Sized>
-                  <Switch
-                    testID="report-card-hide"
-                    accessibilityLabel={t('reportCard.hide')}
-                    value={props.hidden}
-                    onValueChange={props.onHide}
-                  />
-                </View>
-                {props.onShare !== null ? (
-                  <Capsule
-                    testID="report-card-share"
-                    label={t('reportCard.share')}
-                    tone="ink"
-                    onPress={props.onShare}
-                  />
-                ) : null}
-              </>
-            ) : null}
-          </>
-        )}
-      </ScrollView>
-    </View>
+            )}
+          </View>
+          {!props.later && !card.empty ? (
+            <>
+              <View style={styles.hideRow}>
+                <Sized size={14.5} style={styles.hideText}>
+                  {t('reportCard.hide')}
+                </Sized>
+                <Switch
+                  testID="report-card-hide"
+                  accessibilityLabel={t('reportCard.hide')}
+                  value={props.hidden}
+                  onValueChange={props.onHide}
+                />
+              </View>
+              {props.onShare !== null ? (
+                <Capsule
+                  testID="report-card-share"
+                  label={t('reportCard.share')}
+                  tone="ink"
+                  onPress={props.onShare}
+                />
+              ) : null}
+            </>
+          ) : null}
+        </>
+      )}
+    </SheetPage>
   );
 }
 
 const styles = StyleSheet.create({
-  page: { flex: 1, backgroundColor: paper.page },
-  bar: {
-    minHeight: 56,
-    paddingHorizontal: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
   back: { width: 40, height: 40, borderRadius: 20 },
   backPress: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   terms: {

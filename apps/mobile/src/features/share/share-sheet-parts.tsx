@@ -49,6 +49,8 @@ export const styles = StyleSheet.create({
     backgroundColor: 'rgba(28,26,24,0.16)',
   },
   content: { paddingHorizontal: 22, paddingTop: 12, gap: 18 },
+  // Under the system's grabber, the heading sits where it sits under the board's own.
+  contentInSheet: { paddingTop: 27 },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
   title: {
     flex: 1,

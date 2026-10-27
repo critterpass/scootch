@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { FoldLayout } from '../../ui/fold/fold-layout';
 import { foldSheetStyle } from '../../ui/fold/fold-sheet';
 import { useGlide } from '../../ui/fold/use-glide';
+import { KeyboardAway } from '../../ui/keyboard-away';
 import { useMayMove } from '../../ui/motion/use-feel';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { shapes } from '../desk/class-style';
@@ -34,10 +35,13 @@ export function SessionSheet({
   const swap = panelSwap(useMayMove());
   const duo = fold !== undefined && fold.sheet !== null;
   const glide = useGlide(fold?.sheet?.left ?? 0, -(fold?.sheet?.bottom ?? 0));
+  // A tap on the sheet's empty room puts the keyboard away, as a tap beside a field does.
   const body = (
-    <Animated.View key={panel} {...swap}>
-      {children}
-    </Animated.View>
+    <KeyboardAway>
+      <Animated.View key={panel} {...swap}>
+        {children}
+      </Animated.View>
+    </KeyboardAway>
   );
   return (
     <Animated.View
@@ -52,7 +56,12 @@ export function SessionSheet({
     >
       {duo ? <View style={styles.duoTop} /> : <View style={[shapes.grabber, styles.grabber]} />}
       {largeText ? (
-        <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.scroll}
+          showsVerticalScrollIndicator={false}
+          keyboardDismissMode="on-drag"
+          keyboardShouldPersistTaps="handled"
+        >
           {body}
         </ScrollView>
       ) : (

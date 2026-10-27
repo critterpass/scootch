@@ -117,6 +117,7 @@ export function ScholarshipView(props: ScholarshipViewProps) {
       style={styles.sheet}
       contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]}
       keyboardShouldPersistTaps="handled"
+      keyboardDismissMode="on-drag"
       testID="scholarship"
     >
       <View style={styles.askHead}>

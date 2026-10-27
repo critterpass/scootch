@@ -1,13 +1,14 @@
 /**
  * How each route arrives and leaves, as the design moves between screens, using the system's own
  * transitions. Every route file under `app/` is named here; one that is not gets the plain push.
- * No route wears the system's navigation bar: every screen draws its own heading and its close
- * control in the trailing corner, so a screen looks the same however it was reached.
+ * A pushed page wears the system's navigation bar, with its large title and its way back (see
+ * `ui/page-header.tsx`); every other screen draws its own heading and its close control.
  *
  * - `home`: the desk. Returning to it reads as going back.
  * - `push`: the system's push, with its interruptible swipe back.
- * - `sheet`: a whole page that comes up as the system's page sheet, pulled down to close. It is
- *   laid out as any page is.
+ * - `sheet`: a whole page that comes up as the system's sheet at its full height, with a grabber.
+ *   Its scroll view is the first thing on it, so the system follows it: pulled down from the top
+ *   of what it shows, the page closes, as any system sheet does.
  * - `fitted`: a small sheet with a grabber, as tall as what is on it. Its content has its own
  *   height and never scrolls; the sheet takes that height.
  * - `fade`: a moment, not a place. No swipe.
@@ -51,6 +52,11 @@ const RETURNED_TO: ReadonlySet<string> = new Set(['index']);
  */
 const SWIPED_BACK_ANYWHERE: ReadonlySet<string> = new Set(['(dev)']);
 
+/** The boards' sheet corner, the same on the system's sheets as on a sheet drawn on a page. */
+export const SHEET_RADIUS = 34;
+/** The one height a page sheet rests at: the system's large detent. */
+const FULL_HEIGHT: readonly number[] = [1];
+
 export interface StackMotionOptions {
   readonly animation: 'default' | 'fade' | 'none';
   readonly presentation: 'card' | 'modal' | 'formSheet' | 'transparentModal';
@@ -59,9 +65,10 @@ export interface StackMotionOptions {
   /** The swipe back starts anywhere across the screen, not only at its edge. */
   readonly fullScreenGestureEnabled: boolean;
   readonly animationTypeForReplace: 'push' | 'pop';
-  /** A fitted sheet is as tall as its content, and rests nowhere else. */
-  readonly sheetAllowedDetents?: 'fitToContents';
+  /** A fitted sheet is as tall as its content; a page sheet is as tall as a sheet may be. */
+  readonly sheetAllowedDetents?: 'fitToContents' | readonly number[];
   readonly sheetGrabberVisible?: boolean;
+  readonly sheetCornerRadius?: number;
   /** A screen laid over another is see-through: the one beneath shows wherever it draws nothing. */
   readonly contentStyle?: { readonly backgroundColor: 'transparent' };
 }
@@ -106,14 +113,17 @@ export function stackMotion(routeName: string, mayMove: boolean): StackMotionOpt
         animationTypeForReplace,
       };
     case 'sheet':
-      // A whole page: the system's page sheet, which lays its content out as a card does. A form
-      // sheet does not give a page a height to fill, and moves the first list it finds.
+      // A whole page on the system's form sheet at its full height: the sheet follows the first
+      // scroll view it finds, so a pull down from the top of the page closes it.
       return {
         animation: moving,
-        presentation: 'modal',
+        presentation: 'formSheet',
         gestureEnabled: true,
         fullScreenGestureEnabled: false,
         animationTypeForReplace,
+        sheetAllowedDetents: FULL_HEIGHT,
+        sheetGrabberVisible: true,
+        sheetCornerRadius: SHEET_RADIUS,
       };
     case 'fitted':
       return {
@@ -124,6 +134,7 @@ export function stackMotion(routeName: string, mayMove: boolean): StackMotionOpt
         animationTypeForReplace,
         sheetAllowedDetents: 'fitToContents',
         sheetGrabberVisible: true,
+        sheetCornerRadius: SHEET_RADIUS,
       };
     case 'home':
       return {

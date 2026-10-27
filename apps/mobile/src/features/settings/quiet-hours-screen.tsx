@@ -1,26 +1,18 @@
-import { useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useT } from '../../i18n/i18n-provider';
-import { CapsuleButton } from '../../ui/buttons';
-import { goBack } from '../../ui/motion/go-back';
-import { PressSpring } from '../../ui/motion/press-spring';
+import { PageHeader } from '../../ui/page-header';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { DEFAULT_QUIET, type QuietHours } from '../notes/notes-plan';
-import { clockText, readNotesSettings, writeNotesSettings } from '../notes/notes-settings';
+import { readNotesSettings, writeNotesSettings } from '../notes/notes-settings';
 
-import { Foot, Group, TITLE_MAX_SCALE, titleSize, usePage } from './settings-parts';
+import { ClockPicker } from './clock-picker';
+import { Foot, Group, Rule, usePage } from './settings-parts';
 
-/** Quiet hours move in half hours. */
-const STEP = 30;
-const DAY = 24 * 60;
-
-const moved = (minute: number, by: number) => (minute + by + DAY) % DAY;
-
-function Stepper({
+/** One cell of the group: what the time is for, and the time at its end. */
+function TimeRow({
   label,
   minute,
   onChange,
@@ -33,73 +25,28 @@ function Stepper({
   readonly first: boolean;
   readonly testID: string;
 }) {
-  const t = useT();
   const { palette, allowFontScaling, size, largeText } = useScreenStyle();
-  const button = (text: string, by: number, id: string) => (
-    <PressSpring
-      accessibilityRole="button"
-      accessibilityLabel={`${label}: ${text}`}
-      onPress={() => onChange(moved(minute, by))}
-      feedback="choice"
-      testID={`${testID}-${id}`}
-      style={[styles.step, { backgroundColor: `${palette.ink}0F` }]}
-    >
+  return (
+    <View style={[styles.cell, largeText && styles.cellStacked]}>
+      {first ? null : <Rule />}
       <Text
         allowFontScaling={allowFontScaling}
-        style={[styles.stepText, { color: palette.ink, fontSize: size(15) }]}
+        style={[styles.label, { color: palette.ink, fontSize: size(16) }]}
       >
-        {text}
+        {label}
       </Text>
-    </PressSpring>
-  );
-  return (
-    <View
-      style={[
-        styles.row,
-        largeText && styles.rowStacked,
-        !first && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: `${palette.ink}14` },
-      ]}
-    >
-      <View
-        accessible
-        accessibilityRole="adjustable"
-        accessibilityLabel={label}
-        accessibilityValue={{ text: clockText(minute) }}
-        accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
-        onAccessibilityAction={(event) =>
-          onChange(moved(minute, event.nativeEvent.actionName === 'increment' ? STEP : -STEP))
-        }
-        style={styles.labelBox}
-      >
-        <Text
-          allowFontScaling={allowFontScaling}
-          style={{ color: palette.ink, fontSize: size(16) }}
-        >
-          {label}
-        </Text>
-        <Text
-          allowFontScaling={allowFontScaling}
-          style={[styles.time, { color: palette.ink, fontSize: size(28) }]}
-          testID={`${testID}-value`}
-        >
-          {clockText(minute)}
-        </Text>
-      </View>
-      <View style={styles.steps}>
-        {button(t('settings.quiet.earlier'), -STEP, 'earlier')}
-        {button(t('settings.quiet.later'), STEP, 'later')}
-      </View>
+      <ClockPicker label={label} minute={minute} onChange={onChange} testID={testID} />
     </View>
   );
 }
 
-/** Quiet hours: when no note comes home. Sleep and Focus are the system's, and always respected. */
+/**
+ * Quiet hours: when no note comes home. Sleep and Focus are the system's, and always respected.
+ * A change is kept as it is made, so the way back is the system's back.
+ */
 export function QuietHoursScreen() {
   const t = useT();
-  const router = useRouter();
   const db = useSQLiteContext();
-  const insets = useSafeAreaInsets();
-  const { palette, allowFontScaling, size } = useScreenStyle();
   const page = usePage();
   const [quiet, setQuiet] = useState<QuietHours>(DEFAULT_QUIET);
 
@@ -119,68 +66,46 @@ export function QuietHoursScreen() {
   };
 
   return (
-    <ScrollView
-      style={{ backgroundColor: page }}
-      contentContainerStyle={{ paddingTop: insets.top + 24, paddingBottom: insets.bottom + 24 }}
-      testID="settings-quiet"
-    >
-      <Text
-        accessibilityRole="header"
-        allowFontScaling={allowFontScaling}
-        maxFontSizeMultiplier={TITLE_MAX_SCALE}
-        style={[styles.title, { color: palette.ink, fontSize: titleSize(size, 28) }]}
+    <>
+      <ScrollView
+        style={{ backgroundColor: page }}
+        contentInsetAdjustmentBehavior="automatic"
+        contentContainerStyle={styles.content}
+        testID="settings-quiet"
       >
-        {t('settings.notes.quiet')}
-      </Text>
-      <Group>
-        <Stepper
-          first
-          label={t('settings.quiet.from')}
-          minute={quiet.from}
-          onChange={(from) => change({ ...quiet, from })}
-          testID="quiet-from"
-        />
-        <Stepper
-          first={false}
-          label={t('settings.quiet.to')}
-          minute={quiet.to}
-          onChange={(to) => change({ ...quiet, to })}
-          testID="quiet-to"
-        />
-      </Group>
-      <Foot>{t('settings.quiet.foot')}</Foot>
-      <CapsuleButton
-        label={t('settings.done')}
-        hint={t('settings.back.hint')}
-        onPress={() => goBack(router, '/settings')}
-        testID="quiet-done"
-        style={styles.done}
-      />
-    </ScrollView>
+        <Group>
+          <TimeRow
+            first
+            label={t('settings.quiet.from')}
+            minute={quiet.from}
+            onChange={(from) => change({ ...quiet, from })}
+            testID="quiet-from"
+          />
+          <TimeRow
+            first={false}
+            label={t('settings.quiet.to')}
+            minute={quiet.to}
+            onChange={(to) => change({ ...quiet, to })}
+            testID="quiet-to"
+          />
+        </Group>
+        <Foot>{t('settings.quiet.foot')}</Foot>
+      </ScrollView>
+      <PageHeader title={t('settings.notes.quiet')} />
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  title: { marginHorizontal: 20, marginBottom: 18, fontWeight: '800', letterSpacing: -0.5 },
-  row: {
+  content: { paddingTop: 12, paddingBottom: 24 },
+  cell: {
+    minHeight: 50,
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 8,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
   },
-  rowStacked: { flexDirection: 'column', alignItems: 'stretch' },
-  labelBox: { flex: 1, gap: 2 },
-  time: { fontWeight: '700', fontVariant: ['tabular-nums'] },
-  steps: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
-  step: {
-    minHeight: 44,
-    minWidth: 44,
-    borderRadius: 22,
-    paddingHorizontal: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  stepText: { fontWeight: '600' },
-  done: { marginTop: 24, marginHorizontal: 16 },
+  cellStacked: { flexDirection: 'column', alignItems: 'flex-start', gap: 6 },
+  label: { flexShrink: 1, flexGrow: 1 },
 });

@@ -1,24 +1,23 @@
 import { useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
-import { KeyboardAvoidingView, ScrollView, StyleSheet, Text, TextInput } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ScrollView, StyleSheet, Text, TextInput } from 'react-native';
 
 import { useT } from '../../i18n/i18n-provider';
 import { CapsuleButton } from '../../ui/buttons';
 import { goBack } from '../../ui/motion/go-back';
+import { PageHeader } from '../../ui/page-header';
 import { useForcedVariant } from '../../screens/registry/support/forced-variant';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { saveFullName, tidyName, useFirstDay } from '../first-day/student';
 
-import { TITLE_MAX_SCALE, titleSize, usePage } from './settings-parts';
+import { usePage } from './settings-parts';
 
 /** Roll call again, from the student card: the full name he shouts at the top of the pressure. */
 export function NameScreen({ typedName }: { readonly typedName?: string }) {
   const t = useT();
   const router = useRouter();
   const db = useSQLiteContext();
-  const insets = useSafeAreaInsets();
   const { palette, allowFontScaling, size } = useScreenStyle();
   const page = usePage();
   const { fullName } = useFirstDay();
@@ -31,23 +30,16 @@ export function NameScreen({ typedName }: { readonly typedName?: string }) {
   };
 
   return (
-    <KeyboardAvoidingView behavior="padding" style={[styles.fill, { backgroundColor: page }]}>
+    <>
       <ScrollView
+        style={[styles.fill, { backgroundColor: page }]}
+        contentInsetAdjustmentBehavior="automatic"
+        automaticallyAdjustKeyboardInsets
+        keyboardDismissMode="on-drag"
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={[
-          styles.content,
-          { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 24 },
-        ]}
+        contentContainerStyle={styles.content}
         testID="settings-name"
       >
-        <Text
-          accessibilityRole="header"
-          allowFontScaling={allowFontScaling}
-          maxFontSizeMultiplier={TITLE_MAX_SCALE}
-          style={[styles.title, { color: palette.ink, fontSize: titleSize(size, 28) }]}
-        >
-          {t('firstDay.name.heading')}
-        </Text>
         <Text
           allowFontScaling={allowFontScaling}
           style={{ color: palette.muted, fontSize: size(13) }}
@@ -80,14 +72,14 @@ export function NameScreen({ typedName }: { readonly typedName?: string }) {
           testID="settings-name-save"
         />
       </ScrollView>
-    </KeyboardAvoidingView>
+      <PageHeader title={t('firstDay.name.heading')} />
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   fill: { flex: 1 },
-  content: { paddingHorizontal: 20, gap: 12 },
-  title: { fontWeight: '800', letterSpacing: -0.5 },
+  content: { paddingHorizontal: 20, paddingTop: 4, paddingBottom: 24, gap: 12 },
   input: {
     minHeight: 52,
     borderRadius: 16,
