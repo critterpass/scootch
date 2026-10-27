@@ -21,8 +21,8 @@ const notes = [
 ].join('\n');
 
 const details = {
-  contactFirstName: 'Khánh',
-  contactLastName: 'Quốc',
+  contactFirstName: 'Khanh',
+  contactLastName: 'Bui',
   contactEmail: 'hello@phusclass.com',
   demoAccountRequired: false,
   notes,
