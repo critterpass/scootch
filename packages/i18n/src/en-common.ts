@@ -1,6 +1,7 @@
 /** The brand, the class, and the helplines' days, hours and zones. */
 export const enCommon = {
   'brand.name': "Phu's Class",
+  'class.banner': 'MANNERS, THEN LETTERS',
   'class.homeroomTeacher': 'Homeroom teacher',
   'care.day.fri': 'Fri',
   'care.day.mon': 'Mon',

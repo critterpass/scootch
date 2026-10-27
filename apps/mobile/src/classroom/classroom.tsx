@@ -33,6 +33,7 @@ import {
   type Viewport,
 } from '@phusclass/art/class';
 
+import { useT } from '../i18n/i18n-provider';
 import { useMayMove } from '../ui/motion/use-feel';
 
 import { LayerView, type DrawContext } from './layer-view';
@@ -102,6 +103,8 @@ export function Classroom({
   const mayMove = useMayMove();
   const focused = useIsFocused();
   const hand = useHandFont();
+  const t = useT();
+  const banner = scene.banner ?? t('class.banner');
   const mood: PhuMood = scene.mood ?? 'over';
   const pose = useMemo(() => phuPose(mood), [mood]);
 
@@ -110,8 +113,8 @@ export function Classroom({
   const built = useMemo(() => {
     if (!viewport) return null;
     const target = camera ?? framingFor(framing, viewport);
-    return room({ ...scene, pose, viewport, camera: target, composition: 'phone' });
-  }, [viewport, camera?.x, camera?.y, camera?.w, framing, pose, sceneKey]);
+    return room({ ...scene, banner, pose, viewport, camera: target, composition: 'phone' });
+  }, [viewport, camera?.x, camera?.y, camera?.w, framing, pose, sceneKey, banner]);
 
   const shutEyes = useMemo(() => findLayer(buildPhu(blinking(pose)), 'eyes'), [pose]);
 
