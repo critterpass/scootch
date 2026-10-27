@@ -11,6 +11,9 @@ import { firstDayRedirect } from './first-day-redirect';
 import { Splash } from './splash';
 import { useFirstDay } from './student';
 
+/** The longest the card waits for the system's launch screen to come down. */
+const LAUNCH_WAIT_MS = 1000;
+
 /**
  * What runs from launch: the redirect to the first day until it is done, the animated splash over
  * the first scene once the system's launch screen is down, and the app-wide care screening and
@@ -45,13 +48,17 @@ export function ClassLaunch() {
   useEffect(() => {
     if (quick === null) return;
     let current = true;
+    const gone = () => {
+      if (current) setLaunchGone(true);
+    };
+    // The card never waits on the launch screen for long, whatever the system answers.
+    const fallback = setTimeout(gone, LAUNCH_WAIT_MS);
     void SplashScreen.hideAsync()
       .catch(() => undefined)
-      .finally(() => {
-        if (current) setLaunchGone(true);
-      });
+      .finally(gone);
     return () => {
       current = false;
+      clearTimeout(fallback);
     };
   }, [quick]);
 

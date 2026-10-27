@@ -50,8 +50,9 @@ export interface SplashProps {
  * The animated splash, from the Splash board: "Phu's Class" written in chalk, the line under it,
  * Thầy Phú rising behind the board, three drum beats that shake it, then the card flies up to
  * where the chalkboard hangs in the room as the first scene shows through. Under Reduce Motion the
- * card is simply there, then fades. Until it starts to go it takes every tap, so nothing under it
- * is touched; VoiceOver hears one line.
+ * card is simply there, then fades. It takes no touch: a card that held taps swallowed them
+ * whenever it stayed longer than expected, on a slow phone or under a test. VoiceOver hears one
+ * line.
  */
 export function Splash({ quick, onDone, held = false, start = true }: SplashProps) {
   const t = useT();
@@ -69,20 +70,14 @@ export function Splash({ quick, onDone, held = false, start = true }: SplashProp
   const page = useSharedValue(1);
   const shake = useBoardShake(full);
   const [size, setSize] = useState({ width: 0, height: 0 });
-  // Nothing under the card takes a tap until it starts to go.
-  const [covering, setCovering] = useState(true);
 
   useEffect(() => {
     if (held) return undefined;
     startLanding(moving && !quick && start);
     if (!start) return undefined;
-    const goes = (at: number, total: number) => {
-      const lift = setTimeout(() => setCovering(false), at);
+    const goes = (total: number) => {
       const timer = setTimeout(() => onDone?.(), total);
-      return () => {
-        clearTimeout(lift);
-        clearTimeout(timer);
-      };
+      return () => clearTimeout(timer);
     };
     if (!moving) {
       // The still card's fade is the one motion Reduce Motion keeps, as the board's.
@@ -92,7 +87,7 @@ export function Splash({ quick, onDone, held = false, start = true }: SplashProp
           withTiming(0, { duration: STILL_FADE_MS, reduceMotion: ReduceMotion.Never }),
         ),
       );
-      return goes(STILL_FADE_AT, STILL_FADE_AT + STILL_FADE_MS);
+      return goes(STILL_FADE_AT + STILL_FADE_MS);
     }
     const flyAt = quick ? QUICK_FLY_AT : AT.fly;
     if (!quick) {
@@ -102,7 +97,7 @@ export function Splash({ quick, onDone, held = false, start = true }: SplashProp
     }
     fly.set(withDelay(flyAt, withTiming(1, { duration: AT.flyMs, easing: CAMERA })));
     page.set(withDelay(flyAt, withTiming(0, { duration: AT.fadeMs, easing: CAMERA })));
-    return goes(flyAt, flyAt + AT.fadeMs + 40);
+    return goes(flyAt + AT.fadeMs + 40);
   }, [held, start, moving, quick, onDone, written, line, rise, fly, page]);
 
   const pageStyle = useAnimatedStyle(() => ({ opacity: page.get() }));
@@ -128,7 +123,7 @@ export function Splash({ quick, onDone, held = false, start = true }: SplashProp
 
   return (
     <Animated.View
-      pointerEvents={covering && !held ? 'auto' : 'none'}
+      pointerEvents="none"
       accessibilityElementsHidden={!held}
       importantForAccessibility={held ? 'yes' : 'no-hide-descendants'}
       accessible={held}
