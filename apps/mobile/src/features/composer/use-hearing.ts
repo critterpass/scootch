@@ -1,127 +1,130 @@
-import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent } from 'expo-speech-recognition';
-import { useCallback, useMemo, useRef } from 'react';
-import { Platform } from 'react-native';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { Easing, useSharedValue, withTiming, type SharedValue } from 'react-native-reanimated';
 
-import type { Language } from '@phusclass/i18n';
-
+import { mic } from '../../../modules/phusclass-mic';
+import { appHttp } from '../../api/app-http';
 import { soundMode } from '../../effects/sound-mode';
+import { useLanguage } from '../../i18n/i18n-provider';
 
 import type { Permission } from './composer-machine';
-
-/** The phone's hearing locale for each app language. */
-const LOCALES: Record<Language, string> = { en: 'en-US', vi: 'vi-VN' };
+import { listen, type HearingFailure, type Listening } from './hearing-listener';
+import type { Heard, OpenSocket, SocketLike } from './hearing-session';
+import { createTokenSource, fetchHearingToken, type TokenSource } from './hearing-token';
 
 export interface HearingEvents {
-  readonly onWords: (words: string) => void;
+  readonly onHeard: (heard: Heard) => void;
   readonly onEnded: () => void;
-  readonly onUnavailable: () => void;
+  readonly onUnavailable: (why: HearingFailure) => void;
 }
 
 export interface Hearing {
   permission(): Promise<Permission>;
   ask(): Promise<boolean>;
-  start(language: Language): Promise<void>;
+  start(): void;
   stop(): void;
   abort(): void;
+  /** How loud the voice is now, 0 to 1, eased for drawing; 0 while nothing listens. */
+  readonly level: SharedValue<number>;
 }
 
-/** Errors that only mean hearing stopped, with whatever words came. */
-const QUIET_ENDS = new Set(['aborted', 'no-speech', 'speech-timeout']);
+/** A level rises as fast as a voice does and falls back gently, as a meter's needle. */
+const RISE = { duration: 70, easing: Easing.out(Easing.quad) } as const;
+const FALL = { duration: 240, easing: Easing.out(Easing.quad) } as const;
+
+const openSocket: OpenSocket = (url) => new WebSocket(url) as unknown as SocketLike;
+
+// One token kept ready for the whole app; each hold spends it and the next is fetched behind it.
+let tokens: TokenSource | null = null;
 
 /**
- * Apple's speech recognition on the phone itself, in the app's language: audio never leaves the
- * phone and nothing waits on a connection. A phone with no on-device model for the language says
- * so through `onUnavailable`, and the composer opens typing.
+ * Hearing through ElevenLabs Scribe Realtime: hold, and the microphone streams to it, with the
+ * words coming back as they are heard. No language is named, so English and Vietnamese are both
+ * heard whatever the app's language. The audio goes to the transcriber and nowhere else, and
+ * nothing is kept on the phone. Without a connection, or without the microphone module (Android,
+ * tests), it says so through `onUnavailable` and the composer offers typing.
  */
 export function useHearing(events: HearingEvents): Hearing {
+  const { language } = useLanguage();
+  const languageRef = useRef(language);
+  languageRef.current = language;
   const latest = useRef(events);
   latest.current = events;
-  const active = useRef(false);
+  const listening = useRef<Listening | null>(null);
+  const level = useSharedValue(0);
 
-  useSpeechRecognitionEvent('result', (event) => {
-    const words = event.results[0]?.transcript ?? '';
-    latest.current.onWords(words);
-  });
-  useSpeechRecognitionEvent('end', () => {
-    if (!active.current) return;
-    active.current = false;
-    soundMode.restore();
-    latest.current.onEnded();
-  });
-  useSpeechRecognitionEvent('error', (event) => {
-    if (QUIET_ENDS.has(event.error)) return;
-    active.current = false;
-    soundMode.restore();
-    latest.current.onUnavailable();
-  });
+  tokens ??= createTokenSource(fetchHearingToken(appHttp(() => languageRef.current)));
+  const source = tokens;
 
   const permission = useCallback(async (): Promise<Permission> => {
+    if (mic === null) return 'granted';
     try {
-      const answer = await ExpoSpeechRecognitionModule.getPermissionsAsync();
-      if (answer.granted) return 'granted';
-      return answer.canAskAgain ? 'unknown' : 'denied';
+      const answer = await mic.permission();
+      return answer === 'undetermined' ? 'unknown' : answer;
     } catch {
       return 'unknown';
     }
   }, []);
 
+  // Someone who has already let the microphone in will likely hold again: a token waits for them.
+  useEffect(() => {
+    void permission().then((answer) => {
+      if (answer === 'granted' && mic !== null) source.warm();
+    });
+  }, [permission, source]);
+
   const ask = useCallback(async (): Promise<boolean> => {
+    if (mic === null) return true;
     try {
-      return (await ExpoSpeechRecognitionModule.requestPermissionsAsync()).granted;
+      return await mic.ask();
     } catch {
       return false;
     }
   }, []);
 
-  const start = useCallback(async (language: Language) => {
-    const lang = LOCALES[language];
-    try {
-      if (!ExpoSpeechRecognitionModule.supportsOnDeviceRecognition()) {
-        latest.current.onUnavailable();
-        return;
-      }
-      if (Platform.OS === 'ios') {
-        const { installedLocales } = await ExpoSpeechRecognitionModule.getSupportedLocales({});
-        if (installedLocales.length > 0 && !installedLocales.includes(lang)) {
-          latest.current.onUnavailable();
-          return;
-        }
-      }
-      active.current = true;
-      ExpoSpeechRecognitionModule.start({
-        lang,
-        interimResults: true,
-        continuous: true,
-        requiresOnDeviceRecognition: true,
-        addsPunctuation: true,
-      });
-    } catch {
-      active.current = false;
-      latest.current.onUnavailable();
-    }
-  }, []);
+  const settle = useCallback(() => {
+    listening.current = null;
+    level.set(withTiming(0, FALL));
+    soundMode.restore();
+  }, [level]);
 
-  const stop = useCallback(() => {
-    try {
-      ExpoSpeechRecognitionModule.stop();
-    } catch {
-      active.current = false;
-      latest.current.onEnded();
+  const start = useCallback(() => {
+    listening.current?.abort();
+    if (mic === null) {
+      latest.current.onUnavailable('unavailable');
+      return;
     }
-  }, []);
+    listening.current = listen({
+      mic,
+      token: () => source.take(),
+      open: openSocket,
+      events: {
+        heard: (heard) => latest.current.onHeard(heard),
+        level: (now) => level.set(withTiming(now, now >= level.get() ? RISE : FALL)),
+        ended: () => {
+          settle();
+          source.warm();
+          latest.current.onEnded();
+        },
+        failed: (why) => {
+          settle();
+          latest.current.onUnavailable(why);
+        },
+      },
+    });
+  }, [level, settle, source]);
+
+  const stop = useCallback(() => listening.current?.stop(), []);
 
   const abort = useCallback(() => {
-    active.current = false;
-    try {
-      ExpoSpeechRecognitionModule.abort();
-    } catch {
-      // Nothing was running.
-    }
-    soundMode.restore();
-  }, []);
+    if (listening.current === null) return;
+    listening.current.abort();
+    settle();
+  }, [settle]);
+
+  useEffect(() => () => listening.current?.abort(), []);
 
   return useMemo(
-    () => ({ permission, ask, start, stop, abort }),
-    [permission, ask, start, stop, abort],
+    () => ({ permission, ask, start, stop, abort, level }),
+    [permission, ask, start, stop, abort, level],
   );
 }

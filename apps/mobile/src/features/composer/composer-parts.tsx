@@ -1,7 +1,6 @@
 import { StyleSheet, Text, TextInput, View, type LayoutChangeEvent } from 'react-native';
 import Animated, {
   interpolateColor,
-  Keyframe,
   useAnimatedStyle,
   useSharedValue,
 } from 'react-native-reanimated';
@@ -11,22 +10,15 @@ import { useTextSizing } from '../../screens/registry/support/forced-variant';
 import { PressSpring } from '../../ui/motion/press-spring';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { ClassIcon } from '../desk/class-icons';
-import { css, useEased } from '../desk/class-motion';
-import { BUTTON_MAX_SCALE, cappedSize, curves, ink, type } from '../desk/class-style';
+import { useEased } from '../desk/class-motion';
+import { BUTTON_MAX_SCALE, cappedSize, curves, ink } from '../desk/class-style';
 
 import { useFieldRoom, useOpenWithKeyboard } from './typing-room';
-import { ListeningDot, VoiceBars } from './voice-bars';
 
 export const IDLE_HEIGHT = 56;
 const LINE = 21;
 /** The board's `.ease` morph of the bar's parts: 520 ms on the interface curve. */
 const MORPH = { duration: 520, easing: curves.ui } as const;
-
-/** The board's `wordA`: each word as it is heard rises 6 points into place, 260 ms ease-out. */
-const wordIn = new Keyframe({
-  0: { opacity: 0, transform: [{ translateY: 6 }] },
-  100: { opacity: 1, transform: [{ translateY: 0 }], easing: css.easeOut },
-}).duration(260);
 
 /** "Hold to tell him", with the microphone, across the bar at rest. */
 export function IdleLayer({ onLayout }: { readonly onLayout: (e: LayoutChangeEvent) => void }) {
@@ -45,67 +37,6 @@ export function IdleLayer({ onLayout }: { readonly onLayout: (e: LayoutChangeEve
           style={[styles.holdText, { fontSize: cappedSize(sizing, 16) }]}
         >
           {t('composer.hold')}
-        </Text>
-      </View>
-    </View>
-  );
-}
-
-/** The listening panel: the dot, the words as they are heard, the voice and "Let go". */
-export function ListeningLayer({
-  showing,
-  words,
-  minHeight,
-  mayMove,
-  onLayout,
-}: {
-  /** Let go: the words stay on show while they go to the board. */
-  readonly showing: boolean;
-  readonly words: string;
-  readonly minHeight: number;
-  readonly mayMove: boolean;
-  readonly onLayout: (e: LayoutChangeEvent) => void;
-}) {
-  const t = useT();
-  const sizing = useTextSizing();
-  const all = words === '' ? [] : words.split(/\s+/);
-  const word = [type.rounded, styles.words, { fontSize: sizing.size(18) }];
-  return (
-    <View style={[styles.listening, { minHeight }]} onLayout={onLayout}>
-      <View style={styles.listenHead}>
-        <ListeningDot />
-        <Text allowFontScaling={sizing.allowFontScaling} style={[type.label, { color: ink.red }]}>
-          {showing ? t('desk.thinking') : t('composer.listening')}
-        </Text>
-      </View>
-      <View style={styles.wordsBox}>
-        {/* One word to a text, so the newest can rise on its own; older lines leave at the top. */}
-        <View testID="composer-words" accessible accessibilityLabel={words} style={styles.wordsRow}>
-          {all.map((one, i) =>
-            i === all.length - 1 ? (
-              <Animated.Text
-                key={`${i}:${one}`}
-                {...(mayMove ? { entering: wordIn } : {})}
-                allowFontScaling={sizing.allowFontScaling}
-                style={word}
-              >
-                {one}
-              </Animated.Text>
-            ) : (
-              <Text key={`${i}:${one}`} allowFontScaling={sizing.allowFontScaling} style={word}>
-                {one}
-              </Text>
-            ),
-          )}
-        </View>
-      </View>
-      <View style={styles.listenFoot}>
-        {showing ? <View /> : <VoiceBars />}
-        <Text
-          allowFontScaling={sizing.allowFontScaling}
-          style={[styles.hint, { fontSize: sizing.size(12) }]}
-        >
-          {showing ? '' : t('composer.letGo')}
         </Text>
       </View>
     </View>
@@ -219,18 +150,6 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   holdText: { color: ink.text, fontWeight: '600', flexShrink: 1, textAlign: 'center' },
-  listening: { paddingVertical: 12, paddingHorizontal: 14, gap: 8 },
-  listenHead: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  wordsBox: { flex: 1, justifyContent: 'flex-end', overflow: 'hidden' },
-  wordsRow: { flexDirection: 'row', flexWrap: 'wrap', columnGap: 5 },
-  words: { color: ink.text, lineHeight: 23 },
-  listenFoot: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 10,
-  },
-  hint: { color: ink.muted },
   // The board's gaps: 5 points round the microphone and the field.
   typing: { flexDirection: 'row', alignItems: 'flex-end', padding: 5, gap: 5 },
   mic: { height: 46, borderRadius: 23, overflow: 'hidden' },

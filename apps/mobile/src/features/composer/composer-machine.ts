@@ -1,38 +1,51 @@
 /**
  * "Say it": hold to talk, or type. A pure state machine; the hook in `use-composer.ts` feeds it the
- * finger, the phone's hearing and the store, and does what it asks.
+ * finger, the hearing and the store, and does what it asks.
  *
  * - Holding starts hearing at once when the microphone is already allowed. The first hold asks
  *   for it instead; letting go before the answer is just a tap.
- * - Words appear as they are heard. Letting go stops hearing; the last words arrive after that,
- *   and only then is anything decided.
+ * - Words appear as they are heard, the phrase still being guessed apart from what has settled.
+ *   Letting go settles the last phrase; it arrives after that, and only then is anything decided.
  * - A tap too short to be speech, or a hold with nothing heard, gets one line and nothing else.
- * - A refused microphone, or a phone that cannot hear this language on the phone itself, opens
- *   typing with what was heard so far. Typing is always there.
+ * - A refused microphone opens typing. With no connection, or no hearing, the bar says so and
+ *   typing is one tap away; whatever was heard before that goes into the field. Typing is always
+ *   there.
  * - Handing in shows the words first; if the board could not take them, they come back to the
  *   field, never lost.
- * Nothing here waits on the network.
  */
 
 /** A hold shorter than this is a tap, whatever was heard. */
 export const SHORT_TAP_MS = 400;
-/** After letting go, how long the last words may take before deciding with what came. */
-export const LAST_WORDS_MS = 1500;
+/**
+ * After letting go, how long the last words may take before deciding with what came. Hearing
+ * ends itself well within this; it only guards against hearing that never answers.
+ */
+export const LAST_WORDS_MS = 10_000;
 
 /** Why the composer is showing a note under it. */
-export type ComposerNote = 'short tap' | 'mic off' | 'no hearing' | 'kept';
+export type ComposerNote = 'short tap' | 'mic off' | 'no connection' | 'no hearing' | 'kept';
+
+/** Why nothing could be heard: no connection, or the microphone or the service would not. */
+export type Unheard = 'offline' | 'unavailable';
 
 export type ComposerState =
   | { readonly mode: 'idle'; readonly note: ComposerNote | null }
   /** The first hold: the microphone is being asked for. */
   | { readonly mode: 'asking'; readonly since: number; readonly held: boolean }
-  | { readonly mode: 'listening'; readonly since: number; readonly words: string }
+  /** `pending` is the end of `words` still being guessed: it may change until it settles. */
+  | {
+      readonly mode: 'listening';
+      readonly since: number;
+      readonly words: string;
+      readonly pending: string;
+    }
   /** Let go: hearing was told to stop, and the last words may still come. */
   | {
       readonly mode: 'stopping';
       readonly since: number;
       readonly releasedAt: number;
       readonly words: string;
+      readonly pending: string;
     }
   | { readonly mode: 'typing'; readonly draft: string; readonly note: ComposerNote | null }
   /** The words, shown, on their way to the board. */
@@ -41,14 +54,20 @@ export type ComposerState =
 export type Permission = 'granted' | 'denied' | 'unknown';
 
 export type ComposerEvent =
-  | { readonly type: 'press'; readonly at: number; readonly permission: Permission }
+  /** `offline`: the phone knows it has no connection, so nothing is tried. */
+  | {
+      readonly type: 'press';
+      readonly at: number;
+      readonly permission: Permission;
+      readonly offline?: boolean;
+    }
   | { readonly type: 'permission'; readonly granted: boolean }
-  | { readonly type: 'heard'; readonly words: string }
+  | { readonly type: 'heard'; readonly words: string; readonly pending?: string }
   | { readonly type: 'release'; readonly at: number }
   /** Hearing has ended: the phone sent its last words, or `LAST_WORDS_MS` passed. */
   | { readonly type: 'ended' }
-  /** The phone cannot hear here (no on-device model for the language, or an error). */
-  | { readonly type: 'unavailable' }
+  /** Nothing can be heard this time: no connection, or the microphone or the service failed. */
+  | { readonly type: 'unavailable'; readonly why: Unheard }
   | { readonly type: 'type' }
   | { readonly type: 'edit'; readonly draft: string }
   | { readonly type: 'submit' }
@@ -96,6 +115,7 @@ export function step(state: ComposerState, event: ComposerEvent): Step {
   switch (event.type) {
     case 'press': {
       if (state.mode !== 'idle') return stay(state);
+      if (event.offline === true) return stay({ mode: 'idle', note: 'no connection' });
       if (event.permission === 'denied') {
         return stay({ mode: 'typing', draft: '', note: 'mic off' });
       }
@@ -106,7 +126,7 @@ export function step(state: ComposerState, event: ComposerEvent): Step {
         };
       }
       return {
-        state: { mode: 'listening', since: event.at, words: '' },
+        state: { mode: 'listening', since: event.at, words: '', pending: '' },
         commands: [{ kind: 'start hearing' }],
       };
     }
@@ -116,13 +136,13 @@ export function step(state: ComposerState, event: ComposerEvent): Step {
       // Let go while the system asked: that was the asking, not a hold. The next hold hears.
       if (!state.held) return stay({ mode: 'idle', note: null });
       return {
-        state: { mode: 'listening', since: state.since, words: '' },
+        state: { mode: 'listening', since: state.since, words: '', pending: '' },
         commands: [{ kind: 'start hearing' }],
       };
     }
     case 'heard': {
       if (state.mode === 'listening' || state.mode === 'stopping') {
-        return stay({ ...state, words: event.words });
+        return stay({ ...state, words: event.words, pending: event.pending ?? '' });
       }
       return stay(state);
     }
@@ -130,7 +150,13 @@ export function step(state: ComposerState, event: ComposerEvent): Step {
       if (state.mode === 'asking') return stay({ ...state, held: false });
       if (state.mode !== 'listening') return stay(state);
       return {
-        state: { mode: 'stopping', since: state.since, releasedAt: event.at, words: state.words },
+        state: {
+          mode: 'stopping',
+          since: state.since,
+          releasedAt: event.at,
+          words: state.words,
+          pending: state.pending,
+        },
         commands: [{ kind: 'stop hearing' }],
       };
     }
@@ -148,8 +174,10 @@ export function step(state: ComposerState, event: ComposerEvent): Step {
     case 'unavailable': {
       if (state.mode === 'listening' || state.mode === 'stopping' || state.mode === 'asking') {
         const words = state.mode === 'asking' ? '' : tidyWords(state.words);
+        const note = event.why === 'offline' ? 'no connection' : 'no hearing';
+        // Nothing heard: the bar says why, with typing a tap away. Words heard go into the field.
         return {
-          state: { mode: 'typing', draft: words, note: 'no hearing' },
+          state: words === '' ? { mode: 'idle', note } : { mode: 'typing', draft: words, note },
           commands: [{ kind: 'abort hearing' }],
         };
       }

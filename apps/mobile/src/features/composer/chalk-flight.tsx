@@ -23,17 +23,40 @@ const FLY = Easing.bezier(0.5, 0, 0.2, 1);
 const KEYS = [0, 1, 2, 3];
 /** Under Reduce Motion: the board's `fade`. */
 const FADE_MS = 360;
+/** The note's own inset round its words. */
+const NOTE_PAD = { x: 14, y: 8 } as const;
+
+/**
+ * Where the last line of heard words was on screen (window points), written by the listening
+ * panel as it lays out. The words just heard take off from there, so they seem to leave the panel
+ * for the board.
+ */
+export const heardWordsAt: {
+  current: { x: number; y: number; width: number; height: number } | null;
+} = { current: null };
+
+/** Where a flight of heard words starts: from the panel's words, or the board's place for them. */
+export function flightStart(fallback: { readonly top: number; readonly left: number }): {
+  readonly top: number;
+  readonly left: number;
+} {
+  const at = heardWordsAt.current;
+  if (at === null) return fallback;
+  return { top: at.y - NOTE_PAD.y, left: at.x - NOTE_PAD.x };
+}
 
 function Note({
   text,
   index,
   from,
   to,
+  left,
 }: {
   text: string;
   index: number;
   from: number;
   to: number;
+  left: number;
 }) {
   const mayMove = useMayMove();
   // Which keyframe the note has reached, 0 to 3. CSS eases each segment on the flight's curve.
@@ -74,7 +97,7 @@ function Note({
     };
   });
   return (
-    <Animated.Text numberOfLines={1} style={[styles.note, type.hand, { top }, style]}>
+    <Animated.Text numberOfLines={1} style={[styles.note, type.hand, { top, left }, style]}>
       {text}
     </Animated.Text>
   );
@@ -89,16 +112,18 @@ export function ChalkFlight({
   notes,
   from,
   to,
+  left = 24,
 }: {
   readonly notes: readonly string[];
   readonly from: number;
   readonly to: number;
+  readonly left?: number;
 }) {
   if (notes.length === 0) return null;
   return (
     <View pointerEvents="none" style={StyleSheet.absoluteFill} accessibilityElementsHidden>
       {notes.map((text, index) => (
-        <Note key={`${index}:${text}`} text={text} index={index} from={from} to={to} />
+        <Note key={`${index}:${text}`} text={text} index={index} from={from} to={to} left={left} />
       ))}
     </View>
   );
@@ -107,10 +132,9 @@ export function ChalkFlight({
 const styles = StyleSheet.create({
   note: {
     position: 'absolute',
-    left: 24,
     maxWidth: 320,
-    paddingVertical: 8,
-    paddingHorizontal: 14,
+    paddingVertical: NOTE_PAD.y,
+    paddingHorizontal: NOTE_PAD.x,
     borderRadius: 16,
     overflow: 'hidden',
     backgroundColor: ink.green,

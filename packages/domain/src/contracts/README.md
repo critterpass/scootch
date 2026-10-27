@@ -10,6 +10,7 @@ Import them from `@phusclass/domain` through `index.ts`.
 | `ai-task-call.ts` | `task.create`, the one call per task, and its line packs |
 | `ai-task-stages.ts` | The same call in stages: `task.create_start` (fast), then `task.create_lines`, or `task.create_name` and `task.create_pack` |
 | `ai-small-routes.ts` | Shrink, bargain, stuck help, pick for me, morning line, weekly sentence |
+| `hearing.ts` | The single-use key to the realtime transcriber and where to stream to |
 | `ai-labels.ts` | `screen.input` and the typed decisions (size, energy, share) |
 | `local-db.ts` | The phone's tables, one row schema each, with derived fields marked |
 | `plus.ts` | The id the store knows this phone by, for tuition |

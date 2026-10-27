@@ -234,6 +234,7 @@ export function SessionScreen() {
                 ? { mode: 'typing', draft: '', note: null }
                 : composer.state
             }
+            level={composer.level}
             onPressIn={composer.press}
             onPressOut={composer.release}
             onType={composer.openTyping}
