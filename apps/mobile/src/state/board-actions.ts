@@ -207,7 +207,7 @@ export function boardActions(core: BoardCore) {
         await core.writeKv(KEYS.tuitionPinned, String(at));
       }),
 
-    /** The period length from settings: ten, fifteen or twenty-five minutes. */
+    /** The period length from settings: five, ten, fifteen, twenty-five or forty-five minutes. */
     setPeriodLength: (minutes: number) =>
       core.act(async () => {
         const length = periodLengthOf(minutes);

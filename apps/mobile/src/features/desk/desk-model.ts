@@ -147,10 +147,19 @@ function deskLine(input: DeskInput, task: Task, pressure: Pressure): HisLine | u
   });
 }
 
-/** The desk while the late slip is out: he peers over his glasses and asks for it. */
+/**
+ * The desk while the late slip is out: he peers over his glasses and asks for it. Start keeps
+ * still and no chalk flies while he reads it.
+ */
 export function withSlipOut(model: DeskModel, language: ClassLanguage): DeskModel {
   if (model.task === null) return model;
-  return { ...model, mood: 'peer', line: lineFor(language, 'slipAsk', model.task.id) };
+  return {
+    ...model,
+    mood: 'peer',
+    line: lineFor(language, 'slipAsk', model.task.id),
+    pulse: 'none',
+    chalkThrow: false,
+  };
 }
 
 /** The desk as the screen draws it, read from the store's snapshot. Pure: the same in, the same out. */

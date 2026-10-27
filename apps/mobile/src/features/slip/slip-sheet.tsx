@@ -9,7 +9,6 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
-  ZoomIn,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { scheduleOnRN } from 'react-native-worklets';
@@ -17,7 +16,7 @@ import { scheduleOnRN } from 'react-native-worklets';
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { useTextSizing } from '../../screens/registry/support/forced-variant';
 import { useMayMove } from '../../ui/motion/use-feel';
-import { buttonText, curves, ink, shapes, type } from '../desk/class-style';
+import { buttonText, curves, ink, shapes } from '../desk/class-style';
 
 import {
   gradeExcuse,
@@ -26,6 +25,7 @@ import {
   type Graded,
   type PickedExcuse,
 } from './slip-model';
+import { SlipPaper } from './slip-paper';
 
 const EXCUSE_WORDS: Record<
   PickedExcuse,
@@ -95,7 +95,7 @@ export function SlipSheet({
     <View style={StyleSheet.absoluteFill} testID="slip">
       <Animated.View
         entering={FadeIn.duration(360)}
-        exiting={FadeOut.duration(240)}
+        exiting={FadeOut.duration(360)}
         style={StyleSheet.absoluteFill}
       >
         <Pressable
@@ -107,8 +107,8 @@ export function SlipSheet({
       </Animated.View>
       <Animated.View
         entering={mayMove ? SlideInDown.duration(540).easing(curves.ui) : FadeIn.duration(200)}
-        exiting={mayMove ? SlideOutDown.duration(360).easing(curves.ui) : FadeOut.duration(200)}
-        style={[styles.sheet, { paddingBottom: Math.max(insets.bottom, 12) + 20 }, dragStyle]}
+        exiting={mayMove ? SlideOutDown.duration(540).easing(curves.ui) : FadeOut.duration(200)}
+        style={[styles.sheet, { paddingBottom: Math.max(insets.bottom, 12) }, dragStyle]}
         accessibilityViewIsModal
       >
         <GestureDetector gesture={pan}>
@@ -128,58 +128,12 @@ export function SlipSheet({
         >
           {t('slip.title')}
         </Text>
-        <View style={styles.paper}>
-          <View style={styles.margin} />
-          <Text
-            allowFontScaling={sizing.allowFontScaling}
-            numberOfLines={2}
-            style={[styles.forLine, { fontSize: sizing.size(13) }]}
-          >
-            {t('slip.for')} <Text style={styles.forTask}>{taskTitle}</Text>
-          </Text>
-          <Text
-            testID="slip-excuse"
-            allowFontScaling={sizing.allowFontScaling}
-            numberOfLines={2}
-            style={[
-              type.hand,
-              styles.excuse,
-              {
-                fontSize: sizing.size(26),
-                color: excuseText ? ink.purple : 'rgba(106,69,184,0.35)',
-              },
-            ]}
-          >
-            {excuseText ?? t('slip.yourExcuse')}
-          </Text>
-          <View style={styles.commentRow}>
-            {graded !== null ? (
-              <Animated.Text
-                key={graded.comment}
-                entering={FadeIn.duration(500)}
-                testID="slip-comment"
-                allowFontScaling={sizing.allowFontScaling}
-                style={[type.hand, styles.comment, { fontSize: sizing.size(22) }]}
-              >
-                {graded.comment}
-              </Animated.Text>
-            ) : null}
-          </View>
-          {graded?.grade ? (
-            <Animated.View
-              key={graded.grade}
-              entering={
-                mayMove ? ZoomIn.duration(400).easing(curves.character) : FadeIn.duration(200)
-              }
-              style={styles.stamp}
-              accessible
-              accessibilityRole="image"
-              accessibilityLabel={t('slip.grade', { grade: graded.grade })}
-            >
-              <Text style={[type.hand, styles.grade]}>{graded.grade}</Text>
-            </Animated.View>
-          ) : null}
-        </View>
+        <SlipPaper
+          taskTitle={taskTitle}
+          excuseText={excuseText}
+          picked={excuse?.kind === 'picked'}
+          graded={graded}
+        />
         <View style={styles.excuses}>
           {PICKED_EXCUSES.map((which) => {
             const on = excuse?.kind === 'picked' && excuse.which === which;
@@ -265,42 +219,6 @@ const styles = StyleSheet.create({
   },
   grabberZone: { paddingTop: 8, paddingBottom: 4, alignItems: 'center' },
   title: { fontWeight: '700', color: ink.text, letterSpacing: -0.3 },
-  paper: {
-    borderRadius: 18,
-    paddingVertical: 10,
-    paddingLeft: 52,
-    paddingRight: 16,
-    backgroundColor: '#FFF9E3',
-    gap: 2,
-    boxShadow: 'inset 0 0 0 1px rgba(150,120,40,0.08)',
-  },
-  margin: {
-    position: 'absolute',
-    left: 39,
-    top: 0,
-    bottom: 0,
-    width: 2,
-    backgroundColor: 'rgba(226,69,62,0.35)',
-  },
-  forLine: { color: ink.muted, minHeight: 30, textAlignVertical: 'bottom', paddingTop: 12 },
-  forTask: { color: ink.text, fontWeight: '600' },
-  excuse: { minHeight: 36 },
-  commentRow: { minHeight: 36, paddingRight: 70, justifyContent: 'flex-end' },
-  comment: { color: ink.red },
-  stamp: {
-    position: 'absolute',
-    right: 14,
-    top: 28,
-    width: 62,
-    height: 62,
-    borderRadius: 31,
-    borderWidth: 3,
-    borderColor: ink.red,
-    alignItems: 'center',
-    justifyContent: 'center',
-    transform: [{ rotate: '-10deg' }],
-  },
-  grade: { color: ink.red, fontSize: 30 },
   excuses: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   chip: { minHeight: 44, borderRadius: 22, paddingHorizontal: 16, justifyContent: 'center' },
   chipText: { fontWeight: '600' },

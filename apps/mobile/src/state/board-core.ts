@@ -42,8 +42,8 @@ export const KEYS = {
   drum: 'class.drum',
 } as const;
 
-/** The period lengths the settings offer; ten minutes unless changed. */
-export const PERIOD_LENGTHS = [DEFAULT_PERIOD_MINUTES, 15, 25] as const;
+/** The period lengths the settings and Start offer, in minutes; ten unless changed. */
+export const PERIOD_LENGTHS = [5, DEFAULT_PERIOD_MINUTES, 15, 25, 45] as const;
 
 export type SessionOutcome = 'done' | 'another period' | 'back on board' | 'erase' | 'slipped';
 

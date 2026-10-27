@@ -67,7 +67,11 @@ export const styles = StyleSheet.create({
   },
   plain: { color: INK, fontFamily: typefaces.body, paddingVertical: 24 },
   previewWrap: { alignItems: 'center' },
-  preview: { borderRadius: 10, overflow: 'hidden', boxShadow: '0 18px 40px rgba(40,30,20,0.16)' },
+  preview: {
+    borderRadius: 10,
+    overflow: 'hidden',
+    boxShadow: '0 2px 4px rgba(40,30,20,0.08), 0 18px 40px rgba(40,30,20,0.16)',
+  },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   chip: {
     minHeight: 36,

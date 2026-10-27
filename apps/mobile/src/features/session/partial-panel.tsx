@@ -30,7 +30,7 @@ export function PartialPanel(props: SessionViewProps & { readonly which: 'choice
         <Text allowFontScaling={sizing.allowFontScaling} style={[styles.choiceLabel, size(16)]}>
           {label}
         </Text>
-        <Text allowFontScaling={sizing.allowFontScaling} style={[styles.muted, size(13)]}>
+        <Text allowFontScaling={sizing.allowFontScaling} style={[styles.hint, size(13)]}>
           {hint}
         </Text>
       </View>
@@ -139,6 +139,7 @@ const styles = StyleSheet.create({
   },
   taskTitle: { fontWeight: '600', color: ink.text, letterSpacing: -0.2 },
   muted: { color: ink.muted },
+  hint: { color: ink.muted, fontWeight: '500' },
   choices: { gap: 8, marginTop: 4 },
   choice: {
     minHeight: 58,

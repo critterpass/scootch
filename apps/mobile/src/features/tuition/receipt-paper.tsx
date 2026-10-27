@@ -1,5 +1,7 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { fonts } from '@phusclass/tokens';
+
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { StampIn } from '../../ui/motion/stamp-in';
 
@@ -46,7 +48,9 @@ export function ReceiptPaper(props: ReceiptPaperProps) {
   return (
     <View style={styles.paper} accessibilityLabel={t('tuition.receipt')} testID="tuition-receipt">
       <View style={styles.head}>
-        <Label color={paper.red}>{t('tuition.receipt').toLocaleUpperCase(language)}</Label>
+        <Label color={paper.red} kind="cap">
+          {t('tuition.receipt').toLocaleUpperCase(language)}
+        </Label>
         <View style={styles.nameRow}>
           <Sized size={12} style={styles.muted}>
             {t('tuition.name')}
@@ -88,7 +92,7 @@ export function ReceiptPaper(props: ReceiptPaperProps) {
               style={[
                 styles.plan,
                 on ? styles.planOn : styles.planOff,
-                !choosing && !on ? styles.planDim : null,
+                stage !== 'offer' && !on ? styles.planDim : null,
               ]}
             >
               <View style={styles.planHead}>
@@ -125,13 +129,13 @@ export function ReceiptPaper(props: ReceiptPaperProps) {
       </View>
       <View style={styles.foot}>
         <View style={styles.footCol}>
-          <Label>{t('tuition.amount').toLocaleUpperCase(language)}</Label>
+          <Label kind="small">{t('tuition.amount').toLocaleUpperCase(language)}</Label>
           <Sized size={22} style={[handText, styles.amount]} lines={1}>
             {chosen?.priceText ?? ' '}
           </Sized>
         </View>
         <View style={[styles.footCol, styles.footRight]}>
-          <Label>{t('tuition.receivedBy').toLocaleUpperCase(language)}</Label>
+          <Label kind="small">{t('tuition.receivedBy').toLocaleUpperCase(language)}</Label>
           <ReceiptSignature label={t('tuition.signature')} />
         </View>
       </View>
@@ -147,7 +151,7 @@ export function ReceiptPaper(props: ReceiptPaperProps) {
               {t('brand.name').toLocaleUpperCase(language)}
             </Sized>
             <Sized
-              size={props.stamp.big ? 30 : 19}
+              size={props.stamp.big ? 30 : 21}
               style={[handText, styles.stampWord, { color: props.stamp.color }]}
               lines={2}
             >
@@ -188,7 +192,7 @@ const styles = StyleSheet.create({
     borderStyle: 'dashed',
     borderColor: paper.rule,
   },
-  lines: { paddingHorizontal: 18, paddingVertical: 6 },
+  lines: { paddingHorizontal: 18, paddingTop: 4, paddingBottom: 10 },
   lineRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 8, minHeight: 27 },
   lineText: { fontWeight: '700', color: paper.ink, flexShrink: 1 },
   leader: {
@@ -219,7 +223,13 @@ const styles = StyleSheet.create({
   planName: { fontWeight: '700', color: paper.ink },
   tag: { backgroundColor: paper.green, borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2 },
   tagText: { color: paper.white, fontWeight: '800' },
-  price: { fontWeight: '800', color: paper.ink, fontVariant: ['tabular-nums'] },
+  price: {
+    fontFamily: fonts.heading,
+    fontWeight: '800',
+    letterSpacing: -0.19,
+    color: paper.ink,
+    fontVariant: ['tabular-nums'],
+  },
   per: { fontWeight: '700', color: paper.muted },
   foot: { flexDirection: 'row', gap: 16, paddingHorizontal: 18, paddingTop: 10, paddingBottom: 16 },
   footCol: { flex: 1, gap: 2 },

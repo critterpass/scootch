@@ -13,7 +13,9 @@ import { DeskView } from './desk-view';
 
 /** The desk states the registry captures, each as a board names it. */
 export type DeskCase =
+  | 'calm'
   | 'waiting'
+  | 'pressure-two'
   | 'hot'
   | 'glare'
   | 'front-row'
@@ -30,7 +32,9 @@ export type DeskCase =
 
 const SETUPS: Record<DeskCase, Omit<FixtureOptions, 'language'>> = {
   // Pressure is the waiting time's steps (2, 5, 10, 20, 40 minutes) plus one per two tallies.
+  calm: { waited: 0.5, burnt: 30, slips: 0 },
   waiting: { waited: 1, burnt: 30, slips: 3 },
+  'pressure-two': { waited: 2, burnt: 50, slips: 3 },
   hot: { waited: 10, burnt: 90, slips: 3 },
   glare: { waited: 45, burnt: 120, slips: 3 },
   'front-row': { waited: 2, burnt: 70, slips: 5 },

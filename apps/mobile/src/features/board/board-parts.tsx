@@ -10,6 +10,7 @@ import { HAND_FAMILY } from '../../classroom/use-hand-font';
 import { useT } from '../../i18n/i18n-provider';
 import { useFeel } from '../../ui/motion/use-feel';
 import { useScreenStyle } from '../../ui/use-screen-style';
+import { ClassIcon, type ClassIconName } from '../desk/class-icons';
 
 import { BOARD, CHALK } from './chalk';
 import { PhuFigure } from './phu-figure';
@@ -18,10 +19,12 @@ import { PhuFigure } from './phu-figure';
 function BoardPill({
   id,
   label,
+  icon,
   onPress,
 }: {
   readonly id: string;
   readonly label: string;
+  readonly icon: ClassIconName;
   readonly onPress: () => void;
 }) {
   const { size, allowFontScaling } = useScreenStyle();
@@ -32,6 +35,7 @@ function BoardPill({
       onPress={onPress}
       style={({ pressed }) => [styles.pill, pressed ? styles.pressed : null]}
     >
+      <ClassIcon name={icon} color={CHALK.white} size={14} />
       <Text allowFontScaling={allowFontScaling} style={[styles.pillText, { fontSize: size(14) }]}>
         {label}
       </Text>
@@ -58,7 +62,7 @@ export function BoardHeading({
         <Text
           accessibilityRole="header"
           allowFontScaling={allowFontScaling}
-          style={[styles.title, { fontSize: size(34) }]}
+          style={[styles.title, { fontSize: size(34), lineHeight: size(34) }]}
         >
           {t('board.title')}
         </Text>
@@ -67,8 +71,13 @@ export function BoardHeading({
         </Text>
       </View>
       <View style={styles.pills}>
-        <BoardPill id="board-timetable" label={t('board.timetable')} onPress={onTimetable} />
-        <BoardPill id="board-logbook" label={t('board.logbook')} onPress={onLogbook} />
+        <BoardPill
+          id="board-timetable"
+          label={t('board.timetable')}
+          icon="calendar"
+          onPress={onTimetable}
+        />
+        <BoardPill id="board-logbook" label={t('board.logbook')} icon="book" onPress={onLogbook} />
       </View>
     </View>
   );
@@ -166,11 +175,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     borderRadius: 18,
     backgroundColor: CHALK.pill,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 6,
   },
   pressed: {
-    opacity: 0.7,
+    transform: [{ scale: 0.965 }],
   },
   pillText: {
     color: CHALK.white,

@@ -59,7 +59,7 @@ export function LogbookPage({ rows, week, hand, handle, hint, foot, testID }: Lo
             allowFontScaling={allowFontScaling}
             numberOfLines={1}
             adjustsFontSizeToFit
-            style={[styles.title, { color: ink.ink, fontSize: size(34) }]}
+            style={[styles.title, { color: ink.ink, fontSize: size(34), lineHeight: size(34) }]}
           >
             {t('logbook.title')}
           </Text>
@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
     paddingLeft: 70,
-    paddingRight: 30,
+    paddingRight: 50,
   },
   emptyTitle: {
     fontFamily: fonts.heading,

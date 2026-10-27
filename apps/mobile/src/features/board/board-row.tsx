@@ -34,6 +34,9 @@ const STRIKE_MS = 380;
 const DONE_MS = 480;
 const WIPE_MS = 460;
 const STRIKE_CURVE = Easing.bezier(0.65, 0, 0.35, 1);
+/** A ticked or erased row leaves on CSS's `ease-in`, as the board's `doneRow` and `wipe` do. */
+const leave = (duration: number) =>
+  ({ duration, easing: Easing.bezier(0.42, 0, 1, 1), reduceMotion: ALWAYS }) as const;
 
 export type RowAction = 'desk' | 'reword' | 'tick' | 'erase' | 'keep' | 'letGo';
 
@@ -132,14 +135,14 @@ export function BoardRowView({
       leaving.set(
         withDelay(
           STRIKE_MS,
-          withTiming(1, { duration: DONE_MS, reduceMotion: ALWAYS }, (finished) => {
+          withTiming(1, leave(DONE_MS), (finished) => {
             if (finished) scheduleOnRN(done);
           }),
         ),
       );
     } else {
       leaving.set(
-        withTiming(1, { duration: WIPE_MS, reduceMotion: ALWAYS }, (finished) => {
+        withTiming(1, leave(WIPE_MS), (finished) => {
           if (finished) scheduleOnRN(done);
         }),
       );
@@ -170,7 +173,7 @@ export function BoardRowView({
   return (
     <Animated.View
       {...(mayMove ? { layout: LinearTransition.duration(ROW.closeMs) } : {})}
-      style={[styles.row, index === 0 ? null : styles.ruled]}
+      style={[styles.row, styles.ruled]}
     >
       <SwipeActions actions={actions} index={index} style={[{ width: wide }, behind]} onAct={act} />
       <GestureDetector gesture={pan}>
@@ -188,22 +191,22 @@ export function BoardRowView({
               onMenu(row.id);
             }}
             delayLongPress={430}
-            style={[styles.front, largeText ? styles.frontLarge : null]}
+            // Old chalk: the whole row fades, and its words fade once more.
+            style={[
+              styles.front,
+              largeText ? styles.frontLarge : null,
+              row.faded ? styles.faded : null,
+            ]}
           >
             <View style={[styles.dot, row.onDesk ? styles.deskDot : styles.ringDot]} />
-            <View
-              style={[
-                styles.words,
-                largeText ? styles.wordsLarge : null,
-                { opacity: row.faded ? 0.45 : 1 },
-              ]}
-            >
+            <View style={[styles.words, largeText ? styles.wordsLarge : null]}>
               <Text
                 allowFontScaling={allowFontScaling}
                 style={[
                   styles.chalk,
                   { fontSize: chalkSize, lineHeight: chalkSize * 1.3 },
                   row.today ? styles.today : null,
+                  row.faded ? styles.faded : null,
                 ]}
               >
                 {row.text}
@@ -278,9 +281,9 @@ const styles = StyleSheet.create({
   },
   question: {
     color: CHALK.faint,
-    fontWeight: '600',
     fontFamily: fonts.body,
   },
+  faded: { opacity: 0.45 },
   strike: {
     position: 'absolute',
     left: 0,

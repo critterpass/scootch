@@ -119,7 +119,11 @@ describe('the desk', () => {
     expect((await store.start())?.minutes).toBe(25);
     const again = await boardAt('2026-10-27T09:01:00Z', db);
     expect(again.view().periodLength).toBe(25);
-    // A length the settings do not offer is ten minutes.
+    // Every length the settings offer is kept; one they do not offer is ten minutes.
+    for (const minutes of [5, 15, 45]) {
+      await again.store.setPeriodLength(minutes);
+      expect(again.view().periodLength).toBe(minutes);
+    }
     await again.store.setPeriodLength(7);
     expect(again.view().periodLength).toBe(10);
   });

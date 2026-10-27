@@ -65,6 +65,7 @@ export const shapes = StyleSheet.create({
   },
   red: {
     backgroundColor: ink.red,
+    backgroundImage: `linear-gradient(180deg, ${ink.redTop} 0%, ${ink.redDeep} 100%)`,
     boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.35), 0 10px 24px rgba(201,36,30,0.28)',
   },
   soft: { backgroundColor: ink.soft },

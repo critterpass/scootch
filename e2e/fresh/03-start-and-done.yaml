@@ -2,7 +2,21 @@ appId: com.phusclass.dev
 ---
 # The fresh-user walk, step three: Start. The drum, and the camera pulls back to the whole room
 # while the period runs. Done brings the camera back in to the graded paper; Next returns to the
-# desk, empty again.
+# desk, empty again. Held first, Start offers the period's length: five minutes is picked.
+- longPressOn:
+    id: 'desk-start'
+- extendedWaitUntil:
+    visible:
+      id: 'desk-length-45'
+    timeout: 5000
+- assertVisible:
+    id: 'desk-length-5'
+- takeScreenshot: fresh-03-lengths
+- tapOn:
+    id: 'desk-length-5'
+- assertVisible:
+    id: 'desk-start'
+    text: '.*Start, 5 minutes.*'
 - tapOn:
     id: 'desk-start'
 - extendedWaitUntil:

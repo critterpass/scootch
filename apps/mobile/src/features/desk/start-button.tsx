@@ -1,57 +1,29 @@
-import { Canvas, Circle, Group, Path } from '@shopify/react-native-skia';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, {
   cancelAnimation,
   Easing,
   useAnimatedStyle,
-  useDerivedValue,
   useSharedValue,
   withRepeat,
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
 
+import type { Pressure } from '@phusclass/domain/board';
+
 import { useT } from '../../i18n/i18n-provider';
 import { useTextSizing } from '../../screens/registry/support/forced-variant';
 import { useMayMove } from '../../ui/motion/use-feel';
 import { clockText } from '../session/session-model';
 
-import { BUTTON_MAX_SCALE, buttonText, cappedSize, curves, ink, shapes } from './class-style';
+import { css } from './class-motion';
+import { BUTTON_MAX_SCALE, buttonText, cappedSize, curves, shapes } from './class-style';
 import type { StartPulse } from './desk-model';
 import { PeriodLengths } from './period-lengths';
+import { StartDrum, StartRipple } from './start-drum';
 
 const HEIGHT = 56;
-const INSET = 1.5;
-
-/** The fuse's track: around the button from the top-left of its straight edge, clockwise. */
-function fusePath(width: number): string {
-  const w = width - INSET * 2;
-  const h = HEIGHT - INSET * 2;
-  const r = h / 2;
-  const x = INSET;
-  const y = INSET;
-  return `M ${x + r} ${y} H ${x + w - r} A ${r} ${r} 0 0 1 ${x + w - r} ${y + h} H ${x + r} A ${r} ${r} 0 0 1 ${x + r} ${y} Z`;
-}
-
-/** Where the burning end is, `left` (1 to 0) of the way round. */
-function sparkAt(width: number, left: number): { x: number; y: number } {
-  'worklet';
-  const w = width - INSET * 2;
-  const h = HEIGHT - INSET * 2;
-  const r = h / 2;
-  const a = w - 2 * r;
-  const arc = Math.PI * r;
-  const d = left * (2 * a + 2 * arc);
-  if (d <= a) return { x: INSET + r + d, y: INSET };
-  if (d <= a + arc) {
-    const t = (d - a) / r;
-    return { x: INSET + w - r + r * Math.sin(t), y: INSET + r - r * Math.cos(t) };
-  }
-  if (d <= 2 * a + arc) return { x: INSET + w - r - (d - a - arc), y: INSET + h };
-  const t = (d - 2 * a - arc) / r;
-  return { x: INSET + r - r * Math.sin(t), y: INSET + r + r * Math.cos(t) };
-}
 
 /** The pulse a pressure step gives Start: a period and whether it nudges or breathes. */
 const PULSE: Record<
@@ -70,8 +42,10 @@ export interface StartButtonProps {
   readonly fuseLeftMs: number;
   readonly minutes: number;
   readonly pulse: StartPulse;
-  /** Pressure 4 and up: the pie burns yellow and a soft ring stands around Start. */
-  readonly hot: boolean;
+  /** From pressure 4 the pie burns yellow; at 4 a soft ring stands around Start. */
+  readonly pressure: Pressure;
+  /** The drum is sounding: it swings, and a ripple crosses Start. */
+  readonly ringing?: boolean;
   readonly onStart: () => void;
   readonly onLength: (minutes: number) => void;
   readonly disabled?: boolean;
@@ -80,17 +54,17 @@ export interface StartButtonProps {
 }
 
 /**
- * Start, with the fuse burning around its edge: a red track that shortens over two minutes with a
- * spark at its end, and the small pie in the drum icon emptying with it. Held, it offers the
- * period's length. As his pressure rises it breathes, then nudges. Nothing pulses where nothing
- * may move.
+ * Start: the drum icon, whose pie empties as the fuse burns, "Start" and the period's length. Held,
+ * it offers the length. As his pressure rises it breathes, then nudges; it is still while pressed
+ * or while the lengths are out. Nothing pulses where nothing may move.
  */
 export function StartButton({
   fuseLeft,
   fuseLeftMs,
   minutes,
   pulse,
-  hot,
+  pressure,
+  ringing = false,
   onStart,
   onLength,
   disabled = false,
@@ -99,8 +73,8 @@ export function StartButton({
   const t = useT();
   const mayMove = useMayMove();
   const sizing = useTextSizing();
-  const [width, setWidth] = useState(0);
   const [choosing, setChoosing] = useState(false);
+  const [pressing, setPressing] = useState(false);
 
   // The fuse is read from the store once a second; between readings it burns smoothly.
   const left = useSharedValue(fuseLeft ?? 0);
@@ -108,53 +82,60 @@ export function StartButton({
     const next = fuseLeft ?? 0;
     left.set(mayMove ? withTiming(next, { duration: 1000, easing: Easing.linear }) : next);
   }, [fuseLeft, mayMove, left]);
-  const spark = useDerivedValue(() => sparkAt(width, left.get()));
-  const sparkX = useDerivedValue(() => spark.get().x);
-  const sparkY = useDerivedValue(() => spark.get().y);
-  const sparkOpacity = useDerivedValue(() => (left.get() > 0.001 ? 1 : 0));
 
   const scale = useSharedValue(1);
   const turn = useSharedValue(0);
+  const still = disabled || choosing || pressing;
   useEffect(() => {
     cancelAnimation(scale);
     cancelAnimation(turn);
     scale.set(1);
     turn.set(0);
-    if (!mayMove || pulse === 'none' || disabled) return;
+    if (!mayMove || pulse === 'none' || still) return;
     const { ms, nudge } = PULSE[pulse];
+    const step = (to: number, share: number) =>
+      withTiming(to, { duration: ms * share, easing: css.easeInOut });
     if (nudge) {
+      // The board's `ctaN`: still for three quarters, then a shake that swells and settles.
       turn.set(
         withRepeat(
           withSequence(
-            withTiming(0, { duration: ms * 0.76 }),
-            withTiming(-2.6, { duration: ms * 0.04 }),
-            withTiming(2.4, { duration: ms * 0.04 }),
-            withTiming(-1.4, { duration: ms * 0.04 }),
-            withTiming(0.8, { duration: ms * 0.04 }),
-            withTiming(0, { duration: ms * 0.08 }),
+            step(0, 0.76),
+            step(-2.6, 0.04),
+            step(2.4, 0.04),
+            step(-1.4, 0.04),
+            step(0.8, 0.04),
+            step(0, 0.08),
+          ),
+          -1,
+        ),
+      );
+      scale.set(
+        withRepeat(
+          withSequence(
+            step(1, 0.76),
+            step(1.035, 0.04),
+            step(1.035, 0.04),
+            step(1.02, 0.04),
+            step(1, 0.04),
+            step(1, 0.08),
           ),
           -1,
         ),
       );
     } else {
-      scale.set(
-        withRepeat(
-          withSequence(
-            withTiming(1.02, { duration: ms / 2, easing: Easing.inOut(Easing.ease) }),
-            withTiming(1, { duration: ms / 2, easing: Easing.inOut(Easing.ease) }),
-          ),
-          -1,
-        ),
-      );
+      scale.set(withRepeat(withSequence(step(1.02, 0.5), step(1, 0.5)), -1));
     }
-  }, [pulse, mayMove, disabled, scale, turn]);
+  }, [pulse, mayMove, still, scale, turn]);
 
   const pressed = useSharedValue(1);
   const moving = useAnimatedStyle(() => ({
     transform: [{ scale: scale.get() * pressed.get() }, { rotate: `${turn.get()}deg` }],
   }));
-  const press = (to: number) =>
-    pressed.set(mayMove ? withTiming(to, { duration: 200, easing: curves.ui }) : to);
+  const press = (to: number) => {
+    setPressing(to < 1);
+    pressed.set(mayMove ? withTiming(to, { duration: 220, easing: curves.ui }) : to);
+  };
 
   const label = [
     t('desk.startLabel', { minutes }),
@@ -178,10 +159,9 @@ export function StartButton({
         style={[
           styles.button,
           shapes.red,
-          hot ? { boxShadow: `${shapesShadow}, 0 0 0 7px rgba(226,69,62,0.16)` } : null,
+          pressure === 4 ? { boxShadow: `${shapesShadow}, 0 0 0 7px rgba(226,69,62,0.16)` } : null,
           moving,
         ]}
-        onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
       >
         <Pressable
           testID="desk-start"
@@ -205,48 +185,14 @@ export function StartButton({
           }}
           style={styles.press}
         >
-          {width > 0 && fuseLeft !== null ? (
-            <Canvas
-              style={[StyleSheet.absoluteFill, { width, height: HEIGHT }]}
-              pointerEvents="none"
-            >
-              <Path
-                path={fusePath(width)}
-                style="stroke"
-                strokeWidth={3}
-                strokeCap="round"
-                color="#FFE29A"
-                start={0}
-                end={left}
-              />
-              <Group opacity={sparkOpacity}>
-                <Circle cx={sparkX} cy={sparkY} r={6} color="rgba(255,226,154,0.45)" />
-                <Circle cx={sparkX} cy={sparkY} r={2.6} color={ink.white} />
-              </Group>
-            </Canvas>
-          ) : null}
-          <Canvas style={styles.drum} pointerEvents="none">
-            <Circle
-              cx={11}
-              cy={11}
-              r={9.5}
-              style="stroke"
-              strokeWidth={2}
-              color="rgba(255,255,255,0.4)"
-            />
-            {fuseLeft !== null ? (
-              <Path
-                path="M 11 7.5 A 3.5 3.5 0 1 1 10.99 7.5"
-                style="stroke"
-                strokeWidth={7}
-                color={hot ? '#FFE29A' : ink.white}
-                start={0}
-                end={left}
-              />
-            ) : (
-              <Circle cx={11} cy={11} r={7} color={ink.white} />
-            )}
-          </Canvas>
+          <StartRipple ringing={ringing} mayMove={mayMove} />
+          <StartDrum
+            left={left}
+            hasFuse={fuseLeft !== null}
+            hot={pressure >= 4}
+            ringing={ringing}
+            mayMove={mayMove}
+          />
           <Text
             allowFontScaling={sizing.allowFontScaling}
             maxFontSizeMultiplier={BUTTON_MAX_SCALE}
@@ -289,6 +235,5 @@ const styles = StyleSheet.create({
     gap: 8,
     borderRadius: HEIGHT / 2,
   },
-  drum: { width: 22, height: 22 },
   minutes: { fontWeight: '500', opacity: 0.85, fontVariant: ['tabular-nums'] },
 });

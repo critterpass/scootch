@@ -258,7 +258,7 @@ export function ShareSheet({
                     <View style={[styles.actionIcon, { backgroundColor: tint }]}>
                       <ActionGlyph kind={id} />
                     </View>
-                    <Text style={[styles.actionLabel, text(12)]}>{label}</Text>
+                    <Text style={[styles.actionLabel, text(11.5)]}>{label}</Text>
                   </PressSpring>
                 ))}
               </View>

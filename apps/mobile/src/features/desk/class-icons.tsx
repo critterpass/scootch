@@ -22,6 +22,13 @@ const ICONS = {
     'M12 17 a2 2 0 1 1 -4 0 a2 2 0 1 1 4 0',
   ],
   lock: ['M7 11 V8 a5 5 0 0 1 10 0 V11', 'M6 11 H18 V20 H6 Z'],
+  calendar: [
+    'M6 4 H18 A3 3 0 0 1 21 7 V18 A3 3 0 0 1 18 21 H6 A3 3 0 0 1 3 18 V7 A3 3 0 0 1 6 4 Z',
+    'M3 10h18M9 4v17M15 4v17',
+  ],
+  book: ['M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z', 'M9 9h6M9 13h4'],
+  check: ['M20 6L9 17l-5-5'],
+  eraser: ['M7 21h10M5 15l9-9 5 5-9 9H6z'],
 } as const;
 
 export type ClassIconName = keyof typeof ICONS;

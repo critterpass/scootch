@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { Carving, Framing, PhuMood } from '@phusclass/art/class';
@@ -11,6 +11,7 @@ import { useT } from '../../i18n/i18n-provider';
 import { useBoard } from '../../state/board-provider';
 import { useTextSizing } from '../../screens/registry/support/forced-variant';
 import { ClassIcon } from '../desk/class-icons';
+import { fadeUp } from '../desk/class-motion';
 import { buttonText, ink, shapes, type } from '../desk/class-style';
 import { SpeechBubble } from '../desk/speech-bubble';
 import { ShareButton } from '../share/share-button';
@@ -19,6 +20,7 @@ import { DrumBurst } from './drum-burst';
 import { Confetti, FinishPaper, type FinishPaperProps } from './finish-paper';
 import { HappeningScene } from './happening-scene';
 import { PartialPanel } from './partial-panel';
+import { SessionClockView } from './session-clock';
 import type { SessionClock } from './session-model';
 import type { SessionChalk } from './use-session-chalk';
 
@@ -96,26 +98,7 @@ export function SessionView(props: SessionViewProps) {
       >
         {props.title}
       </Text>
-      {clock !== null ? (
-        <>
-          <View style={styles.timerRow}>
-            <Text
-              testID="session-left"
-              accessibilityLabel={t('session.left', { time: clock.left })}
-              allowFontScaling={sizing.allowFontScaling}
-              style={[type.rounded, styles.timer, size(64)]}
-            >
-              {clock.left}
-            </Text>
-            <Text allowFontScaling={sizing.allowFontScaling} style={[styles.muted, size(15)]}>
-              {t('session.of', { minutes: clock.minutes })}
-            </Text>
-          </View>
-          <View style={styles.track}>
-            <View style={[styles.trackFill, { width: `${clock.gone * 100}%` }]} />
-          </View>
-        </>
-      ) : null}
+      {clock !== null ? <SessionClockView clock={clock} /> : null}
       {props.stray ?? (
         <View style={styles.buttons}>
           {!timeUp ? (
@@ -152,7 +135,7 @@ export function SessionView(props: SessionViewProps) {
               </Pressable>
             </View>
           ) : (
-            <Animated.View entering={FadeIn.duration(360)}>
+            <Animated.View entering={fadeUp}>
               <Pressable
                 testID="session-not-yet"
                 accessibilityRole="button"
@@ -287,18 +270,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     minHeight: 22,
   },
-  taskTitle: { fontWeight: '600', color: ink.text, letterSpacing: -0.2 },
-  timerRow: { flexDirection: 'row', alignItems: 'baseline', gap: 10, marginTop: 4 },
-  timer: { color: ink.text, letterSpacing: -1, fontVariant: ['tabular-nums'] },
-  muted: { color: ink.muted },
-  track: {
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: 'rgba(28,26,24,0.08)',
-    overflow: 'hidden',
-    marginTop: 4,
-  },
-  trackFill: { height: '100%', borderRadius: 3, backgroundColor: ink.text },
+  taskTitle: { fontWeight: '600', color: ink.text, letterSpacing: -0.2, marginTop: -4 },
+
   buttons: { gap: 10, marginTop: 14 },
   pair: { flexDirection: 'row', gap: 10 },
   small: { flex: 1, minHeight: 48, paddingHorizontal: 10 },

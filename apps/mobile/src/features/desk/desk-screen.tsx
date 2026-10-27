@@ -222,6 +222,7 @@ export function DeskScreen() {
       typing={typing}
       keyboard={typing ? keyboard : 0}
       chosenMinutes={chosenMinutes}
+      ringing={drumming}
       recess={recess}
       notice={care.selling ? <TuitionNotice /> : null}
       gestures={gestures}

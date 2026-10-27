@@ -1,6 +1,8 @@
 import { Fragment } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
+import { fonts } from '@phusclass/tokens';
+
 import { useLanguage, useT, type Translate } from '../../i18n/i18n-provider';
 import { paper, Sized } from '../tuition/receipt-parts';
 
@@ -192,7 +194,7 @@ const styles = StyleSheet.create({
   dialRow: { alignItems: 'center', marginTop: 8 },
   cards: { gap: 10, paddingHorizontal: 16 },
   card: { width: 168, borderRadius: 22, paddingHorizontal: 14, paddingVertical: 12, gap: 1 },
-  cardTime: { fontWeight: '800', fontVariant: ['tabular-nums'] },
+  cardTime: { fontFamily: fonts.heading, fontWeight: '800', fontVariant: ['tabular-nums'] },
   cardTask: { marginTop: 8, fontWeight: '700' },
   book: {
     marginTop: 10,
@@ -226,7 +228,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 6,
   },
-  rowRule: { borderTopWidth: StyleSheet.hairlineWidth, borderColor: 'rgba(28,26,24,0.12)' },
+  rowRule: { borderTopWidth: 1, borderColor: 'rgba(28,26,24,0.07)' },
   rowTime: { width: 48, color: paper.muted, fontVariant: ['tabular-nums'] },
   rowText: { flex: 1, gap: 1 },
   rowPeriod: { color: paper.muted, fontWeight: '600' },
