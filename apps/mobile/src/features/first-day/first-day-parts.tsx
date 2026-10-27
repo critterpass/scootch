@@ -1,6 +1,12 @@
 import type { ReactNode } from 'react';
-import { Image, ScrollView, Text, View, useWindowDimensions } from 'react-native';
-import Animated, { FadeIn, FadeOut, withDelay, withTiming } from 'react-native-reanimated';
+import { Image, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import Animated, {
+  FadeIn,
+  FadeOut,
+  useAnimatedStyle,
+  withDelay,
+  withTiming,
+} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import appIcon from '../../../assets/icons/app.png';
@@ -12,6 +18,7 @@ import { useScreenStyle } from '../../ui/use-screen-style';
 
 import type { Beat } from './first-day-screen';
 import { CLASS_RED, styles } from './first-day-styles';
+import { landing } from './splash-motion';
 
 /** The App board's sheet: 374 points of an 844-point screen, its action at the foot. */
 const SHEET_HEIGHT = 374;
@@ -69,29 +76,33 @@ function panelOut() {
 export function Bubble({ text, wide }: { readonly text: string; readonly wide: boolean }) {
   const insets = useSafeAreaInsets();
   const { allowFontScaling, size, reducedMotion, largeText } = useScreenStyle();
+  // Under the splash's full card, his first line waits until the card has gone.
+  const landed = useAnimatedStyle(() => ({ opacity: landing.bubble.get() }));
   if (text === '') return null;
   return (
-    <Animated.View
-      key={text}
-      entering={reducedMotion ? FadeIn.duration(CROSSFADE_MS) : bubblePop}
-      accessibilityLiveRegion="polite"
-      style={[
-        styles.bubble,
-        // It grows from the corner nearest him.
-        { transformOrigin: wide ? '20% 100%' : '80% 100%' },
-        { top: insets.top + (wide ? 16 : 70), maxWidth: largeText ? '88%' : 220 },
-        wide ? { left: 22 } : { right: 22 },
-      ]}
-    >
-      <Text
-        allowFontScaling={allowFontScaling}
-        maxFontSizeMultiplier={BUBBLE_MAX_SCALE}
-        style={[styles.bubbleText, { fontSize: Math.min(size(16), 16 * BUBBLE_MAX_SCALE) }]}
-        accessibilityRole="text"
-        testID="first-day-line"
+    <Animated.View pointerEvents="box-none" style={[StyleSheet.absoluteFill, landed]}>
+      <Animated.View
+        key={text}
+        entering={reducedMotion ? FadeIn.duration(CROSSFADE_MS) : bubblePop}
+        accessibilityLiveRegion="polite"
+        style={[
+          styles.bubble,
+          // It grows from the corner nearest him.
+          { transformOrigin: wide ? '20% 100%' : '80% 100%' },
+          { top: insets.top + (wide ? 16 : 70), maxWidth: largeText ? '88%' : 220 },
+          wide ? { left: 22 } : { right: 22 },
+        ]}
       >
-        {text}
-      </Text>
+        <Text
+          allowFontScaling={allowFontScaling}
+          maxFontSizeMultiplier={BUBBLE_MAX_SCALE}
+          style={[styles.bubbleText, { fontSize: Math.min(size(16), 16 * BUBBLE_MAX_SCALE) }]}
+          accessibilityRole="text"
+          testID="first-day-line"
+        >
+          {text}
+        </Text>
+      </Animated.View>
     </Animated.View>
   );
 }
@@ -119,9 +130,14 @@ export function Sheet({
   const { palette, allowFontScaling, size, reducedMotion } = useScreenStyle();
   const keyboardOpen = useKeyboardOpen();
   const light = palette.ink === '#1C1A17';
+  // Under the splash's full card, the sheet rises from below the screen as the card goes.
+  const landed = useAnimatedStyle(() => ({
+    transform: [{ translateY: `${(1 - landing.sheet.get()) * 110}%` }],
+  }));
   return (
-    <View
+    <Animated.View
       style={[
+        landed,
         styles.sheet,
         {
           backgroundColor: light ? 'rgba(255,253,249,0.97)' : palette.surface,
@@ -159,7 +175,7 @@ export function Sheet({
           {children}
         </ScrollView>
       </Animated.View>
-    </View>
+    </Animated.View>
   );
 }
 

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View, type LayoutChangeEvent } from 'react-native';
 import Animated, {
+  ReduceMotion,
   useAnimatedStyle,
   useSharedValue,
   withDelay,
@@ -14,7 +15,7 @@ import { HAND_FAMILY, useHandFont } from '../../classroom/use-hand-font';
 import { useT } from '../../i18n/i18n-provider';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
-import { AT, Drum, shakeStyle, SPLASH_CURVES, useBoardShake } from './splash-motion';
+import { AT, Drum, shakeStyle, SPLASH_CURVES, startLanding, useBoardShake } from './splash-motion';
 
 /** Under Reduce Motion the card is simply there, then fades. */
 const STILL_FADE_AT = 1600;
@@ -41,16 +42,19 @@ export interface SplashProps {
   readonly onDone?: () => void;
   /** For a capture: the card held, fully written, with nothing moving. */
   readonly held?: boolean;
+  /** False while the system's launch screen still covers it: the card waits, unseen, to begin. */
+  readonly start?: boolean;
 }
 
 /**
  * The animated splash, from the Splash board: "Phu's Class" written in chalk, the line under it,
  * Thầy Phú rising behind the board, three drum beats that shake it, then the card flies up to
  * where the chalkboard hangs in the room as the first scene shows through. Under Reduce Motion the
- * card is simply there, then fades. Until it starts to go it takes every tap, so nothing under it
- * is touched; VoiceOver hears one line.
+ * card is simply there, then fades. It takes no touch: a card that held taps swallowed them
+ * whenever it stayed longer than expected, on a slow phone or under a test. VoiceOver hears one
+ * line.
  */
-export function Splash({ quick, onDone, held = false }: SplashProps) {
+export function Splash({ quick, onDone, held = false, start = true }: SplashProps) {
   const t = useT();
   const { reducedMotion } = useScreenStyle();
   const hand = useHandFont();
@@ -66,22 +70,24 @@ export function Splash({ quick, onDone, held = false }: SplashProps) {
   const page = useSharedValue(1);
   const shake = useBoardShake(full);
   const [size, setSize] = useState({ width: 0, height: 0 });
-  // Nothing under the card takes a tap until it starts to go.
-  const [covering, setCovering] = useState(true);
 
   useEffect(() => {
     if (held) return undefined;
-    const goes = (at: number, total: number) => {
-      const lift = setTimeout(() => setCovering(false), at);
+    startLanding(moving && !quick && start);
+    if (!start) return undefined;
+    const goes = (total: number) => {
       const timer = setTimeout(() => onDone?.(), total);
-      return () => {
-        clearTimeout(lift);
-        clearTimeout(timer);
-      };
+      return () => clearTimeout(timer);
     };
     if (!moving) {
-      page.set(withDelay(STILL_FADE_AT, withTiming(0, { duration: STILL_FADE_MS })));
-      return goes(STILL_FADE_AT, STILL_FADE_AT + STILL_FADE_MS);
+      // The still card's fade is the one motion Reduce Motion keeps, as the board's.
+      page.set(
+        withDelay(
+          STILL_FADE_AT,
+          withTiming(0, { duration: STILL_FADE_MS, reduceMotion: ReduceMotion.Never }),
+        ),
+      );
+      return goes(STILL_FADE_AT + STILL_FADE_MS);
     }
     const flyAt = quick ? QUICK_FLY_AT : AT.fly;
     if (!quick) {
@@ -91,8 +97,8 @@ export function Splash({ quick, onDone, held = false }: SplashProps) {
     }
     fly.set(withDelay(flyAt, withTiming(1, { duration: AT.flyMs, easing: CAMERA })));
     page.set(withDelay(flyAt, withTiming(0, { duration: AT.fadeMs, easing: CAMERA })));
-    return goes(flyAt, flyAt + AT.fadeMs + 40);
-  }, [held, moving, quick, onDone, written, line, rise, fly, page]);
+    return goes(flyAt + AT.fadeMs + 40);
+  }, [held, start, moving, quick, onDone, written, line, rise, fly, page]);
 
   const pageStyle = useAnimatedStyle(() => ({ opacity: page.get() }));
   const stageStyle = useAnimatedStyle(() => {
@@ -117,7 +123,7 @@ export function Splash({ quick, onDone, held = false }: SplashProps) {
 
   return (
     <Animated.View
-      pointerEvents={covering && !held ? 'auto' : 'none'}
+      pointerEvents="none"
       accessibilityElementsHidden={!held}
       importantForAccessibility={held ? 'yes' : 'no-hide-descendants'}
       accessible={held}
