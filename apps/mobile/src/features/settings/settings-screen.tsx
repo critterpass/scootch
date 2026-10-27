@@ -20,8 +20,10 @@ import {
   Group,
   Head,
   Row,
+  Rule,
   Segments,
   SwitchRow,
+  SETTINGS_PAGE,
   TITLE_MAX_SCALE,
   titleSize,
   usePage,
@@ -33,6 +35,8 @@ import { useSettingsActions } from './use-settings-actions';
 /** Language names are written in their own language, whatever the app is in. */
 const LANGUAGE_NAMES: Readonly<Record<Language, string>> = { en: 'English', vi: 'Tiếng Việt' };
 const SITE = 'https://phusclass.com';
+/** The board's version line, quieter than the muted grey. */
+const VERSION_INK = '#B0A69B';
 
 function siteLink(language: Language, page: 'privacy' | 'terms'): string {
   return language === 'vi' ? `${SITE}/vi/${page}` : `${SITE}/${page}`;
@@ -59,6 +63,7 @@ export function SettingsScreen({
   const { fullName } = useFirstDay();
   const { palette, allowFontScaling, size, captured } = useScreenStyle();
   const page = usePage();
+  const daylight = page === SETTINGS_PAGE;
   const {
     notes,
     denied,
@@ -169,7 +174,8 @@ export function SettingsScreen({
       <Head title={t('settings.class.head')} />
       <Group>
         <PeriodAndDrum />
-        <View style={[styles.language, styles.ruled, { borderTopColor: `${palette.ink}14` }]}>
+        <View style={styles.language}>
+          <Rule />
           <Text
             allowFontScaling={allowFontScaling}
             style={{ color: palette.ink, fontSize: size(16) }}
@@ -252,7 +258,10 @@ export function SettingsScreen({
         <PhuFace mood="over" size={64} figureWidth={100} offsetY={-9} background="#FFF1DC" />
         <Text
           allowFontScaling={allowFontScaling}
-          style={[styles.version, { color: palette.faint, fontSize: size(12) }]}
+          style={[
+            styles.version,
+            { color: daylight ? VERSION_INK : palette.faint, fontSize: size(12) },
+          ]}
           testID="settings-version"
         >
           {version}
@@ -281,7 +290,6 @@ const styles = StyleSheet.create({
     letterSpacing: -0.8,
   },
   language: { paddingHorizontal: 16, paddingVertical: 12, gap: 10 },
-  ruled: { borderTopWidth: StyleSheet.hairlineWidth },
   footer: { marginTop: 36, marginHorizontal: 20, alignItems: 'center', gap: 10 },
   version: { fontFamily: fonts.body, textAlign: 'center' },
 });

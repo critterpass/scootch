@@ -1,8 +1,12 @@
 import { Canvas, Path } from '@shopify/react-native-skia';
-import type { ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View, type StyleProp, type TextStyle } from 'react-native';
+import { ReduceMotion, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
 
 import { useTextSizing } from '../../screens/registry/support/forced-variant';
+import { SPRING_CURVE } from '../../ui/motion/motion-tokens';
+import { PressSpring } from '../../ui/motion/press-spring';
+import { useMayMove } from '../../ui/motion/use-feel';
 import { type as typeStyles } from '../desk/class-style';
 
 /** The receipt's inks, as the Tuition board draws them. Paper is drawn in daylight only. */
@@ -35,11 +39,33 @@ const RECEIPT_SIGNATURE =
   'C20 18 24 13 26 17 C27 21 26 24 29 22 C31 19 31 16 32 15 C32 20 33 24 36 22 C38 20 38 17 39 15 ' +
   'C39 20 40 24 44 21 C52 17 64 16 82 9 M35 9 L40 4';
 
-export function ReceiptSignature({ label }: { readonly label: string }) {
+/** The board's `sigIn`: his pen draws the signature over 900 ms, 420 ms after the stamp's turn. */
+const SIGN_DELAY_MS = 420;
+const SIGN_MS = 900;
+
+/** His signature; `sign` has him write it again now, stroke by stroke. */
+export function ReceiptSignature({
+  label,
+  sign = false,
+}: {
+  readonly label: string;
+  readonly sign?: boolean;
+}) {
+  const mayMove = useMayMove();
+  const written = useSharedValue(1);
+  useEffect(() => {
+    if (!sign || !mayMove) return;
+    written.value = 0;
+    written.value = withDelay(
+      SIGN_DELAY_MS,
+      withTiming(1, { duration: SIGN_MS, easing: SPRING_CURVE, reduceMotion: ReduceMotion.Never }),
+    );
+  }, [sign, mayMove, written]);
   return (
     <View accessible accessibilityRole="image" accessibilityLabel={label}>
       <Canvas style={{ width: 84, height: 30 }}>
         <Path
+          end={written}
           path={RECEIPT_SIGNATURE}
           style="stroke"
           strokeWidth={2}
@@ -72,6 +98,18 @@ export function RedTick() {
   );
 }
 
+/** The line height a text style sets, the last one set winning, as React Native reads it. */
+function lineHeightOf(style: StyleProp<TextStyle>): number | undefined {
+  if (Array.isArray(style)) {
+    for (let i = style.length - 1; i >= 0; i -= 1) {
+      const set = lineHeightOf(style[i] as StyleProp<TextStyle>);
+      if (set !== undefined) return set;
+    }
+    return undefined;
+  }
+  return typeof style === 'object' && style !== null ? (style as TextStyle).lineHeight : undefined;
+}
+
 /** Text at a design size, scaled by the phone's text size or a forced registry variant. */
 export function Sized({
   size,
@@ -89,13 +127,20 @@ export function Sized({
   readonly label?: string;
 }) {
   const sizing = useTextSizing();
+  const fontSize = sizing.size(size);
+  // A set line height grows with the text, so larger sizes never draw one line over another.
+  const lineHeight = lineHeightOf(style);
   return (
     <Text
       allowFontScaling={sizing.allowFontScaling}
       {...(lines !== undefined ? { numberOfLines: lines } : {})}
       {...(role !== undefined ? { accessibilityRole: role } : {})}
       {...(label !== undefined ? { accessibilityLabel: label } : {})}
-      style={[style, { fontSize: sizing.size(size) }]}
+      style={[
+        style,
+        { fontSize },
+        lineHeight === undefined ? null : { lineHeight: (lineHeight * fontSize) / size },
+      ]}
     >
       {children}
     </Text>
@@ -126,6 +171,9 @@ export function Label({
   );
 }
 
+/** The tuition and scholarship boards press their buttons and plans to 0.97. */
+export const PAPER_PRESS = 0.97;
+
 /** A full-width capsule: the one action of a screen, or a quiet one. */
 export function Capsule({
   label,
@@ -149,23 +197,21 @@ export function Capsule({
         ? { bg: paper.greenSoft, fg: paper.green }
         : { bg: 'rgba(28,26,24,0.06)', fg: paper.ink };
   return (
-    <Pressable
+    <PressSpring
       accessibilityRole="button"
       accessibilityState={{ disabled }}
       {...(hint !== undefined ? { accessibilityHint: hint } : {})}
       {...(testID !== undefined ? { testID } : {})}
       disabled={disabled}
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.capsule,
-        { backgroundColor: colours.bg, opacity: disabled ? 0.5 : 1 },
-        pressed ? styles.pressed : null,
-      ]}
+      pressScale={PAPER_PRESS}
+      restOpacity={disabled ? 0.5 : 1}
+      style={[styles.capsule, { backgroundColor: colours.bg }]}
     >
       <Sized size={17} style={[styles.capsuleText, { color: colours.fg }]}>
         {label}
       </Sized>
-    </Pressable>
+    </PressSpring>
   );
 }
 
@@ -212,6 +258,5 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
   },
   capsuleText: { fontWeight: '700', textAlign: 'center' },
-  pressed: { transform: [{ scale: 0.97 }] },
   link: { color: paper.muted },
 });

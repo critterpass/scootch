@@ -3,12 +3,15 @@ import { StyleSheet, Switch, Text, View } from 'react-native';
 
 import { HAND_FAMILY } from '../../classroom/use-hand-font';
 import { PressSpring } from '../../ui/motion/press-spring';
+import { usePalette } from '../../ui/use-palette';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
 /** The Settings board's warm page and its switch green. */
 export const SETTINGS_PAGE = '#F7F1E8';
 const SWITCH_ON = '#34A867';
 const CLASS_RED = '#D42A24';
+/** A full-width cell presses less deep than a button, as the board's `.cell.press`. */
+const ROW_PRESS = 0.98;
 
 /** A page title grows only this far, so a long word never breaks at the largest sizes. */
 export const TITLE_MAX_SCALE = 1.5;
@@ -18,6 +21,22 @@ export function titleSize(size: (design: number) => number, design: number): num
   return Math.min(size(design), design * TITLE_MAX_SCALE);
 }
 
+/** The board's quiet inks on the warm page: its muted grey, its chevron and its rules. */
+export function useSettingsInk(): { muted: string; chevron: string; rule: string } {
+  const palette = usePalette();
+  return palette.ink === '#1C1A17'
+    ? { muted: '#8A7F74', chevron: '#C4BAAE', rule: 'rgba(28,26,24,0.07)' }
+    : { muted: palette.muted, chevron: palette.chevron, rule: `${palette.ink}12` };
+}
+
+/** The line between two cells, inset from the left as the board's `.cell + .cell`. */
+export function Rule() {
+  const { rule } = useSettingsInk();
+  return <View style={[styles.rule, { backgroundColor: rule }]} />;
+}
+
+export { Segments } from './settings-segments';
+
 export function usePage(): string {
   const { palette } = useScreenStyle();
   return palette.ink === '#1C1A17' ? SETTINGS_PAGE : palette.page;
@@ -25,13 +44,14 @@ export function usePage(): string {
 
 /** A section's heading, with an optional handwritten note at its end. */
 export function Head({ title, note }: { readonly title: string; readonly note?: string }) {
-  const { palette, allowFontScaling, size } = useScreenStyle();
+  const { allowFontScaling, size } = useScreenStyle();
+  const { muted } = useSettingsInk();
   return (
     <View style={styles.head}>
       <Text
         accessibilityRole="header"
         allowFontScaling={allowFontScaling}
-        style={[styles.headText, { color: palette.muted, fontSize: size(12) }]}
+        style={[styles.headText, { color: muted, fontSize: size(12) }]}
       >
         {title}
       </Text>
@@ -50,11 +70,12 @@ export function Group({ children }: { readonly children: ReactNode }) {
 }
 
 export function Foot({ children }: { readonly children: string }) {
-  const { palette, allowFontScaling, size } = useScreenStyle();
+  const { allowFontScaling, size } = useScreenStyle();
+  const { muted } = useSettingsInk();
   return (
     <Text
       allowFontScaling={allowFontScaling}
-      style={[styles.foot, { color: palette.muted, fontSize: size(13) }]}
+      style={[styles.foot, { color: muted, fontSize: size(13) }]}
     >
       {children}
     </Text>
@@ -63,8 +84,8 @@ export function Foot({ children }: { readonly children: string }) {
 
 /** The row's chevron, drawn from a view's two edges, so it needs no image. */
 function Chevron() {
-  const { palette } = useScreenStyle();
-  return <View style={[styles.chevron, { borderColor: palette.chevron }]} />;
+  const { chevron } = useSettingsInk();
+  return <View style={[styles.chevron, { borderColor: chevron }]} />;
 }
 
 export interface RowProps {
@@ -93,16 +114,11 @@ export function Row({
   testID,
 }: RowProps) {
   const { palette, allowFontScaling, size, largeText } = useScreenStyle();
+  const { muted } = useSettingsInk();
   const color = tone === 'danger' ? CLASS_RED : tone === 'link' ? '#2B5BA8' : palette.ink;
   const body = (
-    <View
-      style={[
-        styles.cell,
-        largeText && styles.cellStacked,
-        !first && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: `${palette.ink}14` },
-        faded && styles.faded,
-      ]}
-    >
+    <View style={[styles.cell, largeText && styles.cellStacked, faded && styles.faded]}>
+      {first ? null : <Rule />}
       <Text
         allowFontScaling={allowFontScaling}
         style={[
@@ -117,10 +133,7 @@ export function Row({
       {value !== undefined || chevron ? (
         <View style={styles.value}>
           {value === undefined ? null : (
-            <Text
-              allowFontScaling={allowFontScaling}
-              style={{ color: palette.muted, fontSize: size(15) }}
-            >
+            <Text allowFontScaling={allowFontScaling} style={{ color: muted, fontSize: size(15) }}>
               {value}
             </Text>
           )}
@@ -147,6 +160,7 @@ export function Row({
       {...(hint === undefined ? {} : { accessibilityHint: hint })}
       onPress={onPress}
       feedback="choice"
+      pressScale={ROW_PRESS}
       {...(testID === undefined ? {} : { testID })}
     >
       {body}
@@ -172,12 +186,8 @@ export function SwitchRow({
 }) {
   const { palette, allowFontScaling, size } = useScreenStyle();
   return (
-    <View
-      style={[
-        styles.cell,
-        !first && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: `${palette.ink}14` },
-      ]}
-    >
+    <View style={styles.cell}>
+      {first ? null : <Rule />}
       <Text
         allowFontScaling={allowFontScaling}
         style={[styles.cellLabel, { color: palette.ink, fontSize: size(16) }]}
@@ -192,59 +202,6 @@ export function SwitchRow({
         accessibilityLabel={label}
         {...(testID === undefined ? {} : { testID })}
       />
-    </View>
-  );
-}
-
-/** A choice of a few, one at a time: the system's segmented look. */
-export function Segments<T extends string>({
-  options,
-  value,
-  onChange,
-  label,
-}: {
-  readonly options: readonly {
-    readonly value: T;
-    readonly label: string;
-    /** What VoiceOver reads, where the label alone says too little ("10"). */
-    readonly spoken?: string;
-  }[];
-  readonly value: T;
-  readonly onChange: (next: T) => void;
-  readonly label: string;
-}) {
-  const { palette, allowFontScaling, size, largeText } = useScreenStyle();
-  return (
-    <View
-      accessibilityRole="radiogroup"
-      accessibilityLabel={label}
-      style={[styles.segments, largeText && styles.segmentsStacked]}
-    >
-      {options.map((option) => {
-        const on = option.value === value;
-        return (
-          <PressSpring
-            key={option.value}
-            accessibilityRole="radio"
-            accessibilityLabel={option.spoken ?? option.label}
-            accessibilityState={{ selected: on, checked: on }}
-            onPress={() => onChange(option.value)}
-            feedback="choice"
-            testID={`segment-${option.value}`}
-            style={[
-              styles.segment,
-              on && { backgroundColor: palette.surface, boxShadow: '0 3px 8px rgba(0,0,0,0.12)' },
-            ]}
-          >
-            <Text
-              allowFontScaling={allowFontScaling}
-              style={[styles.segmentText, { color: palette.ink, fontSize: size(14) }]}
-            >
-              {option.label}
-            </Text>
-          </PressSpring>
-        );
-      })}
     </View>
   );
 }
@@ -282,6 +239,7 @@ const styles = StyleSheet.create({
   centred: { textAlign: 'center' },
   value: { flexDirection: 'row', alignItems: 'center', gap: 6, flexShrink: 1 },
   faded: { opacity: 0.4 },
+  rule: { position: 'absolute', top: 0, left: 16, right: 0, height: 1 },
   chevron: {
     width: 8,
     height: 8,
@@ -291,21 +249,4 @@ const styles = StyleSheet.create({
     borderRadius: 1,
     transform: [{ rotate: '45deg' }],
   },
-  segments: {
-    flexDirection: 'row',
-    gap: 2,
-    padding: 2,
-    borderRadius: 11,
-    backgroundColor: 'rgba(118,118,128,0.12)',
-  },
-  segmentsStacked: { flexDirection: 'column' },
-  segment: {
-    flex: 1,
-    minHeight: 32,
-    borderRadius: 9,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 4,
-  },
-  segmentText: { fontWeight: '600', textAlign: 'center' },
 });

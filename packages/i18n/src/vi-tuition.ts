@@ -6,6 +6,7 @@ export const viTuition = {
   'tuition.title': 'Học phí',
   'tuition.subtitle': 'Bài học nào cũng miễn phí. Học phí mở phần còn lại.',
   'tuition.receipt': 'Biên lai học phí',
+  'tuition.receiptNumber': 'Số {number}',
   'tuition.name': 'Họ tên',
   'tuition.line.timetable': 'Thời khóa biểu',
   'tuition.line.widgets': 'Widget lớn',

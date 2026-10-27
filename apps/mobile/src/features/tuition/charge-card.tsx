@@ -1,7 +1,10 @@
+import { useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
+import Animated, { FadeIn, withTiming } from 'react-native-reanimated';
 
 import { useLanguage, useT, type Translate } from '../../i18n/i18n-provider';
-import { RiseIn } from '../../ui/motion/rise-in';
+import { CROSSFADE_MS, SPRING_CURVE } from '../../ui/motion/motion-tokens';
+import { useMayMove } from '../../ui/motion/use-feel';
 
 import type { ReceiptStage, ReceiptStep } from './receipt-model';
 import { Label, paper, Sized } from './receipt-parts';
@@ -60,6 +63,19 @@ function stepWhen(step: ReceiptStep, today: string, t: Translate, language: 'en'
   return step.day === today ? t('tuition.step.today') : receiptDay(step.day, today, language);
 }
 
+/** The Tuition board's `.swap`: up 6 points and in, over 420 ms on the interface curve. */
+function swapIn() {
+  'worklet';
+  const timing = { duration: 420, easing: SPRING_CURVE };
+  return {
+    initialValues: { opacity: 0, transform: [{ translateY: 6 }] },
+    animations: {
+      opacity: withTiming(1, timing),
+      transform: [{ translateY: withTiming(0, timing) }],
+    },
+  };
+}
+
 /**
  * The card under the receipt, before the button and after it: today, the day of his note and the
  * day of the charge, every date from the store; waiting on Ask to Buy; or not paid.
@@ -75,9 +91,18 @@ export function ChargeCard({
 }) {
   const t = useT();
   const { language } = useLanguage();
+  const mayMove = useMayMove();
+  // The page arrives on the system's sheet: the card swaps in only for a stage after the first.
+  const firstStage = useRef(stage).current;
   if (steps.length === 0) return null;
+  const entering =
+    stage === firstStage ? undefined : mayMove ? swapIn : FadeIn.duration(CROSSFADE_MS);
   return (
-    <RiseIn key={stage} style={[styles.card, { backgroundColor: BACKGROUND[stage] }]}>
+    <Animated.View
+      key={stage}
+      {...(entering === undefined ? {} : { entering })}
+      style={[styles.card, { backgroundColor: BACKGROUND[stage] }]}
+    >
       {steps.map((step) => {
         const tone = STEP_TONES[step.kind];
         return (
@@ -94,7 +119,7 @@ export function ChargeCard({
           </View>
         );
       })}
-    </RiseIn>
+    </Animated.View>
   );
 }
 

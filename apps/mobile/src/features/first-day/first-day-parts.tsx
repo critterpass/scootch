@@ -1,11 +1,12 @@
 import type { ReactNode } from 'react';
 import { Image, ScrollView, Text, View, useWindowDimensions } from 'react-native';
-import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut, withDelay, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import appIcon from '../../../assets/icons/app.png';
 import { useT } from '../../i18n/i18n-provider';
 import { titleSize, TITLE_MAX_SCALE } from '../settings/settings-parts';
+import { BOUNCE_CURVE, CSS_EASE, CROSSFADE_MS, SPRING_CURVE } from '../../ui/motion/motion-tokens';
 import { useKeyboardOpen } from '../../ui/use-keyboard-open';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
@@ -14,8 +15,55 @@ import { CLASS_RED, styles } from './first-day-styles';
 
 /** The App board's sheet: 374 points of an 844-point screen, its action at the foot. */
 const SHEET_HEIGHT = 374;
+/** Each beat's words fill the sheet, and scroll inside it when they are more than it holds. */
+const SWAP = { flexGrow: 1, flexShrink: 1 } as const;
 /** His bubble grows only so far: at the largest sizes the sheet below carries the words. */
 const BUBBLE_MAX_SCALE = 1.6;
+
+/** The App board's bubble pop: from 60% and a little low, overshooting into place. */
+function bubblePop() {
+  'worklet';
+  const timing = { duration: 400, easing: BOUNCE_CURVE };
+  return {
+    initialValues: { opacity: 0, transform: [{ scale: 0.6 }, { translateY: 10 }] },
+    animations: {
+      opacity: withTiming(1, timing),
+      transform: [{ scale: withTiming(1, timing) }, { translateY: withTiming(0, timing) }],
+    },
+  };
+}
+
+/**
+ * The App board's panel swap, coming in: opacity over 300 ms `ease`, and up 10 points from 0.985
+ * over 520 ms on the interface curve, 140 ms after the old panel starts to go.
+ */
+function panelIn() {
+  'worklet';
+  const move = { duration: 520, easing: SPRING_CURVE };
+  return {
+    initialValues: { opacity: 0, transform: [{ translateY: 10 }, { scale: 0.985 }] },
+    animations: {
+      opacity: withDelay(140, withTiming(1, { duration: 300, easing: CSS_EASE })),
+      transform: [
+        { translateY: withDelay(140, withTiming(0, move)) },
+        { scale: withDelay(140, withTiming(1, move)) },
+      ],
+    },
+  };
+}
+
+/** The panel swap, going: the reverse, at once. */
+function panelOut() {
+  'worklet';
+  const move = { duration: 520, easing: SPRING_CURVE };
+  return {
+    initialValues: { opacity: 1, transform: [{ translateY: 0 }, { scale: 1 }] },
+    animations: {
+      opacity: withTiming(0, { duration: 300, easing: CSS_EASE }),
+      transform: [{ translateY: withTiming(10, move) }, { scale: withTiming(0.985, move) }],
+    },
+  };
+}
 
 /** His speech bubble, over the room. */
 export function Bubble({ text, wide }: { readonly text: string; readonly wide: boolean }) {
@@ -25,10 +73,12 @@ export function Bubble({ text, wide }: { readonly text: string; readonly wide: b
   return (
     <Animated.View
       key={text}
-      {...(reducedMotion ? {} : { entering: FadeIn.duration(300) })}
+      entering={reducedMotion ? FadeIn.duration(CROSSFADE_MS) : bubblePop}
       accessibilityLiveRegion="polite"
       style={[
         styles.bubble,
+        // It grows from the corner nearest him.
+        { transformOrigin: wide ? '20% 100%' : '80% 100%' },
         { top: insets.top + (wide ? 16 : 70), maxWidth: largeText ? '88%' : 220 },
         wide ? { left: 22 } : { right: 22 },
       ]}
@@ -46,7 +96,10 @@ export function Bubble({ text, wide }: { readonly text: string; readonly wide: b
   );
 }
 
-/** The sheet at the foot of the room that each beat writes on. */
+/**
+ * The sheet at the foot of the room that each beat writes on. The sheet stays; each beat's words
+ * swap on it, the old going as the new comes in.
+ */
 export function Sheet({
   label,
   trailing,
@@ -67,9 +120,7 @@ export function Sheet({
   const keyboardOpen = useKeyboardOpen();
   const light = palette.ink === '#1C1A17';
   return (
-    <Animated.View
-      key={beat}
-      {...(reducedMotion ? {} : { entering: FadeInDown.duration(420) })}
+    <View
       style={[
         styles.sheet,
         {
@@ -79,29 +130,36 @@ export function Sheet({
           maxHeight: height * 0.72,
         },
       ]}
-      testID={`first-day-beat-${beat.replace(' ', '-')}`}
     >
       <View style={styles.grabber} />
-      <ScrollView
-        style={styles.sheetScroll}
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={[styles.sheetContent, { paddingBottom: insets.bottom + 16 }]}
+      <Animated.View
+        key={beat}
+        entering={reducedMotion ? FadeIn.duration(CROSSFADE_MS) : panelIn}
+        exiting={reducedMotion ? FadeOut.duration(CROSSFADE_MS) : panelOut}
+        style={SWAP}
+        testID={`first-day-beat-${beat.replace(' ', '-')}`}
       >
-        <View style={styles.sheetHead}>
-          <Text
-            allowFontScaling={allowFontScaling}
-            style={[
-              styles.label,
-              { color: quietLabel ? palette.muted : CLASS_RED, fontSize: size(12) },
-            ]}
-          >
-            {label}
-          </Text>
-          {trailing}
-        </View>
-        {children}
-      </ScrollView>
-    </Animated.View>
+        <ScrollView
+          style={styles.sheetScroll}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={[styles.sheetContent, { paddingBottom: insets.bottom + 16 }]}
+        >
+          <View style={styles.sheetHead}>
+            <Text
+              allowFontScaling={allowFontScaling}
+              style={[
+                styles.label,
+                { color: quietLabel ? palette.muted : CLASS_RED, fontSize: size(12) },
+              ]}
+            >
+              {label}
+            </Text>
+            {trailing}
+          </View>
+          {children}
+        </ScrollView>
+      </Animated.View>
+    </View>
   );
 }
 

@@ -1,7 +1,13 @@
 import { Canvas, Group } from '@shopify/react-native-skia';
 import { useMemo, useState, type ReactElement } from 'react';
 import { ScrollView, Switch, Text, View } from 'react-native';
-import Animated, { FadeIn, SlideInDown, makeMutable } from 'react-native-reanimated';
+import Animated, {
+  FadeIn,
+  FadeOut,
+  SlideInDown,
+  makeMutable,
+  useSharedValue,
+} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { buildPhu, phuPose } from '@phusclass/art/class';
@@ -10,11 +16,13 @@ import { LayerView } from '../../classroom/layer-view';
 import { useHandFont } from '../../classroom/use-hand-font';
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { CloseIcon } from '../../ui/icons';
+import { CROSSFADE_MS } from '../../ui/motion/motion-tokens';
 import { PressSpring } from '../../ui/motion/press-spring';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
 import { CARD_HEIGHTS, CARD_WIDTH, type CardShape } from './cards/card-parts';
 import { initialsOf, ShareCard } from './cards/share-card';
+import { cardIn, cardOut } from './card-swap';
 import { exportCard, saveToPhotos, shareImage } from './export-card';
 import { cardCopy } from './share-copy';
 import type { ShareOffer } from './share-offer';
@@ -66,6 +74,8 @@ export function ShareSheet({
   const hand = useHandFont();
   const { fonts } = useCardFonts();
   const [picked, setPicked] = useState<ShareFormat | undefined>(initialFormat);
+  // Which way the cards moved at the last pick: the new one comes from that side.
+  const side = useSharedValue(1);
   const [hide, setHide] = useState(initialHide);
   const [status, setStatus] = useState<Status>('idle');
 
@@ -178,8 +188,9 @@ export function ShareSheet({
           ) : (
             <>
               <Animated.View
-                key={`${format}-${String(hide)}`}
-                {...(style.reducedMotion ? {} : { entering: FadeIn.duration(320) })}
+                key={format}
+                entering={style.reducedMotion ? FadeIn.duration(CROSSFADE_MS) : cardIn(side)}
+                exiting={style.reducedMotion ? FadeOut.duration(CROSSFADE_MS) : cardOut(side)}
                 style={styles.previewWrap}
                 accessible
                 accessibilityRole="image"
@@ -211,7 +222,13 @@ export function ShareSheet({
                       accessibilityRole="radio"
                       accessibilityState={{ checked: on }}
                       accessibilityLabel={t(FORMAT_KEYS[one])}
-                      onPress={() => setPicked(one)}
+                      onPress={() => {
+                        if (format !== undefined && one !== format) {
+                          const from = ready.formats.indexOf(format);
+                          side.set(ready.formats.indexOf(one) > from ? 1 : -1);
+                        }
+                        setPicked(one);
+                      }}
                       style={[styles.chip, { backgroundColor: on ? INK : CHIP }]}
                       testID={`share-format-${one}`}
                     >

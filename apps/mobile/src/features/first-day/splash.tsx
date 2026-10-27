@@ -1,13 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View, type LayoutChangeEvent } from 'react-native';
 import Animated, {
-  Easing,
   useAnimatedStyle,
   useSharedValue,
   withDelay,
-  withSequence,
   withTiming,
-  type SharedValue,
 } from 'react-native-reanimated';
 
 import { buildPhu, phuPose } from '@phusclass/art/class';
@@ -17,21 +14,8 @@ import { HAND_FAMILY, useHandFont } from '../../classroom/use-hand-font';
 import { useT } from '../../i18n/i18n-provider';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
-/** The Splash board's timeline, in milliseconds. */
-const AT = {
-  write: 260,
-  writeMs: 760,
-  line: 980,
-  lineMs: 420,
-  rise: 1160,
-  riseMs: 620,
-  drums: [1820, 2080, 2340],
-  drumMs: 620,
-  fly: 2980,
-  flyMs: 760,
-  fadeMs: 900,
-  end: 3900,
-} as const;
+import { AT, Drum, shakeStyle, SPLASH_CURVES, useBoardShake } from './splash-motion';
+
 /** Under Reduce Motion the card is simply there, then fades. */
 const STILL_FADE_AT = 1600;
 const STILL_FADE_MS = 300;
@@ -41,83 +25,14 @@ const QUICK_FLY_AT = 420;
 const SPLASH_PAGE = '#F7F1E8';
 const BOARD_WIDTH = 300;
 const BOARD_HEIGHT = 210;
+/** The board's top, as a share of the screen: 214 of the board's 844 points. */
+const BOARD_TOP = 0.25;
 const TITLE_WIDTH = 236;
 const LINE_WIDTH = 188;
 /** How far the card flies up, to where the chalkboard hangs in the room. */
 const FLY_UP = -233;
 
-const bezier = (a: number, b: number, c: number, d: number) => Easing.bezier(a, b, c, d);
-const INTERFACE = bezier(0.32, 0.72, 0, 1);
-const CHARACTER = bezier(0.34, 1.56, 0.64, 1);
-const CAMERA = bezier(0.7, 0, 0.2, 1);
-const WRITE = bezier(0.45, 0.05, 0.4, 1);
-
-function Drum({ at, style, size, play }: DrumProps) {
-  const shown = useSharedValue(0);
-  useEffect(() => {
-    if (!play) return;
-    shown.set(
-      withDelay(
-        at,
-        withSequence(
-          withTiming(1, { duration: AT.drumMs * 0.35, easing: CHARACTER }),
-          withTiming(1, { duration: AT.drumMs * 0.25 }),
-          withTiming(2, { duration: AT.drumMs * 0.4 }),
-        ),
-      ),
-    );
-  }, [at, play, shown]);
-  const animated = useAnimatedStyle(() => {
-    const v = shown.get();
-    return {
-      opacity: v <= 1 ? v : 2 - v,
-      transform: [
-        { translateY: v > 1 ? -14 * (v - 1) : 0 },
-        { scale: v <= 1 ? 0.4 + 0.75 * v : 1 },
-        { rotate: style.rotate },
-      ],
-    };
-  });
-  return (
-    <Animated.Text
-      style={[styles.drum, { fontSize: size, left: style.left, top: style.top }, animated]}
-    >
-      Tùng!
-    </Animated.Text>
-  );
-}
-
-interface DrumProps {
-  readonly at: number;
-  readonly size: number;
-  readonly play: boolean;
-  readonly style: { readonly left: number; readonly top: number; readonly rotate: string };
-}
-
-function useBoardShake(play: boolean): SharedValue<number> {
-  const shake = useSharedValue(0);
-  useEffect(() => {
-    if (!play) return;
-    const once = () =>
-      withSequence(
-        withTiming(-4, { duration: 52 }),
-        withTiming(3, { duration: 65 }),
-        withTiming(-2, { duration: 65 }),
-        withTiming(0, { duration: 78 }),
-      );
-    shake.set(
-      withDelay(
-        AT.drums[0],
-        withSequence(
-          once(),
-          withDelay(AT.drums[1] - AT.drums[0] - 260, once()),
-          withDelay(AT.drums[2] - AT.drums[1] - 260, once()),
-        ),
-      ),
-    );
-  }, [play, shake]);
-  return shake;
-}
+const { INTERFACE, CHARACTER, CAMERA, WRITE } = SPLASH_CURVES;
 
 export interface SplashProps {
   /** The full card on a first launch; a short flight on every launch after. */
@@ -132,7 +47,8 @@ export interface SplashProps {
  * The animated splash, from the Splash board: "Phu's Class" written in chalk, the line under it,
  * Thầy Phú rising behind the board, three drum beats that shake it, then the card flies up to
  * where the chalkboard hangs in the room as the first scene shows through. Under Reduce Motion the
- * card is simply there, then fades. It takes no touch and VoiceOver hears one line.
+ * card is simply there, then fades. Until it starts to go it takes every tap, so nothing under it
+ * is touched; VoiceOver hears one line.
  */
 export function Splash({ quick, onDone, held = false }: SplashProps) {
   const t = useT();
@@ -149,14 +65,23 @@ export function Splash({ quick, onDone, held = false }: SplashProps) {
   const fly = useSharedValue(0);
   const page = useSharedValue(1);
   const shake = useBoardShake(full);
-  const [width, setWidth] = useState(0);
+  const [size, setSize] = useState({ width: 0, height: 0 });
+  // Nothing under the card takes a tap until it starts to go.
+  const [covering, setCovering] = useState(true);
 
   useEffect(() => {
     if (held) return undefined;
+    const goes = (at: number, total: number) => {
+      const lift = setTimeout(() => setCovering(false), at);
+      const timer = setTimeout(() => onDone?.(), total);
+      return () => {
+        clearTimeout(lift);
+        clearTimeout(timer);
+      };
+    };
     if (!moving) {
       page.set(withDelay(STILL_FADE_AT, withTiming(0, { duration: STILL_FADE_MS })));
-      const timer = setTimeout(() => onDone?.(), STILL_FADE_AT + STILL_FADE_MS);
-      return () => clearTimeout(timer);
+      return goes(STILL_FADE_AT, STILL_FADE_AT + STILL_FADE_MS);
     }
     const flyAt = quick ? QUICK_FLY_AT : AT.fly;
     if (!quick) {
@@ -166,8 +91,7 @@ export function Splash({ quick, onDone, held = false }: SplashProps) {
     }
     fly.set(withDelay(flyAt, withTiming(1, { duration: AT.flyMs, easing: CAMERA })));
     page.set(withDelay(flyAt, withTiming(0, { duration: AT.fadeMs, easing: CAMERA })));
-    const timer = setTimeout(() => onDone?.(), flyAt + AT.fadeMs + 40);
-    return () => clearTimeout(timer);
+    return goes(flyAt, flyAt + AT.fadeMs + 40);
   }, [held, moving, quick, onDone, written, line, rise, fly, page]);
 
   const pageStyle = useAnimatedStyle(() => ({ opacity: page.get() }));
@@ -178,17 +102,22 @@ export function Splash({ quick, onDone, held = false }: SplashProps) {
       transform: [{ translateY: FLY_UP * f }, { scale: 1 + 0.15 * f }],
     };
   });
-  const boardStyle = useAnimatedStyle(() => ({ transform: [{ translateX: shake.get() }] }));
+  const boardStyle = useAnimatedStyle(() => shakeStyle(shake.get()));
   const titleStyle = useAnimatedStyle(() => ({ width: TITLE_WIDTH * written.get() }));
   const lineStyle = useAnimatedStyle(() => ({ width: LINE_WIDTH * line.get() }));
   const phuStyle = useAnimatedStyle(() => ({ transform: [{ translateY: 96 * (1 - rise.get()) }] }));
 
-  const onLayout = (event: LayoutChangeEvent) => setWidth(event.nativeEvent.layout.width);
-  const left = (width - BOARD_WIDTH) / 2;
+  const onLayout = (event: LayoutChangeEvent) => {
+    const { width, height } = event.nativeEvent.layout;
+    setSize({ width, height });
+  };
+  const left = (size.width - BOARD_WIDTH) / 2;
+  // The card flies up and grows about its own middle, as the board's stage does.
+  const origin = { transformOrigin: ['50%', size.height * BOARD_TOP + BOARD_HEIGHT / 2, 0] };
 
   return (
     <Animated.View
-      pointerEvents="none"
+      pointerEvents={covering && !held ? 'auto' : 'none'}
       accessibilityElementsHidden={!held}
       importantForAccessibility={held ? 'yes' : 'no-hide-descendants'}
       accessible={held}
@@ -197,7 +126,7 @@ export function Splash({ quick, onDone, held = false }: SplashProps) {
       style={[StyleSheet.absoluteFill, styles.page, pageStyle]}
       testID="splash"
     >
-      <Animated.View style={[styles.stage, stageStyle]}>
+      <Animated.View style={[styles.stage, origin, stageStyle]}>
         <View style={[styles.anchor, { left }]}>
           <Animated.View style={[styles.phu, phuStyle]}>
             <FigureCanvas figure={figure} width={160} clock={clock} running={STILL} hand={hand} />
@@ -258,7 +187,12 @@ const STILL: ReadonlySet<string> = new Set();
 const styles = StyleSheet.create({
   page: { backgroundColor: SPLASH_PAGE, zIndex: 10 },
   stage: { flex: 1 },
-  anchor: { position: 'absolute', top: '25%', width: BOARD_WIDTH, height: BOARD_HEIGHT },
+  anchor: {
+    position: 'absolute',
+    top: `${BOARD_TOP * 100}%`,
+    width: BOARD_WIDTH,
+    height: BOARD_HEIGHT,
+  },
   phu: { position: 'absolute', left: (BOARD_WIDTH - 160) / 2, top: -84 },
   board: {
     position: 'absolute',
@@ -318,13 +252,5 @@ const styles = StyleSheet.create({
     height: 6,
     borderRadius: 3,
     backgroundColor: '#FFFFFF',
-  },
-  drum: {
-    position: 'absolute',
-    fontFamily: HAND_FAMILY,
-    color: '#D42A24',
-    textShadowColor: '#FFFFFF',
-    textShadowRadius: 2,
-    textShadowOffset: { width: 2, height: 2 },
   },
 });

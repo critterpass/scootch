@@ -2,7 +2,6 @@ import { useEffect, type ReactNode } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
 import Animated, {
   cancelAnimation,
-  interpolate,
   ReduceMotion,
   useAnimatedStyle,
   useSharedValue,
@@ -11,18 +10,18 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { plainStyle } from './animated-style';
-import { CROSSFADE_MS, EASE_OUT, STAMP } from './motion-tokens';
+import { BOUNCE_CURVE, CROSSFADE_MS, STAMP } from './motion-tokens';
 import { useMayMove } from './use-feel';
 
-/** The numbers of one stamp: where it comes from and how it lands. */
-export type StampShape = { readonly [K in keyof typeof STAMP]: number };
+const ALWAYS = ReduceMotion.Never;
+const LAND_MS = STAMP.ms * STAMP.landAt;
+const SETTLE_MS = STAMP.ms - LAND_MS;
 
 export interface StampInProps {
   /** How long it waits before coming down, in milliseconds. */
   readonly delayMs?: number;
-  /** The angle it rests at, in degrees. */
+  /** The angle it rests at, in degrees. It comes down at that angle and never turns. */
   readonly restDeg?: number;
-  readonly shape?: StampShape;
   /** Called at the moment it lands, for its sound and haptic. */
   readonly onLand?: () => void;
   readonly style?: StyleProp<ViewStyle>;
@@ -31,62 +30,56 @@ export interface StampInProps {
 }
 
 /**
- * The design's stamp: it comes down large and turned, squashes as it lands, bounces once and
- * settles at its resting angle. Where nothing may move it fades in. It runs on the UI thread.
+ * The boards' `stampIn`: it comes down from 1.9 at nothing, lands at 0.94 by 55% of its 520 ms
+ * and settles at 1, at its resting angle throughout, each step on the character curve. Where
+ * nothing may move it fades in. It runs on the UI thread.
  */
 export function StampIn({
   delayMs = 0,
   restDeg = -8,
-  shape = STAMP,
   onLand,
   style,
   testID,
   children,
 }: StampInProps) {
   const mayMove = useMayMove();
-  const shown = useSharedValue(0);
-  const total = shape.landMs + shape.bounceMs + shape.settleMs;
-  const landAt = shape.landMs / total;
-  const bounceAt = (shape.landMs + shape.bounceMs) / total;
+  // Each runs 0 to 1 on the character curve, overshooting on the way: the landing, then the settle.
+  const land = useSharedValue(0);
+  const settle = useSharedValue(0);
 
   useEffect(() => {
-    const landed = () => onLand?.();
-    shown.value = withDelay(
+    const curve = { easing: BOUNCE_CURVE, reduceMotion: ALWAYS };
+    land.value = withDelay(
       delayMs,
-      withTiming(1, {
-        duration: mayMove ? total : CROSSFADE_MS,
-        easing: EASE_OUT,
-        reduceMotion: ReduceMotion.Never,
-      }),
+      withTiming(
+        1,
+        mayMove
+          ? { duration: LAND_MS, ...curve }
+          : { duration: CROSSFADE_MS, reduceMotion: ALWAYS },
+      ),
     );
-    // The landing is felt when the stamp meets the card, not when it has finished settling.
-    const timer = setTimeout(landed, delayMs + (mayMove ? shape.landMs * 0.5 : 0));
+    if (mayMove) {
+      settle.value = withDelay(delayMs + LAND_MS, withTiming(1, { duration: SETTLE_MS, ...curve }));
+    }
+    // The landing is felt when the stamp meets the paper, not when it has finished settling.
+    const timer = setTimeout(() => onLand?.(), delayMs + (mayMove ? LAND_MS : 0));
     return () => {
       clearTimeout(timer);
-      cancelAnimation(shown);
+      cancelAnimation(land);
+      cancelAnimation(settle);
     };
     // Played once per mount.
-  }, [shown]);
+  }, [land, settle]);
 
   const stamping = useAnimatedStyle(() => {
-    if (!mayMove) {
-      return { opacity: shown.value, transform: [{ rotate: `${restDeg}deg` }, { scale: 1 }] };
-    }
-    const turn = interpolate(
-      shown.value,
-      [0, landAt, bounceAt, 1],
-      [restDeg + shape.fromTurnDeg, restDeg + shape.landTurnDeg, restDeg, restDeg],
-    );
-    const scale = interpolate(
-      shown.value,
-      [0, landAt, bounceAt, 1],
-      [shape.fromScale, shape.landScale, shape.bounceScale, 1],
-    );
-    return {
-      opacity: interpolate(shown.value, [0, landAt * 0.6], [0, 1], 'clamp'),
-      transform: [{ rotate: `${turn}deg` }, { scale }],
-    };
-  }, [mayMove, restDeg, shape, landAt, bounceAt]);
+    const opacity = Math.min(1, Math.max(0, land.value));
+    if (!mayMove) return { opacity, transform: [{ rotate: `${restDeg}deg` }, { scale: 1 }] };
+    const scale =
+      settle.value > 0
+        ? STAMP.landScale + (1 - STAMP.landScale) * settle.value
+        : STAMP.fromScale + (STAMP.landScale - STAMP.fromScale) * land.value;
+    return { opacity, transform: [{ rotate: `${restDeg}deg` }, { scale }] };
+  }, [mayMove, restDeg]);
 
   return (
     <Animated.View testID={testID} pointerEvents="none" style={[plainStyle(style), stamping]}>

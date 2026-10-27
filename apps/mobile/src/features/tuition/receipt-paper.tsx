@@ -1,4 +1,5 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 
 import { fonts } from '@phusclass/tokens';
 
@@ -9,7 +10,10 @@ import { PLANS, type PlanId } from './products';
 import type { Offerings } from './purchases-port';
 import type { ReceiptStage } from './receipt-model';
 import { handText, Label, paper, ReceiptSignature, RedTick, Sized } from './receipt-parts';
+import { PaperEdge, PlanOption, useStageChange, WrittenAmount } from './receipt-motion';
 
+/** The receipt's number: class 11A's, as the board writes it. */
+const RECEIPT_NUMBER = '0011';
 export interface ReceiptStamp {
   readonly word: string;
   readonly sub: string;
@@ -38,6 +42,7 @@ export function ReceiptPaper(props: ReceiptPaperProps) {
   const { stage, offerings } = props;
   const choosing = stage === 'offer' || stage === 'failed';
   const chosen = offerings?.plans[props.plan];
+  const change = useStageChange(stage);
   const lines = [
     t('tuition.line.timetable'),
     t('tuition.line.widgets'),
@@ -46,11 +51,21 @@ export function ReceiptPaper(props: ReceiptPaperProps) {
   ];
 
   return (
-    <View style={styles.paper} accessibilityLabel={t('tuition.receipt')} testID="tuition-receipt">
+    <Animated.View
+      style={[styles.paper, change.style]}
+      accessibilityLabel={t('tuition.receipt')}
+      testID="tuition-receipt"
+    >
+      <PaperEdge />
       <View style={styles.head}>
-        <Label color={paper.red} kind="cap">
-          {t('tuition.receipt').toLocaleUpperCase(language)}
-        </Label>
+        <View style={styles.capRow}>
+          <Label color={paper.red} kind="cap">
+            {t('tuition.receipt').toLocaleUpperCase(language)}
+          </Label>
+          <Sized size={10.5} style={styles.number}>
+            {t('tuition.receiptNumber', { number: RECEIPT_NUMBER })}
+          </Sized>
+        </View>
         <View style={styles.nameRow}>
           <Sized size={12} style={styles.muted}>
             {t('tuition.name')}
@@ -82,18 +97,13 @@ export function ReceiptPaper(props: ReceiptPaperProps) {
           const offer = offerings?.plans[plan];
           const on = props.plan === plan;
           return (
-            <Pressable
+            <PlanOption
               key={plan}
               testID={`tuition-plan-${plan}`}
-              accessibilityRole="radio"
-              accessibilityState={{ checked: on, disabled: offer === undefined || !choosing }}
+              on={on}
+              dim={stage !== 'offer' && !on}
               disabled={offer === undefined || !choosing}
               onPress={() => props.onPick(plan)}
-              style={[
-                styles.plan,
-                on ? styles.planOn : styles.planOff,
-                stage !== 'offer' && !on ? styles.planDim : null,
-              ]}
             >
               <View style={styles.planHead}>
                 <Sized size={15} style={styles.planName}>
@@ -123,24 +133,35 @@ export function ReceiptPaper(props: ReceiptPaperProps) {
                       ? ''
                       : t('tuition.plan.yearNote', { price: offer.perMonthText })}
               </Sized>
-            </Pressable>
+            </PlanOption>
           );
         })}
       </View>
       <View style={styles.foot}>
         <View style={styles.footCol}>
           <Label kind="small">{t('tuition.amount').toLocaleUpperCase(language)}</Label>
-          <Sized size={22} style={[handText, styles.amount]} lines={1}>
-            {chosen?.priceText ?? ' '}
-          </Sized>
+          <WrittenAmount writeKey={props.plan}>
+            <Sized size={22} style={[handText, styles.amount]} lines={1}>
+              {chosen?.priceText ?? ' '}
+            </Sized>
+          </WrittenAmount>
         </View>
         <View style={[styles.footCol, styles.footRight]}>
           <Label kind="small">{t('tuition.receivedBy').toLocaleUpperCase(language)}</Label>
-          <ReceiptSignature label={t('tuition.signature')} />
+          <ReceiptSignature
+            key={change.signed ? stage : 'first'}
+            label={t('tuition.signature')}
+            sign={change.signed}
+          />
         </View>
       </View>
       {props.stamp !== null ? (
-        <StampIn restDeg={-14} style={styles.stampSpot} testID="tuition-stamp">
+        <StampIn
+          key={props.stamp.word}
+          restDeg={-14}
+          style={styles.stampSpot}
+          testID="tuition-stamp"
+        >
           <View
             accessible
             accessibilityLabel={props.stamp.word}
@@ -163,7 +184,7 @@ export function ReceiptPaper(props: ReceiptPaperProps) {
           </View>
         </StampIn>
       ) : null}
-    </View>
+    </Animated.View>
   );
 }
 
@@ -177,6 +198,8 @@ const styles = StyleSheet.create({
     boxShadow: '0 1px 2px rgba(60,40,20,0.06), 0 20px 44px rgba(60,40,20,0.11)',
   },
   head: { padding: 18, paddingBottom: 10, gap: 6 },
+  capRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 },
+  number: { fontFamily: 'ui-monospace', color: paper.muted },
   nameRow: { flexDirection: 'row', alignItems: 'baseline', gap: 8 },
   name: {
     flex: 1,
@@ -204,21 +227,6 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(28,26,24,0.18)',
   },
   plans: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, padding: 12, paddingBottom: 4 },
-  plan: {
-    flexGrow: 1,
-    flexBasis: 140,
-    borderRadius: 16,
-    paddingHorizontal: 12,
-    paddingTop: 10,
-    paddingBottom: 11,
-    gap: 1,
-  },
-  planOn: {
-    backgroundColor: paper.white,
-    boxShadow: 'inset 0 0 0 2px #1C1A18, 0 6px 16px rgba(60,40,20,0.10)',
-  },
-  planOff: { backgroundColor: paper.faint },
-  planDim: { opacity: 0.38 },
   planHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 6 },
   planName: { fontWeight: '700', color: paper.ink },
   tag: { backgroundColor: paper.green, borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2 },
