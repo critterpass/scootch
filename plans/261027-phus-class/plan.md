@@ -183,6 +183,7 @@ Status lines below follow `CLAUDE.md`: `- Status: done — <sha>` or
 - Board: `Outside`. Then a dev TestFlight build.
 
 ### 5.2 iPhone Duo
+- Status: blocked — built on `feat/native-batch-duo`; the opened poses need the app built with the iOS 27.1 SDK (the native build uses Xcode 26.6, and iPhone Duo runs such an app as a phone) and a way to move the simulator's hinge from a script
 - Do: the layouts of `Duo` and `DuoGuide`, built from the same components.
   - Closed, open, book, stand and split.
   - Nothing resets when the fold state changes.

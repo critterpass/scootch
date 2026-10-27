@@ -1,6 +1,13 @@
 import type { SkTypeface } from '@shopify/react-native-skia';
 import { useState, type ReactNode } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+} from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -9,6 +16,7 @@ import { fonts } from '@phusclass/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
 import type { AnimatedViewStyle } from '../../ui/motion/animated-style';
+import { boardScroll } from '../../ui/motion/hand-off';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
 import { BoardFoot, BoardHeading } from './board-parts';
@@ -67,6 +75,14 @@ export function BoardPage({
   const insets = useSafeAreaInsets();
   const [openRow, setOpenRow] = useState<string | null>(null);
   const [menu, setMenu] = useState(menuOpen ?? null);
+  // The list starts where it was left, on the board's screen or its page beside the desk.
+  const [startAt] = useState(() => ({ x: 0, y: boardScroll.get() }));
+  const scrolled = {
+    contentOffset: startAt,
+    scrollEventThrottle: 32,
+    onScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) =>
+      boardScroll.set(event.nativeEvent.contentOffset.y),
+  };
   const menuRow = menu === null ? undefined : rows.find((row) => row.id === menu.id);
   // Reword needs the words in front of the person, so it always opens on the panel.
   const act = (id: string, action: RowAction) => {
@@ -109,7 +125,7 @@ export function BoardPage({
         {largeText ? (
           // At the largest text sizes the heading and his line scroll with the rows, so no part
           // of the board is squeezed out.
-          <ScrollView style={styles.fill} contentContainerStyle={styles.scrollAll}>
+          <ScrollView {...scrolled} style={styles.fill} contentContainerStyle={styles.scrollAll}>
             {heading}
             <View style={styles.list}>{list}</View>
             {foot}
@@ -117,7 +133,7 @@ export function BoardPage({
         ) : (
           <>
             {heading}
-            <ScrollView style={styles.fill} contentContainerStyle={styles.list}>
+            <ScrollView {...scrolled} style={styles.fill} contentContainerStyle={styles.list}>
               {list}
             </ScrollView>
             {foot}

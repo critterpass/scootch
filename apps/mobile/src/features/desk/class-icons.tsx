@@ -22,6 +22,13 @@ const ICONS = {
     'M12 17 a2 2 0 1 1 -4 0 a2 2 0 1 1 4 0',
   ],
   lock: ['M7 11 V8 a5 5 0 0 1 10 0 V11', 'M6 11 H18 V20 H6 Z'],
+  // The Duo board's side controls.
+  board: [
+    'M5 4 H19 A2 2 0 0 1 21 6 V15 A2 2 0 0 1 19 17 H5 A2 2 0 0 1 3 15 V6 A2 2 0 0 1 5 4 Z',
+    'M7 9h6M7 12h4M8 21l4-4 4 4',
+  ],
+  clock: ['M20.5 12 a8.5 8.5 0 1 1 -17 0 a8.5 8.5 0 1 1 17 0', 'M12 7v5l3 2'],
+  book: ['M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z', 'M9 9h6'],
 } as const;
 
 export type ClassIconName = keyof typeof ICONS;

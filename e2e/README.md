@@ -37,6 +37,7 @@ gh workflow run device.yml --ref <branch> \
 | `mode` | `run` reports pass or fail. `capture` also keeps every `takeScreenshot` image under `screens/` in the artifact. `video` is `capture` plus a screen recording of each flow under `video/` (iOS), for looking at motion. |
 | `states` | Optional, for `flows=e2e/sheets`. A comma-separated list of state id prefixes (`odd-,session-opening`): only the registry rows whose name starts with one of them are captured. Empty captures every state, which grows too long for one job as the registry fills, so a change captures the states it touched. The workflow passes it to Maestro as `MAESTRO_STATES`, and the flow types it into the registry's `registry-states` field. |
 | `variants` | Optional, for `flows=e2e/sheets`. A comma-separated list of variant names (`en-light-default,vi-light-default`): only those variants are captured, of the states chosen. Empty captures all eight. Passed as `MAESTRO_VARIANTS` and typed into the registry's `registry-variants` field. The flow fails at once if the first row does not match the lists, rather than capturing everything. |
+| `ios_device` | iOS only: `iPhone 17` (default) or `iPhone Duo`, which runs on iOS 27.1. See iPhone Duo below. |
 | `pr` | Optional. The pull request that gets one comment with the pass or fail table and a link to the artifact. |
 
 Dispatch, note the run id and stop: do not wait for the run inside a working session. Dispatching
@@ -66,11 +67,46 @@ MODE=video tools/scripts/device-ios-local.sh e2e/fresh             # capture or 
   and `gh` signed in, to find the build.
 - A native change still needs its `e2e-test` build from `native-build.yml` first; with no build for
   the fingerprint the script stops and says so.
+- `DEVICE="iPhone Duo"` runs on iPhone Duo (see below); the script takes the newest iOS runtime that
+  runs the device.
+
+## iPhone Duo
+
+iPhone Duo has two built-in displays: the outer one, on while it is closed, and the inner one.
+Maestro's own screenshots read the inner display even while it is off, so on a device with two
+displays every capture is taken from the display chosen by `SIM_DISPLAY`
+(`tools/scripts/sim-display.sh`):
+
+| `SIM_DISPLAY` | Captures read |
+| --- | --- |
+| `auto` (default) | the display that is on when each flow starts: the outer one closed, the inner one opened out |
+| `outer`, `inner` | that display, whatever is on |
+| a number | that `simctl io --display` id (1 is the outer display, 3 the inner) |
+
+Each `takeScreenshot` image is taken again from that display as soon as Maestro writes it, and the
+`video` recordings and failure screenshots read it too. A device with one display is untouched.
+
+No `simctl` or `devicectl` command moves the hinge: only DeviceHub's hinge slider and pose presets
+do. `tools/scripts/duo-hinge.sh <closed|book|stand|open>` drives them through System Events, which
+needs Accessibility access for the app running it (System Settings, Privacy & Security,
+Accessibility), and sets the orientation with `devicectl`. `duo-hinge.sh list` prints DeviceHub's
+controls, to check the presets' names. A flow that needs a pose names it in its header, and the run
+sets it before the flow:
+
+```yaml
+appId: com.phusclass.dev
+# hinge: book
+---
+```
+
+Maestro cannot set a pose itself. On GitHub's runners there is no DeviceHub to drive, so a flow
+with a `# hinge:` line runs only on a Mac.
 
 ## Builds
 
 Native builds run on GitHub's macOS runners (`.github/workflows/native-build.yml`, which runs
-`eas build --local` on macOS 26 with Xcode 26.6): no EAS build minutes. An EAS cloud build is the
+`eas build --local` on the Xcode 27 image with Xcode 27.1, whose iOS 27.1 SDK is the first with
+iPhone Duo's hinge and fold): no EAS build minutes. An EAS cloud build is the
 fallback when a runner cannot make the build, and still needs the founder's approval. A
 JavaScript-only change never needs a build of either kind.
 

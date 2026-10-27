@@ -55,8 +55,14 @@ codesign --force --sign - --timestamp=none "$app"
 codesign --verify --deep "$app"
 "$evidence" signing "$app" "$out_dir/evidence" after-resign || true
 
+# The newest iOS runtime that runs the device: a point release may ship for one device only (iOS
+# 27.1 runs iPhone Duo and nothing else).
 runtime=$(xcrun simctl list runtimes -j |
-  jq -r '[.runtimes[] | select(.isAvailable and .platform == "iOS")] | sort_by(.version | split(".") | map(tonumber)) | last | .identifier')
+  jq -r --arg device "${DEVICE:-iPhone 17}" '[.runtimes[] | select(.isAvailable and .platform == "iOS")
+    | select([.supportedDeviceTypes[]?.name] | index($device))]
+    | sort_by(.version | split(".") | map(tonumber)) | last | .identifier // empty')
+[ -n "${SIM_UDID:-}" ] || [ -n "$runtime" ] ||
+  { echo "::error::No available iOS runtime runs \"${DEVICE:-iPhone 17}\""; exit 1; }
 if [ -n "${SIM_UDID:-}" ]; then
   udid=$SIM_UDID
   echo "Simulator $udid (given)"

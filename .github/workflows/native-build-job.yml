@@ -45,9 +45,10 @@ env:
 jobs:
   ios:
     name: ${{ inputs.profile }} ios
-    # macOS 26 with Xcode 26.6, selected below: the image and Xcode the sister repository builds
-    # this Expo SDK with, and the image device runs install the simulator build on.
-    runs-on: macos-26
+    # GitHub's Xcode 27 image (macOS 27) with Xcode 27.1, selected below: the iOS 27.1 SDK is the
+    # first with iPhone Duo's hinge and fold APIs, and iPhone Duo runs an app built with an older
+    # SDK as a phone. Device runs install the simulator build on the same image.
+    runs-on: xcode-27
     timeout-minutes: 120
     permissions:
       contents: write
@@ -91,11 +92,11 @@ jobs:
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with: { node-version: 24, cache: pnpm }
-      - name: Select Xcode 26.6
+      - name: Select Xcode 27.1
         run: |
-          xcode=/Applications/Xcode_26.6.app
+          xcode=/Applications/Xcode_27.1.app
           if [ ! -d "$xcode" ]; then
-            echo "::error::Xcode 26.6 is not on this runner image. Installed: $(echo /Applications/Xcode*.app)"
+            echo "::error::Xcode 27.1 is not on this runner image. Installed: $(echo /Applications/Xcode*.app)"
             exit 1
           fi
           sudo xcode-select -s "$xcode"

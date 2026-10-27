@@ -5,6 +5,10 @@
 #
 # Env: JS_COMMIT (the commit the bundle was exported from), MODE (run|capture|video).
 # `video` is `capture` plus a screen recording of each flow (iOS simulator only), for motion.
+# SIM_DISPLAY (iOS: auto|outer|inner|<display id>, default auto) picks the display the screenshots
+# and recordings read on a simulator with two (iPhone Duo; see sim-display.sh): `auto` is the one
+# that is on when each flow starts. On such a device every `takeScreenshot` image is taken again
+# from that display as soon as Maestro writes it, because Maestro reads the inner one.
 #
 # The first flow is always e2e/_run/js-commit.yaml, which proves the app runs this commit's
 # JavaScript; when it fails the other flows are not run, because they would prove nothing.
@@ -51,6 +55,7 @@ if [ "$mode" = capture ] || [ "$mode" = video ]; then
   mkdir -p "$out_dir/screens"
 fi
 records=false
+scripts=$repo_root/tools/scripts
 if [ "$mode" = video ] && [ "$platform" = ios ]; then
   records=true
   mkdir -p "$out_dir/video"
@@ -71,12 +76,31 @@ capture_failure() {
     adb -s "$device" logcat -d -b all >"$out_dir/failures/$slug.logcat.txt" || true
     adb -s "$device" logcat -d -b crash >"$out_dir/failures/$slug.crash.txt" || true
   else
-    xcrun simctl io "$device" screenshot "$out_dir/failures/$slug.png" >/dev/null 2>&1 || true
+    xcrun simctl io "$device" screenshot ${display:+--display="$display"} \
+      "$out_dir/failures/$slug.png" >/dev/null 2>&1 || true
     xcrun simctl spawn "$device" log show --last 10m --style compact \
       --predicate 'process BEGINSWITH "PhusClass" OR subsystem == "com.facebook.react.log"' \
       >"$out_dir/failures/$slug.log.txt" 2>/dev/null || true
     "$(dirname "$0")/device-ios-evidence.sh" crashes "$device" "${APP_ID:-com.phusclass.dev}" "$out_dir/evidence/$slug"
   fi
+}
+
+# Takes every `takeScreenshot` image again from the given display as soon as Maestro has written
+# it, before the flow moves on: Maestro reads the inner display of iPhone Duo even while it is off.
+retake_screens() {
+  local folder=$1 from=$2 seen=" " file size
+  while :; do
+    while IFS= read -r file; do
+      case "$seen" in *" $file "*) continue ;; esac
+      size=$(stat -f %z "$file" 2>/dev/null || echo 0)
+      sleep 0.1
+      [ "$size" -gt 0 ] && [ "$size" = "$(stat -f %z "$file" 2>/dev/null || echo 0)" ] || continue
+      seen="$seen$file "
+      xcrun simctl io "$device" screenshot --display="$from" "$file" >/dev/null 2>&1 ||
+        echo "::warning::Could not take $(basename "$file") again from display $from"
+    done < <(find "$folder" -name '*.png' -not -name 'screenshot-*' 2>/dev/null)
+    sleep 0.2
+  done
 }
 
 failed=0
@@ -92,12 +116,31 @@ for flow in $proof $list; do
   mkdir -p "$dir"
   [ "$platform" = android ] && adb -s "$device" logcat -c
   echo "::group::$flow"
+  # A flow for a pose of iPhone Duo names it in its header (`# hinge: book`): the device is put in
+  # that pose first (duo-hinge.sh). A pose that cannot be set fails the flow.
+  hinge=$(sed -n '/^---/q; s/^# hinge: *\([a-z]*\).*/\1/p' "$flow" | head -1)
+  if [ -n "$hinge" ] && [ "$platform" = ios ] && ! "$scripts/duo-hinge.sh" "$hinge" "$device"; then
+    echo "::endgroup::"
+    echo "::error title=Pose not set::$flow needs the $hinge pose"
+    row "| **fail** | \`$flow\` (pose $hinge not set) | |"
+    failed=$((failed + 1))
+    continue
+  fi
+  # The display this flow's captures read, where the device has two; empty for Maestro's own.
+  display=""
+  if [ "$platform" = ios ]; then display=$("$scripts/sim-display.sh" "$device" "${SIM_DISPLAY:-auto}"); fi
+  retaker=""
+  if [ "$keeps_screens" = true ] && [ -n "$display" ]; then
+    retake_screens "$dir" "$display" &
+    retaker=$!
+  fi
   recorder=""
   if [ "$records" = true ]; then
     # A background job of a script ignores the interrupt that ends a recording, so the recorder
     # is started through a launcher that listens for it again.
     python3 -c 'import os, signal, sys; signal.signal(signal.SIGINT, signal.SIG_DFL); os.execvp(sys.argv[1], sys.argv[1:])' \
-      xcrun simctl io "$device" recordVideo --codec h264 --force "$out_dir/video/$slug.mp4" \
+      xcrun simctl io "$device" recordVideo --codec h264 ${display:+--display="$display"} \
+      --force "$out_dir/video/$slug.mp4" \
       >/dev/null 2>&1 &
     recorder=$!
   fi
@@ -107,6 +150,11 @@ for flow in $proof $list; do
     --test-output-dir "$dir" --debug-output "$dir" --flatten-debug-output \
     -e "JS_COMMIT=${JS_COMMIT:-}")
   status=$?
+  if [ -n "$retaker" ]; then
+    sleep 1
+    kill "$retaker" 2>/dev/null
+    wait "$retaker" 2>/dev/null
+  fi
   seconds=$(($(date +%s) - started))
   # An interrupt lets the recorder finish its file.
   if [ -n "$recorder" ]; then

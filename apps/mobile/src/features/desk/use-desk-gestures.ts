@@ -30,13 +30,16 @@ const SHEET_SINKS = 380;
  * writes `boardPull` while the finger is on it and pushes the board past the mark (or on a flick);
  * from there the board follows the finger and, on release, springs open or back. Up on the desk
  * sheet: the same for the timetable. Short of the mark, the desk springs its pull home. Each has a
- * tap alternative: the chalkboard, and the sheet's grabber.
+ * tap alternative: the chalkboard, and the sheet's grabber. Where the board already hangs beside
+ * the desk (iPhone Duo opened out) there is no board to pull down.
  */
-export function useDeskGestures(enabled: boolean) {
+export function useDeskGestures(enabled: boolean, boardOnPage = false) {
   const router = useRouter();
   const mayMove = useMayMove();
 
-  const openBoard = useCallback(() => router.push('/board'), [router]);
+  const openBoard = useCallback(() => {
+    if (!boardOnPage) router.push('/board');
+  }, [router, boardOnPage]);
   const openTimetable = useCallback(() => router.push('/timetable'), [router]);
 
   // Back at the desk: whatever was pulled is home.
@@ -51,7 +54,7 @@ export function useDeskGestures(enabled: boolean) {
   const pushed = useSharedValue(false);
   const pullBoard = useMemo(() => {
     return Gesture.Pan()
-      .enabled(enabled)
+      .enabled(enabled && !boardOnPage)
       .activeOffsetY(12)
       .failOffsetY(-12)
       .failOffsetX([-24, 24])
@@ -80,7 +83,7 @@ export function useDeskGestures(enabled: boolean) {
       .onFinalize(() => {
         boardPullHeld.set(false);
       });
-  }, [enabled, openBoard, pushed]);
+  }, [enabled, boardOnPage, openBoard, pushed]);
 
   const swipeTimetable = useMemo(
     () =>
