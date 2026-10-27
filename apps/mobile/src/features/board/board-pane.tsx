@@ -11,9 +11,10 @@ import { CROSSFADE_MS, SPRING_CURVE } from '../../ui/motion/motion-tokens';
 import { useMayMove } from '../../ui/motion/use-feel';
 import { GLIDE_MS } from '../../ui/fold/use-glide';
 
-import { BoardPage, LedgeHandle } from './board-page';
+import { BoardPage } from './board-page';
 import type { RowAction } from './board-row';
 import type { BoardRow } from './board-rows';
+import { CHALK, PAGE } from './chalk';
 import { useBoardPage } from './use-board-page';
 
 const TIMETABLE = '/timetable' as Href;
@@ -101,10 +102,13 @@ function PaneView({ frame, shown }: { readonly frame: Frame; readonly shown: Sho
           onReword={shown.onReword}
           onLogbook={() => router.push(LOGBOOK)}
           onTimetable={() => router.push(TIMETABLE)}
-          ledge={<LedgeHandle />}
+          ledge={null}
           page
         />
       </View>
+      <View pointerEvents="none" style={styles.ledge} />
+      <View pointerEvents="none" style={[styles.chalk, styles.whiteChalk]} />
+      <View pointerEvents="none" style={[styles.chalk, styles.yellowChalk]} />
     </Animated.View>
   );
 }
@@ -115,8 +119,22 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     backgroundColor: '#8A5A36',
     padding: 10,
+    paddingBottom: PAGE.ledge,
     boxShadow: '0 2px 0 #6E4528, 0 22px 44px rgba(40,25,10,0.32)',
     zIndex: 2,
   },
   board: { flex: 1, borderRadius: 15, overflow: 'hidden' },
+  /** The ledge along the frame's foot, and two sticks of chalk lying on it. */
+  ledge: {
+    position: 'absolute',
+    left: 24,
+    right: 24,
+    bottom: 6,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#6E4528',
+  },
+  chalk: { position: 'absolute', bottom: 9, height: 6, borderRadius: 3 },
+  whiteChalk: { left: 60, width: 24, backgroundColor: CHALK.white },
+  yellowChalk: { left: 90, width: 15, backgroundColor: '#FFC93C' },
 });

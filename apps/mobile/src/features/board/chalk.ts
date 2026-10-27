@@ -91,6 +91,27 @@ export const BOARD = {
   closeMs: 520,
 } as const;
 
+/**
+ * Measures, in points, of the board as the left page beside the desk on iPhone Duo, from the Duo
+ * boards: closer rows and a smaller hand than the board's own screen, so the whole list fits
+ * above his line.
+ */
+export const PAGE = {
+  rowMin: 44,
+  chalkSize: 21,
+  markSize: 16,
+  title: 28,
+  dateSize: 17,
+  /** Above the heading, and between the heading and the first row. */
+  headTop: 26,
+  listTop: 16,
+  /** The list's sides, less the row's own inset. */
+  listLeft: 12,
+  listRight: 10,
+  /** The wooden frame's foot, where the ledge and the chalk lie. */
+  ledge: 22,
+} as const;
+
 /** The App board's phone: the chalkboard on the desk is this rectangle of a 390 by 844 screen. */
 export const DESIGN_SCREEN = { width: 390, height: 844 } as const;
 export const DESIGN_CHALKBOARD = { x: 0, y: 100, width: 375, height: 195 } as const;

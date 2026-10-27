@@ -2,11 +2,11 @@ appId: com.phusclass.dev
 # fold: closed
 ---
 # The desk and a running period on iPhone Duo in English and Vietnamese, closed, flat and half open,
-# and the closed desk at the largest text size, for the design-beside-device sheets
-# (MODE=capture, on a Mac with agent-device). Each registered state stays on screen while the device
-# folds. Opened out, the board's page beside the desk is the phone's own board (empty on a clean
-# install), not the state's. English goes first: a state opened straight after another language's
-# can show that language for a moment. Needs a device with two displays; elsewhere it stops at once.
+# at the default and the largest text size, for the design-beside-device sheets (MODE=capture, on a
+# Mac with agent-device). Each registered state stays on screen while the device folds. Opened out,
+# the board's page beside the desk is the state's own board, as its wall shows. English goes first:
+# a state opened straight after another language's can show that language for a moment. Needs a
+# device with two displays; elsewhere it stops at once.
 - assertTrue: ${typeof DUO_FOLD_URL !== 'undefined'}
 - launchApp:
     clearState: true
@@ -18,7 +18,6 @@ appId: com.phusclass.dev
     file: ../common/duo-registry-state.yaml
     env:
       STATE: desk-waiting--en-light-largest
-      CLOSED_ONLY: 'yes'
 - runFlow:
     file: ../common/duo-registry-state.yaml
     env:
@@ -39,4 +38,3 @@ appId: com.phusclass.dev
     file: ../common/duo-registry-state.yaml
     env:
       STATE: desk-waiting--vi-light-largest
-      CLOSED_ONLY: 'yes'

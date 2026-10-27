@@ -72,9 +72,15 @@ export function DeskFixture({ which }: { readonly which: DeskCase }) {
   const model = which === 'late-slip' ? withSlipOut(drawn, language) : drawn;
   // On iPhone Duo opened out, the board's page shows this state's board, as the wall does.
   const boardPage = {
-    rows: boardRows(snapshot.board, snapshot.faded, snapshot.now, language, {
-      today: t('board.today'),
-    }),
+    // In plain company after a crisis no row carries a tally, and old chalk asks nothing.
+    rows: boardRows(
+      snapshot.board,
+      which === 'plain' ? new Set<string>() : snapshot.faded,
+      snapshot.now,
+      language,
+      { today: t('board.today') },
+      { pressure: which !== 'plain' },
+    ),
     dateLine: boardDateLine(snapshot.now.day, language),
     remark:
       createChooser(language).say(

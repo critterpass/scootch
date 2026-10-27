@@ -13,7 +13,7 @@ import { useFeel } from '../../ui/motion/use-feel';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { ClassIcon, type ClassIconName } from '../desk/class-icons';
 
-import { BOARD, CHALK } from './chalk';
+import { BOARD, CHALK, PAGE } from './chalk';
 import { PhuFigure } from './phu-figure';
 
 /** One of the pills under the heading. */
@@ -55,29 +55,46 @@ export function BoardHeading({
   const t = useT();
   const { size, allowFontScaling, largeText } = useScreenStyle();
   const insets = useSafeAreaInsets();
+  // Beside the desk the page sits clear of the screen's edges, in the Duo boards' smaller type.
+  const title = size(page ? PAGE.title : 34);
   return (
-    <View style={[styles.header, { paddingTop: Math.max(insets.top, 20) + 14 }]}>
+    <View
+      style={[
+        styles.header,
+        page ? styles.pageHeader : { paddingTop: Math.max(insets.top, 20) + 14 },
+      ]}
+    >
       <View style={[styles.titleLine, largeText ? styles.titleLineLarge : null]}>
         <Text
           accessibilityRole="header"
           allowFontScaling={allowFontScaling}
-          style={[styles.title, { fontSize: size(34), lineHeight: size(34) }]}
+          style={[styles.title, { fontSize: title, lineHeight: title }]}
         >
           {t('board.title')}
         </Text>
-        <Text allowFontScaling={allowFontScaling} style={[styles.dateLine, { fontSize: size(18) }]}>
+        <Text
+          allowFontScaling={allowFontScaling}
+          style={[styles.dateLine, { fontSize: size(page ? PAGE.dateSize : 18) }]}
+        >
           {dateLine}
         </Text>
       </View>
-      <View style={[styles.pills, page ? styles.hidden : null]}>
-        <BoardPill
-          id="board-timetable"
-          label={t('board.timetable')}
-          icon="calendar"
-          onPress={onTimetable}
-        />
-        <BoardPill id="board-logbook" label={t('board.logbook')} icon="book" onPress={onLogbook} />
-      </View>
+      {page ? null : (
+        <View style={styles.pills}>
+          <BoardPill
+            id="board-timetable"
+            label={t('board.timetable')}
+            icon="calendar"
+            onPress={onTimetable}
+          />
+          <BoardPill
+            id="board-logbook"
+            label={t('board.logbook')}
+            icon="book"
+            onPress={onLogbook}
+          />
+        </View>
+      )}
     </View>
   );
 }
@@ -98,7 +115,7 @@ export function BoardFoot({
   const { mayMove } = useFeel();
   const { size, allowFontScaling, largeText } = useScreenStyle();
   return (
-    <View style={[styles.foot, largeText ? styles.footLarge : null]}>
+    <View style={[styles.foot, largeText ? styles.footLarge : null, page ? styles.pageFoot : null]}>
       {remark === null ? (
         <View style={styles.fill} />
       ) : (
@@ -112,6 +129,7 @@ export function BoardFoot({
             styles.remark,
             largeText ? styles.remarkLarge : null,
             page ? styles.remarkChalk : null,
+            page && !largeText ? styles.remarkPage : null,
             { fontSize: size(18), lineHeight: size(18) * 1.3 },
           ]}
         >
@@ -146,6 +164,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingBottom: 14,
     gap: 12,
+  },
+  pageHeader: {
+    paddingTop: PAGE.headTop,
+    paddingBottom: 0,
   },
   titleLine: {
     flexDirection: 'row',
@@ -209,6 +231,13 @@ const styles = StyleSheet.create({
     flex: 0,
     marginBottom: 8,
     marginTop: 8,
+  },
+  pageFoot: {
+    paddingHorizontal: 24,
+    paddingTop: 10,
+  },
+  remarkPage: {
+    marginBottom: 18,
   },
   remarkChalk: {
     color: CHALK.date,

@@ -12,7 +12,7 @@ import { ClassIcon } from '../desk/class-icons';
 
 import type { RowAction } from './board-row';
 import type { BoardRow } from './board-rows';
-import { BOARD, CHALK } from './chalk';
+import { BOARD, CHALK, PAGE } from './chalk';
 import { TallyMarks } from './chalk-marks';
 
 type SwipeAction = 'desk' | 'tick' | 'erase';
@@ -24,16 +24,20 @@ type SwipeAction = 'desk' | 'tick' | 'erase';
 export function RowCorner({
   row,
   index,
+  page = false,
   onAct,
 }: {
   readonly row: BoardRow;
   readonly index: number;
+  /** The left page beside the desk on iPhone Duo, in its smaller hand. */
+  readonly page?: boolean;
   readonly onAct: (action: RowAction) => void;
 }) {
   const t = useT();
   const { size, allowFontScaling, largeText } = useScreenStyle();
-  const markSize = size(BOARD.markSize);
-  const markScale = allowFontScaling ? 1 : markSize / BOARD.markSize;
+  const base = page ? PAGE.markSize : BOARD.markSize;
+  const markSize = size(base);
+  const markScale = (allowFontScaling ? base : markSize) / BOARD.markSize;
 
   if (row.faded) {
     return (

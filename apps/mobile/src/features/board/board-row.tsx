@@ -25,7 +25,7 @@ import { useFeel } from '../../ui/motion/use-feel';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
 import type { BoardRow } from './board-rows';
-import { BOARD, CHALK } from './chalk';
+import { BOARD, CHALK, PAGE } from './chalk';
 import { RowCorner, SwipeActions } from './row-corner';
 import { rowSpeech } from './row-speech';
 
@@ -60,6 +60,8 @@ export interface BoardRowViewProps {
   /** An action, after the row has played it out. */
   readonly onAction: (id: string, action: RowAction) => void;
   readonly index: number;
+  /** The left page beside the desk on iPhone Duo: closer rows in a smaller hand. */
+  readonly page?: boolean;
 }
 
 /**
@@ -75,6 +77,7 @@ export function BoardRowView({
   onMenu,
   onAction,
   index,
+  page = false,
 }: BoardRowViewProps) {
   const t = useT();
   const { mayMove, haptics } = useFeel();
@@ -161,7 +164,7 @@ export function BoardRowView({
   }));
   const strikeStyle = useAnimatedStyle(() => ({ transform: [{ scaleX: strike.get() }] }));
 
-  const chalkSize = size(BOARD.chalkSize);
+  const chalkSize = size(page ? PAGE.chalkSize : BOARD.chalkSize);
 
   const speech = rowSpeech(row, stillYours, t);
   const onAccessibilityAction = (event: AccessibilityActionEvent) => {
@@ -174,7 +177,7 @@ export function BoardRowView({
   return (
     <Animated.View
       {...(mayMove ? { layout: LinearTransition.duration(ROW.closeMs).easing(SPRING_CURVE) } : {})}
-      style={[styles.row, styles.ruled]}
+      style={[styles.row, styles.ruled, page ? styles.pageRow : null]}
     >
       <SwipeActions actions={actions} index={index} style={[{ width: wide }, behind]} onAct={act} />
       <GestureDetector gesture={pan}>
@@ -195,6 +198,7 @@ export function BoardRowView({
             // Old chalk: the whole row fades, and its words fade once more.
             style={[
               styles.front,
+              page ? styles.pageRow : null,
               largeText ? styles.frontLarge : null,
               row.faded ? styles.faded : null,
             ]}
@@ -222,7 +226,7 @@ export function BoardRowView({
               ) : null}
               {going === 'tick' ? <Animated.View style={[styles.strike, strikeStyle]} /> : null}
             </View>
-            <RowCorner row={row} index={index} onAct={act} />
+            <RowCorner row={row} index={index} page={page} onAct={act} />
           </Pressable>
         </Animated.View>
       </GestureDetector>
@@ -234,6 +238,9 @@ const styles = StyleSheet.create({
   row: {
     minHeight: BOARD.rowMin,
     overflow: 'hidden',
+  },
+  pageRow: {
+    minHeight: PAGE.rowMin,
   },
   ruled: {
     borderTopWidth: 1,
