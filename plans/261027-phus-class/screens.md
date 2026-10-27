@@ -9,7 +9,7 @@ file. Boards are in `design/phus-class/` (the phone prototype is
 | Route | What | Owner |
 |---|---|---|
 | `_layout.tsx` | Providers (database, i18n, board store, gesture handler, safe area), fonts, the first-day redirect | foundation; the first-day lane adds only the redirect |
-| `index.tsx` | The desk: the classroom at the desk shot, his line, the task card and Start with the fuse, "Say it", the chalkboard behind him, recess, late slip, empty desk, offline pill | desk lane |
+| `index.tsx` | The desk: the classroom at the desk shot, his line, the task card and Start with its fuse pie, "Say it", the chalkboard behind him, recess, late slip, empty desk, offline pill | desk lane |
 | `session.tsx` | A running period: the camera pulled back, his pacing, raise a hand, a stray thought, the drum, Done / Not yet, partial credit, the finish (red check, comment, confetti), "Next." or recess | desk lane |
 | `board.tsx` | The board, grown out of the chalkboard: his order, swap, reword, tick, erase, "Still yours?" | board lane |
 | `logbook.tsx` | The logbook page, lowered from the top of the board | board lane |

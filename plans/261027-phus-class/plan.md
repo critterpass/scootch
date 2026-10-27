@@ -119,7 +119,7 @@ Status lines below follow `CLAUDE.md`: `- Status: done — <sha>` or
 ### 3.1 The desk and the session
 - Status: done — pending merge
 - Do:
-  - The desk: one task, his line, the fuse around Start, pressure poses, the chalkboard with today's task, the next two and the count.
+  - The desk: one task, his line, the fuse (the pie in Start's drum icon), pressure poses, the chalkboard with today's task, the next two and the count.
   - Start with the drum and the camera pulling back.
   - The session: pacing, raise a hand, a stray thought onto the board.
   - Time's up, Done, the red check, comment and confetti.

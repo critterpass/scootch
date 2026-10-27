@@ -19,7 +19,7 @@ respond to guilt. Phu's Class gives them urgency about the task and none about
 themselves, and a classroom that is never quite the same twice.
 
 Name: **Phu's Class** in English, **Lớp Thầy Phú** in Vietnamese. Home on the
-web: phusclass.app. Languages at launch: English and Vietnamese, for the app,
+web: phusclass.com. Languages at launch: English and Vietnamese, for the app,
 his voice, the website and the store listing. The app shows one language at a
 time, never two side by side; names and the drum's "Tùng!" are the only words
 that stay as they are.
@@ -50,7 +50,7 @@ that stay as they are.
 | He picks | Thầy Phú puts one task on the desk and says why in one line. His order: anything due today, then what has waited longest or been slipped most, then what fits the time there is |
 | Deadline heard | A real date is written in the board's corner and the task comes to the desk on that day |
 | Time heard | A time today ("dentist at three") is said back, and class ends in time to get ready |
-| The fuse | The desk opens with a short wait: "Two minutes. I'll wait." The fuse burns around the edge of the Start button while his pressure rises (section 4) |
+| The fuse | The desk opens with a short wait: "Two minutes. I'll wait." The fuse is the pie inside Start's drum icon: it empties while his pressure rises (section 4), and Start breathes, then nudges, as it burns |
 | Start | The school drum: "Tùng! Tùng! Tùng!" One period is ten minutes unless changed. The camera pulls back to the whole classroom |
 | Work beside | He paces the front of the room and grades papers, and now and then turns to look straight at you. Raise a hand for a tiny next step. Say a stray thought and it goes on the board without breaking focus |
 | Time | The drum again: "Tùng tùng tùng. Done?" |
@@ -355,7 +355,7 @@ offered for sharing and a crisis day shares nothing.
 | Question | Notes |
 |---|---|
 | Screening without a connection | "No joke before the screen" currently needs the server. Can an on-device model screen well enough, or do offline tasks stay plain until online? |
-| Tuition prices | $39.99 a year and $6.99 a month are proposals. The Vietnamese price points (499.000đ, 79.000đ) must be checked against Apple's list |
+| Tuition prices | Decided: $39.99 a year and $6.99 a month, 499.000đ and 79.000đ in Vietnam, each with a free week |
 | Rebuild or cut down | A fresh app shell on the existing voice, care, sound and tokens packages, or the Scootch app stripped back |
-| Store name and domains | "Phu's Class" must be checked as unused in App Store Connect and cleared as a trademark. phusclass.app and phusclass.com were unregistered on 26 Oct 2026 |
+| Store name and domains | The App Store records exist as "Phu's Class"; phusclass.com is registered. A trademark check is still open |
 | Vietnamese helplines | Verified numbers before launch |
