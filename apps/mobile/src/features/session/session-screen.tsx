@@ -1,9 +1,11 @@
+import * as Haptics from 'expo-haptics';
 import { Redirect } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { TIMING, type Framing, type PhuMood } from '@phusclass/art/class';
 import type { CommentStep } from '@phusclass/domain/board';
 
+import { useArrival } from '../../classroom/use-arrival';
 import { useCareGuard, useCareView } from '../care/use-care-guard';
 import { ComposerBar } from '../composer/composer-bar';
 import { useComposer } from '../composer/use-composer';
@@ -14,7 +16,7 @@ import { drawnCarvings } from '../desk/room-scene';
 import { useStudentName } from '../desk/use-student-name';
 import { useLanguage } from '../../i18n/i18n-provider';
 import { useBoard, useBoardStore } from '../../state/board-provider';
-import { useMayMove } from '../../ui/motion/use-feel';
+import { useFeel } from '../../ui/motion/use-feel';
 
 import { HAPPENING_MS, HAPPENINGS } from './happening-scene';
 import { sessionClock } from './session-model';
@@ -39,11 +41,10 @@ export function SessionScreen() {
   const store = useBoardStore();
   const { language } = useLanguage();
   const name = useStudentName();
-  const mayMove = useMayMove();
+  const { mayMove, haptics } = useFeel();
   const passing = usePassingLine();
   const cue = useClassCue();
 
-  const [framing, setFraming] = useState<Framing>('desk');
   const [panel, setPanel] = useState<SessionPanel>('working');
   const [note, setNote] = useState('');
   const [straying, setStraying] = useState(false);
@@ -81,12 +82,10 @@ export function SessionScreen() {
       : null;
   const title = desk?.task.text ?? finished?.title ?? '';
 
-  // The camera pulls back from the desk once the room is drawn; at the finish it comes back in.
-  const atFinish = phase === 'finished';
-  useEffect(() => {
-    const timer = setTimeout(() => setFraming(atFinish ? 'desk' : 'session'), 60);
-    return () => clearTimeout(timer);
-  }, [atFinish]);
+  // The session arrives on the desk's shot, so the crossfade from the desk shows one room; once it
+  // has arrived the camera pulls back to the whole room. At the finish it comes back in.
+  const arrived = useArrival(mayMove);
+  const framing: Framing = phase === 'finished' || !arrived ? 'desk' : 'session';
 
   // The first words of the period.
   const sessionId = session?.id ?? null;
@@ -178,14 +177,16 @@ export function SessionScreen() {
   );
 
   const done = useCallback(() => {
+    if (haptics) void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     setTook(clock?.tookMinutes ?? 1);
     clearPassing();
     void store.finish().then((result) => {
       if (result === null) return;
       setPanel('finish');
-      if (result.comment !== null) cue('red-pen');
+      // Done was felt as a success at the tap: the red pen is only heard.
+      if (result.comment !== null) cue('red-pen', false);
     });
-  }, [clock, store, cue]);
+  }, [clock, store, cue, haptics]);
 
   if (crisis) return null;
   const inFinish = finished !== null;
@@ -213,7 +214,7 @@ export function SessionScreen() {
     <SessionView
       framing={framing}
       mood={mood}
-      pace={mayMove && phase === 'running' && !heavy && !looking && panel === 'working'}
+      pace={mayMove && arrived && phase === 'running' && !heavy && !looking && panel === 'working'}
       line={line ?? null}
       title={title}
       chalkboard={chalkboard}

@@ -1,0 +1,60 @@
+appId: com.phusclass.dev
+---
+# The fresh-user walk, recess: a task told and started, Done, then recess. The desk arrives on the
+# desk's shot, he takes his tea to the window while the camera pulls back, and Back to class brings
+# the room close again.
+- extendedWaitUntil:
+    visible:
+      id: 'desk'
+    timeout: 10000
+- tapOn:
+    id: 'composer-type'
+- extendedWaitUntil:
+    visible:
+      id: 'composer-input'
+    timeout: 10000
+- inputText: 'Call the bank'
+- tapOn:
+    text: 'Continue'
+    optional: true
+- tapOn:
+    id: 'composer-send'
+- extendedWaitUntil:
+    visible:
+      id: 'desk-start'
+    timeout: 15000
+- tapOn:
+    id: 'desk-start'
+- extendedWaitUntil:
+    visible:
+      id: 'session-working'
+    timeout: 15000
+- waitForAnimationToEnd:
+    timeout: 3000
+- tapOn:
+    id: 'session-done'
+- extendedWaitUntil:
+    visible:
+      id: 'finish-recess'
+    timeout: 15000
+- waitForAnimationToEnd:
+    timeout: 3000
+- tapOn:
+    id: 'finish-recess'
+- extendedWaitUntil:
+    visible:
+      id: 'recess-back'
+    timeout: 15000
+- waitForAnimationToEnd:
+    timeout: 4000
+- takeScreenshot: fresh-recess
+- tapOn:
+    id: 'recess-back'
+- extendedWaitUntil:
+    visible:
+      id: 'desk'
+    timeout: 15000
+- waitForAnimationToEnd:
+    timeout: 4000
+- assertNotVisible:
+    id: 'recess-back'

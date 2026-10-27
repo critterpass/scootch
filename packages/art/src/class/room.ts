@@ -101,19 +101,56 @@ const FRONTS: Readonly<Record<Composition, Layer>> = {
     parseMarkup(ROOM_TEACHER_DESK + DESKS.phone),
   ).root,
 };
-const SIGNATURE = buildFigure(
-  { name: 'signature', ...ROOM_SIZE, label: '' },
-  parseMarkup(ROOM_SIGNATURE),
-).root;
+const SIGNATURE: Layer = {
+  ...buildFigure({ name: 'signature', ...ROOM_SIZE, label: '' }, parseMarkup(ROOM_SIGNATURE)).root,
+  id: 'signature',
+};
+const LAMPS: Readonly<Record<Composition, Layer>> = {
+  wide: lampLayer(WORLD.wide.floorTo),
+  phone: lampLayer(WORLD.phone.floorTo),
+};
+
+/**
+ * The last few of each part of the room, by what they were made from. The same words give back the
+ * same layer object, so a renderer can skip every part that did not change: a new pose redraws
+ * him, not the walls.
+ */
+function kept<T>(size = 6): (key: string, make: () => T) => T {
+  const parts = new Map<string, T>();
+  return (key, make) => {
+    const hit = parts.get(key);
+    if (hit !== undefined) {
+      parts.delete(key);
+      parts.set(key, hit);
+      return hit;
+    }
+    const made = make();
+    parts.set(key, made);
+    const oldest = parts.keys().next();
+    if (parts.size > size && !oldest.done) parts.delete(oldest.value);
+    return made;
+  };
+}
+const keptBack = kept<Layer>();
+const keptPhu = kept<{ readonly layer: Layer; readonly defs: string }>();
+const keptChalk = kept<Layer | undefined>();
+const keptCarvings = kept<Layer>();
+const keptProp = kept<{ readonly layer: Layer; readonly defs: string }>(12);
 
 function propLayer(prop: PlacedProp, defs: string[]): Layer {
-  const figure = buildProp(prop.name);
-  if (figure.defs) defs.push(figure.defs);
-  return placed(
-    figure,
-    `prop.${prop.name}`,
-    multiply(translate(prop.x, prop.y), scale(prop.size / figure.width)),
-  );
+  const made = keptProp(JSON.stringify(prop), () => {
+    const figure = buildProp(prop.name);
+    return {
+      defs: figure.defs,
+      layer: placed(
+        figure,
+        `prop.${prop.name}`,
+        multiply(translate(prop.x, prop.y), scale(prop.size / figure.width)),
+      ),
+    };
+  });
+  if (made.defs) defs.push(made.defs);
+  return made.layer;
 }
 
 /**
@@ -144,27 +181,35 @@ export function phuInRoom(
 export function room(options: RoomOptions): Room {
   const composition = options.composition ?? 'wide';
   const pose = options.pose ?? phuPose(options.mood ?? 'over');
-  const defs: string[] = [buildPhu(pose).defs];
+  const spot = options.phu ?? PHU_SPOTS.front;
+  const pace = options.pace ? (composition === 'phone' ? 'paceWide' : 'pace') : undefined;
+  const phu = keptPhu(JSON.stringify([pose, spot.x, spot.y, pace]), () => ({
+    layer: phuInRoom(pose, spot, pace),
+    defs: buildPhu(pose).defs,
+  }));
+  const defs: string[] = [phu.defs];
   const props: PlacedProp[] = [
     { name: 'thermos', ...PROP_SPOTS.thermos },
     { name: 'papers', ...PROP_SPOTS.papers },
     ...(options.props ?? []),
   ];
-  const chalk = chalkLayer(options);
+  const { lamp, board, plate, banner, chalk: lines, date, more, chalkTitle } = options;
+  const chalk = keptChalk(JSON.stringify([board, lines, date, more, chalkTitle]), () =>
+    chalkLayer(options),
+  );
+  const carvings = options.carvings ?? [];
   const layers: Layer[] = [
-    backLayer(options, composition),
-    phuInRoom(
-      pose,
-      options.phu ?? PHU_SPOTS.front,
-      options.pace ? (composition === 'phone' ? 'paceWide' : 'pace') : undefined,
+    keptBack(JSON.stringify([lamp, board, plate, banner, composition]), () =>
+      backLayer(options, composition),
     ),
+    phu.layer,
     FRONTS[composition],
-    carvingsLayer(options.carvings ?? []),
+    keptCarvings(JSON.stringify(carvings), () => carvingsLayer(carvings)),
     // On the App board the desk beside yours is drawn over the studio's carving.
-    ...(composition === 'wide' ? [{ ...SIGNATURE, id: 'signature' }] : []),
+    ...(composition === 'wide' ? [SIGNATURE] : []),
     ...props.map((p) => propLayer(p, defs)),
     ...(chalk ? [chalk] : []),
-    ...(options.lamp ? [lampLayer(WORLD[composition].floorTo)] : []),
+    ...(options.lamp ? [LAMPS[composition]] : []),
   ];
   return {
     figure: {

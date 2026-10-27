@@ -5,20 +5,10 @@
  * `sampleLoop` (loop-sample.ts). Under Reduce Motion the camera cuts and nothing loops (brief, section 6).
  */
 
-/** A cubic-bezier easing: x1, y1, x2, y2. */
-export type Curve = readonly [number, number, number, number];
+import { CURVES, swing, type Loop } from './curves';
+import { PROP_LOOPS } from './prop-loops';
 
-export const CURVES = {
-  /** Sheets, morphs, presses. 200 to 540 ms. */
-  interface: [0.32, 0.72, 0, 1],
-  /** His pops, bubbles, stamps, chips: overshoot, then settle. 340 to 480 ms. */
-  character: [0.34, 1.56, 0.64, 1],
-  /** Pulling back to the room, pushing in to the desk. */
-  camera: [0.7, 0, 0.2, 1],
-  /** A loop's back-and-forth. */
-  easeInOut: [0.42, 0, 0.58, 1],
-  linear: [0, 0, 1, 1],
-} as const satisfies Record<string, Curve>;
+export { CURVES, type Curve, type Keyframe, type Loop } from './curves';
 
 export const TIMING = {
   /** A camera move between framings. */
@@ -31,8 +21,10 @@ export const TIMING = {
   posePopMs: 480,
   /** Serious mode crossfades in, with no overshoot. */
   seriousFadeMs: 600,
-  /** He walks to a new spot. */
+  /** He walks to a new spot, on the walk curve. */
   walkToMs: 1300,
+  /** The wall warms one step per pressure level. */
+  wallWarmMs: 900,
   /** A blink, and the gap between blinks. */
   blinkMs: 120,
   blinkEveryMs: [2500, 6000],
@@ -40,37 +32,6 @@ export const TIMING = {
   paceLookEveryMs: [4500, 8500],
   paceLookMs: 1600,
 } as const;
-
-/** One keyframe: when (0 to 1 of the period) and the values there. */
-export interface Keyframe {
-  readonly at: number;
-  readonly x?: number;
-  readonly y?: number;
-  readonly rotate?: number;
-  readonly scaleX?: number;
-  readonly scaleY?: number;
-  readonly opacity?: number;
-}
-
-export interface Loop {
-  readonly periodMs: number;
-  /** Where in the period it starts, as the board's negative delay does. */
-  readonly offsetMs?: number;
-  /** Each segment eases with this curve, as CSS applies `animation-timing-function` per keyframe. */
-  readonly curve: Curve;
-  readonly frames: readonly Keyframe[];
-}
-
-const swing = (periodMs: number, from: number, to: number, offsetMs = 0): Loop => ({
-  periodMs,
-  offsetMs,
-  curve: CURVES.easeInOut,
-  frames: [
-    { at: 0, rotate: from },
-    { at: 0.5, rotate: to },
-    { at: 1, rotate: from },
-  ],
-});
 
 /** Every loop a layer can name. Transforms are about the layer's pivot. */
 export const LOOPS = {
@@ -82,6 +43,18 @@ export const LOOPS = {
       { at: 0, scaleX: 1, scaleY: 1 },
       { at: 0.5, scaleX: 1.012, scaleY: 1.022 },
       { at: 1, scaleX: 1, scaleY: 1 },
+    ],
+  },
+  /** His body while he walks or paces, in place of the breath: up 5 twice a step. */
+  bob: {
+    periodMs: 520,
+    curve: CURVES.easeInOut,
+    frames: [
+      { at: 0, y: 0 },
+      { at: 0.25, y: -5 },
+      { at: 0.5, y: 0 },
+      { at: 0.75, y: -5 },
+      { at: 1, y: 0 },
     ],
   },
   /** His head follows the breath 80 ms behind. */
@@ -243,73 +216,7 @@ export const LOOPS = {
       ...(i < 60 ? [{ at: (i + 1) / 60 - 1e-6, rotate: i * 6 }] : []),
     ]).flat(),
   },
-  // The props, from the Prop board's CSS.
-  legA: swing(460, 16, -16),
-  legB: swing(460, 16, -16, -230),
-  tail: swing(1300, 0, 12),
-  head: {
-    periodMs: 920,
-    curve: CURVES.easeInOut,
-    frames: [
-      { at: 0, y: 0 },
-      { at: 0.5, y: -1.5 },
-      { at: 1, y: 0 },
-    ],
-  },
-  flame: {
-    periodMs: 900,
-    curve: CURVES.easeInOut,
-    frames: [
-      { at: 0, scaleX: 1, scaleY: 1, rotate: -2 },
-      { at: 0.5, scaleX: 0.9, scaleY: 1.1, rotate: 3 },
-      { at: 1, scaleX: 1, scaleY: 1, rotate: -2 },
-    ],
-  },
-  glow: {
-    periodMs: 1800,
-    curve: CURVES.easeInOut,
-    frames: [
-      { at: 0, opacity: 0.22, scaleX: 1, scaleY: 1 },
-      { at: 0.5, opacity: 0.34, scaleX: 1.12, scaleY: 1.12 },
-      { at: 1, opacity: 0.22, scaleX: 1, scaleY: 1 },
-    ],
-  },
-  drip: {
-    periodMs: 1200,
-    curve: [0.42, 0, 1, 1],
-    frames: [
-      { at: 0, y: -12, opacity: 0 },
-      { at: 0.25, opacity: 1 },
-      { at: 1, y: 16, opacity: 0 },
-    ],
-  },
-  wingL: {
-    periodMs: 360,
-    curve: CURVES.easeInOut,
-    frames: [
-      { at: 0, scaleX: 1 },
-      { at: 0.5, scaleX: 0.35 },
-      { at: 1, scaleX: 1 },
-    ],
-  },
-  wingR: {
-    periodMs: 360,
-    curve: CURVES.easeInOut,
-    frames: [
-      { at: 0, scaleX: 1 },
-      { at: 0.5, scaleX: 0.35 },
-      { at: 1, scaleX: 1 },
-    ],
-  },
-  steam: {
-    periodMs: 2400,
-    curve: CURVES.easeInOut,
-    frames: [
-      { at: 0, y: 4, opacity: 0, scaleY: 0.8 },
-      { at: 0.4, opacity: 0.8 },
-      { at: 1, y: -8, opacity: 0, scaleY: 1.1 },
-    ],
-  },
+  ...PROP_LOOPS,
 } as const satisfies Record<string, Loop>;
 export type LoopName = keyof typeof LOOPS;
 

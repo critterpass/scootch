@@ -21,16 +21,17 @@ function cues() {
 /**
  * Plays a classroom cue with its haptic taps in step. Taps follow the Haptics switch and are
  * never felt under a capture. Reduce Motion takes away motion, not touch: every tap is still felt.
- * The drum's sound follows its switch in settings; its taps are still felt.
+ * The drum's sound follows its switch in settings; its taps are still felt. `felt: false` plays the
+ * sound alone, where the moment is felt another way (Done is felt as a success).
  */
-export function useClassCue(): (cue: ClassCue) => void {
+export function useClassCue(): (cue: ClassCue, felt?: boolean) => void {
   const { haptics } = useFeel();
   const store = useBoardStore();
   return useCallback(
-    (cue: ClassCue) => {
+    (cue: ClassCue, felt = true) => {
       if (cue !== 'drum' || store.getSnapshot().drum) cues().play(cue);
       const taps = CUES[cue]?.haptics ?? [];
-      if (haptics && taps.length > 0) nativeHaptics.play(taps, cue);
+      if (felt && haptics && taps.length > 0) nativeHaptics.play(taps, cue);
     },
     [haptics, store],
   );
