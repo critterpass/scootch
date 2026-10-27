@@ -47,6 +47,13 @@ changes.
 replaced by the timetable sheet and the logbook page in `App.dc.html`. They
 are kept for reference and are not on the canvas.
 
+## The hand font
+
+The boards draw the chalk, the banner and his handwriting in Kithfield Hand, kept at
+`assets/kithfield-hand-bold.woff2`. The design tool serves it from `/_blob/<hash>`; the copies here
+point at the file instead, so a board served from this folder renders with the real font, not a
+cursive fallback. Re-point the `@font-face` after downloading the boards again.
+
 ## Assumptions to replace
 
 - **iPhone Duo sizes.** Apple's guidelines give no point sizes. The boards
