@@ -10,6 +10,7 @@ import {
 import type { ClassLanguage, Moment } from '@phusclass/voice/class';
 
 import type { BoardSnapshot } from '../../state/board-view';
+import type { CareMode } from '../care/care-mode';
 
 import { lineFor, type HisLine } from './his-line';
 
@@ -64,6 +65,11 @@ export interface DeskModel {
   readonly line: HisLine | undefined;
   /** A serious or crisis task: no fuse, pressure, chalk, happening or late slip. */
   readonly heavy: boolean;
+  /**
+   * Plain company after the crisis screen was closed: no fuse, pressure, tally, chalk, happening,
+   * slip or joke, and no drum burst, until something said afterwards is screened and cleared.
+   */
+  readonly plain: boolean;
   readonly pressure: Pressure;
   readonly task: DeskTaskModel | null;
   /** Share of the fuse left, 1 to 0, and the time left; `null` when there is no fuse. */
@@ -86,6 +92,8 @@ export interface DeskInput {
   readonly language: ClassLanguage;
   /** The full name given at roll call, for pressure 4. */
   readonly name: string | null;
+  /** The care the day asks for, from `useCareView`; `normal` when left out. */
+  readonly care?: CareMode;
 }
 
 function chalkOf(snapshot: BoardSnapshot, heavy: boolean, happening: Happening | null): ChalkModel {
@@ -151,12 +159,18 @@ export function deskModel(input: DeskInput): DeskModel {
   const desk = snapshot.desk;
   const task = desk?.task ?? null;
   const heavy = desk?.heavy ?? false;
-  const pressure: Pressure = desk === null || heavy ? 0 : desk.pressure;
-  const happening = heavy ? null : (desk?.happening ?? null);
+  const plain = input.care === 'plain';
+  const quiet = heavy || plain;
+  const pressure: Pressure = desk === null || quiet ? 0 : desk.pressure;
+  const happening = quiet ? null : (desk?.happening ?? null);
 
   let mood: PhuMood = 'calm';
   let line: HisLine | undefined;
-  if (snapshot.phase === 'empty') {
+  if (plain) {
+    // He keeps plain company: the same quiet words wherever the desk is.
+    mood = heavy ? 'serious' : 'calm';
+    line = lineFor(language, 'crisisCompany', task?.id ?? snapshot.now.day);
+  } else if (snapshot.phase === 'empty') {
     mood = 'over';
     line = lineFor(language, 'emptyDesk', snapshot.now.day);
   } else if (snapshot.phase === 'recess') {
@@ -170,12 +184,13 @@ export function deskModel(input: DeskInput): DeskModel {
     line = deskLine(input, task, pressure);
   }
 
-  const fuse = heavy || desk?.fuse == null ? null : desk.fuse;
+  const fuse = quiet || desk?.fuse == null ? null : desk.fuse;
   return {
     phase: snapshot.phase,
     mood,
     line,
     heavy,
+    plain,
     pressure,
     task:
       task === null
@@ -184,20 +199,23 @@ export function deskModel(input: DeskInput): DeskModel {
             id: task.id,
             title: task.text,
             note: desk?.note ?? null,
-            tallies: heavy ? 0 : (desk?.tallies ?? 0),
-            frontRow: !heavy && (desk?.frontRow ?? false),
+            tallies: quiet ? 0 : (desk?.tallies ?? 0),
+            frontRow: !quiet && (desk?.frontRow ?? false),
             waitedDays: Math.max(0, Math.floor((snapshot.now.at - task.createdAt) / DAY_MS)),
           },
     fuse: fuse === null ? null : { left: 1 - fuse.burnt, leftMs: fuse.leftMs },
-    pulse: heavy || task === null ? 'none' : (PULSES[pressure] ?? 'none'),
-    chalkThrow: !heavy && task !== null && pressure === 4,
-    glare: !heavy && task !== null && pressure === 5,
-    canSlip: task !== null && !heavy,
-    periodMinutes: periodMinutes({ happening }),
+    pulse: quiet || task === null ? 'none' : (PULSES[pressure] ?? 'none'),
+    chalkThrow: !quiet && task !== null && pressure === 4,
+    glare: !quiet && task !== null && pressure === 5,
+    canSlip: task !== null && !quiet,
+    periodMinutes: periodMinutes({
+      chosen: happening === 'pop quiz' ? null : snapshot.periodLength,
+      happening,
+    }),
     happening,
     chalk: chalkOf(snapshot, heavy, happening),
     stillYours:
-      snapshot.stillYours === null
+      snapshot.stillYours === null || plain
         ? null
         : { id: snapshot.stillYours.id, title: snapshot.stillYours.text },
   };

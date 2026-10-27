@@ -22,7 +22,17 @@ export const enSettings = {
   'settings.notes.foot': 'Ignore him for a few days and he goes quiet. He never mentions it.',
   'settings.notes.denied': 'Notifications for this app are off in iOS Settings.',
   'settings.notes.openSettings': 'Open iOS Settings',
+  'settings.timetable.head': 'Timetable',
+  'settings.timetable.row': 'Open the timetable',
+  'settings.timetable.foot':
+    'Read on your phone only. Event names never leave it, and he never edits your calendar.',
   'settings.class.head': 'The class',
+  'settings.period': 'A period lasts',
+  'settings.period.minutes': '{minutes} minutes',
+  'settings.period.note.10': 'The default.',
+  'settings.period.note.15': 'A pop quiz.',
+  'settings.period.note.25': 'A long one.',
+  'settings.drum': 'School drum at the start and end',
   'settings.language': 'Language',
   'settings.beFunny': 'It’s fine, be funny',
   'settings.beFunny.foot':

@@ -55,16 +55,20 @@ export function deskActions(core: BoardCore) {
       }),
 
     /**
-     * The drum. `chosen` is the length the user set; otherwise ten minutes, fifteen on a pop
-     * quiz, and always ending in time to get ready for a time heard today.
+     * The drum. `chosen` is the length picked on the desk; otherwise the length set in settings,
+     * fifteen on a pop quiz, and always ending in time to get ready for a time heard today. In
+     * plain company after a crisis nothing happens in the period.
      */
-    start: (chosen?: number) =>
+    start: (chosen?: number, options: { readonly plain?: boolean } = {}) =>
       core.act(async () => {
         const now = deps.clock();
         const desk = core.desk();
         if (desk === undefined || core.state.session !== null) return null;
-        const happening = deskHappening(desk);
-        const asked = periodMinutes({ chosen: chosen ?? null, happening });
+        const happening = options.plain === true ? null : deskHappening(desk);
+        const asked = periodMinutes({
+          chosen: chosen ?? (happening === 'pop quiz' ? null : core.state.periodLength),
+          happening,
+        });
         const minutes = periodBeforeHeardTime(asked, desk, now) ?? asked;
         const started = startPeriod(desk, now.at);
         const session = {

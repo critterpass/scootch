@@ -14,7 +14,11 @@ state is designed or removed. Scootch's list is in the history of this file.
 | Board | A task's menu (tap or long-press) | Every gesture needs a tap alternative and reword has no swipe. A chalk-green panel of the board's own pills: onto the desk, reword, tick off, erase |
 | Board | Rewording a task | No board draws it. The menu panel with a chalk field in the handwriting face, keyboard open |
 | Board | "Desk" among the swipe actions | The App board's swipe shows Tick and Erase; the brief adds swapping onto the desk. A third action in the same row, in his red |
+| Board | Plain company after the crisis screen is closed | The brief brings the board back with no pressure and no joke; no board draws it. The Board with no tally marks, no old-chalk question, no swap or long-board remark, and his plain line at the foot |
+| Logbook | The report card's way in: a ruled line at the foot of the page, "Report card" and one muted line ("Part of tuition" without it) | The brief puts the report card in tuition and the ReportCard board has no way to it. A plain line in the page's own ink and chevron, under the last entry |
 | Logbook | His comment beside the signature | The brief puts his signed comment on each line; the App board shows the signature only. The comment rung in red handwriting above it; the circled 10 drawn as a ring |
+| Desk | Plain company after the crisis screen is closed | The brief has him keep plain company until something said afterwards is screened; no board draws the desk then. The Desk with no fuse, pulse, tally, late slip or thrown chalk, his calm pose and his plain line |
+| Desk | The largest text sizes: the task title in full, Start and Late slip stacked full width, the sheet scrolling under the settings button | The boards draw the default size only. Built from the same card, buttons and sheet |
 | Desk | "Still yours?" over the desk sheet, with Keep it and Let it go | The brief has him ask once about a task untouched for two weeks; only the board's row draws the fading. A glass row of the offline pill's kind |
 | Desk | A note under "Say it": the microphone is off, hearing is not on this phone for the language, or the words could not be handed in | No board draws hearing failing. One muted line under the composer, which opens typing with the words kept |
 | Desk, serious | The heavy task's classroom washed grey | The board desaturates the room; the classroom view has no colour filter, so a translucent grey wash stands in |
@@ -36,6 +40,8 @@ state is designed or removed. Scootch's list is in the history of this file.
 | Report card | Without tuition | The brief puts a quiet lock where the report card lives. The timetable's lock panel under the page's title |
 | Report card | Print | The board has Print beside Share; printing needs a native module this app does not have. Share sends the report as text, names left out under white-out |
 | First day, the empty desk | The sheet's one button, "To my desk" | The `EmptyDesk` board is the desk itself; the first day needs one step that ends it and is marked done. Built from the capsule button |
+| Settings | The school drum as an on and off switch | The board's "Start and end: School drum" row opens a choice of sounds that does not exist; the drum is the one sound, so the row is the system switch |
+| Settings | The timetable as one row that opens it | The board's Timetable group has "Read my calendar" and "Calendars"; calendar access is asked by the timetable itself. One link row to the timetable, with the board's footnote |
 | Settings | Quiet hours page (from and to, in half hours) | The board draws the row only. Built from the settings groups, rows and capsule button |
 | Settings | Change the name he calls | The board links the student card to roll call; outside the first day it is a page with the roll-call field and a Save button |
 | Settings | "Let the last note through Focus", "It's fine, be funny", Restore purchases, Privacy and Terms rows | The brief names them; the board does not draw them. Plain rows and the system switch |

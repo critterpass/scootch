@@ -88,3 +88,18 @@ export const buttonText = StyleSheet.create({
   red: { color: ink.white, fontSize: 17, fontWeight: '700' },
   soft: { color: ink.text, fontSize: 17, fontWeight: '600' },
 });
+
+/** How far a button's label grows with the text size; past it the layout stacks instead. */
+export const BUTTON_MAX_SCALE = 1.6;
+
+/**
+ * A label's size that grows with the text size only up to `max` times its design size: the
+ * phone's own setting is capped by `maxFontSizeMultiplier`, a registry capture's here.
+ */
+export function cappedSize(
+  sizing: { readonly allowFontScaling: boolean; readonly size: (design: number) => number },
+  design: number,
+  max = BUTTON_MAX_SCALE,
+): number {
+  return sizing.allowFontScaling ? design : Math.min(sizing.size(design), design * max);
+}

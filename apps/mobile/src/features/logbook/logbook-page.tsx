@@ -26,6 +26,8 @@ export interface LogbookPageProps {
   readonly handle?: ReactNode;
   /** Shown over the page while it is pulled down from the board. */
   readonly hint?: ReactNode;
+  /** A quiet row under the last line: the way into the report card. */
+  readonly foot?: ReactNode;
   readonly testID?: string;
 }
 
@@ -33,7 +35,7 @@ export interface LogbookPageProps {
  * The sổ đầu bài: a ruled page with a red margin, finished tasks newest first, each with the day
  * in the margin, the period, his comment in red and his signature. No totals and no averages.
  */
-export function LogbookPage({ rows, week, hand, handle, hint, testID }: LogbookPageProps) {
+export function LogbookPage({ rows, week, hand, handle, hint, foot, testID }: LogbookPageProps) {
   const t = useT();
   const ink: PaperInks = PAPER[useAppearance()];
   const { size, allowFontScaling, largeText } = useScreenStyle();
@@ -91,6 +93,7 @@ export function LogbookPage({ rows, week, hand, handle, hint, testID }: LogbookP
             ))}
           </View>
         )}
+        {foot}
       </ScrollView>
       {hint}
       <View

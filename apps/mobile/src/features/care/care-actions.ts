@@ -1,6 +1,4 @@
 import type { DataDatabase } from '../../data/data-database';
-import { writeKv } from '../../data/kv-repository';
-import { KEYS } from '../../state/board-core';
 import type { BoardStore } from '../../state/board-store';
 
 import { writePlainCompany } from './care-memory';
@@ -22,19 +20,6 @@ export function careActions(store: BoardStore, db: DataDatabase) {
       const at = now();
       await store.closeCrisis();
       await writePlainCompany(db, { since: at.at, day: at.day }, at.at);
-    },
-
-    /**
-     * The screen called a crisis on a task said with a connection: the task is flagged and the
-     * crisis screen opens for the rest of the day, as a crisis phrase said offline does.
-     */
-    async raiseCrisis(taskId: string): Promise<void> {
-      await store.screened(taskId, 'crisis');
-      const at = now();
-      await writeKv(db, KEYS.crisisOpen, at.day, at.at);
-      await writeKv(db, KEYS.crisisShown, at.day, at.at);
-      // The board reads the crisis day from SQLite, so it is read again.
-      await store.load();
     },
 
     /** "It's fine, be funny" on a task the screen judged serious. Never on crisis. */

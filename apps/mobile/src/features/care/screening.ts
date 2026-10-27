@@ -95,7 +95,7 @@ export function createScreening(deps: ScreeningDeps) {
     askedAt.set(task.id, clock());
     const outcome = screenOutcomeOf(answer, { beFunny: await deps.beFunny() });
     if (outcome.kind === 'crisis') {
-      await deps.care.raiseCrisis(task.id);
+      await deps.store.raiseCrisis(task.id);
       return 'stop';
     }
     if (outcome.kind === 'ask again') return 'next';

@@ -203,7 +203,12 @@ export function Segments<T extends string>({
   onChange,
   label,
 }: {
-  readonly options: readonly { readonly value: T; readonly label: string }[];
+  readonly options: readonly {
+    readonly value: T;
+    readonly label: string;
+    /** What VoiceOver reads, where the label alone says too little ("10"). */
+    readonly spoken?: string;
+  }[];
   readonly value: T;
   readonly onChange: (next: T) => void;
   readonly label: string;
@@ -221,7 +226,7 @@ export function Segments<T extends string>({
           <PressSpring
             key={option.value}
             accessibilityRole="radio"
-            accessibilityLabel={option.label}
+            accessibilityLabel={option.spoken ?? option.label}
             accessibilityState={{ selected: on, checked: on }}
             onPress={() => onChange(option.value)}
             feedback="choice"

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { TIMING, type Framing, type PhuMood } from '@phusclass/art/class';
 import type { CommentStep } from '@phusclass/domain/board';
 
-import { useCareGuard } from '../care/use-care-guard';
+import { useCareGuard, useCareView } from '../care/use-care-guard';
 import { ComposerBar } from '../composer/composer-bar';
 import { useComposer } from '../composer/use-composer';
 import { useClassCue } from '../desk/class-cues';
@@ -34,6 +34,7 @@ function between([lo, hi]: readonly [number, number]): number {
 /** A running period, on the board store: pacing, raise a hand, a stray thought, the drum, the finish. */
 export function SessionScreen() {
   const crisis = useCareGuard();
+  const care = useCareView();
   const snapshot = useBoard();
   const store = useBoardStore();
   const { language } = useLanguage();
@@ -54,7 +55,9 @@ export function SessionScreen() {
   const chalkboard = useSessionChalk(snapshot);
   const desk = snapshot.desk;
   const session = snapshot.session;
-  const heavy = desk?.heavy ?? false;
+  // A heavy task, or plain company after a crisis: no drum, pacing, looks, happening or grade.
+  const plain = care.mode === 'plain';
+  const heavy = (desk?.heavy ?? false) || plain;
   const phase = snapshot.phase;
   const last = snapshot.lastFinish;
   const finished: {
@@ -66,7 +69,7 @@ export function SessionScreen() {
     phase === 'finished' && last !== null
       ? {
           title: last.task.text,
-          comment: last.comment,
+          comment: plain ? null : last.comment,
           waitedDays: Math.max(
             0,
             Math.floor(
@@ -90,7 +93,7 @@ export function SessionScreen() {
   useEffect(() => {
     if (sessionId === null || clock === null || clock.timeUp) return;
     const line = heavy
-      ? lineFor(language, 'seriousCompany', sessionId)
+      ? lineFor(language, plain ? 'crisisCompany' : 'seriousCompany', sessionId)
       : lineFor(language, 'start', sessionId, { minutes: clock.minutes });
     if (line !== undefined) sayInPassing(line.text, 2400);
   }, [sessionId]);
@@ -159,7 +162,7 @@ export function SessionScreen() {
     onLanded: () => {
       cue('chalk');
       setStraying(false);
-      const line = lineFor(language, 'strayThought', Date.now());
+      const line = lineFor(language, plain ? 'writtenDown' : 'strayThought', Date.now());
       if (line !== undefined) sayInPassing(line.text, 2200);
     },
     onShortTap: () => sayInPassing(fixedLine(language, 'shortTap'), 1800),
@@ -190,7 +193,8 @@ export function SessionScreen() {
     return <Redirect href="/" />;
   }
 
-  let mood: PhuMood = heavy ? 'serious' : timeUp || looking ? 'calm' : 'grading';
+  let mood: PhuMood =
+    desk?.heavy === true ? 'serious' : heavy || timeUp || looking ? 'calm' : 'grading';
   if (finished !== null) mood = finished.comment === null ? 'serious' : 'clap';
   if (panel === 'partial' || panel === 'note') mood = 'calm';
   if (happeningOn && happening !== null) mood = HAPPENINGS[happening].mood;
@@ -213,7 +217,8 @@ export function SessionScreen() {
       line={line ?? null}
       title={title}
       chalkboard={chalkboard}
-      heavy={heavy}
+      heavy={desk?.heavy ?? false}
+      plain={plain}
       clock={clock}
       panel={inFinish ? 'finish' : panel === 'finish' ? 'working' : panel}
       finish={finished === null ? null : { ...finished, recessOffered: snapshot.recessOffered }}
@@ -249,7 +254,7 @@ export function SessionScreen() {
           'raiseHand',
           Date.now(),
           { task: title },
-          { plain: !(desk?.task.screened ?? false) },
+          { plain: plain || !(desk?.task.screened ?? false) },
         );
         if (line !== undefined) sayInPassing(line.text, 2600, 'point');
       }}

@@ -148,6 +148,8 @@ export function fixtureSnapshot(options: FixtureOptions): BoardSnapshot {
     crisisShownOn: null,
     birthday: '01-01',
     celsius: null,
+    periodLength: 10,
+    drum: true,
   };
   const snapshot = viewOf(state, momentAt(now, 'UTC', 4));
   if (options.happening === undefined || snapshot.desk === null) return snapshot;

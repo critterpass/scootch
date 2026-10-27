@@ -71,21 +71,33 @@ function rowsFor(language: Language, today: string, longText: boolean): BoardRow
   }));
 }
 
-type Fixture = 'full' | 'empty' | 'swapped' | 'menu' | 'reword' | 'long-text';
+type Fixture = 'full' | 'empty' | 'swapped' | 'menu' | 'reword' | 'long-text' | 'plain';
+
+/** Plain company after a crisis: no tally, no front row, no old chalk asking to be kept. */
+function plainRows(rows: readonly BoardRow[]): BoardRow[] {
+  return rows.map((row) => ({
+    ...row,
+    faded: false,
+    mark: row.mark.kind === 'tally' ? { kind: 'none' } : row.mark,
+  }));
+}
 
 function BoardFixture({ fixture }: { readonly fixture: Fixture }) {
   const { language } = useLanguage();
   const t = useT();
   const hand = useHandFont();
-  const rows =
+  const written =
     fixture === 'empty' ? [] : rowsFor(language, t('board.today'), fixture === 'long-text');
+  const rows = fixture === 'plain' ? plainRows(written) : written;
   const old = rows.find((row) => row.faded);
   const remark =
-    fixture === 'empty'
-      ? line(language, 'emptyDesk', TODAY)
-      : fixture === 'swapped'
-        ? line(language, 'swapAllowed', 'fixture', rows[1]?.text)
-        : line(language, 'boardLong', TODAY);
+    fixture === 'plain'
+      ? line(language, 'crisisCompany', TODAY)
+      : fixture === 'empty'
+        ? line(language, 'emptyDesk', TODAY)
+        : fixture === 'swapped'
+          ? line(language, 'swapAllowed', 'fixture', rows[1]?.text)
+          : line(language, 'boardLong', TODAY);
   return (
     <BoardPage
       rows={rows}
@@ -94,7 +106,7 @@ function BoardFixture({ fixture }: { readonly fixture: Fixture }) {
       stillYours={
         old === undefined ? {} : { [old.id]: line(language, 'boardStillYours', 'fixture-old') }
       }
-      mood="over"
+      mood={fixture === 'plain' ? 'calm' : 'over'}
       hand={hand}
       onAction={() => undefined}
       onReword={() => undefined}
@@ -113,3 +125,4 @@ export const BoardSwapped = () => <BoardFixture fixture="swapped" />;
 export const BoardMenu = () => <BoardFixture fixture="menu" />;
 export const BoardReword = () => <BoardFixture fixture="reword" />;
 export const BoardLongText = () => <BoardFixture fixture="long-text" />;
+export const BoardPlain = () => <BoardFixture fixture="plain" />;

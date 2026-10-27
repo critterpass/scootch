@@ -5,9 +5,12 @@ import type { Language } from '@phusclass/i18n';
 
 import { useHandFont } from '../../classroom/use-hand-font';
 import { useLanguage, useT } from '../../i18n/i18n-provider';
+import { useAppearance } from '../../screens/registry/support/forced-variant';
+import { PAPER } from '../board/chalk';
 
 import { LogbookPage } from './logbook-page';
 import { logbookRows } from './logbook-rows';
+import { ReportCardRow } from './report-card-row';
 
 const TODAY = '2026-10-26';
 
@@ -41,6 +44,7 @@ function LogbookFixture({ empty }: { readonly empty: boolean }) {
   const { language } = useLanguage();
   const t = useT();
   const hand = useHandFont();
+  const ink = PAPER[useAppearance()];
   const entries = empty
     ? []
     : ENTRIES.map((entry, index) => ({ ...entry, text: DONE[language][index] ?? '' }));
@@ -49,7 +53,15 @@ function LogbookFixture({ empty }: { readonly empty: boolean }) {
     ticked: t('logbook.ticked'),
     certificate: t('logbook.certificate'),
   });
-  return <LogbookPage rows={rows} week={44} hand={hand} handle={null} />;
+  return (
+    <LogbookPage
+      rows={rows}
+      week={44}
+      hand={hand}
+      handle={null}
+      foot={<ReportCardRow ink={ink} enrolled={false} onPress={() => undefined} />}
+    />
+  );
 }
 
 export const LogbookFull = () => <LogbookFixture empty={false} />;

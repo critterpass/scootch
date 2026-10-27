@@ -1,4 +1,5 @@
 import {
+  DEFAULT_PERIOD_MINUTES,
   fillDesk,
   minutesFree,
   type Clock,
@@ -37,7 +38,12 @@ export const KEYS = {
   crisisShown: 'care.crisis-shown-on',
   crisisOpen: 'care.crisis-open-on',
   birthday: 'phu.birthday',
+  periodLength: 'class.period-minutes',
+  drum: 'class.drum',
 } as const;
+
+/** The period lengths the settings offer; ten minutes unless changed. */
+export const PERIOD_LENGTHS = [DEFAULT_PERIOD_MINUTES, 15, 25] as const;
 
 export type SessionOutcome = 'done' | 'another period' | 'back on board' | 'erase' | 'slipped';
 
@@ -59,6 +65,8 @@ const initial: BoardState = {
   crisisShownOn: null,
   birthday: null,
   celsius: null,
+  periodLength: DEFAULT_PERIOD_MINUTES,
+  drum: true,
 };
 
 /** What every action works through: the state, the queue and the writes they share. */

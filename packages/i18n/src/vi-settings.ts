@@ -22,7 +22,17 @@ export const viSettings = {
   'settings.notes.foot': 'Em lờ thầy vài hôm thì thầy im. Thầy không bao giờ nhắc chuyện đó.',
   'settings.notes.denied': 'Thông báo của ứng dụng này đang tắt trong Cài đặt iOS.',
   'settings.notes.openSettings': 'Mở Cài đặt iOS',
+  'settings.timetable.head': 'Thời khóa biểu',
+  'settings.timetable.row': 'Mở thời khóa biểu',
+  'settings.timetable.foot':
+    'Chỉ đọc trên điện thoại. Tên sự kiện không bao giờ rời khỏi máy, và thầy không bao giờ sửa lịch của em.',
   'settings.class.head': 'Lớp học',
+  'settings.period': 'Một tiết học kéo dài',
+  'settings.period.minutes': '{minutes} phút',
+  'settings.period.note.10': 'Mặc định.',
+  'settings.period.note.15': 'Kiểm tra 15 phút.',
+  'settings.period.note.25': 'Tiết dài.',
+  'settings.drum': 'Trống trường lúc vào và hết tiết',
   'settings.language': 'Ngôn ngữ',
   'settings.beFunny': 'Không sao, cứ đùa',
   'settings.beFunny.foot':

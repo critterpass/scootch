@@ -33,6 +33,8 @@ export interface SessionViewProps {
   /** The chalkboard behind him, as on the desk. */
   readonly chalkboard: SessionChalk;
   readonly heavy: boolean;
+  /** Plain company after a crisis: no grade, burst, share or "started in time". */
+  readonly plain?: boolean;
   readonly clock: SessionClock | null;
   readonly panel: SessionPanel;
   readonly finish: (FinishPaperProps & { readonly recessOffered: boolean }) | null;
@@ -77,7 +79,7 @@ export function SessionView(props: SessionViewProps) {
         <Text allowFontScaling={sizing.allowFontScaling} style={[type.label, { color: ink.muted }]}>
           {timeUp ? t('session.time') : t('session.working')}
         </Text>
-        {clock?.inTime && !props.heavy ? (
+        {clock?.inTime && !props.heavy && props.plain !== true ? (
           <Text
             allowFontScaling={sizing.allowFontScaling}
             style={[type.hand, { color: ink.red }, size(18)]}
@@ -191,7 +193,7 @@ export function SessionView(props: SessionViewProps) {
           tookMinutes={props.finish.tookMinutes}
         />
         <View style={styles.finishButtons}>
-          {finishedId !== null && !props.heavy ? (
+          {finishedId !== null && !props.heavy && props.plain !== true ? (
             <ShareButton
               logEntryId={finishedId}
               label={t('share.open')}
@@ -228,8 +230,10 @@ export function SessionView(props: SessionViewProps) {
 
   return (
     <View style={styles.fill} testID="session">
+      {/* The room starts below the status bar, as on the desk; the wall fills above it. */}
+      <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.wall]} />
       <Classroom
-        style={StyleSheet.absoluteFill}
+        style={[styles.room, { top: insets.top }]}
         framing={props.framing}
         mood={props.mood}
         pace={props.pace}
@@ -245,7 +249,11 @@ export function SessionView(props: SessionViewProps) {
       {props.happening !== null ? <HappeningScene happening={props.happening} /> : null}
       {panel === 'finish' && props.finish?.comment != null ? <Confetti /> : null}
       {props.line !== null && props.line !== '' ? (
-        <SpeechBubble text={props.line} place={props.framing === 'desk' ? 'desk' : 'room'} />
+        <SpeechBubble
+          text={props.line}
+          place={props.framing === 'desk' ? 'desk' : 'room'}
+          top={insets.top}
+        />
       ) : null}
       <View
         style={[styles.sheet, shapes.sheet, { paddingBottom: Math.max(insets.bottom, 12) + 8 }]}
@@ -267,6 +275,8 @@ export function SessionView(props: SessionViewProps) {
 const styles = StyleSheet.create({
   share: { width: 56, paddingHorizontal: 0, alignItems: 'center', justifyContent: 'center' },
   fill: { flex: 1, backgroundColor: '#E8D2AE' },
+  wall: { backgroundColor: '#FFF1DC' },
+  room: { position: 'absolute', left: 0, right: 0, bottom: 0 },
   quiet: { backgroundColor: ink.grey },
   sheet: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: 20 },
   grabber: { marginTop: 10, marginBottom: 14 },

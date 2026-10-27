@@ -5,6 +5,9 @@ import { createChooser, type Moment } from '@phusclass/voice/class';
 
 import { openMigratedDatabase } from '../../data/test-database';
 import { createBoardStore } from '../../state/board-store';
+import { careActions } from '../care/care-actions';
+import { memory } from '../care/care-memory';
+import { careModeOf, treatmentOf } from '../care/care-mode';
 
 import { boardControls, type Say } from './board-controls';
 import { boardRows } from './board-rows';
@@ -12,6 +15,7 @@ import { boardRows } from './board-rows';
 /** A board on a real migrated database, his English lines, and a record of every moment he spoke. */
 async function board() {
   const db = await openMigratedDatabase();
+  memory.forget();
   let id = 0;
   const store = createBoardStore({
     db,
@@ -25,13 +29,15 @@ async function board() {
     said.push(moment);
     return chooser.say(moment, seed, values)?.text;
   });
-  const controls = boardControls(store, say);
+  // The care the board screen reads from `useCareView`.
+  const mode = () => careModeOf(store.getSnapshot(), memory.get());
+  const controls = boardControls(store, say, mode);
   const text = (status: string) =>
     store
       .getSnapshot()
       .board.filter(({ task }) => task.status === status)
       .map(({ task }) => task.text);
-  return { store, controls, said, say, text };
+  return { store, controls, said, say, text, mode, care: careActions(store, db) };
 }
 
 describe('the board controls', () => {
@@ -114,6 +120,46 @@ describe('the board controls', () => {
     expect(await controls.opened()).toEqual(expect.any(String));
     expect(await controls.opened()).toBeNull();
     expect(said).toEqual(['boardLong']);
+  });
+});
+
+describe('after the crisis screen is closed', () => {
+  it('makes no remark and keeps plain company at the foot of the board', async () => {
+    const { store, controls, said, care, mode } = await board();
+    await store.say('buy milk and call the bank');
+    await store.say('I want to end my life');
+    await care.closeCrisis();
+    expect(mode()).toBe('plain');
+
+    expect(await controls.opened()).toEqual(expect.any(String));
+    const other = store.getSnapshot().board.find(({ task }) => task.status === 'board')!.task;
+    await store.screened(other.id, 'none');
+    expect(await controls.swap(other.id)).toBeNull();
+
+    expect(said).toEqual(['crisisCompany']);
+  });
+
+  it('chalks no tally marks until plain company ends', async () => {
+    const { store, care, mode } = await board();
+    await store.say('call the bank and buy milk');
+    await store.slip('too tired', false);
+    await store.say('I keep thinking about how to kill myself');
+    await care.closeCrisis();
+    const snapshot = store.getSnapshot();
+
+    const rows = boardRows(
+      snapshot.board,
+      snapshot.faded,
+      snapshot.now,
+      'en',
+      {
+        today: 'Today',
+      },
+      treatmentOf(mode()),
+    );
+
+    expect(rows.find((row) => row.text === 'Call the bank')?.mark).toEqual({ kind: 'none' });
+    expect(rows.some((row) => row.mark.kind === 'tally')).toBe(false);
   });
 });
 

@@ -64,6 +64,10 @@ export type BoardState = {
   /** His birthday, `MM-DD`, fixed once per install. */
   readonly birthday: string | null;
   readonly celsius: number | null;
+  /** The period length set in settings, in minutes. A pop quiz still makes it fifteen. */
+  readonly periodLength: number;
+  /** The school drum sounds at the start and end of a period. */
+  readonly drum: boolean;
 };
 
 export const RECESS_MS = 5 * MINUTE_MS;
@@ -114,6 +118,8 @@ export type BoardSnapshot = {
   readonly recessOffered: boolean;
   readonly tuitionNotice: boolean;
   readonly heavyToday: boolean;
+  readonly periodLength: number;
+  readonly drum: boolean;
 };
 
 /** The happening fixed for one sitting at the desk: the task and when it was put there. */
@@ -211,5 +217,7 @@ export function viewOf(state: BoardState, now: Moment): BoardSnapshot {
       lastPinnedAt: state.tuitionPinnedAt,
     }),
     heavyToday,
+    periodLength: state.periodLength,
+    drum: state.drum,
   };
 }
