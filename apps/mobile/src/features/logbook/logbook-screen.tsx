@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+import { useRouter, type Href } from 'expo-router';
 import { useCallback, useEffect, useMemo } from 'react';
 import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { GestureDetector, usePanGesture } from 'react-native-gesture-handler';
@@ -20,10 +20,14 @@ import { touchHaptic } from '../../ui/motion/press-spring';
 import { useFeel } from '../../ui/motion/use-feel';
 import { BOARD, PAPER } from '../board/chalk';
 import { useCareGuard } from '../care/use-care-guard';
+import { useTuition } from '../tuition/tuition-provider';
 
 import { LogbookPage } from './logbook-page';
 import { logbookPull } from './logbook-pull';
 import { isoWeek, logbookRows } from './logbook-rows';
+import { ReportCardRow } from './report-card-row';
+
+const REPORT_CARD = '/report-card' as Href;
 
 const ALWAYS = ReduceMotion.Never;
 const SETTLE = { duration: 420, dampingRatio: 0.9, reduceMotion: ALWAYS } as const;
@@ -42,6 +46,7 @@ export function LogbookScreen() {
   const { mayMove, haptics } = useFeel();
   const { height } = useWindowDimensions();
   const ink = PAPER[useAppearance()];
+  const { enrolled } = useTuition();
 
   useEffect(() => {
     if (!mayMove) logbookPull.set(1);
@@ -114,6 +119,9 @@ export function LogbookScreen() {
         rows={rows}
         week={isoWeek(today)}
         hand={hand}
+        foot={
+          <ReportCardRow ink={ink} enrolled={enrolled} onPress={() => router.push(REPORT_CARD)} />
+        }
         handle={
           <GestureDetector gesture={pushUp}>
             <Pressable

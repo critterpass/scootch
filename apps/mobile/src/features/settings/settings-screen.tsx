@@ -1,5 +1,6 @@
 import { useRouter } from 'expo-router';
-import { Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useRef } from 'react';
+import { Linking, ScrollView, StyleSheet, Text, View, type ScrollViewInstance } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { Language } from '@phusclass/i18n';
@@ -25,6 +26,7 @@ import {
   titleSize,
   usePage,
 } from './settings-parts';
+import { PeriodAndDrum } from './period-and-drum';
 import { StudentCard } from './student-card';
 import { useSettingsActions } from './use-settings-actions';
 
@@ -40,7 +42,15 @@ function siteLink(language: Language, page: 'privacy' | 'terms'): string {
  * Settings: the student card, notes home and quiet hours, the language, "be funny", tuition,
  * helplines, export and delete everything, the privacy and terms pages, and the version.
  */
-export function SettingsScreen({ studentName }: { readonly studentName?: string } = {}) {
+export function SettingsScreen({
+  studentName,
+  opensAt,
+}: {
+  readonly studentName?: string;
+  /** A capture of the timetable and the class, scrolled down to them. */
+  readonly opensAt?: 'class';
+} = {}) {
+  const scroll = useRef<ScrollViewInstance>(null);
   const t = useT();
   const router = useRouter();
   const board = useBoard();
@@ -65,6 +75,7 @@ export function SettingsScreen({ studentName }: { readonly studentName?: string 
 
   return (
     <ScrollView
+      ref={scroll}
       style={{ backgroundColor: page }}
       contentContainerStyle={{ paddingTop: insets.top + 8, paddingBottom: insets.bottom + 48 }}
       testID="settings"
@@ -136,9 +147,29 @@ export function SettingsScreen({ studentName }: { readonly studentName?: string 
       </Group>
       <Foot>{t('settings.notes.foot')}</Foot>
 
+      <View
+        onLayout={(event) => {
+          if (opensAt === 'class') {
+            scroll.current?.scrollTo({ y: event.nativeEvent.layout.y, animated: false });
+          }
+        }}
+      />
+      <Head title={t('settings.timetable.head')} />
+      <Group>
+        <Row
+          first
+          label={t('settings.timetable.row')}
+          chevron
+          onPress={() => router.push('/timetable')}
+          testID="settings-timetable"
+        />
+      </Group>
+      <Foot>{t('settings.timetable.foot')}</Foot>
+
       <Head title={t('settings.class.head')} />
       <Group>
-        <View style={styles.language}>
+        <PeriodAndDrum />
+        <View style={[styles.language, styles.ruled, { borderTopColor: `${palette.ink}14` }]}>
           <Text
             allowFontScaling={allowFontScaling}
             style={{ color: palette.ink, fontSize: size(16) }}
@@ -250,6 +281,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.8,
   },
   language: { paddingHorizontal: 16, paddingVertical: 12, gap: 10 },
+  ruled: { borderTopWidth: StyleSheet.hairlineWidth },
   footer: { marginTop: 36, marginHorizontal: 20, alignItems: 'center', gap: 10 },
   version: { fontFamily: fonts.body, textAlign: 'center' },
 });

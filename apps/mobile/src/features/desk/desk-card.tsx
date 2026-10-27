@@ -2,8 +2,9 @@ import { Pressable, StyleSheet, Text, View, type LayoutChangeEvent } from 'react
 
 import { useT } from '../../i18n/i18n-provider';
 import { useTextSizing } from '../../screens/registry/support/forced-variant';
+import { useScreenStyle } from '../../ui/use-screen-style';
 
-import { buttonText, ink, shapes, type } from './class-style';
+import { BUTTON_MAX_SCALE, buttonText, cappedSize, ink, shapes, type } from './class-style';
 import type { DeskModel } from './desk-model';
 import type { RecessView } from './desk-view';
 import { StartButton } from './start-button';
@@ -28,6 +29,8 @@ export interface DeskCardProps {
 export function DeskCard(props: DeskCardProps) {
   const t = useT();
   const sizing = useTextSizing();
+  // At the accessibility sizes the title wraps in full and the buttons stack, full width.
+  const { largeText } = useScreenStyle();
   const { model } = props;
   const task = model.task;
   const onCardLayout = props.onCardLayout;
@@ -53,7 +56,7 @@ export function DeskCard(props: DeskCardProps) {
       </View>
     ) : (
       <View style={styles.head} onLayout={onCardLayout} testID="desk-card">
-        <View style={styles.headRow}>
+        <View style={[styles.headRow, largeText ? styles.headRowLarge : null]}>
           <View style={styles.headLeft}>
             <Text
               allowFontScaling={sizing.allowFontScaling}
@@ -85,7 +88,7 @@ export function DeskCard(props: DeskCardProps) {
           testID="desk-title"
           accessibilityRole="header"
           allowFontScaling={sizing.allowFontScaling}
-          numberOfLines={props.typing ? 1 : 3}
+          numberOfLines={props.typing ? 1 : largeText ? 0 : 3}
           style={[
             type.title,
             props.typing
@@ -105,6 +108,25 @@ export function DeskCard(props: DeskCardProps) {
         ) : null}
       </View>
     );
+
+  // The late slip; stacked under Start at the largest sizes, never offered in plain company.
+  const slip = (
+    <Pressable
+      testID="desk-late-slip"
+      accessibilityRole="button"
+      onPress={props.onSlip}
+      style={[shapes.button, shapes.soft, largeText ? null : styles.slipButton]}
+    >
+      <Text
+        allowFontScaling={sizing.allowFontScaling}
+        maxFontSizeMultiplier={BUTTON_MAX_SCALE}
+        numberOfLines={largeText ? 0 : 1}
+        style={[buttonText.soft, styles.centred, { fontSize: cappedSize(sizing, 17) }]}
+      >
+        {t('desk.lateSlip')}
+      </Text>
+    </Pressable>
+  );
 
   const actions =
     task === null || props.typing ? null : model.heavy ? (
@@ -129,22 +151,8 @@ export function DeskCard(props: DeskCardProps) {
         </Pressable>
       </View>
     ) : (
-      <View style={styles.actions}>
-        <Pressable
-          testID="desk-late-slip"
-          accessibilityRole="button"
-          onPress={props.onSlip}
-          style={[shapes.button, shapes.soft, styles.slipButton]}
-        >
-          <Text
-            allowFontScaling={sizing.allowFontScaling}
-            maxFontSizeMultiplier={1.6}
-            numberOfLines={1}
-            style={buttonText.soft}
-          >
-            {t('desk.lateSlip')}
-          </Text>
-        </Pressable>
+      <View style={largeText ? styles.actionsStacked : styles.actions}>
+        {model.canSlip && !largeText ? slip : null}
         <StartButton
           fuseLeft={model.fuse?.left ?? null}
           fuseLeftMs={model.fuse?.leftMs ?? 0}
@@ -153,7 +161,9 @@ export function DeskCard(props: DeskCardProps) {
           hot={model.pressure >= 4}
           onStart={props.onStart}
           onLength={props.onLength}
+          stacked={largeText}
         />
+        {model.canSlip && largeText ? slip : null}
       </View>
     );
 
@@ -236,6 +246,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     minHeight: 22,
   },
+  headRowLarge: { flexWrap: 'wrap', rowGap: 4, columnGap: 10 },
   headLeft: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   headRight: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   frontRow: {
@@ -249,6 +260,8 @@ const styles = StyleSheet.create({
   sub: { color: ink.muted, lineHeight: 21 },
   note: { color: ink.purple },
   actions: { flexDirection: 'row', gap: 10 },
+  actionsStacked: { gap: 10 },
+  centred: { textAlign: 'center' },
   actionsColumn: { gap: 6 },
   slipButton: { width: 112, paddingHorizontal: 8 },
   seriousStart: { backgroundColor: '#3A3530' },

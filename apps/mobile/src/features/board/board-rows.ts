@@ -39,6 +39,12 @@ export interface RowWords {
   readonly today: string;
 }
 
+/** What the day's care allows on the board's rows. */
+export interface RowCare {
+  /** Tally marks and the front-row tag; off in plain company after a crisis. */
+  readonly pressure: boolean;
+}
+
 /** A locale for the dates on the board, in the app's language rather than the phone's. */
 export function dateLocale(language: Language): string {
   return language === 'vi' ? 'vi-VN' : 'en-GB';
@@ -82,7 +88,8 @@ export function boardDateLine(today: IsoDate, language: Language): string {
 
 /**
  * The board's rows, in his order, as the store gives them. A serious or crisis task never carries
- * tally marks or the front-row tag: the store's flag decides, nothing is worked out again here.
+ * tally marks or the front-row tag, and in plain company after a crisis no task does: the store's
+ * flag and the care view decide, nothing is worked out again here.
  */
 export function boardRows(
   board: readonly Ranked[],
@@ -90,10 +97,11 @@ export function boardRows(
   now: Pick<Moment, 'day'>,
   language: Language,
   words: RowWords,
+  care: RowCare = { pressure: true },
 ): BoardRow[] {
   return board.map(({ task, reason }) => {
     const heavy = task.care !== 'none';
-    const tallies = heavy ? 0 : talliesOf(task);
+    const tallies = heavy || !care.pressure ? 0 : talliesOf(task);
     const time = heardTimeOn(task, now.day);
     const mark: RowMark =
       tallies > 0

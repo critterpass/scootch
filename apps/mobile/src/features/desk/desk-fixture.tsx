@@ -25,7 +25,8 @@ export type DeskCase =
   | 'serious'
   | 'still-yours'
   | 'recess'
-  | 'pop-quiz';
+  | 'pop-quiz'
+  | 'plain';
 
 const SETUPS: Record<DeskCase, Omit<FixtureOptions, 'language'>> = {
   // Pressure is the waiting time's steps (2, 5, 10, 20, 40 minutes) plus one per two tallies.
@@ -42,6 +43,8 @@ const SETUPS: Record<DeskCase, Omit<FixtureOptions, 'language'>> = {
   'still-yours': { waited: 1, burnt: 20, fading: true },
   recess: { recessSeconds: 118, waited: 1 },
   'pop-quiz': { waited: 0.5, burnt: 10, happening: 'pop quiz' },
+  // The crisis screen was closed: the hot desk's task, kept in plain company.
+  plain: { waited: 10, burnt: 90, slips: 3 },
 };
 
 const noop = () => undefined;
@@ -52,8 +55,13 @@ export function DeskFixture({ which }: { readonly which: DeskCase }) {
   const keyboard = useKeyboardHeight();
   const [draft, setDraft] = useState(TYPED[language]);
   const snapshot = fixtureSnapshot({ language, ...SETUPS[which] });
-  const plain = deskModel({ snapshot, language, name: FIXTURE_NAME });
-  const model = which === 'late-slip' ? withSlipOut(plain, language) : plain;
+  const drawn = deskModel({
+    snapshot,
+    language,
+    name: FIXTURE_NAME,
+    care: which === 'plain' ? 'plain' : 'normal',
+  });
+  const model = which === 'late-slip' ? withSlipOut(drawn, language) : drawn;
   const composerState: ComposerState =
     which === 'listening'
       ? { mode: 'listening', since: 0, words: HEARD[language] }

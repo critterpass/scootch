@@ -17,13 +17,12 @@ import { useTextSizing } from '../../screens/registry/support/forced-variant';
 import { useMayMove } from '../../ui/motion/use-feel';
 import { clockText } from '../session/session-model';
 
-import { buttonText, curves, ink, shapes } from './class-style';
+import { BUTTON_MAX_SCALE, buttonText, cappedSize, curves, ink, shapes } from './class-style';
 import type { StartPulse } from './desk-model';
+import { PeriodLengths } from './period-lengths';
 
 const HEIGHT = 56;
 const INSET = 1.5;
-/** The lengths a period may be given, in minutes. */
-export const PERIOD_LENGTHS = [5, 10, 15, 25, 45] as const;
 
 /** The fuse's track: around the button from the top-left of its straight edge, clockwise. */
 function fusePath(width: number): string {
@@ -76,6 +75,8 @@ export interface StartButtonProps {
   readonly onStart: () => void;
   readonly onLength: (minutes: number) => void;
   readonly disabled?: boolean;
+  /** At the largest text sizes the desk's buttons stack: Start takes the full width. */
+  readonly stacked?: boolean;
 }
 
 /**
@@ -93,6 +94,7 @@ export function StartButton({
   onStart,
   onLength,
   disabled = false,
+  stacked = false,
 }: StartButtonProps) {
   const t = useT();
   const mayMove = useMayMove();
@@ -162,37 +164,15 @@ export function StartButton({
     .join(' ');
 
   return (
-    <View style={styles.wrap}>
+    <View style={stacked ? styles.wrapStacked : styles.wrap}>
       {choosing ? (
-        <View
-          style={styles.lengths}
-          accessibilityRole="radiogroup"
-          accessibilityLabel={t('desk.periodLength')}
-        >
-          {PERIOD_LENGTHS.map((length) => (
-            <Pressable
-              key={length}
-              accessibilityRole="radio"
-              accessibilityState={{ selected: length === minutes }}
-              accessibilityLabel={t('desk.startMinutes', { minutes: length })}
-              onPress={() => {
-                setChoosing(false);
-                onLength(length);
-              }}
-              style={[
-                styles.chip,
-                { backgroundColor: length === minutes ? ink.text : 'rgba(28,26,24,0.06)' },
-              ]}
-            >
-              <Text
-                allowFontScaling={sizing.allowFontScaling}
-                style={[styles.chipText, { color: length === minutes ? ink.white : ink.text }]}
-              >
-                {length}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
+        <PeriodLengths
+          minutes={minutes}
+          onPick={(length) => {
+            setChoosing(false);
+            onLength(length);
+          }}
+        />
       ) : null}
       <Animated.View
         style={[
@@ -269,15 +249,22 @@ export function StartButton({
           </Canvas>
           <Text
             allowFontScaling={sizing.allowFontScaling}
-            maxFontSizeMultiplier={1.6}
-            style={buttonText.red}
+            maxFontSizeMultiplier={BUTTON_MAX_SCALE}
+            numberOfLines={1}
+            style={[buttonText.red, styles.label, { fontSize: cappedSize(sizing, 17) }]}
           >
             {t('desk.start')}
           </Text>
           <Text
             allowFontScaling={sizing.allowFontScaling}
-            maxFontSizeMultiplier={1.6}
-            style={[buttonText.red, styles.minutes]}
+            maxFontSizeMultiplier={BUTTON_MAX_SCALE}
+            numberOfLines={1}
+            style={[
+              buttonText.red,
+              styles.label,
+              styles.minutes,
+              { fontSize: cappedSize(sizing, 17) },
+            ]}
           >
             {t('desk.startMinutes', { minutes })}
           </Text>
@@ -291,6 +278,8 @@ const shapesShadow = 'inset 0 1px 0 rgba(255,255,255,0.35), 0 10px 24px rgba(201
 
 const styles = StyleSheet.create({
   wrap: { flex: 1 },
+  wrapStacked: { alignSelf: 'stretch' },
+  label: { flexShrink: 1 },
   button: { height: HEIGHT, borderRadius: HEIGHT / 2 },
   press: {
     flex: 1,
@@ -302,25 +291,4 @@ const styles = StyleSheet.create({
   },
   drum: { width: 22, height: 22 },
   minutes: { fontWeight: '500', opacity: 0.85, fontVariant: ['tabular-nums'] },
-  lengths: {
-    position: 'absolute',
-    right: -4,
-    bottom: 66,
-    flexDirection: 'row',
-    gap: 4,
-    padding: 5,
-    borderRadius: 25,
-    backgroundColor: 'rgba(255,255,255,0.92)',
-    boxShadow: '0 8px 24px rgba(60,40,20,0.10)',
-    zIndex: 2,
-  },
-  chip: {
-    minWidth: 46,
-    height: 40,
-    borderRadius: 20,
-    paddingHorizontal: 11,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  chipText: { fontSize: 14, fontWeight: '700', fontVariant: ['tabular-nums'] },
 });

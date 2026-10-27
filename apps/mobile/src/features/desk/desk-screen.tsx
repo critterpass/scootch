@@ -5,7 +5,7 @@ import { AppState } from 'react-native';
 import type { HeardTask } from '@phusclass/domain/hearing';
 import type { Language } from '@phusclass/i18n';
 
-import { useCareGuard } from '../care/use-care-guard';
+import { useCareGuard, useCareView } from '../care/use-care-guard';
 import { ChalkFlight } from '../composer/chalk-flight';
 import { ComposerBar } from '../composer/composer-bar';
 import { useComposer } from '../composer/use-composer';
@@ -48,15 +48,20 @@ function heardDate(day: string, language: Language): string {
   }
 }
 
-/** His answer once something said has gone on the board. Plain until it is screened. */
+/**
+ * His answer once something said has gone on the board. Plain until it is screened; in plain
+ * company after a crisis, only "Written down."
+ */
 function landedLine(
   tasks: readonly HeardTask[],
   wasEmpty: boolean,
   language: Language,
   seed: number,
+  company: boolean,
 ) {
   const first = tasks[0];
   if (first === undefined) return undefined;
+  if (company) return lineFor(language, 'writtenDown', seed);
   const plain = { plain: true };
   if (wasEmpty) return lineFor(language, 'firstThingToDesk', seed, { task: first.text }, plain);
   const dated = tasks.find((task) => task.dueDate !== null);
@@ -78,6 +83,7 @@ function landedLine(
 /** The desk, on the board store: one task, his line, Start with its fuse, "Say it", recess. */
 export function DeskScreen() {
   const crisis = useCareGuard();
+  const care = useCareView();
   const snapshot = useBoard();
   const store = useBoardStore();
   const router = useRouter();
@@ -95,7 +101,12 @@ export function DeskScreen() {
     notes: [],
   });
 
-  const model = useMemo(() => deskModel({ snapshot, language, name }), [snapshot, language, name]);
+  const model = useMemo(
+    () => deskModel({ snapshot, language, name, care: care.mode }),
+    [snapshot, language, name, care.mode],
+  );
+  // Nothing that acts or presses: a heavy task on the desk, or plain company after a crisis.
+  const quiet = model.heavy || model.plain;
   const deskTaskId = model.task?.id ?? null;
   const gestures = useDeskGestures(!slipOpen && !drumming);
 
@@ -105,7 +116,7 @@ export function DeskScreen() {
       const wasEmpty = snapshot.desk === null;
       cue('chalk');
       setFlights((last) => ({ key: last.key + 1, notes: tasks.map((task) => task.text) }));
-      const line = landedLine(tasks, wasEmpty, language, Date.now());
+      const line = landedLine(tasks, wasEmpty, language, Date.now(), !care.act);
       if (line !== undefined) sayInPassing(line.text, 2600);
     },
     onShortTap: () => sayInPassing(fixedLine(language, 'shortTap'), 1800),
@@ -145,10 +156,10 @@ export function DeskScreen() {
   useEffect(() => {
     if (!recessDone) return;
     cue('bell');
-    const over = lineFor(language, 'recessOver', Date.now());
+    const over = care.act ? lineFor(language, 'recessOver', Date.now()) : undefined;
     if (over !== undefined) sayInPassing(over.text, 2600);
     void store.next();
-  }, [recessDone, store, cue, language]);
+  }, [recessDone, store, cue, language, care.act]);
 
   // His tea goes cold at the first step: a sip.
   const lastPressure = useRef(model.pressure);
@@ -166,17 +177,18 @@ export function DeskScreen() {
   const start = useCallback(() => {
     if (drumming) return;
     clearPassing();
-    if (model.heavy) {
-      // Plain company: no drum, no burst.
-      void store.start(chosenMinutes ?? undefined);
+    const options = { plain: model.plain };
+    if (quiet) {
+      // Plain company: no drum, no burst, nothing happening in the period.
+      void store.start(chosenMinutes ?? undefined, options);
       return;
     }
     setDrumming(true);
     cue('drum');
     setTimeout(() => {
-      void store.start(chosenMinutes ?? undefined).finally(() => setDrumming(false));
+      void store.start(chosenMinutes ?? undefined, options).finally(() => setDrumming(false));
     }, DRUM_MS);
-  }, [drumming, model.heavy, store, chosenMinutes, cue]);
+  }, [drumming, quiet, model.plain, store, chosenMinutes, cue]);
 
   if (crisis) return null;
   const phase = snapshot.phase;
@@ -211,7 +223,7 @@ export function DeskScreen() {
       keyboard={typing ? keyboard : 0}
       chosenMinutes={chosenMinutes}
       recess={recess}
-      notice={<TuitionNotice />}
+      notice={care.selling ? <TuitionNotice /> : null}
       gestures={gestures}
       composer={
         <ComposerBar

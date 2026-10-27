@@ -1,6 +1,7 @@
-import { useMemo, useState, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import {
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   useWindowDimensions,
@@ -13,23 +14,23 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { PHU_SPOTS, type Carving } from '@phusclass/art/class';
 
-import { Classroom, shotFor } from '../../classroom/classroom';
+import { Classroom } from '../../classroom/classroom';
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { useTextSizing } from '../../screens/registry/support/forced-variant';
 import { GlassSurface } from '../../ui/glass-surface';
+import { useScreenStyle } from '../../ui/use-screen-style';
 import { chalkboardFrame, taskCardFrame } from '../../ui/motion/hand-off';
 
 import { ChalkThrow } from './chalk-throw';
 import { ClassIcon } from './class-icons';
 import { ink, shapes } from './class-style';
 import type { DeskModel } from './desk-model';
-import { chalkDate, chalkWords } from './room-scene';
-import { SpeechBubble } from './speech-bubble';
+import { chalkDate } from './room-scene';
+import { BUBBLE_ROOM, SpeechBubble } from './speech-bubble';
+import { StillYoursPanel } from './still-yours-panel';
 import { DeskCard, RecessPanel } from './desk-card';
+import { useDeskChalk } from './use-desk-chalk';
 import type { DeskGestures } from './use-desk-gestures';
-
-/** The chalkboard in the phone room, in room units. */
-const CHALKBOARD = { x: 480, y: 100, width: 640, height: 196 } as const;
 
 export interface RecessView {
   readonly left: string;
@@ -82,27 +83,18 @@ export function DeskView(props: DeskViewProps) {
   const t = useT();
   const { language } = useLanguage();
   const sizing = useTextSizing();
+  const { largeText } = useScreenStyle();
   const insets = useSafeAreaInsets();
-  const { width, height } = useWindowDimensions();
+  const { height } = useWindowDimensions();
   const [sheetHeight, setSheetHeight] = useState(0);
 
   const recess = props.recess;
   const framing = recess === null ? 'desk' : 'recess';
-  const words = chalkWords(model.chalk, t);
   const date = chalkDate(props.now, language);
   const line = passing?.text ?? model.line?.text ?? null;
 
-  // Where the chalkboard sits on screen at the desk shot: the board grows out of it.
-  const chalkboard = useMemo(() => {
-    const camera = shotFor('desk', { width, height: height - insets.top });
-    const k = width / camera.w;
-    return {
-      x: (CHALKBOARD.x - camera.x) * k,
-      y: insets.top + (CHALKBOARD.y - camera.y) * k,
-      width: CHALKBOARD.width * k,
-      height: CHALKBOARD.height * k,
-    };
-  }, [width, height, insets.top]);
+  // The board grows out of the chalkboard's frame; the chalk ends before his bubble.
+  const { chalkboard, words } = useDeskChalk(model.chalk, recess === null);
 
   const onRoomLayout = () => chalkboardFrame.set(chalkboard);
   const onCardLayout = (event: LayoutChangeEvent) => {
@@ -175,6 +167,9 @@ export function DeskView(props: DeskViewProps) {
         {
           paddingBottom: Math.max(insets.bottom, 12) + 8,
           bottom: props.keyboard > 0 ? props.keyboard - insets.bottom : 0,
+          // At the largest sizes the sheet stops below his bubble and scrolls; otherwise it may
+          // grow to just under the settings button.
+          maxHeight: height - insets.top - (largeText ? BUBBLE_ROOM : 56),
         },
         gestures?.sheetStyle,
       ]}
@@ -189,12 +184,29 @@ export function DeskView(props: DeskViewProps) {
       >
         <View style={shapes.grabber} />
       </Pressable>
-      <Animated.View style={[styles.sheetBody, gestures?.sheetContentStyle]}>
-        {recessPanel ?? (
-          <>
-            {deskHead}
-            {props.composer}
-          </>
+      <Animated.View
+        style={[
+          styles.sheetBody,
+          largeText ? styles.sheetBodyLarge : null,
+          gestures?.sheetContentStyle,
+        ]}
+      >
+        {largeText ? (
+          <ScrollView style={styles.sheetScroll} contentContainerStyle={styles.sheetScrolled}>
+            {recessPanel ?? (
+              <>
+                {deskHead}
+                {props.composer}
+              </>
+            )}
+          </ScrollView>
+        ) : (
+          (recessPanel ?? (
+            <>
+              {deskHead}
+              {props.composer}
+            </>
+          ))
         )}
       </Animated.View>
     </Animated.View>
@@ -236,39 +248,11 @@ export function DeskView(props: DeskViewProps) {
         </GlassSurface>
       ) : null}
       {model.stillYours !== null && recess === null && !props.typing ? (
-        <GlassSurface
-          style={[styles.stillYours, { bottom: sheetHeight + 12 }]}
-          testID="desk-still-yours"
-        >
-          <Text
-            allowFontScaling={sizing.allowFontScaling}
-            numberOfLines={2}
-            style={[styles.stillText, { fontSize: sizing.size(14) }]}
-          >
-            <Text style={styles.stillAsk}>{t('desk.stillYours')} </Text>
-            {model.stillYours.title}
-          </Text>
-          <View style={styles.stillButtons}>
-            <Pressable
-              accessibilityRole="button"
-              onPress={() => props.onStillYours('yes')}
-              style={[styles.stillButton, shapes.soft]}
-            >
-              <Text allowFontScaling={sizing.allowFontScaling} style={styles.stillButtonText}>
-                {t('desk.stillYoursKeep')}
-              </Text>
-            </Pressable>
-            <Pressable
-              accessibilityRole="button"
-              onPress={() => props.onStillYours('no')}
-              style={[styles.stillButton, shapes.soft]}
-            >
-              <Text allowFontScaling={sizing.allowFontScaling} style={styles.stillButtonText}>
-                {t('desk.stillYoursDrop')}
-              </Text>
-            </Pressable>
-          </View>
-        </GlassSurface>
+        <StillYoursPanel
+          title={model.stillYours.title}
+          bottom={sheetHeight + 12}
+          onAnswer={props.onStillYours}
+        />
       ) : null}
       {gestures && recess === null ? (
         <GestureDetector gesture={gestures.swipeTimetable}>{sheet}</GestureDetector>
@@ -291,6 +275,9 @@ const styles = StyleSheet.create({
   sheet: { position: 'absolute', left: 0, right: 0 },
   grabberZone: { paddingTop: 10, paddingBottom: 14, alignItems: 'center' },
   sheetBody: { paddingHorizontal: 20, gap: 18 },
+  sheetBodyLarge: { flexShrink: 1, paddingHorizontal: 0 },
+  sheetScroll: { flexGrow: 0, flexShrink: 1 },
+  sheetScrolled: { paddingHorizontal: 20, gap: 18 },
   offline: {
     position: 'absolute',
     left: 18,
@@ -304,17 +291,4 @@ const styles = StyleSheet.create({
     zIndex: 3,
   },
   offlineText: { color: '#3E3933', fontWeight: '600' },
-  stillYours: {
-    position: 'absolute',
-    left: 20,
-    right: 20,
-    borderRadius: 22,
-    padding: 12,
-    gap: 10,
-  },
-  stillText: { color: ink.text, lineHeight: 19 },
-  stillAsk: { fontWeight: '700' },
-  stillButtons: { flexDirection: 'row', gap: 8 },
-  stillButton: { minHeight: 40, borderRadius: 20, paddingHorizontal: 16, justifyContent: 'center' },
-  stillButtonText: { color: ink.text, fontWeight: '600', fontSize: 15 },
 });

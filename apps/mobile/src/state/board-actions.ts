@@ -2,6 +2,7 @@ import {
   answerStillYours as answerFade,
   askedStillYours,
   choose,
+  DEFAULT_PERIOD_MINUTES,
   erase as eraseTask,
   isOpen,
   newTask,
@@ -21,12 +22,17 @@ import { readOpenSession } from '../data/sessions-repository';
 import { readSetting, writeSetting } from '../data/settings-repository';
 import { readTasks } from '../data/tasks-repository';
 
-import { KEYS, type BoardCore } from './board-core';
+import { KEYS, PERIOD_LENGTHS, type BoardCore } from './board-core';
 import type { BoardState } from './board-view';
 
 /** A care gate result as a flag: a held task counts as serious until the server screens it. */
 function careOf(result: CareGateResult): CareFlag {
   return result === 'crisis' ? 'crisis' : result === 'hold' ? 'serious' : 'none';
+}
+
+/** A stored period length, or ten minutes when it is not one the settings offer. */
+function periodLengthOf(stored: number | null): number {
+  return PERIOD_LENGTHS.find((minutes) => minutes === stored) ?? DEFAULT_PERIOD_MINUTES;
 }
 
 const MONTH_DAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
@@ -97,6 +103,8 @@ export function boardActions(core: BoardCore) {
           crisisShownOn: await readKv(deps.db, KEYS.crisisShown),
           crisisOpenOn: await readKv(deps.db, KEYS.crisisOpen),
           birthday: await birthday(),
+          periodLength: periodLengthOf(await readSetting<number>(deps.db, KEYS.periodLength)),
+          drum: (await readSetting<boolean>(deps.db, KEYS.drum)) !== false,
         };
         await core.refill();
       }),
@@ -138,6 +146,19 @@ export function boardActions(core: BoardCore) {
     /** The server's screen answered for a task. */
     screened: (id: string, care: CareFlag) =>
       core.act(() => change(id, (one) => ({ ...one, care, screened: true }))),
+
+    /**
+     * The server's screen called a crisis on a task said with a connection: the task is flagged
+     * and the crisis screen opens for the rest of the day, as a crisis phrase said offline does.
+     */
+    raiseCrisis: (id: string) =>
+      core.act(async () => {
+        const day = deps.clock().day;
+        await change(id, (one) => ({ ...one, care: 'crisis', screened: true }));
+        core.state = { ...core.state, crisisOpenOn: day, crisisShownOn: day };
+        await core.writeKv(KEYS.crisisOpen, day);
+        await core.writeKv(KEYS.crisisShown, day);
+      }),
 
     /** The person closed the crisis screen: the board comes back, and nothing is asked. */
     closeCrisis: () =>
@@ -184,6 +205,21 @@ export function boardActions(core: BoardCore) {
         const at = deps.clock().at;
         core.state = { ...core.state, tuitionPinnedAt: at };
         await core.writeKv(KEYS.tuitionPinned, String(at));
+      }),
+
+    /** The period length from settings: ten, fifteen or twenty-five minutes. */
+    setPeriodLength: (minutes: number) =>
+      core.act(async () => {
+        const length = periodLengthOf(minutes);
+        core.state = { ...core.state, periodLength: length };
+        await writeSetting(deps.db, KEYS.periodLength, length);
+      }),
+
+    /** The school drum at the start and end of a period, on or off. */
+    setDrum: (on: boolean) =>
+      core.act(async () => {
+        core.state = { ...core.state, drum: on };
+        await writeSetting(deps.db, KEYS.drum, on);
       }),
 
     setEnrolled: (enrolled: boolean) => set(() => ({ enrolled })),

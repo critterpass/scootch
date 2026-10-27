@@ -3,6 +3,7 @@ import type { FillValues, Moment } from '@phusclass/voice/class';
 
 import type { BoardStore } from '../../state/board-store';
 import type { BoardSnapshot } from '../../state/board-view';
+import type { CareMode } from '../care/care-mode';
 
 /** One line of his for a moment, or undefined where he says nothing. */
 export type Say = (moment: Moment, seed: string, values?: FillValues) => string | undefined;
@@ -34,15 +35,18 @@ function findTask(snapshot: BoardSnapshot, id: string): Task | undefined {
 /**
  * What the board's controls do to the store, and what he says about it. A swap gets his one line;
  * a tick and an erase get none. Erasing is a decision to drop something and is never commented on.
+ * In plain company after a crisis (`care` reads it from `useCareView`) he remarks on nothing and
+ * keeps plain company at the foot of the board.
  */
-export function boardControls(store: Store, say: Say) {
+export function boardControls(store: Store, say: Say, care: () => CareMode = () => 'normal') {
+  const plain = () => care() === 'plain';
   return {
     /** Onto the desk; what was there goes back on the board. Returns his line, if he has one. */
     async swap(id: string): Promise<string | null> {
       const task = findTask(store.getSnapshot(), id);
       if (task === undefined || task.status === 'desk') return null;
       await store.swap(id);
-      if (!mayRemarkOn(task)) return null;
+      if (plain() || !mayRemarkOn(task)) return null;
       return say('swapAllowed', `${task.id}:${task.lastTouched}`, { task: task.text }) ?? null;
     },
 
@@ -81,6 +85,7 @@ export function boardControls(store: Store, say: Say) {
      */
     async opened(): Promise<string | null> {
       const snapshot = store.getSnapshot();
+      if (plain()) return say('crisisCompany', snapshot.now.day) ?? null;
       if (snapshot.longBoard) {
         await store.longBoardRemarked();
         return say('boardLong', snapshot.now.day) ?? null;

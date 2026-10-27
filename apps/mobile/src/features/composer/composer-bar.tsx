@@ -5,8 +5,9 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { useT } from '../../i18n/i18n-provider';
 import { useTextSizing } from '../../screens/registry/support/forced-variant';
 import { GlassSurface } from '../../ui/glass-surface';
+import { useScreenStyle } from '../../ui/use-screen-style';
 import { ClassIcon } from '../desk/class-icons';
-import { ink, type } from '../desk/class-style';
+import { BUTTON_MAX_SCALE, cappedSize, ink, type } from '../desk/class-style';
 
 import type { ComposerNote, ComposerState } from './composer-machine';
 import { VoiceBars as Bars } from './voice-bars';
@@ -57,6 +58,7 @@ export function ComposerBar({
 }: ComposerBarProps) {
   const t = useT();
   const sizing = useTextSizing();
+  const { largeText } = useScreenStyle();
   const [typedLines, setTypedLines] = useState(1);
 
   const listening =
@@ -186,9 +188,10 @@ export function ComposerBar({
                   <ClassIcon name="mic" color={ink.text} />
                   <Text
                     allowFontScaling={sizing.allowFontScaling}
-                    maxFontSizeMultiplier={1.6}
-                    numberOfLines={1}
-                    style={[styles.holdText, { fontSize: sizing.size(16) }]}
+                    maxFontSizeMultiplier={BUTTON_MAX_SCALE}
+                    // At the largest sizes the words wrap rather than being cut.
+                    numberOfLines={largeText ? 2 : 1}
+                    style={[styles.holdText, { fontSize: cappedSize(sizing, 16) }]}
                   >
                     {t('composer.hold')}
                   </Text>
@@ -228,13 +231,14 @@ const styles = StyleSheet.create({
   hold: {
     flex: 1,
     minHeight: 46,
+    paddingHorizontal: 8,
     borderRadius: 23,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
   },
-  holdText: { color: ink.text, fontWeight: '600' },
+  holdText: { color: ink.text, fontWeight: '600', flexShrink: 1, textAlign: 'center' },
   keyboard: {
     position: 'absolute',
     right: 5,

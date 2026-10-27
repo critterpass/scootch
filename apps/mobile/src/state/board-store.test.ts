@@ -110,6 +110,50 @@ describe('the desk', () => {
     expect((await store.start(25))?.minutes).toBe(15);
   });
 
+  it('gives a period the length set in settings, kept through a restart', async () => {
+    const { store, view, db } = await boardAt(morning);
+    expect(view().periodLength).toBe(10);
+    await store.setPeriodLength(25);
+    await store.say('call the bank');
+
+    expect((await store.start())?.minutes).toBe(25);
+    const again = await boardAt('2026-10-27T09:01:00Z', db);
+    expect(again.view().periodLength).toBe(25);
+    // A length the settings do not offer is ten minutes.
+    await again.store.setPeriodLength(7);
+    expect(again.view().periodLength).toBe(10);
+  });
+
+  it('keeps a pop quiz at fifteen minutes whatever length is set, and has none in plain company', async () => {
+    // The happening is fixed by the task and when it came to the desk: find a pop-quiz morning.
+    const sitting = async (minute: number) => {
+      const c = await boardAt(new Date(Date.parse(morning) + minute * MINUTE_MS).toISOString());
+      await c.store.setPeriodLength(25);
+      await c.store.say('call the bank');
+      return c;
+    };
+    let minute = 0;
+    while (minute < 24 * 60 && (await sitting(minute)).view().desk?.happening !== 'pop quiz') {
+      minute += 1;
+    }
+    expect(minute).toBeLessThan(24 * 60);
+
+    const quiz = await sitting(minute);
+    expect(await quiz.store.start()).toMatchObject({ minutes: 15, happening: 'pop quiz' });
+    const plain = await sitting(minute);
+    expect(await plain.store.start(undefined, { plain: true })).toMatchObject({
+      minutes: 25,
+      happening: null,
+    });
+  });
+
+  it('keeps the drum on unless it is turned off', async () => {
+    const { store, view, db } = await boardAt(morning);
+    expect(view().drum).toBe(true);
+    await store.setDrum(false);
+    expect((await boardAt(morning, db)).view().drum).toBe(false);
+  });
+
   it('allows a swap, and the task that was there goes back unchanged', async () => {
     const { store, view } = await boardAt(morning);
     await store.say('call the bank. buy stamps.');
@@ -175,6 +219,25 @@ describe('care', () => {
     expect(view().phase).toBe('waiting');
     const flagged = view().board.filter(({ task }) => task.care === 'crisis');
     expect(flagged.length).toBeGreaterThan(0);
+  });
+
+  it('opens the crisis screen when the server calls a crisis, and keeps it through a restart', async () => {
+    const { store, view, db } = await boardAt(morning);
+    await store.say('call the bank. sort my things out before I go');
+    const task = view().board.find(
+      ({ task: one }) => one.text === 'Sort my things out before I go',
+    );
+    expect(view().phase).toBe('waiting');
+
+    await store.raiseCrisis(task!.task.id);
+
+    expect(view()).toMatchObject({ phase: 'crisis', desk: null, board: [], heavyToday: true });
+    const again = await boardAt('2026-10-27T09:05:00Z', db);
+    expect(again.view().phase).toBe('crisis');
+    await again.store.closeCrisis();
+    const flagged = again.view().board.find(({ task: one }) => one.id === task!.task.id)?.task;
+    expect(flagged).toMatchObject({ care: 'crisis', screened: true });
+    expect(again.view().tuitionNotice).toBe(false);
   });
 
   it('keeps a heavy task free of the fuse, pressure, tallies and happenings', async () => {

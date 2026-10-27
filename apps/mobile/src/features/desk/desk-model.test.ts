@@ -4,6 +4,9 @@ import { MINUTE_MS, momentAt } from '@phusclass/domain/board';
 
 import { openMigratedDatabase } from '../../data/test-database';
 import { createBoardStore } from '../../state/board-store';
+import { careActions } from '../care/care-actions';
+import { memory } from '../care/care-memory';
+import { careModeOf } from '../care/care-mode';
 
 import { deskModel } from './desk-model';
 
@@ -11,16 +14,25 @@ import { deskModel } from './desk-model';
 async function deskAt(start: string, name: string | null = 'Trần Minh Anh') {
   let at = Date.parse(start);
   let id = 0;
+  const db = await openMigratedDatabase();
+  memory.forget();
   const store = createBoardStore({
-    db: await openMigratedDatabase(),
+    db,
     clock: () => momentAt(at, 'UTC', 4),
     newId: () => `id-${(id += 1)}`,
   });
   await store.load();
   return {
     store,
+    care: careActions(store, db),
+    /** The desk as the screen draws it, with the care `useCareView` reads. */
     desk: (language: 'en' | 'vi' = 'en') =>
-      deskModel({ snapshot: store.getSnapshot(), language, name }),
+      deskModel({
+        snapshot: store.getSnapshot(),
+        language,
+        name,
+        care: careModeOf(store.getSnapshot(), memory.get()),
+      }),
     wait: (minutes: number) => {
       at += minutes * MINUTE_MS;
       store.tick();
@@ -109,6 +121,52 @@ describe('a heavy task on the desk', () => {
     });
     expect(model.line?.moment).toBe('seriousCompany');
     expect(model.task?.tallies).toBe(0);
+  });
+});
+
+describe('after the crisis screen is closed', () => {
+  it('keeps plain company: no fuse, pressure, tally, chalk, happening, slip or joke', async () => {
+    const { store, care, desk, wait } = await deskAt(morning);
+    await store.say('Email the dentist. Buy stamps.');
+    const dentist = store.getSnapshot().desk!.task.id;
+    expect(store.getSnapshot().desk?.task.text).toBe('Email the dentist');
+    await store.screened(dentist, 'none');
+    await store.slip('Too tired', false);
+    await store.swap(dentist);
+    wait(20);
+    expect(desk()).toMatchObject({ pressure: 4, chalkThrow: true, canSlip: true });
+    expect(desk().task?.tallies).toBe(1);
+
+    await store.say('I keep thinking about how to kill myself');
+    await care.closeCrisis();
+    wait(30);
+
+    const model = desk();
+    expect(model).toMatchObject({
+      plain: true,
+      heavy: false,
+      pressure: 0,
+      fuse: null,
+      pulse: 'none',
+      chalkThrow: false,
+      glare: false,
+      canSlip: false,
+      happening: null,
+      stillYours: null,
+      task: { title: 'Email the dentist', tallies: 0, frontRow: false },
+    });
+    expect(model.line?.moment).toBe('crisisCompany');
+    expect(desk('vi').line?.moment).toBe('crisisCompany');
+    expect(model.chalk.main).toBe('Email the dentist');
+  });
+
+  it('keeps plain company on an empty desk, with nothing suspicious said', async () => {
+    const { store, care, desk } = await deskAt(morning);
+    await store.say('I want to end my life');
+    await care.closeCrisis();
+    for (const ranked of store.getSnapshot().board) await store.erase(ranked.task.id);
+    expect(desk()).toMatchObject({ phase: 'empty', plain: true });
+    expect(desk().line?.moment).toBe('crisisCompany');
   });
 });
 

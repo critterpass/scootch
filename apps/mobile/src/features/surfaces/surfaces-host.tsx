@@ -5,6 +5,8 @@ import { AppState } from 'react-native';
 import { useLanguage } from '../../i18n/i18n-provider';
 import { useBoard, useBoardStore } from '../../state/board-provider';
 import type { BoardStore } from '../../state/board-store';
+import { memory } from '../care/care-memory';
+import { careModeOf } from '../care/care-mode';
 
 import { nativeActivityPort, nativeSharedStore } from './native-surface-ports';
 import { planPendingActions, readPendingActions } from './pending-actions';
@@ -31,7 +33,9 @@ function actOnPending(shared: SharedStore, store: BoardStore, goToDesk: () => vo
   const deskId = board.desk?.task.id ?? null;
   const forThisTask = press.taskId === null || press.taskId === deskId;
   if (press.kind === 'start' && board.phase === 'waiting' && forThisTask) {
-    void store.start().then(goToDesk);
+    // In plain company after a crisis nothing happens in the period, as from the desk.
+    const plain = careModeOf(board, memory.get()) === 'plain';
+    void store.start(undefined, { plain }).then(goToDesk);
   } else if (press.kind === 'done' && board.phase !== 'waiting' && board.session !== null) {
     if (press.taskId === null || press.taskId === board.session.taskId) {
       void store.finish().then(goToDesk);

@@ -7,7 +7,7 @@ import Animated from 'react-native-reanimated';
 import { useHandFont } from '../../classroom/use-hand-font';
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { useBoard, useBoardStore } from '../../state/board-provider';
-import { useCareGuard } from '../care/use-care-guard';
+import { useCareGuard, useCareView } from '../care/use-care-guard';
 import { isoWeek, logbookRows } from '../logbook/logbook-rows';
 
 import { boardControls } from './board-controls';
@@ -29,10 +29,14 @@ const TIMETABLE = '/timetable' as Href;
  */
 export function BoardScreen() {
   const crisis = useCareGuard();
+  const care = useCareView();
+  const careMode = useRef(care.mode);
+  careMode.current = care.mode;
+  const plain = care.mode === 'plain';
   const snapshot = useBoard();
   const store = useBoardStore();
   const say = useSay();
-  const controls = useMemo(() => boardControls(store, say), [store, say]);
+  const controls = useMemo(() => boardControls(store, say, () => careMode.current), [store, say]);
   const t = useT();
   const { language } = useLanguage();
   const hand = useHandFont();
@@ -53,18 +57,24 @@ export function BoardScreen() {
     };
   }, []);
 
-  // "Still yours?" is put once; the store remembers it was.
-  const asking = snapshot.stillYours?.id ?? null;
+  // "Still yours?" is put once; the store remembers it was. Not asked in plain company.
+  const asking = plain ? null : (snapshot.stillYours?.id ?? null);
   useEffect(() => {
     if (asking !== null) void controls.asked(asking);
   }, [asking, controls]);
 
   const rows = useMemo(
     () =>
-      boardRows(snapshot.board, snapshot.faded, snapshot.now, language, {
-        today: t('board.today'),
-      }),
-    [snapshot.board, snapshot.faded, snapshot.now, language, t],
+      boardRows(
+        snapshot.board,
+        // In plain company nothing asks to be kept: old chalk stays as it is.
+        plain ? new Set<string>() : snapshot.faded,
+        snapshot.now,
+        language,
+        { today: t('board.today') },
+        { pressure: care.pressure },
+      ),
+    [snapshot.board, snapshot.faded, snapshot.now, language, t, plain, care.pressure],
   );
 
   // His question under each old row, chosen once per row while the board is open.
@@ -119,7 +129,7 @@ export function BoardScreen() {
             dateLine={boardDateLine(today, language)}
             remark={remark}
             stillYours={stillYours}
-            mood={snapshot.desk?.heavy === true ? 'serious' : 'over'}
+            mood={snapshot.desk?.heavy === true ? 'serious' : plain ? 'calm' : 'over'}
             hand={hand}
             onAction={onAction}
             onReword={(id, text) => void controls.reword(id, text)}

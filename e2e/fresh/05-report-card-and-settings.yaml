@@ -1,0 +1,118 @@
+appId: com.phusclass.dev
+---
+# The fresh-user walk, the report card's way in and the class settings: from the desk to the board
+# and down to the logbook, where a quiet line at the foot opens the report card (locked without
+# tuition); then settings, where a period is set to fifteen minutes, the drum is turned off and the
+# timetable is opened from its row. Back on the desk, Start gives the new length.
+- extendedWaitUntil:
+    visible:
+      id: 'desk'
+    timeout: 10000
+- tapOn:
+    id: 'desk-chalkboard'
+- extendedWaitUntil:
+    visible:
+      id: 'board'
+    timeout: 10000
+- tapOn:
+    id: 'board-logbook'
+- extendedWaitUntil:
+    visible:
+      id: 'logbook-screen'
+    timeout: 10000
+- scrollUntilVisible:
+    element:
+      id: 'logbook-report-card'
+    direction: DOWN
+    timeout: 10000
+- takeScreenshot: fresh-logbook-report-card-row
+- tapOn:
+    id: 'logbook-report-card'
+- extendedWaitUntil:
+    visible:
+      id: 'report-card'
+    timeout: 10000
+# No tuition on a fresh install: the quiet lock, not the card.
+- assertVisible:
+    id: 'report-card-lock'
+- takeScreenshot: fresh-report-card-locked
+- tapOn:
+    id: 'report-card-back'
+- extendedWaitUntil:
+    visible:
+      id: 'logbook-screen'
+    timeout: 10000
+- tapOn:
+    id: 'logbook-close'
+- extendedWaitUntil:
+    notVisible:
+      id: 'logbook-screen'
+    timeout: 10000
+- tapOn:
+    id: 'board-close'
+- extendedWaitUntil:
+    visible:
+      id: 'desk-chalkboard'
+    timeout: 10000
+# Settings: the class.
+- tapOn:
+    id: 'desk-settings'
+- extendedWaitUntil:
+    visible:
+      id: 'settings'
+    timeout: 10000
+- scrollUntilVisible:
+    element:
+      id: 'settings-drum'
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: 'segment-15'
+- extendedWaitUntil:
+    visible:
+      text: 'A pop quiz.'
+    timeout: 5000
+- tapOn:
+    id: 'settings-drum'
+- takeScreenshot: fresh-settings-class
+- scrollUntilVisible:
+    element:
+      id: 'settings-timetable'
+    direction: UP
+    timeout: 10000
+- tapOn:
+    id: 'settings-timetable'
+- extendedWaitUntil:
+    visible:
+      id: 'timetable'
+    timeout: 10000
+- tapOn:
+    id: 'timetable-close'
+- extendedWaitUntil:
+    notVisible:
+      id: 'timetable'
+    timeout: 10000
+# Back to the desk, where Start now gives fifteen minutes. The page is still scrolled down.
+- extendedWaitUntil:
+    visible:
+      id: 'settings'
+    timeout: 10000
+- scrollUntilVisible:
+    element:
+      id: 'settings-back'
+    direction: UP
+    timeout: 10000
+- tapOn:
+    id: 'settings-back'
+- extendedWaitUntil:
+    visible:
+      id: 'desk'
+    timeout: 10000
+- runFlow:
+    when:
+      visible:
+        id: 'desk-start'
+    commands:
+      - assertVisible:
+          id: 'desk-start'
+          text: '.*15 minutes.*'

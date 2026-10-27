@@ -3,8 +3,18 @@ import Animated, { FadeIn, withTiming } from 'react-native-reanimated';
 
 import { useTextSizing } from '../../screens/registry/support/forced-variant';
 import { useMayMove } from '../../ui/motion/use-feel';
+import { useScreenStyle } from '../../ui/use-screen-style';
 
-import { curves, ink, type } from './class-style';
+import { cappedSize, curves, ink, type } from './class-style';
+
+/** The App board's bubble is at most this wide; at the largest text sizes it may take more. */
+export const BUBBLE_WIDTH = 176;
+/** Its distance from the screen's right edge at the desk. */
+export const BUBBLE_RIGHT = 22;
+/** His line grows with the text size up to this far, the same on a phone and in a capture. */
+const BUBBLE_MAX_SCALE = 1.8;
+/** Below the room's top, how far the desk keeps clear for his bubble at the largest sizes. */
+export const BUBBLE_ROOM = 290;
 
 /** The App board's bubble pop: from 60% and a little low, overshooting into place. */
 function pop() {
@@ -36,25 +46,30 @@ export function SpeechBubble({
 }) {
   const mayMove = useMayMove();
   const sizing = useTextSizing();
-  const where = place === 'desk' ? { top: top + 118, right: 22 } : { top: top + 64, left: 22 };
+  const { largeText } = useScreenStyle();
+  const where =
+    place === 'desk' ? { top: top + 118, right: BUBBLE_RIGHT } : { top: top + 64, left: 22 };
   const entering = mayMove ? pop : FadeIn.duration(200);
   return (
     <Animated.View
       key={text}
       entering={entering}
-      style={[styles.bubble, where]}
+      style={[styles.bubble, where, { maxWidth: largeText ? '62%' : BUBBLE_WIDTH }]}
       accessibilityRole="text"
       accessibilityLiveRegion="polite"
       testID="his-line"
     >
       <Text
         allowFontScaling={sizing.allowFontScaling}
-        maxFontSizeMultiplier={1.8}
+        maxFontSizeMultiplier={BUBBLE_MAX_SCALE}
         style={[
           type.rounded,
           styles.words,
           // The line height grows with the text, so large text never overlaps itself.
-          { fontSize: sizing.size(16), lineHeight: sizing.size(20) },
+          {
+            fontSize: cappedSize(sizing, 16, BUBBLE_MAX_SCALE),
+            lineHeight: cappedSize(sizing, 20, BUBBLE_MAX_SCALE),
+          },
         ]}
       >
         {text}
@@ -67,7 +82,6 @@ export function SpeechBubble({
 const styles = StyleSheet.create({
   bubble: {
     position: 'absolute',
-    maxWidth: '62%',
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 22,
