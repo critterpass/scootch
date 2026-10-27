@@ -39,6 +39,9 @@ describe('export and delete everything', () => {
     const file = await exportEverything(db, at);
     expect(file.exportedAt).toBe('2026-10-27T09:00:00.000Z');
     expect(file.tables.tasks.length).toBe(2);
+    expect(file.tables.tasks).toContainEqual(
+      expect.objectContaining({ text: 'Email the landlord', short: 'Landlord email' }),
+    );
     expect(file.tables.logbook.length).toBe(1);
     expect(JSON.stringify(file.tables.settings)).toContain('Trần Minh Anh');
   });

@@ -31,6 +31,7 @@ const columns = [
   'still_yours_asked_at',
   'size_minutes',
   'swapped_at',
+  'short',
 ] as const satisfies readonly (keyof TaskRow)[];
 
 /** Erased tasks are kept this long in memory, so a heavy one still counts for the day. */

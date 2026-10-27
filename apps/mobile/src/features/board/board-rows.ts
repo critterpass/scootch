@@ -20,7 +20,10 @@ export type RowMark =
 /** One task as the board draws it. */
 export interface BoardRow {
   readonly id: string;
+  /** What the chalk writes: the task's short name. */
   readonly text: string;
+  /** The task in the user's own words, for the menu, rewording and VoiceOver. */
+  readonly full: string;
   /** The task on the desk: the red dot. */
   readonly onDesk: boolean;
   /** Today's: the desk's task, or one due or timed today. Underlined. */
@@ -114,7 +117,8 @@ export function boardRows(
     const onDesk = task.status === 'desk';
     return {
       id: task.id,
-      text: task.text,
+      text: task.short,
+      full: task.text,
       onDesk,
       today: onDesk || reason === 'due today' || task.dueDate === now.day || time !== null,
       mark,

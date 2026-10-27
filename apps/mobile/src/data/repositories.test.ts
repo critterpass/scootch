@@ -22,7 +22,9 @@ import { endSession, readOpenSession, readSessionsFor, startSession } from './se
 import { readSetting, writeSetting } from './settings-repository';
 import { readSlips } from './slips-repository';
 import { readTasks, writeTask, writeTasks } from './tasks-repository';
-import { openMigratedDatabase } from './test-database';
+import { runMigrations } from '../db/migrate';
+
+import { appMigrations, openMigratedDatabase } from './test-database';
 
 const now = momentAt(Date.parse('2026-10-27T09:00:00Z'), 'UTC', 4);
 
@@ -81,6 +83,27 @@ describe('the tasks repository', () => {
     // Said at the same moment, they come back in id order.
     expect(await readTasks(db, now.at)).toEqual([excused, done, waiting]);
     expect(await readLogbook(db)).toEqual([logbookRowOf(done)]);
+  });
+
+  it('gives tasks written before short names one, worked out from their words', async () => {
+    const db = await openMigratedDatabase('0003-task-short-name');
+    await db.runAsync(
+      `INSERT INTO tasks (id, text, created_at, last_touched, status) VALUES (?, ?, ?, ?, 'board')`,
+      ['old', 'Gửi email cho nha sĩ dời lịch thứ Năm', now.at, now.at],
+    );
+    await runMigrations(db, appMigrations());
+
+    const [old] = await readTasks(db, now.at);
+    expect(old?.short).toBe('Email nha sĩ');
+    await writeTask(db, old!);
+    expect(db.column(`SELECT short FROM tasks WHERE id = 'old'`)).toEqual(['Email nha sĩ']);
+  });
+
+  it('keeps a short name as it was written', async () => {
+    const db = await openMigratedDatabase();
+    await writeTask(db, { ...said('n', 'Email the dentist to move Thursday'), short: 'Dentist' });
+
+    expect((await readTasks(db, now.at))[0]?.short).toBe('Dentist');
   });
 
   it('adds only the slips it has not stored, so writing twice never doubles them', async () => {

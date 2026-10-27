@@ -1,4 +1,5 @@
 import type { Happening } from './happenings';
+import { shortName } from './short-name';
 import type { CareFlag, Carving, CarvingKind, CommentStep, Slip, Task, TaskStatus } from './task';
 
 /**
@@ -25,7 +26,8 @@ export const CREATE_TASKS = `CREATE TABLE IF NOT EXISTS tasks (
   screened INTEGER NOT NULL DEFAULT 0 CHECK (screened IN (0, 1)),
   still_yours_asked_at INTEGER,
   size_minutes INTEGER,
-  swapped_at INTEGER
+  swapped_at INTEGER,
+  short TEXT
 ) STRICT`;
 
 export const CREATE_TASKS_STATUS_INDEX =
@@ -131,6 +133,8 @@ export type TaskRow = {
   still_yours_asked_at: number | null;
   size_minutes: number | null;
   swapped_at: number | null;
+  /** `null` on a task written before short names: it is worked out when read. */
+  short: string | null;
 };
 
 export type SlipRow = {
@@ -197,6 +201,7 @@ export function taskToRow(task: Task): TaskRow {
     still_yours_asked_at: task.stillYoursAskedAt,
     size_minutes: task.order.minutes,
     swapped_at: task.order.swappedAt,
+    short: task.short,
   };
 }
 
@@ -213,6 +218,7 @@ export function taskFromRows(
   return {
     id: row.id,
     text: row.text,
+    short: row.short ?? shortName(row.text),
     createdAt: row.created_at,
     dueDate: row.due_date,
     heardTime:

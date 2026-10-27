@@ -33,7 +33,7 @@ export function RowMenu({ row, rewording = false, onAction, onReword, onClose }:
   const { size, allowFontScaling } = useScreenStyle();
   const insets = useSafeAreaInsets();
   const [editing, setEditing] = useState(rewording);
-  const [words, setWords] = useState(row.text);
+  const [words, setWords] = useState(row.full);
 
   const choices: { readonly action: RowAction; readonly label: string }[] = [
     ...(row.onDesk ? [] : [{ action: 'desk' as const, label: t('board.menu.desk') }]),
@@ -100,7 +100,7 @@ export function RowMenu({ row, rewording = false, onAction, onReword, onClose }:
                 allowFontScaling={allowFontScaling}
                 style={[styles.task, { fontSize: size(24), lineHeight: size(24) * 1.3 }]}
               >
-                {row.text}
+                {row.full}
               </Text>
               <View style={styles.list}>
                 {choices.map(({ action, label }) => (
