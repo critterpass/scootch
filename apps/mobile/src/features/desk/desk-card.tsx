@@ -1,17 +1,21 @@
-import { Pressable, StyleSheet, Text, View, type LayoutChangeEvent } from 'react-native';
-import Animated from 'react-native-reanimated';
+import { useEffect, useState } from 'react';
+import { StyleSheet, Text, View, type LayoutChangeEvent } from 'react-native';
+import Animated, { Extrapolation, interpolate, useAnimatedStyle } from 'react-native-reanimated';
 
 import { useT } from '../../i18n/i18n-provider';
 import { useTextSizing } from '../../screens/registry/support/forced-variant';
+import { PressSpring } from '../../ui/motion/press-spring';
 import { useMayMove } from '../../ui/motion/use-feel';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
-import { fadeUp } from './class-motion';
+import { composerOver, deskActionsHeight, fadeUp } from './class-motion';
 import { BUTTON_MAX_SCALE, buttonText, cappedSize, ink, shapes, type } from './class-style';
 import type { DeskModel } from './desk-model';
-import type { RecessView } from './desk-view';
+import { panelSwap, takeBackFromRecess } from './recess-panel';
 import { StartButton } from './start-button';
 import { TallyMarks } from './tally-marks';
+
+export { RecessPanel } from './recess-panel';
 
 export interface DeskCardProps {
   readonly model: DeskModel;
@@ -36,11 +40,33 @@ export function DeskCard(props: DeskCardProps) {
   const sizing = useTextSizing();
   // At the accessibility sizes the title wraps in full and the buttons stack, full width.
   const { largeText } = useScreenStyle();
+  const mayMove = useMayMove();
   // The front-row tag and the note fade up as they appear, as the board's `fade` does.
-  const appear = useMayMove() ? { entering: fadeUp } : {};
+  const appear = mayMove ? { entering: fadeUp } : {};
+  // Back from recess the card swaps in for the recess panel; it always swaps out for it.
+  const [back] = useState(takeBackFromRecess);
+  const { entering, exiting } = panelSwap(mayMove);
+  const swap = back ? { entering, exiting } : { exiting };
+  // Listening, the composer grows up over the buttons: they step back, as the board's hidden
+  // panels do (opacity 300 ms, the move 520 ms).
+  const stepBack = useAnimatedStyle(() => {
+    const over = composerOver.get();
+    return {
+      opacity: interpolate(over, [0, 0.85], [1, 0], Extrapolation.CLAMP),
+      transform: [{ translateY: 10 * over }, { scale: 1 - 0.015 * over }],
+    };
+  });
   const { model } = props;
   const task = model.task;
   const onCardLayout = props.onCardLayout;
+  const hasActions = task !== null && !props.typing;
+  // The composer reads how tall the row is, to grow over exactly that; nothing, without one.
+  const onActionsLayout = (event: LayoutChangeEvent) =>
+    deskActionsHeight.set(event.nativeEvent.layout.height);
+  useEffect(() => {
+    if (!hasActions) deskActionsHeight.set(0);
+  }, [hasActions]);
+  useEffect(() => () => deskActionsHeight.set(0), []);
   const deskHead =
     task === null ? (
       <View style={styles.head}>
@@ -67,7 +93,7 @@ export function DeskCard(props: DeskCardProps) {
         </Text>
       </View>
     ) : (
-      <View style={styles.head} onLayout={onCardLayout} testID="desk-card">
+      <View style={styles.head} testID="desk-card">
         <View style={[styles.headRow, largeText ? styles.headRowLarge : null]}>
           <View style={styles.headLeft}>
             <Text
@@ -125,9 +151,10 @@ export function DeskCard(props: DeskCardProps) {
 
   // The late slip; stacked under Start at the largest sizes, never offered in plain company.
   const slip = (
-    <Pressable
+    <PressSpring
       testID="desk-late-slip"
       accessibilityRole="button"
+      feedback="choice"
       onPress={props.onSlip}
       style={[shapes.button, shapes.soft, largeText ? null : styles.slipButton]}
     >
@@ -139,30 +166,36 @@ export function DeskCard(props: DeskCardProps) {
       >
         {t('desk.lateSlip')}
       </Text>
-    </Pressable>
+    </PressSpring>
   );
 
   const actions =
     task === null || props.typing ? null : model.heavy ? (
       <View style={styles.actionsColumn}>
-        <Pressable
+        <PressSpring
           testID="desk-start"
           accessibilityRole="button"
+          feedback="primary"
           onPress={props.onStart}
           style={[shapes.button, styles.seriousStart]}
         >
           <Text allowFontScaling={sizing.allowFontScaling} style={buttonText.ink}>
             {t('desk.sitWithMe')}
           </Text>
-        </Pressable>
-        <Pressable accessibilityRole="button" onPress={props.onNotNow} style={styles.notNow}>
+        </PressSpring>
+        <PressSpring
+          accessibilityRole="button"
+          feedback="choice"
+          onPress={props.onNotNow}
+          style={styles.notNow}
+        >
           <Text
             allowFontScaling={sizing.allowFontScaling}
             style={[buttonText.soft, styles.notNowText]}
           >
             {t('desk.notNow')}
           </Text>
-        </Pressable>
+        </PressSpring>
       </View>
     ) : (
       <View style={largeText ? styles.actionsStacked : styles.actions}>
@@ -184,72 +217,20 @@ export function DeskCard(props: DeskCardProps) {
 
   return (
     <>
-      {deskHead}
-      {actions}
+      {/* The card's frame is read where the sheet lays it out, for the timetable to rise from. */}
+      {/* At the largest sizes the task gives way to the field while typing: the title is on the
+          board behind, and the sheet must stay below his bubble above the keyboard. */}
+      {props.typing && largeText ? null : (
+        <Animated.View {...swap} {...(task === null ? {} : { onLayout: onCardLayout })}>
+          {deskHead}
+        </Animated.View>
+      )}
+      {actions === null ? null : (
+        <Animated.View {...swap} style={stepBack} onLayout={onActionsLayout}>
+          {actions}
+        </Animated.View>
+      )}
     </>
-  );
-}
-
-/** Recess on the desk sheet: five minutes counting down, offered and never forced. */
-export function RecessPanel({
-  recess,
-  onBackToClass,
-}: {
-  readonly recess: RecessView;
-  readonly onBackToClass: () => void;
-}) {
-  const t = useT();
-  const sizing = useTextSizing();
-  const props = { onBackToClass };
-  return (
-    <View style={styles.head} testID="desk-recess">
-      <View style={styles.headRow}>
-        <Text allowFontScaling={sizing.allowFontScaling} style={[type.label, { color: ink.green }]}>
-          {t('recess.title')}
-        </Text>
-        <Text
-          allowFontScaling={sizing.allowFontScaling}
-          style={[type.hand, { color: ink.green, fontSize: sizing.size(18) }]}
-        >
-          {recess.over ? t('recess.over') : t('recess.earned')}
-        </Text>
-      </View>
-      <Text
-        allowFontScaling={sizing.allowFontScaling}
-        style={[type.title, { fontSize: sizing.size(22), lineHeight: sizing.size(28) }]}
-      >
-        {t('recess.heading')}
-      </Text>
-      <View style={styles.timerRow}>
-        <Text
-          allowFontScaling={sizing.allowFontScaling}
-          style={[type.rounded, styles.timer, { color: ink.green, fontSize: sizing.size(64) }]}
-        >
-          {recess.left}
-        </Text>
-        <Text
-          allowFontScaling={sizing.allowFontScaling}
-          style={[styles.days, { fontSize: sizing.size(15) }]}
-        >
-          {t('recess.of', { minutes: 5 })}
-        </Text>
-      </View>
-      <View style={[styles.track, { backgroundColor: 'rgba(47,107,86,0.12)' }]}>
-        <View
-          style={[styles.trackFill, { width: `${recess.gone * 100}%`, backgroundColor: ink.green }]}
-        />
-      </View>
-      <Pressable
-        testID="recess-back"
-        accessibilityRole="button"
-        onPress={props.onBackToClass}
-        style={[shapes.button, shapes.ink, styles.backToClass]}
-      >
-        <Text allowFontScaling={sizing.allowFontScaling} style={buttonText.ink}>
-          {t('recess.back')}
-        </Text>
-      </Pressable>
-    </View>
   );
 }
 
@@ -282,9 +263,4 @@ const styles = StyleSheet.create({
   seriousStart: { backgroundColor: '#3A3530' },
   notNow: { minHeight: 48, alignItems: 'center', justifyContent: 'center' },
   notNowText: { fontWeight: '600' },
-  timerRow: { flexDirection: 'row', alignItems: 'baseline', gap: 10, marginTop: 8 },
-  timer: { lineHeight: undefined, letterSpacing: -1, fontVariant: ['tabular-nums'] },
-  track: { height: 6, borderRadius: 3, overflow: 'hidden', marginTop: 8 },
-  trackFill: { height: '100%', borderRadius: 3 },
-  backToClass: { marginTop: 24 },
 });

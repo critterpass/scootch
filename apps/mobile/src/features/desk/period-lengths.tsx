@@ -1,14 +1,61 @@
 import { useEffect } from 'react';
-import { Pressable, StyleSheet, Text } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { StyleSheet } from 'react-native';
+import Animated, {
+  interpolateColor,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { useT } from '../../i18n/i18n-provider';
 import { useTextSizing } from '../../screens/registry/support/forced-variant';
 import { PERIOD_LENGTHS } from '../../state/board-core';
 import { GlassSurface } from '../../ui/glass-surface';
+import { PressSpring } from '../../ui/motion/press-spring';
 import { useMayMove } from '../../ui/motion/use-feel';
 
+import { useEased } from './class-motion';
 import { curves, ink } from './class-style';
+
+/** One length: a press, a selection tick, and its colours eased over 200 ms as the board's chips. */
+function LengthChip({
+  length,
+  on,
+  mayMove,
+  onPick,
+}: {
+  readonly length: number;
+  readonly on: boolean;
+  readonly mayMove: boolean;
+  readonly onPick: () => void;
+}) {
+  const t = useT();
+  const sizing = useTextSizing();
+  const lit = useEased(on, 200, mayMove);
+  const fill = useAnimatedStyle(() => ({
+    backgroundColor: interpolateColor(lit.get(), [0, 1], [ink.soft, ink.text]),
+  }));
+  const figure = useAnimatedStyle(() => ({
+    color: interpolateColor(lit.get(), [0, 1], [ink.text, ink.white]),
+  }));
+  return (
+    <PressSpring
+      testID={`desk-length-${length}`}
+      accessibilityRole="radio"
+      accessibilityState={{ selected: on }}
+      accessibilityLabel={t('desk.startMinutes', { minutes: length })}
+      feedback="choice"
+      pressScale={0.94}
+      onPress={onPick}
+    >
+      <Animated.View style={[styles.chip, fill]}>
+        <Animated.Text allowFontScaling={sizing.allowFontScaling} style={[styles.chipText, figure]}>
+          {length}
+        </Animated.Text>
+      </Animated.View>
+    </PressSpring>
+  );
+}
 
 /**
  * Held, Start offers the period's length: a glass row of chips above it, the current one dark. It
@@ -22,7 +69,6 @@ export function PeriodLengths({
   readonly onPick: (minutes: number) => void;
 }) {
   const t = useT();
-  const sizing = useTextSizing();
   const mayMove = useMayMove();
   const shown = useSharedValue(mayMove ? 0 : 1);
   useEffect(() => {
@@ -45,33 +91,13 @@ export function PeriodLengths({
           accessibilityLabel={t('desk.periodLength')}
         >
           {PERIOD_LENGTHS.map((length) => (
-            <Pressable
+            <LengthChip
               key={length}
-              testID={`desk-length-${length}`}
-              accessibilityRole="radio"
-              accessibilityState={{ selected: length === minutes }}
-              accessibilityLabel={t('desk.startMinutes', { minutes: length })}
-              onPress={() => onPick(length)}
-            >
-              {({ pressed }) => (
-                <Animated.View
-                  style={[
-                    styles.chip,
-                    {
-                      backgroundColor: length === minutes ? ink.text : ink.soft,
-                      transform: [{ scale: pressed && mayMove ? 0.94 : 1 }],
-                    },
-                  ]}
-                >
-                  <Text
-                    allowFontScaling={sizing.allowFontScaling}
-                    style={[styles.chipText, { color: length === minutes ? ink.white : ink.text }]}
-                  >
-                    {length}
-                  </Text>
-                </Animated.View>
-              )}
-            </Pressable>
+              length={length}
+              on={length === minutes}
+              mayMove={mayMove}
+              onPick={() => onPick(length)}
+            />
           ))}
         </Animated.View>
       </GlassSurface>

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import Animated, {
   Easing,
@@ -34,6 +34,11 @@ export function ChalkThrow({
   const k = width / BOARD_WIDTH;
   const flight = useSharedValue(0);
   const puff = useSharedValue(0);
+  // The desk redraws every second while the fuse burns: the throw must not start over with it.
+  const thrown = useRef(onThrown);
+  useEffect(() => {
+    thrown.current = onThrown;
+  }, [onThrown]);
 
   useEffect(() => {
     if (!mayMove) return;
@@ -49,9 +54,9 @@ export function ChalkThrow({
         withTiming(1, { duration: CHALK_THROW.puff.durationMs, easing: Easing.out(Easing.quad) }),
       ),
     );
-    const timer = setTimeout(() => onThrown?.(), CHALK_THROW.delayMs);
+    const timer = setTimeout(() => thrown.current?.(), CHALK_THROW.delayMs);
     return () => clearTimeout(timer);
-  }, [mayMove, flight, puff, onThrown]);
+  }, [mayMove, flight, puff]);
 
   const chalk = useAnimatedStyle(() => {
     const f = flight.get();

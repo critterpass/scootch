@@ -9,7 +9,6 @@ import { useCareGuard, useCareView } from '../care/use-care-guard';
 import { ChalkFlight } from '../composer/chalk-flight';
 import { ComposerBar } from '../composer/composer-bar';
 import { useComposer } from '../composer/use-composer';
-import { useKeyboardHeight } from '../composer/use-keyboard-height';
 import { useNetworkState } from '../offline/connection';
 import { clockText } from '../session/session-model';
 import { DrumBurst } from '../session/drum-burst';
@@ -91,9 +90,10 @@ export function DeskScreen() {
   const name = useStudentName();
   const network = useNetworkState();
   const passing = usePassingLine();
-  const keyboard = useKeyboardHeight();
   const cue = useClassCue();
-  const [slipOpen, setSlipOpen] = useState(false);
+  // The slip keeps the task it was opened for until it has slid away, whatever the desk does.
+  const [slip, setSlip] = useState<{ readonly id: string; readonly title: string } | null>(null);
+  const slipOpen = slip !== null;
   const [chosenMinutes, setChosenMinutes] = useState<number | null>(null);
   const [drumming, setDrumming] = useState(false);
   const [flights, setFlights] = useState<{ readonly key: number; readonly notes: string[] }>({
@@ -174,6 +174,8 @@ export function DeskScreen() {
     if (askedId !== null) void store.stillYoursAsked(askedId);
   }, [askedId, store]);
 
+  const chalkThrown = useCallback(() => cue('chalk'), [cue]);
+
   const start = useCallback(() => {
     if (drumming) return;
     clearPassing();
@@ -220,7 +222,6 @@ export function DeskScreen() {
       offline={offline}
       now={snapshot.now.at}
       typing={typing}
-      keyboard={typing ? keyboard : 0}
       chosenMinutes={chosenMinutes}
       ringing={drumming}
       recess={recess}
@@ -241,17 +242,13 @@ export function DeskScreen() {
         <>
           <ChalkFlight key={flights.key} notes={flights.notes} from={480} to={150} />
           {drumming ? <DrumBurst /> : null}
-          {slipOpen && deskTaskId !== null ? (
+          {slip !== null ? (
             <SlipSheet
-              taskId={deskTaskId}
-              taskTitle={deskTitle}
-              onClose={() => setSlipOpen(false)}
-              onStart={() => {
-                setSlipOpen(false);
-                start();
-              }}
+              taskId={slip.id}
+              taskTitle={slip.title}
+              onClose={() => setSlip(null)}
+              onStart={start}
               onHandIn={(excuse, graded) => {
-                setSlipOpen(false);
                 cue('red-pen');
                 void store.slip(excuse, graded.accepted).then((outcome) => {
                   const after = outcome === null ? null : afterSlip(language, outcome);
@@ -264,7 +261,9 @@ export function DeskScreen() {
       }
       onStart={start}
       onLength={setChosenMinutes}
-      onSlip={() => setSlipOpen(true)}
+      onSlip={() => {
+        if (deskTaskId !== null) setSlip({ id: deskTaskId, title: deskTitle });
+      }}
       onNotNow={() => void store.slip('', false)}
       onOpenBoard={gestures.openBoard}
       onOpenTimetable={gestures.openTimetable}
@@ -273,7 +272,7 @@ export function DeskScreen() {
       }}
       onBackToClass={() => void store.next()}
       onSettings={() => router.push('/settings')}
-      onChalkThrown={() => cue('chalk')}
+      onChalkThrown={chalkThrown}
     />
   );
 }

@@ -1,14 +1,28 @@
+import * as Haptics from 'expo-haptics';
 import type { ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import Animated, { FadeIn, interpolateColor, useAnimatedStyle } from 'react-native-reanimated';
 
 import { useT } from '../../i18n/i18n-provider';
 import { useTextSizing } from '../../screens/registry/support/forced-variant';
-import { useMayMove } from '../../ui/motion/use-feel';
-import { fadeUp, stampDown } from '../desk/class-motion';
+import { PressSpring } from '../../ui/motion/press-spring';
+import { useFeel, useMayMove } from '../../ui/motion/use-feel';
+import { chipPop, fadeUp, stampDown, useEased } from '../desk/class-motion';
 import { ink, type } from '../desk/class-style';
+import { WriteOn } from '../session/finish-paper';
 
-import type { Graded } from './slip-model';
+import type { Graded, PickedExcuse } from './slip-model';
+
+/** The words for each excuse to pick. */
+export const EXCUSE_WORDS: Record<
+  PickedExcuse,
+  'slip.tooTired' | 'slip.afterLunch' | 'slip.needFirst' | 'slip.realReason'
+> = {
+  'too tired': 'slip.tooTired',
+  'after lunch': 'slip.afterLunch',
+  'need first': 'slip.needFirst',
+  'real reason': 'slip.realReason',
+};
 
 /** One 36-point line of the slip, its words on the purple rule. */
 function Ruled({ children, style }: { readonly children: ReactNode; readonly style?: object }) {
@@ -72,15 +86,15 @@ export function SlipPaper({
       </Ruled>
       <Ruled style={[styles.handRow, styles.commentRow]}>
         {graded !== null ? (
-          <Animated.Text
-            key={graded.comment}
-            entering={FadeIn.duration(500)}
-            testID="slip-comment"
-            allowFontScaling={sizing.allowFontScaling}
-            style={[type.hand, styles.comment, { fontSize: sizing.size(22) }]}
-          >
-            {graded.comment}
-          </Animated.Text>
+          <WriteOn key={graded.comment} delay={620} style={styles.written}>
+            <Text
+              testID="slip-comment"
+              allowFontScaling={sizing.allowFontScaling}
+              style={[type.hand, styles.comment, { fontSize: sizing.size(22) }]}
+            >
+              {graded.comment}
+            </Text>
+          </WriteOn>
         ) : null}
       </Ruled>
       {graded?.grade ? (
@@ -99,7 +113,64 @@ export function SlipPaper({
   );
 }
 
+/**
+ * One excuse to pick, under the slip: picked, it pops and is felt (a medium tap), and its colours
+ * ease over 220 ms.
+ */
+export function ExcuseChip({
+  which,
+  on,
+  picks,
+  label,
+  onPick,
+}: {
+  readonly which: PickedExcuse;
+  readonly on: boolean;
+  /** How many picks so far: a new pick pops again. */
+  readonly picks: number;
+  readonly label: string;
+  readonly onPick: () => void;
+}) {
+  const sizing = useTextSizing();
+  const { mayMove, haptics } = useFeel();
+  const lit = useEased(on, 220, mayMove);
+  const fill = useAnimatedStyle(() => ({
+    backgroundColor: interpolateColor(lit.get(), [0, 1], [ink.soft, ink.text]),
+  }));
+  const words = useAnimatedStyle(() => ({
+    color: interpolateColor(lit.get(), [0, 1], [ink.text, ink.white]),
+  }));
+  return (
+    <PressSpring
+      testID={`slip-pick-${which.replace(' ', '-')}`}
+      accessibilityRole="radio"
+      accessibilityState={{ selected: on }}
+      onPress={() => {
+        if (haptics) {
+          void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => undefined);
+        }
+        onPick();
+      }}
+    >
+      <Animated.View
+        key={on ? `picked-${picks}` : 'open'}
+        {...(on && mayMove ? { entering: chipPop } : {})}
+        style={[styles.chip, fill]}
+      >
+        <Animated.Text
+          allowFontScaling={sizing.allowFontScaling}
+          style={[styles.chipText, { fontSize: sizing.size(15) }, words]}
+        >
+          {label}
+        </Animated.Text>
+      </Animated.View>
+    </PressSpring>
+  );
+}
+
 const styles = StyleSheet.create({
+  chip: { minHeight: 44, borderRadius: 22, paddingHorizontal: 16, justifyContent: 'center' },
+  chipText: { fontWeight: '600' },
   paper: {
     borderRadius: 18,
     paddingVertical: 10,
@@ -132,6 +203,8 @@ const styles = StyleSheet.create({
   forTask: { color: ink.text, fontWeight: '600' },
   commentRow: { paddingRight: 70 },
   comment: { color: ink.red },
+  // As wide as the words, so the pen crosses them in its 720 ms.
+  written: { alignSelf: 'flex-start' },
   stamp: {
     position: 'absolute',
     right: 14,

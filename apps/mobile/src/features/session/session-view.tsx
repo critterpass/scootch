@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -10,6 +10,7 @@ import { Classroom } from '../../classroom/classroom';
 import { useT } from '../../i18n/i18n-provider';
 import { useBoard } from '../../state/board-provider';
 import { useTextSizing } from '../../screens/registry/support/forced-variant';
+import { PressSpring } from '../../ui/motion/press-spring';
 import { ClassIcon } from '../desk/class-icons';
 import { fadeUp } from '../desk/class-motion';
 import { buttonText, ink, shapes, type } from '../desk/class-style';
@@ -20,6 +21,7 @@ import { DrumBurst } from './drum-burst';
 import { Confetti, FinishPaper, type FinishPaperProps } from './finish-paper';
 import { HappeningScene } from './happening-scene';
 import { PartialPanel } from './partial-panel';
+import { SessionSheet } from './session-sheet';
 import { SessionClockView } from './session-clock';
 import type { SessionClock } from './session-model';
 import type { SessionChalk } from './use-session-chalk';
@@ -103,8 +105,9 @@ export function SessionView(props: SessionViewProps) {
         <View style={styles.buttons}>
           {!timeUp ? (
             <View style={styles.pair}>
-              <Pressable
+              <PressSpring
                 testID="session-raise-hand"
+                feedback="choice"
                 accessibilityRole="button"
                 onPress={props.onRaiseHand}
                 style={[shapes.button, shapes.soft, styles.small]}
@@ -117,9 +120,10 @@ export function SessionView(props: SessionViewProps) {
                 >
                   {t('session.raiseHand')}
                 </Text>
-              </Pressable>
-              <Pressable
+              </PressSpring>
+              <PressSpring
                 testID="session-stray"
+                feedback="choice"
                 accessibilityRole="button"
                 onPress={props.onStray}
                 style={[shapes.button, shapes.soft, styles.small]}
@@ -132,12 +136,13 @@ export function SessionView(props: SessionViewProps) {
                 >
                   {t('session.strayThought')}
                 </Text>
-              </Pressable>
+              </PressSpring>
             </View>
           ) : (
             <Animated.View entering={fadeUp}>
-              <Pressable
+              <PressSpring
                 testID="session-not-yet"
+                feedback="choice"
                 accessibilityRole="button"
                 onPress={props.onNotYet}
                 style={[shapes.button, shapes.soft, styles.small]}
@@ -145,10 +150,10 @@ export function SessionView(props: SessionViewProps) {
                 <Text allowFontScaling={sizing.allowFontScaling} style={buttonText.soft}>
                   {t('session.notYet')}
                 </Text>
-              </Pressable>
+              </PressSpring>
             </Animated.View>
           )}
-          <Pressable
+          <PressSpring
             testID="session-done"
             accessibilityRole="button"
             onPress={props.onDone}
@@ -157,7 +162,7 @@ export function SessionView(props: SessionViewProps) {
             <Text allowFontScaling={sizing.allowFontScaling} style={buttonText.ink}>
               {t('session.done')}
             </Text>
-          </Pressable>
+          </PressSpring>
         </View>
       )}
     </View>
@@ -186,8 +191,9 @@ export function SessionView(props: SessionViewProps) {
             />
           ) : null}
           {props.finish.recessOffered ? (
-            <Pressable
+            <PressSpring
               testID="finish-recess"
+              feedback="choice"
               accessibilityRole="button"
               onPress={props.onRecess}
               style={[shapes.button, shapes.soft]}
@@ -195,10 +201,11 @@ export function SessionView(props: SessionViewProps) {
               <Text allowFontScaling={sizing.allowFontScaling} style={buttonText.soft}>
                 {t('finish.recess')}
               </Text>
-            </Pressable>
+            </PressSpring>
           ) : null}
-          <Pressable
+          <PressSpring
             testID="finish-next"
+            feedback="primary"
             accessibilityRole="button"
             onPress={props.onNext}
             style={[shapes.button, shapes.ink, styles.grow]}
@@ -206,7 +213,7 @@ export function SessionView(props: SessionViewProps) {
             <Text allowFontScaling={sizing.allowFontScaling} style={buttonText.ink}>
               {t('finish.next')}
             </Text>
-          </Pressable>
+          </PressSpring>
         </View>
       </View>
     );
@@ -238,10 +245,7 @@ export function SessionView(props: SessionViewProps) {
           top={insets.top}
         />
       ) : null}
-      <View
-        style={[styles.sheet, shapes.sheet, { paddingBottom: Math.max(insets.bottom, 12) + 8 }]}
-      >
-        <View style={[shapes.grabber, styles.grabber]} />
+      <SessionSheet panel={panel}>
         {panel === 'finish'
           ? finish
           : panel === 'partial'
@@ -249,7 +253,7 @@ export function SessionView(props: SessionViewProps) {
             : panel === 'note'
               ? note
               : working}
-      </View>
+      </SessionSheet>
       {props.drum ? <DrumBurst /> : null}
     </View>
   );
@@ -261,8 +265,6 @@ const styles = StyleSheet.create({
   wall: { backgroundColor: '#FFF1DC' },
   room: { position: 'absolute', left: 0, right: 0, bottom: 0 },
   quiet: { backgroundColor: ink.grey },
-  sheet: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: 20 },
-  grabber: { marginTop: 10, marginBottom: 14 },
   panel: { gap: 10 },
   headRow: {
     flexDirection: 'row',
