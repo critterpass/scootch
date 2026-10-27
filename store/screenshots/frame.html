@@ -1,0 +1,127 @@
+<!doctype html>
+<!--
+  One App Store frame. render.ts fills the {{...}} slots and sizes the viewport; everything here is
+  in vw so the same page draws every display size. Colours are the light classroom palette from
+  packages/tokens; the type is SF Pro Rounded, the app's heading face.
+-->
+<html lang="{{lang}}">
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      @font-face {
+        font-family: 'Phu Rounded';
+        src: url('{{font}}');
+        font-weight: 100 900;
+      }
+      * {
+        margin: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+      }
+      body {
+        background: {{page}};
+        color: {{ink}};
+        font-family: 'Phu Rounded', ui-rounded, system-ui, sans-serif;
+        position: relative;
+      }
+      /* The soft printed shapes behind everything, like the riso blob behind him in the app. */
+      .blob {
+        position: absolute;
+        background: {{blob}};
+        border-radius: 46% 54% 52% 48% / 55% 45% 55% 45%;
+      }
+      .blob.one {
+        width: 120vw;
+        height: 120vw;
+        left: -38vw;
+        top: 62vw;
+      }
+      .blob.two {
+        width: 90vw;
+        height: 80vw;
+        right: -34vw;
+        bottom: -14vw;
+        border-radius: 55% 45% 40% 60% / 50% 60% 40% 50%;
+      }
+      .caption {
+        text-wrap: balance;
+        position: absolute;
+        top: 11vw;
+        left: 8vw;
+        right: 8vw;
+        text-align: center;
+      }
+      .title {
+        font-size: 8.8vw;
+        line-height: 1.12;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+      .title .mark {
+        display: block;
+        width: 14vw;
+        height: 1.4vw;
+        margin: 4.2vw auto 0;
+        border-radius: 1vw;
+        background: {{tomato}};
+        transform: rotate(-2deg);
+      }
+      .sub {
+        margin-top: 3.6vw;
+        font-size: 5.2vw;
+        line-height: 1.3;
+        font-weight: 500;
+        color: {{muted}};
+      }
+      .phone {
+        position: absolute;
+        left: 50%;
+        bottom: 6vw;
+        width: 72vw;
+        height: calc(67.8vw * {{ratio}} + 4.2vw);
+        transform: translateX(-50%);
+        border-radius: 11vw;
+        padding: 2.1vw;
+        background: {{ink}};
+        box-shadow:
+          0 3vw 7vw rgba(28, 26, 23, 0.16),
+          0 0.6vw 1.6vw rgba(28, 26, 23, 0.12);
+      }
+      .phone canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+        border-radius: 9vw;
+        object-fit: cover;
+        object-position: top;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="blob one"></div>
+    <div class="blob two"></div>
+    <div class="caption">
+      <div class="title">{{title}}<span class="mark"></span></div>
+      <div class="sub">{{sub}}</div>
+    </div>
+    <div class="phone"><canvas id="screen"></canvas></div>
+    <script>
+      // The debug build prints its JavaScript commit along the bottom edge, so only the part of
+      // the screen above it is drawn: the frame shows the screen as a person sees it.
+      const image = new Image();
+      image.onload = () => {
+        const canvas = document.getElementById('screen');
+        canvas.width = image.naturalWidth;
+        canvas.height = Math.round(image.naturalHeight * {{visible}});
+        canvas.getContext('2d').drawImage(image, 0, 0);
+        document.body.dataset.ready = 'true';
+      };
+      image.src = '{{capture}}';
+    </script>
+  </body>
+</html>
