@@ -2,31 +2,35 @@ appId: com.phusclass.dev
 ---
 # Captures the classroom's developer screen for the sheets beside the Phu, Prop, Room and App
 # boards: the room at each camera shot, a pressure pose, and the pose and prop galleries. It opens
-# the screen by its link once the app is up, as the registry capture does.
+# the screen as the app comes up, as the registry capture does.
+# On iOS the app opens the screen at launch, named by a launch argument, as the registry capture
+# does; Android opens it by its link.
 - launchApp:
     clearState: true
-# A clean install opens on the first day.
-- extendedWaitUntil:
-    visible:
-      id: 'first-day'
-    timeout: 90000
-# Wait for the splash to be gone before the first tap, however slow the device.
-- extendedWaitUntil:
-    notVisible:
-      id: 'splash'
-    timeout: 30000
-- openLink: phusclass-dev:///dev-classroom
-# iOS asks before a link opens the app; its alert can take a moment to come up on a slow device.
-- extendedWaitUntil:
-    visible: 'Open'
-    timeout: 10000
-    optional: true
-- tapOn:
-    text: 'Open'
-    optional: true
+    arguments:
+      openDeveloperScreen: /dev-classroom
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      # A clean install opens on the first day.
+      - extendedWaitUntil:
+          visible:
+            id: 'first-day'
+          timeout: 90000
+      # Wait for the splash to be gone before the first tap, however slow the device.
+      - extendedWaitUntil:
+          notVisible:
+            id: 'splash'
+          timeout: 30000
+      - openLink: phusclass-dev:///dev-classroom
 - extendedWaitUntil:
     visible:
       id: 'dev-classroom-view'
+    timeout: 90000
+- extendedWaitUntil:
+    notVisible:
+      id: 'splash'
     timeout: 30000
 # Long enough for the font and the first pictures.
 - waitForAnimationToEnd:

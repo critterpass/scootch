@@ -1,39 +1,44 @@
 appId: com.phusclass.dev
 ---
 # Captures every registered screen state in every variant, for the design-beside-device sheets.
-# Run it with mode=capture and flows=e2e/sheets. It opens the registry by its link once the app is up,
-# and reads the list from the app itself:
+# Run it with mode=capture and flows=e2e/sheets. It opens the registry as the app comes up, and reads
+# the list from the app itself:
 # `registry-count` holds the number of rows and `registry-name-<n>` the name of the n-th, so a new
 # registry file needs no change here. Each image is named `<state id>--<variant>`.
 # With MAESTRO_STATES (a comma-separated list of state id prefixes; the device workflow's `states`
 # input) it captures only the rows whose name starts with one of them. With MAESTRO_VARIANTS (a
 # comma-separated list of variant names, such as en-light-default; the `variants` input) it takes
 # only those variants. Empty or unset: every row.
+# On iOS the app opens the registry at launch, named by a launch argument: a link would stop on the
+# system's prompt, and on a hosted simulator the link has reached the app only after the flow gave
+# up on it. Android opens it by its link, which needs no prompt there.
 - launchApp:
     clearState: true
-# A clean install opens on the first day.
-- extendedWaitUntil:
-    visible:
-      id: 'first-day'
-    timeout: 90000
-# Wait for the splash to be gone before the first tap, however slow the device.
-- extendedWaitUntil:
-    notVisible:
-      id: 'splash'
-    timeout: 30000
-# The desk has no way to the developer tools, so the registry opens by its link.
-- openLink: phusclass-dev:///registry
-# iOS asks before a link opens the app; its alert can take a moment to come up on a slow device.
-- extendedWaitUntil:
-    visible: 'Open'
-    timeout: 10000
-    optional: true
-- tapOn:
-    text: 'Open'
-    optional: true
+    arguments:
+      openDeveloperScreen: /registry
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      # A clean install opens on the first day.
+      - extendedWaitUntil:
+          visible:
+            id: 'first-day'
+          timeout: 90000
+      # Wait for the splash to be gone before the first tap, however slow the device.
+      - extendedWaitUntil:
+          notVisible:
+            id: 'splash'
+          timeout: 30000
+      - openLink: phusclass-dev:///registry
 - extendedWaitUntil:
     visible:
       id: 'registry-count'
+    timeout: 90000
+# The splash plays over the registry too: wait for it to be gone before the first tap.
+- extendedWaitUntil:
+    notVisible:
+      id: 'splash'
     timeout: 30000
 - evalScript: "${output.states = typeof MAESTRO_STATES === 'undefined' ? '' : MAESTRO_STATES.trim()}"
 - evalScript: "${output.variants = typeof MAESTRO_VARIANTS === 'undefined' ? '' : MAESTRO_VARIANTS.trim()}"

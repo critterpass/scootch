@@ -3,6 +3,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
+import { useLaunchRoute } from '../../screens/registry/support/launch-route';
 import { useCareScreening } from '../care/use-care-screening';
 import { useNotesHome } from '../notes/use-notes-home';
 import { useDeleteEverythingLeftover } from '../settings/delete-everything';
@@ -17,7 +18,7 @@ const LAUNCH_WAIT_MS = 1000;
 /**
  * What runs from launch: the redirect to the first day until it is done, the animated splash over
  * the first scene once the system's launch screen is down, and the app-wide care screening and
- * notes home.
+ * notes home. A device run may name a developer screen at launch; it opens over the first day.
  */
 export function ClassLaunch() {
   const firstDay = useFirstDay();
@@ -62,6 +63,7 @@ export function ClassLaunch() {
     };
   }, [quick]);
 
+  useLaunchRoute();
   useCareScreening();
   useNotesHome();
   useDeleteEverythingLeftover();
