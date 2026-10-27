@@ -38,3 +38,9 @@ export const timetablePullHeld: SharedValue<boolean> = makeMutable(false);
 
 /** The desk's task card, for the move that keeps it at the top of the timetable. */
 export const taskCardFrame: SharedValue<Frame | null> = makeMutable<Frame | null>(null);
+
+/**
+ * How far the board's list is scrolled. The board is a screen of its own on a phone and a page
+ * beside the desk on iPhone Duo opened out; whichever shows it next starts where it was left.
+ */
+export const boardScroll: SharedValue<number> = makeMutable(0);

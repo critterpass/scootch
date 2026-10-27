@@ -235,7 +235,8 @@ const app = ({ config }: ConfigContext): ExpoConfig => ({
     // react-native-reanimated, react-native-worklets, react-native-gesture-handler, expo-font,
     // expo-sharing, expo-file-system, expo-clipboard, expo-crypto, expo-application, expo-device,
     // expo-glass-effect, @expo/ui and the local modules (modules/phusclass-live-activity,
-    // modules/phusclass-notifications, modules/phusclass-intelligence, modules/app-icon).
+    // modules/phusclass-notifications, modules/phusclass-intelligence, modules/app-icon,
+    // modules/phusclass-fold: the hinge and the fold on iPhone Duo, reached by name at run time).
     // The App Intents for Siri and Shortcuts (targets/widgets/_shared) compile into the app and
     // the widget extension and need no capability; the on-device model links FoundationModels
     // weakly, so iOS 17 still launches.

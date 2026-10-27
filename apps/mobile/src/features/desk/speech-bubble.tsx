@@ -38,17 +38,22 @@ export function SpeechBubble({
   text,
   place,
   top = 0,
+  inset = 0,
 }: {
   readonly text: string;
   readonly place: 'desk' | 'room';
   /** Where the room starts on screen: the bubble keeps its place beside him. */
   readonly top?: number;
+  /** How far in from the screen's side the room starts, past the Duo's controls or its board. */
+  readonly inset?: number;
 }) {
   const mayMove = useMayMove();
   const sizing = useTextSizing();
   const { largeText } = useScreenStyle();
   const where =
-    place === 'desk' ? { top: top + 118, right: BUBBLE_RIGHT } : { top: top + 64, left: 22 };
+    place === 'desk'
+      ? { top: top + 118, right: BUBBLE_RIGHT + inset }
+      : { top: top + 64, left: 22 + inset };
   const entering = mayMove ? pop : FadeIn.duration(200);
   return (
     <Animated.View
