@@ -1,5 +1,12 @@
-import { StyleSheet, Text, View } from 'react-native';
-import Animated, { Keyframe } from 'react-native-reanimated';
+import { useEffect } from 'react';
+import { StyleSheet, Text, View, type ViewProps } from 'react-native';
+import Animated, {
+  Easing,
+  Keyframe,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { useT } from '../../i18n/i18n-provider';
 import { useTextSizing } from '../../screens/registry/support/forced-variant';
@@ -52,10 +59,38 @@ export function SessionClockView({ clock }: { readonly clock: SessionClock }) {
           {t('session.of', { minutes: clock.minutes })}
         </Text>
       </View>
-      <View style={styles.track}>
-        <View style={[styles.trackFill, { width: `${clock.gone * 100}%` }]} />
-      </View>
+      <GlidingBar gone={clock.gone} color={ink.text} track="rgba(28,26,24,0.08)" />
     </>
+  );
+}
+
+/**
+ * A period's progress: the fill glides to each new reading, 220 ms linear, as the board's width
+ * transition does; where nothing may move it is set. The fill has no children, so its width moves
+ * nothing else and its round end stays round.
+ */
+export function GlidingBar({
+  gone,
+  color,
+  track,
+  style,
+}: {
+  /** 0 to 1 of the time gone. */
+  readonly gone: number;
+  readonly color: string;
+  readonly track: string;
+  readonly style?: ViewProps['style'];
+}) {
+  const mayMove = useMayMove();
+  const shown = useSharedValue(gone);
+  useEffect(() => {
+    shown.set(mayMove ? withTiming(gone, { duration: 220, easing: Easing.linear }) : gone);
+  }, [gone, mayMove, shown]);
+  const fill = useAnimatedStyle(() => ({ width: `${Math.min(1, shown.get()) * 100}%` }));
+  return (
+    <View style={[styles.track, { backgroundColor: track }, style]}>
+      <Animated.View style={[styles.trackFill, { backgroundColor: color }, fill]} />
+    </View>
   );
 }
 
@@ -73,9 +108,8 @@ const styles = StyleSheet.create({
   track: {
     height: 6,
     borderRadius: 3,
-    backgroundColor: 'rgba(28,26,24,0.08)',
     overflow: 'hidden',
     marginTop: 4,
   },
-  trackFill: { height: '100%', borderRadius: 3, backgroundColor: ink.text },
+  trackFill: { height: '100%', borderRadius: 3 },
 });

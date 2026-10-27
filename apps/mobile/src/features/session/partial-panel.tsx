@@ -1,7 +1,8 @@
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { useTextSizing } from '../../screens/registry/support/forced-variant';
+import { PressSpring } from '../../ui/motion/press-spring';
 import { buttonText, ink, shapes, type } from '../desk/class-style';
 import { fixedLine } from '../desk/his-line';
 
@@ -18,9 +19,10 @@ export function PartialPanel(props: SessionViewProps & { readonly which: 'choice
   const { clock } = props;
   const size = (n: number) => ({ fontSize: sizing.size(n) });
   const choice = (id: string, dot: string, label: string, hint: string, onPress: () => void) => (
-    <Pressable
+    <PressSpring
       testID={id}
       accessibilityRole="button"
+      feedback="choice"
       accessibilityHint={hint}
       onPress={onPress}
       style={[shapes.soft, styles.choice]}
@@ -34,7 +36,7 @@ export function PartialPanel(props: SessionViewProps & { readonly which: 'choice
           {hint}
         </Text>
       </View>
-    </Pressable>
+    </PressSpring>
   );
 
   const partial = (
@@ -43,11 +45,16 @@ export function PartialPanel(props: SessionViewProps & { readonly which: 'choice
         <Text allowFontScaling={sizing.allowFontScaling} style={[type.label, { color: ink.muted }]}>
           {t('session.partial')}
         </Text>
-        <Pressable accessibilityRole="button" onPress={props.onClosePartial} hitSlop={12}>
+        <PressSpring
+          accessibilityRole="button"
+          feedback="choice"
+          onPress={props.onClosePartial}
+          hitSlop={12}
+        >
           <Text allowFontScaling={sizing.allowFontScaling} style={[styles.back, size(15)]}>
             {t('session.back')}
           </Text>
-        </Pressable>
+        </PressSpring>
       </View>
       <Text
         allowFontScaling={sizing.allowFontScaling}
@@ -88,11 +95,16 @@ export function PartialPanel(props: SessionViewProps & { readonly which: 'choice
         <Text allowFontScaling={sizing.allowFontScaling} style={[type.label, { color: ink.muted }]}>
           {t('session.partial')}
         </Text>
-        <Pressable accessibilityRole="button" onPress={props.onClosePartial} hitSlop={12}>
+        <PressSpring
+          accessibilityRole="button"
+          feedback="choice"
+          onPress={props.onClosePartial}
+          hitSlop={12}
+        >
           <Text allowFontScaling={sizing.allowFontScaling} style={[styles.back, size(15)]}>
             {t('session.back')}
           </Text>
-        </Pressable>
+        </PressSpring>
       </View>
       <Text
         allowFontScaling={sizing.allowFontScaling}
@@ -113,16 +125,17 @@ export function PartialPanel(props: SessionViewProps & { readonly which: 'choice
         onSubmitEditing={props.onSaveNote}
         style={[type.hand, styles.noteInput, size(22)]}
       />
-      <Pressable
+      <PressSpring
         testID="partial-save"
         accessibilityRole="button"
+        feedback="primary"
         onPress={props.onSaveNote}
         style={[shapes.button, shapes.ink]}
       >
         <Text allowFontScaling={sizing.allowFontScaling} style={buttonText.ink}>
           {t('session.noteSave')}
         </Text>
-      </Pressable>
+      </PressSpring>
     </View>
   );
 

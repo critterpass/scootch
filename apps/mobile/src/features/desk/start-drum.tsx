@@ -2,14 +2,16 @@ import { Canvas, Circle, Path } from '@shopify/react-native-skia';
 import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
+  interpolateColor,
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
   withSequence,
   withTiming,
   type SharedValue,
 } from 'react-native-reanimated';
 
-import { css } from './class-motion';
+import { css, useEased } from './class-motion';
 import { ink } from './class-style';
 
 /** The drum's swing when it sounds, as the App board's `ring` keyframes: 520 ms. */
@@ -60,6 +62,9 @@ export function StartDrum({
     turn.set(ringSequence((step) => TURNS[step] ?? 0));
     size.set(ringSequence((step) => SIZES[step] ?? 1));
   }, [ringing, mayMove, turn, size]);
+  // The pie turns yellow from pressure 4 over 300 ms, as the board's stroke transition.
+  const heat = useEased(hot, 300, mayMove);
+  const pie = useDerivedValue(() => interpolateColor(heat.get(), [0, 1], [ink.white, '#FFE29A']));
   const swing = useAnimatedStyle(() => ({
     transform: [{ rotate: `${turn.get()}deg` }, { scale: size.get() }],
   }));
@@ -80,7 +85,7 @@ export function StartDrum({
             path="M 11 7.5 A 3.5 3.5 0 1 1 10.99 7.5"
             style="stroke"
             strokeWidth={7}
-            color={hot ? '#FFE29A' : ink.white}
+            color={pie}
             start={0}
             end={left}
           />

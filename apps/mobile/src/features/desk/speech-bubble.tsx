@@ -48,7 +48,10 @@ export function SpeechBubble({
   const sizing = useTextSizing();
   const { largeText } = useScreenStyle();
   const where =
-    place === 'desk' ? { top: top + 118, right: BUBBLE_RIGHT } : { top: top + 64, left: 22 };
+    place === 'desk'
+      ? { top: top + 118, right: BUBBLE_RIGHT, transformOrigin: '20% 100%' }
+      : // In the room the tail is on the right: it pops from there.
+        { top: top + 64, left: 22, transformOrigin: '80% 100%' };
   const entering = mayMove ? pop : FadeIn.duration(200);
   return (
     <Animated.View
@@ -88,7 +91,6 @@ const styles = StyleSheet.create({
     backgroundColor: ink.white,
     boxShadow: '0 6px 16px rgba(30,40,30,0.16)',
     zIndex: 3,
-    transformOrigin: '20% 100%',
   },
   words: { color: ink.text },
   tail: {

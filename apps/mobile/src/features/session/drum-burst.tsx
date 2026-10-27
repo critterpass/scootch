@@ -19,38 +19,43 @@ const STROKES = [
   { x: 150, y: 250, delay: 320, size: 36 },
 ] as const;
 
+/**
+ * The board's `tung` keyframes over 700 ms: in by 35%, held to 75%, gone at the end. CSS eases every
+ * segment on the character curve, so each value overshoots its own keyframe and settles back.
+ */
+const TUNG_MS = 700;
+const TUNG = {
+  opacity: [0, 1, 1, 0],
+  scale: [0.4, 1.15, 1, 1.05],
+  turn: [-12, -6, -6, -6],
+  rise: [0, 0, 0, -10],
+} as const;
+
+function tung(values: readonly [number, number, number, number], delay: number) {
+  const step = (to: number, share: number) =>
+    withTiming(to, { duration: TUNG_MS * share, easing: curves.character });
+  return withDelay(
+    delay,
+    withSequence(step(values[1], 0.35), step(values[2], 0.4), step(values[3], 0.25)),
+  );
+}
+
 function Stroke({ x, y, delay, size, k }: (typeof STROKES)[number] & { k: number }) {
   const t = useT();
-  const p = useSharedValue(0);
+  const opacity = useSharedValue<number>(TUNG.opacity[0]);
+  const scale = useSharedValue<number>(TUNG.scale[0]);
+  const turn = useSharedValue<number>(TUNG.turn[0]);
+  const rise = useSharedValue<number>(TUNG.rise[0]);
   useEffect(() => {
-    p.set(
-      withDelay(
-        delay,
-        withSequence(
-          withTiming(0.35, { duration: 245, easing: curves.character }),
-          withTiming(0.75, { duration: 280 }),
-          withTiming(1, { duration: 175 }),
-        ),
-      ),
-    );
-  }, [p, delay]);
-  const style = useAnimatedStyle(() => {
-    const v = p.get();
-    const scale =
-      v < 0.35
-        ? 0.4 + (1.15 - 0.4) * (v / 0.35)
-        : v < 0.75
-          ? 1.15 - 0.15 * ((v - 0.35) / 0.4)
-          : 1 + 0.05 * ((v - 0.75) / 0.25);
-    return {
-      opacity: v === 0 ? 0 : v < 0.35 ? v / 0.35 : v < 0.75 ? 1 : 1 - (v - 0.75) / 0.25,
-      transform: [
-        { translateY: v > 0.75 ? -10 * ((v - 0.75) / 0.25) : 0 },
-        { scale },
-        { rotate: `${v < 0.35 ? -12 + 6 * (v / 0.35) : -6}deg` },
-      ],
-    };
-  });
+    opacity.set(tung(TUNG.opacity, delay));
+    scale.set(tung(TUNG.scale, delay));
+    turn.set(tung(TUNG.turn, delay));
+    rise.set(tung(TUNG.rise, delay));
+  }, [opacity, scale, turn, rise, delay]);
+  const style = useAnimatedStyle(() => ({
+    opacity: Math.min(1, Math.max(0, opacity.get())),
+    transform: [{ translateY: rise.get() }, { scale: scale.get() }, { rotate: `${turn.get()}deg` }],
+  }));
   return (
     <Animated.Text
       style={[type.hand, styles.tung, { left: x * k, top: y * k, fontSize: size }, style]}
@@ -62,7 +67,7 @@ function Stroke({ x, y, delay, size, k }: (typeof STROKES)[number] & { k: number
 
 /**
  * The school drum: "Tùng! Tùng! Tùng!" in red chalk, one stroke after another, as the period
- * begins and ends. Under Reduce Motion only the drum is heard: the words are not drawn.
+ * begins and ends. Under Reduce Motion nothing shows: only the drum is heard.
  */
 export function DrumBurst() {
   const mayMove = useMayMove();

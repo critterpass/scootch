@@ -1,8 +1,7 @@
 import { Canvas, Group, Path } from '@shopify/react-native-skia';
-import { useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { useEffect, type ReactNode } from 'react';
+import { StyleSheet, Text, View, type ViewProps } from 'react-native';
 import Animated, {
-  FadeIn,
   useAnimatedStyle,
   useSharedValue,
   withDelay,
@@ -15,10 +14,14 @@ import type { CommentStep } from '@phusclass/domain/board';
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import { useTextSizing } from '../../screens/registry/support/forced-variant';
 import { useMayMove } from '../../ui/motion/use-feel';
-import { ink, type } from '../desk/class-style';
+import { useScreenStyle } from '../../ui/use-screen-style';
+import { cappedSize, ink, type } from '../desk/class-style';
 import { fixedLine } from '../desk/his-line';
 
 const DRAW = Easing.bezier(0.65, 0, 0.35, 1);
+/** How far the paper's title and his comment grow with the text size. */
+const PAPER_MAX_SCALE = 2;
+const COMMENT_MAX_SCALE = 1.4;
 const CHECK = 'M12 56 Q26 62 42 86 Q64 38 112 8';
 const RING =
   'M60 12 C 100 10 116 34 112 56 C 108 82 70 92 40 86 C 10 80 4 52 14 32 C 22 16 44 10 66 14';
@@ -64,6 +67,48 @@ export function Confetti() {
   );
 }
 
+/**
+ * His red words writing themselves on from the left, as the board's `write` clip: 720 ms on the
+ * pen's curve after `delay`. Only transforms move: a clip slides right while the words inside it
+ * slide back, so the visible edge sweeps across them. Where nothing may move they are simply there.
+ */
+export function WriteOn({
+  delay,
+  style,
+  children,
+}: {
+  readonly delay: number;
+  /** For the words' own turn: the clip turns with them, as a CSS clip does. */
+  readonly style?: ViewProps['style'];
+  readonly children: ReactNode;
+}) {
+  const mayMove = useMayMove();
+  const width = useSharedValue(0);
+  const written = useSharedValue(0);
+  useEffect(() => {
+    if (mayMove) written.set(withDelay(delay, withTiming(1, { duration: 720, easing: DRAW })));
+  }, [mayMove, delay, written]);
+  const clip = useAnimatedStyle(() => ({
+    // Unmeasured, nothing shows: a first frame would otherwise show the words whole.
+    opacity: width.get() > 0 ? 1 : 0,
+    transform: [{ translateX: -(1 - written.get()) * width.get() }],
+  }));
+  const words = useAnimatedStyle(() => ({
+    transform: [{ translateX: (1 - written.get()) * width.get() }],
+  }));
+  if (!mayMove) return <View style={style}>{children}</View>;
+  return (
+    <View style={style}>
+      <Animated.View
+        style={[styles.writeClip, clip]}
+        onLayout={(event) => width.set(event.nativeEvent.layout.width)}
+      >
+        <Animated.View style={words}>{children}</Animated.View>
+      </Animated.View>
+    </View>
+  );
+}
+
 /** A red stroke that draws itself, on the pen's curve; drawn whole where nothing may move. */
 function RedStroke({ path, delay, width }: { path: string; delay: number; width: number }) {
   const mayMove = useMayMove();
@@ -102,7 +147,9 @@ export function FinishPaper({ title, comment, waitedDays, tookMinutes }: FinishP
   const t = useT();
   const { language } = useLanguage();
   const sizing = useTextSizing();
-  const mayMove = useMayMove();
+  // At the largest sizes the title and his comment grow only so far, and the facts sit above the
+  // comment instead of being squeezed beside it.
+  const { largeText } = useScreenStyle();
   const words =
     comment === 'fine'
       ? fixedLine(language, 'commentFine')
@@ -116,11 +163,15 @@ export function FinishPaper({ title, comment, waitedDays, tookMinutes }: FinishP
       <Text
         accessibilityRole="header"
         allowFontScaling={sizing.allowFontScaling}
+        maxFontSizeMultiplier={PAPER_MAX_SCALE}
         style={[
           styles.title,
-          { fontSize: sizing.size(20), lineHeight: sizing.size(25) },
-          // The check stands in the corner; the comment is written below it, never over it.
-          comment !== null ? { paddingRight: 92, minHeight: 74 } : null,
+          {
+            fontSize: cappedSize(sizing, 20, PAPER_MAX_SCALE),
+            lineHeight: cappedSize(sizing, 25, PAPER_MAX_SCALE),
+          },
+          // The check stands in the corner; the comment is written just below it, never over it.
+          comment !== null ? { paddingRight: 92, minHeight: 50 } : null,
         ]}
       >
         {title}
@@ -137,28 +188,33 @@ export function FinishPaper({ title, comment, waitedDays, tookMinutes }: FinishP
           </Group>
         </Canvas>
       ) : null}
-      <View style={styles.foot}>
+      <View style={[styles.foot, largeText ? styles.footStacked : null]}>
         <Text
           allowFontScaling={sizing.allowFontScaling}
-          style={[styles.facts, { fontSize: sizing.size(13) }]}
+          style={[styles.facts, { fontSize: sizing.size(13), lineHeight: sizing.size(20) }]}
         >
           {waitedDays > 0 ? t('finish.waited', { count: waitedDays }) : t('finish.sameDay')}
           {'\n'}
           {t('finish.took', { count: tookMinutes })}
         </Text>
         {words !== null ? (
-          <Animated.Text
-            testID="finish-comment"
-            {...(mayMove ? { entering: FadeIn.delay(780).duration(720) } : {})}
-            allowFontScaling={sizing.allowFontScaling}
-            style={[
-              type.hand,
-              styles.comment,
-              { fontSize: sizing.size(50), lineHeight: sizing.size(50) },
-            ]}
-          >
-            {words}
-          </Animated.Text>
+          <WriteOn delay={780} style={styles.turned}>
+            <Text
+              testID="finish-comment"
+              allowFontScaling={sizing.allowFontScaling}
+              maxFontSizeMultiplier={COMMENT_MAX_SCALE}
+              style={[
+                type.hand,
+                styles.comment,
+                {
+                  fontSize: cappedSize(sizing, 50, COMMENT_MAX_SCALE),
+                  lineHeight: cappedSize(sizing, 50, COMMENT_MAX_SCALE),
+                },
+              ]}
+            >
+              {words}
+            </Text>
+          </WriteOn>
         ) : comment === 'ten' ? (
           <View
             style={styles.ten}
@@ -200,8 +256,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 12,
   },
-  facts: { color: ink.muted, lineHeight: 20, flexShrink: 1 },
-  comment: { color: ink.red, transform: [{ rotate: '-4deg' }] },
+  facts: { color: ink.muted, flexShrink: 1 },
+  footStacked: { flexDirection: 'column', alignItems: 'flex-start', gap: 8 },
+  comment: { color: ink.red },
+  turned: { transform: [{ rotate: '-4deg' }] },
+  // A little room around the words, so the clip never trims the pen's strokes past their box.
+  writeClip: { overflow: 'hidden', margin: -6, padding: 6 },
   ten: { width: 120, height: 100, alignItems: 'center', justifyContent: 'center' },
   tenText: { color: ink.red, fontSize: 54 },
   bit: { position: 'absolute', top: 150, width: 9, height: 4, borderRadius: 2 },

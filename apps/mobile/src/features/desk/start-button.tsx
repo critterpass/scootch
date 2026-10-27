@@ -17,7 +17,7 @@ import { useTextSizing } from '../../screens/registry/support/forced-variant';
 import { useMayMove } from '../../ui/motion/use-feel';
 import { clockText } from '../session/session-model';
 
-import { css } from './class-motion';
+import { css, useEased } from './class-motion';
 import { BUTTON_MAX_SCALE, buttonText, cappedSize, curves, shapes } from './class-style';
 import type { StartPulse } from './desk-model';
 import { PeriodLengths } from './period-lengths';
@@ -132,6 +132,9 @@ export function StartButton({
   const moving = useAnimatedStyle(() => ({
     transform: [{ scale: scale.get() * pressed.get() }, { rotate: `${turn.get()}deg` }],
   }));
+  // At pressure 4 a soft ring stands around Start; it comes and goes over 400 ms.
+  const glow = useEased(pressure === 4, 400, mayMove);
+  const glowing = useAnimatedStyle(() => ({ opacity: glow.get() }));
   const press = (to: number) => {
     setPressing(to < 1);
     pressed.set(mayMove ? withTiming(to, { duration: 220, easing: curves.ui }) : to);
@@ -155,14 +158,8 @@ export function StartButton({
           }}
         />
       ) : null}
-      <Animated.View
-        style={[
-          styles.button,
-          shapes.red,
-          pressure === 4 ? { boxShadow: `${shapesShadow}, 0 0 0 7px rgba(226,69,62,0.16)` } : null,
-          moving,
-        ]}
-      >
+      <Animated.View style={[styles.button, shapes.red, moving]}>
+        <Animated.View pointerEvents="none" style={[styles.glow, glowing]} />
         <Pressable
           testID="desk-start"
           accessibilityRole="button"
@@ -220,13 +217,17 @@ export function StartButton({
   );
 }
 
-const shapesShadow = 'inset 0 1px 0 rgba(255,255,255,0.35), 0 10px 24px rgba(201,36,30,0.28)';
-
 const styles = StyleSheet.create({
   wrap: { flex: 1 },
   wrapStacked: { alignSelf: 'stretch' },
   label: { flexShrink: 1 },
   button: { height: HEIGHT, borderRadius: HEIGHT / 2 },
+  glow: {
+    position: 'absolute',
+    inset: 0,
+    borderRadius: HEIGHT / 2,
+    boxShadow: '0 0 0 7px rgba(226,69,62,0.16)',
+  },
   press: {
     flex: 1,
     flexDirection: 'row',
