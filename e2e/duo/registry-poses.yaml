@@ -1,0 +1,71 @@
+appId: com.phusclass.dev
+# fold: closed
+---
+# The desk and a running period in Vietnamese on iPhone Duo, closed, flat and half open, for the
+# design-beside-device sheets (MODE=capture, on a Mac with agent-device). Each registered state is
+# opened by its link while the device is closed, where Maestro can press iOS's "Open"; the state
+# stays on screen while the device folds, and the captures are taken from the lit panel. Opened
+# out, the board's page beside the desk is the phone's own board (empty on a clean install), not
+# the state's. Needs a device with two displays; elsewhere it stops at once.
+- assertTrue: ${typeof DUO_FOLD_URL !== 'undefined'}
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: 'first-day'
+    timeout: 90000
+- openLink: phusclass-dev:///registry/desk-waiting--vi-light-default
+- tapOn:
+    text: 'Open'
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: 'registry-state-desk-waiting--vi-light-default'
+    timeout: 30000
+- takeScreenshot: duo-desk-closed--vi-light-default
+- runScript:
+    file: ../common/fold.js
+    env:
+      POSE: open
+- takeScreenshot: duo-desk-open--vi-light-default
+- runScript:
+    file: ../common/fold.js
+    env:
+      POSE: book
+- takeScreenshot: duo-desk-book--vi-light-default
+- runScript:
+    file: ../common/fold.js
+    env:
+      POSE: closed
+- openLink: phusclass-dev:///registry/session-running--vi-light-default
+- tapOn:
+    text: 'Open'
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: 'registry-state-session-running--vi-light-default'
+    timeout: 30000
+- takeScreenshot: duo-session-closed--vi-light-default
+- runScript:
+    file: ../common/fold.js
+    env:
+      POSE: open
+- takeScreenshot: duo-session-open--vi-light-default
+- runScript:
+    file: ../common/fold.js
+    env:
+      POSE: book
+- takeScreenshot: duo-session-book--vi-light-default
+- runScript:
+    file: ../common/fold.js
+    env:
+      POSE: closed
+- openLink: phusclass-dev:///registry/board-full--vi-light-default
+- tapOn:
+    text: 'Open'
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: 'registry-state-board-full--vi-light-default'
+    timeout: 30000
+- takeScreenshot: duo-board-closed--vi-light-default

@@ -183,6 +183,7 @@ Status lines below follow `CLAUDE.md`: `- Status: done — <sha>` or
 - Board: `Outside`. Then a dev TestFlight build.
 
 ### 5.2 iPhone Duo
+- Status: done — pending merge on `feat/native-batch-duo` (native batch, built with Xcode 27.1); the stand needs the app to allow landscape on iPhone Duo, and Split View cannot be driven on the simulator
 - Do: the layouts of `Duo` and `DuoGuide`, built from the same components.
   - Closed, open, book, stand and split.
   - Nothing resets when the fold state changes.

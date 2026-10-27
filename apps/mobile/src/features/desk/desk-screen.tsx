@@ -19,6 +19,8 @@ import { TuitionNotice } from '../tuition/tuition-notice';
 import { useLanguage } from '../../i18n/i18n-provider';
 import { useBoard, useBoardStore } from '../../state/board-provider';
 import { RECESS_MS } from '../../state/board-view';
+import { boardIsPage } from '../../ui/fold/fold-layout';
+import { useFold } from '../../ui/fold/use-fold';
 
 import { useClassCue } from './class-cues';
 import { deskModel, withSlipOut } from './desk-model';
@@ -108,7 +110,9 @@ export function DeskScreen() {
   // Nothing that acts or presses: a heavy task on the desk, or plain company after a crisis.
   const quiet = model.heavy || model.plain;
   const deskTaskId = model.task?.id ?? null;
-  const gestures = useDeskGestures(!slipOpen && !drumming);
+  // On iPhone Duo opened out the board hangs beside the desk: there is nothing to pull down.
+  const fold = useFold();
+  const gestures = useDeskGestures(!slipOpen && !drumming, boardIsPage(fold.pose));
 
   const composer = useComposer({
     say: store.say,

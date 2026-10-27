@@ -2,6 +2,8 @@ import { useMemo } from 'react';
 import { useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { clampCamera, type Camera } from '@phusclass/art/class';
+
 import { shotFor } from '../../classroom/classroom';
 import { useHandFont } from '../../classroom/use-hand-font';
 import { useT } from '../../i18n/i18n-provider';
@@ -30,11 +32,24 @@ export interface DeskChalk {
   readonly words: { readonly chalk: string[]; readonly more: string };
 }
 
+/** Where the room is seen on iPhone Duo: the fold's camera, and where his bubble's edge is. */
+export interface DeskChalkPlace {
+  readonly camera: Camera;
+  /** The room's height on screen, below the status bar. */
+  readonly roomHeight: number;
+  /** The x his bubble keeps its distance from: the room's edge, short of the controls. */
+  readonly rightEdge: number;
+}
+
 /**
  * The chalkboard on the desk: its frame on screen, and its lines cut to end before his bubble's
  * column, as on the Desk board. At recess the camera is further back and nothing is cut.
  */
-export function useDeskChalk(chalk: ChalkModel, fitted: boolean): DeskChalk {
+export function useDeskChalk(
+  chalk: ChalkModel,
+  fitted: boolean,
+  place: DeskChalkPlace | null = null,
+): DeskChalk {
   const t = useT();
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
@@ -42,10 +57,11 @@ export function useDeskChalk(chalk: ChalkModel, fitted: boolean): DeskChalk {
   const measure = useMemo(() => handMeasure(hand), [hand]);
 
   const { chalkboard, chalkWidth } = useMemo(() => {
-    const camera = shotFor('desk', { width, height: height - insets.top });
+    const viewport = { width, height: place?.roomHeight ?? height - insets.top };
+    const camera = place ? clampCamera(place.camera, viewport, 'phone') : shotFor('desk', viewport);
     const k = width / camera.w;
     // The chalk ends before his bubble's column, in room units.
-    const bubbleLeft = width - BUBBLE_RIGHT - BUBBLE_WIDTH;
+    const bubbleLeft = (place?.rightEdge ?? width) - BUBBLE_RIGHT - BUBBLE_WIDTH;
     return {
       chalkboard: {
         x: (CHALKBOARD.x - camera.x) * k,
@@ -55,7 +71,15 @@ export function useDeskChalk(chalk: ChalkModel, fitted: boolean): DeskChalk {
       },
       chalkWidth: (bubbleLeft - CHALK_CLEAR) / k - (CHALK_LEFT - camera.x),
     };
-  }, [width, height, insets.top]);
+  }, [
+    width,
+    height,
+    insets.top,
+    place?.camera.x,
+    place?.camera.w,
+    place?.roomHeight,
+    place?.rightEdge,
+  ]);
 
   const written = chalkWords(chalk, t);
   return {

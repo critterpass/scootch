@@ -51,6 +51,13 @@ on:
           en-light-default,en-light-largest,vi-light-default, empty for all eight
         type: string
         default: ''
+      ios_device:
+        description: >-
+          The iOS simulator to run on: iPhone 17, or iPhone Duo (iOS 27.1). On iPhone Duo the
+          captures read the display that is on (the outer one while it is closed)
+        type: choice
+        options: [iPhone 17, iPhone Duo]
+        default: iPhone 17
       pr:
         description: Pull request number to comment on (optional)
         type: string
@@ -78,6 +85,14 @@ jobs:
       artifact_url: ${{ steps.artifact.outputs.artifact-url }}
     steps:
       - uses: actions/checkout@v7
+      - name: Select Xcode 27.1
+        run: |
+          xcode=/Applications/Xcode_27.1.app
+          if [ ! -d "$xcode" ]; then
+            echo "::error::Xcode 27.1 is not on this runner image. Installed: $(echo /Applications/Xcode*.app)"
+            exit 1
+          fi
+          sudo xcode-select -s "$xcode"
       - name: Check the inputs
         id: settings
         env:
@@ -156,7 +171,8 @@ jobs:
     name: ios
     if: inputs.platform == 'ios'
     # GitHub gives every workflow of the account a handful of macOS runners: one job, no matrix.
-    runs-on: macos-26
+    # The Xcode 27 image, as the e2e-test build is made on: iOS 27.0 runs the iPhones, 27.1 the Duo.
+    runs-on: xcode-27
     timeout-minutes: 60
     outputs:
       js_commit: ${{ steps.settings.outputs.js_commit }}
@@ -202,6 +218,7 @@ jobs:
           MAESTRO_STATES: ${{ inputs.states }}
           MAESTRO_VARIANTS: ${{ inputs.variants }}
           JS_COMMIT: ${{ steps.settings.outputs.js_commit }}
+          DEVICE: ${{ inputs.ios_device }}
         run: tools/scripts/device-ios.sh "$BUILD_URL" "$RUNNER_TEMP/bundle" "$RUNNER_TEMP/out" "$FLOWS"
       # One sheet per registered screen state (e2e/sheets), added to the artifact under sheets/.
       - name: Put the captured screens beside their designs

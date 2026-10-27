@@ -261,3 +261,9 @@ export function usePullRoute(
   const closeFromTap = () => scheduleOnUI(close, null);
   return { open, close, closeFromTap, dragging, shownStyle };
 }
+
+/**
+ * How far the board's list is scrolled. The board is a screen of its own on a phone and a page
+ * beside the desk on iPhone Duo opened out; whichever shows it next starts where it was left.
+ */
+export const boardScroll: SharedValue<number> = makeMutable(0);

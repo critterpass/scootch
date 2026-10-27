@@ -1,0 +1,28 @@
+appId: com.phusclass.dev
+---
+# On iPhone Duo, run from the fresh walk while a period runs: the device opens out flat, half opens
+# and closes, and the period carries on through it all. Its time left keeps counting down and never
+# starts again from the top. Maestro reads only the outer display's geometry, so the opened poses
+# are captured (the run takes the lit panel) and the checks are made once it is closed.
+- runScript:
+    file: fold.js
+    env:
+      POSE: open
+- takeScreenshot: duo-session-open--en-light-default
+- runScript:
+    file: fold.js
+    env:
+      POSE: book
+- takeScreenshot: duo-session-book--en-light-default
+- runScript:
+    file: fold.js
+    env:
+      POSE: closed
+- extendedWaitUntil:
+    visible:
+      id: 'session-working'
+    timeout: 15000
+- assertVisible:
+    id: 'session-left'
+- assertNotVisible: '10:00'
+- takeScreenshot: duo-session-closed--en-light-default
