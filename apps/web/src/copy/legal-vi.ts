@@ -12,7 +12,7 @@ export const legalVi = {
       'Lớp Thầy Phú giữ gì, gửi đi đâu, giữ bao lâu. Giọng nói được chuyển thành chữ và chúng tôi không giữ lại. Không quảng cáo, không theo dõi, không bán dữ liệu.',
     headline: 'Quyền riêng tư, nói thẳng.',
     lede: 'Lớp Thầy Phú giữ càng ít càng tốt, và phần lớn nằm trên điện thoại của bạn. Không tài khoản, không quảng cáo, không theo dõi, không bán gì cả. Những gì bạn nói không bao giờ được dùng để huấn luyện mô hình AI.',
-    updated: 'Cập nhật ngày 27 tháng 10 năm 2026.',
+    updated: 'Cập nhật ngày 28 tháng 10 năm 2026.',
     tableTitle: 'Tóm tắt',
     columns: ['Dữ liệu', 'Đi đâu', 'Giữ bao lâu'],
     rows: [
@@ -31,6 +31,11 @@ export const legalVi = {
         'Chữ được kiểm tra chuyện nặng lòng',
         'Máy chủ của chúng tôi, rồi tới TypeSafe',
         'Không lưu, không ghi nhật ký',
+      ],
+      [
+        'Điều bạn nói hay gõ, để tách thành từng việc',
+        'Máy chủ của chúng tôi, rồi tới Anthropic (Claude): chỉ những chữ đó',
+        'Chúng tôi không lưu. Anthropic xoá trong vòng 30 ngày',
       ],
       [
         'Chữ để viết câu mới',
@@ -67,6 +72,7 @@ export const legalVi = {
         title: 'Việc của bạn',
         body: [
           'Mọi điều bạn nói hay gõ, tấm bảng, sổ đầu bài và cái bàn của bạn đều nằm trong cơ sở dữ liệu trên điện thoại. Không có tài khoản, không cần đăng nhập.',
+          'Khi có mạng, điều bạn vừa nói hay gõ cũng được gửi tới máy chủ của chúng tôi rồi tới Anthropic (Claude), để tách ra từng việc và đặt cho mỗi việc một tên ngắn trên bảng. Chỉ những chữ đó được gửi đi, không kèm gì về bạn. Máy chủ của chúng tôi không lưu và không ghi nhật ký chúng, và điều khoản API của Anthropic được áp dụng, như bên dưới. Khi không có mạng, hoặc Claude không trả lời kịp, điện thoại tự tách việc.',
           'Nếu bật sao lưu, app gửi một bản chụp dữ liệu đó lên máy chủ để bạn lấy lại được khi đổi điện thoại. Bản chụp được lưu dưới một mã sao lưu ẩn danh giữ trong iCloud của bạn; máy chủ chỉ giữ dấu vân tay (mã băm) của mã đó, không giữ chính mã, và không có gì cho biết điện thoại nào đã gửi. Mỗi lần sao lưu thay bản trước. Mỗi bản tối đa 512 KB. Xoá mọi thứ là bản sao lưu cũng mất.',
         ],
       },

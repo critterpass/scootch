@@ -3,13 +3,14 @@
 /** Verbs a task often starts with, in their plain form. */
 export const englishVerbs = new Set(
   `add answer apply ask back bake bathe book bring brush buy call cancel change charge check
-  clean clear collect come cook copy count cut deal decide delete deliver do download draft drink
-  drive drop eat edit email empty fill file find finish fix fold follow get give go grab hand hang
+  clean clear collect come compare confirm contact cook copy count cut deal decide delete deliver do download draft drink
+  drive drop eat edit email empty evaluate figure fill file find finish fix fold follow get give go grab
+  hand hang
   have help hoover invite iron learn leave let look mail make meet message mop move mow note open
   order organise organize pack paint pay phone pick plan post practise practice prepare print
   put read rebook record refill register remind renew repair reply reschedule research return
   review revise ring run schedule scan see sell send set share shop shower sign sort start study
-  submit sweep take talk tell text think tidy top transfer try turn update upload vacuum visit walk
+  submit sweep take talk tell test text think tidy top transfer try turn update upload vacuum visit walk
   wash watch water wipe work wrap write`
     .split(/\s+/)
     .filter((word) => word !== ''),
@@ -137,9 +138,26 @@ export const englishLeads = [
   'also have to',
   'let me',
   'try to',
+  'we need to',
+  'we have to',
+  "we've got to",
+  'we have got to',
+  'we gotta',
+  'we should',
+  'we must',
+  "we'll",
+  'we will',
+  "we're going to",
+  'we are going to',
+  "let's",
+  'let us',
+  // "We need… the evaluation": the want said before the thing, with no "to".
+  'we need',
+  'i need',
 ];
 
-export const vietnameseSubjects = '(?:tôi|mình|em|anh|chị|tớ|tao|con|cháu|bọn mình|chúng ta)';
+export const vietnameseSubjects =
+  '(?:chúng tôi|chúng ta|chúng mình|bọn mình|tụi mình|bọn em|tôi|mình|em|anh|chị|tớ|tao|con|cháu)';
 export const vietnameseLeadSource = `(?:${vietnameseSubjects}\\s+)?(?:(?:cũng|còn|vẫn|nhất định)\\s+)?(?:phải|cần|nên|sẽ|muốn|định|nhớ|cần phải|phải nhớ|nhớ là|đừng quên|không được quên)(?:\\s+(?:phải|là))?`;
 
 /** Openers and fillers with nothing in them: dropped from the front of a part. */
@@ -176,6 +194,18 @@ export const englishOpeners = [
   'after that',
   'oh yeah',
   'yeah',
+  'uhm',
+  'umm',
+  'uhh',
+  'hmm',
+  'mm',
+  'ah',
+  'you know',
+  'i mean',
+  'basically',
+  'so yeah',
+  'alright',
+  'all right',
 ];
 export const vietnameseOpeners = [
   'ừm',
@@ -190,7 +220,24 @@ export const vietnameseOpeners = [
   'thêm nữa',
   'nữa là',
   'kiểu',
+  'kiểu như',
+  'kiểu là',
   'nói chung',
+  'nói chung là',
+  'ý là',
+  'thì là',
+  'ờm',
 ];
 /** Openers that, typed without marks, are ordinary words ("a", "con", "ma"). */
-export const vietnameseOpenersMarked = ['à', 'ờ', 'ừ', 'ơ', 'còn', 'à mà', 'mà'];
+export const vietnameseOpenersMarked = [
+  'à',
+  'ờ',
+  'ừ',
+  'ơ',
+  'còn',
+  'à mà',
+  'mà',
+  'là',
+  'à thì',
+  'ừ thì',
+];

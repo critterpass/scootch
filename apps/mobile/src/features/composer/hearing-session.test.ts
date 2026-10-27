@@ -140,6 +140,23 @@ describe('a hold streamed to Scribe', () => {
     expect(outcome).toEqual({ ended: 1, failed: 0 });
   });
 
+  it('keeps every phrase settled after a pause in one hold as one utterance', () => {
+    const { hearing, socket, heard } = session();
+    socket.open();
+    const committed = (text: string) =>
+      JSON.stringify({ message_type: 'committed_transcript', text });
+    socket.say([committed('Uhm.'), committed('We need...')]);
+    socket.say([JSON.stringify({ message_type: 'partial_transcript', text: 'Evaluation for' })]);
+    hearing.finish();
+    socket.say([committed('Evaluation for Gemini replacement.')]);
+
+    // One hold is one thing said: the phrases are joined, and nothing is split here.
+    expect(heard.at(-1)).toEqual({
+      words: 'Uhm. We need... Evaluation for Gemini replacement.',
+      pending: '',
+    });
+  });
+
   it('sends the commit after the held audio when let go before the socket opened', () => {
     const { hearing, socket } = session();
     hearing.send('said quickly');

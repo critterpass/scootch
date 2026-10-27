@@ -8,7 +8,10 @@ export {
   type WireErrorCode,
 } from '../../../packages/domain/src/contracts/common';
 export {
+  hearingTasksRequestSchema,
+  hearingTasksResponseSchema,
   hearingTokenResponseSchema,
+  type HearingTasksResponse,
   type HearingTokenResponse,
 } from '../../../packages/domain/src/contracts/hearing';
 export {

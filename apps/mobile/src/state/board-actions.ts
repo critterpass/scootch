@@ -114,22 +114,27 @@ export function boardActions(core: BoardCore) {
      * takes his pick. Each task is gated for care; a crisis phrase anywhere flags every task said
      * with it and opens the crisis screen for the rest of the day.
      */
-    say: (text: string) =>
-      core.act(async (): Promise<readonly HeardTask[]> => {
+    say: async (text: string): Promise<readonly HeardTask[]> => {
+      // Heard before the board's queue: the models may take a few seconds, and nothing else on
+      // the board waits for them. A crisis phrase is never sent anywhere to be split.
+      const heardAt = deps.clock();
+      const heard = await hearWithModel(
+        text,
+        { today: heardAt.day, nowMinutes: heardAt.minuteOfDay, dayFirst: deps.dayFirst ?? true },
+        { split: deps.split, online: core.gate(text) === 'crisis' ? undefined : deps.online },
+      );
+      return core.act(async (): Promise<readonly HeardTask[]> => {
         const now = deps.clock();
-        const heard = await hearWithModel(
-          text,
-          { today: now.day, nowMinutes: now.minuteOfDay, dayFirst: deps.dayFirst ?? true },
-          { split: deps.split },
-        );
+        // The care gate reads what was heard, as said, whoever split it.
         const whole = core.gate(text);
         const added = heard.tasks.map((one) =>
           newTask({
             id: deps.newId(),
             text: one.text,
+            short: one.short ?? undefined,
             at: now.at,
             dueDate: one.dueDate,
-            heardTime: one.heardTime === null ? null : { day: now.day, at: one.heardTime.at },
+            heardTime: one.heardTime === null ? null : { day: heardAt.day, at: one.heardTime.at },
             care: whole === 'crisis' ? 'crisis' : careOf(core.gate(one.said)),
           }),
         );
@@ -141,7 +146,8 @@ export function boardActions(core: BoardCore) {
         await core.save(added);
         await core.refill();
         return heard.tasks;
-      }),
+      });
+    },
 
     /** The server's screen answered for a task. */
     screened: (id: string, care: CareFlag) =>

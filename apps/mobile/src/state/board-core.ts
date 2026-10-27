@@ -7,7 +7,7 @@ import {
   type Task,
 } from '@phusclass/domain/board';
 
-import type { ModelSplit } from '@phusclass/domain/hearing';
+import type { ModelSplit, OnlineSplit } from '@phusclass/domain/hearing';
 
 import { careGate, type CareGateResult } from '../api/care-gate';
 import type { DataDatabase } from '../data/data-database';
@@ -28,6 +28,8 @@ export type BoardStoreDeps = {
   readonly dayFirst?: boolean;
   /** The on-device model's split of a ramble, tried first and never waited on for long. */
   readonly split?: ModelSplit;
+  /** The server's hearing of what was said, with chalk names; tried before the on-device model. */
+  readonly online?: OnlineSplit;
 };
 
 /** Keys the store keeps in `kv` and `settings`. */

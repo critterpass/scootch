@@ -1,13 +1,14 @@
 import { describe, expect, it } from '@jest/globals';
 
 import { DAY_MS, MINUTE_MS, momentAt } from '@phusclass/domain/board';
+import type { HeardPart, OnlineSplit } from '@phusclass/domain/hearing';
 
 import { openMigratedDatabase, type TestDatabase } from '../data/test-database';
 
 import { createBoardStore, type BoardStore } from './board-store';
 
 /** A board on a real migrated database, with a clock the test moves by hand. */
-async function boardAt(start: string, db?: TestDatabase) {
+async function boardAt(start: string, db?: TestDatabase, online?: OnlineSplit) {
   const database = db ?? (await openMigratedDatabase());
   let at = Date.parse(start);
   let id = 0;
@@ -15,6 +16,7 @@ async function boardAt(start: string, db?: TestDatabase) {
     db: database,
     clock: () => momentAt(at, 'UTC', 4),
     newId: () => `id-${(id += 1)}`,
+    ...(online === undefined ? {} : { online }),
   });
   await store.load();
   return {
@@ -59,6 +61,52 @@ describe('saying things', () => {
     ]);
     expect(view().chalkboard).toMatchObject({ today: { text: 'The dentist' }, more: 0 });
     expect(view().minutesFree).toBe(345);
+  });
+});
+
+describe('saying one long thing', () => {
+  const founder = 'Uhm. We need... Evaluation for Gemini replacement.';
+
+  it('puts one task on the board, never the filler or the fragment, offline', async () => {
+    const { store, view } = await boardAt(morning);
+
+    await store.say(founder);
+
+    expect(view().board.map(({ task }) => [task.text, task.short])).toEqual([
+      ['Evaluation for Gemini replacement', 'Gemini replacement eval'],
+    ]);
+    expect(view().desk?.task.text).toBe('Evaluation for Gemini replacement');
+  });
+
+  it('takes the server’s split and chalk names when it answers', async () => {
+    const asked: string[] = [];
+    const parts: HeardPart[] = [
+      { text: 'Evaluation for Gemini replacement', short: 'Gemini replacement eval' },
+    ];
+    const { store, view } = await boardAt(morning, undefined, (text) => {
+      asked.push(text);
+      return Promise.resolve(parts);
+    });
+
+    await store.say(founder);
+
+    expect(asked).toEqual([founder]);
+    expect(view().board.map(({ task }) => [task.text, task.short])).toEqual([
+      ['Evaluation for Gemini replacement', 'Gemini replacement eval'],
+    ]);
+  });
+
+  it('never sends a crisis phrase to be split', async () => {
+    const asked: string[] = [];
+    const { store, view } = await boardAt(morning, undefined, (text) => {
+      asked.push(text);
+      return Promise.resolve(null);
+    });
+
+    await store.say("I can't do this any more, I want to kill myself");
+
+    expect(asked).toEqual([]);
+    expect(view().phase).toBe('crisis');
   });
 });
 

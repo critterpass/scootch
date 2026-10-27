@@ -10,13 +10,24 @@ import {
   vietnameseVerbs,
   vietnameseVerbsMarkedOnly,
 } from './split-words';
+import {
+  endsDangling,
+  joinerStart,
+  joinerStartFolded,
+  refersBack,
+  startsContinuing,
+  withoutHesitation,
+} from './spoken';
 import { foldMarks, hasMarks, tidy } from './text';
 
 /**
- * Splitting a ramble into tasks on the phone, in English and Vietnamese. The rules split only
- * where they are sure a new task starts: at the end of a sentence, or at a comma or a joining
- * word ("and", "then", "và", "rồi") followed by a word that starts a task ("call", "I need to",
- * "phải", "gọi"). Everything else stays together, so "milk, eggs and bread" is one task.
+ * Splitting what was said into tasks on the phone, in English and Vietnamese. One hold to talk
+ * is one utterance, and the rules split it only where they are sure a new task starts: at a comma,
+ * a full stop or a joining word ("and", "then", "và", "rồi") followed by a word that starts a task
+ * ("call", "I need to", "phải", "gọi"), after a joining word that opens a sentence ("Also…",
+ * "Với lại…"), at a new line, or between three or more short things said one by one. A pause is
+ * never a cut. Everything else stays together, so "milk, eggs and bread" is one task, and so is
+ * "Uhm. We need… Evaluation for Gemini replacement."
  */
 
 /** Words that join two tasks in one sentence. A cut is made at one only if a task follows. */
@@ -71,7 +82,7 @@ function rulesFor(marked: boolean): Rules {
     ),
     feeling: new RegExp(vi(feelingSource), 'iu'),
     closers: new RegExp(
-      `(?:[\\s,]+(?:too|as well|also|please|${marked ? 'nữa|luôn|nhé|nha|nhá|đi|ạ|á|với|cái đã' : 'nua|luon|nhe|nha|cai da'}))+$`,
+      `(?:[\\s,]+(?:too|as well|also|please|you know|i guess|or something|and stuff|${marked ? 'nữa|luôn|nhé|nha|nhá|đi|ạ|á|với|cái đã|đấy|nhỉ' : 'nua|luon|nhe|nha|cai da'}))+$`,
       'iu',
     ),
     dayWords: new RegExp(
@@ -137,9 +148,10 @@ export function sentencesOf(text: string): string[] {
     .filter((sentence) => /[\p{L}\p{N}]/u.test(sentence));
 }
 
-/** A part that points back at the one before it: "it's due Friday" belongs to its task. */
-const refersBack =
-  /^(?:it|it's|its|that|that's|which|this|they're|they are|due|nó|cái này|cái đó|hạn|hạn là|no|cai nay|cai do|han)(?![\p{L}\p{N}])/iu;
+/** A part with no task left once its openers, leads and closers are off: "uhm", "we need". */
+function isEmpty(text: string): boolean {
+  return cleanTask(text) === '';
+}
 
 /** Cuts one sentence where a new task starts. */
 function clausesOf(sentence: string, rules: Rules): string[] {
@@ -166,6 +178,8 @@ function clausesOf(sentence: string, rules: Rules): string[] {
     if (left === '' || !(startsTask(right, rules) || ownWhen)) continue;
     // "Clean and tidy the room" is one task: a single word on the left is not a task of its own.
     if (wordCount(frontOf(left, rules)) < 2 && !rules.leads.test(frontOf(left, rules))) continue;
+    // A false start is not a task: "I need to, I need to call the bank"; "so the thing is, …".
+    if (isEmpty(left) || endsDangling(left)) continue;
     parts.push(left);
     start = cut.after;
   }
@@ -173,14 +187,133 @@ function clausesOf(sentence: string, rules: Rules): string[] {
   return parts.filter((part) => part !== '');
 }
 
-/** A part tidied into a task: openers, leads and closers off, the first letter raised. */
+/** How two sentences said one after the other meet. */
+type Meeting = 'cut' | 'run on' | 'aside' | 'sentence';
+
+/**
+ * Whether a pause or a full stop between two sentences starts a new task. Only a clear sign
+ * does: a joining word ("also", "then", "với lại"), a new task's own start ("call", "I need to",
+ * "phải"), or a new day or time with words of its own. A thought that cannot end where it
+ * stopped, or one that carries on ("for Sarah", "trước thứ Sáu", "it's due Friday"), runs on.
+ * Anything else is the same task, said in two sentences.
+ */
+function meeting(left: string, right: string): Meeting {
+  const rules = hasMarks(right.toLowerCase()) ? marked : unmarked;
+  if (endsDangling(left) || startsContinuing(right)) return 'run on';
+  const front = withoutHesitation(right);
+  if (refersBack.test(front)) return 'aside';
+  // Only a day or a time: "Tomorrow." belongs to what came before.
+  if (!/[\p{L}\p{N}]/u.test(frontOf(front, rules))) return 'run on';
+  const joiner = hasMarks(front.toLowerCase()) ? joinerStart : joinerStartFolded;
+  const afterJoiner = front.replace(joiner, '');
+  if (afterJoiner !== front && afterJoiner !== '') {
+    if (startsContinuing(afterJoiner) || refersBack.test(afterJoiner)) return 'run on';
+    return 'cut';
+  }
+  if (startsTask(front, rules)) return 'cut';
+  const when = mentionsTime(front) || mentionsDate(front);
+  if (when && wordCount(frontOf(front, rules)) >= 2) return 'cut';
+  return 'sentence';
+}
+
+const trailingStop = /[\s.…,;:!?]+$/u;
+
+/** Two sentences as one: the pause between them kept as a space, a comma or a full stop. */
+function joined(left: string, right: string, how: Exclude<Meeting, 'cut'>): string {
+  const before = left.replace(trailingStop, '');
+  if (how === 'sentence') return `${before}. ${right}`;
+  const first = right.match(/^[\p{L}']+/u)?.[0] ?? '';
+  // "For Sarah" and "It's due" read on in lower case; a name or "I" keeps its capital.
+  const lower =
+    first !== '' && first !== 'I' && (startsContinuing(right) || refersBack.test(right))
+      ? right.charAt(0).toLocaleLowerCase() + right.slice(1)
+      : right;
+  return how === 'aside' ? `${before}, ${lower}` : `${before} ${lower}`;
+}
+
+/**
+ * Three or more things said one by one, each a task of its own or a short thing: "Laundry.
+ * Dishes. Bins.", "Email the dentist. Renew passport. Tax receipts."
+ */
+function isList(sentences: readonly string[]): boolean {
+  return (
+    sentences.length >= 3 &&
+    sentences.every((sentence) => {
+      const rules = hasMarks(sentence.toLowerCase()) ? marked : unmarked;
+      const short = wordCount(cleanTask(sentence)) <= 3;
+      return (
+        (short || startsTask(withoutHesitation(sentence), rules)) &&
+        !endsDangling(sentence) &&
+        !startsContinuing(sentence) &&
+        !refersBack.test(withoutHesitation(sentence))
+      );
+    })
+  );
+}
+
+/**
+ * The sentences of one stretch of speech, put back together where they were one thought. A pause
+ * is never a reason to cut: Scribe ends every phrase it settles after a pause with a full stop or
+ * trailing dots, so "Uhm." "We need…" "Evaluation for Gemini replacement." is one task.
+ */
+function thoughtsOf(block: string): string[] {
+  const sentences = sentencesOf(block).filter((sentence) => !isEmpty(sentence));
+  if (isList(sentences)) return sentences;
+  const thoughts: string[] = [];
+  let current = '';
+  for (const sentence of sentences) {
+    if (current === '') {
+      current = sentence;
+      continue;
+    }
+    const how = meeting(current, sentence);
+    if (how === 'cut') {
+      thoughts.push(current);
+      current = sentence;
+    } else current = joined(current, sentence, how);
+  }
+  if (current !== '') thoughts.push(current);
+  return thoughts;
+}
+
+/**
+ * A part a model already chose, as one thought: its sentences joined up as the rules would join
+ * them, never cut. "finish the report. For Sarah. Before Friday." → "finish the report for Sarah
+ * before Friday".
+ */
+export function asOneThought(part: string): string {
+  let current = '';
+  for (const sentence of sentencesOf(part).filter((one) => !isEmpty(one))) {
+    if (current === '') {
+      current = sentence;
+      continue;
+    }
+    const how = meeting(current, sentence);
+    if (how !== 'cut') {
+      current = joined(current, sentence, how);
+      continue;
+    }
+    // Where the rules would have cut, the model heard one task: the two read on after a comma,
+    // a word that starts a task in lower case ("…quý ba ấy, phải nộp cho chị Hương").
+    const rules = hasMarks(sentence.toLowerCase()) ? marked : unmarked;
+    const first = sentence.match(/^[\p{L}']+/u)?.[0] ?? '';
+    const lower =
+      first !== 'I' && startsTask(withoutHesitation(sentence), rules)
+        ? sentence.charAt(0).toLocaleLowerCase() + sentence.slice(1)
+        : sentence;
+    current = `${current.replace(trailingStop, '')}, ${lower}`;
+  }
+  return current === '' ? part : current;
+}
+
+/** A part tidied into a task: hesitations, openers, leads and closers off, the first letter raised. */
 export function cleanTask(part: string): string {
   const rules = hasMarks(part.toLowerCase()) ? marked : unmarked;
-  let text = tidy(part).replace(/^[\s,.;:!?"'-]+|[\s,.;:!?"'-]+$/g, '');
-  for (let pass = 0; pass < 3; pass += 1) {
+  let text = withoutHesitation(tidy(part)).replace(/^[\s,.;:!?"'-]+|[\s,.;:!?"'-]+$/g, '');
+  for (let pass = 0; pass < 4; pass += 1) {
     const before = text;
     text = text.replace(rules.openers, '').replace(rules.leads, '').replace(rules.closers, '');
-    text = text.replace(/^[\s,.;:!?"'-]+|[\s,.;:!?"'-]+$/g, '');
+    text = withoutHesitation(text).replace(/^[\s,.;:!?"'-]+|[\s,.;:!?"'-]+$/g, '');
     if (text === before) break;
   }
   if (text === '') return '';
@@ -188,13 +321,8 @@ export function cleanTask(part: string): string {
 }
 
 function isFeeling(part: string, rules: Rules): boolean {
-  const front = part.replace(rules.openers, '');
+  const front = withoutHesitation(part).replace(rules.openers, '');
   return rules.feeling.test(front) && !startsTask(front.replace(rules.feeling, ''), rules);
-}
-
-/** A part with no letters left after its openers: "um", "okay so", "à". */
-function isFiller(part: string, rules: Rules): boolean {
-  return !/[\p{L}\p{N}]/u.test(part.replace(rules.openers, '').replace(rules.closers, ''));
 }
 
 export type SplitRamble = {
@@ -202,26 +330,32 @@ export type SplitRamble = {
   readonly parts: readonly string[];
   /**
    * `split`: cut where new tasks start, with filler and feelings left out.
-   * `sentences`: nothing looked like a task, so every sentence is kept as said (filler aside).
+   * `sentences`: nothing looked like a task, so what was said is kept as said (filler aside).
    */
   readonly how: 'split' | 'sentences';
 };
 
 /**
- * A ramble cut into the parts that are tasks. Nothing is ever lost: when no part looks like a
- * task, every sentence comes back as said (brief 9). The same part said twice is kept once.
+ * One utterance (a hold to talk, or what was typed) cut into the parts that are tasks. It is cut
+ * only where the person clearly said separate things: a new line, a joining word or a new task's
+ * own start, or a list of short things. A long task said with fillers and pauses stays one task.
+ * Nothing is ever lost: when no part looks like a task, what was said comes back as said (brief
+ * 9). The same part said twice is kept once.
  */
 export function splitRamble(text: string): SplitRamble {
-  const sentences = sentencesOf(text);
   const parts: string[] = [];
+  const kept: string[] = [];
   let anyTask = false;
-  for (const sentence of sentences) {
-    const rules = hasMarks(sentence.toLowerCase()) ? marked : unmarked;
-    for (const part of clausesOf(sentence, rules)) {
-      if (isFiller(part, rules)) continue;
-      if (isFeeling(part, rules)) continue;
-      if (startsTask(part, rules)) anyTask = true;
-      parts.push(part);
+  for (const block of text.split(/\n+/)) {
+    for (const thought of thoughtsOf(block)) {
+      const rules = hasMarks(thought.toLowerCase()) ? marked : unmarked;
+      kept.push(thought);
+      for (const part of clausesOf(thought, rules)) {
+        if (isEmpty(part)) continue;
+        if (isFeeling(part, rules)) continue;
+        if (startsTask(withoutHesitation(part), rules)) anyTask = true;
+        parts.push(part);
+      }
     }
   }
   const unique = (list: readonly string[]) => {
@@ -234,9 +368,5 @@ export function splitRamble(text: string): SplitRamble {
     });
   };
   if (anyTask) return { parts: unique(parts), how: 'split' };
-  const said = sentences.filter((sentence) => {
-    const rules = hasMarks(sentence.toLowerCase()) ? marked : unmarked;
-    return !isFiller(sentence, rules);
-  });
-  return { parts: unique(said), how: 'sentences' };
+  return { parts: unique(kept), how: 'sentences' };
 }

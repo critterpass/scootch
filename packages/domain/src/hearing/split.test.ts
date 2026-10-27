@@ -117,25 +117,25 @@ describe('splitting a ramble in Vietnamese', () => {
 });
 
 describe('a ramble that cannot be split', () => {
-  it('lands one task per sentence, as said', () => {
+  it('lands as one task, as said: a pause or a full stop alone never cuts', () => {
     const split = splitRamble("I don't even know where to start. Everything is a mess");
 
     expect(split).toEqual({
-      parts: ["I don't even know where to start", 'Everything is a mess'],
+      parts: ["I don't even know where to start. Everything is a mess"],
       how: 'sentences',
     });
   });
 
-  it('keeps every sentence when the only parts it found were feelings', () => {
+  it('keeps a feeling when nothing else was said', () => {
     expect(splitRamble("I'm so tired. The car thing.")).toEqual({
-      parts: ["I'm so tired", 'The car thing'],
+      parts: ["I'm so tired. The car thing"],
       how: 'sentences',
     });
   });
 
   it('in Vietnamese too', () => {
     expect(splitRamble('không biết bắt đầu từ đâu. mọi thứ rối tung')).toEqual({
-      parts: ['không biết bắt đầu từ đâu', 'mọi thứ rối tung'],
+      parts: ['không biết bắt đầu từ đâu. mọi thứ rối tung'],
       how: 'sentences',
     });
   });

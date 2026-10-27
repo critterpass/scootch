@@ -1,10 +1,13 @@
 /** The pieces both languages' short names are made with. */
 
 /** The longest short name, in characters. A longer one is cut at a word. */
-export const SHORT_NAME_MOST = 18;
+export const SHORT_NAME_MOST = 24;
 
-/** One word as written, and the same word lower-cased for matching. */
-export type ChalkWord = { readonly said: string; readonly low: string };
+/**
+ * One word as written, the same word lower-cased for matching, and whether a comma or a stop came
+ * right after it.
+ */
+export type ChalkWord = { readonly said: string; readonly low: string; readonly pause: boolean };
 
 /** The task's words, with the punctuation around each one taken off. */
 export function chalkWords(text: string): ChalkWord[] {
@@ -12,9 +15,18 @@ export function chalkWords(text: string): ChalkWord[] {
     .normalize('NFC')
     .replace(/[‘’]/g, "'")
     .split(/\s+/)
-    .map((word) => word.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, ''))
-    .filter((word) => word !== '')
-    .map((said) => ({ said, low: said.toLowerCase() }));
+    .map((written) => ({
+      said: written.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, ''),
+      pause: /[,.;:!?…]$/u.test(written),
+    }))
+    .filter(({ said }) => said !== '')
+    .map(({ said, pause }) => ({ said, low: said.toLowerCase(), pause }));
+}
+
+/** The words up to and including the first one a comma or a stop follows. */
+export function upToPause(words: readonly ChalkWord[]): ChalkWord[] {
+  const at = words.findIndex((word) => word.pause);
+  return at === -1 ? [...words] : words.slice(0, at + 1);
 }
 
 /** Whether a word starts with a capital, as a name does. */

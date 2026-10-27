@@ -9,7 +9,7 @@ export const legalEn = {
       'What Phu’s Class keeps, where it goes and for how long. Your voice is turned into text and never kept by us. No ads, no tracking, nothing sold.',
     headline: 'Privacy, plainly.',
     lede: 'Phu’s Class keeps as little as it can, mostly on your phone. There are no accounts, no ads and no tracking, and nothing is sold. What you say is never used to train models.',
-    updated: 'Last updated 27 October 2026.',
+    updated: 'Last updated 28 October 2026.',
     tableTitle: 'At a glance',
     columns: ['What', 'Where it goes', 'How long'],
     rows: [
@@ -25,6 +25,11 @@ export const legalEn = {
         'Until the next backup replaces it, or you delete it',
       ],
       ['Text checked for heavy topics', 'Our server, then TypeSafe', 'Not stored, not logged'],
+      [
+        'What you say or type, picked into tasks',
+        'Our server, then Anthropic (Claude): those words only',
+        'Not stored by us. Anthropic deletes it within 30 days',
+      ],
       [
         'Text for a fresh line',
         'Our server, then Anthropic (Claude): the task’s words only',
@@ -60,6 +65,7 @@ export const legalEn = {
         title: 'Your tasks',
         body: [
           'Everything you say or type, the board, the logbook and your desk live in a database on your phone. There is no account and no sign-in.',
+          'When you are online, what you just said or typed is also sent to our server and from there to Anthropic (Claude), which picks out the separate tasks in it and gives each a short name for the board. Only those words are sent, with nothing about you. Our server does not store or log them, and Anthropic’s API terms apply, as below. Without a connection, or when Claude does not answer in time, your phone picks the tasks out itself.',
           'If backup is on, the app sends one snapshot of that data to our server so it can come back on a new phone. It is stored under an anonymous backup token kept in your iCloud; our server keeps only a fingerprint (a hash) of that token, not the token itself, and nothing that says which phone sent it. Each backup replaces the one before. A snapshot is at most 512 KB. Delete everything removes it.',
         ],
       },
