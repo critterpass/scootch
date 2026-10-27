@@ -1,6 +1,7 @@
 /** The brand, the class, and the helplines' days, hours and zones. */
 export const viCommon = {
   'brand.name': 'Lớp Thầy Phú',
+  'class.banner': 'TIÊN HỌC LỄ, HẬU HỌC VĂN',
   'class.homeroomTeacher': 'Giáo viên chủ nhiệm',
   'care.day.fri': 'Thứ 6',
   'care.day.mon': 'Thứ 2',
