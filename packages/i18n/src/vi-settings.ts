@@ -55,7 +55,7 @@ export const viSettings = {
   'settings.delete.confirm': 'Xoá',
   'settings.cancel': 'Huỷ',
   'settings.privacy.foot':
-    'Những gì em kể không bao giờ được dùng để huấn luyện bất cứ thứ gì. Âm thanh không bao giờ rời khỏi điện thoại.',
+    'Những gì em kể không bao giờ được dùng để huấn luyện bất cứ thứ gì. Giọng em được gửi tới ElevenLabs để chuyển thành chữ, và thầy không giữ lại.',
   'settings.privacy': 'Quyền riêng tư',
   'settings.terms': 'Điều khoản',
   'settings.opensInBrowser': 'Mở trong trình duyệt',

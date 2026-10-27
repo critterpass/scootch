@@ -6,7 +6,7 @@ export const legalEn = {
   privacy: {
     title: 'Privacy · Phu’s Class',
     description:
-      'What Phu’s Class keeps, where it goes and for how long. Your voice never leaves your phone. No ads, no tracking, nothing sold.',
+      'What Phu’s Class keeps, where it goes and for how long. Your voice is turned into text and never kept by us. No ads, no tracking, nothing sold.',
     headline: 'Privacy, plainly.',
     lede: 'Phu’s Class keeps as little as it can, mostly on your phone. There are no accounts, no ads and no tracking, and nothing is sold. What you say is never used to train models.',
     updated: 'Last updated 27 October 2026.',
@@ -15,8 +15,8 @@ export const legalEn = {
     rows: [
       [
         'Your voice',
-        'Turned into text by Apple’s speech recognition, on your phone. The audio never leaves it',
-        'Never kept',
+        'Streamed while you hold to talk to ElevenLabs (Scribe), which sends back the text. Never kept by us',
+        'Not kept by us. ElevenLabs keeps it under its own policy',
       ],
       ['Your tasks, board and logbook', 'Your phone', 'Until you delete them'],
       [
@@ -53,7 +53,7 @@ export const legalEn = {
       {
         title: 'Hearing you',
         body: [
-          'When you hold to talk, Apple’s speech recognition turns your words into text on your phone, set to work on the device only. The audio never leaves your phone and is never kept, by us or by the app. You can always type instead.',
+          'When you hold to talk, the audio is streamed from your phone to ElevenLabs (Scribe), a speech-to-text service, which sends back the words as you speak, in whichever language you speak. The audio goes straight from your phone to ElevenLabs; our server only gives your phone a one-time key for it. We never receive or keep the audio, and neither does the app. ElevenLabs handles it under its own privacy policy (elevenlabs.io/privacy). Hearing needs a connection. You can always type instead.',
         ],
       },
       {
@@ -208,7 +208,7 @@ export const legalEn = {
       {
         title: 'The service',
         body: [
-          'Hearing tasks and running periods work on your phone without a connection. Online parts, such as fresh lines and backup, may sometimes be unavailable or change. We may update or end features, and will be straight with you about it.',
+          'Typing tasks and running periods work on your phone without a connection; hearing you needs one. Online parts, such as fresh lines and backup, may sometimes be unavailable or change. We may update or end features, and will be straight with you about it.',
         ],
       },
       {
