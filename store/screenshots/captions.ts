@@ -56,8 +56,11 @@ export const frames: readonly Frame[] = [
   {
     state: 'tuition-offer',
     caption: {
-      en: { title: 'Every lesson stays free.', sub: 'Tuition starts with a free week.' },
-      vi: { title: 'Bài học luôn miễn phí.', sub: 'Học phí bắt đầu bằng một tuần miễn phí.' },
+      en: {
+        title: 'One free week of tuition.',
+        sub: 'Cancel before it ends and nothing is charged.',
+      },
+      vi: { title: 'Học thử một tuần, miễn phí.', sub: 'Huỷ trước khi hết tuần thì không thu gì.' },
     },
   },
 ];
