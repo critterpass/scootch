@@ -52,6 +52,7 @@ swapped in, a clean install) and writes the same output.
 tools/scripts/device-ios-local.sh e2e/fresh                       # a folder
 tools/scripts/device-ios-local.sh e2e/fresh/01-sit.yaml
 MODE=video tools/scripts/device-ios-local.sh e2e/fresh             # capture or video, as above
+REDUCE_MOTION=1 MODE=video tools/scripts/device-ios-local.sh e2e/fresh   # with Reduce Motion on
 ```
 
 - Uncommitted changes under `apps/` and `packages/` are included; the `js-commit` label then reads
