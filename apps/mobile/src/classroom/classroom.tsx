@@ -27,6 +27,7 @@ import {
   ROOM_SIZE,
   TIMING,
   type Camera,
+  type Composition,
   type Framing,
   type Layer,
   type Loop,
@@ -53,6 +54,11 @@ export interface ClassroomProps extends Scene {
   readonly framing?: Framing;
   /** A camera of its own, instead of a named shot. */
   readonly camera?: Camera;
+  /**
+   * `phone` (the App board's room, the default) or `wide` (the Room board, as iPhone Duo's boards
+   * see it).
+   */
+  readonly composition?: Composition;
   /** While it holds a camera, the view follows it frame by frame (a finger on a scrubber). */
   readonly cameraDrive?: SharedValue<Camera | null>;
   /** The desk's pressure, 0 to 5: the wall warms a step with each. Left out, the wall stays as drawn. */
@@ -103,6 +109,7 @@ export function Classroom({
   framing = 'desk',
   camera,
   cameraDrive,
+  composition = 'phone',
   pressure,
   accessibilityLabel,
   style,
@@ -137,13 +144,13 @@ export function Classroom({
         pose,
         viewport,
         camera: WHOLE_ROOM,
-        composition: 'phone',
+        composition,
       }),
-    [viewport, pose, sceneKey, banner],
+    [viewport, pose, sceneKey, banner, composition],
   );
   const target = useMemo(
-    () => clampCamera(camera ?? framingFor(framing, viewport), viewport, 'phone'),
-    [viewport, camera?.x, camera?.y, camera?.w, framing],
+    () => clampCamera(camera ?? framingFor(framing, viewport), viewport, composition),
+    [viewport, camera?.x, camera?.y, camera?.w, framing, composition],
   );
 
   // His eyes shut for each pose drawn, by its open eyes.

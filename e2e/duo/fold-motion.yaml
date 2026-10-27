@@ -1,0 +1,73 @@
+appId: com.phusclass.dev
+# fold: closed
+---
+# iPhone Duo folding while things are under way, for a recording (MODE=video, on a Mac with
+# agent-device): the hinge swings from closed to flat and back over a few seconds each way, first
+# with words half typed, then with a period running. Nothing starts again: the words stay, and the
+# period's time keeps counting down. The recording follows the lit panel. Maestro reads only the
+# outer display's geometry, so every check is made with the device closed. Needs a device with two
+# displays; elsewhere it stops at once.
+- assertTrue: ${typeof DUO_FOLD_URL !== 'undefined'}
+- launchApp:
+    clearState: true
+- runFlow: ../common/first-day-not-now.yaml
+- tapOn:
+    id: 'composer-type'
+- extendedWaitUntil:
+    visible:
+      id: 'composer-input'
+    timeout: 10000
+- inputText: 'Email the dentist to move Thursday'
+- tapOn:
+    text: 'Continue'
+    optional: true
+- runScript:
+    file: ../common/fold.js
+    env:
+      KEYFRAMES: '[{"atMs":0,"angle":0},{"atMs":2500,"angle":110},{"atMs":5000,"angle":180}]'
+- runScript:
+    file: ../common/shot.js
+    env:
+      NAME: duo-motion-typing-open--en-light-default
+- runScript:
+    file: ../common/fold.js
+    env:
+      KEYFRAMES: '[{"atMs":0,"angle":180},{"atMs":2500,"angle":110},{"atMs":5000,"angle":0}]'
+- extendedWaitUntil:
+    visible:
+      id: 'composer-input'
+    timeout: 15000
+- assertVisible: 'Email the dentist to move Thursday'
+- tapOn:
+    id: 'composer-send'
+- extendedWaitUntil:
+    visible:
+      id: 'desk-start'
+    timeout: 15000
+- tapOn:
+    id: 'desk-start'
+- extendedWaitUntil:
+    visible:
+      id: 'session-working'
+    timeout: 15000
+- runScript:
+    file: ../common/fold.js
+    env:
+      KEYFRAMES: '[{"atMs":0,"angle":0},{"atMs":2500,"angle":110},{"atMs":5000,"angle":180}]'
+- runScript:
+    file: ../common/shot.js
+    env:
+      NAME: duo-motion-period-open--en-light-default
+- runScript:
+    file: ../common/fold.js
+    env:
+      KEYFRAMES: '[{"atMs":0,"angle":180},{"atMs":2500,"angle":110},{"atMs":5000,"angle":0}]'
+- extendedWaitUntil:
+    visible:
+      id: 'session-working'
+    timeout: 15000
+- assertNotVisible: '10:00'
+- runScript:
+    file: ../common/shot.js
+    env:
+      NAME: duo-motion-period-closed--en-light-default

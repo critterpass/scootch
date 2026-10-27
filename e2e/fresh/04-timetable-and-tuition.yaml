@@ -37,7 +37,11 @@ appId: com.phusclass.dev
     timeout: 3000
 - takeScreenshot: fresh-scholarship
 # The sheet is pulled down to close; then the receipt and the timetable are closed by their buttons.
+# The pull starts on the sheet's heading: on iPhone Duo a pull from near the top of the screen
+# opens Control Center, and the sheet sits higher than on a phone.
 - swipe:
+    from:
+      text: 'Can.t pay right now\?'
     direction: DOWN
     duration: 600
 - extendedWaitUntil:

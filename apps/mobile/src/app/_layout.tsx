@@ -13,6 +13,8 @@ import { TuitionProvider } from '../features/tuition/tuition-provider';
 import { I18nProvider } from '../i18n/i18n-provider';
 import { JsCommitMarker } from '../js-commit-marker';
 import { BoardProvider } from '../state/board-provider';
+import { statusClear } from '../ui/fold/status-clear';
+import { useFold } from '../ui/fold/use-fold';
 import { stackMotion } from '../ui/motion/stack-transitions';
 import { useMayMove } from '../ui/motion/use-feel';
 import { usePalette } from '../ui/use-palette';
@@ -39,12 +41,17 @@ if (sentryDsn) {
 function Screens() {
   const mayMove = useMayMove();
   const palette = usePalette();
+  // On iPhone Duo the phone-laid-out screens keep clear of the system's status column.
+  const fold = useFold();
   return (
     <Stack
       screenOptions={({ route }) => {
         const { sheetAllowedDetents, ...motion } = stackMotion(route.name, mayMove);
         return {
-          contentStyle: { backgroundColor: palette.page },
+          contentStyle: {
+            backgroundColor: palette.page,
+            paddingRight: statusClear(route.name, fold),
+          },
           ...motion,
           ...(sheetAllowedDetents ? { sheetAllowedDetents } : {}),
           headerShown: false,

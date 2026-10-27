@@ -29,6 +29,12 @@ const ICONS = {
   book: ['M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z', 'M9 9h6M9 13h4'],
   check: ['M20 6L9 17l-5-5'],
   eraser: ['M7 21h10M5 15l9-9 5 5-9 9H6z'],
+  // The Duo board's side controls.
+  board: [
+    'M5 4 H19 A2 2 0 0 1 21 6 V15 A2 2 0 0 1 19 17 H5 A2 2 0 0 1 3 15 V6 A2 2 0 0 1 5 4 Z',
+    'M7 9h6M7 12h4M8 21l4-4 4 4',
+  ],
+  clock: ['M20.5 12 a8.5 8.5 0 1 1 -17 0 a8.5 8.5 0 1 1 17 0', 'M12 7v5l3 2'],
 } as const;
 
 export type ClassIconName = keyof typeof ICONS;

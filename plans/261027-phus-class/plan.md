@@ -183,6 +183,7 @@ Status lines below follow `CLAUDE.md`: `- Status: done — <sha>` or
 - Board: `Outside`. Then a dev TestFlight build.
 
 ### 5.2 iPhone Duo
+- Status: done — pending merge on `feat/native-batch-duo` (native batch, Xcode 27.1); the desk stand is allowed but the 27.1 simulator does not turn the inner display, and Split View cannot be driven there
 - Do: the layouts of `Duo` and `DuoGuide`, built from the same components.
   - Closed, open, book, stand and split.
   - Nothing resets when the fold state changes.

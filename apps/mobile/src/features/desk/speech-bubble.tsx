@@ -9,6 +9,8 @@ import { cappedSize, curves, ink, type } from './class-style';
 
 /** The App board's bubble is at most this wide; at the largest text sizes it may take more. */
 export const BUBBLE_WIDTH = 176;
+/** On iPhone Duo his line runs on one line where it fits, as the Duo boards draw it. */
+const DUO_BUBBLE_WIDTH = 260;
 /** Its distance from the screen's right edge at the desk. */
 export const BUBBLE_RIGHT = 22;
 /** His line grows with the text size up to this far, the same on a phone and in a capture. */
@@ -38,17 +40,21 @@ export function SpeechBubble({
   text,
   place,
   top = 0,
+  at,
 }: {
   readonly text: string;
   readonly place: 'desk' | 'room';
   /** Where the room starts on screen: the bubble keeps its place beside him. */
   readonly top?: number;
+  /** A place of its own, as iPhone Duo's boards put it, where it may run to one line. */
+  readonly at?: { readonly left: number; readonly top: number; readonly maxWidth?: number };
 }) {
   const mayMove = useMayMove();
   const sizing = useTextSizing();
   const { largeText } = useScreenStyle();
-  const where =
-    place === 'desk'
+  const where = at
+    ? { left: at.left, top: at.top, transformOrigin: '20% 100%' }
+    : place === 'desk'
       ? { top: top + 118, right: BUBBLE_RIGHT, transformOrigin: '20% 100%' }
       : // In the room the tail is on the right: it pops from there.
         { top: top + 64, left: 22, transformOrigin: '80% 100%' };
@@ -57,7 +63,11 @@ export function SpeechBubble({
     <Animated.View
       key={text}
       entering={entering}
-      style={[styles.bubble, where, { maxWidth: largeText ? '62%' : BUBBLE_WIDTH }]}
+      style={[
+        styles.bubble,
+        where,
+        { maxWidth: at ? (at.maxWidth ?? DUO_BUBBLE_WIDTH) : largeText ? '62%' : BUBBLE_WIDTH },
+      ]}
       accessibilityRole="text"
       accessibilityLiveRegion="polite"
       testID="his-line"

@@ -37,15 +37,18 @@ function clamp01(value: number): number {
  * the finger takes the pull the board's route opens and draws it from the first point; the desk
  * writes the pull while the finger is on it, and hands the board the finger's speed as it lets go.
  * Up on the desk sheet: the same for the timetable. Each has a tap alternative: the chalkboard,
- * and the sheet's grabber, where the route arrives by itself.
+ * and the sheet's grabber, where the route arrives by itself. Where the board already hangs
+ * beside the desk (iPhone Duo opened out) there is no board to pull down.
  */
-export function useDeskGestures(enabled: boolean) {
+export function useDeskGestures(enabled: boolean, boardOnPage = false) {
   const router = useRouter();
   const { mayMove, haptics } = useFeel();
   const { height } = useWindowDimensions();
   const insetTop = useSafeAreaInsets().top;
 
-  const openBoard = useCallback(() => router.push('/board'), [router]);
+  const openBoard = useCallback(() => {
+    if (!boardOnPage) router.push('/board');
+  }, [router, boardOnPage]);
   const openTimetable = useCallback(() => router.push('/timetable'), [router]);
   const markFelt = useCallback(() => {
     if (haptics) touchHaptic('primary');
@@ -69,7 +72,7 @@ export function useDeskGestures(enabled: boolean) {
   const marked = useSharedValue(false);
   const pullBoard = useMemo(() => {
     return Gesture.Pan()
-      .enabled(enabled)
+      .enabled(enabled && !boardOnPage)
       .activeOffsetY(12)
       .failOffsetY(-12)
       .failOffsetX([-24, 24])
@@ -94,7 +97,7 @@ export function useDeskGestures(enabled: boolean) {
       .onFinalize(() => {
         boardPullHeld.set(false);
       });
-  }, [enabled, openBoard, markFelt, marked]);
+  }, [enabled, boardOnPage, openBoard, markFelt, marked]);
 
   const swipeTimetable = useMemo(
     () =>

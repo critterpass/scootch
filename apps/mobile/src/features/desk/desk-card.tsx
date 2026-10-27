@@ -28,6 +28,8 @@ export interface DeskCardProps {
   readonly onLength: (minutes: number) => void;
   readonly onSlip: () => void;
   readonly onNotNow: () => void;
+  /** The Duo boards' card: its title a step smaller. */
+  readonly compact?: boolean;
 }
 
 /**
@@ -58,6 +60,9 @@ export function DeskCard(props: DeskCardProps) {
   });
   const { model } = props;
   const task = model.task;
+  const titleSize = props.compact
+    ? { fontSize: sizing.size(21), lineHeight: sizing.size(25) }
+    : { fontSize: sizing.size(25), lineHeight: sizing.size(30) };
   const onCardLayout = props.onCardLayout;
   const hasActions = task !== null && !props.typing;
   // The composer reads how tall the row is, to grow over exactly that; nothing, without one.
@@ -81,7 +86,7 @@ export function DeskCard(props: DeskCardProps) {
         <Text
           accessibilityRole="header"
           allowFontScaling={sizing.allowFontScaling}
-          style={[type.title, { fontSize: sizing.size(25), lineHeight: sizing.size(30) }]}
+          style={[type.title, titleSize]}
         >
           {t('desk.clearTitle')}
         </Text>
@@ -130,9 +135,7 @@ export function DeskCard(props: DeskCardProps) {
           numberOfLines={props.typing ? 1 : largeText ? 0 : 3}
           style={[
             type.title,
-            props.typing
-              ? { fontSize: sizing.size(19), lineHeight: sizing.size(25) }
-              : { fontSize: sizing.size(25), lineHeight: sizing.size(30) },
+            props.typing ? { fontSize: sizing.size(19), lineHeight: sizing.size(25) } : titleSize,
           ]}
         >
           {task.title}

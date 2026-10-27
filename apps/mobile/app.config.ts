@@ -151,6 +151,14 @@ const app = ({ config }: ConfigContext): ExpoConfig => ({
       NSSupportsLiveActivitiesFrequentUpdates: true,
       // Lets a silent push wake the app (a Live Activity token to renew).
       UIBackgroundModes: ['remote-notification'],
+      // Landscape is listed for iPhone Duo's desk stand (the inner display turned upright). At run
+      // time every other iPhone, and the Duo's outer display, stays in portrait
+      // (modules/phusclass-fold, FoldOrientation.swift).
+      UISupportedInterfaceOrientations: [
+        'UIInterfaceOrientationPortrait',
+        'UIInterfaceOrientationLandscapeLeft',
+        'UIInterfaceOrientationLandscapeRight',
+      ],
     },
     entitlements: IOS_ENTITLEMENTS,
   },
@@ -235,7 +243,8 @@ const app = ({ config }: ConfigContext): ExpoConfig => ({
     // react-native-reanimated, react-native-worklets, react-native-gesture-handler, expo-font,
     // expo-sharing, expo-file-system, expo-clipboard, expo-crypto, expo-application, expo-device,
     // expo-glass-effect, @expo/ui and the local modules (modules/phusclass-live-activity,
-    // modules/phusclass-notifications, modules/phusclass-intelligence, modules/app-icon).
+    // modules/phusclass-notifications, modules/phusclass-intelligence, modules/app-icon,
+    // modules/phusclass-fold: the hinge and the fold on iPhone Duo, iOS 27.1 and later).
     // The App Intents for Siri and Shortcuts (targets/widgets/_shared) compile into the app and
     // the widget extension and need no capability; the on-device model links FoundationModels
     // weakly, so iOS 17 still launches.

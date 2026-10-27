@@ -56,9 +56,24 @@ cursive fallback. Re-point the `@font-face` after downloading the boards again.
 
 ## Assumptions to replace
 
-- **iPhone Duo sizes.** Apple's guidelines give no point sizes. The boards
-  assume an outer display of 480 × 620 pt and an inner display of 960 × 620 pt
-  with the fold at its middle, and 48 pt kept clear around the fold when half
-  open.
+- **iPhone Duo sizes.** The boards were drawn at an outer display of
+  480 × 620 pt and an inner display of 960 × 620 pt. Measured on the iOS 27.1
+  simulator (Xcode 27.1, `xcrun simctl io <device> enumerate` and
+  `xcrun devicectl device info displays`), at 3×:
+  - outer display: 1398 × 2034 px, **466 × 678 pt**, portrait, camera in the
+    top trailing corner;
+  - inner display: 2007 × 2853 px, **669 × 951 pt** in portrait and
+    **951 × 669 pt** in landscape, folding at its middle (x 475.5 in
+    landscape, y 475.5 in portrait).
+  The strip kept clear around the fold when half open is the system's division
+  region (`UIView.reservedRegions(kind: .division)`); the app reads it and
+  keeps 48 pt only where the system does not say. The layouts in
+  `apps/mobile/src/ui/fold/fold-layout.ts` place everything from these sizes,
+  in proportion to the boards. The app's window is 466 × 678 pt closed and
+  951 × 669 pt opened out, flat or half open; the system's time and status ring
+  run down the trailing edge (to about 150 pt closed, 100 pt open), so the
+  side controls start below them. An app built with the iOS 26 SDK does not get
+  these: the system runs it as a phone, in a window about 384 × 678 pt, with no
+  hinge.
 - **Tuition prices.** $39.99 a year and $6.99 a month (499.000đ and 79.000đ)
   are proposals; see the brief, section 14.

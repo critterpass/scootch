@@ -1,6 +1,6 @@
+import { useRouter } from 'expo-router';
 import type { ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { Carving, Framing, PhuMood } from '@phusclass/art/class';
@@ -11,18 +11,21 @@ import { useT } from '../../i18n/i18n-provider';
 import { useBoard } from '../../state/board-provider';
 import { useTextSizing } from '../../screens/registry/support/forced-variant';
 import { PressSpring } from '../../ui/motion/press-spring';
-import { ClassIcon } from '../desk/class-icons';
-import { fadeUp } from '../desk/class-motion';
-import { buttonText, ink, shapes, type } from '../desk/class-style';
+import { buttonText, ink, shapes } from '../desk/class-style';
 import { SpeechBubble } from '../desk/speech-bubble';
 import { ShareButton } from '../share/share-button';
+import { foldRoom } from '../../ui/fold/fold-camera';
+import { foldRoomStyle } from '../../ui/fold/fold-sheet';
+import { SideControls } from '../../ui/fold/side-controls';
+import { useFold } from '../../ui/fold/use-fold';
+import { duoBubble } from '../desk/duo-places';
 
 import { DrumBurst } from './drum-burst';
 import { Confetti, FinishPaper, type FinishPaperProps } from './finish-paper';
 import { HappeningScene } from './happening-scene';
 import { PartialPanel } from './partial-panel';
 import { SessionSheet } from './session-sheet';
-import { SessionClockView } from './session-clock';
+import { SessionWorking } from './session-working';
 import type { SessionClock } from './session-model';
 import type { SessionChalk } from './use-session-chalk';
 
@@ -71,101 +74,28 @@ export function SessionView(props: SessionViewProps) {
   const t = useT();
   const sizing = useTextSizing();
   const insets = useSafeAreaInsets();
+  const router = useRouter();
+  // On iPhone Duo the room and the card take the pose's places; the period runs on.
+  const fold = useFold();
+  const duo = fold.sheet !== null;
+  const room = foldRoom(fold);
   const { clock, panel } = props;
   // The finish being shown is the store's last one; its share button checks the guard itself.
   const finishedId = useBoard().lastFinish?.task.id ?? null;
-  const timeUp = clock?.timeUp ?? false;
-  const size = (n: number) => ({ fontSize: sizing.size(n) });
 
   const working = (
-    <View style={styles.panel} testID="session-working">
-      <View style={styles.headRow}>
-        <Text allowFontScaling={sizing.allowFontScaling} style={[type.label, { color: ink.muted }]}>
-          {timeUp ? t('session.time') : t('session.working')}
-        </Text>
-        {clock?.inTime && !props.heavy && props.plain !== true ? (
-          <Text
-            allowFontScaling={sizing.allowFontScaling}
-            style={[type.hand, { color: ink.red }, size(18)]}
-          >
-            {t('session.inTime')}
-          </Text>
-        ) : null}
-      </View>
-      <Text
-        accessibilityRole="header"
-        allowFontScaling={sizing.allowFontScaling}
-        numberOfLines={3}
-        style={[styles.taskTitle, size(19)]}
-      >
-        {props.title}
-      </Text>
-      {clock !== null ? <SessionClockView clock={clock} /> : null}
-      {props.stray ?? (
-        <View style={styles.buttons}>
-          {!timeUp ? (
-            <View style={styles.pair}>
-              <PressSpring
-                testID="session-raise-hand"
-                feedback="choice"
-                accessibilityRole="button"
-                onPress={props.onRaiseHand}
-                style={[shapes.button, shapes.soft, styles.small]}
-              >
-                <ClassIcon name="hand" color={ink.text} />
-                <Text
-                  allowFontScaling={sizing.allowFontScaling}
-                  numberOfLines={1}
-                  style={[buttonText.soft, size(15)]}
-                >
-                  {t('session.raiseHand')}
-                </Text>
-              </PressSpring>
-              <PressSpring
-                testID="session-stray"
-                feedback="choice"
-                accessibilityRole="button"
-                onPress={props.onStray}
-                style={[shapes.button, shapes.soft, styles.small]}
-              >
-                <ClassIcon name="pencil" color={ink.text} />
-                <Text
-                  allowFontScaling={sizing.allowFontScaling}
-                  numberOfLines={1}
-                  style={[buttonText.soft, size(15)]}
-                >
-                  {t('session.strayThought')}
-                </Text>
-              </PressSpring>
-            </View>
-          ) : (
-            <Animated.View entering={fadeUp}>
-              <PressSpring
-                testID="session-not-yet"
-                feedback="choice"
-                accessibilityRole="button"
-                onPress={props.onNotYet}
-                style={[shapes.button, shapes.soft, styles.small]}
-              >
-                <Text allowFontScaling={sizing.allowFontScaling} style={buttonText.soft}>
-                  {t('session.notYet')}
-                </Text>
-              </PressSpring>
-            </Animated.View>
-          )}
-          <PressSpring
-            testID="session-done"
-            accessibilityRole="button"
-            onPress={props.onDone}
-            style={[shapes.button, shapes.ink]}
-          >
-            <Text allowFontScaling={sizing.allowFontScaling} style={buttonText.ink}>
-              {t('session.done')}
-            </Text>
-          </PressSpring>
-        </View>
-      )}
-    </View>
+    <SessionWorking
+      title={props.title}
+      clock={clock}
+      heavy={props.heavy}
+      {...(props.plain !== undefined ? { plain: props.plain } : {})}
+      stray={props.stray}
+      duo={duo}
+      onRaiseHand={props.onRaiseHand}
+      onStray={props.onStray}
+      onDone={props.onDone}
+      onNotYet={props.onNotYet}
+    />
   );
 
   const partial = <PartialPanel {...props} which="choices" />;
@@ -223,8 +153,9 @@ export function SessionView(props: SessionViewProps) {
       {/* The room starts below the status bar, as on the desk; the wall fills above it. */}
       <View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.wall]} />
       <Classroom
-        style={[styles.room, { top: insets.top }]}
+        style={[styles.room, duo ? foldRoomStyle(fold, 0) : { top: insets.top }]}
         framing={props.framing}
+        {...(room ? { composition: room.composition, camera: room.camera } : {})}
         mood={props.mood}
         pace={props.pace}
         chalk={props.chalkboard.chalk}
@@ -243,9 +174,10 @@ export function SessionView(props: SessionViewProps) {
           text={props.line}
           place={props.framing === 'desk' ? 'desk' : 'room'}
           top={insets.top}
+          {...(duo ? { at: duoBubble(fold, room?.camera) } : {})}
         />
       ) : null}
-      <SessionSheet panel={panel}>
+      <SessionSheet panel={panel} fold={fold}>
         {panel === 'finish'
           ? finish
           : panel === 'partial'
@@ -254,6 +186,14 @@ export function SessionView(props: SessionViewProps) {
               ? note
               : working}
       </SessionSheet>
+      <SideControls
+        layout={fold}
+        onBoard={() => router.push('/board')}
+        onTimetable={() => router.push('/timetable')}
+        onLogbook={() => router.push('/logbook')}
+        onSettings={() => router.push('/settings')}
+        {...(panel === 'working' ? { tell: { onTap: props.onStray } } : {})}
+      />
       {props.drum ? <DrumBurst /> : null}
     </View>
   );

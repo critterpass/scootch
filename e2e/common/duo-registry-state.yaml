@@ -1,0 +1,43 @@
+appId: com.phusclass.dev
+---
+# One registered state on iPhone Duo (STATE, its capture name), opened by its link while the device
+# is closed, where Maestro can press iOS's "Open", then captured closed, flat and half open. With
+# CLOSED_ONLY set, closed only. The captures are taken from the lit panel.
+- openLink: phusclass-dev:///registry/${STATE}
+- tapOn:
+    text: 'Open'
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: 'registry-state-${STATE}'
+    timeout: 30000
+- waitForAnimationToEnd:
+    timeout: 3000
+- runScript:
+    file: shot.js
+    env:
+      NAME: duo-closed-${STATE}
+- runFlow:
+    when:
+      true: ${typeof CLOSED_ONLY === 'undefined'}
+    commands:
+      - runScript:
+          file: fold.js
+          env:
+            POSE: open
+      - runScript:
+          file: shot.js
+          env:
+            NAME: duo-open-${STATE}
+      - runScript:
+          file: fold.js
+          env:
+            POSE: book
+      - runScript:
+          file: shot.js
+          env:
+            NAME: duo-book-${STATE}
+      - runScript:
+          file: fold.js
+          env:
+            POSE: closed

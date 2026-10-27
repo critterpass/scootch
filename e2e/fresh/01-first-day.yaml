@@ -82,7 +82,7 @@ appId: com.phusclass.dev
 - assertNotVisible:
     id: 'first-day'
 - assertVisible:
-    id: 'composer-hold'
+    id: 'composer-type'
 - waitForAnimationToEnd:
     timeout: 3000
 - takeScreenshot: desk-empty--en-light-default
