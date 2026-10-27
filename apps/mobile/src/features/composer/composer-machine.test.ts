@@ -64,21 +64,40 @@ describe('holding to talk', () => {
   it('shows the words while they come, and hands in the last words heard after letting go', () => {
     const listening = run([
       { type: 'press', at: 0, permission: 'granted' },
-      { type: 'heard', words: 'call the bank' },
+      { type: 'heard', words: 'call the bank', pending: 'call the bank' },
     ]);
-    expect(listening.state).toMatchObject({ mode: 'listening', words: 'call the bank' });
+    expect(listening.state).toMatchObject({
+      mode: 'listening',
+      words: 'call the bank',
+      pending: 'call the bank',
+    });
+
+    const released = run([{ type: 'release', at: 2000 }], listening.state);
+    // The words stay on show while the last phrase settles.
+    expect(released.state).toMatchObject({ mode: 'stopping', words: 'call the bank' });
+    expect(released.commands).toEqual([{ kind: 'stop hearing' }]);
 
     const { state, commands } = run(
       [
-        { type: 'release', at: 2000 },
-        // The phone's last words arrive after the finger is up.
-        { type: 'heard', words: 'call the bank about  the card' },
+        // The settled phrase arrives after the finger is up.
+        { type: 'heard', words: 'call the bank about  the card', pending: '' },
         { type: 'ended' },
       ],
-      listening.state,
+      released.state,
     );
     expect(state).toEqual({ mode: 'handing', text: 'call the bank about the card', from: 'voice' });
     expect(commands).toContainEqual({ kind: 'hand in', text: 'call the bank about the card' });
+  });
+
+  it('with no connection, says so at once and tries nothing; typing is a tap away', () => {
+    const { state, commands } = run([
+      { type: 'press', at: 0, permission: 'granted', offline: true },
+      { type: 'release', at: 1500 },
+    ]);
+    expect(state).toEqual({ mode: 'idle', note: 'no connection' });
+    expect(commands).toEqual([]);
+
+    expect(run([{ type: 'type' }], state).state).toEqual({ mode: 'typing', draft: '', note: null });
   });
 });
 
@@ -110,15 +129,36 @@ describe('the microphone', () => {
     expect(later.state).toEqual({ mode: 'typing', draft: '', note: 'mic off' });
     expect(later.commands).toEqual([]);
   });
+});
 
-  it('with no hearing for the language on this phone, keeps what was heard in the field', () => {
-    const { state, commands } = run([
+describe('hearing that does not come through', () => {
+  it('before any words, closes the panel and says why, with typing a tap away', () => {
+    const offline = run([
       { type: 'press', at: 0, permission: 'granted' },
-      { type: 'heard', words: 'email the' },
-      { type: 'unavailable' },
+      { type: 'unavailable', why: 'offline' },
+    ]);
+    expect(offline.state).toEqual({ mode: 'idle', note: 'no connection' });
+    expect(offline.commands).toContainEqual({ kind: 'abort hearing' });
+
+    const unavailable = run([
+      { type: 'press', at: 0, permission: 'granted' },
+      { type: 'release', at: 1200 },
+      { type: 'unavailable', why: 'unavailable' },
+    ]);
+    expect(unavailable.state).toEqual({ mode: 'idle', note: 'no hearing' });
+    // Letting go afterwards changes nothing.
+    expect(run([{ type: 'release', at: 1500 }], unavailable.state).state).toEqual(
+      unavailable.state,
+    );
+  });
+
+  it('after some words, keeps them in the field', () => {
+    const { state } = run([
+      { type: 'press', at: 0, permission: 'granted' },
+      { type: 'heard', words: 'email the', pending: 'email the' },
+      { type: 'unavailable', why: 'unavailable' },
     ]);
     expect(state).toEqual({ mode: 'typing', draft: 'email the', note: 'no hearing' });
-    expect(commands).toContainEqual({ kind: 'abort hearing' });
   });
 });
 

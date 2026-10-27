@@ -25,6 +25,8 @@ export interface DeskViewProps {
   /** The composer bar, or `null` where nothing may be said (recess). */
   readonly composer: ReactNode;
   readonly typing: boolean;
+  /** A touch outside the composer while typing: the keyboard goes away. */
+  readonly onDismissTyping?: () => void;
   /** The keyboard's height. Unused: the sheet rides the keyboard itself, on the UI thread. */
   readonly keyboard?: number;
   /** The length chosen for the next period, if one was. */

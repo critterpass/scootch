@@ -17,44 +17,68 @@ import { ink } from '../desk/class-style';
 const BAR_HEIGHTS = [
   40, 70, 55, 90, 65, 100, 45, 80, 60, 95, 50, 75, 85, 40, 70, 100, 55, 65, 90, 45, 80, 60, 70, 50,
 ];
+const LAST = BAR_HEIGHTS.length - 1;
+/** The board's `wave`: one rise and fall every 900 ms. */
+const WAVE_MS = 900;
+/** Where nothing is measured (a drawn state), the bars move as for a steady voice. */
+const STEADY = 0.6;
 
 function Bar({
   clock,
+  level,
   height,
   phase,
+  weight,
   still,
 }: {
-  clock: SharedValue<number>;
-  height: number;
-  phase: number;
-  still: boolean;
+  readonly clock: SharedValue<number>;
+  readonly level: SharedValue<number> | undefined;
+  readonly height: number;
+  readonly phase: number;
+  /** How much of the voice this bar takes: the middle of the row the most. */
+  readonly weight: number;
+  readonly still: boolean;
 }) {
   const style = useAnimatedStyle(() => {
-    // Where nothing may move the bars stand at their full heights, as the board's do.
-    if (still) return { transform: [{ scaleY: 1 }] };
+    const loud = level === undefined ? STEADY : level.get();
+    // Where nothing may move the bars stand at their full heights, as the board's do; the voice
+    // shows only in how strongly they are drawn.
+    if (still) return { opacity: 0.45 + 0.55 * loud, transform: [{ scaleY: 1 }] };
     const t = (clock.get() + phase) % 1;
-    return { transform: [{ scaleY: 0.25 + 0.75 * (0.5 - 0.5 * Math.cos(t * 2 * Math.PI)) }] };
+    const wave = 0.5 - 0.5 * Math.cos(t * 2 * Math.PI);
+    // Quiet, the row only breathes; speaking, each bar rises with the voice and keeps its wave.
+    const lift = 0.12 * wave + 0.88 * loud * weight * (0.45 + 0.55 * wave);
+    return { opacity: 1, transform: [{ scaleY: 0.22 + 0.78 * Math.min(1, lift) }] };
   });
   return <Animated.View style={[styles.bar, { height: `${height}%` }, style]} />;
 }
 
-/** The voice level, as the board draws it: two dozen red bars that never stop while it listens. */
-export function VoiceBars() {
+/**
+ * The voice, as the board draws it: two dozen red bars. They rise and fall with how loud the voice
+ * is (`level`, 0 to 1), each on its own wave, and only breathe while it is quiet.
+ */
+export function VoiceBars({ level }: { readonly level?: SharedValue<number> }) {
   const mayMove = useMayMove();
   const clock = useSharedValue(0);
   useEffect(() => {
     if (!mayMove) return undefined;
-    clock.set(withRepeat(withTiming(1, { duration: 900, easing: Easing.linear }), -1, false));
+    clock.set(withRepeat(withTiming(1, { duration: WAVE_MS, easing: Easing.linear }), -1, false));
     return () => cancelAnimation(clock);
   }, [mayMove, clock]);
   return (
-    <View style={styles.bars}>
+    <View
+      style={styles.bars}
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+    >
       {BAR_HEIGHTS.map((height, i) => (
         <Bar
           key={i}
           clock={clock}
+          level={level}
           height={height}
-          phase={((i * 137) % 900) / 900}
+          phase={((i * 137) % WAVE_MS) / WAVE_MS}
+          weight={0.7 + 0.3 * Math.sin((Math.PI * i) / LAST)}
           still={!mayMove}
         />
       ))}

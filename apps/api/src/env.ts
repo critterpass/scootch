@@ -22,6 +22,9 @@ export const secretNames = [
   'APNS_KEY_P8',
   'APNS_KEY_ID',
   'APNS_TEAM_ID',
+  // ElevenLabs, for the single-use keys the phone streams the microphone with. Absent, hearing
+  // answers `model_unavailable` and the phone offers typing.
+  'ELEVENLABS_API_KEY',
 ] as const;
 export type SecretName = (typeof secretNames)[number];
 

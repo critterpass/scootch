@@ -1,12 +1,12 @@
 import { Redirect, useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { AppState } from 'react-native';
+import { AppState, Keyboard } from 'react-native';
 
 import type { HeardTask } from '@phusclass/domain/hearing';
 import type { Language } from '@phusclass/i18n';
 
 import { useCareGuard, useCareView } from '../care/use-care-guard';
-import { ChalkFlight } from '../composer/chalk-flight';
+import { ChalkFlight, flightStart } from '../composer/chalk-flight';
 import { ComposerBar } from '../composer/composer-bar';
 import { useComposer } from '../composer/use-composer';
 import { useNetworkState } from '../offline/connection';
@@ -36,6 +36,8 @@ const DRUM_MS = 760;
 const REPICK_MS = 2600;
 /** Away this long, coming back is greeted with "Sit.". */
 const AWAY_MS = 30 * 60_000;
+/** Where typed words take off for the chalkboard, and where they land. */
+const FLIGHT = { top: 480, left: 24, to: 150 } as const;
 
 function heardDate(day: string, language: Language): string {
   try {
@@ -98,10 +100,12 @@ export function DeskScreen() {
   const slipOpen = slip !== null;
   const [chosenMinutes, setChosenMinutes] = useState<number | null>(null);
   const [drumming, setDrumming] = useState(false);
-  const [flights, setFlights] = useState<{ readonly key: number; readonly notes: string[] }>({
-    key: 0,
-    notes: [],
-  });
+  const [flights, setFlights] = useState<{
+    readonly key: number;
+    readonly notes: string[];
+    readonly top: number;
+    readonly left: number;
+  }>({ key: 0, notes: [], top: FLIGHT.top, left: FLIGHT.left });
 
   const model = useMemo(
     () => deskModel({ snapshot, language, name, care: care.mode }),
@@ -122,7 +126,9 @@ export function DeskScreen() {
     onLanded: (tasks) => {
       const wasEmpty = snapshot.desk === null;
       cue('chalk');
-      setFlights((last) => ({ key: last.key + 1, notes: tasks.map((task) => task.text) }));
+      // Said words take off from where they were heard in the panel.
+      const from = flightStart(FLIGHT);
+      setFlights((last) => ({ key: last.key + 1, notes: tasks.map((task) => task.text), ...from }));
       const line = landedLine(tasks, wasEmpty, language, Date.now(), !care.act);
       if (line !== undefined) sayInPassing(line.text, 2600);
     },
@@ -222,6 +228,11 @@ export function DeskScreen() {
         };
   const typing = composer.state.mode === 'typing';
   openTyping.current = composer.openTyping;
+  // A touch outside the composer while typing puts the keyboard away; an empty field closes too.
+  const dismissTyping = () => {
+    Keyboard.dismiss();
+    if (composer.state.mode === 'typing' && composer.state.draft.trim() === '') composer.cancel();
+  };
   const deskTitle = model.task?.title ?? '';
 
   return (
@@ -232,6 +243,7 @@ export function DeskScreen() {
       offline={offline}
       now={snapshot.now.at}
       typing={typing}
+      onDismissTyping={dismissTyping}
       duo={{
         composing: composer.state.mode !== 'idle',
         tell: {
@@ -248,6 +260,7 @@ export function DeskScreen() {
       composer={
         <ComposerBar
           state={composer.state}
+          level={composer.level}
           onPressIn={composer.press}
           onPressOut={composer.release}
           onType={composer.openTyping}
@@ -258,7 +271,13 @@ export function DeskScreen() {
       }
       overlays={
         <>
-          <ChalkFlight key={flights.key} notes={flights.notes} from={480} to={150} />
+          <ChalkFlight
+            key={flights.key}
+            notes={flights.notes}
+            from={flights.top}
+            left={flights.left}
+            to={FLIGHT.to}
+          />
           {drumming ? <DrumBurst /> : null}
           {slip !== null ? (
             <SlipSheet

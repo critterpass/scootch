@@ -23,6 +23,9 @@ export type DeskCase =
   | 'glare'
   | 'front-row'
   | 'listening'
+  | 'guessing'
+  | 'settling'
+  | 'no-connection'
   | 'typing'
   | 'late-slip'
   | 'offline'
@@ -42,6 +45,9 @@ const SETUPS: Record<DeskCase, Omit<FixtureOptions, 'language'>> = {
   glare: { waited: 45, burnt: 120, slips: 3 },
   'front-row': { waited: 2, burnt: 70, slips: 5 },
   listening: { waited: 0.5, burnt: 10 },
+  guessing: { waited: 0.5, burnt: 10 },
+  settling: { waited: 0.5, burnt: 10 },
+  'no-connection': { waited: 0.5, burnt: 10 },
   typing: { waited: 0.5, burnt: 10 },
   'late-slip': { waited: 2, burnt: 50, slips: 3 },
   offline: { waited: 1, burnt: 30, slips: 3 },
@@ -90,12 +96,21 @@ export function DeskFixture({ which }: { readonly which: DeskCase }) {
       )?.text ?? null,
     mood: model.mood,
   };
+  const heard = HEARD[language];
+  // The phrase still being guessed: the last three words heard.
+  const guess = heard.split(' ').slice(-3).join(' ');
   const composerState: ComposerState =
     which === 'listening'
-      ? { mode: 'listening', since: 0, words: HEARD[language] }
-      : which === 'typing'
-        ? { mode: 'typing', draft, note: null }
-        : { mode: 'idle', note: null };
+      ? { mode: 'listening', since: 0, words: heard, pending: '' }
+      : which === 'guessing'
+        ? { mode: 'listening', since: 0, words: heard, pending: guess }
+        : which === 'settling'
+          ? { mode: 'stopping', since: 0, releasedAt: 2000, words: heard, pending: '' }
+          : which === 'typing'
+            ? { mode: 'typing', draft, note: null }
+            : which === 'no-connection'
+              ? { mode: 'idle', note: 'no connection' }
+              : { mode: 'idle', note: null };
   const recess =
     snapshot.recess === null
       ? null

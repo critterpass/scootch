@@ -189,7 +189,14 @@ function PhoneDeskView(props: DeskViewProps) {
         ]}
       >
         {largeText ? (
-          <ScrollView style={styles.sheetScroll} contentContainerStyle={styles.sheetScrolled}>
+          <ScrollView
+            style={styles.sheetScroll}
+            contentContainerStyle={styles.sheetScrolled}
+            // Scrolling the sheet puts the keyboard away; a tap on the composer's own buttons
+            // still lands.
+            keyboardDismissMode="on-drag"
+            keyboardShouldPersistTaps="handled"
+          >
             {recessPanel ?? (
               <>
                 {deskHead}
@@ -233,6 +240,16 @@ function PhoneDeskView(props: DeskViewProps) {
           title={model.stillYours.title}
           bottom={sheetHeight + 12}
           onAnswer={props.onStillYours}
+        />
+      ) : null}
+      {props.typing && props.onDismissTyping ? (
+        // Everything outside the desk sheet, while typing: a touch there, tap or drag, puts the
+        // keyboard away before anything else takes it.
+        <Pressable
+          testID="desk-outside-composer"
+          accessible={false}
+          onPressIn={props.onDismissTyping}
+          style={StyleSheet.absoluteFill}
         />
       ) : null}
       <Animated.View pointerEvents="box-none" style={[StyleSheet.absoluteFill, rides]}>
