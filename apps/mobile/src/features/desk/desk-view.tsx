@@ -1,9 +1,8 @@
-import { useState, type ReactNode } from 'react';
+import { useState } from 'react';
 import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
   useWindowDimensions,
   View,
   type LayoutChangeEvent,
@@ -12,72 +11,40 @@ import { GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { PHU_SPOTS, TIMING, type Carving } from '@phusclass/art/class';
+import { PHU_SPOTS, TIMING } from '@phusclass/art/class';
 
 import { Classroom } from '../../classroom/classroom';
 import { useArrival } from '../../classroom/use-arrival';
 import { WALL_WARMTH } from '../../classroom/use-room-moves';
 import { useKeyboardRide } from '../composer/use-keyboard-height';
 import { useLanguage, useT } from '../../i18n/i18n-provider';
-import { useTextSizing } from '../../screens/registry/support/forced-variant';
-import { GlassSurface } from '../../ui/glass-surface';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { chalkboardFrame, taskCardFrame } from '../../ui/motion/hand-off';
+import { useFold } from '../../ui/fold/use-fold';
 import { useMayMove } from '../../ui/motion/use-feel';
 
 import { ChalkThrow } from './chalk-throw';
-import { ClassIcon } from './class-icons';
 import { ink, shapes } from './class-style';
-import type { DeskModel } from './desk-model';
 import { chalkDate } from './room-scene';
 import { BUBBLE_ROOM, SpeechBubble } from './speech-bubble';
 import { StillYoursPanel } from './still-yours-panel';
 import { DeskCard, RecessPanel } from './desk-card';
+import { DeskCorners } from './desk-corners';
+import { DuoDeskView } from './duo-desk-view';
 import { useDeskChalk } from './use-desk-chalk';
-import type { DeskGestures } from './use-desk-gestures';
 
-export interface RecessView {
-  readonly left: string;
-  /** 0 to 1 of the five minutes gone. */
-  readonly gone: number;
-  readonly over: boolean;
-}
+import type { DeskViewProps } from './desk-view-props';
 
-export interface DeskViewProps {
-  readonly model: DeskModel;
-  /** What he says in passing, over the model's line. */
-  readonly passing: { readonly text: string } | null;
-  readonly carvings: readonly Carving[];
-  readonly offline: boolean;
-  readonly now: number;
-  /** The composer bar, or `null` where nothing may be said (recess). */
-  readonly composer: ReactNode;
-  readonly typing: boolean;
-  /** The keyboard's height. Unused: the sheet rides the keyboard itself, on the UI thread. */
-  readonly keyboard?: number;
-  /** The length chosen for the next period, if one was. */
-  readonly chosenMinutes: number | null;
-  /** The drum is sounding: Start swings its drum and ripples. */
-  readonly ringing?: boolean;
-  readonly recess: RecessView | null;
-  /** Pinned on the chalkboard at recess: the tuition notice, when the board's rule puts it up. */
-  readonly notice?: ReactNode;
-  /** Overlays above everything: the slip sheet, flying chalk, the drum. */
-  readonly overlays?: ReactNode;
-  readonly gestures?: Pick<
-    DeskGestures,
-    'pullBoard' | 'swipeTimetable' | 'sheetStyle' | 'sheetContentStyle'
-  >;
-  readonly onStart: () => void;
-  readonly onLength: (minutes: number) => void;
-  readonly onSlip: () => void;
-  readonly onNotNow: () => void;
-  readonly onOpenBoard: () => void;
-  readonly onOpenTimetable: () => void;
-  readonly onStillYours: (answer: 'yes' | 'no') => void;
-  readonly onBackToClass: () => void;
-  readonly onSettings: () => void;
-  readonly onChalkThrown?: () => void;
+export type { DeskViewProps, RecessView } from './desk-view-props';
+
+/** The desk: on iPhone Duo as its boards draw it, on any other iPhone as the App board does. */
+export function DeskView(props: DeskViewProps) {
+  const fold = useFold();
+  return fold.pose === 'phone' ? (
+    <PhoneDeskView {...props} />
+  ) : (
+    <DuoDeskView {...props} fold={fold} />
+  );
 }
 
 /**
@@ -85,11 +52,10 @@ export interface DeskViewProps {
  * sheet with the one task, the late slip, Start with its fuse, and "Say it". Drawn from props only,
  * so the registry can show any state of it.
  */
-export function DeskView(props: DeskViewProps) {
+function PhoneDeskView(props: DeskViewProps) {
   const { model, passing, gestures } = props;
   const t = useT();
   const { language } = useLanguage();
-  const sizing = useTextSizing();
   const { largeText } = useScreenStyle();
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
@@ -255,29 +221,13 @@ export function DeskView(props: DeskViewProps) {
       {line !== null && line !== '' ? (
         <SpeechBubble text={line} place="desk" top={insets.top} />
       ) : null}
-      <GlassSurface interactive style={[styles.settings, { top: insets.top + 6 }]}>
-        <Pressable
-          testID="desk-settings"
-          accessibilityRole="button"
-          accessibilityLabel={t('desk.settings')}
-          onPress={props.onSettings}
-          style={styles.settingsPress}
-        >
-          <ClassIcon name="sliders" color={ink.text} />
-        </Pressable>
-      </GlassSurface>
-      {props.offline ? (
-        <GlassSurface style={[styles.offline, { top: insets.top + 26 }]} testID="desk-offline">
-          <ClassIcon name="offline" color="#8A7F74" size={15} weight={2.2} />
-          <Text
-            accessibilityRole="text"
-            allowFontScaling={sizing.allowFontScaling}
-            style={[styles.offlineText, { fontSize: sizing.size(13) }]}
-          >
-            {t('desk.offline')}
-          </Text>
-        </GlassSurface>
-      ) : null}
+      <DeskCorners
+        settings
+        offline={props.offline}
+        leading={false}
+        top={insets.top}
+        onSettings={props.onSettings}
+      />
       {model.stillYours !== null && recess === null && !props.typing ? (
         <StillYoursPanel
           title={model.stillYours.title}
@@ -300,8 +250,6 @@ export function DeskView(props: DeskViewProps) {
 const styles = StyleSheet.create({
   fill: { flex: 1, backgroundColor: '#E8D2AE' },
   room: { position: 'absolute', left: 0, right: 0, bottom: 0 },
-  settings: { position: 'absolute', right: 18, width: 40, height: 40, borderRadius: 20, zIndex: 3 },
-  settingsPress: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   quiet: { backgroundColor: ink.grey },
   chalkboard: { position: 'absolute', borderRadius: 20 },
   sheet: { position: 'absolute', left: 0, right: 0, bottom: 0 },
@@ -310,17 +258,4 @@ const styles = StyleSheet.create({
   sheetBodyLarge: { flexShrink: 1, paddingHorizontal: 0 },
   sheetScroll: { flexGrow: 0, flexShrink: 1 },
   sheetScrolled: { paddingHorizontal: 20, gap: 18 },
-  offline: {
-    position: 'absolute',
-    left: 18,
-    minHeight: 32,
-    borderRadius: 16,
-    paddingLeft: 11,
-    paddingRight: 13,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 7,
-    zIndex: 3,
-  },
-  offlineText: { color: '#3E3933', fontWeight: '600' },
 });

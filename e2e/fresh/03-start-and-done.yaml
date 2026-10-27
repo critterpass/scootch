@@ -29,6 +29,11 @@ appId: com.phusclass.dev
 - waitForAnimationToEnd:
     timeout: 3000
 - takeScreenshot: session-running--en-light-default
+# On iPhone Duo the period carries on through every pose.
+- runFlow:
+    when:
+      true: ${typeof DUO_FOLD_URL !== 'undefined'}
+    file: ../common/duo-fold-period.yaml
 - tapOn:
     id: 'session-raise-hand'
 - takeScreenshot: session-raise-hand--en-light-default

@@ -1,0 +1,23 @@
+appId: com.phusclass.dev
+---
+# On iPhone Duo, run from the fresh walk with words typed and not yet handed in: the device opens
+# out and closes again, and the words are still there. Maestro reads only the outer display's
+# geometry, so the opened pose is captured (the run takes the lit panel) and the checks are made
+# once it is closed again.
+- runScript:
+    file: fold.js
+    env:
+      POSE: open
+- runScript:
+    file: shot.js
+    env:
+      NAME: duo-typing-open--en-light-default
+- runScript:
+    file: fold.js
+    env:
+      POSE: closed
+- extendedWaitUntil:
+    visible:
+      id: 'composer-input'
+    timeout: 15000
+- assertVisible: 'Email the dentist to move Thursday'

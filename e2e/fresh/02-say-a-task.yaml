@@ -15,6 +15,11 @@ appId: com.phusclass.dev
     text: 'Continue'
     optional: true
 - takeScreenshot: desk-typing--en-light-default-keyboard-open
+# On iPhone Duo the words survive opening out and closing again.
+- runFlow:
+    when:
+      true: ${typeof DUO_FOLD_URL !== 'undefined'}
+    file: ../common/duo-fold-typing.yaml
 - tapOn:
     id: 'composer-send'
 - extendedWaitUntil:
@@ -30,3 +35,8 @@ appId: com.phusclass.dev
 - waitForAnimationToEnd:
     timeout: 3000
 - takeScreenshot: desk-waiting--en-light-default
+# On iPhone Duo: every pose of the desk, the board as the left page opened out.
+- runFlow:
+    when:
+      true: ${typeof DUO_FOLD_URL !== 'undefined'}
+    file: ../common/duo-fold-desk.yaml

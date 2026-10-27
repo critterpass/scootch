@@ -1,6 +1,9 @@
 import { useState } from 'react';
 
-import { useLanguage } from '../../i18n/i18n-provider';
+import { createChooser } from '@phusclass/voice/class';
+
+import { useLanguage, useT } from '../../i18n/i18n-provider';
+import { boardDateLine, boardRows } from '../board/board-rows';
 import { ComposerBar } from '../composer/composer-bar';
 import type { ComposerState } from '../composer/composer-machine';
 import { useKeyboardHeight } from '../composer/use-keyboard-height';
@@ -56,6 +59,7 @@ const noop = () => undefined;
 /** One desk state, still, for its capture: the real view on a board built with the real rules. */
 export function DeskFixture({ which }: { readonly which: DeskCase }) {
   const { language } = useLanguage();
+  const t = useT();
   const keyboard = useKeyboardHeight();
   const [draft, setDraft] = useState(TYPED[language]);
   const snapshot = fixtureSnapshot({ language, ...SETUPS[which] });
@@ -66,6 +70,20 @@ export function DeskFixture({ which }: { readonly which: DeskCase }) {
     care: which === 'plain' ? 'plain' : 'normal',
   });
   const model = which === 'late-slip' ? withSlipOut(drawn, language) : drawn;
+  // On iPhone Duo opened out, the board's page shows this state's board, as the wall does.
+  const boardPage = {
+    rows: boardRows(snapshot.board, snapshot.faded, snapshot.now, language, {
+      today: t('board.today'),
+    }),
+    dateLine: boardDateLine(snapshot.now.day, language),
+    remark:
+      createChooser(language).say(
+        snapshot.board.length === 0 ? 'emptyDesk' : 'boardLong',
+        snapshot.now.day,
+        {},
+      )?.text ?? null,
+    mood: model.mood,
+  };
   const composerState: ComposerState =
     which === 'listening'
       ? { mode: 'listening', since: 0, words: HEARD[language] }
@@ -92,6 +110,7 @@ export function DeskFixture({ which }: { readonly which: DeskCase }) {
       keyboard={which === 'typing' ? keyboard : 0}
       chosenMinutes={null}
       recess={recess}
+      boardPage={boardPage}
       composer={
         <ComposerBar
           state={composerState}

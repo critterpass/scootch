@@ -1,0 +1,37 @@
+appId: com.phusclass.dev
+---
+# On iPhone Duo, run from the fresh walk with a task on the desk: opened out flat (the board hangs
+# as the left page), half open (both pages step away from the fold), then closed again, where the
+# task is still on the desk. Maestro reads only the outer display's geometry, so the opened poses
+# are captured (the run takes the lit panel) and the checks are made once it is closed.
+- runScript:
+    file: fold.js
+    env:
+      POSE: open
+- runScript:
+    file: shot.js
+    env:
+      NAME: duo-desk-open--en-light-default
+- runScript:
+    file: fold.js
+    env:
+      POSE: book
+- runScript:
+    file: shot.js
+    env:
+      NAME: duo-desk-book--en-light-default
+- runScript:
+    file: fold.js
+    env:
+      POSE: closed
+- extendedWaitUntil:
+    visible:
+      id: 'desk-start'
+    timeout: 15000
+- assertVisible:
+    id: 'side-controls'
+- assertVisible: 'Email the dentist to move'
+- runScript:
+    file: shot.js
+    env:
+      NAME: duo-desk-closed--en-light-default

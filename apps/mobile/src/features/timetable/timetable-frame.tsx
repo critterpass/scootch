@@ -21,6 +21,8 @@ import {
   usePullRoute,
   type PullFromDesk,
 } from '../../ui/motion/hand-off';
+import { DUO } from '../../ui/fold/fold-layout';
+import { useFold } from '../../ui/fold/use-fold';
 import { PressSpring } from '../../ui/motion/press-spring';
 import { useScreenStyle } from '../../ui/use-screen-style';
 import { deskModel } from '../desk/desk-model';
@@ -66,6 +68,8 @@ export interface TimetableFrameProps {
  */
 export function TimetableFrame(props: TimetableFrameProps) {
   const t = useT();
+  // On iPhone Duo the system's time and status run down the trailing edge: the close keeps clear.
+  const clearOfStatus = useFold().controls === 'trailing' ? { marginRight: DUO.column - 20 } : null;
   const { largeText } = useScreenStyle();
   const { language } = useLanguage();
   const insets = useSafeAreaInsets();
@@ -185,7 +189,7 @@ export function TimetableFrame(props: TimetableFrameProps) {
                 accessibilityLabel={t('timetable.close')}
                 onPress={close}
                 hitSlop={8}
-                style={styles.close}
+                style={[styles.close, clearOfStatus]}
               >
                 <Mark name="close" color={paper.ink} size={13} weight={2.6} />
               </PressSpring>

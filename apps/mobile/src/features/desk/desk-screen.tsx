@@ -18,6 +18,8 @@ import { TuitionNotice } from '../tuition/tuition-notice';
 import { useLanguage } from '../../i18n/i18n-provider';
 import { useBoard, useBoardStore } from '../../state/board-provider';
 import { RECESS_MS } from '../../state/board-view';
+import { boardIsPage } from '../../ui/fold/fold-layout';
+import { useFold } from '../../ui/fold/use-fold';
 
 import { useClassCue } from './class-cues';
 import { deskModel, withSlipOut } from './desk-model';
@@ -108,7 +110,12 @@ export function DeskScreen() {
   // Nothing that acts or presses: a heavy task on the desk, or plain company after a crisis.
   const quiet = model.heavy || model.plain;
   const deskTaskId = model.task?.id ?? null;
-  const gestures = useDeskGestures(!slipOpen && !drumming);
+  // On iPhone Duo opened out the board hangs beside the desk: there is nothing to pull down.
+  const fold = useFold();
+  const onDuo = useRef(false);
+  onDuo.current = fold.pose !== 'phone';
+  const openTyping = useRef<() => void>(() => undefined);
+  const gestures = useDeskGestures(!slipOpen && !drumming, boardIsPage(fold.pose));
 
   const composer = useComposer({
     say: store.say,
@@ -119,7 +126,9 @@ export function DeskScreen() {
       const line = landedLine(tasks, wasEmpty, language, Date.now(), !care.act);
       if (line !== undefined) sayInPassing(line.text, 2600);
     },
-    onShortTap: () => sayInPassing(fixedLine(language, 'shortTap'), 1800),
+    // On iPhone Duo a tap on the side's microphone opens the composer for typing.
+    onShortTap: () =>
+      onDuo.current ? openTyping.current() : sayInPassing(fixedLine(language, 'shortTap'), 1800),
   });
 
   // The desk is in front of the user again: the fuse burns from now.
@@ -212,6 +221,7 @@ export function DeskScreen() {
           over: snapshot.recess.leftMs <= 0,
         };
   const typing = composer.state.mode === 'typing';
+  openTyping.current = composer.openTyping;
   const deskTitle = model.task?.title ?? '';
 
   return (
@@ -222,6 +232,14 @@ export function DeskScreen() {
       offline={offline}
       now={snapshot.now.at}
       typing={typing}
+      duo={{
+        composing: composer.state.mode !== 'idle',
+        tell: {
+          onTap: composer.openTyping,
+          onHoldStart: composer.press,
+          onHoldEnd: composer.release,
+        },
+      }}
       chosenMinutes={chosenMinutes}
       ringing={drumming}
       recess={recess}

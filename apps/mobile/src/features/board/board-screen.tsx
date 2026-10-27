@@ -1,23 +1,20 @@
-import { type Href } from 'expo-router';
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useNavigation, useRouter, type Href } from 'expo-router';
+import { useEffect, type ReactNode } from 'react';
 import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
 import Animated from 'react-native-reanimated';
 
-import { useHandFont } from '../../classroom/use-hand-font';
-import { useLanguage, useT } from '../../i18n/i18n-provider';
-import { useBoard, useBoardStore } from '../../state/board-provider';
-import { useCareGuard, useCareView } from '../care/use-care-guard';
-import { isoWeek, logbookRows } from '../logbook/logbook-rows';
+import { useT } from '../../i18n/i18n-provider';
+import { goBack } from '../../ui/motion/go-back';
+import { boardIsPage, DUO } from '../../ui/fold/fold-layout';
+import { useFold } from '../../ui/fold/use-fold';
+import { isoWeek } from '../logbook/logbook-rows';
 
-import { boardControls } from './board-controls';
 import { useBoardGrow } from './board-grow';
 import { BoardPage, LedgeHandle } from './board-page';
-import type { RowAction } from './board-row';
-import { boardDateLine, boardRows } from './board-rows';
 import { CHALK } from './chalk';
 import { LogbookPreview, useLogbookPull } from './logbook-preview';
-import { useSay } from './use-say';
+import { useBoardPage } from './use-board-page';
 
 /** The timetable sheet's route, built with tuition. */
 const TIMETABLE = '/timetable' as Href;
@@ -27,92 +24,30 @@ const TIMETABLE = '/timetable' as Href;
  * first point and springing open or back when the finger lets go; the ledge pushes it back up. A
  * pull down on its header lowers the logbook page from the top. The timetable goes back onto the
  * desk first, and rises from the desk sheet.
+ *
+ * On iPhone Duo opened out over the desk, the board hangs as the desk's left page instead: the
+ * route gives way to the desk underneath, which shows the same board where it was scrolled to.
  */
 export function BoardScreen() {
-  const crisis = useCareGuard();
-  const care = useCareView();
-  const careMode = useRef(care.mode);
-  careMode.current = care.mode;
-  const plain = care.mode === 'plain';
-  const snapshot = useBoard();
-  const store = useBoardStore();
-  const say = useSay();
-  const controls = useMemo(() => boardControls(store, say, () => careMode.current), [store, say]);
+  const page = useBoardPage();
   const t = useT();
-  const { language } = useLanguage();
-  const hand = useHandFont();
+  const router = useRouter();
   const { width, height } = useWindowDimensions();
   const grow = useBoardGrow(width, height);
   const logbook = useLogbookPull();
-  const [remark, setRemark] = useState<string | null>(null);
+  const fold = useFold();
+  const sideInset = fold.controls === 'trailing' ? DUO.column : 0;
+  const navigation = useNavigation();
+  // Opened out over the desk, the desk shows the board as its page; over a period it stays here.
+  const routes = navigation.getState()?.routes ?? [];
+  const overDesk = routes.length > 1 && routes[routes.length - 2]?.name === 'index';
+  const asPage = boardIsPage(fold.pose) && overDesk;
 
-  // His remark as the board opens, once per opening: the long board (once a day) or the empty one.
   useEffect(() => {
-    let current = true;
-    void controls.opened().then((line) => {
-      if (current && line !== null) setRemark(line);
-    });
-    return () => {
-      current = false;
-    };
-  }, []);
+    if (asPage) goBack(router, '/');
+  }, [asPage, router]);
 
-  // "Still yours?" is put once; the store remembers it was. Not asked in plain company.
-  const asking = plain ? null : (snapshot.stillYours?.id ?? null);
-  useEffect(() => {
-    if (asking !== null) void controls.asked(asking);
-  }, [asking, controls]);
-
-  const rows = useMemo(
-    () =>
-      boardRows(
-        snapshot.board,
-        // In plain company nothing asks to be kept: old chalk stays as it is.
-        plain ? new Set<string>() : snapshot.faded,
-        snapshot.now,
-        language,
-        { today: t('board.today') },
-        { pressure: care.pressure },
-      ),
-    [snapshot.board, snapshot.faded, snapshot.now, language, t, plain, care.pressure],
-  );
-
-  // His question under each old row, chosen once per row while the board is open.
-  const questions = useRef(new Map<string, string>());
-  const stillYours: Record<string, string> = {};
-  for (const row of rows) {
-    if (!row.faded) continue;
-    let line = questions.current.get(row.id);
-    if (line === undefined) {
-      line = say('boardStillYours', row.id, { task: row.text }) ?? '';
-      questions.current.set(row.id, line);
-    }
-    if (line !== '') stillYours[row.id] = line;
-  }
-
-  const onAction = (id: string, action: RowAction) => {
-    if (action === 'desk') {
-      void controls.swap(id).then((line) => {
-        if (line !== null) setRemark(line);
-      });
-    } else if (action === 'tick') void controls.tick(id);
-    else if (action === 'erase') void controls.erase(id);
-    else if (action === 'keep') void controls.keep(id);
-    else if (action === 'letGo') void controls.letGo(id);
-  };
-
-  const today = snapshot.now.day;
-  const logRows = useMemo(
-    () =>
-      logbookRows(snapshot.logbook, today, language, {
-        minutes: (minutes) => t('logbook.minutes', { minutes }),
-        ticked: t('logbook.ticked'),
-        certificate: t('logbook.certificate'),
-      }),
-    [snapshot.logbook, today, language, t],
-  );
-
-  if (crisis) return <View style={styles.crisis} />;
+  if (page.crisis) return <View style={styles.crisis} />;
 
   const header = (children: ReactNode) => (
     <GestureDetector gesture={logbook.headerPan}>
@@ -124,34 +59,37 @@ export function BoardScreen() {
     <Animated.View style={[styles.fill, grow.shown]} testID="board-screen">
       <Animated.View style={[styles.clip, { width, height }, grow.clip]}>
         <Animated.View style={[{ width, height }, grow.inner]}>
-          <BoardPage
-            rows={rows}
-            dateLine={boardDateLine(today, language)}
-            remark={remark}
-            stillYours={stillYours}
-            mood={snapshot.desk?.heavy === true ? 'serious' : plain ? 'calm' : 'over'}
-            hand={hand}
-            onAction={onAction}
-            onReword={(id, text) => void controls.reword(id, text)}
-            onLogbook={logbook.open}
-            onTimetable={() => grow.closeInto(TIMETABLE)}
-            header={header}
-            contentStyle={grow.content}
-            ledge={
-              <GestureDetector gesture={grow.ledgePan}>
-                <Pressable
-                  testID="board-close"
-                  accessibilityRole="button"
-                  accessibilityLabel={t('board.close')}
-                  accessibilityHint={t('board.close.hint')}
-                  onPress={grow.close}
-                >
-                  <LedgeHandle />
-                </Pressable>
-              </GestureDetector>
-            }
-          />
-          <LogbookPreview rows={logRows} week={isoWeek(today)} hand={hand} />
+          {/* On iPhone Duo the board keeps clear of the system's side controls. */}
+          <View style={[styles.fill, styles.chalk, { paddingRight: sideInset }]}>
+            <BoardPage
+              rows={page.rows}
+              dateLine={page.dateLine}
+              remark={page.remark}
+              stillYours={page.stillYours}
+              mood={page.mood}
+              hand={page.hand}
+              onAction={page.onAction}
+              onReword={page.onReword}
+              onLogbook={logbook.open}
+              onTimetable={() => grow.closeInto(TIMETABLE)}
+              header={header}
+              contentStyle={grow.content}
+              ledge={
+                <GestureDetector gesture={grow.ledgePan}>
+                  <Pressable
+                    testID="board-close"
+                    accessibilityRole="button"
+                    accessibilityLabel={t('board.close')}
+                    accessibilityHint={t('board.close.hint')}
+                    onPress={grow.close}
+                  >
+                    <LedgeHandle />
+                  </Pressable>
+                </GestureDetector>
+              }
+            />
+          </View>
+          <LogbookPreview rows={page.logRows} week={isoWeek(page.today)} hand={page.hand} />
         </Animated.View>
       </Animated.View>
     </Animated.View>
@@ -164,6 +102,9 @@ const styles = StyleSheet.create({
   },
   crisis: {
     flex: 1,
+    backgroundColor: CHALK.board,
+  },
+  chalk: {
     backgroundColor: CHALK.board,
   },
   clip: {

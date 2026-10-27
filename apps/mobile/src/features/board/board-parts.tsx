@@ -44,10 +44,13 @@ export function BoardHeading({
   dateLine,
   onTimetable,
   onLogbook,
+  page = false,
 }: {
   readonly dateLine: string;
   readonly onTimetable: () => void;
   readonly onLogbook: () => void;
+  /** The left page on iPhone Duo: its ways to the timetable and logbook are the side controls. */
+  readonly page?: boolean;
 }) {
   const t = useT();
   const { size, allowFontScaling, largeText } = useScreenStyle();
@@ -66,7 +69,7 @@ export function BoardHeading({
           {dateLine}
         </Text>
       </View>
-      <View style={styles.pills}>
+      <View style={[styles.pills, page ? styles.hidden : null]}>
         <BoardPill
           id="board-timetable"
           label={t('board.timetable')}
@@ -84,10 +87,13 @@ export function BoardFoot({
   remark,
   mood,
   hand,
+  page = false,
 }: {
   readonly remark: string | null;
   readonly mood: PhuMood;
   readonly hand: SkTypeface | null;
+  /** The left page on iPhone Duo: his line in yellow chalk, and no figure of him (he is in the room). */
+  readonly page?: boolean;
 }) {
   const { mayMove } = useFeel();
   const { size, allowFontScaling, largeText } = useScreenStyle();
@@ -105,6 +111,7 @@ export function BoardFoot({
           style={[
             styles.remark,
             largeText ? styles.remarkLarge : null,
+            page ? styles.remarkChalk : null,
             { fontSize: size(18), lineHeight: size(18) * 1.3 },
           ]}
         >
@@ -112,7 +119,7 @@ export function BoardFoot({
         </Animated.Text>
       )}
       <View
-        style={styles.figure}
+        style={[styles.figure, page ? styles.hidden : null]}
         accessibilityElementsHidden
         importantForAccessibility="no-hide-descendants"
       >
@@ -203,6 +210,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     marginTop: 8,
   },
+  remarkChalk: {
+    color: CHALK.date,
+    fontFamily: HAND_FAMILY,
+    fontWeight: '700',
+  },
+  hidden: { display: 'none' },
   figure: {
     marginBottom: -8,
     alignSelf: 'flex-end',
