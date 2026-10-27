@@ -7,10 +7,13 @@ import { screenInputQuestion } from '../src/ai/screen-input';
 
 import {
   answersStatus,
+  claudeAnswers,
+  claudeRecorded,
+  claudeStops,
   connectionDrops,
-  deepseekAnswers,
   jevAnswers,
   providers,
+  recordedClaude,
   timesOut,
   type Providers,
   type Reply,
@@ -24,7 +27,7 @@ let nextRoute = 0;
 function contextFor(doubles: Providers): DecideContext {
   nextRoute += 1;
   return {
-    env: { DB: env.DB, TYPESAFE_API_KEY: 'jev-test-key', DEEPSEEK_API_KEY: 'deepseek-test-key' },
+    env: { DB: env.DB, TYPESAFE_API_KEY: 'jev-test-key', ANTHROPIC_API_KEY: 'claude-test-key' },
     route: `test.decide.${nextRoute}`,
     deviceHash: null,
     fetch: doubles.fetch,
@@ -46,7 +49,7 @@ describe('decide', () => {
   it('asks Jev with only the text and the question, on the pinned version', async () => {
     const doubles = providers({
       jev: jevAnswers({ pass: 0.97, serious: 0.02, crisis: 0.01 }),
-      deepseek: connectionDrops,
+      claude: connectionDrops,
     });
     const context = contextFor(doubles);
 
@@ -68,7 +71,7 @@ describe('decide', () => {
         questions: { answer: { type: 'choice', ...screenInputQuestion } },
       },
     ]);
-    expect(doubles.sent.deepseek).toEqual([]);
+    expect(doubles.sent.claude).toEqual([]);
     expect(await ledgerRows(context.route)).toEqual([
       { model: 'jev-1.13.0', input_tokens: 498, output_tokens: 40 },
     ]);
@@ -89,7 +92,7 @@ describe('decide', () => {
     async (_, jev, asked) => {
       const doubles = providers({
         jev,
-        deepseek: deepseekAnswers({ probabilities: { pass: 0.02, serious: 0.08, crisis: 0.9 } }),
+        claude: claudeAnswers({ probabilities: { pass: 0.02, serious: 0.08, crisis: 0.9 } }),
       });
       const context = contextFor(doubles);
 
@@ -102,29 +105,84 @@ describe('decide', () => {
           confidence: 0.9,
         },
         answeredBy: 'fallback',
-        model: 'deepseek-flash',
+        model: 'claude-haiku-5-5',
       });
       expect(doubles.sent.jev).toHaveLength(asked);
-      expect(doubles.sent.deepseek[0]).toMatchObject({
-        model: 'deepseek-flash',
-        thinking: { type: 'disabled' },
-        tool_choice: { type: 'tool', name: 'answer' },
+      expect(doubles.sent.claude[0]).toMatchObject({
+        model: 'claude-haiku-5-5',
+        output_config: { effort: 'low', format: { type: 'json_schema' } },
       });
       expect(await ledgerRows(context.route)).toEqual([
-        { model: 'deepseek-flash', input_tokens: 612, output_tokens: 31 },
+        { model: 'claude-haiku-5-5', input_tokens: 891, output_tokens: 36 },
       ]);
+    },
+  );
+
+  it('asks the fast tier for structured output, with no sampling, thinking budget, tool or prefill, and reads its recorded answer', async () => {
+    const doubles = providers({ jev: timesOut, claude: claudeRecorded(recordedClaude.decide) });
+
+    expect((await ask(contextFor(doubles))).answer).toEqual({
+      choice: 'pass',
+      probabilities: { pass: 0.97, serious: 0.02, crisis: 0.01 },
+      confidence: 0.97,
+    });
+
+    const [sent] = doubles.sent.claude;
+    expect(Object.keys(sent ?? {}).sort()).toEqual([
+      'max_tokens',
+      'messages',
+      'model',
+      'output_config',
+      'system',
+    ]);
+    const messages = sent?.['messages'] as { role: string; content: unknown }[];
+    expect(messages.map((m) => m.role)).toEqual(['user']);
+    expect(typeof messages[0]?.content).toBe('string');
+    const { schema } = (sent?.['output_config'] as { format: { schema: Record<string, unknown> } })
+      .format;
+    expect(schema).toMatchObject({
+      type: 'object',
+      required: ['probabilities'],
+      additionalProperties: false,
+      properties: {
+        probabilities: {
+          type: 'object',
+          required: ['pass', 'serious', 'crisis'],
+          additionalProperties: false,
+        },
+      },
+    });
+  });
+
+  it.each([
+    ['refuses', claudeStops('refusal'), 'stop_refusal'],
+    ['runs out of tokens', claudeStops('max_tokens'), 'stop_max_tokens'],
+  ] as const)(
+    'when Jev times out and the fast tier %s, it fails once, unread, and the ledger stays empty',
+    async (_, claude, reason) => {
+      const doubles = providers({ jev: timesOut, claude });
+      const context = contextFor(doubles);
+
+      await expect(ask(context)).rejects.toMatchObject({
+        name: 'ApiError',
+        code: 'model_unavailable',
+        detail: { reason },
+      });
+
+      expect(doubles.sent.claude).toHaveLength(1);
+      expect(await ledgerRows(context.route)).toEqual([]);
     },
   );
 
   it('falls back without calling Jev when its key is not set', async () => {
     const doubles = providers({
       jev: jevAnswers({ pass: 1, serious: 0, crisis: 0 }),
-      deepseek: deepseekAnswers({ probabilities: { pass: 0.1, serious: 0.9, crisis: 0 } }),
+      claude: claudeAnswers({ probabilities: { pass: 0.1, serious: 0.9, crisis: 0 } }),
     });
     const context = contextFor(doubles);
 
     const decision = await decide(
-      { ...context, env: { DB: env.DB, DEEPSEEK_API_KEY: 'deepseek-test-key' } },
+      { ...context, env: { DB: env.DB, ANTHROPIC_API_KEY: 'claude-test-key' } },
       { ...screenInputQuestion, text },
     );
 
@@ -136,7 +194,7 @@ describe('decide', () => {
   it('scales fallback probabilities that do not add up to one', async () => {
     const doubles = providers({
       jev: timesOut,
-      deepseek: deepseekAnswers({ probabilities: { pass: 0.9, serious: 0.3, crisis: 0.3 } }),
+      claude: claudeAnswers({ probabilities: { pass: 0.9, serious: 0.3, crisis: 0.3 } }),
     });
 
     const { answer } = await ask(contextFor(doubles));
@@ -151,18 +209,18 @@ describe('decide', () => {
     let calls = 0;
     const doubles = providers({
       jev: timesOut,
-      deepseek: (request) => {
+      claude: (request) => {
         calls += 1;
         return calls === 1
           ? answersStatus(503)(request)
-          : deepseekAnswers({ probabilities: { pass: 1, serious: 0, crisis: 0 } })(request);
+          : claudeAnswers({ probabilities: { pass: 1, serious: 0, crisis: 0 } })(request);
       },
     });
 
     const decision = await ask(contextFor(doubles));
 
     expect(decision.answeredBy).toBe('fallback');
-    expect(doubles.sent.deepseek).toHaveLength(2);
+    expect(doubles.sent.claude).toHaveLength(2);
   });
 
   it.each([
@@ -170,19 +228,19 @@ describe('decide', () => {
     ['times out', timesOut, 'model_timeout', 1],
     [
       'answers outside the schema twice',
-      deepseekAnswers({ probabilities: { pass: 'yes' } }),
+      claudeAnswers({ probabilities: { pass: 'yes' } }),
       'model_unavailable',
       2,
     ],
   ] as const)(
     'when Jev times out and the fast tier %s, it fails as %s and the ledger stays empty',
-    async (_, deepseek, code, attempts) => {
-      const doubles = providers({ jev: timesOut, deepseek });
+    async (_, claude, code, attempts) => {
+      const doubles = providers({ jev: timesOut, claude });
       const context = contextFor(doubles);
 
       await expect(ask(context)).rejects.toMatchObject({ name: 'ApiError', code });
 
-      expect(doubles.sent.deepseek).toHaveLength(attempts);
+      expect(doubles.sent.claude).toHaveLength(attempts);
       expect(await ledgerRows(context.route)).toEqual([]);
     },
   );

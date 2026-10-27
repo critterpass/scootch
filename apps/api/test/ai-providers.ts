@@ -1,5 +1,9 @@
-import { deepseekUrl } from '../src/ai/deepseek';
+import { claudeUrl } from '../src/ai/claude';
 import { jevUrl } from '../src/ai/jev';
+
+import { recorded as recordedDecide } from './fixtures/claude/decide';
+import { recorded as recordedMarks } from './fixtures/claude/marks';
+import { recorded as recordedStatus } from './fixtures/claude/status';
 
 /**
  * Stand-ins for the two model providers at the network boundary. The bodies are shaped like the
@@ -10,14 +14,14 @@ export type Reply = (request: { body: Record<string, unknown> }) => Response | P
 export type Providers = {
   fetch: typeof fetch;
   /** The JSON bodies sent to each provider, in order. */
-  sent: { jev: Record<string, unknown>[]; deepseek: Record<string, unknown>[] };
+  sent: { jev: Record<string, unknown>[]; claude: Record<string, unknown>[] };
 };
 
-export function providers(replies: { jev: Reply; deepseek: Reply }): Providers {
-  const sent: Providers['sent'] = { jev: [], deepseek: [] };
+export function providers(replies: { jev: Reply; claude: Reply }): Providers {
+  const sent: Providers['sent'] = { jev: [], claude: [] };
   const send: typeof fetch = async (input, init) => {
     const url = input instanceof Request ? input.url : String(input);
-    const provider = url === jevUrl ? 'jev' : url === deepseekUrl ? 'deepseek' : undefined;
+    const provider = url === jevUrl ? 'jev' : url === claudeUrl ? 'claude' : undefined;
     if (provider === undefined) throw new Error(`unexpected request to ${url}`);
     if (typeof init?.body !== 'string') throw new Error('expected a JSON string body');
     const body = JSON.parse(init.body) as Record<string, unknown>;
@@ -67,17 +71,56 @@ export function jevAnswers(
   });
 }
 
-/** The fast tier answering through the forced tool call. */
-export function deepseekAnswers(input: unknown): Reply {
-  return ({ body }) =>
+/** The property names of the structured output a request to Claude asks for. */
+export function outputKeysIn(body: Record<string, unknown>): string[] {
+  const config = body['output_config'] as
+    { format?: { schema?: { properties?: Record<string, unknown> } } } | undefined;
+  return Object.keys(config?.format?.schema?.properties ?? {});
+}
+
+/** A Messages API answer recorded from Claude: one per call shape, in `fixtures/claude/`. */
+export type ClaudeRecording = typeof recordedDecide;
+
+export const recordedClaude = {
+  decide: recordedDecide,
+  marks: recordedMarks,
+  status: recordedStatus,
+} satisfies Record<string, ClaudeRecording>;
+
+/**
+ * A recorded answer with its one text block holding `output` as JSON instead (a string is sent as
+ * it is); everything else, usage included, is as recorded.
+ */
+export function claudeMessage(output: unknown, recording: ClaudeRecording): Response {
+  const text = typeof output === 'string' ? output : JSON.stringify(output);
+  return Response.json({ ...recording, content: [{ type: 'text', text }] });
+}
+
+/** Claude answering with `output` in the shape of `recording`, the decision's by default. */
+export function claudeAnswers(
+  output: unknown,
+  recording: ClaudeRecording = recordedClaude.decide,
+): Reply {
+  return () => claudeMessage(output, recording);
+}
+
+/** Claude answering exactly as recorded. */
+export function claudeRecorded(recording: ClaudeRecording): Reply {
+  return () => Response.json(recording);
+}
+
+/**
+ * Claude stopping with nothing to read: a refusal with no content, or JSON cut off at the token
+ * cap. Neither can be asked for on purpose, so both are built on the decision's recording.
+ */
+export function claudeStops(stopReason: 'refusal' | 'max_tokens'): Reply {
+  const refused = stopReason === 'refusal';
+  return () =>
     Response.json({
-      id: 'msg_recorded',
-      type: 'message',
-      role: 'assistant',
-      model: body['model'],
-      content: [{ type: 'tool_use', id: 'call_recorded', name: 'answer', input }],
-      stop_reason: 'tool_use',
-      usage: { input_tokens: 612, output_tokens: 31 },
+      ...recordedClaude.decide,
+      content: refused ? [] : [{ type: 'text', text: '{"probabilities":{"pass":0.' }],
+      stop_reason: stopReason,
+      stop_details: refused ? { type: 'refusal', category: null, explanation: null } : null,
     });
 }
 

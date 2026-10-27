@@ -50,7 +50,7 @@ describe('the cost ledger', () => {
 
     await recordAiUsage(env.DB, {
       route: 'task.line',
-      model: 'deepseek-flash',
+      model: 'claude-haiku-5-5',
       inputTokens: 812,
       outputTokens: 240,
       deviceHash,
@@ -62,7 +62,7 @@ describe('the cost ledger', () => {
     ).first();
     expect(row).toEqual({
       route: 'task.line',
-      model: 'deepseek-flash',
+      model: 'claude-haiku-5-5',
       input_tokens: 812,
       output_tokens: 240,
       device_hash: null,

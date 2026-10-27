@@ -54,7 +54,7 @@ touch it. **Keep** means it is infrastructure Phu's Class uses as it is.
 
 - **Keep:** `route.ts`, `errors.ts`, `rate-limit.ts`, `device-auth.ts`, `ledger.ts`, `flags.ts` and `bot/*`. Routes: health, devices, data-delete, backup.
 - **Adapt:**
-  - `ai/decide.ts`, `jev.ts`, `deepseek.ts`, `screen-input.ts`
+  - `ai/decide.ts`, `jev.ts`, `claude.ts`, `screen-input.ts`
   - `ai/task-create/*`: port its rules to the phone; keep a line route
   - `plus/*` and the RevenueCat webhook
   - `push/*`: the topic changes to `com.phusclass`
@@ -65,7 +65,7 @@ touch it. **Keep** means it is infrastructure Phu's Class uses as it is.
   - camera, monster, haunt, friend, table and seat routes
   - `ai/camera/*`, `elevenlabs.ts`, `speech-token`
 - Secrets, by name:
-  - `DEEPSEEK_API_KEY`, `TYPESAFE_API_KEY`, `TASK_CONTINUATION_SECRET`
+  - `ANTHROPIC_API_KEY`, `TYPESAFE_API_KEY`, `TASK_CONTINUATION_SECRET`
   - `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `TELEGRAM_WEBHOOK_SECRET`
   - `REVENUECAT_API_V2_KEY`, `REVENUECAT_PROJECT_ID`, `REVENUECAT_WEBHOOK_AUTH`
   - `APNS_KEY_P8`, `APNS_KEY_ID`, `APNS_TEAM_ID`

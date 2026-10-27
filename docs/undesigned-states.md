@@ -54,3 +54,4 @@ state is designed or removed. Scootch's list is in the history of this file.
 | Widgets | The timetable widget with no free period left today | The Dial board draws "NO FREE PERIODS" only on the dial. The card's place holds "No free periods left today" |
 | Live Activity, desk | The Lock Screen activity's buttons | The Outside board has Late slip and Start 10 min; the slip needs the desk, so only Start is drawn, full width |
 | Live Activity, desk | The fuse along the chalkboard's ledge | The brief burns it around the edge; the system animates only a bar or a ring, so it burns along the ledge and as a ring with its time left |
+| Privacy page, website | The Vietnamese lines naming Anthropic (Claude): the fresh-line row, the heavy-topics check and his fresh lines | Written without a native speaker when the generation model moved to Anthropic; awaiting native review |

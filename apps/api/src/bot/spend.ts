@@ -1,23 +1,22 @@
-import { deepseekModels } from '../ai/deepseek';
+import { claudeModel } from '../ai/claude';
 import { jevModel } from '../ai/jev';
 import { ledgerProject } from '../ledger';
 
 /**
  * US dollars per million tokens, by the model id the ledger records.
  *
- * PLACEHOLDER PRICES: none of these has been checked against a provider's price list or an
- * invoice. They are to be confirmed by the founder; until then every figure the bot reports is
- * an estimate and says so.
+ * Claude Haiku 5.5 is at Anthropic's price for prompts up to 100K tokens, which every prompt here
+ * is. Jev's price is a placeholder that has not been checked against a price list or an invoice,
+ * and the bot says so beside every figure.
  */
 export const pricePerMillionTokens: Readonly<
   Record<string, { readonly input: number; readonly output: number }>
 > = {
-  [deepseekModels.writer]: { input: 0.6, output: 2.4 },
-  [deepseekModels.fast]: { input: 0.1, output: 0.4 },
+  [claudeModel]: { input: 0.1, output: 0.5 },
   [jevModel]: { input: 0.2, output: 0.2 },
 };
 
-export const priceNote = 'placeholder prices, to be confirmed';
+export const priceNote = 'Haiku price set; Jev price a placeholder';
 
 /** The model calls of one route answered by one model, over a stretch of time. */
 export type SpendLine = {

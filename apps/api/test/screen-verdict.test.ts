@@ -76,7 +76,7 @@ describe('the care screen response', () => {
       confidence: 0.7,
     },
     answeredBy,
-    model: answeredBy === 'jev' ? 'jev-1.13.0' : 'deepseek-flash',
+    model: answeredBy === 'jev' ? 'jev-1.13.0' : 'claude-haiku-5-5',
   });
   const preparation = (
     yes: number,
@@ -88,7 +88,7 @@ describe('the care screen response', () => {
       confidence: 0.7,
     },
     answeredBy,
-    model: answeredBy === 'jev' ? 'jev-1.13.0' : 'deepseek-flash',
+    model: answeredBy === 'jev' ? 'jev-1.13.0' : 'claude-haiku-5-5',
   });
 
   it('flags low confidence when caution, not likelihood, chose the verdict', () => {

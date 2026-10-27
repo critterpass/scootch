@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { generate } from '../../ai/deepseek';
+import { generate } from '../../ai/claude';
 import { askJev, JevUnavailable } from '../../ai/jev';
 import { ApiError } from '../../errors';
 import { recordAiUsage } from '../../ledger';
@@ -9,7 +9,7 @@ import type { BotCommand, CommandContext } from '../command';
 /** The ledger route for the bot's own check calls, so they show up in `/costs` as what they are. */
 const statusRoute = 'ops.status';
 const generationCheckTimeoutMs = 4_000;
-const modelSecrets = ['DEEPSEEK_API_KEY', 'TYPESAFE_API_KEY'] as const;
+const modelSecrets = ['ANTHROPIC_API_KEY', 'TYPESAFE_API_KEY'] as const;
 
 type Answered = { model: string; inputTokens: number; outputTokens: number };
 
@@ -64,14 +64,13 @@ export const statusCommand: BotCommand = {
       ),
       check(context, () =>
         generate(
-          { apiKey: env.DEEPSEEK_API_KEY, ...boundary },
+          { apiKey: env.ANTHROPIC_API_KEY, ...boundary },
           {
             tier: 'fast',
-            system: 'You are a health check. Call the tool with ok set to true.',
+            system: 'You are a health check. Answer with ok set to true.',
             prompt: 'ping',
-            tool: { name: 'answer', description: 'Report that you are answering.' },
             schema: z.object({ ok: z.boolean() }),
-            maxTokens: 20,
+            maxTokens: 200,
             timeoutMs: generationCheckTimeoutMs,
           },
         ),
