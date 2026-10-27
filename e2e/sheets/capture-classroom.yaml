@@ -10,8 +10,17 @@ appId: com.phusclass.dev
     visible:
       id: 'first-day'
     timeout: 90000
+# Wait for the splash to be gone before the first tap, however slow the device.
+- extendedWaitUntil:
+    notVisible:
+      id: 'splash'
+    timeout: 30000
 - openLink: phusclass-dev:///dev-classroom
-# iOS asks before a link opens the app.
+# iOS asks before a link opens the app; its alert can take a moment to come up on a slow device.
+- extendedWaitUntil:
+    visible: 'Open'
+    timeout: 10000
+    optional: true
 - tapOn:
     text: 'Open'
     optional: true

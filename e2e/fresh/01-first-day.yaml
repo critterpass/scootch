@@ -14,6 +14,11 @@ appId: com.phusclass.dev
     visible:
       id: 'first-day-beat-class'
     timeout: 90000
+# Wait for the splash to be gone before the first tap, however slow the device.
+- extendedWaitUntil:
+    notVisible:
+      id: 'splash'
+    timeout: 30000
 - assertVisible: 'Sit down. Class has started.'
 # The splash has flown off and the class is on the board.
 - waitForAnimationToEnd:
@@ -93,6 +98,11 @@ appId: com.phusclass.dev
 - extendedWaitUntil:
     visible:
       id: 'desk'
+    timeout: 30000
+# Wait for the splash to be gone before the first tap, however slow the device.
+- extendedWaitUntil:
+    notVisible:
+      id: 'splash'
     timeout: 30000
 - assertNotVisible:
     id: 'first-day'

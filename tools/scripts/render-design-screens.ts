@@ -7,11 +7,23 @@ import { fileURLToPath } from 'node:url';
 
 import { chromium, type Browser, type Page } from 'playwright';
 
+import {
+  phusClassFolder,
+  phusClassScreens,
+  readCanvas,
+  renderPhusClassBoards,
+  servable,
+} from './render-phus-class-boards';
+
 /**
- * Renders every designed screen of the boards in `design/` to its own image, so a screen on a device
+ * Renders every designed screen of the boards in `design/` and of the Phu's Class boards in
+ * `design/phus-class/` (see render-phus-class-boards.ts) to its own image, so a screen on a device
  * can be put beside its design.
  *
  *   tsx tools/scripts/render-design-screens.ts [--out <folder>] [--manifest <file>] [<board file>...]
+ *
+ * Given board files, only those are rendered; a Phu's Class board is named by its path, such as
+ * `design/phus-class/Finish.dc.html`.
  *
  * A board marks its numbered sections and, inside them, each screen with `data-screen-label`. A screen
  * is a labelled element inside a labelled section; the sections themselves (and a board's title blocks)
@@ -20,8 +32,9 @@ import { chromium, type Browser, type Page } from 'playwright';
  * small margin for the device frame, and the manifest lists them in board and document order with the
  * screen's own size in design points.
  *
- * The boards fetch their scripts, which a browser refuses on `file:` addresses, so the folder is served
- * from this machine for the length of the run. React and the web font still come from the network.
+ * The boards fetch their scripts and fonts, which a browser refuses on `file:` addresses, so the folder
+ * is served from this machine for the length of the run. React and the older boards' web font still
+ * come from the network.
  */
 const repoRoot = path.resolve(import.meta.dirname, '../..');
 const designDir = path.join(repoRoot, 'design');
@@ -67,16 +80,17 @@ export function uniqueNames(names: readonly string[]): string[] {
 const contentTypes: Record<string, string> = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
+  '.woff2': 'font/woff2',
 };
 
-/** Serves the files directly inside `design/`, and nothing else, on a loopback port. */
+/** Serves the design files `servable` allows, and nothing else, on a loopback port. */
 function serveDesignFolder(): Promise<Server> {
   const server = createServer((request, response) => {
     const name = decodeURIComponent(new URL(request.url ?? '/', 'http://localhost').pathname).slice(
       1,
     );
     const type = contentTypes[path.extname(name)];
-    if (!type || name !== path.basename(name)) {
+    if (!type || !servable(name)) {
       response.writeHead(404).end();
       return;
     }
@@ -233,11 +247,16 @@ async function main(argv: readonly string[]): Promise<void> {
   const args = [...argv];
   const outDir = path.resolve(option(args, '--out') ?? path.join(repoRoot, rendersPath));
   const manifest = path.resolve(option(args, '--manifest') ?? path.join(designDir, 'screens.json'));
+  const isPhusClass = (file: string) => path.basename(path.dirname(file)) === phusClassFolder;
   const boards = (
     args.length > 0
-      ? args.map((file) => path.basename(file))
+      ? args.filter((file) => !isPhusClass(file)).map((file) => path.basename(file))
       : readdirSync(designDir).filter((file) => file.endsWith(boardSuffix))
   ).sort((a, b) => slug(boardName(a)).localeCompare(slug(boardName(b))));
+  const picked = new Set(args.filter(isPhusClass).map((file) => boardName(file)));
+  const phusClass = phusClassScreens(readCanvas(designDir)).filter(
+    (screen) => args.length === 0 || picked.has(screen.board),
+  );
 
   const server = await serveDesignFolder();
   const origin = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
@@ -251,6 +270,12 @@ async function main(argv: readonly string[]): Promise<void> {
       if (screens.length === 0 && !pageBoards.has(file)) empty.push(file);
       all.push(...screens);
     }
+    const drawn = await renderPhusClassBoards(browser, origin, phusClass, outDir, slug);
+    for (const { screen, file } of drawn) {
+      const { board, section, screen: label, width, height } = screen;
+      all.push({ board, section, screen: label, path: `${rendersPath}/${file}`, width, height });
+    }
+    console.log(`${String(drawn.length).padStart(4)}  Phu's Class`);
   } finally {
     await browser.close();
     server.close();
@@ -258,7 +283,7 @@ async function main(argv: readonly string[]): Promise<void> {
 
   mkdirSync(path.dirname(manifest), { recursive: true });
   writeFileSync(manifest, `${JSON.stringify(all, null, 2)}\n`);
-  console.log(`${String(all.length).padStart(4)}  screens in ${boards.length} boards`);
+  console.log(`${String(all.length).padStart(4)}  screens`);
   if (empty.length > 0) {
     throw new Error(`No screens were found in: ${empty.join(', ')}`);
   }

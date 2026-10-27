@@ -1,0 +1,39 @@
+appId: com.phusclass.dev
+---
+# The fresh-user walk, the logbook opened and closed at once: three times from the board, the
+# logbook is opened by its pill and closed by one tap on its handle the moment it is there. One tap
+# must do it every time: the tap is not retried, and the page must be gone within three seconds.
+- extendedWaitUntil:
+    visible:
+      id: 'desk'
+    timeout: 10000
+- tapOn:
+    id: 'desk-chalkboard'
+- extendedWaitUntil:
+    visible:
+      id: 'board'
+    timeout: 10000
+- repeat:
+    times: 3
+    commands:
+      - tapOn:
+          id: 'board-logbook'
+      - extendedWaitUntil:
+          visible:
+            id: 'logbook-close'
+          timeout: 10000
+      - tapOn:
+          id: 'logbook-close'
+          retryTapIfNoChange: false
+      - extendedWaitUntil:
+          notVisible:
+            id: 'logbook-screen'
+          timeout: 3000
+      - assertVisible:
+          id: 'board-logbook'
+- tapOn:
+    id: 'board-close'
+- extendedWaitUntil:
+    visible:
+      id: 'desk-chalkboard'
+    timeout: 10000

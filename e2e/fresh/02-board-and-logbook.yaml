@@ -9,12 +9,31 @@ appId: com.phusclass.dev
       visible:
         id: 'desk-chalkboard'
     commands:
-      # Pull down on the desk: the chalkboard grows into the board.
+      # Pull down on the desk: the chalkboard grows into the board. On a slow simulator a swipe
+      # sent while the desk is still settling can arrive as too short a pull, and the board springs
+      # back: the desk settles first, and a pull that did not take is made once more.
+      - waitForAnimationToEnd:
+          timeout: 3000
       - swipe:
           from:
             id: 'desk-chalkboard'
           direction: DOWN
           duration: 700
+      - extendedWaitUntil:
+          visible:
+            id: 'board'
+          timeout: 10000
+          optional: true
+      - runFlow:
+          when:
+            notVisible:
+              id: 'board'
+          commands:
+            - swipe:
+                from:
+                  id: 'desk-chalkboard'
+                direction: DOWN
+                duration: 700
       - extendedWaitUntil:
           visible:
             id: 'board'

@@ -5,7 +5,7 @@
     "screen": "Opening the camera",
     "path": "design/renders/camera/01-camera--opening-the-camera.png",
     "width": 393,
-    "height": 929
+    "height": 930
   },
   {
     "board": "Camera",
@@ -20,7 +20,7 @@
     "section": "01 Camera",
     "screen": "Desk · first step found",
     "path": "design/renders/camera/01-camera--desk-first-step-found.png",
-    "width": 392,
+    "width": 393,
     "height": 929
   },
   {
@@ -92,7 +92,7 @@
     "section": "01 Serious mode and crisis",
     "screen": "Crisis · real help first",
     "path": "design/renders/care-and-edge-states/01-serious-mode-and-crisis--crisis-real-help-first.png",
-    "width": 393,
+    "width": 392,
     "height": 947
   },
   {
@@ -525,7 +525,7 @@
     "screen": "Closed · session",
     "path": "design/renders/iphone-duo/01-iphone-duo--closed-session.png",
     "width": 420,
-    "height": 721
+    "height": 722
   },
   {
     "board": "iPhone Duo",
@@ -828,8 +828,8 @@
     "section": "01 Scootch Plus · where it lives",
     "screen": "Locked controls · free and Plus",
     "path": "design/renders/plus/01-scootch-plus-where-it-lives--locked-controls-free-and-plus.png",
-    "width": 1020,
-    "height": 1615
+    "width": 1019,
+    "height": 1614
   },
   {
     "board": "Plus",
@@ -837,7 +837,7 @@
     "screen": "First offer · after the third catch",
     "path": "design/renders/plus/01-scootch-plus-where-it-lives--first-offer-after-the-third-catch.png",
     "width": 393,
-    "height": 948
+    "height": 947
   },
   {
     "board": "Plus",
@@ -1836,7 +1836,7 @@
     "section": "01 Ways in",
     "screen": "From a friend's link",
     "path": "design/renders/tables/01-ways-in--from-a-friend-s-link.png",
-    "width": 393,
+    "width": 392,
     "height": 929
   },
   {
@@ -2790,5 +2790,581 @@
     "path": "design/renders/website/15-copy-sheet--copy.png",
     "width": 1123,
     "height": 1440
+  },
+  {
+    "board": "Main",
+    "section": "",
+    "screen": "Main",
+    "path": "design/renders/phus-class/main/untitled--main.png",
+    "width": 1440,
+    "height": 1520
+  },
+  {
+    "board": "Rig",
+    "section": "",
+    "screen": "Rig",
+    "path": "design/renders/phus-class/rig/untitled--rig.png",
+    "width": 1200,
+    "height": 1520
+  },
+  {
+    "board": "Phu",
+    "section": "",
+    "screen": "Phu",
+    "path": "design/renders/phus-class/phu/untitled--phu.png",
+    "width": 200,
+    "height": 220
+  },
+  {
+    "board": "AppIcon",
+    "section": "",
+    "screen": "AppIcon",
+    "path": "design/renders/phus-class/appicon/untitled--appicon.png",
+    "width": 256,
+    "height": 256
+  },
+  {
+    "board": "Dial",
+    "section": "",
+    "screen": "Dial",
+    "path": "design/renders/phus-class/dial/untitled--dial.png",
+    "width": 240,
+    "height": 240
+  },
+  {
+    "board": "Prop",
+    "section": "",
+    "screen": "Prop",
+    "path": "design/renders/phus-class/prop/untitled--prop.png",
+    "width": 150,
+    "height": 104
+  },
+  {
+    "board": "Poses",
+    "section": "Thầy Phú, his things, how they move",
+    "screen": "Poses",
+    "path": "design/renders/phus-class/poses/tha-y-phu-his-things-how-they-move--poses.png",
+    "width": 1440,
+    "height": 1600
+  },
+  {
+    "board": "Props",
+    "section": "Thầy Phú, his things, how they move",
+    "screen": "Props",
+    "path": "design/renders/phus-class/props/tha-y-phu-his-things-how-they-move--props.png",
+    "width": 1440,
+    "height": 1060
+  },
+  {
+    "board": "Motion",
+    "section": "Thầy Phú, his things, how they move",
+    "screen": "Motion",
+    "path": "design/renders/phus-class/motion/tha-y-phu-his-things-how-they-move--motion.png",
+    "width": 1440,
+    "height": 1500
+  },
+  {
+    "board": "NeverTwice",
+    "section": "Never the same twice",
+    "screen": "NeverTwice",
+    "path": "design/renders/phus-class/nevertwice/never-the-same-twice--nevertwice.png",
+    "width": 1440,
+    "height": 1240
+  },
+  {
+    "board": "HapCat",
+    "section": "Never the same twice",
+    "screen": "HapCat",
+    "path": "design/renders/phus-class/hapcat/never-the-same-twice--hapcat.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "HapPlane",
+    "section": "Never the same twice",
+    "screen": "HapPlane",
+    "path": "design/renders/phus-class/happlane/never-the-same-twice--happlane.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "HapPower",
+    "section": "Never the same twice",
+    "screen": "HapPower",
+    "path": "design/renders/phus-class/happower/never-the-same-twice--happower.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "HapFlowers",
+    "section": "Never the same twice",
+    "screen": "HapFlowers",
+    "path": "design/renders/phus-class/hapflowers/never-the-same-twice--hapflowers.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "HapQuiz",
+    "section": "Never the same twice",
+    "screen": "HapQuiz",
+    "path": "design/renders/phus-class/hapquiz/never-the-same-twice--hapquiz.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "HapRain",
+    "section": "Never the same twice",
+    "screen": "HapRain",
+    "path": "design/renders/phus-class/haprain/never-the-same-twice--haprain.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "FirstDay",
+    "section": "First day of class",
+    "screen": "FirstDay",
+    "path": "design/renders/phus-class/firstday/first-day-of-class--firstday.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "RollCall",
+    "section": "First day of class",
+    "screen": "RollCall",
+    "path": "design/renders/phus-class/rollcall/first-day-of-class--rollcall.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "NotesHome",
+    "section": "First day of class",
+    "screen": "NotesHome",
+    "path": "design/renders/phus-class/noteshome/first-day-of-class--noteshome.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "EmptyDesk",
+    "section": "First day of class",
+    "screen": "EmptyDesk",
+    "path": "design/renders/phus-class/emptydesk/first-day-of-class--emptydesk.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "App",
+    "section": "One task on the desk",
+    "screen": "App",
+    "path": "design/renders/phus-class/app/one-task-on-the-desk--app.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "Desk",
+    "section": "One task on the desk",
+    "screen": "Desk",
+    "path": "design/renders/phus-class/desk/one-task-on-the-desk--desk.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "DeskHot",
+    "section": "One task on the desk",
+    "screen": "DeskHot",
+    "path": "design/renders/phus-class/deskhot/one-task-on-the-desk--deskhot.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "FrontRow",
+    "section": "One task on the desk",
+    "screen": "FrontRow",
+    "path": "design/renders/phus-class/frontrow/one-task-on-the-desk--frontrow.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "Listening",
+    "section": "One task on the desk",
+    "screen": "Listening",
+    "path": "design/renders/phus-class/listening/one-task-on-the-desk--listening.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "Typing",
+    "section": "One task on the desk",
+    "screen": "Typing",
+    "path": "design/renders/phus-class/typing/one-task-on-the-desk--typing.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "Board",
+    "section": "Pull and swipe",
+    "screen": "Board",
+    "path": "design/renders/phus-class/board/pull-and-swipe--board.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "LateSlip",
+    "section": "One task on the desk",
+    "screen": "LateSlip",
+    "path": "design/renders/phus-class/lateslip/one-task-on-the-desk--lateslip.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "Session",
+    "section": "The drum, and after",
+    "screen": "Session",
+    "path": "design/renders/phus-class/session/the-drum-and-after--session.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "Partial",
+    "section": "The drum, and after",
+    "screen": "Partial",
+    "path": "design/renders/phus-class/partial/the-drum-and-after--partial.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "Finish",
+    "section": "The drum, and after",
+    "screen": "Finish",
+    "path": "design/renders/phus-class/finish/the-drum-and-after--finish.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "Recess",
+    "section": "The drum, and after",
+    "screen": "Recess",
+    "path": "design/renders/phus-class/recess/the-drum-and-after--recess.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "Serious",
+    "section": "The drum, and after",
+    "screen": "Serious",
+    "path": "design/renders/phus-class/serious/the-drum-and-after--serious.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "Settings",
+    "section": "Around the classroom",
+    "screen": "Settings",
+    "path": "design/renders/phus-class/settings/around-the-classroom--settings.png",
+    "width": 390,
+    "height": 1940
+  },
+  {
+    "board": "Crisis",
+    "section": "Around the classroom",
+    "screen": "Crisis",
+    "path": "design/renders/phus-class/crisis/around-the-classroom--crisis.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "ShareCard",
+    "section": "Share",
+    "screen": "ShareCard",
+    "path": "design/renders/phus-class/sharecard/share--sharecard.png",
+    "width": 2000,
+    "height": 760
+  },
+  {
+    "board": "Outside",
+    "section": "Outside the app",
+    "screen": "Outside",
+    "path": "design/renders/phus-class/outside/outside-the-app--outside.png",
+    "width": 1640,
+    "height": 1240
+  },
+  {
+    "board": "Tuition",
+    "section": "Tuition",
+    "screen": "Tuition",
+    "path": "design/renders/phus-class/tuition/tuition--tuition.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "Money",
+    "section": "Tuition",
+    "screen": "Money",
+    "path": "design/renders/phus-class/money/tuition--money.png",
+    "width": 1440,
+    "height": 1880
+  },
+  {
+    "board": "OfflineDesk",
+    "section": "One task on the desk",
+    "screen": "OfflineDesk",
+    "path": "design/renders/phus-class/offlinedesk/one-task-on-the-desk--offlinedesk.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "RecessNotice",
+    "section": "The drum, and after",
+    "screen": "RecessNotice",
+    "path": "design/renders/phus-class/recessnotice/the-drum-and-after--recessnotice.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "TimetableAsk",
+    "section": "Around the classroom",
+    "screen": "TimetableAsk",
+    "path": "design/renders/phus-class/timetableask/around-the-classroom--timetableask.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "TimetableWeekend",
+    "section": "Around the classroom",
+    "screen": "TimetableWeekend",
+    "path": "design/renders/phus-class/timetableweekend/around-the-classroom--timetableweekend.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "TimetableLocked",
+    "section": "Around the classroom",
+    "screen": "TimetableLocked",
+    "path": "design/renders/phus-class/timetablelocked/around-the-classroom--timetablelocked.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "LogbookEmpty",
+    "section": "Pull and swipe",
+    "screen": "LogbookEmpty",
+    "path": "design/renders/phus-class/logbookempty/pull-and-swipe--logbookempty.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "ReportCard",
+    "section": "Around the classroom",
+    "screen": "ReportCard",
+    "path": "design/renders/phus-class/reportcard/around-the-classroom--reportcard.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "ShareSheet",
+    "section": "Share",
+    "screen": "ShareSheet",
+    "path": "design/renders/phus-class/sharesheet/share--sharesheet.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "ShareSheet",
+    "section": "Share",
+    "screen": "Test paper",
+    "path": "design/renders/phus-class/sharesheet/share--test-paper.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "ShareSheet",
+    "section": "Share",
+    "screen": "Certificate",
+    "path": "design/renders/phus-class/sharesheet/share--certificate.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "ShareSheet",
+    "section": "Share",
+    "screen": "Note home",
+    "path": "design/renders/phus-class/sharesheet/share--note-home.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "ShareSheet",
+    "section": "Share",
+    "screen": "Your desk",
+    "path": "design/renders/phus-class/sharesheet/share--your-desk.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "ShareSheet",
+    "section": "Share",
+    "screen": "Task hidden",
+    "path": "design/renders/phus-class/sharesheet/share--task-hidden.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "TuitionTrial",
+    "section": "Tuition",
+    "screen": "TuitionTrial",
+    "path": "design/renders/phus-class/tuitiontrial/tuition--tuitiontrial.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "TuitionPaid",
+    "section": "Tuition",
+    "screen": "TuitionPaid",
+    "path": "design/renders/phus-class/tuitionpaid/tuition--tuitionpaid.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "TuitionPending",
+    "section": "Tuition",
+    "screen": "TuitionPending",
+    "path": "design/renders/phus-class/tuitionpending/tuition--tuitionpending.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "TuitionFailed",
+    "section": "Tuition",
+    "screen": "TuitionFailed",
+    "path": "design/renders/phus-class/tuitionfailed/tuition--tuitionfailed.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "Scholarship",
+    "section": "Tuition",
+    "screen": "Scholarship",
+    "path": "design/renders/phus-class/scholarship/tuition--scholarship.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "ScholarshipGranted",
+    "section": "Tuition",
+    "screen": "ScholarshipGranted",
+    "path": "design/renders/phus-class/scholarshipgranted/tuition--scholarshipgranted.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "NavSwipeUp",
+    "section": "Pull and swipe",
+    "screen": "NavSwipeUp",
+    "path": "design/renders/phus-class/navswipeup/pull-and-swipe--navswipeup.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "TimetableSheet",
+    "section": "Pull and swipe",
+    "screen": "TimetableSheet",
+    "path": "design/renders/phus-class/timetablesheet/pull-and-swipe--timetablesheet.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "NavPullBoard",
+    "section": "Pull and swipe",
+    "screen": "NavPullBoard",
+    "path": "design/renders/phus-class/navpullboard/pull-and-swipe--navpullboard.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "NavPullLog",
+    "section": "Pull and swipe",
+    "screen": "NavPullLog",
+    "path": "design/renders/phus-class/navpulllog/pull-and-swipe--navpulllog.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "LogbookPage",
+    "section": "Pull and swipe",
+    "screen": "LogbookPage",
+    "path": "design/renders/phus-class/logbookpage/pull-and-swipe--logbookpage.png",
+    "width": 390,
+    "height": 844
+  },
+  {
+    "board": "Duo",
+    "section": "iPhone Duo",
+    "screen": "Duo",
+    "path": "design/renders/phus-class/duo/iphone-duo--duo.png",
+    "width": 1280,
+    "height": 1240
+  },
+  {
+    "board": "DuoGuide",
+    "section": "iPhone Duo",
+    "screen": "DuoGuide",
+    "path": "design/renders/phus-class/duoguide/iphone-duo--duoguide.png",
+    "width": 1440,
+    "height": 2330
+  },
+  {
+    "board": "DuoClosed",
+    "section": "iPhone Duo",
+    "screen": "DuoClosed",
+    "path": "design/renders/phus-class/duoclosed/iphone-duo--duoclosed.png",
+    "width": 1100,
+    "height": 1100
+  },
+  {
+    "board": "DuoOpen",
+    "section": "iPhone Duo",
+    "screen": "DuoOpen",
+    "path": "design/renders/phus-class/duoopen/iphone-duo--duoopen.png",
+    "width": 1100,
+    "height": 1100
+  },
+  {
+    "board": "DuoBook",
+    "section": "iPhone Duo",
+    "screen": "DuoBook",
+    "path": "design/renders/phus-class/duobook/iphone-duo--duobook.png",
+    "width": 1100,
+    "height": 1100
+  },
+  {
+    "board": "DuoStand",
+    "section": "iPhone Duo",
+    "screen": "DuoStand",
+    "path": "design/renders/phus-class/duostand/iphone-duo--duostand.png",
+    "width": 1100,
+    "height": 1100
+  },
+  {
+    "board": "DuoSplit",
+    "section": "iPhone Duo",
+    "screen": "DuoSplit",
+    "path": "design/renders/phus-class/duosplit/iphone-duo--duosplit.png",
+    "width": 1100,
+    "height": 1100
+  },
+  {
+    "board": "Room",
+    "section": "iPhone Duo",
+    "screen": "Room",
+    "path": "design/renders/phus-class/room/iphone-duo--room.png",
+    "width": 1280,
+    "height": 800
+  },
+  {
+    "board": "Splash",
+    "section": "First day of class",
+    "screen": "Splash",
+    "path": "design/renders/phus-class/splash/first-day-of-class--splash.png",
+    "width": 390,
+    "height": 844
   }
 ]

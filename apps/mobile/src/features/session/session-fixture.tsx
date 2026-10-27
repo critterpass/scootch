@@ -4,6 +4,7 @@ import { useLanguage } from '../../i18n/i18n-provider';
 import { fixtureSnapshot } from '../desk/class-fixtures';
 import { fixedLine, lineFor } from '../desk/his-line';
 
+import { WithFinishedEntry } from './finished-entry';
 import { HAPPENINGS } from './happening-scene';
 import { sessionClock } from './session-model';
 import { SessionView, type SessionPanel } from './session-view';
@@ -48,7 +49,7 @@ export function SessionFixture({ which }: { readonly which: SessionCase }) {
     mood = 'serious';
     line = lineFor(language, 'seriousCompany', 'serious')?.text ?? null;
   }
-  return (
+  const view = (
     <SessionView
       framing={finishing ? 'desk' : 'session'}
       mood={mood}
@@ -89,4 +90,6 @@ export function SessionFixture({ which }: { readonly which: SessionCase }) {
       onRecess={noop}
     />
   );
+  // A finish is in the logbook, so its share button shows beside Recess, as the Finish board has it.
+  return finishing ? <WithFinishedEntry title={title}>{view}</WithFinishedEntry> : view;
 }
