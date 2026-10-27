@@ -205,3 +205,4 @@ Status lines below follow `CLAUDE.md`: `- Status: done — <sha>` or
   - The review note, subscription review screenshots.
   - The internal TestFlight group with the founder.
   - A prd build uploaded, not submitted for review: submission is the founder's call.
+- Status: blocked — screenshots (6.9" and 6.3", en-US and vi) and the review note are set; the review contact phone is the founder's to add, iPhone Duo screenshots wait for the Duo layout, and the prd build is not uploaded yet
