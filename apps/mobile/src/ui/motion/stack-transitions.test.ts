@@ -73,6 +73,14 @@ describe('how each route arrives and leaves', () => {
     }
   });
 
+  it('presents a page opened from a pulled screen above it, never under it', () => {
+    // The report card opens from the logbook; tuition from the timetable.
+    for (const route of ['report-card', 'tuition/index']) {
+      expect(stackMotion(route, true).presentation).not.toBe('card');
+      expect(stackMotion(route, false).presentation).not.toBe('card');
+    }
+  });
+
   it('reads a return to the desk as going back', () => {
     expect(stackMotion('index', true).animationTypeForReplace).toBe('pop');
     expect(stackMotion('(dev)', true).animationTypeForReplace).toBe('push');

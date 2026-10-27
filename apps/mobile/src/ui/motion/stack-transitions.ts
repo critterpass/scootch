@@ -14,6 +14,9 @@
  * - `over`: a screen drawn from a pull, laid over the one beneath, which shows through it. It draws
  *   its own arrival from the finger (the board grows out of the chalkboard, the logbook page
  *   lowers over the board, the desk sheet rises into the timetable), so the system plays nothing.
+ *   A page opened from one of these is presented (a sheet), never pushed: the native stack keeps
+ *   pushed pages in its navigation controller, beneath every presented screen, so a page pushed
+ *   from the logbook would open out of sight behind it.
  * - `none`: care, where a crisis day is simply there with nothing playing around it.
  */
 export type RouteMotion = 'home' | 'push' | 'sheet' | 'fitted' | 'fade' | 'over' | 'none';
@@ -27,7 +30,8 @@ export const ROUTE_MOTION: Readonly<Record<string, RouteMotion>> = {
   timetable: 'over',
   'tuition/index': 'sheet',
   'tuition/scholarship': 'fitted',
-  'report-card': 'push',
+  // Opened from the logbook, which is laid over the board: see `over`.
+  'report-card': 'sheet',
   'first-day/index': 'fade',
   settings: 'push',
   'settings/name': 'push',
