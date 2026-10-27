@@ -52,6 +52,8 @@ export interface DeskViewProps {
   readonly keyboard: number;
   /** The length chosen for the next period, if one was. */
   readonly chosenMinutes: number | null;
+  /** The drum is sounding: Start swings its drum and ripples. */
+  readonly ringing?: boolean;
   readonly recess: RecessView | null;
   /** Pinned on the chalkboard at recess: the tuition notice, when the board's rule puts it up. */
   readonly notice?: ReactNode;
@@ -147,6 +149,7 @@ export function DeskView(props: DeskViewProps) {
       model={model}
       typing={props.typing}
       chosenMinutes={props.chosenMinutes}
+      ringing={props.ringing ?? false}
       onCardLayout={onCardLayout}
       onStart={props.onStart}
       onLength={props.onLength}
@@ -236,7 +239,7 @@ export function DeskView(props: DeskViewProps) {
         </Pressable>
       </GlassSurface>
       {props.offline ? (
-        <GlassSurface style={[styles.offline, { top: insets.top + 18 }]} testID="desk-offline">
+        <GlassSurface style={[styles.offline, { top: insets.top + 26 }]} testID="desk-offline">
           <ClassIcon name="offline" color="#8A7F74" size={15} weight={2.2} />
           <Text
             accessibilityRole="text"

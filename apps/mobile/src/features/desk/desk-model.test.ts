@@ -8,7 +8,7 @@ import { careActions } from '../care/care-actions';
 import { memory } from '../care/care-memory';
 import { careModeOf } from '../care/care-mode';
 
-import { deskModel } from './desk-model';
+import { deskModel, withSlipOut } from './desk-model';
 
 /** A board on a real database, a clock moved by hand, and the desk as the screen reads it. */
 async function deskAt(start: string, name: string | null = 'Trần Minh Anh') {
@@ -72,6 +72,20 @@ describe('the fuse and his pressure', () => {
     wait(20);
     expect(desk()).toMatchObject({ mood: 'stare', pressure: 5, chalkThrow: false, glare: true });
     expect(desk().line?.text).toBe('...');
+  });
+
+  it('keeps Start still and the chalk in his hand while the late slip is out', async () => {
+    const { store, desk, wait } = await deskAt(morning);
+    await store.say('Email the dentist');
+    wait(20);
+    expect(desk()).toMatchObject({ pressure: 4, pulse: 'nudge', chalkThrow: true });
+
+    expect(withSlipOut(desk(), 'en')).toMatchObject({
+      mood: 'peer',
+      pressure: 4,
+      pulse: 'none',
+      chalkThrow: false,
+    });
   });
 
   it('keeps tapping the ruler at 4 when no name was given at roll call', async () => {

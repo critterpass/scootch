@@ -14,6 +14,7 @@ import { Classroom } from '../../classroom/classroom';
 import { useLanguage, useT } from '../../i18n/i18n-provider';
 import type { BoardSnapshot } from '../../state/board-view';
 import { taskCardFrame } from '../../ui/motion/hand-off';
+import { useScreenStyle } from '../../ui/use-screen-style';
 import { deskModel } from '../desk/desk-model';
 import { chalkDate, chalkWords, drawnCarvings } from '../desk/room-scene';
 import { Mark } from '../tuition/marks';
@@ -46,6 +47,7 @@ export interface TimetableFrameProps {
  */
 export function TimetableFrame(props: TimetableFrameProps) {
   const t = useT();
+  const { largeText } = useScreenStyle();
   const { language } = useLanguage();
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
@@ -145,10 +147,10 @@ export function TimetableFrame(props: TimetableFrameProps) {
               <View style={styles.headText}>
                 {desk !== null ? (
                   <>
-                    <Sized size={12} style={styles.label}>
+                    <Sized size={12} style={[styles.label, styles.onDesk]}>
                       {t('desk.onYourDesk').toLocaleUpperCase(language)}
                     </Sized>
-                    <Sized size={21} lines={2} style={styles.task} role="header">
+                    <Sized size={19} lines={largeText ? 3 : 1} style={styles.task} role="header">
                       {desk.title}
                     </Sized>
                   </>
@@ -214,8 +216,9 @@ const styles = StyleSheet.create({
     paddingTop: 14,
     paddingBottom: 14,
   },
-  headText: { flex: 1, gap: 4 },
+  headText: { flex: 1, gap: 6 },
   label: { fontWeight: '700', letterSpacing: 0.7, color: paper.muted },
+  onDesk: { color: paper.red },
   task: { fontWeight: '700', letterSpacing: -0.4, color: paper.ink },
   close: {
     width: 36,

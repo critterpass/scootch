@@ -63,6 +63,7 @@ export function LogbookLine({
         <View style={[styles.what, largeText ? styles.whatLarge : null]}>
           <Text
             allowFontScaling={allowFontScaling}
+            numberOfLines={largeText ? 0 : 1}
             style={[styles.task, { color: ink.ink, fontSize: size(16) }]}
           >
             {row.text}

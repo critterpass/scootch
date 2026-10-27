@@ -102,16 +102,25 @@ export function Sized({
   );
 }
 
-/** A small capital label: "AMOUNT", "TODAY". */
+/**
+ * A small capital label: "AMOUNT", "TODAY". On the receipt, `cap` is its red heading (the board's
+ * `.cap`, tracked 0.12 em) and `small` a field's name (`.lbl`, 9.5 points tracked 0.1 em).
+ */
 export function Label({
   children,
   color = paper.muted,
+  kind,
 }: {
   readonly children: ReactNode;
   readonly color?: string;
+  readonly kind?: 'cap' | 'small';
 }) {
+  const tracking = kind === 'cap' ? 1.2 : kind === 'small' ? 0.95 : 1;
   return (
-    <Sized size={10} style={[styles.label, { color }]}>
+    <Sized
+      size={kind === 'small' ? 9.5 : 10}
+      style={[styles.label, { color, letterSpacing: tracking }]}
+    >
       {children}
     </Sized>
   );

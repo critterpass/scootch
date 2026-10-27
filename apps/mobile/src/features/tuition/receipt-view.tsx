@@ -174,7 +174,7 @@ export function ReceiptView(props: ReceiptViewProps) {
             ) : null}
           </View>
           <View style={styles.phu} accessibilityElementsHidden>
-            <PhuFigure mood={MOODS[stage]} width={104} hand={hand} />
+            <PhuFigure mood={MOODS[stage]} width={112} hand={hand} />
           </View>
         </View>
         <ReceiptPaper
@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
   title: { fontWeight: '800', letterSpacing: -0.8, color: paper.ink },
   subtitle: { color: paper.body, lineHeight: 20 },
   line: { color: paper.redDeep, marginTop: 4 },
-  phu: { width: 104, height: 116, overflow: 'hidden' },
+  phu: { width: 112, height: 124, overflow: 'hidden' },
   actions: { gap: 8, alignItems: 'center', marginTop: 4 },
   fine: { color: paper.muted, textAlign: 'center', lineHeight: 17 },
   links: {

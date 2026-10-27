@@ -1,6 +1,8 @@
 import { useRouter, type Href } from 'expo-router';
 import { Pressable, StyleSheet, View, type ViewProps } from 'react-native';
 
+import { fonts } from '@phusclass/tokens';
+
 import { useT } from '../../i18n/i18n-provider';
 
 import { Mark } from './marks';
@@ -64,7 +66,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  title: { fontWeight: '800', color: paper.ink, textAlign: 'center' },
+  title: { fontFamily: fonts.heading, fontWeight: '800', color: paper.ink, textAlign: 'center' },
   body: { color: '#6B655E', textAlign: 'center' },
   button: {
     marginTop: 8,

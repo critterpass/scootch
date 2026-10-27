@@ -10,7 +10,7 @@ import { ClassIcon } from '../desk/class-icons';
 import { BUTTON_MAX_SCALE, cappedSize, ink, type } from '../desk/class-style';
 
 import type { ComposerNote, ComposerState } from './composer-machine';
-import { VoiceBars as Bars } from './voice-bars';
+import { ListeningDot, VoiceBars as Bars } from './voice-bars';
 
 const IDLE_HEIGHT = 56;
 const LISTEN_HEIGHT = 160;
@@ -154,7 +154,7 @@ export function ComposerBar({
               {listening || showing ? (
                 <>
                   <View style={styles.listenHead}>
-                    <View style={styles.dot} />
+                    <ListeningDot />
                     <Text
                       allowFontScaling={sizing.allowFontScaling}
                       style={[type.label, { color: ink.red }]}
@@ -252,7 +252,6 @@ const styles = StyleSheet.create({
   },
   listening: { flex: 1, minHeight: LISTEN_HEIGHT, padding: 14, gap: 8 },
   listenHead: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  dot: { width: 7, height: 7, borderRadius: 4, backgroundColor: ink.red },
   wordsBox: { flex: 1, justifyContent: 'flex-end', overflow: 'hidden' },
   words: { color: ink.text, lineHeight: 23 },
   listenFoot: {

@@ -8,12 +8,23 @@ import { useScreenStyle } from '../../ui/use-screen-style';
 import { Segments, SwitchRow } from './settings-parts';
 
 /** His note beside each period length, as the Settings board writes it. */
-const PERIOD_NOTES: Readonly<
-  Record<number, 'settings.period.note.10' | 'settings.period.note.15' | 'settings.period.note.25'>
-> = { 10: 'settings.period.note.10', 15: 'settings.period.note.15', 25: 'settings.period.note.25' };
+type PeriodNote =
+  | 'settings.period.note.5'
+  | 'settings.period.note.10'
+  | 'settings.period.note.15'
+  | 'settings.period.note.25'
+  | 'settings.period.note.45';
+const PERIOD_NOTES: Readonly<Record<number, PeriodNote>> = {
+  5: 'settings.period.note.5',
+  10: 'settings.period.note.10',
+  15: 'settings.period.note.15',
+  25: 'settings.period.note.25',
+  45: 'settings.period.note.45',
+};
 
 /**
- * The class's first rows: how long a period lasts (ten minutes unless changed; a pop quiz is still
+ * The class's first rows: how long a period lasts (five to forty-five minutes, ten unless changed; a
+ * pop quiz is still
  * fifteen), and the school drum at the start and end. Both are kept by the board store.
  */
 export function PeriodAndDrum() {
@@ -64,7 +75,7 @@ export function PeriodAndDrum() {
 }
 
 const styles = StyleSheet.create({
-  cell: { paddingHorizontal: 16, paddingVertical: 12, gap: 10 },
+  cell: { paddingHorizontal: 16, paddingVertical: 14, gap: 10 },
   head: {
     flexDirection: 'row',
     flexWrap: 'wrap',

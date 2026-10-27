@@ -84,7 +84,9 @@ export function ChargeCard({
           <View key={step.kind} style={styles.step} testID={`tuition-step-${step.kind}`}>
             <View style={styles.head}>
               <View style={[styles.dot, { backgroundColor: tone.dot }]} />
-              <Label color={tone.label}>{stepWhen(step, today, t, language)}</Label>
+              <Label color={tone.label} kind="small">
+                {stepWhen(step, today, t, language)}
+              </Label>
             </View>
             <Sized size={12.5} style={styles.text}>
               {stepText(step, t)}

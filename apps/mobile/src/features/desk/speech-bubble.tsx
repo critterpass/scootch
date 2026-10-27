@@ -16,14 +16,14 @@ const BUBBLE_MAX_SCALE = 1.8;
 /** Below the room's top, how far the desk keeps clear for his bubble at the largest sizes. */
 export const BUBBLE_ROOM = 290;
 
-/** The App board's bubble pop: from 60% and a little low, overshooting into place. */
+/** The App board's bubble pop: from 60% and a little low at its tail, overshooting into place. */
 function pop() {
   'worklet';
   const timing = { duration: 400, easing: curves.character };
   return {
     initialValues: { opacity: 0, transform: [{ scale: 0.6 }, { translateY: 10 }] },
     animations: {
-      opacity: withTiming(1, { duration: 200 }),
+      opacity: withTiming(1, timing),
       transform: [{ scale: withTiming(1, timing) }, { translateY: withTiming(0, timing) }],
     },
   };
@@ -88,6 +88,7 @@ const styles = StyleSheet.create({
     backgroundColor: ink.white,
     boxShadow: '0 6px 16px rgba(30,40,30,0.16)',
     zIndex: 3,
+    transformOrigin: '20% 100%',
   },
   words: { color: ink.text },
   tail: {

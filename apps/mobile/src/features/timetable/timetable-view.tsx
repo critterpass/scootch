@@ -1,4 +1,5 @@
 import type { Task } from '@phusclass/domain/board';
+import { fonts } from '@phusclass/tokens';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { useHandFont } from '../../classroom/use-hand-font';
@@ -232,7 +233,14 @@ const styles = StyleSheet.create({
     boxShadow: '0 1px 2px rgba(60,40,20,0.05)',
   },
   askPhu: { width: 130, height: 143, overflow: 'hidden' },
-  askTitle: { fontWeight: '800', textAlign: 'center', color: paper.ink, marginTop: 10 },
+  askTitle: {
+    fontFamily: fonts.heading,
+    fontWeight: '800',
+    letterSpacing: -0.22,
+    textAlign: 'center',
+    color: paper.ink,
+    marginTop: 4,
+  },
   askBody: { textAlign: 'center', color: '#6B655E', lineHeight: 21 },
   askButtons: { alignSelf: 'stretch', gap: 6, marginTop: 12 },
   notNow: { minHeight: 44, alignItems: 'center', justifyContent: 'center' },
@@ -246,7 +254,7 @@ const styles = StyleSheet.create({
     gap: 6,
     boxShadow: '0 1px 2px rgba(60,40,20,0.05)',
   },
-  weekendTitle: { fontWeight: '800', color: paper.ink },
+  weekendTitle: { fontFamily: fonts.heading, fontWeight: '800', color: paper.ink },
   muted: { color: '#6B655E' },
   lockedWrap: { minHeight: 420 },
   lockedBehind: { opacity: 0.3 },

@@ -1,9 +1,12 @@
 import { Pressable, StyleSheet, Text, View, type LayoutChangeEvent } from 'react-native';
+import Animated from 'react-native-reanimated';
 
 import { useT } from '../../i18n/i18n-provider';
 import { useTextSizing } from '../../screens/registry/support/forced-variant';
+import { useMayMove } from '../../ui/motion/use-feel';
 import { useScreenStyle } from '../../ui/use-screen-style';
 
+import { fadeUp } from './class-motion';
 import { BUTTON_MAX_SCALE, buttonText, cappedSize, ink, shapes, type } from './class-style';
 import type { DeskModel } from './desk-model';
 import type { RecessView } from './desk-view';
@@ -14,6 +17,8 @@ export interface DeskCardProps {
   readonly model: DeskModel;
   readonly typing: boolean;
   readonly chosenMinutes: number | null;
+  /** The drum is sounding for the period about to begin. */
+  readonly ringing: boolean;
   readonly onCardLayout: (event: LayoutChangeEvent) => void;
   readonly onStart: () => void;
   readonly onLength: (minutes: number) => void;
@@ -31,15 +36,22 @@ export function DeskCard(props: DeskCardProps) {
   const sizing = useTextSizing();
   // At the accessibility sizes the title wraps in full and the buttons stack, full width.
   const { largeText } = useScreenStyle();
+  // The front-row tag and the note fade up as they appear, as the board's `fade` does.
+  const appear = useMayMove() ? { entering: fadeUp } : {};
   const { model } = props;
   const task = model.task;
   const onCardLayout = props.onCardLayout;
   const deskHead =
     task === null ? (
       <View style={styles.head}>
-        <Text allowFontScaling={sizing.allowFontScaling} style={[type.label, { color: ink.muted }]}>
-          {t('desk.onYourDesk')}
-        </Text>
+        <View style={styles.headRow}>
+          <Text
+            allowFontScaling={sizing.allowFontScaling}
+            style={[type.label, { color: ink.muted }]}
+          >
+            {t('desk.onYourDesk')}
+          </Text>
+        </View>
         <Text
           accessibilityRole="header"
           allowFontScaling={sizing.allowFontScaling}
@@ -65,13 +77,14 @@ export function DeskCard(props: DeskCardProps) {
               {t('desk.onYourDesk')}
             </Text>
             {model.task?.frontRow ? (
-              <Text
+              <Animated.Text
+                {...appear}
                 testID="desk-front-row"
                 allowFontScaling={sizing.allowFontScaling}
                 style={[type.hand, styles.frontRow, { fontSize: sizing.size(15) }]}
               >
                 {t('desk.frontRow')}
-              </Text>
+              </Animated.Text>
             ) : null}
           </View>
           <View style={styles.headRight}>
@@ -99,12 +112,13 @@ export function DeskCard(props: DeskCardProps) {
           {task.title}
         </Text>
         {task.note !== null ? (
-          <Text
+          <Animated.Text
+            {...appear}
             allowFontScaling={sizing.allowFontScaling}
             style={[type.hand, styles.note, { fontSize: sizing.size(19) }]}
           >
             {t('desk.noteToSelf', { note: task.note })}
-          </Text>
+          </Animated.Text>
         ) : null}
       </View>
     );
@@ -158,7 +172,8 @@ export function DeskCard(props: DeskCardProps) {
           fuseLeftMs={model.fuse?.leftMs ?? 0}
           minutes={props.chosenMinutes ?? model.periodMinutes}
           pulse={model.pulse}
-          hot={model.pressure >= 4}
+          pressure={model.pressure}
+          ringing={props.ringing}
           onStart={props.onStart}
           onLength={props.onLength}
           stacked={largeText}

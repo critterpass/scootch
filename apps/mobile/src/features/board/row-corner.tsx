@@ -7,6 +7,7 @@ import { HAND_FAMILY } from '../../classroom/use-hand-font';
 import { useT } from '../../i18n/i18n-provider';
 import type { AnimatedViewStyle } from '../../ui/motion/animated-style';
 import { useScreenStyle } from '../../ui/use-screen-style';
+import { ClassIcon } from '../desk/class-icons';
 
 import type { RowAction } from './board-row';
 import type { BoardRow } from './board-rows';
@@ -59,7 +60,7 @@ export function RowCorner({
         >
           <Text
             allowFontScaling={allowFontScaling}
-            style={[styles.pillText, { fontSize: size(13) }]}
+            style={[styles.pillText, styles.letGoText, { fontSize: size(13) }]}
           >
             {t('board.stillYours.letGo')}
           </Text>
@@ -127,6 +128,14 @@ export function SwipeActions({
           onPress={() => onAct(action)}
           style={[styles.action, { backgroundColor: ink[action] }]}
         >
+          {action === 'desk' ? null : (
+            <ClassIcon
+              name={action === 'tick' ? 'check' : 'eraser'}
+              color={CHALK.white}
+              size={16}
+              weight={action === 'tick' ? 2.6 : 2.2}
+            />
+          )}
           <Text
             allowFontScaling={allowFontScaling}
             numberOfLines={1}
@@ -153,6 +162,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 2,
     paddingHorizontal: 4,
   },
   actionText: {
@@ -193,6 +203,9 @@ const styles = StyleSheet.create({
   letGo: {
     borderWidth: 1.5,
     borderColor: CHALK.pillLine,
+  },
+  letGoText: {
+    color: CHALK.chalk,
   },
   pillText: {
     color: CHALK.white,

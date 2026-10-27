@@ -47,7 +47,7 @@ function Stroke({ x, y, delay, size, k }: (typeof STROKES)[number] & { k: number
       transform: [
         { translateY: v > 0.75 ? -10 * ((v - 0.75) / 0.25) : 0 },
         { scale },
-        { rotate: '-6deg' },
+        { rotate: `${v < 0.35 ? -12 + 6 * (v / 0.35) : -6}deg` },
       ],
     };
   });
@@ -62,7 +62,7 @@ function Stroke({ x, y, delay, size, k }: (typeof STROKES)[number] & { k: number
 
 /**
  * The school drum: "Tùng! Tùng! Tùng!" in red chalk, one stroke after another, as the period
- * begins and ends. Under Reduce Motion the words show still, for as long as the drum sounds.
+ * begins and ends. Under Reduce Motion only the drum is heard: the words are not drawn.
  */
 export function DrumBurst() {
   const mayMove = useMayMove();

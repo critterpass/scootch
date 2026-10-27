@@ -151,7 +151,11 @@ export function FinishPaper({ title, comment, waitedDays, tookMinutes }: FinishP
             testID="finish-comment"
             {...(mayMove ? { entering: FadeIn.delay(780).duration(720) } : {})}
             allowFontScaling={sizing.allowFontScaling}
-            style={[type.hand, styles.comment, { fontSize: sizing.size(50) }]}
+            style={[
+              type.hand,
+              styles.comment,
+              { fontSize: sizing.size(50), lineHeight: sizing.size(50) },
+            ]}
           >
             {words}
           </Animated.Text>
@@ -181,6 +185,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 16,
     backgroundColor: ink.white,
+    // Graph paper, ruled faintly in purple every 20 points.
+    backgroundImage:
+      'linear-gradient(rgba(106,69,184,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(106,69,184,0.07) 1px, transparent 1px)',
+    backgroundSize: '20px 20px',
     boxShadow: '0 1px 2px rgba(60,40,20,0.06), 0 10px 26px rgba(60,40,20,0.08)',
   },
   title: { fontWeight: '700', color: ink.text, letterSpacing: -0.3 },
