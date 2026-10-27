@@ -13,6 +13,7 @@ export * from './pick';
 export * from './pressure';
 export * from './schema';
 export * from './seed';
+export * from './short-name';
 export * from './slips';
 export * from './task';
 export * from './tuition-offer';

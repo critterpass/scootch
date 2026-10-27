@@ -50,6 +50,15 @@ describe('the board tables', () => {
     }
   });
 
+  it('works out the short name of a task written before short names were kept', () => {
+    const task = aTask(now, { text: 'Email the dentist to move Thursday' });
+    const row = { ...taskToRow(task), short: null };
+
+    expect(taskToRow(task).short).toBe('Dentist email');
+    expect(taskFromRows(row, [], null).short).toBe('Dentist email');
+    expect(taskFromRows({ ...row, short: 'Dentist' }, [], null).short).toBe('Dentist');
+  });
+
   it('keeps a carving whole', () => {
     const carving = { taskId: 'a', kind: 'heart' as const, x: 0.25, y: 0.5, turn: -12, at: now.at };
 

@@ -11,7 +11,7 @@ import type { DataDatabase, SqlValue } from './data-database';
 const { DatabaseSync } = process.getBuiltinModule('node:sqlite');
 
 /** Every migration in the app's folder, read the way the app reads them: one file each. */
-function appMigrations(): Migration[] {
+export function appMigrations(): Migration[] {
   const folder = join(__dirname, '../db/migrations');
   return readdirSync(folder)
     .filter((file) => file.endsWith('.ts'))
@@ -28,8 +28,11 @@ export type TestDatabase = DataDatabase &
     column(source: string): unknown[];
   };
 
-/** A fresh in-memory database with every app migration applied. */
-export async function openMigratedDatabase(): Promise<TestDatabase> {
+/**
+ * A fresh in-memory database with every app migration applied, or only those named before
+ * `before`, as a phone that has not updated yet has it.
+ */
+export async function openMigratedDatabase(before?: string): Promise<TestDatabase> {
   const sqlite = new DatabaseSync(':memory:');
   const db: TestDatabase = {
     execAsync: (source) => Promise.resolve(sqlite.exec(source)),
@@ -55,6 +58,10 @@ export async function openMigratedDatabase(): Promise<TestDatabase> {
         .all()
         .map((row) => Object.values(row)[0]),
   };
-  await runMigrations(db, appMigrations());
+  const migrations = appMigrations();
+  await runMigrations(
+    db,
+    before === undefined ? migrations : migrations.filter(({ name }) => name < before),
+  );
   return db;
 }

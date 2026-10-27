@@ -26,7 +26,7 @@ import {
  */
 export const FIXTURE_NOW = Date.parse('2026-10-26T09:00:00Z');
 
-const WORDS: Record<Language, readonly string[]> = {
+export const FIXTURE_WORDS: Record<Language, readonly string[]> = {
   en: [
     'Email the dentist to move Thursday',
     'Email the landlord about the sink',
@@ -40,7 +40,7 @@ const WORDS: Record<Language, readonly string[]> = {
   ],
   vi: [
     'Gửi email cho nha sĩ dời lịch thứ Năm',
-    'Nhắn chủ nhà về bồn rửa',
+    'Gửi email cho chủ nhà về bồn rửa',
     'Gia hạn hộ chiếu',
     'Biên lai thuế',
     'Trả lời Minh',
@@ -48,6 +48,32 @@ const WORDS: Record<Language, readonly string[]> = {
     'Sửa đèn xe đạp',
     'Đọc chương 4',
     'Đặt lịch bảo dưỡng xe',
+  ],
+};
+
+/** Each task's short name, as the App board chalks it. */
+const SHORT: Record<Language, readonly string[]> = {
+  en: [
+    'Dentist email',
+    'Landlord email',
+    'Renew passport',
+    'Tax receipts',
+    'Reply to Minh',
+    'Cancel the gym trial',
+    'Fix the bike light',
+    'Read chapter 4',
+    'Book car service',
+  ],
+  vi: [
+    'Email nha sĩ',
+    'Email chủ nhà',
+    'Gia hạn hộ chiếu',
+    'Biên lai thuế',
+    'Trả lời Minh',
+    'Hủy gói tập thử',
+    'Sửa đèn xe đạp',
+    'Đọc chương 4',
+    'Bảo dưỡng xe',
   ],
 };
 
@@ -84,7 +110,8 @@ function slipsOf(count: number, at: number): Task['slips'] {
 /** The store's snapshot of a board set up as asked. */
 export function fixtureSnapshot(options: FixtureOptions): BoardSnapshot {
   const now = FIXTURE_NOW;
-  const words = WORDS[options.language];
+  const words = FIXTURE_WORDS[options.language];
+  const short = SHORT[options.language];
   const waited = (options.waited ?? 3) * MINUTE_MS;
   const tasks: Task[] = options.empty
     ? []
@@ -92,6 +119,7 @@ export function fixtureSnapshot(options: FixtureOptions): BoardSnapshot {
         const task = newTask({
           id: `task-${i}`,
           text: options.heavy && i === 0 ? heavyWords[options.language] : text,
+          short: options.heavy && i === 0 ? heavyShort[options.language] : short[i],
           at: now - (9 - i) * DAY_MS,
           care: options.heavy && i === 0 ? 'serious' : 'none',
           screened: true,
@@ -113,7 +141,13 @@ export function fixtureSnapshot(options: FixtureOptions): BoardSnapshot {
       });
   if (options.fading) {
     tasks.push({
-      ...newTask({ id: 'task-old', text: words[7] ?? '', at: now - 21 * DAY_MS, screened: true }),
+      ...newTask({
+        id: 'task-old',
+        text: words[7] ?? '',
+        short: short[7],
+        at: now - 21 * DAY_MS,
+        screened: true,
+      }),
       lastTouched: now - 21 * DAY_MS,
     });
   }
@@ -159,6 +193,11 @@ export function fixtureSnapshot(options: FixtureOptions): BoardSnapshot {
 const heavyWords: Record<Language, string> = {
   en: 'Call the hospital about Dad’s results',
   vi: 'Gọi bệnh viện hỏi kết quả của bố',
+};
+
+const heavyShort: Record<Language, string> = {
+  en: 'Call the hospital',
+  vi: 'Gọi bệnh viện',
 };
 
 /** The ramble the Listening board hears, in each language. */

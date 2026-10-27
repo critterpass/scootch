@@ -37,7 +37,7 @@ export function aTask(now: Moment, over: TaskOver = {}, id?: string): Task {
     })),
   ];
   return {
-    ...newTask({ id: id ?? `task-${counter}`, text: `Task ${counter}`, at: said }),
+    ...newTask({ id: id ?? `task-${counter}`, text: rest.text ?? `Task ${counter}`, at: said }),
     slips,
     ...rest,
   };

@@ -1,4 +1,5 @@
 import type { ClockTime, Instant, IsoDate } from './moment';
+import { shortName } from './short-name';
 
 /** What the care screen decided about a task. Read from the screen, never worked out here. */
 export type CareFlag = 'none' | 'serious' | 'crisis';
@@ -72,6 +73,8 @@ export type Task = {
   readonly id: string;
   /** In the user's own words. */
   readonly text: string;
+  /** A few of those words for the chalk ("Dentist email"); the desk card keeps `text`. */
+  readonly short: string;
   readonly createdAt: Instant;
   readonly dueDate: IsoDate | null;
   readonly heardTime: HeardTime | null;
@@ -96,6 +99,8 @@ export const FRONT_ROW_AT_TALLIES = 5;
 export function newTask(input: {
   readonly id: string;
   readonly text: string;
+  /** Worked out from `text` when not given. */
+  readonly short?: string | undefined;
   readonly at: Instant;
   readonly dueDate?: IsoDate | null;
   readonly heardTime?: HeardTime | null;
@@ -106,6 +111,7 @@ export function newTask(input: {
   return {
     id: input.id,
     text: input.text,
+    short: input.short ?? shortName(input.text),
     createdAt: input.at,
     dueDate: input.dueDate ?? null,
     heardTime: input.heardTime ?? null,

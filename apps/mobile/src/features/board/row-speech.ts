@@ -32,7 +32,7 @@ export function rowSpeech(row: BoardRow, stillYours: string | null, t: Translate
     ...(row.faded ? (['keep', 'letGo'] as const) : []),
   ];
   return {
-    label: [row.text, ...details].join('. '),
+    label: [row.full, ...details].join('. '),
     actions: [{ name: 'activate' }, ...offered.map((name) => ({ name, label: label[name] }))],
     /** The row action a VoiceOver action names, if it is one this row offers. */
     actionNamed: (name: string): RowAction | null =>

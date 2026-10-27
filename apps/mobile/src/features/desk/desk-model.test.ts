@@ -171,7 +171,7 @@ describe('after the crisis screen is closed', () => {
     });
     expect(model.line?.moment).toBe('crisisCompany');
     expect(desk('vi').line?.moment).toBe('crisisCompany');
-    expect(model.chalk.main).toBe('Email the dentist');
+    expect(model.chalk.main).toBe('Dentist email');
   });
 
   it('keeps plain company on an empty desk, with nothing suspicious said', async () => {
@@ -185,15 +185,27 @@ describe('after the crisis screen is closed', () => {
 });
 
 describe('the chalkboard and the empty desk', () => {
-  it('shows today’s task, the next two and how many more', async () => {
+  it('chalks today’s task, the next two and how many more, each by its short name', async () => {
     const { store, desk } = await deskAt(morning);
     await store.say(
       'Email the dentist. Renew passport. Tax receipts. Reply to Minh. Fix the bike light.',
     );
     const { chalk } = desk();
-    expect(chalk.main).toBe(store.getSnapshot().desk?.task.text);
+    const { chalkboard } = store.getSnapshot();
+    expect(chalk.main).toBe(chalkboard.today?.short);
+    expect(chalk.next).toEqual(chalkboard.next.map((task) => task.short));
     expect(chalk.next).toHaveLength(2);
     expect(chalk.more).toBe(2);
+  });
+
+  it('chalks the short name while the desk card keeps the whole sentence', async () => {
+    const { store, desk } = await deskAt(morning);
+    await store.say('Email the landlord about the sink');
+    expect(desk().chalk.main).toBe('Landlord email');
+    expect(desk().task?.title).toBe('Email the landlord about the sink');
+
+    await store.say('Gửi email cho nha sĩ dời lịch');
+    expect(desk('vi').chalk.next).toEqual(['Email nha sĩ']);
   });
 
   it('is suspicious of an empty board', async () => {

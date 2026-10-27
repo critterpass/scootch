@@ -1,5 +1,6 @@
 import type { Instant, IsoDate, Moment } from './moment';
 import { pickNext, type PickContext, type Ranked } from './pick';
+import { shortName } from './short-name';
 import { isOpen, type Task } from './task';
 
 /**
@@ -63,9 +64,10 @@ export function openDesk(task: Task, at: Instant): Task {
   return { ...task, desk: { ...task.desk, opened: at } };
 }
 
+/** New words for a task, and a short name worked out from them. */
 export function reword(task: Task, text: string, at: Instant): Task {
   const words = text.trim();
-  return words === '' ? task : { ...task, text: words, lastTouched: at };
+  return words === '' ? task : { ...task, text: words, short: shortName(words), lastTouched: at };
 }
 
 /** A new due day, or none. */

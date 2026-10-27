@@ -158,7 +158,7 @@ describe('after the crisis screen is closed', () => {
       treatmentOf(mode()),
     );
 
-    expect(rows.find((row) => row.text === 'Call the bank')?.mark).toEqual({ kind: 'none' });
+    expect(rows.find((row) => row.full === 'Call the bank')?.mark).toEqual({ kind: 'none' });
     expect(rows.some((row) => row.mark.kind === 'tally')).toBe(false);
   });
 });
@@ -175,7 +175,7 @@ describe('the board rows', () => {
 
     const rows = boardRows(snapshot.board, snapshot.faded, snapshot.now, 'en', words);
 
-    expect(rows.map((row) => [row.text, row.mark])).toEqual(
+    expect(rows.map((row) => [row.full, row.mark])).toEqual(
       expect.arrayContaining([
         ['Call the bank', { kind: 'tally', count: 1, frontRow: false }],
         ['Buy milk', { kind: 'none' }],
@@ -197,16 +197,16 @@ describe('the board rows', () => {
     expect(row).toMatchObject({ heavy: true, mark: { kind: 'none' } });
   });
 
-  it('underlines the desk task and writes a due date in the corner', async () => {
+  it('chalks each task’s short name, underlines the desk task and dates the corner', async () => {
     const { store } = await board();
     await store.say('call the bank and email the landlord by Friday');
     const snapshot = store.getSnapshot();
 
     const rows = boardRows(snapshot.board, snapshot.faded, snapshot.now, 'en', words);
 
-    expect(rows.map((row) => [row.text, row.onDesk, row.today, row.mark])).toEqual([
-      ['Call the bank', true, true, { kind: 'none' }],
-      ['Email the landlord', false, false, { kind: 'date', label: 'Fri' }],
+    expect(rows.map((row) => [row.text, row.full, row.onDesk, row.today, row.mark])).toEqual([
+      ['Call bank', 'Call the bank', true, true, { kind: 'none' }],
+      ['Landlord email', 'Email the landlord', false, false, { kind: 'date', label: 'Fri' }],
     ]);
   });
 });

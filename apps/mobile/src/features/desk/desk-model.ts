@@ -36,7 +36,7 @@ const PULSES: readonly StartPulse[] = [
   'none',
 ];
 
-/** What the chalkboard behind him says; the screen writes the words. */
+/** What the chalkboard behind him says, in each task's short name; the screen writes the words. */
 export interface ChalkModel {
   /** Today's task, underlined. `null` on an empty board. */
   readonly main: string | null;
@@ -98,11 +98,11 @@ export interface DeskInput {
 
 function chalkOf(snapshot: BoardSnapshot, heavy: boolean, happening: Happening | null): ChalkModel {
   const { today, next, more } = snapshot.chalkboard;
-  if (heavy) return { main: today?.text ?? null, popQuiz: false, next: [], more: 0, quiet: true };
+  if (heavy) return { main: today?.short ?? null, popQuiz: false, next: [], more: 0, quiet: true };
   return {
-    main: today?.text ?? null,
+    main: today?.short ?? null,
     popQuiz: happening === 'pop quiz',
-    next: next.map((task) => task.text),
+    next: next.map((task) => task.short),
     more,
     quiet: false,
   };

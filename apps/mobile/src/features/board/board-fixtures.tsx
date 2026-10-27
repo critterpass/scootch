@@ -1,10 +1,12 @@
 // The board as the registry captures them: fixed tasks in the variant's language,
 // drawn by the same pages the routes draw, with nothing read from the phone's own board.
+import { shortName } from '@phusclass/domain/board';
 import type { Language } from '@phusclass/i18n';
 import { createChooser, type Moment } from '@phusclass/voice/class';
 
 import { useHandFont } from '../../classroom/use-hand-font';
 import { useLanguage, useT } from '../../i18n/i18n-provider';
+import { FIXTURE_WORDS } from '../desk/class-fixtures';
 
 import { BoardPage, LedgeHandle } from './board-page';
 import { boardDateLine, dueLabel, type BoardRow, type RowMark } from './board-rows';
@@ -61,7 +63,9 @@ function rowsFor(language: Language, today: string, longText: boolean): BoardRow
   ];
   return words.map((text, index) => ({
     id: `fixture-${index}`,
-    text: longText && index === 1 ? LONG[language] : text,
+    // A long task is chalked by its short name; the menu and rewording show it whole.
+    text: longText && index === 1 ? shortName(LONG[language]) : text,
+    full: longText && index === 1 ? LONG[language] : (FIXTURE_WORDS[language][index] ?? text),
     onDesk: index === 0,
     today: index === 0,
     mark: marks[index] ?? { kind: 'none' },
