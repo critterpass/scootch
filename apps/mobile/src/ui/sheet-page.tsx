@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { ScrollView, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { ScrollView, StyleSheet, View, type ScrollViewProps } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useScreenTop } from './sheet-frame';
@@ -15,7 +15,7 @@ export interface SheetPageProps {
   readonly background: string;
   /** What sits in the bar: the close or back control at the leading side, and anything across. */
   readonly bar: ReactNode;
-  readonly contentStyle?: StyleProp<ViewStyle>;
+  readonly contentStyle?: ScrollViewProps['contentContainerStyle'];
   readonly showsVerticalScrollIndicator?: boolean;
   readonly children: ReactNode;
 }
