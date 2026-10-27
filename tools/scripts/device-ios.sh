@@ -67,9 +67,14 @@ fi
 xcrun simctl boot "$udid"
 xcrun simctl bootstatus "$udid" -b >/dev/null
 if [ "${REDUCE_MOTION:-0}" = 1 ]; then
-  # The accessibility default the system reads; the app is installed and launched after it is set.
+  # Written inside the booted simulator, announced, then the simulator is restarted: the system's
+  # accessibility settings are read at boot and cached, and a write alone never reaches an app.
   xcrun simctl spawn "$udid" defaults write com.apple.Accessibility ReduceMotionEnabled -bool true
-  echo "Reduce Motion on"
+  xcrun simctl spawn "$udid" notifyutil -p com.apple.accessibility.reduce.motion.status || true
+  xcrun simctl shutdown "$udid"
+  xcrun simctl boot "$udid"
+  xcrun simctl bootstatus "$udid" -b >/dev/null
+  echo "Reduce Motion: $(xcrun simctl spawn "$udid" defaults read com.apple.Accessibility ReduceMotionEnabled)"
 fi
 xcrun simctl status_bar "$udid" override --time 9:41 --batteryState charged --batteryLevel 100 \
   --cellularMode active --cellularBars 4 --wifiMode active --wifiBars 3 --dataNetwork wifi
