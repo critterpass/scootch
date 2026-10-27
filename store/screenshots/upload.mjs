@@ -70,9 +70,9 @@ async function uploadOne(setId, file) {
   return shot.id;
 }
 
-/** Waits for App Store Connect to finish processing, up to two minutes per frame. */
+/** Waits for App Store Connect to finish processing, up to six minutes per frame: it is sometimes slow. */
 async function processed(id, name) {
-  for (let i = 0; i < 40; i++) {
+  for (let i = 0; i < 120; i++) {
     const { data } = await asc('GET', `/v1/appScreenshots/${id}`);
     const state = data.attributes.assetDeliveryState?.state;
     if (state === 'COMPLETE') return;
