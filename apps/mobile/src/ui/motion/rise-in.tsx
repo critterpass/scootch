@@ -25,10 +25,11 @@ export interface RiseInProps {
 }
 
 /**
- * The design's entrance: a part rises 28 points and fades in over 900 ms on the spring curve, its
- * siblings following by the stagger. It plays once, when the part mounts; give it a `key` to play
- * it again for new content. The curve is front-loaded, so the part is all but in place within a
- * third of a second. Where nothing may move it is a short crossfade. It runs on the UI thread.
+ * The Scholarship board's `.rise`: a part rises 24 points from 0.98 and fades in over 560 ms on the
+ * interface curve, its siblings following by the stagger. It plays once, when the part mounts; give
+ * it a `key` to play it again for new content. Do not put it on what a system sheet is already
+ * sliding in: the two rises would stack. Where nothing may move it is a short crossfade. It runs on
+ * the UI thread.
  */
 export function RiseIn({ index = 0, style, testID, children }: RiseInProps) {
   const mayMove = useMayMove();
@@ -57,9 +58,9 @@ export function RiseIn({ index = 0, style, testID, children }: RiseInProps) {
       };
     }
     return {
-      // Opacity leads, and never starts at nothing: a view with no opacity at all takes no touch,
-      // and a control must be tappable from the frame it is mounted on.
-      opacity: Math.min(1, TOUCHABLE_FROM + shown.value * 2.5),
+      // Opacity never starts at nothing: a view with no opacity at all takes no touch, and a
+      // control must be tappable from the frame it is mounted on.
+      opacity: Math.max(TOUCHABLE_FROM, Math.min(1, shown.value)),
       transform: [
         { translateY: RISE.fromY * (1 - shown.value) },
         { scale: RISE.fromScale + (1 - RISE.fromScale) * shown.value },

@@ -93,16 +93,30 @@ export function nativeCuePlayer(): CuePlayer & { warm(): void } {
   };
 }
 
+/** Cues the Motion board gives a rigid tap on every stroke: the drum, at Start and at time. */
+const RIGID_CUES: ReadonlySet<string> = new Set(['drum']);
+/** Taps that belong to a rigid cue; a cue's taps are its own objects, so a tap knows its cue. */
+const rigidTaps = new WeakSet<HapticTap>();
+
 function impactFor(tap: HapticTap): Haptics.ImpactFeedbackStyle {
+  if (rigidTaps.has(tap)) return Haptics.ImpactFeedbackStyle.Rigid;
   if (tap.intensity < 0.45) return Haptics.ImpactFeedbackStyle.Light;
   if (tap.intensity < 0.75) return Haptics.ImpactFeedbackStyle.Medium;
   return Haptics.ImpactFeedbackStyle.Heavy;
 }
 
-/** Plays a cue's taps at their own times, in step with its sound, until the cue is stopped. */
-export const nativeHaptics: HapticsPlayer = createTapScheduler(systemTimers, (tap) => {
+const tapScheduler = createTapScheduler(systemTimers, (tap) => {
   void Haptics.impactAsync(impactFor(tap)).catch(() => undefined);
 });
+
+/** Plays a cue's taps at their own times, in step with its sound, until the cue is stopped. */
+export const nativeHaptics: HapticsPlayer = {
+  play(taps, name = '') {
+    if (RIGID_CUES.has(name)) for (const tap of taps) rigidTaps.add(tap);
+    tapScheduler.play(taps, name);
+  },
+  stop: (name) => tapScheduler.stop(name),
+};
 
 export const nativeNotifications: NotificationScheduler = {
   scheduledIds: async () =>

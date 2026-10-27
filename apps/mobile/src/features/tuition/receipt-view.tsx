@@ -1,11 +1,12 @@
 import type { PhuMood } from '@phusclass/art/class';
 import { localDateTime, type Instant } from '@phusclass/domain';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useHandFont } from '../../classroom/use-hand-font';
 import { useLanguage, useT, type Translate } from '../../i18n/i18n-provider';
 import { GlassSurface } from '../../ui/glass-surface';
+import { PressSpring } from '../../ui/motion/press-spring';
 import { PhuFigure } from '../board/phu-figure';
 
 import { ChargeCard } from './charge-card';
@@ -14,7 +15,7 @@ import type { PlanId } from './products';
 import type { CustomerState, Offerings, PlanOffer } from './purchases-port';
 import { freeStretchOf, receiptSteps, yearSaving, type ReceiptStage } from './receipt-model';
 import { ReceiptPaper, type ReceiptStamp } from './receipt-paper';
-import { Capsule, handText, paper, Sized, TextLink } from './receipt-parts';
+import { Capsule, handText, PAPER_PRESS, paper, Sized, TextLink } from './receipt-parts';
 import { receiptDay } from './tuition-dates';
 
 export interface ReceiptViewProps {
@@ -131,28 +132,30 @@ export function ReceiptView(props: ReceiptViewProps) {
     <View style={[styles.page, { paddingTop: insets.top }]} testID="tuition">
       <View style={styles.bar}>
         <GlassSurface interactive style={styles.close}>
-          <Pressable
+          <PressSpring
             testID="tuition-close"
             accessibilityRole="button"
             accessibilityLabel={t('tuition.close')}
             onPress={props.onClose}
+            answeredBy="glass"
             style={styles.closePress}
           >
             <Mark name="close" color={paper.ink} size={14} weight={2.6} />
-          </Pressable>
+          </PressSpring>
         </GlassSurface>
         {stage === 'offer' || stage === 'failed' || stage === 'paid' || stage === 'trial' ? (
-          <Pressable
+          <PressSpring
             testID={stage === 'paid' || stage === 'trial' ? 'tuition-manage' : 'tuition-restore'}
             accessibilityRole="button"
             onPress={stage === 'paid' || stage === 'trial' ? props.onManage : props.onRestore}
             disabled={props.busy || !props.available}
             hitSlop={8}
+            pressScale={PAPER_PRESS}
           >
             <Sized size={15} style={styles.corner}>
               {stage === 'paid' || stage === 'trial' ? t('tuition.manage') : t('tuition.restore')}
             </Sized>
-          </Pressable>
+          </PressSpring>
         ) : null}
       </View>
       <ScrollView

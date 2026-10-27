@@ -6,6 +6,7 @@ export const enTuition = {
   'tuition.title': 'Tuition',
   'tuition.subtitle': 'Every lesson stays free. This opens the rest.',
   'tuition.receipt': 'Tuition receipt',
+  'tuition.receiptNumber': 'Nº {number}',
   'tuition.name': 'Name',
   'tuition.line.timetable': 'Timetable',
   'tuition.line.widgets': 'Big widgets',

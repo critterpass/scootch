@@ -45,6 +45,9 @@ state is designed or removed. Scootch's list is in the history of this file.
 | Settings | Quiet hours page (from and to, in half hours) | The board draws the row only. Built from the settings groups, rows and capsule button |
 | Settings | Change the name he calls | The board links the student card to roll call; outside the first day it is a page with the roll-call field and a Save button |
 | Settings | "Let the last note through Focus", "It's fine, be funny", Restore purchases, Privacy and Terms rows | The brief names them; the board does not draw them. Plain rows and the system switch |
+| Settings | The student card at the largest text sizes | The board draws the card at the default size only. The photo stands above the name and fields instead of beside them, so the name keeps its width |
+| Settings | The student card's photo, barcode and number | The board's photo is a drawn student, not the person, and its number is fixed. The same drawing for everyone; the number is class 11 and the school year's two years (1126 0026 2027 for 2026–27) |
+| Tuition | The receipt's number | The board writes Nº 0011 and nothing says what it counts. Class 11A's number on every receipt, in both languages |
 | Settings | No notes allowed by iOS: "Open iOS Settings" row | Turning notes on after the system prompt was refused. A link row under the switch |
 | Helplines, from Settings | The crisis page with the title "Helplines" and a Back button | The `Crisis` board is the crisis day only |
 | Crisis | A region with no verified helpline: the directory card alone, its button filled | The board draws Vietnam only |

@@ -8,7 +8,6 @@ import {
 } from 'react-native';
 import { Pressable as GesturePressable } from 'react-native-gesture-handler';
 import Animated, {
-  interpolate,
   ReduceMotion,
   useAnimatedStyle,
   useSharedValue,
@@ -16,7 +15,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import type { TouchFeedback } from './may-move';
-import { EASE_OUT, PRESS, SPRING_CURVE } from './motion-tokens';
+import { PRESS, SPRING_CURVE } from './motion-tokens';
 import { useFeel } from './use-feel';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -44,6 +43,8 @@ export interface PressSpringProps extends Omit<PressableProps, 'style'> {
    * reaches a control beside it; this one is taken by a native gesture instead.
    */
   readonly byGesture?: boolean;
+  /** How far it sinks: 0.965 for a button, 0.98 for a full-width row, 0.94 for a small chip. */
+  readonly pressScale?: number;
 }
 
 /** The tap a control answers with, when the person has haptics on. */
@@ -56,10 +57,11 @@ export function touchHaptic(feedback: TouchFeedback): void {
 }
 
 /**
- * The app's one pressable: every button, row, chip and pill. Pressed, it sinks to 0.95; let go, it
- * springs back through 1.02, as the design's boards script every `data-press`. The whole press runs
- * on the UI thread. Where nothing may move it dips in opacity instead. A finished tap is felt
- * according to `feedback`, when haptics are on.
+ * The app's one pressable: every button, row, chip and pill. Pressed, it sinks to 0.965 over
+ * 200 ms on the interface curve, and let go it comes back the same way with no overshoot, as the
+ * App board's `.press`. The finger can reverse it at any point. The whole press runs on the UI
+ * thread. Where nothing may move it dips in opacity instead. A finished tap is felt according to
+ * `feedback`, when haptics are on.
  */
 export function PressSpring({
   style,
@@ -67,6 +69,7 @@ export function PressSpring({
   restOpacity = 1,
   answeredBy = 'spring',
   byGesture = false,
+  pressScale = PRESS.scale,
   onPressIn,
   onPressOut,
   onPress,
@@ -76,16 +79,8 @@ export function PressSpring({
   const { mayMove, haptics } = useFeel();
   // 0 at rest, 1 fully down.
   const down = useSharedValue(0);
-  // 0 as the finger lifts, 1 back at rest; `from` is how far down the press was at that moment.
-  const up = useSharedValue(1);
-  const from = useSharedValue(0);
 
   const pressed = useAnimatedStyle(() => {
-    const sunk = 1 - (1 - PRESS.downScale) * from.value;
-    const scale =
-      up.value < 1
-        ? interpolate(up.value, [0, PRESS.overshootAt, 1], [sunk, PRESS.overshootScale, 1])
-        : 1 - (1 - PRESS.downScale) * down.value;
     if (answeredBy === 'glass') return { opacity: restOpacity, transform: [{ scale: 1 }] };
     if (!mayMove) {
       return {
@@ -93,23 +88,22 @@ export function PressSpring({
         transform: [{ scale: 1 }],
       };
     }
-    return { opacity: restOpacity, transform: [{ scale }] };
-  }, [mayMove, restOpacity, answeredBy]);
+    return { opacity: restOpacity, transform: [{ scale: 1 - (1 - pressScale) * down.value }] };
+  }, [mayMove, restOpacity, answeredBy, pressScale]);
 
-  const pressIn = (event: GestureResponderEvent) => {
-    up.value = 1;
-    down.value = withTiming(1, { duration: PRESS.downMs, easing: EASE_OUT, reduceMotion: ALWAYS });
-    onPressIn?.(event);
-  };
-  const pressOut = (event: GestureResponderEvent) => {
-    from.value = down.value;
-    down.value = 0;
-    up.value = 0;
-    up.value = withTiming(1, {
-      duration: mayMove ? PRESS.upMs : PRESS.downMs,
+  const to = (value: 0 | 1) => {
+    down.value = withTiming(value, {
+      duration: PRESS.ms,
       easing: SPRING_CURVE,
       reduceMotion: ALWAYS,
     });
+  };
+  const pressIn = (event: GestureResponderEvent) => {
+    to(1);
+    onPressIn?.(event);
+  };
+  const pressOut = (event: GestureResponderEvent) => {
+    to(0);
     onPressOut?.(event);
   };
   const press = (event: GestureResponderEvent) => {

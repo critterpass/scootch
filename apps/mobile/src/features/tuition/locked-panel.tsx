@@ -1,9 +1,10 @@
 import { useRouter, type Href } from 'expo-router';
-import { Pressable, StyleSheet, View, type ViewProps } from 'react-native';
+import { StyleSheet, View, type ViewProps } from 'react-native';
 
 import { fonts } from '@phusclass/tokens';
 
 import { useT } from '../../i18n/i18n-provider';
+import { PressSpring } from '../../ui/motion/press-spring';
 
 import { Mark } from './marks';
 import { paper, Sized } from './receipt-parts';
@@ -35,16 +36,16 @@ export function LockedPanel({
       <Sized size={14} style={styles.body}>
         {t('locked.body')}
       </Sized>
-      <Pressable
+      <PressSpring
         testID={`${testID}-receipt`}
         accessibilityRole="button"
         onPress={() => router.push(TUITION)}
-        style={({ pressed }) => [styles.button, pressed ? styles.pressed : null]}
+        style={styles.button}
       >
         <Sized size={14.5} style={styles.buttonText}>
           {t('locked.see')}
         </Sized>
-      </Pressable>
+      </PressSpring>
     </View>
   );
 }
@@ -79,5 +80,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   buttonText: { color: paper.white, fontWeight: '700', textAlign: 'center' },
-  pressed: { transform: [{ scale: 0.97 }] },
 });
