@@ -34,7 +34,8 @@ that stay as they are.
 3. **Starting is the win**, rewarded the instant it happens.
 4. **No streaks, points, leaderboards or comparison.** He never takes
    attendance: days the app was not opened are never counted or mentioned.
-5. **Hearing a task and starting it never depend on a server.**
+5. **Starting a task never depends on a server, and typing always works offline.** Hearing
+   streams to ElevenLabs Scribe (the founder's decision, 27 October 2026), so it needs a connection.
 6. **The act stops for heavy things.** See section 6.
 7. **Paid things never interrupt.** See section 7.
 8. **Phu's Class is a support tool.** It never claims to diagnose, treat or
@@ -206,8 +207,8 @@ every wide shot and never loses a mark. This replaces cards and worlds.
   down."). How screening works without a connection is open (section 13).
 - **Pressure stops for care.** A serious or crisis task never carries a fuse,
   tally marks, rising pressure, a thrown chalk or a late slip.
-- **Privacy.** What is said is never used to train models. Audio never leaves
-  the phone and is never kept. Calendar events are read on the phone only and
+- **Privacy.** What is said is never used to train models. Audio goes from the
+  phone straight to ElevenLabs while the user holds to talk and is never kept by us. Calendar events are read on the phone only and
   never leave it. Export and delete-everything are in the app.
 - **Accessibility.** Largest text sizes, VoiceOver, Reduce Motion (the camera
   cuts instead of moving; nothing flies), Increase Contrast, and every gesture
@@ -283,7 +284,8 @@ Saying a task is the front door and must work every time.
 
 - Words appear on screen while the user is still speaking, and the user
   always sees their own words before anything is picked from them.
-- Hearing works with no connection. Typing is always there.
+- Hearing streams to ElevenLabs Scribe and detects English or Vietnamese whatever the app's
+  language. It needs a connection; typing is always there and works offline.
 - His reaction arrives after the words and never blocks them. If it is slow,
   the task is written on the board plainly and the line follows.
 - A long ramble is never lost: if picking fails, every sentence lands on the
@@ -291,8 +293,9 @@ Saying a task is the front door and must work every time.
 - A tap that is too short to be speech gets one line ("Hold it, then talk.")
   and nothing else.
 
-The direction is speech recognition and task parsing on the phone, with the
-server only for richer online lines. The decision and its measurements belong
+Speech is turned into text by ElevenLabs Scribe v2 Realtime, streamed from the phone with a
+one-time token from our server; task parsing stays on the phone where it can, with the server for
+richer online lines. The decision and its measurements belong
 in `docs/tech-decisions.md`.
 
 ## 10. First day

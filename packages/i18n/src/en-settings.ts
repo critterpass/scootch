@@ -55,7 +55,7 @@ export const enSettings = {
   'settings.delete.confirm': 'Delete',
   'settings.cancel': 'Cancel',
   'settings.privacy.foot':
-    'What you tell him is never used to train anything. Audio never leaves your phone.',
+    'What you tell him is never used to train anything. Your voice goes to ElevenLabs to become text, and is never kept by us.',
   'settings.privacy': 'Privacy',
   'settings.terms': 'Terms',
   'settings.opensInBrowser': 'Opens in the browser',

@@ -9,7 +9,7 @@ export const legalVi = {
   privacy: {
     title: 'Quyền riêng tư · Lớp Thầy Phú',
     description:
-      'Lớp Thầy Phú giữ gì, gửi đi đâu, giữ bao lâu. Giọng nói không bao giờ rời điện thoại. Không quảng cáo, không theo dõi, không bán dữ liệu.',
+      'Lớp Thầy Phú giữ gì, gửi đi đâu, giữ bao lâu. Giọng nói được chuyển thành chữ và chúng tôi không giữ lại. Không quảng cáo, không theo dõi, không bán dữ liệu.',
     headline: 'Quyền riêng tư, nói thẳng.',
     lede: 'Lớp Thầy Phú giữ càng ít càng tốt, và phần lớn nằm trên điện thoại của bạn. Không tài khoản, không quảng cáo, không theo dõi, không bán gì cả. Những gì bạn nói không bao giờ được dùng để huấn luyện mô hình AI.',
     updated: 'Cập nhật ngày 27 tháng 10 năm 2026.',
@@ -18,8 +18,8 @@ export const legalVi = {
     rows: [
       [
         'Giọng nói',
-        'Được nhận dạng giọng nói của Apple chuyển thành chữ ngay trên điện thoại. Âm thanh không rời máy',
-        'Không giữ lại',
+        'Khi bạn giữ nút để nói, âm thanh được gửi tới ElevenLabs (Scribe) để chuyển thành chữ. Chúng tôi không giữ lại',
+        'Chúng tôi không giữ. ElevenLabs giữ theo chính sách của họ',
       ],
       ['Việc, tấm bảng và sổ đầu bài', 'Điện thoại của bạn', 'Tới khi bạn xoá'],
       [
@@ -60,7 +60,7 @@ export const legalVi = {
       {
         title: 'Khi bạn nói',
         body: [
-          'Khi bạn giữ nút để nói, tính năng nhận dạng giọng nói của Apple chuyển lời bạn thành chữ ngay trên điện thoại, ở chế độ chỉ chạy trên máy. Âm thanh không bao giờ rời điện thoại và không bao giờ được giữ lại, kể cả bởi chúng tôi hay bởi app. Bạn luôn có thể gõ thay vì nói.',
+          'Khi bạn giữ nút để nói, âm thanh được gửi từ điện thoại tới ElevenLabs (Scribe), một dịch vụ chuyển giọng nói thành chữ, và chữ được gửi về ngay khi bạn nói, bằng tiếng nào bạn nói cũng được. Âm thanh đi thẳng từ điện thoại tới ElevenLabs; máy chủ của chúng tôi chỉ cấp cho điện thoại một khoá dùng một lần. Chúng tôi không nhận và không giữ âm thanh, app cũng vậy. ElevenLabs xử lý theo chính sách riêng của họ (elevenlabs.io/privacy). Nghe cần có mạng. Bạn luôn có thể gõ thay vì nói.',
         ],
       },
       {
@@ -215,7 +215,7 @@ export const legalVi = {
       {
         title: 'Dịch vụ',
         body: [
-          'Nghe việc và chạy tiết học hoạt động trên điện thoại, không cần mạng. Các phần cần mạng, như câu mới và sao lưu, đôi lúc có thể không dùng được hoặc thay đổi. Chúng tôi có thể cập nhật hay ngừng một tính năng, và sẽ nói rõ với bạn.',
+          'Gõ việc và chạy tiết học hoạt động trên điện thoại, không cần mạng; nghe bạn nói thì cần mạng. Các phần cần mạng, như câu mới và sao lưu, đôi lúc có thể không dùng được hoặc thay đổi. Chúng tôi có thể cập nhật hay ngừng một tính năng, và sẽ nói rõ với bạn.',
         ],
       },
       {
