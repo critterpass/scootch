@@ -1,4 +1,4 @@
-# Deploys one release to production: the API (database migrations first) and phusclass.com.
+# Deploys one release to production: the API (database migrations first) and todo.phusclass.com.
 # A release is a `v*` tag on a commit that is already on main, so it has passed `ci passed` as a
 # pull request and has been running on dev. Nothing else reaches production.
 #   git tag v1.0.0 <commit on main> && git push origin v1.0.0

@@ -9,7 +9,7 @@ export const legalEn = {
       'What Phu’s Class keeps, where it goes and for how long. Your voice is turned into text and never kept by us. No ads, no tracking, nothing sold.',
     headline: 'Privacy, plainly.',
     lede: 'Phu’s Class keeps as little as it can, mostly on your phone. There are no accounts, no ads and no tracking, and nothing is sold. What you say is never used to train models.',
-    updated: 'Last updated 28 October 2026.',
+    updated: 'Last updated 30 October 2026.',
     tableTitle: 'At a glance',
     columns: ['What', 'Where it goes', 'How long'],
     rows: [
@@ -136,7 +136,7 @@ export const legalEn = {
       {
         title: 'This website',
         body: [
-          'phusclass.com sets no cookies and runs no analytics. The chalkboard on the home page works entirely in your browser: nothing you type there is sent anywhere. Our host, Cloudflare, handles requests to serve the pages.',
+          'todo.phusclass.com sets no cookies and runs no analytics. The chalkboard on the home page works entirely in your browser: nothing you type there is sent anywhere. Our host, Cloudflare, handles requests to serve the pages.',
         ],
       },
       {

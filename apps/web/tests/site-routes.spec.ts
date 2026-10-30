@@ -48,12 +48,12 @@ test('the association file is JSON at Apple’s address, with no redirect, for b
 
 test('the site describes itself to robots and to security researchers', async ({ request }) => {
   const robots = await request.get(`${workerUrl}/robots.txt`);
-  expect(await robots.text()).toContain('Sitemap: https://phusclass.com/sitemap.xml');
+  expect(await robots.text()).toContain('Sitemap: https://todo.phusclass.com/sitemap.xml');
   const security = await request.get(`${workerUrl}/.well-known/security.txt`);
   expect(security.status()).toBe(200);
   expect(await security.text()).toMatch(/^Contact: mailto:/m);
   const sitemap = await (await request.get(`${workerUrl}/sitemap.xml`)).text();
   for (const path of ['/', '/vi/', '/tuition', '/vi/helplines']) {
-    expect(sitemap).toContain(`<loc>https://phusclass.com${path}</loc>`);
+    expect(sitemap).toContain(`<loc>https://todo.phusclass.com${path}</loc>`);
   }
 });

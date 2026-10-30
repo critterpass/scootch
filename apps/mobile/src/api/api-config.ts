@@ -27,7 +27,7 @@ const DEV_SITE_URL = 'https://phusclass-web-dev.bkdev98.workers.dev';
 const SITE_URLS: Readonly<Record<string, string>> = {
   dev: DEV_SITE_URL,
   'e2e-test': DEV_SITE_URL,
-  prd: 'https://phusclass.com',
+  prd: 'https://todo.phusclass.com',
 };
 
 /** The website for a variant name from the app config. An unknown variant shares to dev. */

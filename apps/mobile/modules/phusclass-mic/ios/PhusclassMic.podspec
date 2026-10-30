@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
   s.description    = package['description']
   s.license        = 'UNLICENSED'
   s.author         = "Phu's Class"
-  s.homepage       = 'https://phusclass.com'
+  s.homepage       = 'https://todo.phusclass.com'
   # AVAudioApplication's record permission is iOS 17, the app's own minimum.
   s.platforms      = { ios: '17.0' }
   s.swift_version  = '5.9'

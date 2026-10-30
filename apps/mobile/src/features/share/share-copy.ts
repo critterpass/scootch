@@ -8,7 +8,7 @@ export const TAPE_START = '';
 export const TAPE_END = '';
 
 /** The site printed on every card. */
-export const SITE = 'phusclass.com';
+export const SITE = 'todo.phusclass.com';
 
 /** Every word on the four cards, in one language. His words come from the voice pack. */
 export type CardCopy = {

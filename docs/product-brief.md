@@ -19,7 +19,8 @@ respond to guilt. Phu's Class gives them urgency about the task and none about
 themselves, and a classroom that is never quite the same twice.
 
 Name: **Phu's Class** in English, **Lớp Thầy Phú** in Vietnamese. Home on the
-web: phusclass.com. Languages at launch: English and Vietnamese, for the app,
+web: todo.phusclass.com (phusclass.com until 30 Oct 2026, when it passed to the
+English-learning app Phu's Class; this app is parked as Phu's To-Do). Languages at launch: English and Vietnamese, for the app,
 his voice, the website and the store listing. The app shows one language at a
 time, never two side by side; names and the drum's "Tùng!" are the only words
 that stay as they are.
@@ -360,5 +361,5 @@ offered for sharing and a crisis day shares nothing.
 | Screening without a connection | "No joke before the screen" currently needs the server. Can an on-device model screen well enough, or do offline tasks stay plain until online? |
 | Tuition prices | Decided: $39.99 a year and $6.99 a month, 499.000đ and 79.000đ in Vietnam, each with a free week |
 | Rebuild or cut down | A fresh app shell on the existing voice, care, sound and tokens packages, or the Scootch app stripped back |
-| Store name and domains | The App Store records exist as "Phu's Class"; phusclass.com is registered. A trademark check is still open |
+| Store name and domains | 30 Oct 2026: the App Store records are "Phu's To-Do: Strict Teacher" (en), "Phu's To-Do: Việc Cần Làm" (vi) and "Phu's To-Do Dev", and the site is todo.phusclass.com, because phusclass.com now belongs to the English-learning app. The brand is rethought when the app is picked up again. A trademark check is still open |
 | Vietnamese helplines | Verified numbers before launch |

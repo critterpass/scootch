@@ -30,7 +30,7 @@ import { useSettingsActions } from './use-settings-actions';
 
 /** Language names are written in their own language, whatever the app is in. */
 const LANGUAGE_NAMES: Readonly<Record<Language, string>> = { en: 'English', vi: 'Tiếng Việt' };
-const SITE = 'https://phusclass.com';
+const SITE = 'https://todo.phusclass.com';
 /** The board's version line, quieter than the muted grey. */
 const VERSION_INK = '#B0A69B';
 

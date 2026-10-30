@@ -21,7 +21,7 @@ interface VariantConfig {
 const EAS_PROJECT_ID = '9fa12e59-52d4-4bbe-a34d-90e2ed174bf1';
 const APPLE_TEAM_ID = 'YFND2EEW8S';
 /** Universal links and shared web credentials. */
-const LINK_HOST = 'phusclass.com';
+const LINK_HOST = 'todo.phusclass.com';
 /**
  * The oldest iOS the app and its extensions install on. Every target reads this one value
  * (targets/<name>/expo-target.config.js take it from `ios.deploymentTarget`). iOS 17 is the oldest:
