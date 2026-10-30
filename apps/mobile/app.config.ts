@@ -31,7 +31,7 @@ const LINK_HOST = 'todo.phusclass.com';
 const IOS_DEPLOYMENT_TARGET = '17.0';
 
 const DEV: VariantConfig = {
-  name: "Phu's Class Dev",
+  name: "Phu's To-Do Dev",
   bundleIdentifier: 'com.phusclass.dev',
   appGroup: 'group.com.phusclass.dev',
   scheme: 'phusclass-dev',
@@ -42,7 +42,7 @@ const VARIANTS: Record<AppVariant, VariantConfig> = {
   dev: DEV,
   'e2e-test': { ...DEV, updates: false },
   prd: {
-    name: "Phu's Class",
+    name: "Phu's To-Do",
     bundleIdentifier: 'com.phusclass',
     appGroup: 'group.com.phusclass',
     scheme: 'phusclass',

@@ -7,7 +7,7 @@
 module.exports = (config) => ({
   type: 'widget',
   name: 'PhusclassWidgets',
-  displayName: "Phu's Class",
+  displayName: "Phu's To-Do",
   bundleIdentifier: '.widgets',
   // One minimum iOS version for the app and every target: IOS_DEPLOYMENT_TARGET in app.config.ts.
   deploymentTarget: config.ios.deploymentTarget,

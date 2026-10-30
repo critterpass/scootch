@@ -81,7 +81,7 @@ capture_failure() {
     xcrun simctl io "$device" screenshot ${lit:+--display="$lit"} \
       "$out_dir/failures/$slug.png" >/dev/null 2>&1 || true
     xcrun simctl spawn "$device" log show --last 10m --style compact \
-      --predicate 'process BEGINSWITH "PhusClass" OR subsystem == "com.facebook.react.log"' \
+      --predicate 'process BEGINSWITH "PhusToDo" OR subsystem == "com.facebook.react.log"' \
       >"$out_dir/failures/$slug.log.txt" 2>/dev/null || true
     "$(dirname "$0")/device-ios-evidence.sh" crashes "$device" "${APP_ID:-com.phusclass.dev}" "$out_dir/evidence/$slug"
   fi

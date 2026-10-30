@@ -39,7 +39,7 @@ Testcontainers, accounts, a back-office web app, a staging environment.
 |---|---|---|
 | API | `phusclass-api-dev` at `api-dev.phusclass.com` | `phusclass-api` at `api.phusclass.com` |
 | D1 | `phusclass-dev` | `phusclass` |
-| App | The development and `e2e-test` builds, and TestFlight builds on the dev channel ("Phu's Class Dev") | The App Store build on the prd channel ("Phu's Class") |
+| App | The development and `e2e-test` builds, and TestFlight builds on the dev channel ("Phu's To-Do Dev") | The App Store build on the prd channel ("Phu's To-Do") |
 | Purchases | Apple sandbox | Real |
 | Website | `phusclass-web-dev` on workers.dev | `phusclass-web` at todo.phusclass.com |
 | Bot | Posts with a `[dev]` prefix | Posts plainly |
@@ -218,9 +218,11 @@ permission) with the local module `phusclass-mic`, which streams the
 microphone to ElevenLabs.
 
 The move to todo.phusclass.com (30 Oct 2026) changes the native fingerprint:
-the Associated Domains move to `todo.phusclass.com`. Builds made before it
-keep opening links on phusclass.com, which no longer serves this app's
-association file; the next native build carries the new host.
+the Associated Domains move to `todo.phusclass.com`, and the app's name on the
+Home Screen becomes "Phu's To-Do" ("Phu's To-Do Dev" for dev), so the
+executable is `PhusToDo` (`PhusToDoDev`). Builds made before it keep opening
+links on phusclass.com, which no longer serves this app's association file;
+the next native build carries the new host.
 
 A signed build can make or renew a provisioning profile by itself: the build
 step is given the App Store Connect key the submit step already uses.

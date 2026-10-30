@@ -9,7 +9,7 @@
 import { asc, editableVersion } from './asc.mjs';
 
 const notes = [
-  "Phu's Class has no sign-in and no account. Everything works on the device from the first launch.",
+  "Phu's To-Do has no sign-in and no account. Everything works on the device from the first launch.",
   '',
   'First launch: the first day walks through taking a seat, roll call (any name) and notes home (notifications, optional: "Not now" skips them). It ends on the desk.',
   '',
