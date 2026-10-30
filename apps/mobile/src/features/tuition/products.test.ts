@@ -20,7 +20,7 @@ describe('store product identifiers', () => {
   });
 
   it('links the terms and privacy pages in the language the receipt is read in', () => {
-    expect(legalLink('terms', 'en')).toBe('https://phusclass.com/terms');
-    expect(legalLink('privacy', 'vi')).toBe('https://phusclass.com/vi/privacy');
+    expect(legalLink('terms', 'en')).toBe('https://todo.phusclass.com/terms');
+    expect(legalLink('privacy', 'vi')).toBe('https://todo.phusclass.com/vi/privacy');
   });
 });

@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "phusclass.com: Astro on Cloudflare Workers",
+  "description": "todo.phusclass.com: Astro on Cloudflare Workers",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",

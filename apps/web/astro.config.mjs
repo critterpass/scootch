@@ -8,7 +8,7 @@ import { defineConfig } from 'astro/config';
 // bundled, from the CLOUDFLARE_ENV variable, and written into the output. `wrangler deploy` then
 // deploys that output as it is: it takes no `--env` flag.
 export default defineConfig({
-  site: 'https://phusclass.com',
+  site: 'https://todo.phusclass.com',
   output: 'static',
   adapter: cloudflare({ imageService: 'compile' }),
   // English at the root and Vietnamese under /vi/, chosen by the path alone.

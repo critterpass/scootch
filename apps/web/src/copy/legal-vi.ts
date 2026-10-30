@@ -12,7 +12,7 @@ export const legalVi = {
       'Lớp Thầy Phú giữ gì, gửi đi đâu, giữ bao lâu. Giọng nói được chuyển thành chữ và chúng tôi không giữ lại. Không quảng cáo, không theo dõi, không bán dữ liệu.',
     headline: 'Quyền riêng tư, nói thẳng.',
     lede: 'Lớp Thầy Phú giữ càng ít càng tốt, và phần lớn nằm trên điện thoại của bạn. Không tài khoản, không quảng cáo, không theo dõi, không bán gì cả. Những gì bạn nói không bao giờ được dùng để huấn luyện mô hình AI.',
-    updated: 'Cập nhật ngày 28 tháng 10 năm 2026.',
+    updated: 'Cập nhật ngày 30 tháng 10 năm 2026.',
     tableTitle: 'Tóm tắt',
     columns: ['Dữ liệu', 'Đi đâu', 'Giữ bao lâu'],
     rows: [
@@ -143,7 +143,7 @@ export const legalVi = {
       {
         title: 'Trang web này',
         body: [
-          'phusclass.com không đặt cookie và không chạy công cụ phân tích nào. Tấm bảng ở trang chủ chạy hoàn toàn trong trình duyệt: những gì bạn gõ ở đó không được gửi đi đâu. Cloudflare, nơi lưu trữ trang, xử lý các yêu cầu để hiển thị trang.',
+          'todo.phusclass.com không đặt cookie và không chạy công cụ phân tích nào. Tấm bảng ở trang chủ chạy hoàn toàn trong trình duyệt: những gì bạn gõ ở đó không được gửi đi đâu. Cloudflare, nơi lưu trữ trang, xử lý các yêu cầu để hiển thị trang.',
         ],
       },
       {

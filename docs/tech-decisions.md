@@ -17,7 +17,7 @@ Scootch; what Scootch decided and measured is in the history of this file.
 | Data on the server | D1 (SQLite) | The data is small and per device |
 | Images | Made on the phone | Share cards are drawn on the phone; nothing is stored for them on the server, so there is no R2 |
 | Realtime | None | Tables and shared monsters are gone, and with them the Durable Objects |
-| Website | Astro on Cloudflare Workers at phusclass.com | Same platform as the API |
+| Website | Astro on Cloudflare Workers at todo.phusclass.com | Same platform as the API. Moved from phusclass.com on 30 Oct 2026: that domain now belongs to the English-learning app Phu's Class |
 | Data on the phone | expo-sqlite, the source of truth | Local first; hearing a task and starting it never need the network |
 | Backup with no account | An anonymous token kept in both a synchronisable Keychain item and iCloud key-value storage; snapshots stored under it | Restores on a new phone without sign-up |
 | Accounts | None | Nothing at launch needs an identity; the server knows a device by its token |
@@ -39,9 +39,9 @@ Testcontainers, accounts, a back-office web app, a staging environment.
 |---|---|---|
 | API | `phusclass-api-dev` at `api-dev.phusclass.com` | `phusclass-api` at `api.phusclass.com` |
 | D1 | `phusclass-dev` | `phusclass` |
-| App | The development and `e2e-test` builds, and TestFlight builds on the dev channel ("Phu's Class Dev") | The App Store build on the prd channel ("Phu's Class") |
+| App | The development and `e2e-test` builds, and TestFlight builds on the dev channel ("Phu's To-Do Dev") | The App Store build on the prd channel ("Phu's To-Do") |
 | Purchases | Apple sandbox | Real |
-| Website | `phusclass-web-dev` on workers.dev | `phusclass-web` at phusclass.com and www.phusclass.com |
+| Website | `phusclass-web-dev` on workers.dev | `phusclass-web` at todo.phusclass.com |
 | Bot | Posts with a `[dev]` prefix | Posts plainly |
 | Deploys | Every merge to main | A tagged release, after the gates |
 
@@ -202,7 +202,7 @@ Declared in batch one (27 Oct 2026): iOS 17.0 as the oldest system; the App
 Group and the Keychain group; iCloud key-value storage; Push and Time
 Sensitive notifications and a notification service extension; Live
 Activities; Associated Domains (`applinks:` and `webcredentials:` on
-phusclass.com); In-App Purchase; the microphone; read access to the calendars (`expo-calendar`); adding to Photos
+phusclass.com; on todo.phusclass.com from 30 Oct 2026); In-App Purchase; the microphone; read access to the calendars (`expo-calendar`); adding to Photos
 (saving a shared card); one widget target holding the widget and Live Activity
 shells; and the local modules `phusclass-live-activity`,
 `phusclass-notifications` and `app-icon`.
@@ -216,6 +216,13 @@ Shortcuts). The voice batch (27 Oct 2026) replaces on-device speech
 recognition (`expo-speech-recognition`, and with it the speech recognition
 permission) with the local module `phusclass-mic`, which streams the
 microphone to ElevenLabs.
+
+The move to todo.phusclass.com (30 Oct 2026) changes the native fingerprint:
+the Associated Domains move to `todo.phusclass.com`, and the app's name on the
+Home Screen becomes "Phu's To-Do" ("Phu's To-Do Dev" for dev), so the
+executable is `PhusToDo` (`PhusToDoDev`). Builds made before it keep opening
+links on phusclass.com, which no longer serves this app's association file;
+the next native build carries the new host.
 
 A signed build can make or renew a provisioning profile by itself: the build
 step is given the App Store Connect key the submit step already uses.

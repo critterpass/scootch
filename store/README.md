@@ -1,6 +1,6 @@
 # The App Store listing: screenshots and App Review details
 
-Scripts that put Phu's Class's screenshots and review details on the prd app in App Store Connect.
+Scripts that put Phu's To-Do's screenshots and review details on the prd app in App Store Connect.
 They talk to the App Store Connect API through `asc.mjs`, which reads
 `~/.config/phusclass/asc.env` (`ASC_KEY_ID`, `ASC_ISSUER_ID`, `ASC_KEY_PATH`, `ASC_APP_ID_PRD`,
 `ASC_APP_ID_DEV`) and prints none of it. Nothing here submits for review: that is the founder's
@@ -10,7 +10,7 @@ call.
 
 | Thing | Value |
 |---|---|
-| App | "Phu's Class", the id in `ASC_APP_ID_PRD` |
+| App | "Phu's To-Do: Strict Teacher" (en), "Phu's To-Do: Việc Cần Làm" (vi), the id in `ASC_APP_ID_PRD`; the dev app is "Phu's To-Do Dev". Renamed from "Phu's Class" on 30 Oct 2026 |
 | Version | 1.0, `a80939c7-3fae-43c0-99ac-e6dda78fb289`, prepare for submission |
 | Localizations | en-US `523aeac3-ce5a-4b52-93c9-7828a9c1427d`, vi `4945ba9f-0db0-41c1-841a-d23a3198e313` |
 | Screenshot sets | `APP_IPHONE_67` (6.9", 1320 × 2868) and `APP_IPHONE_61` (6.3", 1206 × 2622), six frames each |

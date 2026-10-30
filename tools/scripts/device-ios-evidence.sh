@@ -105,7 +105,7 @@ crashes() {
     done
   ls -la "$HOME/Library/Logs/DiagnosticReports" >"$out/crash-reports/listing.txt" 2>&1 || true
   xcrun simctl spawn "$udid" log show --last 15m --style compact \
-    --predicate "process IN {\"PhusClassDev\",\"SpringBoard\",\"runningboardd\",\"installd\",\"containermanagerd\",\"amfid\",\"launchd_sim\",\"dyld\"} AND (eventMessage CONTAINS \"phusclass\" OR eventMessage CONTAINS \"Phusclass\" OR eventMessage CONTAINS \"$id\" OR process == \"PhusClassDev\")" \
+    --predicate "process IN {\"PhusToDoDev\",\"SpringBoard\",\"runningboardd\",\"installd\",\"containermanagerd\",\"amfid\",\"launchd_sim\",\"dyld\"} AND (eventMessage CONTAINS \"phusclass\" OR eventMessage CONTAINS \"Phusclass\" OR eventMessage CONTAINS \"$id\" OR process == \"PhusToDoDev\")" \
     2>&1 | tail -c 400000 >"$out/system-log-app.txt" || true
   xcrun simctl spawn "$udid" log show --last 15m --style compact \
     --predicate 'eventMessage CONTAINS[c] "phusclass" AND (eventMessage CONTAINS[c] "crash" OR eventMessage CONTAINS[c] "terminat" OR eventMessage CONTAINS[c] "denied" OR eventMessage CONTAINS[c] "entitlement" OR eventMessage CONTAINS[c] "signature" OR eventMessage CONTAINS[c] "exited" OR eventMessage CONTAINS[c] "fail")' \

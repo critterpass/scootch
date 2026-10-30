@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
   s.description    = package['description']
   s.license        = 'UNLICENSED'
   s.author         = "Phu's Class"
-  s.homepage       = 'https://phusclass.com'
+  s.homepage       = 'https://todo.phusclass.com'
   # The lowest system this code compiles for, not the app's minimum version: that is
   # IOS_DEPLOYMENT_TARGET in app.config.ts and may be higher.
   s.platforms      = { ios: '16.4' }

@@ -29,7 +29,9 @@ export const PRESELECTED_PLAN: PlanId = 'yearly';
 
 /** The pages the receipt always links to, in the language the receipt is read in. */
 export function legalLink(page: 'terms' | 'privacy', language: 'en' | 'vi'): string {
-  return language === 'vi' ? `https://phusclass.com/vi/${page}` : `https://phusclass.com/${page}`;
+  return language === 'vi'
+    ? `https://todo.phusclass.com/vi/${page}`
+    : `https://todo.phusclass.com/${page}`;
 }
 
 /** RevenueCat's packages in the `default` offering, by plan. */

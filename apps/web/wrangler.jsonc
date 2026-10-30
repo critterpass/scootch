@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   // Two environments only: `dev` (Worker `phusclass-web-dev`, on workers.dev only) and `prd`
-  // (Worker `phusclass-web`, phusclass.com). The environment is chosen when the site is bundled,
+  // (Worker `phusclass-web`, todo.phusclass.com). The environment is chosen when the site is bundled,
   // with CLOUDFLARE_ENV=dev or CLOUDFLARE_ENV=prd; `wrangler deploy` then takes no `--env`.
   "name": "phusclass-web",
   "main": "@astrojs/cloudflare/entrypoints/server",
@@ -18,8 +18,8 @@
     "prd": {
       "name": "phusclass-web",
       "routes": [
-        { "pattern": "phusclass.com", "zone_name": "phusclass.com", "custom_domain": true },
-        { "pattern": "www.phusclass.com", "zone_name": "phusclass.com", "custom_domain": true },
+        // The bare domain and www belong to the English app now (30 Oct 2026).
+        { "pattern": "todo.phusclass.com", "zone_name": "phusclass.com", "custom_domain": true },
       ],
     },
   },
